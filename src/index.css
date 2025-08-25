@@ -1,0 +1,24 @@
+html {
+  /* Forzar scrollbar siempre visible para evitar cambios de layout */
+  overflow-y: scroll;
+  /* Reservar espacio solo del lado del scrollbar (derecha en LTR) */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  /* Fuente base del sitio: Montserrat */
+  font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000;
+  color: white;
+  /* Prevenir cambios horizontales de layout */
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
