@@ -568,6 +568,52 @@ const Avales = () => {
               garantizando la validez nacional e internacional de nuestros certificados
             </p>
             
+            {/* ¿Por Qué Elegirnos? - bloque compacto */}
+            <div
+              style={{
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.06))',
+                border: '1px solid rgba(251, 191, 36, 0.25)',
+                borderRadius: '20px',
+                padding: '20px',
+                margin: '16px auto 24px',
+                maxWidth: '900px',
+                backdropFilter: 'blur(12px)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <Award size={18} color="#000" />
+                </div>
+                <h3 style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '1.2rem' }}>¿Por Qué Elegirnos?</h3>
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '10px'
+                }}
+              >
+                {[
+                  'Certificación oficial del Ministerio del Trabajo',
+                  'Aval educativo de SENESCYT',
+                  '98% de empleabilidad de nuestras egresadas',
+                  'Instalaciones con tecnología de vanguardia',
+                  'Profesores con experiencia internacional',
+                  'Bolsa de trabajo exclusiva para estudiantes'
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+                    <CheckCircle size={16} color="#10b981" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div
               style={{
                 display: 'inline-flex',

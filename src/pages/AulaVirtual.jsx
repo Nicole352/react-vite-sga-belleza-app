@@ -2,6 +2,8 @@ import {
   useState, 
   useEffect 
 } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { 
   Eye, 
   EyeOff, 
@@ -29,6 +31,9 @@ const AulaVirtual = () => {
 
   useEffect(() => {
     setIsVisible(true);
+    AOS.init({ duration: 1000, once: true, easing: 'ease-out-back' });
+    // En caso de contenido dinámico
+    setTimeout(() => AOS.refresh(), 0);
   }, []);
 
   const handleSubmit = (e) => {
@@ -71,55 +76,67 @@ const AulaVirtual = () => {
         paddingTop: 110,
         fontFamily: "'Cormorant Garamond', 'Playfair Display', 'Georgia', serif"
       }}>
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '32px',
-          padding: '60px',
-          textAlign: 'center',
-          maxWidth: '500px',
-          margin: '0 24px',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)'
-        }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px',
-            animation: 'pulse 2s infinite'
-          }}>
+        <div 
+          style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '32px',
+            padding: '60px',
+            textAlign: 'center',
+            maxWidth: '500px',
+            margin: '0 24px',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)'
+          }}
+          data-aos="fade-up"
+          data-aos-delay="60"
+        >
+          <div 
+            style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 24px',
+              animation: 'pulse 2s infinite'
+            }}
+          >
             <CheckCircle size={40} color="#fff" />
           </div>
-          <h2 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#1a1a1a',
-            marginBottom: '16px',
-            fontFamily: "'Cormorant Garamond', serif"
-          }}>
+          <h2 
+            style={{
+              fontSize: '2.5rem',
+              fontWeight: '800',
+              color: '#1a1a1a',
+              marginBottom: '16px',
+              fontFamily: "'Cormorant Garamond', serif"
+            }}
+          >
             ¡Bienvenida!
           </h2>
-          <p style={{
-            color: '#666',
-            fontSize: '1.2rem',
-            marginBottom: '32px',
-            lineHeight: 1.6,
-            fontFamily: "'Crimson Text', serif"
-          }}>
+          <p 
+            style={{
+              color: '#666',
+              fontSize: '1.2rem',
+              marginBottom: '32px',
+              lineHeight: 1.6,
+              fontFamily: "'Crimson Text', serif"
+            }}
+          >
             Has ingresado exitosamente al Aula Virtual. 
             Redirigiendo al panel de estudiante...
           </p>
-          <div style={{
-            background: 'rgba(251, 191, 36, 0.1)',
-            padding: '20px',
-            borderRadius: '16px',
-            marginBottom: '24px'
-          }}>
+          <div 
+            style={{
+              background: 'rgba(251, 191, 36, 0.1)',
+              padding: '20px',
+              borderRadius: '16px',
+              marginBottom: '24px'
+            }}
+          >
             <p style={{
               color: '#b45309',
               fontWeight: '600',
@@ -734,6 +751,8 @@ const AulaVirtual = () => {
             {/* Sección de imagen (izquierda) */}
             <div 
               className="image-section"
+              data-aos="zoom-in"
+              data-aos-offset="140"
               style={{
                 transform: isVisible ? 'translateX(0)' : 'translateX(-50px)',
                 opacity: isVisible ? 1 : 0,
@@ -751,6 +770,9 @@ const AulaVirtual = () => {
             {/* Sección de login (derecha) */}
             <div 
               className="login-section"
+              data-aos="zoom-in-up"
+              data-aos-delay="120"
+              data-aos-offset="140"
               style={{
                 transform: isVisible ? 'translateX(0)' : 'translateX(50px)',
                 opacity: isVisible ? 1 : 0,
@@ -779,7 +801,12 @@ const AulaVirtual = () => {
               </div>
 
               {/* Formulario de Login */}
-              <form onSubmit={handleSubmit} className="login-form">
+              <form 
+                onSubmit={handleSubmit} 
+                className="login-form" 
+                data-aos="fade-up" 
+                data-aos-delay="200"
+              >
                 {/* Columna izquierda: Características */}
                 <div className="login-form-section">
                   <h3 className="features-title">¿Por qué elegir nuestro Aula Virtual?</h3>

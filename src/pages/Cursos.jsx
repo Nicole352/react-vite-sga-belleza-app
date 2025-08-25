@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Sparkles, 
@@ -14,6 +14,8 @@ import {
   Calendar
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const cursosData = [
   {
@@ -105,37 +107,66 @@ const Cursos = () => {
     setIsVisible(true);
   }, []);
 
+  useEffect(() => {
+    AOS.init({
+      duration: 900,
+      once: true,
+      easing: 'ease-out-quart'
+    });
+  }, []);
+
+  const particles = useMemo(() => (
+    Array.from({ length: 16 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      width: `${Math.random() * 4 + 2}px`,
+      height: `${Math.random() * 4 + 2}px`,
+      delay: `${Math.random() * 6}s`,
+      duration: `${Math.random() * 3 + 4}s`
+    }))
+  ), []);
+
   const AnimatedCard = ({ curso, index }) => {
     const isHovered = hoveredCard === curso.id;
 
     return (
       <div
+        data-aos="zoom-in-up"
+        data-aos-delay={index * 140}
+        data-aos-duration="1100"
+        data-aos-offset="140"
+        data-aos-anchor-placement="top-bottom"
+        data-aos-easing="ease-out-back"
         style={{
           transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.9)',
           opacity: isVisible ? 1 : 0,
-          transition: `all 0.6s cubic-bezier(0.4, 0, 0.2, 1)`,
+          transition: `opacity 600ms ease, transform 600ms ease`,
           transitionDelay: `${index * 150}ms`
         }}
         onMouseEnter={() => setHoveredCard(curso.id)}
         onMouseLeave={() => setHoveredCard(null)}
       >
         <div
+          className="curso-card"
           style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: '#0b0b0b',
             borderRadius: '24px',
-            boxShadow: isHovered 
-              ? `0 25px 50px rgba(251, 191, 36, 0.3), 0 0 0 1px ${curso.color}20`
-              : '0 15px 35px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+            boxShadow: isHovered
+              ? `0 18px 36px rgba(0,0,0,0.35), 0 0 0 1px ${curso.color}22, 0 6px 24px rgba(251,191,36,0.12)`
+              : '0 12px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
+            transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+            transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
             position: 'relative',
-            height: '100%',
-            backdropFilter: 'blur(20px)'
+            height: '460px',
+            border: '1px solid #222',
+            willChange: 'transform, box-shadow'
           }}
         >
+          {/* Reflejo tipo shimmer (como en Inicio) */}
+          <span className="shimmer-overlay" aria-hidden="true" />
           {/* Badge de categoría */}
           <div
             style={{
@@ -143,156 +174,195 @@ const Cursos = () => {
               top: 20,
               right: 20,
               background: curso.color,
-              color: '#fff',
+              color: '#0b0b0b',
               padding: '6px 12px',
               borderRadius: '20px',
               fontSize: '0.8rem',
               fontWeight: '600',
-              zIndex: 2,
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+              zIndex: 3,
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
             }}
           >
             {curso.categoria}
           </div>
 
-          {/* Imagen con overlay */}
-          <div style={{ position: 'relative', overflow: 'hidden' }}>
-            <img 
-              src={curso.imagen} 
-              alt={curso.titulo} 
+          {/* Thumbnail estilo news card */}
+          <div style={{ position: 'relative', height: '280px', background: '#000', overflow: 'hidden' }}>
+            <img
+              src={curso.imagen}
+              alt={curso.titulo}
               style={{
+                display: 'block',
                 width: '100%',
-                height: '220px',
+                height: '100%',
                 objectFit: 'cover',
-                transition: 'transform 0.4s ease',
-                transform: isHovered ? 'scale(1.1)' : 'scale(1)'
+                transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+                transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+                willChange: 'transform'
               }}
             />
+
+            {/* Desvanecido inferior para integrar imagen con el panel (glass) */}
             <div
               style={{
                 position: 'absolute',
-                bottom: 0,
                 left: 0,
                 right: 0,
-                height: '100px',
-                background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
-                display: 'flex',
-                alignItems: 'flex-end',
-                padding: '20px'
+                bottom: 0,
+                height: '140px',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.65) 100%)',
+                opacity: isHovered ? 0.96 : 0.88,
+                transition: 'opacity 520ms ease',
+                pointerEvents: 'none'
               }}
-            >
-              <div
-                style={{
-                  background: curso.color,
-                  borderRadius: '50%',
-                  width: '50px',
-                  height: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  transform: isHovered ? 'rotate(360deg) scale(1.1)' : 'rotate(0deg) scale(1)',
-                  transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {curso.icon}
-              </div>
-            </div>
-          </div>
+            />
 
-          {/* Contenido de la tarjeta */}
-          <div style={{ padding: '28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <h3
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#1a1a1a',
-                marginBottom: '12px',
-                lineHeight: 1.2
-              }}
-            >
-              {curso.titulo}
-            </h3>
-
-            <p
-              style={{
-                fontSize: '1rem',
-                color: '#666',
-                marginBottom: '20px',
-                flex: 1,
-                lineHeight: 1.6
-              }}
-            >
-              {curso.descripcion}
-            </p>
-
-            {/* Métricas del curso */}
+            {/* Icono circular sobre la imagen */}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '24px',
-                padding: '16px',
-                background: 'rgba(251, 191, 36, 0.05)',
-                borderRadius: '16px',
-                border: '1px solid rgba(251, 191, 36, 0.1)'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={16} color="#666" />
-                <span style={{ fontSize: '0.9rem', color: '#666', fontWeight: '500' }}>
-                  {curso.duracion}
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Users size={16} color="#666" />
-                <span style={{ fontSize: '0.9rem', color: '#666', fontWeight: '500' }}>
-                  {curso.estudiantes}
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                <span style={{ fontSize: '0.9rem', color: '#666', fontWeight: '500' }}>
-                  {curso.rating}
-                </span>
-              </div>
-            </div>
-
-            {/* Botón de acción */}
-            <Link
-              to={curso.enlace}
-              style={{
-                background: isHovered 
-                  ? `linear-gradient(135deg, ${curso.color}, ${curso.color}dd)` 
-                  : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                color: '#fff',
-                fontWeight: '700',
-                border: 'none',
-                borderRadius: '50px',
-                padding: '16px 24px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                boxShadow: `0 8px 25px ${curso.color}30`,
+                position: 'absolute',
+                bottom: 18,
+                left: 18,
+                background: curso.color,
+                borderRadius: '999px',
+                width: '50px',
+                height: '50px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '10px',
-                textDecoration: 'none',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isHovered ? 'translateY(-2px)' : 'translateY(0)'
+                color: '#0b0b0b',
+                transform: isHovered ? 'translateY(-72px)' : 'translateY(0)',
+                opacity: isHovered ? 0 : 1,
+                transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 520ms ease',
+                boxShadow: '0 8px 18px rgba(0,0,0,0.25)'
               }}
             >
-              <Sparkles size={18} />
-              Ver Curso
-              <ChevronRight 
-                size={18} 
+              {curso.icon}
+            </div>
+          </div>
+
+          {/* Panel de contenido que se superpone hacia arriba sin cambiar el alto externo */}
+          <div
+            style={{
+              position: 'relative',
+              background: '#0b0b0b',
+              width: '100%',
+              padding: '22px 24px',
+              marginTop: isHovered ? -68 : -10,
+              transition: 'margin-top 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+              boxShadow: '0 -1px 0 rgba(0,0,0,0.28) inset',
+              willChange: 'margin-top'
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h3
                 style={{
-                  transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
-                  transition: 'transform 0.3s ease'
+                  fontSize: '1.4rem',
+                  fontWeight: 800,
+                  color: 'rgba(255,255,255,0.98)',
+                  margin: 0,
+                  paddingBottom: 6,
+                  lineHeight: 1.25
                 }}
-              />
-            </Link>
+              >
+                {curso.titulo}
+              </h3>
+
+              <h4
+                style={{
+                  margin: 0,
+                  paddingBottom: 8,
+                  color: '#fbbf24',
+                  fontSize: '1rem',
+                  fontWeight: 700
+                }}
+              >
+                {curso.categoria}
+              </h4>
+
+              <p
+                style={{
+                  fontSize: '0.98rem',
+                  color: 'rgba(255,255,255,0.78)',
+                  lineHeight: 1.6,
+                  margin: 0,
+                  overflow: 'hidden',
+                  maxHeight: isHovered ? 132 : 0,
+                  opacity: isHovered ? 1 : 0,
+                  transition: 'max-height 520ms cubic-bezier(0.37, 0.75, 0.61, 1.05), opacity 480ms ease'
+                }}
+              >
+                {curso.descripcion}
+              </p>
+
+              {/* Métricas del curso */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginTop: 14,
+                  padding: '12px 14px',
+                  background: '#151515',
+                  borderRadius: 14,
+                  border: '1px solid #222'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Clock size={16} color="rgba(255,255,255,0.75)" />
+                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                    {curso.duracion}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Users size={16} color="rgba(255,255,255,0.75)" />
+                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                    {curso.estudiantes}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Star size={16} fill="#fbbf24" color="#fbbf24" />
+                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                    {curso.rating}
+                  </span>
+                </div>
+              </div>
+
+              {/* Botón */}
+              <Link
+                to={curso.enlace}
+                style={{
+                  marginTop: 14,
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  color: '#0b0b0b',
+                  fontWeight: 800,
+                  border: 'none',
+                  borderRadius: 999,
+                  padding: '12px 18px',
+                  fontSize: '0.98rem',
+                  cursor: 'pointer',
+                  boxShadow: `0 10px 28px rgba(0,0,0,0.35)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  textDecoration: 'none',
+                  transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms ease',
+                  transform: isHovered ? 'translateY(-1px)' : 'translateY(0)'
+                }}
+              >
+                <Sparkles size={18} />
+                Ver Curso
+                <ChevronRight
+                  size={18}
+                  style={{
+                    transform: isHovered ? 'translateX(2px)' : 'translateX(0)',
+                    transition: 'transform 500ms ease'
+                  }}
+                />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -352,6 +422,33 @@ const Cursos = () => {
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
+          
+          /* Reflejo tipo Inicio para cards de cursos */
+          .shimmer-overlay {
+            position: absolute;
+            top: 0;
+            left: -130%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.14), rgba(255,255,255,0));
+            transform: skewX(-15deg);
+            animation: shimmer 7s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+          }
+          
+          .curso-card:hover .shimmer-overlay {
+            animation-duration: 2.8s;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+          }
+          
+          /* Responsive ajustes para Próximamente */
+          @media (max-width: 640px) {
+            .proximamente-card { padding: 16px 14px !important; }
+            .proximamente-title { font-size: 1.8rem !important; }
+            .proximamente-subtitle { font-size: 1.2rem !important; }
+            .proximamente-desc { font-size: 0.95rem !important; }
+          }
         `}
       </style>
 
@@ -361,23 +458,23 @@ const Cursos = () => {
           background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '110px',
+          paddingTop: '168px',
           paddingBottom: '0px'
         }}
       >
         {/* Partículas flotantes */}
         <div className="floating-particles">
-          {[...Array(20)].map((_, i) => (
+          {particles.map((p, i) => (
             <div
               key={i}
               className="particle"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                animationDelay: `${Math.random() * 6}s`,
-                animationDuration: `${Math.random() * 3 + 4}s`
+                left: p.left,
+                top: p.top,
+                width: p.width,
+                height: p.height,
+                animationDelay: p.delay,
+                animationDuration: p.duration
               }}
             />
           ))}
@@ -394,6 +491,7 @@ const Cursos = () => {
         >
           {/* Header de la página */}
           <div
+            data-aos="fade-up"
             style={{
               textAlign: 'center',
               marginBottom: '80px',
@@ -407,6 +505,7 @@ const Cursos = () => {
               style={{
                 fontSize: '4rem',
                 fontWeight: '800',
+                color: '#1a1a1a',
                 marginBottom: '24px',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
@@ -433,7 +532,7 @@ const Cursos = () => {
                 fontSize: '1.1rem',
                 color: 'rgba(255, 255, 255, 0.6)',
                 maxWidth: '600px',
-                margin: '0 auto',
+                margin: '0 auto 32px',
                 lineHeight: 1.6
               }}
             >
@@ -443,9 +542,10 @@ const Cursos = () => {
 
           {/* Grid de cursos */}
           <div
+            data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
               gap: '40px',
               marginBottom: '100px'
             }}
@@ -457,19 +557,23 @@ const Cursos = () => {
 
           {/* Sección de próximos cursos */}
           <div
+            className="proximamente-card"
             style={{
-              background: 'rgba(251, 191, 36, 0.1)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '32px',
-              padding: '60px 40px',
+              background: '#0d0d0d',
+              borderRadius: '24px',
+              padding: '20px 18px',
               textAlign: 'center',
-              border: '1px solid rgba(251, 191, 36, 0.3)',
+              border: '1px solid #222',
               position: 'relative',
               overflow: 'hidden',
               transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '800ms'
+              marginTop: '40px',
+              marginBottom: '64px',
+              maxWidth: '780px',
+              marginLeft: 'auto',
+              marginRight: 'auto'
             }}
           >
             {/* Efecto de brillo */}
@@ -481,8 +585,11 @@ const Cursos = () => {
                 width: '100%',
                 height: '100%',
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-                animation: isVisible ? 'shimmer 3s ease-in-out infinite' : 'none',
-                animationDelay: '2s'
+                animationName: isVisible ? 'shimmer' : 'none',
+                animationDuration: '7s',
+                animationTimingFunction: 'ease-in-out',
+                animationIterationCount: 'infinite',
+                animationDelay: '1.2s'
               }}
             />
 
@@ -491,24 +598,25 @@ const Cursos = () => {
                 style={{
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   borderRadius: '50%',
-                  width: '80px',
-                  height: '80px',
+                  width: '64px',
+                  height: '64px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 24px',
+                  margin: '0 auto 16px',
                   boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)'
                 }}
               >
-                <Calendar size={36} color="#000" />
+                <Calendar size={28} color="#000" />
               </div>
 
               <h2
+                className="proximamente-title"
                 style={{
-                  fontSize: '2.8rem',
+                  fontSize: '2.2rem',
                   fontWeight: '800',
                   color: '#fbbf24',
-                  marginBottom: '20px',
+                  marginBottom: '12px',
                   textShadow: '0 2px 10px rgba(251, 191, 36, 0.3)'
                 }}
               >
@@ -516,24 +624,25 @@ const Cursos = () => {
               </h2>
 
               <h3
+                className="proximamente-subtitle"
                 style={{
-                  fontSize: '2rem',
+                  fontSize: '1.4rem',
                   fontWeight: '700',
                   color: '#fff',
-                  marginBottom: '16px'
+                  marginBottom: '12px'
                 }}
               >
                 Peluquería: Cortes y Tintes
               </h3>
 
               <p
+                className="proximamente-desc"
                 style={{
-                  fontSize: '1.3rem',
+                  fontSize: '1rem',
                   color: 'rgba(255, 255, 255, 0.8)',
-                  marginBottom: '32px',
-                  maxWidth: '800px',
-                  margin: '0 auto 32px',
-                  lineHeight: 1.6
+                  maxWidth: '680px',
+                  margin: '0 auto 20px',
+                  lineHeight: 1.55
                 }}
               >
                 Domina las técnicas más innovadoras en cortes de cabello, colorimetría profesional y tendencias de la alta peluquería. 
@@ -543,10 +652,10 @@ const Cursos = () => {
               <div
                 style={{
                   display: 'flex',
-                  gap: '20px',
+                  gap: '12px',
                   justifyContent: 'center',
                   flexWrap: 'wrap',
-                  marginBottom: '24px'
+                  marginBottom: '16px'
                 }}
               >
                 <div
@@ -554,11 +663,11 @@ const Cursos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    padding: '12px 20px',
+                    padding: '10px 14px',
                     background: 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '25px',
                     color: '#fff',
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
                 >
@@ -570,11 +679,11 @@ const Cursos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    padding: '12px 20px',
+                    padding: '10px 14px',
                     background: 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '25px',
                     color: '#fff',
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
                 >
@@ -586,11 +695,11 @@ const Cursos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    padding: '12px 20px',
+                    padding: '10px 14px',
                     background: 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '25px',
                     color: '#fff',
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
                 >
@@ -606,9 +715,9 @@ const Cursos = () => {
                   color: '#000',
                   fontWeight: '700',
                   border: 'none',
-                  borderRadius: '50px',
-                  padding: '20px 40px',
-                  fontSize: '1.2rem',
+                  borderRadius: '40px',
+                  padding: '14px 28px',
+                  fontSize: '1rem',
                   cursor: 'pointer',
                   boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)',
                   display: 'inline-flex',
@@ -620,12 +729,12 @@ const Cursos = () => {
                   overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-3px) scale(1.05)';
-                  e.target.style.boxShadow = '0 16px 50px rgba(251, 191, 36, 0.5)';
+                  e.target.style.transform = 'translateY(-2px) scale(1.03)';
+                  e.target.style.boxShadow = '0 14px 40px rgba(251, 191, 36, 0.45)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.4)';
+                  e.target.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.4)';
                 }}
               >
                 <Calendar size={20} />
@@ -634,9 +743,9 @@ const Cursos = () => {
 
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255, 255, 255, 0.6)',
-                  marginTop: '16px',
+                  marginTop: '12px',
                   fontStyle: 'italic'
                 }}
               >
