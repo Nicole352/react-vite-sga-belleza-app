@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Heart, 
   Users, 
   Award, 
   Target,
   Eye,
-  Sparkles,
   Clock,
-  MapPin,
   Star,
   Calendar,
   Trophy,
   Lightbulb,
   UserCheck,
-  CheckCircle,
-  ChevronLeft,
-  ChevronRight
+  CheckCircle
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import SpotlightCard from '../components/cards/SpotlightCard';
+import LogoLoop from '../components/LogoLoop';
 
 const SobreNosotros = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -65,6 +65,7 @@ const SobreNosotros = () => {
 
   useEffect(() => {
     setIsVisible(true);
+    AOS.init({ duration: 900, once: true, easing: 'ease-out-quart' });
   }, []);
 
   // Auto-scroll del carrusel cada 4 segundos - IGUAL que en Inicio.js
@@ -74,14 +75,6 @@ const SobreNosotros = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, [carouselImages.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
-  };
 
   const valores = [
     {
@@ -165,12 +158,91 @@ const SobreNosotros = () => {
     { numero: '4', texto: 'Certificaciones Oficiales', icono: <Award size={24} /> }
   ];
 
+  const historiaNodes = useMemo(() => historia.map((hito) => ({
+    node: (
+      <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 420 }}>
+          <div style={{ width: 60, height: 60, background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}>
+            {hito.año}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f3f4f6', margin: 0, lineHeight: 1.3 }}>
+              {hito.evento}
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
+              {hito.descripcion}
+            </p>
+          </div>
+        </div>
+      </SpotlightCard>
+    ),
+    title: hito.evento,
+  })), []);
+
+  const sectionStyle = {
+    marginBottom: '80px'
+  };
+
+  const cardContentStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    padding: '20px',
+    textAlign: 'center'
+  };
+
+  const iconContainerStyle = (color, isHovered) => ({
+    width: '70px',
+    height: '70px',
+    background: `linear-gradient(135deg, ${color}, ${color}dd)`,
+    borderRadius: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    margin: '0 auto 16px',
+    boxShadow: `0 8px 25px ${color}40`,
+    transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+  });
+
+  const titleStyle = {
+    fontSize: '1.3rem',
+    fontWeight: '700',
+    color: '#f3f4f6',
+    marginBottom: '12px',
+    lineHeight: 1.2,
+    minHeight: '3rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const paragraphStyle = {
+    fontSize: '0.95rem',
+    color: '#cbd5e1',
+    lineHeight: 1.5,
+    margin: 0,
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const missionVisionGridStyle = {
+    display: 'grid',
+    gap: '30px',
+    margin: '20px 0 80px',
+    alignItems: 'stretch'
+  };
+
   const ValueCard = ({ valor, index }) => {
     const isHovered = hoveredCard === valor.id;
 
     return (
       <div
         style={{
+          height: '100%',
           transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.9)',
           opacity: isVisible ? 1 : 0,
           transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -178,65 +250,26 @@ const SobreNosotros = () => {
         }}
         onMouseEnter={() => setHoveredCard(valor.id)}
         onMouseLeave={() => setHoveredCard(null)}
+        data-aos="fade-up"
+        data-aos-delay={`${index * 100}`}
       >
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '24px',
-            padding: '32px',
-            boxShadow: isHovered 
-              ? `0 25px 50px ${valor.color}30, 0 0 0 1px ${valor.color}40`
-              : '0 15px 35px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
-            position: 'relative',
-            overflow: 'hidden',
-            backdropFilter: 'blur(20px)',
-            textAlign: 'center'
-          }}
+        <SpotlightCard 
+          spotlightColor={`${valor.color}40`}
+          className="custom-spotlight-card"
+          style={{ height: '100%' }}
         >
-          <div
-            style={{
-              width: '80px',
-              height: '80px',
-              background: `linear-gradient(135deg, ${valor.color}, ${valor.color}dd)`,
-              borderRadius: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              margin: '0 auto 24px',
-              boxShadow: `0 8px 25px ${valor.color}40`,
-              transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-          >
-            {valor.icono}
+          <div style={cardContentStyle}>
+            <div style={iconContainerStyle(valor.color, isHovered)}>
+              {valor.icono}
+            </div>
+            <h3 style={titleStyle}>
+              {valor.titulo}
+            </h3>
+            <p style={paragraphStyle}>
+              {valor.descripcion}
+            </p>
           </div>
-          
-          <h3
-            style={{
-              fontSize: '1.4rem',
-              fontWeight: '700',
-              color: '#1a1a1a',
-              marginBottom: '16px',
-              lineHeight: 1.2
-            }}
-          >
-            {valor.titulo}
-          </h3>
-          
-          <p
-            style={{
-              fontSize: '1rem',
-              color: '#666',
-              lineHeight: 1.6,
-              margin: 0
-            }}
-          >
-            {valor.descripcion}
-          </p>
-        </div>
+        </SpotlightCard>
       </div>
     );
   };
@@ -297,7 +330,7 @@ const SobreNosotros = () => {
 
           /* ESTILOS DEL CARRUSEL - EXACTAMENTE IGUALES QUE INICIO.JS */
           .carousel-section {
-            padding: 0px 0 5px 0; // Reducido aún más
+            padding: 0 0 24px 0; // Reducido para menor separación
             position: relative;
           }
 
@@ -308,7 +341,7 @@ const SobreNosotros = () => {
             margin-bottom: 15px; // Reducido de 20px
             text-align: center;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            font-family: 'Playfair Display', 'Georgia', serif;
+            font-family: 'Montserrat', sans-serif;
             letter-spacing: -0.01em;
           }
 
@@ -354,30 +387,28 @@ const SobreNosotros = () => {
             height: 100%;
             object-fit: cover;
             object-position: center;
-            filter: brightness(0.7) contrast(1.1);
-          }
-
-          .slide-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 2;
+            filter: brightness(0.9) contrast(1.05);
           }
 
           .slide-content {
             text-align: center;
             color: white;
             z-index: 3;
-            padding: 32px;
-            position: relative;
-            transform: scale(1);
+            padding: 24px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
             transition: transform 0.5s ease-in-out;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
           }
 
           .slide-title {
@@ -398,36 +429,6 @@ const SobreNosotros = () => {
             max-width: 480px;
             margin: 0 auto;
             font-family: 'Inter', 'Helvetica', sans-serif;
-          }
-
-          .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(251, 191, 36, 0.3);
-            color: #fbbf24;
-            padding: 16px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 10;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-          }
-
-          .carousel-nav:hover {
-            background-color: rgba(251, 191, 36, 0.2);
-            border-color: rgba(251, 191, 36, 0.6);
-            transform: translateY(-50%) scale(1.1);
-          }
-
-          .carousel-nav.left {
-            left: 20px;
-          }
-
-          .carousel-nav.right {
-            right: 20px;
           }
 
           .carousel-dots {
@@ -533,6 +534,36 @@ const SobreNosotros = () => {
               touch-action: pan-x;
             }
           }
+
+          /* Liderazgo: dos columnas responsivo */
+          .liderazgo-grid {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 24px;
+            align-items: center;
+          }
+          @media (max-width: 768px) {
+            .liderazgo-grid {
+              grid-template-columns: 1fr;
+            }
+            /* Stats en una columna en móvil */
+            .about-stats-grid {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+            }
+            /* Misión y Visión en una columna en móvil */
+            .mission-vision-grid {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+            }
+          }
+          /* Grid por defecto (desktop) para Misión/Visión */
+          .mission-vision-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: stretch;
+          }
         `}
       </style>
 
@@ -543,7 +574,8 @@ const SobreNosotros = () => {
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '100px', // Reducido de 110px
-          paddingBottom: '0px'
+          paddingBottom: '0px',
+          fontFamily: 'Montserrat, sans-serif'
         }}
       >
         {/* Partículas flotantes */}
@@ -582,6 +614,7 @@ const SobreNosotros = () => {
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
+            data-aos="fade-up"
           >
             <div
               style={{
@@ -603,7 +636,7 @@ const SobreNosotros = () => {
                 fontSize: '0.9rem',
                 letterSpacing: '0.5px'
               }}>
-                NUESTRA HISTORIA Y VALORES
+                Nuestra historia y valores
               </span>
             </div>
 
@@ -635,29 +668,38 @@ const SobreNosotros = () => {
 
             {/* Estadísticas destacadas */}
             <div
+              className="about-stats-grid"
               style={{
+                marginTop: '32px',
+                marginBottom: '56px',
+                gap: '28px',
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '24px',
-                maxWidth: '800px',
-                margin: '0 auto'
+                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                alignItems: 'stretch'
               }}
+              data-aos="fade-up"
+              data-aos-delay="150"
             >
               {logros.map((logro, index) => (
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(20px)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(25px)',
+                    borderRadius: '20px',
+                    padding: '28px 32px',
+                    border: '1px solid rgba(251, 191, 36, 0.3)',
                     textAlign: 'center',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
-                    transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
-                    transitionDelay: `${index * 100 + 600}ms`
+                    transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transitionDelay: `${index * 100 + 300}ms`,
+                    boxShadow: '0 16px 50px rgba(0,0,0,0.4)'
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 22px 60px rgba(0,0,0,0.5)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 16px 50px rgba(0,0,0,0.4)'; }}
+                  data-aos="zoom-in"
+                  data-aos-delay={`${index * 100}`}
                 >
                   <div style={{
                     color: '#fbbf24',
@@ -668,16 +710,17 @@ const SobreNosotros = () => {
                     {logro.icono}
                   </div>
                   <div style={{
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#fff',
-                    marginBottom: '4px'
+                    fontSize: '3rem',
+                    fontWeight: 600,
+                    color: '#fbbf24',
+                    marginBottom: '6px',
+                    textShadow: '0 6px 20px rgba(251, 191, 36, 0.5)'
                   }}>
                     {logro.numero}
                   </div>
                   <div style={{
-                    fontSize: '0.9rem',
-                    color: 'rgba(255, 255, 255, 0.7)'
+                    fontSize: '0.95rem',
+                    color: '#f3f4f6'
                   }}>
                     {logro.texto}
                   </div>
@@ -686,187 +729,79 @@ const SobreNosotros = () => {
             </div>
           </div>
 
-          {/* CARRUSEL DE INSTALACIONES - EXACTAMENTE IGUAL QUE INICIO.JS */}
-          <section className="carousel-section">
-            <div className="content">
-              <h2 className="section-title" style={{ textAlign: 'center' }}>
-                Conoce Nuestras 
-                <span className="gradient-text"> Instalaciones</span>
-              </h2>
-              
-              <div className="carousel-container">
-                <div className="carousel-track" style={{
-                  transform: `translateX(-${currentSlide * (100 / carouselImages.length)}%)`
-                }}>
-                  {carouselImages.map((image, index) => (
-                    <div key={image.id} className="slide">
-                      {/* Imagen de fondo */}
-                      <div className="slide-image">
-                        <img src={image.imageUrl} alt={image.title} />
-                      </div>
-                      
-                      {/* Overlay con gradiente */}
-                      <div className="slide-overlay" style={{ background: image.gradient }} />
-                      
-                      {/* Contenido */}
-                      <div className="slide-content">
-                        <h3 className="slide-title">{image.title}</h3>
-                        <p className="slide-description">{image.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Navegación */}
-                <button className="carousel-nav left" onClick={prevSlide}>
-                  <ChevronLeft size={20} />
-                </button>
-                <button className="carousel-nav right" onClick={nextSlide}>
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-
-              {/* Indicadores */}
-              <div className="carousel-dots">
-                {carouselImages.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`dot ${index === currentSlide ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(index)}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-
           {/* Sección Misión y Visión */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '40px',
-              marginBottom: '30px', // Reducido de 50px
-              marginTop: '20px' // Reducido de 25px
-            }}
+            className="mission-vision-grid"
+            style={{ ...missionVisionGridStyle, gridTemplateColumns: undefined }}
           >
             {/* Misión */}
             <div
               style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '24px',
-                padding: '40px',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(251, 191, 36, 0.2)',
-                boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
                 transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
                 opacity: isVisible ? 1 : 0,
                 transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
                 transitionDelay: '800ms'
               }}
+              data-aos="fade-right"
             >
-              <div
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  borderRadius: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '24px',
-                  boxShadow: '0 8px 25px rgba(251, 191, 36, 0.4)'
-                }}
-              >
-                <Target size={36} color="#fff" />
+              <div style={{ height: '100%' }}>
+                <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                  <div style={cardContentStyle}>
+                    <div style={iconContainerStyle('#f59e0b', false)}>
+                      <Target size={36} color="#fff" />
+                    </div>
+                    
+                    <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
+                      Nuestra Misión
+                    </h2>
+                    
+                    <p style={paragraphStyle}>
+                      Formar profesionales en el área de la estética y belleza, 
+                      brindando educación de calidad con tecnología de vanguardia, 
+                      contribuyendo al desarrollo personal y profesional de nuestras 
+                      estudiantes para que se conviertan en líderes transformadoras de la 
+                      industria.
+                    </p>
+                  </div>
+                </SpotlightCard>
               </div>
-              
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: '700',
-                  color: '#1a1a1a',
-                  marginBottom: '20px'
-                }}
-              >
-                Nuestra Misión
-              </h2>
-              
-              <p
-                style={{
-                  fontSize: '1.1rem',
-                  color: '#666',
-                  lineHeight: 1.7,
-                  margin: 0
-                }}
-              >
-                Formar profesionales integrales en el área de la estética y belleza, 
-                brindando educación de calidad con tecnología de vanguardia, 
-                contribuyendo al desarrollo personal y profesional de nuestras 
-                estudiantes para que se conviertan en líderes transformadoras de la 
-                industria.
-              </p>
             </div>
 
             {/* Visión */}
             <div
               style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '24px',
-                padding: '40px',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(251, 191, 36, 0.2)',
-                boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
                 transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
                 opacity: isVisible ? 1 : 0,
                 transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
                 transitionDelay: '900ms'
               }}
+              data-aos="fade-left"
             >
-              <div
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  borderRadius: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '24px',
-                  boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)'
-                }}
-              >
-                <Eye size={36} color="#fff" />
+              <div style={{ height: '100%' }}>
+                <SpotlightCard spotlightColor="rgba(16, 185, 129, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                  <div style={cardContentStyle}>
+                    <div style={iconContainerStyle('#10b981', false)}>
+                      <Eye size={36} color="#fff" />
+                    </div>
+                    
+                    <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
+                      Nuestra Visión
+                    </h2>
+                    
+                    <p style={paragraphStyle}>
+                      Ser la institución líder en Ecuador en formación de profesionales 
+                      en estética y belleza, reconocida por nuestra excelencia académica, 
+                      innovación tecnológica y compromiso social, expandiendo nuestro impacto 
+                      a nivel regional e internacional.
+                    </p>
+                  </div>
+                </SpotlightCard>
               </div>
-              
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: '700',
-                  color: '#1a1a1a',
-                  marginBottom: '20px'
-                }}
-              >
-                Nuestra Visión
-              </h2>
-              
-              <p
-                style={{
-                  fontSize: '1.1rem',
-                  color: '#666',
-                  lineHeight: 1.7,
-                  margin: 0
-                }}
-              >
-                Ser la institución líder en Ecuador en formación de profesionales 
-                en estética y belleza, reconocida por nuestra excelencia académica, 
-                innovación tecnológica y compromiso social, expandiendo nuestro impacto 
-                a nivel regional e internacional.
-              </p>
             </div>
           </div>
 
           {/* Valores */}
-          <div style={{ marginBottom: '30px' }}> {/* Reducido de 50px */}
+          <div style={sectionStyle}>
             <h2
               style={{
                 fontSize: '2.8rem',
@@ -899,17 +834,20 @@ const SobreNosotros = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '32px'
+                gap: '32px',
+                alignItems: 'stretch'
               }}
             >
               {valores.map((valor, index) => (
-                <ValueCard key={valor.id} valor={valor} index={index} />
+                <div key={valor.id} style={{ height: '100%' }}>
+                  <ValueCard valor={valor} index={index} />
+                </div>
               ))}
             </div>
           </div>
 
           {/* Línea de tiempo */}
-          <div style={{ marginBottom: '30px' }}> {/* Reducido de 50px */}
+          <div style={{ ...sectionStyle, marginBottom: '80px' }}> {/* Acerca el carrusel */}
             <h2
               style={{
                 fontSize: '2.8rem',
@@ -938,90 +876,24 @@ const SobreNosotros = () => {
               15 años de crecimiento y excelencia educativa
             </p>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                gap: '32px'
-              }}
-            >
-              {historia.map((hito, index) => (
-                <div
-                  key={index}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '20px',
-                    padding: '28px',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
-                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
-                    transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-                    opacity: isVisible ? 1 : 0,
-                    transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
-                    transitionDelay: `${index * 150 + 1200}ms`,
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-5px) scale(1.02)';
-                    e.target.style.boxShadow = '0 25px 50px rgba(251, 191, 36, 0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0) scale(1)';
-                    e.target.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 16,
-                      right: 16,
-                      width: '60px',
-                      height: '60px',
-                      background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#000',
-                      fontWeight: '700',
-                      fontSize: '1rem'
-                    }}
-                  >
-                    {hito.año}
-                  </div>
-                  
-                  <div style={{ paddingRight: '80px' }}>
-                    <h3
-                      style={{
-                        fontSize: '1.3rem',
-                        fontWeight: '700',
-                        color: '#1a1a1a',
-                        marginBottom: '12px',
-                        lineHeight: 1.3
-                      }}
-                    >
-                      {hito.evento}
-                    </h3>
-                    
-                    <p
-                      style={{
-                        color: '#666',
-                        fontSize: '0.95rem',
-                        lineHeight: 1.6,
-                        margin: 0
-                      }}
-                    >
-                      {hito.descripcion}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div style={{ position: 'relative', padding: '4px 0' }}>
+              <LogoLoop
+                logos={historiaNodes}
+                speed={50}
+                direction="left"
+                logoHeight={16}
+                gap={20}
+                pauseOnHover
+                className="historia-loop"
+                fadeOut
+                fadeOutColor="#161616"
+                ariaLabel="Historia SGA Belleza"
+              />
+            </div>   
           </div>
 
           {/* Equipo directivo */}
-          <div style={{ marginBottom: '30px' }}> {/* Reducido de 50px */}
+          <div style={{ ...sectionStyle, marginTop: '0px', marginBottom: '80px' }}>
             <h2
               style={{
                 fontSize: '2.8rem',
@@ -1047,250 +919,151 @@ const SobreNosotros = () => {
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '32px',
-                    padding: '40px',
-                    backdropFilter: 'blur(20px)',
-                    border: '2px solid rgba(251, 191, 36, 0.3)',
-                    boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)',
                     transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
                     opacity: isVisible ? 1 : 0,
                     transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transitionDelay: '1500ms',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '40px'
+                    transitionDelay: '1500ms'
                   }}
+                  data-aos="zoom-in"
                 >
-                  <div
-                    style={{
-                      position: 'relative',
-                      flexShrink: 0
-                    }}
-                  >
-                    <img
-                      src={miembro.imagen}
-                      alt={miembro.nombre}
-                      style={{
-                        width: '200px',
-                        height: '200px',
-                        borderRadius: '20px',
-                        objectFit: 'cover',
-                        boxShadow: '0 15px 35px rgba(251, 191, 36, 0.3)'
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: 12,
-                        left: 12,
-                        right: 12,
-                        background: 'rgba(251, 191, 36, 0.9)',
-                        borderRadius: '12px',
-                        padding: '8px',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: '#000',
-                          fontWeight: '700',
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        {miembro.experiencia}
+                  <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
+                    <div className="liderazgo-grid">
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <img
+                          src={miembro.imagen}
+                          alt={miembro.nombre}
+                          style={{
+                            width: '200px',
+                            height: '200px',
+                            borderRadius: '20px',
+                            objectFit: 'cover',
+                            boxShadow: '0 8px 18px rgba(251, 191, 36, 0.15)'
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '16px', flexWrap: 'wrap' }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                              color: '#000',
+                              padding: '8px 14px',
+                              borderRadius: '20px',
+                              fontSize: '0.9rem',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {miembro.cargo}
+                          </span>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: 'rgba(251, 191, 36, 0.15)',
+                              color: '#fbbf24',
+                              padding: '6px 12px',
+                              borderRadius: '16px',
+                              fontSize: '0.85rem',
+                              fontWeight: '700',
+                              border: '1px solid rgba(251, 191, 36, 0.35)'
+                            }}
+                          >
+                            {miembro.experiencia}
+                          </span>
+                        </div>
+
+                        <h3
+                          style={{
+                            fontSize: '2rem',
+                            fontWeight: '800',
+                            color: '#f3f4f6',
+                            marginBottom: '8px'
+                          }}
+                        >
+                          {miembro.nombre}
+                        </h3>
+
+                        <p
+                          style={{
+                            color: '#cbd5e1',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            marginBottom: '16px'
+                          }}
+                        >
+                          {miembro.especializacion}
+                        </p>
+
+                        <p
+                          style={{
+                            color: '#cbd5e1',
+                            fontSize: '1rem',
+                            lineHeight: 1.6,
+                            margin: 0
+                          }}
+                        >
+                          {miembro.descripcion}
+                        </p>
                       </div>
                     </div>
-                  </div>
-
-                  <div style={{ flex: 1 }}>
-                    <h3
-                      style={{
-                        fontSize: '2rem',
-                        fontWeight: '800',
-                        color: '#1a1a1a',
-                        marginBottom: '8px'
-                      }}
-                    >
-                      {miembro.nombre}
-                    </h3>
-
-                    <div
-                      style={{
-                        display: 'inline-block',
-                        background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                        color: '#000',
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        marginBottom: '16px'
-                      }}
-                    >
-                      {miembro.cargo}
-                    </div>
-
-                    <p
-                      style={{
-                        color: '#666',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        marginBottom: '16px'
-                      }}
-                    >
-                      {miembro.especializacion}
-                    </p>
-
-                    <p
-                      style={{
-                        color: '#555',
-                        fontSize: '1rem',
-                        lineHeight: 1.6,
-                        margin: 0
-                      }}
-                    >
-                      {miembro.descripcion}
-                    </p>
-                  </div>
+                  </SpotlightCard>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Llamada a la acción final */}
-          <div
-            style={{
-              background: 'rgba(251, 191, 36, 0.1)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '32px',
-              padding: '40px 35px', // Reducido más el padding
-              textAlign: 'center',
-              border: '1px solid rgba(251, 191, 36, 0.3)',
-              position: 'relative',
-              overflow: 'hidden',
-              transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-              opacity: isVisible ? 1 : 0,
-              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '1800ms',
-              marginBottom: '25px' // Reducido de 40px
-            }}
-          >
-            <div
-              style={{
-                width: '80px',
-                height: '80px',
-                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 24px',
-                boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)'
-              }}
-            >
-              <Heart size={36} color="#000" />
+          {/* CARRUSEL MOVIDO AL FINAL */}
+          <section className="carousel-section" data-aos="fade-up" style={{ scrollMarginTop: '16px', marginBottom: '80px' }}>
+            <div className="content">
+              <h2 className="section-title" style={{ textAlign: 'center' }}>
+                Conoce Nuestras 
+                <span className="gradient-text"> Instalaciones</span>
+              </h2>
+              
+              <div className="carousel-container">
+                <div className="carousel-track" style={{
+                  transform: `translateX(-${currentSlide * (100 / carouselImages.length)}%)`
+                }}>
+                  {carouselImages.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="slide"
+                      style={{ width: `${100 / carouselImages.length}%`, flex: `0 0 ${100 / carouselImages.length}%` }}
+                    >
+                      {/* Imagen de fondo */}
+                      <div className="slide-image">
+                        <img src={image.imageUrl} alt={image.title} />
+                      </div>
+                      
+                      {/* Contenido */}
+                      <div className="slide-content">
+                        <h3 className="slide-title">{image.title}</h3>
+                        <p className="slide-description">{image.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Indicadores */}
+              <div className="carousel-dots">
+                {carouselImages.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`dot ${index === currentSlide ? 'active' : ''}`}
+                    onClick={() => setCurrentSlide(index)}
+                  />
+                ))}
+              </div>
             </div>
-
-            <h2
-              style={{
-                fontSize: '2.5rem',
-                fontWeight: '800',
-                color: '#fbbf24',
-                marginBottom: '16px',
-                textShadow: '0 2px 10px rgba(251, 191, 36, 0.3)'
-              }}
-            >
-              ¿Lista para Ser Parte de Nuestra Historia?
-            </h2>
-
-            <p
-              style={{
-                fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.8)',
-                marginBottom: '32px',
-                maxWidth: '600px',
-                margin: '0 auto 32px',
-                lineHeight: 1.6
-              }}
-            >
-              Únete a más de 1,200 profesionales exitosas que han transformado sus vidas 
-              con nosotras. Tu futuro en la belleza comienza aquí.
-            </p>
-
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <a
-                href="/cursos"
-                style={{
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  color: '#000',
-                  padding: '16px 32px',
-                  borderRadius: '50px',
-                  textDecoration: 'none',
-                  fontWeight: '700',
-                  fontSize: '1.1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 8px 25px rgba(251, 191, 36, 0.4)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                  e.target.style.boxShadow = '0 12px 35px rgba(251, 191, 36, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(251, 191, 36, 0.4)';
-                }}
-              >
-                <Sparkles size={18} />
-                Explorar Cursos
-              </a>
-
-              <a
-                href="/contactenos"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: '#fff',
-                  padding: '16px 32px',
-                  borderRadius: '50px',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  fontSize: '1.1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  border: '2px solid rgba(251, 191, 36, 0.3)',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(251, 191, 36, 0.1)';
-                  e.target.style.borderColor = 'rgba(251, 191, 36, 0.6)';
-                  e.target.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
-                  e.target.style.transform = 'translateY(0)';
-                }}
-              >
-                <MapPin size={18} />
-                Contáctanos
-              </a>
-            </div>
-          </div>
+          </section>
         </div>
 
         <Footer />
       </div>
     </>
   );
-};
+}
 
 export default SobreNosotros;

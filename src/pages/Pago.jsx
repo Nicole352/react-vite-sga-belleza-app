@@ -228,7 +228,7 @@ const Pago = () => {
         paddingTop: 110
       }}>
         <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.92), rgba(26,26,26,0.92))',
           borderRadius: '32px',
           padding: '60px',
           textAlign: 'center',
@@ -236,7 +236,7 @@ const Pago = () => {
           margin: '0 24px',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(251, 191, 36, 0.3)',
-          boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)'
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
         }}>
           <div style={{
             width: '80px',
@@ -254,13 +254,13 @@ const Pago = () => {
           <h2 style={{
             fontSize: '2rem',
             fontWeight: '800',
-            color: '#1a1a1a',
+            color: '#fff',
             marginBottom: '16px'
           }}>
             ¡Pago Procesado!
           </h2>
           <p style={{
-            color: '#666',
+            color: 'rgba(255, 255, 255, 0.8)',
             fontSize: '1.1rem',
             marginBottom: '32px',
             lineHeight: 1.6
@@ -429,13 +429,13 @@ const Pago = () => {
 
               {/* Card del curso */}
               <div style={{
-                background: 'rgba(255, 255, 255, 0.95)',
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
                 borderRadius: '24px',
                 padding: '32px',
                 marginBottom: '40px',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(251, 191, 36, 0.2)',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                   <img 
@@ -453,7 +453,7 @@ const Pago = () => {
                     <h3 style={{
                       fontSize: '1.5rem',
                       fontWeight: '700',
-                      color: '#1a1a1a',
+                      color: '#fff',
                       marginBottom: '8px'
                     }}>
                       {curso.titulo}
@@ -465,8 +465,8 @@ const Pago = () => {
                       marginBottom: '12px'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Calendar size={16} color="#666" />
-                        <span style={{ color: '#666' }}>{curso.duracion}</span>
+                        <Calendar size={16} color="#fbbf24" />
+                        <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{curso.duracion}</span>
                       </div>
                     </div>
                     <div style={{
@@ -526,18 +526,18 @@ const Pago = () => {
               <form onSubmit={handleSubmit}>
                 {/* Información personal */}
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.95)',
+                  background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
                   borderRadius: '24px',
                   padding: '32px',
                   marginBottom: '32px',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(251, 191, 36, 0.2)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                 }}>
                   <h3 style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#1a1a1a',
+                    color: '#fff',
                     marginBottom: '24px',
                     display: 'flex',
                     alignItems: 'center',
@@ -558,7 +558,7 @@ const Pago = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#1a1a1a'
+                        color: '#fff'
                       }}>
                         Nombre Completo *
                       </label>
@@ -574,7 +574,8 @@ const Pago = () => {
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(255, 255, 255, 0.8)'
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
                         onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -585,7 +586,7 @@ const Pago = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#1a1a1a'
+                        color: '#fff'
                       }}>
                         Cédula/DNI *
                       </label>
@@ -601,7 +602,8 @@ const Pago = () => {
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(255, 255, 255, 0.8)'
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
                         onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -619,7 +621,7 @@ const Pago = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#1a1a1a'
+                        color: '#fff'
                       }}>
                         Email *
                       </label>
@@ -635,7 +637,8 @@ const Pago = () => {
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(255, 255, 255, 0.8)'
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
                         onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -646,7 +649,7 @@ const Pago = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#1a1a1a'
+                        color: '#fff'
                       }}>
                         Teléfono *
                       </label>
@@ -662,7 +665,8 @@ const Pago = () => {
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(255, 255, 255, 0.8)'
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
                         onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -673,18 +677,18 @@ const Pago = () => {
 
                 {/* Métodos de pago */}
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.95)',
+                  background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
                   borderRadius: '24px',
                   padding: '32px',
                   marginBottom: '32px',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(251, 191, 36, 0.2)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                 }}>
                   <h3 style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#1a1a1a',
+                    color: '#fff',
                     marginBottom: '24px',
                     display: 'flex',
                     alignItems: 'center',
@@ -736,7 +740,7 @@ const Pago = () => {
                         Pagar con PayPal
                       </h4>
                       <p style={{
-                        color: '#666',
+                        color: 'rgba(255, 255, 255, 0.8)',
                         marginBottom: '20px',
                         lineHeight: 1.6
                       }}>
@@ -785,37 +789,37 @@ const Pago = () => {
                         <div style={{
                           width: '150px',
                           height: '150px',
-                          background: '#fff',
+                          background: 'rgba(0, 0, 0, 0.6)',
                           borderRadius: '12px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
                           flexShrink: 0
                         }}>
-                          <QrCode size={100} color="#1a1a1a" />
+                          <QrCode size={100} color="#fff" />
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{
-                            background: '#fff',
+                            background: 'rgba(0, 0, 0, 0.6)',
                             padding: '16px',
                             borderRadius: '12px',
                             marginBottom: '12px'
                           }}>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#1a1a1a' }}>Banco:</strong>
-                              <span style={{ color: '#666', marginLeft: '8px' }}>Banco Nacional</span>
+                              <strong style={{ color: '#fff' }}>Banco:</strong>
+                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
                             </div>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#1a1a1a' }}>Cuenta:</strong>
-                              <span style={{ color: '#666', marginLeft: '8px' }}>123-456789-0</span>
+                              <strong style={{ color: '#fff' }}>Cuenta:</strong>
+                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
                             </div>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#1a1a1a' }}>Titular:</strong>
-                              <span style={{ color: '#666', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                              <strong style={{ color: '#fff' }}>Titular:</strong>
+                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
                             </div>
                             <div>
-                              <strong style={{ color: '#1a1a1a' }}>Monto:</strong>
+                              <strong style={{ color: '#fff' }}>Monto:</strong>
                               <span style={{ 
                                 color: '#fbbf24', 
                                 marginLeft: '8px',
@@ -827,7 +831,7 @@ const Pago = () => {
                             </div>
                           </div>
                           <p style={{
-                            color: '#666',
+                            color: 'rgba(255, 255, 255, 0.7)',
                             fontSize: '0.9rem',
                             margin: 0,
                             fontStyle: 'italic'
@@ -862,7 +866,7 @@ const Pago = () => {
                             borderRadius: '16px',
                             padding: '32px',
                             textAlign: 'center',
-                            background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                            background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
                             transition: 'all 0.3s ease',
                             cursor: 'pointer',
                             position: 'relative'
@@ -901,7 +905,7 @@ const Pago = () => {
                                 ¡Archivo subido correctamente!
                               </p>
                               <p style={{
-                                color: '#666',
+                                color: 'rgba(255, 255, 255, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -942,7 +946,7 @@ const Pago = () => {
                                 <FileImage size={30} color="#fbbf24" />
                               </div>
                               <p style={{
-                                color: '#1a1a1a',
+                                color: '#fff',
                                 fontWeight: '600',
                                 fontSize: '1.1rem',
                                 marginBottom: '8px'
@@ -950,7 +954,7 @@ const Pago = () => {
                                 Arrastra y suelta tu comprobante aquí
                               </p>
                               <p style={{
-                                color: '#666',
+                                color: 'rgba(255, 255, 255, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -989,7 +993,7 @@ const Pago = () => {
                             </span>
                           </div>
                           <p style={{
-                            color: '#666',
+                            color: 'rgba(255, 255, 255, 0.7)',
                             fontSize: '0.85rem',
                             margin: 0,
                             lineHeight: 1.4

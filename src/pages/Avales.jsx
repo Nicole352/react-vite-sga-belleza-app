@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { 
   Award, 
   Shield, 
@@ -15,9 +17,15 @@ import Footer from '../components/Footer';
 const Avales = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [showMoreCerts, setShowMoreCerts] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
+    AOS.init({
+      duration: 800,
+      delay: 100,
+      once: true
+    });
   }, []);
 
   const certificaciones = [
@@ -124,13 +132,6 @@ const Avales = () => {
     }
   ];
 
-  const estadisticas = [
-    { numero: '98%', texto: 'Tasa de Empleabilidad', icono: <Users size={24} /> },
-    { numero: '1,200+', texto: 'Egresadas Exitosas', icono: <Trophy size={24} /> },
-    { numero: '15', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
-    { numero: '5★', texto: 'Calificación Promedio', icono: <Star size={24} /> }
-  ];
-
   const CertificationCard = ({ cert, index }) => {
     const isHovered = hoveredCard === cert.id;
 
@@ -144,23 +145,33 @@ const Avales = () => {
         }}
         onMouseEnter={() => setHoveredCard(cert.id)}
         onMouseLeave={() => setHoveredCard(null)}
+        data-aos="fade-up"
+        data-aos-delay={`${index * 100}`}
       >
         <div
+          className="card-gloss"
           style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
             padding: '32px',
             boxShadow: isHovered 
-              ? `0 25px 50px ${cert.color}30, 0 0 0 1px ${cert.color}40`
-              : '0 15px 35px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              ? `0 25px 50px ${cert.color}20, 0 0 0 1px ${cert.color}40`
+              : '0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)',
             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
             position: 'relative',
             overflow: 'hidden',
-            backdropFilter: 'blur(20px)',
-            border: `2px solid ${isHovered ? cert.color + '40' : 'rgba(255, 255, 255, 0.1)'}`
+            backdropFilter: 'blur(14px)',
+            border: `1px solid ${isHovered ? cert.color + '40' : 'rgba(251, 191, 36, 0.25)'}`,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            paddingBottom: '30px',
+            paddingTop: '56px'
           }}
         >
+          {/* Reflection overlay */}
+          <span className="shimmer-overlay" aria-hidden="true" />
           {/* Badge de prestigio y valor adicional */}
           <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: '8px' }}>
             {cert.valorAdicional && (
@@ -245,7 +256,7 @@ const Avales = () => {
                 style={{
                   fontSize: '1.4rem',
                   fontWeight: '700',
-                  color: '#1a1a1a',
+                  color: '#f3f4f6',
                   marginBottom: '8px',
                   lineHeight: 1.2
                 }}
@@ -270,7 +281,7 @@ const Avales = () => {
           <p
             style={{
               fontSize: '1rem',
-              color: '#666',
+              color: 'rgba(255, 255, 255, 0.75)',
               marginBottom: '20px',
               lineHeight: 1.6
             }}
@@ -284,7 +295,7 @@ const Avales = () => {
               <h4 style={{
                 fontSize: '0.9rem',
                 fontWeight: '600',
-                color: '#333',
+                color: '#f3f4f6',
                 marginBottom: '12px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
@@ -304,7 +315,7 @@ const Avales = () => {
                     alignItems: 'center',
                     gap: '10px',
                     fontSize: '0.9rem',
-                    color: '#555'
+                    color: 'rgba(255, 255, 255, 0.85)'
                   }}>
                     <CheckCircle size={14} color={cert.color} />
                     {detalle}
@@ -323,13 +334,13 @@ const Avales = () => {
               padding: '16px',
               background: 'rgba(251, 191, 36, 0.05)',
               borderRadius: '12px',
-              border: '1px solid rgba(251, 191, 36, 0.1)'
+              border: '1px solid rgba(251, 191, 36, 0.2)'
             }}
           >
             <div>
               <div style={{ 
                 fontSize: '0.8rem', 
-                color: '#999',
+                color: '#cbd5e1',
                 marginBottom: '4px',
                 fontWeight: '500'
               }}>
@@ -337,7 +348,7 @@ const Avales = () => {
               </div>
               <div style={{ 
                 fontWeight: '600', 
-                color: '#333',
+                color: '#e5e7eb',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -349,7 +360,7 @@ const Avales = () => {
             <div>
               <div style={{ 
                 fontSize: '0.8rem', 
-                color: '#999',
+                color: '#cbd5e1',
                 marginBottom: '4px',
                 fontWeight: '500'
               }}>
@@ -357,7 +368,7 @@ const Avales = () => {
               </div>
               <div style={{ 
                 fontWeight: '600', 
-                color: '#333',
+                color: '#e5e7eb',
                 fontSize: '0.9rem'
               }}>
                 {cert.documento}
@@ -368,10 +379,10 @@ const Avales = () => {
           {/* Verificación */}
           <div
             style={{
-              marginTop: '20px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
+              marginTop: 'auto'
             }}
           >
             <div style={{ 
@@ -388,8 +399,8 @@ const Avales = () => {
             
             <button
               style={{
-                background: `${cert.color}20`,
-                border: `1px solid ${cert.color}40`,
+                background: 'transparent',
+                border: `1px solid ${cert.color}66`,
                 color: cert.color,
                 padding: '8px 16px',
                 borderRadius: '20px',
@@ -399,11 +410,11 @@ const Avales = () => {
                 transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = `${cert.color}30`;
+                e.target.style.background = `${cert.color}1a`;
                 e.target.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.background = `${cert.color}20`;
+                e.target.style.background = 'transparent';
                 e.target.style.transform = 'translateY(0)';
               }}
             >
@@ -468,6 +479,44 @@ const Avales = () => {
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
+          
+          /* Gloss/reflection overlay for certification cards */
+          .card-gloss { position: relative; overflow: hidden; }
+          .card-gloss .shimmer-overlay {
+            position: absolute;
+            top: 0;
+            left: -130%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.14), rgba(255,255,255,0));
+            transform: skewX(-15deg);
+            pointer-events: none;
+            animation: shimmer 3.8s ease-in-out infinite;
+          }
+          .card-gloss:hover .shimmer-overlay {
+            animation-duration: 1.6s;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.20), rgba(255,255,255,0));
+          }
+          /* Responsive grids for Certificaciones and Reconocimientos */
+          .grid-certificaciones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px;
+            align-items: stretch;
+            margin-bottom: 100px;
+          }
+          .grid-reconocimientos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+          }
+          @media (max-width: 1024px) {
+            .grid-reconocimientos { grid-template-columns: repeat(2, 1fr); }
+          }
+          @media (max-width: 768px) {
+            .grid-certificaciones { grid-template-columns: 1fr; }
+            .grid-reconocimientos { grid-template-columns: 1fr; }
+          }
         `}
       </style>
 
@@ -478,7 +527,8 @@ const Avales = () => {
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '110px',
-          paddingBottom: '0px'
+          paddingBottom: '0px',
+          fontFamily: 'Montserrat, sans-serif'
         }}
       >
         {/* Partículas flotantes */}
@@ -517,6 +567,7 @@ const Avales = () => {
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
+            data-aos="fade-up"
           >
             <div
               style={{
@@ -538,7 +589,7 @@ const Avales = () => {
                 fontSize: '0.9rem',
                 letterSpacing: '0.5px'
               }}>
-                CERTIFICACIONES Y RECONOCIMIENTOS
+                Certificaciones y reconocimientos
               </span>
             </div>
 
@@ -572,15 +623,15 @@ const Avales = () => {
             <div
               style={{
                 background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.06))',
-                border: '1px solid rgba(251, 191, 36, 0.25)',
+                border: '1px solid rgba(251, 191, 36, 0.22)',
                 borderRadius: '20px',
-                padding: '20px',
-                margin: '16px auto 24px',
+                padding: '24px',
+                margin: '24px auto 32px',
                 maxWidth: '900px',
                 backdropFilter: 'blur(12px)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '10px',
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
@@ -588,14 +639,14 @@ const Avales = () => {
                 }}>
                   <Award size={18} color="#000" />
                 </div>
-                <h3 style={{ margin: 0, color: '#fff', fontWeight: 700, fontSize: '1.2rem' }}>¿Por Qué Elegirnos?</h3>
+                <h3 style={{ margin: 0, color: '#e5e7eb', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
               </div>
 
               <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: '10px'
+                  gap: '12px'
                 }}
               >
                 {[
@@ -606,7 +657,31 @@ const Avales = () => {
                   'Profesores con experiencia internacional',
                   'Bolsa de trabajo exclusiva para estudiantes'
                 ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      color: 'rgba(255,255,255,0.92)',
+                      fontSize: '0.95rem',
+                      padding: '10px 12px',
+                      borderRadius: '12px',
+                      background: 'rgba(251, 191, 36, 0.06)',
+                      border: '1px solid rgba(251, 191, 36, 0.25)',
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.25)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.10)';
+                      e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.06)';
+                      e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.25)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
                     <CheckCircle size={16} color="#10b981" />
                     {item}
                   </div>
@@ -626,7 +701,7 @@ const Avales = () => {
                 color: '#10b981',
                 fontSize: '0.9rem',
                 fontWeight: '600',
-                marginBottom: '32px'
+                marginTop: '40px'
               }}
             >
               <CheckCircle size={16} />
@@ -634,73 +709,52 @@ const Avales = () => {
             </div>
 
             {/* Estadísticas destacadas */}
+            {/* Eliminado por no ser relevante en esta página */}
+            {/* <div ...> ... </div> */}
+
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '24px',
-                maxWidth: '800px',
-                margin: '0 auto'
+                gap: '24px'
               }}
             >
-              {estadisticas.map((stat, index) => (
-                <div
-                  key={index}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(20px)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
-                    textAlign: 'center',
-                    transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-                    opacity: isVisible ? 1 : 0,
-                    transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
-                    transitionDelay: `${index * 100 + 600}ms`
-                  }}
-                >
-                  <div style={{
-                    color: '#fbbf24',
-                    marginBottom: '8px',
-                    display: 'flex',
-                    justifyContent: 'center'
-                  }}>
-                    {stat.icono}
-                  </div>
-                  <div style={{
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#fff',
-                    marginBottom: '4px'
-                  }}>
-                    {stat.numero}
-                  </div>
-                  <div style={{
-                    fontSize: '0.9rem',
-                    color: 'rgba(255, 255, 255, 0.7)'
-                  }}>
-                    {stat.texto}
-                  </div>
-                </div>
-              ))}
+              {/* Eliminado */}
             </div>
           </div>
 
           {/* Grid de certificaciones */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-              gap: '40px',
-              marginBottom: '100px'
-            }}
+            className="grid-certificaciones"
+            style={{}}
+            data-aos="fade-up"
           >
-            {certificaciones.map((cert, index) => (
-              <CertificationCard key={cert.id} cert={cert} index={index} />
-            ))}
+            {certificaciones.slice(0, showMoreCerts ? certificaciones.length : 3).map((cert, index) => (
+               <CertificationCard key={cert.id} cert={cert} index={index} />
+             ))}
           </div>
 
-          {/* Sección especial - Valor Adicional Gubernamental */}
+          {/* Toggle Ver más certificaciones */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-60px', marginBottom: '80px' }}>
+            <button
+              style={{
+                background: showMoreCerts ? 'transparent' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                color: showMoreCerts ? '#fbbf24' : '#000',
+                padding: '12px 22px',
+                borderRadius: '9999px',
+                fontWeight: 700,
+                border: showMoreCerts ? '1px solid rgba(251, 191, 36, 0.6)' : 'none',
+                cursor: 'pointer',
+                boxShadow: showMoreCerts ? 'none' : '0 8px 24px rgba(251, 191, 36, 0.35)',
+                transition: 'all 0.3s ease'
+              }}
+              onClick={() => setShowMoreCerts(v => !v)}
+            >
+              {showMoreCerts ? 'Ver menos' : 'Ver más certificaciones'}
+            </button>
+          </div>
+
+          {/* Sección especial - Respaldo Gubernamental */}
           <div
             style={{
               background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))',
@@ -714,180 +768,60 @@ const Avales = () => {
               transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '1000ms',
               marginBottom: '80px'
             }}
+            data-aos="fade-up"
           >
-            {/* Efecto de brillo */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-                animation: isVisible ? 'shimmer 3s ease-in-out infinite' : 'none',
-                animationDelay: '2s'
-              }}
-            />
-
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: '20px',
-                  marginBottom: '32px'
-                }}
-              >
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '24px' }}>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
+                  width: '70px', height: '70px', borderRadius: '50%',
                   background: 'linear-gradient(135deg, #10b981, #059669)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 12px 40px rgba(16, 185, 129, 0.4)',
-                  animation: 'float 3s ease-in-out infinite'
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 12px 40px rgba(16, 185, 129, 0.35)'
                 }}>
-                  <Shield size={36} color="#fff" />
+                  <Shield size={32} color="#fff" />
                 </div>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
+                  width: '70px', height: '70px', borderRadius: '50%',
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 12px 40px rgba(59, 130, 246, 0.4)',
-                  animation: 'float 3s ease-in-out infinite',
-                  animationDelay: '0.5s'
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 12px 40px rgba(59, 130, 246, 0.35)'
                 }}>
-                  <Trophy size={36} color="#fff" />
+                  <Trophy size={32} color="#fff" />
                 </div>
               </div>
 
               <h2
                 style={{
-                  fontSize: '2.8rem',
-                  fontWeight: '800',
+                  fontSize: '2.6rem',
+                  fontWeight: 800,
                   background: 'linear-gradient(135deg, #10b981, #3b82f6)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  marginBottom: '20px',
-                  textShadow: '0 2px 10px rgba(16, 185, 129, 0.3)'
+                  marginBottom: '10px'
                 }}
               >
                 Respaldo Gubernamental
               </h2>
-
-              <h3
-                style={{
-                  fontSize: '1.8rem',
-                  fontWeight: '600',
-                  color: '#fff',
-                  marginBottom: '24px'
-                }}
-              >
+              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '20px' }}>
                 Ministerio del Trabajo + SENESCYT
               </h3>
-
-              <p
-                style={{
-                  fontSize: '1.2rem',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  marginBottom: '32px',
-                  maxWidth: '800px',
-                  margin: '0 auto 32px',
-                  lineHeight: 1.6
-                }}
-              >
-                Somos la <strong>única institución en la región</strong> que cuenta con el doble aval gubernamental: 
-                certificación laboral del Ministerio del Trabajo y reconocimiento educativo de SENESCYT.
+              <p style={{ color: 'rgba(255,255,255,0.9)', maxWidth: 800, margin: '0 auto 24px', lineHeight: 1.6 }}>
+                Doble aval gubernamental: certificación laboral del Ministerio del Trabajo y reconocimiento educativo de SENESCYT.
               </p>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '24px',
-                  marginBottom: '40px'
-                }}
-              >
-                <div
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    borderRadius: '20px',
-                    padding: '24px',
-                    border: '1px solid rgba(16, 185, 129, 0.3)'
-                  }}
-                >
-                  <Shield size={24} color="#10b981" style={{ marginBottom: '12px' }} />
-                  <h4 style={{ 
-                    color: '#10b981', 
-                    fontSize: '1.2rem', 
-                    fontWeight: '700',
-                    marginBottom: '8px' 
-                  }}>
-                    Validez Laboral Nacional
-                  </h4>
-                  <p style={{ 
-                    color: 'rgba(255, 255, 255, 0.8)', 
-                    fontSize: '0.95rem',
-                    margin: 0,
-                    lineHeight: 1.4
-                  }}>
-                    Certificados reconocidos por empleadores en todo Ecuador
-                  </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 20, padding: 24 }}>
+                  <Shield size={22} color="#10b981" style={{ marginBottom: 10 }} />
+                  <h4 style={{ color: '#10b981', fontWeight: 700, margin: '0 0 6px 0' }}>Validez Laboral Nacional</h4>
+                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0 }}>Certificados reconocidos por empleadores en todo Ecuador.</p>
                 </div>
-
-                <div
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    borderRadius: '20px',
-                    padding: '24px',
-                    border: '1px solid rgba(59, 130, 246, 0.3)'
-                  }}
-                >
-                  <Trophy size={24} color="#3b82f6" style={{ marginBottom: '12px' }} />
-                  <h4 style={{ 
-                    color: '#3b82f6', 
-                    fontSize: '1.2rem', 
-                    fontWeight: '700',
-                    marginBottom: '8px' 
-                  }}>
-                    Nivel Técnico Superior
-                  </h4>
-                  <p style={{ 
-                    color: 'rgba(255, 255, 255, 0.8)', 
-                    fontSize: '0.95rem',
-                    margin: 0,
-                    lineHeight: 1.4
-                  }}>
-                    Títulos con equivalencia universitaria oficial
-                  </p>
+                <div style={{ background: 'rgba(59, 130, 246, 0.18)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: 20, padding: 24 }}>
+                  <Trophy size={22} color="#3b82f6" style={{ marginBottom: 10 }} />
+                  <h4 style={{ color: '#3b82f6', fontWeight: 700, margin: '0 0 6px 0' }}>Nivel Técnico Superior</h4>
+                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0 }}>Títulos con equivalencia educativa oficial.</p>
                 </div>
-              </div>
-
-              <div
-                style={{
-                  background: 'rgba(251, 191, 36, 0.1)',
-                  border: '2px solid rgba(251, 191, 36, 0.3)',
-                  borderRadius: '20px',
-                  padding: '20px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  color: '#fbbf24',
-                  fontWeight: '700',
-                  fontSize: '1.1rem'
-                }}
-              >
-                <Sparkles size={20} />
-                Certificación con Garantía de Empleabilidad del 98%
               </div>
             </div>
           </div>
@@ -927,22 +861,20 @@ const Avales = () => {
             </p>
 
             <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                gap: '32px'
-              }}
+              className="grid-reconocimientos"
+              style={{}}
+              data-aos="fade-up"
             >
               {reconocimientos.map((reconocimiento, index) => (
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.95)',
+                    background: 'rgba(255, 255, 255, 0.08)',
                     borderRadius: '20px',
                     padding: '28px',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
-                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
+                    backdropFilter: 'blur(14px)',
+                    border: '1px solid rgba(251, 191, 36, 0.25)',
+                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
                     transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -951,12 +883,12 @@ const Avales = () => {
                     overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-5px) scale(1.02)';
-                    e.target.style.boxShadow = '0 25px 50px rgba(251, 191, 36, 0.15)';
+                    e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.5)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0) scale(1)';
-                    e.target.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.4)';
                   }}
                 >
                   <div
@@ -984,7 +916,7 @@ const Avales = () => {
                       style={{
                         fontSize: '1.3rem',
                         fontWeight: '700',
-                        color: '#1a1a1a',
+                        color: '#f3f4f6',
                         marginBottom: '8px',
                         lineHeight: 1.3
                       }}
@@ -1005,7 +937,7 @@ const Avales = () => {
                     
                     <p
                       style={{
-                        color: '#666',
+                        color: 'rgba(255, 255, 255, 0.75)',
                         fontSize: '0.95rem',
                         lineHeight: 1.5,
                         margin: 0
@@ -1093,12 +1025,12 @@ const Avales = () => {
                   padding: '16px 32px',
                   borderRadius: '50px',
                   textDecoration: 'none',
-                  fontWeight: '700',
+                  fontWeight: 700,
                   fontSize: '1.1rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 8px 25px rgba(251, 191, 36, 0.4)',
+                  boxShadow: '0 8px 24px rgba(251, 191, 36, 0.4)',
                   transition: 'all 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -1107,7 +1039,7 @@ const Avales = () => {
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(251, 191, 36, 0.4)';
+                  e.target.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.4)';
                 }}
               >
                 <Sparkles size={18} />

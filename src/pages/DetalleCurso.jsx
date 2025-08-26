@@ -205,11 +205,11 @@ const DetalleCurso = () => {
     const variants = {
       default: {
         ...baseStyle,
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(251, 191, 36, 0.2)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(251, 191, 36, 0.1)',
-        color: '#1a1a1a'
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(251, 191, 36, 0.1)',
+        color: '#fff'
       },
       gold: {
         ...baseStyle,
@@ -605,10 +605,10 @@ const DetalleCurso = () => {
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
                     <Calendar size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: '#333', fontSize: '1.2rem' }}>
+                    <div style={{ fontWeight: '600', color: '#fff', fontSize: '1.2rem' }}>
                       {curso.duracion}
                     </div>
-                    <div style={{ color: '#666', fontSize: '0.9rem' }}>Duración total</div>
+                    <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>Duración total</div>
                   </div>
                   <div style={{
                     padding: '20px',
@@ -617,13 +617,13 @@ const DetalleCurso = () => {
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
                     <BookOpen size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: '#333', fontSize: '1.2rem' }}>
+                    <div style={{ fontWeight: '600', color: '#fff', fontSize: '1.2rem' }}>
                       Modalidad Mixta
                     </div>
-                    <div style={{ color: '#666', fontSize: '0.9rem' }}>Presencial + Virtual</div>
+                    <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>Presencial + Virtual</div>
                   </div>
                 </div>
-                <p style={{ color: '#666', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem', lineHeight: 1.6 }}>
                   Nuestro programa está diseñado para ofrecerte una experiencia de aprendizaje completa 
                   y flexible, combinando la práctica presencial con recursos digitales de vanguardia.
                 </p>
