@@ -6,6 +6,7 @@ import PanelEstudiantes from '../components/dashboard/PanelEstudiantes';
 import PanelDocentes from '../components/dashboard/PanelDocentes';
 import PanelAdministrativos from '../components/dashboard/PanelAdministrativos';
 import PanelSuperAdmin from '../components/dashboard/PanelSuperAdmin';
+import DocenteDashboard from '../docente/DocenteDashboard';
 
 const DashboardLayout = () => {
   const [activeSection, setActiveSection] = useState('estudiantes');
@@ -18,6 +19,7 @@ const DashboardLayout = () => {
   const getMenuItems = () => {
     const baseItems = [
       { id: 'dashboard', label: 'Dashboard', icon: Home, roles: ['estudiante', 'docente', 'administrativo', 'super_admin'] },
+      { id: 'docente-dashboard', label: 'Dashboard Docente', icon: BookOpen, roles: ['docente', 'administrativo', 'super_admin'] },
       { id: 'estudiantes', label: 'Estudiantes', icon: Users, roles: ['docente', 'administrativo', 'super_admin'] },
       { id: 'docentes', label: 'Docentes', icon: GraduationCap, roles: ['administrativo', 'super_admin'] },
       { id: 'administrativos', label: 'Administrativos', icon: UserCheck, roles: ['super_admin'] },
@@ -78,6 +80,8 @@ const DashboardLayout = () => {
         );
       case 'estudiantes':
         return <PanelEstudiantes />;
+      case 'docente-dashboard':
+        return <DocenteDashboard />;
       case 'docentes':
         return <PanelDocentes />;
       case 'administrativos':

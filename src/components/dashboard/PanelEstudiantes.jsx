@@ -1,733 +1,1071 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
+  BookOpen, 
   Users, 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
+  User,
+  Star,
+  TrendingUp,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Award,
+  ChevronRight,
+  Calendar,
+  FileText,
   Eye,
+  Edit3,
+  Bell,
+  MessageCircle,
+  Upload,
   Download,
+  Camera,
+  Settings,
+  Lock,
   Mail,
   Phone,
-  X
+  MapPin,
+  GraduationCap,
+  Target,
+  Activity,
+  BarChart3,
+  PieChart,
+  UserCheck,
+  Plus,
+  X,
+  Search,
+  Filter
 } from 'lucide-react';
 
 const PanelEstudiantes = () => {
-  // Estado para los estudiantes
-  const [estudiantes, setEstudiantes] = useState([
+  const [isVisible, setIsVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState('cursos');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  // Datos del estudiante actual (simulado)
+  const estudianteInfo = {
+    nombre: 'Ana María González',
+    email: 'ana.gonzalez@sgabelleza.edu.ec',
+    cedula: '1234567890',
+    curso: 'Cosmetología Avanzada',
+    semestre: '4to Semestre',
+    promedio: 8.7,
+    foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b55c?w=150&h=150&fit=crop&crop=face',
+    telefono: '+593 99 123 4567',
+    direccion: 'Av. Principal 123, Quito'
+  };
+
+  // Cursos asignados al estudiante
+  const cursosAsignados = [
     {
       id: 1,
-      nombre: 'Ana María',
-      apellido: 'González',
-      email: 'ana.gonzalez@email.com',
-      telefono: '+593 99 123 4567',
-      cedula: '1234567890',
-      fechaNacimiento: '1995-03-15',
-      curso: 'Cosmetología',
-      estado: 'Activo',
-      fechaInscripcion: '2024-01-15',
-      promedio: 8.5,
-      direccion: 'Av. Principal 123, Quito',
-      emergenciaContacto: 'María González - +593 99 111 2222',
-      observaciones: 'Estudiante destacada con gran interés en técnicas avanzadas',
-      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b55c?w=150&h=150&fit=crop&crop=face'
+      nombre: 'Cosmetología Avanzada',
+      codigo: 'COS-301',
+      profesor: 'Dra. María Vásquez',
+      progreso: 75,
+      calificacion: 8.5,
+      proximaClase: '2024-01-20 14:00',
+      tareasPendientes: 2,
+      color: '#10b981'
     },
     {
       id: 2,
-      nombre: 'Carlos',
-      apellido: 'Mendoza',
-      email: 'carlos.mendoza@email.com',
-      telefono: '+593 98 765 4321',
-      cedula: '0987654321',
-      fechaNacimiento: '1992-07-22',
-      curso: 'Cosmiatría',
-      estado: 'Activo',
-      fechaInscripcion: '2024-02-01',
-      promedio: 9.2,
-      direccion: 'Calle 45 No. 67-89, Quito',
-      emergenciaContacto: 'Rosa Mendoza - +593 98 333 4444',
-      observaciones: 'Excelente manejo de equipos tecnológicos',
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+      nombre: 'Técnicas Faciales',
+      codigo: 'TEC-201',
+      profesor: 'Dr. Carlos Mendoza',
+      progreso: 60,
+      calificacion: 9.0,
+      proximaClase: '2024-01-22 10:00',
+      tareasPendientes: 1,
+      color: '#3b82f6'
     },
     {
       id: 3,
-      nombre: 'María José',
-      apellido: 'Rodríguez',
-      email: 'maria.rodriguez@email.com',
-      telefono: '+593 97 555 0123',
-      cedula: '1122334455',
-      fechaNacimiento: '1998-11-08',
-      curso: 'Maquillaje Profesional',
-      estado: 'Inactivo',
-      fechaInscripcion: '2023-12-10',
-      promedio: 7.8,
-      direccion: 'Barrio Norte, Mz. 5 Casa 12',
-      emergenciaContacto: 'Pedro Rodríguez - +593 97 555 6666',
-      observaciones: 'Requiere seguimiento académico',
-      foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+      nombre: 'Maquillaje Profesional',
+      codigo: 'MAQ-401',
+      profesor: 'Lic. Sofia Herrera',
+      progreso: 90,
+      calificacion: 8.8,
+      proximaClase: '2024-01-25 16:00',
+      tareasPendientes: 0,
+      color: '#8b5cf6'
+    }
+  ];
+
+  // Compañeros de clase
+  const companeros = [
+    {
+      id: 1,
+      nombre: 'Carlos Mendoza',
+      curso: 'Cosmetología Avanzada',
+      estado: 'online',
+      promedio: 8.2,
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
     },
     {
-      id: 4,
-      nombre: 'Sofía',
-      apellido: 'Herrera',
-      email: 'sofia.herrera@email.com',
-      telefono: '+593 96 444 5555',
-      cedula: '1357924680',
-      fechaNacimiento: '1996-05-30',
-      curso: 'Cosmetología',
-      estado: 'Activo',
-      fechaInscripcion: '2024-03-10',
-      promedio: 8.9,
-      direccion: 'Sector Sur, Av. 6 de Diciembre',
-      emergenciaContacto: 'Ana Herrera - +593 96 777 8888',
-      observaciones: 'Muestra gran creatividad en sus trabajos prácticos',
-      foto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
+      id: 2,
+      nombre: 'María Rodríguez',
+      curso: 'Cosmetología Avanzada',
+      estado: 'offline',
+      promedio: 7.8,
+      foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face'
+    },
+    {
+      id: 3,
+      nombre: 'Sofia Herrera',
+      curso: 'Técnicas Faciales',
+      estado: 'online',
+      promedio: 9.1,
+      foto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face'
     }
-  ]);
+  ];
 
-  // Estados para UI
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterEstado, setFilterEstado] = useState('Todos');
-  const [filterCurso, setFilterCurso] = useState('Todos');
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('create');
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  // Calificaciones por materia
+  const calificaciones = [
+    {
+      materia: 'Cosmetología Avanzada',
+      evaluaciones: [
+        { nombre: 'Examen Parcial 1', nota: 8.5, fecha: '2024-01-10', tipo: 'Examen' },
+        { nombre: 'Práctica Facial', nota: 9.0, fecha: '2024-01-15', tipo: 'Práctica' },
+        { nombre: 'Proyecto Final', nota: 8.0, fecha: '2024-01-18', tipo: 'Proyecto' }
+      ]
+    },
+    {
+      materia: 'Técnicas Faciales',
+      evaluaciones: [
+        { nombre: 'Evaluación Teórica', nota: 9.2, fecha: '2024-01-12', tipo: 'Examen' },
+        { nombre: 'Caso Clínico', nota: 8.8, fecha: '2024-01-16', tipo: 'Caso' }
+      ]
+    }
+  ];
 
-  // Estado para el formulario
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    email: '',
-    telefono: '',
-    cedula: '',
-    fechaNacimiento: '',
-    curso: '',
-    estado: 'Activo',
-    direccion: '',
-    emergenciaContacto: '',
-    observaciones: ''
-  });
-
-  // Filtrar estudiantes
-  const estudiantesFiltrados = estudiantes.filter(estudiante => {
-    const matchesSearch = estudiante.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         estudiante.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         estudiante.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         estudiante.cedula.includes(searchTerm);
-    const matchesEstado = filterEstado === 'Todos' || estudiante.estado === filterEstado;
-    const matchesCurso = filterCurso === 'Todos' || estudiante.curso === filterCurso;
-    
-    return matchesSearch && matchesEstado && matchesCurso;
-  });
-
-  // Funciones CRUD
-  const handleCreateStudent = () => {
-    setModalType('create');
-    setFormData({
-      nombre: '',
-      apellido: '',
-      email: '',
-      telefono: '',
-      cedula: '',
-      fechaNacimiento: '',
-      curso: '',
-      estado: 'Activo',
-      direccion: '',
-      emergenciaContacto: '',
-      observaciones: ''
-    });
-    setShowModal(true);
-  };
-
-  const handleEditStudent = (student) => {
-    setModalType('edit');
-    setSelectedStudent(student);
-    setFormData({
-      nombre: student.nombre,
-      apellido: student.apellido,
-      email: student.email,
-      telefono: student.telefono,
-      cedula: student.cedula,
-      fechaNacimiento: student.fechaNacimiento,
-      curso: student.curso,
-      estado: student.estado,
-      direccion: student.direccion,
-      emergenciaContacto: student.emergenciaContacto,
-      observaciones: student.observaciones
-    });
-    setShowModal(true);
-  };
-
-  const handleViewStudent = (student) => {
-    setModalType('view');
-    setSelectedStudent(student);
-    setShowModal(true);
-  };
-
-  const handleDeleteStudent = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este estudiante?')) {
-      setEstudiantes(estudiantes.filter(est => est.id !== id));
+  // Funciones para manejar archivos
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      alert(`Archivo "${file.name}" seleccionado para subir`);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (modalType === 'create') {
-      const newStudent = {
-        ...formData,
-        id: Date.now(),
-        fechaInscripcion: new Date().toISOString().split('T')[0],
-        promedio: 0,
-        foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-      };
-      setEstudiantes([...estudiantes, newStudent]);
-    } else if (modalType === 'edit') {
-      setEstudiantes(estudiantes.map(est => 
-        est.id === selectedStudent.id ? { ...est, ...formData } : est
-      ));
+  const handleSubmitTask = (cursoId) => {
+    if (selectedFile) {
+      alert(`Tarea enviada para el curso ${cursoId} con el archivo: ${selectedFile.name}`);
+      setSelectedFile(null);
+    } else {
+      alert('Por favor selecciona un archivo antes de enviar la tarea');
     }
-    
-    setShowModal(false);
   };
 
-  const exportToCSV = () => {
-    const headers = ['ID', 'Nombre', 'Apellido', 'Email', 'Teléfono', 'Cédula', 'Curso', 'Estado', 'Promedio'];
-    const csvContent = [
-      headers.join(','),
-      ...estudiantesFiltrados.map(est => [
-        est.id,
-        est.nombre,
-        est.apellido,
-        est.email,
-        est.telefono,
-        est.cedula,
-        est.curso,
-        est.estado,
-        est.promedio
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `estudiantes_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const Modal = ({ children }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
-        {children}
-      </div>
-    </div>
+  // Componente de pestañas
+  const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
+    <button
+      onClick={() => onClick(id)}
+      style={{
+        padding: '12px 24px',
+        background: isActive ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'transparent',
+        color: isActive ? '#000' : 'rgba(255,255,255,0.7)',
+        border: isActive ? 'none' : '1px solid rgba(251, 191, 36, 0.2)',
+        borderRadius: '12px',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontFamily: 'Montserrat, sans-serif'
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)';
+          e.currentTarget.style.color = '#fbbf24';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+        }
+      }}
+    >
+      <Icon size={18} />
+      {label}
+    </button>
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Users className="h-6 w-6 text-blue-600" />
-              Gestión de Estudiantes
-            </h2>
-            <p className="text-gray-600 mt-1">
-              {estudiantesFiltrados.length} estudiante{estudiantesFiltrados.length !== 1 ? 's' : ''} encontrado{estudiantesFiltrados.length !== 1 ? 's' : ''}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={exportToCSV}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-200"
-            >
-              <Download className="h-4 w-4" />
-              Exportar
-            </button>
-            <button
-              onClick={handleCreateStudent}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-200"
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Estudiante
-            </button>
-          </div>
-        </div>
-
-        {/* Filtros y búsqueda */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, apellido, email o cédula..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+    <>
+      <style>
+        {`
+          @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+          }
           
-          <div className="flex gap-2">
-            <select
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="Todos">Todos los estados</option>
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-              <option value="Suspendido">Suspendido</option>
-            </select>
-            
-            <select
-              value={filterCurso}
-              onChange={(e) => setFilterCurso(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="Todos">Todos los cursos</option>
-              <option value="Cosmetología">Cosmetología</option>
-              <option value="Cosmiatría">Cosmiatría</option>
-              <option value="Maquillaje Profesional">Maquillaje Profesional</option>
-            </select>
-          </div>
-        </div>
-      </div>
+          @keyframes float {
+            0%, 100% {
+              transform: translateY(0px) rotate(0deg);
+              opacity: 0.1;
+            }
+            50% {
+              transform: translateY(-20px) rotate(180deg);
+              opacity: 0.3;
+            }
+          }
+          
+          .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+          }
+          
+          .particle {
+            position: absolute;
+            background: #fbbf24;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+          }
+        `}
+      </style>
 
-      {/* Estadísticas rápidas */}
-      <div className="p-6 bg-gray-50 border-b border-gray-200">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-2xl font-bold text-blue-600">{estudiantes.filter(e => e.estado === 'Activo').length}</div>
-            <div className="text-sm text-gray-600">Activos</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-2xl font-bold text-yellow-600">{estudiantes.filter(e => e.estado === 'Inactivo').length}</div>
-            <div className="text-sm text-gray-600">Inactivos</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-2xl font-bold text-red-600">{estudiantes.filter(e => e.estado === 'Suspendido').length}</div>
-            <div className="text-sm text-gray-600">Suspendidos</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-2xl font-bold text-green-600">
-              {estudiantes.length > 0 ? (estudiantes.reduce((acc, est) => acc + est.promedio, 0) / estudiantes.length).toFixed(1) : '0'}
-            </div>
-            <div className="text-sm text-gray-600">Promedio General</div>
-          </div>
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '32px 24px',
+          fontFamily: 'Montserrat, sans-serif'
+        }}
+      >
+        {/* Partículas flotantes */}
+        <div className="floating-particles">
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 4 + 2}px`,
+                height: `${Math.random() * 4 + 2}px`,
+                animationDelay: `${Math.random() * 6}s`,
+                animationDuration: `${Math.random() * 3 + 4}s`
+              }}
+            />
+          ))}
         </div>
-      </div>
 
-      {/* Tabla de estudiantes */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estudiante
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contacto
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Curso
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Promedio
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {estudiantesFiltrados.map((estudiante) => (
-              <tr key={estudiante.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-12 w-12">
-                      <img 
-                        className="h-12 w-12 rounded-full object-cover" 
-                        src={estudiante.foto} 
-                        alt={`${estudiante.nombre} ${estudiante.apellido}`} 
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {estudiante.nombre} {estudiante.apellido}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Cédula: {estudiante.cedula}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {estudiante.email}
-                  </div>
-                  <div className="text-sm text-gray-500 flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {estudiante.telefono}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{estudiante.curso}</div>
-                  <div className="text-sm text-gray-500">
-                    Inscrito: {new Date(estudiante.fechaInscripcion).toLocaleDateString()}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    estudiante.estado === 'Activo' ? 'bg-green-100 text-green-800' :
-                    estudiante.estado === 'Inactivo' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {estudiante.estado}
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          
+          {/* Header de Bienvenida */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08))',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            borderRadius: '20px',
+            padding: '32px',
+            marginBottom: '32px',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+            transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
+            opacity: isVisible ? 1 : 0,
+            transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <img 
+                src={estudianteInfo.foto}
+                alt={estudianteInfo.nombre}
+                style={{ 
+                  width: '80px', 
+                  height: '80px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover',
+                  boxShadow: '0 8px 24px rgba(251, 191, 36, 0.3)'
+                }}
+              />
+              <div>
+                <h1 style={{ 
+                  fontSize: '2.2rem', 
+                  fontWeight: '800', 
+                  color: '#fff', 
+                  margin: '0 0 8px 0' 
+                }}>
+                  ¡Bienvenida, {estudianteInfo.nombre}! 👋
+                </h1>
+                <p style={{ 
+                  color: 'rgba(255, 255, 255, 0.8)', 
+                  fontSize: '1.1rem', 
+                  margin: '0 0 4px 0' 
+                }}>
+                  {estudianteInfo.curso} - {estudianteInfo.semestre}
+                </p>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '16px',
+                  fontSize: '0.9rem',
+                  color: 'rgba(255, 255, 255, 0.7)'
+                }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <BookOpen size={16} />
+                    {cursosAsignados.length} cursos activos
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium text-gray-900">
-                      {estudiante.promedio}/10
-                    </span>
-                    <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${
-                          estudiante.promedio >= 8 ? 'bg-green-600' :
-                          estudiante.promedio >= 7 ? 'bg-yellow-600' : 'bg-red-600'
-                        }`}
-                        style={{ width: `${estudiante.promedio * 10}%` }}
-                      ></div>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Star size={16} />
+                    Promedio: {estudianteInfo.promedio}/10
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Award size={16} />
+                    Estudiante activo
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navegación por pestañas */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            borderRadius: '20px',
+            padding: '24px',
+            marginBottom: '32px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <TabButton
+                id="cursos"
+                label="Mis Cursos"
+                icon={BookOpen}
+                isActive={activeTab === 'cursos'}
+                onClick={setActiveTab}
+              />
+              <TabButton
+                id="participantes"
+                label="Compañeros"
+                icon={Users}
+                isActive={activeTab === 'participantes'}
+                onClick={setActiveTab}
+              />
+              <TabButton
+                id="calificaciones"
+                label="Calificaciones"
+                icon={BarChart3}
+                isActive={activeTab === 'calificaciones'}
+                onClick={setActiveTab}
+              />
+              <TabButton
+                id="perfil"
+                label="Mi Perfil"
+                icon={User}
+                isActive={activeTab === 'perfil'}
+                onClick={setActiveTab}
+              />
+            </div>
+          </div>
+
+          {/* Contenido de las pestañas */}
+          {activeTab === 'cursos' && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#fff', margin: '0 0 24px 0' }}>
+                Mis Cursos Asignados
+              </h2>
+              
+              <div style={{ display: 'grid', gap: '24px' }}>
+                {cursosAsignados.map((curso, index) => (
+                  <div
+                    key={curso.id}
+                    style={{
+                      padding: '24px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(251, 191, 36, 0.1)',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <div style={{
+                            background: `${curso.color}20`,
+                            color: curso.color,
+                            padding: '4px 12px',
+                            borderRadius: '16px',
+                            fontSize: '0.8rem',
+                            fontWeight: '600'
+                          }}>
+                            {curso.codigo}
+                          </div>
+                          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
+                            Prof. {curso.profesor}
+                          </span>
+                        </div>
+                        <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#fff', margin: '0 0 8px 0' }}>
+                          {curso.nombre}
+                        </h3>
+                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: 0 }}>
+                          Próxima clase: {new Date(curso.proximaClase).toLocaleString()}
+                        </p>
+                      </div>
+                      
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                          <Star size={16} color="#fbbf24" />
+                          <span style={{ color: '#fbbf24', fontSize: '1rem', fontWeight: '600' }}>
+                            {curso.calificacion}/10
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                          Progreso: {curso.progreso}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Barra de progreso */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ 
+                        width: '100%', 
+                        height: '8px', 
+                        background: 'rgba(255,255,255,0.1)', 
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          width: `${curso.progreso}%`,
+                          height: '100%',
+                          background: `linear-gradient(90deg, ${curso.color}, ${curso.color}dd)`,
+                          borderRadius: '4px',
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                    </div>
+
+                    {/* Tareas pendientes y acciones */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {curso.tareasPendientes > 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <AlertCircle size={16} color="#ef4444" />
+                            <span style={{ color: '#ef4444', fontSize: '0.9rem', fontWeight: '600' }}>
+                              {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} pendiente{curso.tareasPendientes > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+                        {curso.tareasPendientes === 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <CheckCircle size={16} color="#10b981" />
+                            <span style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600' }}>
+                              Al día con las tareas
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button
+                          onClick={() => {
+                            setModalType('upload');
+                            setShowModal(true);
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '8px 16px',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          <Upload size={16} />
+                          Subir Tarea
+                        </button>
+                        
+                        <button
+                          style={{
+                            background: 'transparent',
+                            color: '#fbbf24',
+                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                            borderRadius: '8px',
+                            padding: '8px 16px',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          <Eye size={16} />
+                          Ver Detalles
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleViewStudent(estudiante)}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                      title="Ver detalles"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleEditStudent(estudiante)}
-                      className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                      title="Editar"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteStudent(estudiante.id)}
-                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {estudiantesFiltrados.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No hay estudiantes</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            No se encontraron estudiantes con los filtros aplicados.
-          </p>
-        </div>
-      )}
-
-      {/* Modal */}
-      {showModal && (
-        <Modal>
-          {modalType === 'view' && selectedStudent ? (
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Detalles del Estudiante</h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                ))}
               </div>
-              
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <img 
-                    className="h-20 w-20 rounded-full object-cover" 
-                    src={selectedStudent.foto} 
-                    alt={`${selectedStudent.nombre} ${selectedStudent.apellido}`} 
-                  />
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-900">
-                      {selectedStudent.nombre} {selectedStudent.apellido}
-                    </h4>
-                    <p className="text-gray-500">Cédula: {selectedStudent.cedula}</p>
-                  </div>
+            </div>
+          )}
+
+          {/* Modal para subir archivos */}
+          {showModal && modalType === 'upload' && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '20px'
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                borderRadius: '20px',
+                padding: '32px',
+                maxWidth: '500px',
+                width: '100%',
+                backdropFilter: 'blur(20px)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', margin: 0 }}>
+                    Subir Tarea
+                  </h3>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    <X size={24} />
+                  </button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Email</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.email}</p>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    color: 'rgba(255,255,255,0.8)', 
+                    fontSize: '0.9rem', 
+                    fontWeight: '600', 
+                    marginBottom: '12px' 
+                  }}>
+                    Seleccionar archivo (PDF, DOC, JPG, PNG)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={handleFileUpload}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                  {selectedFile && (
+                    <p style={{ 
+                      color: '#10b981', 
+                      fontSize: '0.8rem', 
+                      margin: '8px 0 0 0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <CheckCircle size={16} />
+                      Archivo seleccionado: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    style={{
+                      background: 'transparent',
+                      color: 'rgba(255,255,255,0.7)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSubmitTask(1);
+                      setShowModal(false);
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Enviar Tarea
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Pestaña Participantes */}
+          {activeTab === 'participantes' && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#fff', margin: '0 0 24px 0' }}>
+                Compañeros de Clase
+              </h2>
+              
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {companeros.map((companero) => (
+                  <div
+                    key={companero.id}
+                    style={{
+                      padding: '20px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(251, 191, 36, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <img 
+                      src={companero.foto}
+                      alt={companero.nombre}
+                      style={{ 
+                        width: '50px', 
+                        height: '50px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover' 
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#fff', margin: 0 }}>
+                          {companero.nombre}
+                        </h3>
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: companero.estado === 'online' ? '#10b981' : '#6b7280'
+                        }} />
+                        <span style={{ 
+                          fontSize: '0.8rem', 
+                          color: companero.estado === 'online' ? '#10b981' : '#6b7280',
+                          fontWeight: '600'
+                        }}>
+                          {companero.estado === 'online' ? 'En línea' : 'Desconectado'}
+                        </span>
+                      </div>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '0 0 8px 0' }}>
+                        {companero.curso}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Star size={14} color="#fbbf24" />
+                        <span style={{ color: '#fbbf24', fontSize: '0.9rem', fontWeight: '600' }}>
+                          Promedio: {companero.promedio}/10
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Teléfono</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.telefono}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Dirección</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.direccion}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Contacto de Emergencia</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.emergenciaContacto}</p>
-                    </div>
+                    <button
+                      style={{
+                        background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '8px 16px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <MessageCircle size={14} />
+                      Mensaje
+                    </button>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Curso</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.curso}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pestaña Calificaciones */}
+          {activeTab === 'calificaciones' && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#fff', margin: '0 0 24px 0' }}>
+                Mis Calificaciones
+              </h2>
+              
+              <div style={{ display: 'grid', gap: '24px' }}>
+                {calificaciones.map((materia, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '24px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(251, 191, 36, 0.1)'
+                    }}
+                  >
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#fff', margin: '0 0 16px 0' }}>
+                      {materia.materia}
+                    </h3>
+                    
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {materia.evaluaciones.map((evaluacion, evalIndex) => (
+                        <div
+                          key={evalIndex}
+                          style={{
+                            padding: '16px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#fff', margin: '0 0 4px 0' }}>
+                              {evaluacion.nombre}
+                            </h4>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <span style={{
+                                background: evaluacion.tipo === 'Examen' ? '#ef4444' :
+                                           evaluacion.tipo === 'Práctica' ? '#10b981' :
+                                           evaluacion.tipo === 'Proyecto' ? '#3b82f6' : '#f59e0b',
+                                color: '#fff',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '0.75rem',
+                                fontWeight: '600'
+                              }}>
+                                {evaluacion.tipo}
+                              </span>
+                              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>
+                                {new Date(evaluacion.fecha).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{
+                              fontSize: '1.5rem',
+                              fontWeight: '700',
+                              color: evaluacion.nota >= 8 ? '#10b981' :
+                                     evaluacion.nota >= 7 ? '#f59e0b' : '#ef4444',
+                              marginBottom: '4px'
+                            }}>
+                              {evaluacion.nota}/10
+                            </div>
+                            <div style={{
+                              fontSize: '0.8rem',
+                              color: evaluacion.nota >= 8 ? '#10b981' :
+                                     evaluacion.nota >= 7 ? '#f59e0b' : '#ef4444',
+                              fontWeight: '600'
+                            }}>
+                              {evaluacion.nota >= 8 ? 'Excelente' :
+                               evaluacion.nota >= 7 ? 'Bueno' : 'Necesita mejorar'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Estado</label>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        selectedStudent.estado === 'Activo' ? 'bg-green-100 text-green-800' :
-                        selectedStudent.estado === 'Inactivo' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {selectedStudent.estado}
+                    
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '16px',
+                      background: 'rgba(251, 191, 36, 0.1)',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(251, 191, 36, 0.2)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ color: '#fff', fontWeight: '600' }}>
+                        Promedio de la materia:
+                      </span>
+                      <span style={{ color: '#fbbf24', fontSize: '1.2rem', fontWeight: '700' }}>
+                        {(materia.evaluaciones.reduce((acc, evaluacion) => acc + evaluacion.nota, 0) / materia.evaluaciones.length).toFixed(1)}/10
                       </span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pestaña Perfil */}
+          {activeTab === 'perfil' && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#fff', margin: '0 0 24px 0' }}>
+                Mi Perfil
+              </h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
+                {/* Foto de perfil */}
+                <div style={{
+                  padding: '24px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(251, 191, 36, 0.1)',
+                  textAlign: 'center'
+                }}>
+                  <img 
+                    src={estudianteInfo.foto}
+                    alt={estudianteInfo.nombre}
+                    style={{ 
+                      width: '120px', 
+                      height: '120px', 
+                      borderRadius: '50%', 
+                      objectFit: 'cover',
+                      marginBottom: '16px',
+                      boxShadow: '0 8px 24px rgba(251, 191, 36, 0.3)'
+                    }}
+                  />
+                  <button
+                    style={{
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      margin: '0 auto'
+                    }}
+                  >
+                    <Camera size={16} />
+                    Cambiar Foto
+                  </button>
+                </div>
+
+                {/* Información personal */}
+                <div style={{
+                  padding: '24px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(251, 191, 36, 0.1)'
+                }}>
+                  <div style={{ display: 'grid', gap: '20px' }}>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Promedio</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedStudent.promedio}/10</p>
+                      <label style={{ 
+                        display: 'block', 
+                        color: 'rgba(255,255,255,0.8)', 
+                        fontSize: '0.9rem', 
+                        fontWeight: '600', 
+                        marginBottom: '8px' 
+                      }}>
+                        Nombre Completo
+                      </label>
+                      <input
+                        type="text"
+                        value={estudianteInfo.nombre}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(251, 191, 36, 0.3)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
                     </div>
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Fecha de Inscripción</label>
-                      <p className="mt-1 text-sm text-gray-900">
-                        {new Date(selectedStudent.fechaInscripcion).toLocaleDateString()}
-                      </p>
+                      <label style={{ 
+                        display: 'block', 
+                        color: 'rgba(255,255,255,0.8)', 
+                        fontSize: '0.9rem', 
+                        fontWeight: '600', 
+                        marginBottom: '8px' 
+                      }}>
+                        Email Institucional
+                      </label>
+                      <input
+                        type="email"
+                        value={estudianteInfo.email}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(251, 191, 36, 0.3)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ 
+                        display: 'block', 
+                        color: 'rgba(255,255,255,0.8)', 
+                        fontSize: '0.9rem', 
+                        fontWeight: '600', 
+                        marginBottom: '8px' 
+                      }}>
+                        Teléfono
+                      </label>
+                      <input
+                        type="tel"
+                        value={estudianteInfo.telefono}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(251, 191, 36, 0.3)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ 
+                        display: 'block', 
+                        color: 'rgba(255,255,255,0.8)', 
+                        fontSize: '0.9rem', 
+                        fontWeight: '600', 
+                        marginBottom: '8px' 
+                      }}>
+                        Dirección
+                      </label>
+                      <input
+                        type="text"
+                        value={estudianteInfo.direccion}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(251, 191, 36, 0.3)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                      <button
+                        style={{
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '12px 24px',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <Settings size={16} />
+                        Guardar Cambios
+                      </button>
+                      
+                      <button
+                        style={{
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '12px 24px',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <Lock size={16} />
+                        Cambiar Contraseña
+                      </button>
                     </div>
                   </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Observaciones</label>
-                  <p className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
-                    {selectedStudent.observaciones || 'Sin observaciones'}
-                  </p>
-                </div>
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {modalType === 'create' ? 'Nuevo Estudiante' : 'Editar Estudiante'}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ingrese el nombre"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Apellido *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.apellido}
-                    onChange={(e) => setFormData({...formData, apellido: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ingrese el apellido"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="correo@ejemplo.com"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="+593 99 123 4567"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cédula *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.cedula}
-                    onChange={(e) => setFormData({...formData, cedula: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="1234567890"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha de Nacimiento *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.fechaNacimiento}
-                    onChange={(e) => setFormData({...formData, fechaNacimiento: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Curso *
-                  </label>
-                  <select
-                    required
-                    value={formData.curso}
-                    onChange={(e) => setFormData({...formData, curso: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Seleccionar curso</option>
-                    <option value="Cosmetología">Cosmetología</option>
-                    <option value="Cosmiatría">Cosmiatría</option>
-                    <option value="Maquillaje Profesional">Maquillaje Profesional</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado
-                  </label>
-                  <select
-                    value={formData.estado}
-                    onChange={(e) => setFormData({...formData, estado: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                    <option value="Suspendido">Suspendido</option>
-                  </select>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dirección
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.direccion}
-                    onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Dirección completa"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contacto de Emergencia
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.emergenciaContacto}
-                    onChange={(e) => setFormData({...formData, emergenciaContacto: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Nombre y teléfono del contacto de emergencia"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Observaciones
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.observaciones}
-                    onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Observaciones adicionales sobre el estudiante"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-                >
-                  {modalType === 'create' ? 'Crear Estudiante' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
           )}
-        </Modal>
-      )}
-    </div>
+        </div>
+      </div>
+    </>
   );
 };
 
