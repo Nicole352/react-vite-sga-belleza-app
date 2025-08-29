@@ -11,9 +11,12 @@ import Header from './components/Header';
 import Pago from './pages/Pago';
 import DashboardLayout from './pages/DashboardLayout';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <Router>
+    <Router future={{ 
+      v7_startTransition: true,
+      v7_relativeSplatPath: true 
+    }}>
       <div className="App">
         <Routes>
           {/* Rutas públicas con Header */}
@@ -32,6 +35,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;

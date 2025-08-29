@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, GraduationCap, Sparkles } from 'lucide-react';
+import { Menu, X, GraduationCap } from 'lucide-react';
 
-const Header = () => {
+const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -55,9 +55,9 @@ const Header = () => {
     setScrolled(false);
   }, [location.pathname]);
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path: string): boolean => location.pathname === path;
 
-  const headerStyle = {
+  const headerStyle: React.CSSProperties = {
     position: 'fixed',
     width: '100%',
     left: 0,
@@ -78,13 +78,13 @@ const Header = () => {
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     maxWidth: '100%',
     margin: '0',
     padding: '0 2rem',
   };
 
-  const navStyle = {
+  const navStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -94,14 +94,14 @@ const Header = () => {
     width: '100%',
   };
 
-  const logoContainerStyle = {
+  const logoContainerStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     textDecoration: 'none',
     transition: 'all 0.3s ease',
   };
 
-  const logoImageStyle = {
+  const logoImageStyle: React.CSSProperties = {
     height: '60px',
     width: 'auto',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -109,13 +109,13 @@ const Header = () => {
     borderRadius: '50%',
   };
 
-  const navLinksStyle = {
+  const navLinksStyle: React.CSSProperties = {
     display: isMobile ? 'none' : 'flex',
     gap: '2rem',
     alignItems: 'center',
   };
 
-  const linkStyle = (active, isAulaVirtual = false) => ({
+  const linkStyle = (active: boolean, isAulaVirtual: boolean = false): React.CSSProperties => ({
     fontWeight: isAulaVirtual ? '700' : '600',
     fontSize: isAulaVirtual ? '16px' : '15px',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -145,7 +145,7 @@ const Header = () => {
       : 'none',
   });
 
-  const linkUnderlineStyle = (active, isAulaVirtual = false) => ({
+  const linkUnderlineStyle = (active: boolean, isAulaVirtual: boolean = false): React.CSSProperties => ({
     position: 'absolute',
     bottom: isAulaVirtual ? '4px' : '6px',
     left: '50%',
@@ -159,7 +159,7 @@ const Header = () => {
     display: isAulaVirtual ? 'none' : 'block',
   });
 
-  const mobileMenuButtonStyle = {
+  const mobileMenuButtonStyle: React.CSSProperties = {
     display: isMobile ? 'flex' : 'none',
     alignItems: 'center',
     justifyContent: 'center',
@@ -172,7 +172,7 @@ const Header = () => {
     backdropFilter: 'blur(10px)',
   };
 
-  const mobileMenuStyle = {
+  const mobileMenuStyle: React.CSSProperties = {
     position: 'absolute',
     top: '100%',
     left: '0',
@@ -189,13 +189,13 @@ const Header = () => {
     boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
   };
 
-  const mobileLinksStyle = {
+  const mobileLinksStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
   };
 
-  const mobileLinkStyle = (active) => ({
+  const mobileLinkStyle = (active: boolean): React.CSSProperties => ({
     fontWeight: '600',
     fontSize: '16px',
     color: active ? '#fbbf24' : 'rgba(255, 255, 255, 0.9)',
