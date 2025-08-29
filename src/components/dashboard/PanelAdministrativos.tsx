@@ -4,12 +4,26 @@ import {
   Calendar, MapPin, Shield, User, BookOpen, DollarSign, 
   TrendingUp, Award, Activity, BarChart3, GraduationCap, UserCheck,
   FileText, Download, Filter, Settings, Upload, QrCode, CreditCard,
-  Clock, AlertTriangle, CheckCircle, UserPlus, Target, PieChart
+  Clock, AlertTriangle, CheckCircle, UserPlus, Target, PieChart, Save
 } from 'lucide-react';
+
+// Tipos
+interface Admin {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  cargo: string;
+  departamento: string;
+  fechaIngreso: string;
+  estado: string;
+  permisos: string[];
+}
 
 const PanelAdministrativos = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [administrativos, setAdministrativos] = useState([
+  const [administrativos, setAdministrativos] = useState<Admin[]>([
     {
       id: 1, nombre: 'Lcda. Patricia', apellido: 'González',
       email: 'patricia.gonzalez@belleza.edu', telefono: '+58 414-123-4567',
@@ -20,8 +34,8 @@ const PanelAdministrativos = () => {
   ]);
 
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('create');
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [modalType, setModalType] = useState<'create' | 'edit' | 'view'>('create');
+  const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [filterDepartamento, setFilterDepartamento] = useState('todos');
@@ -40,41 +54,45 @@ const PanelAdministrativos = () => {
     setShowModal(true);
   };
 
-  const handleEditAdmin = (admin) => {
+  const handleEditAdmin = (admin: Admin) => {
     setSelectedAdmin(admin);
     setModalType('edit');
     setShowModal(true);
   };
 
-  const handleViewAdmin = (admin) => {
+  const handleViewAdmin = (admin: Admin) => {
     setSelectedAdmin(admin);
     setModalType('view');
     setShowModal(true);
   };
 
-  const handleDeleteAdmin = (id) => {
+  const handleDeleteAdmin = (id: number) => {
     if (window.confirm('¿Está seguro de que desea eliminar este administrativo?')) {
       setAdministrativos(administrativos.filter(admin => admin.id !== id));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const adminData = {
-      nombre: formData.get('nombre'),
-      apellido: formData.get('apellido'),
-      email: formData.get('email'),
-      telefono: formData.get('telefono'),
-      cargo: formData.get('cargo'),
-      departamento: formData.get('departamento'),
-      fechaIngreso: formData.get('fechaIngreso'),
-      estado: formData.get('estado'),
-      permisos: formData.getAll('permisos')
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const adminData: Omit<Admin, 'id'> = {
+      nombre: String(formData.get('nombre') || ''),
+      apellido: String(formData.get('apellido') || ''),
+      email: String(formData.get('email') || ''),
+      telefono: String(formData.get('telefono') || ''),
+      cargo: String(formData.get('cargo') || ''),
+      departamento: String(formData.get('departamento') || ''),
+      fechaIngreso: String(formData.get('fechaIngreso') || ''),
+      estado: String(formData.get('estado') || 'activo'),
+      permisos: (formData.getAll('permisos') as string[])
     };
 
     if (modalType === 'create') {
-      const newAdmin = { ...adminData, id: Math.max(...administrativos.map(a => a.id)) + 1 };
+      const newAdmin: Admin = { 
+        ...adminData, 
+        id: administrativos.length ? Math.max(...administrativos.map(a => a.id)) + 1 : 1 
+      };
       setAdministrativos([...administrativos, newAdmin]);
     } else if (modalType === 'edit') {
       setAdministrativos(administrativos.map(admin => 
@@ -423,7 +441,27 @@ const DashboardTab = () => {
 };
 
 // Componente Personal
-const PersonalTab = ({ 
+type PersonalTabProps = {
+  administrativos: Admin[];
+  administrativosFiltrados: Admin[];
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  filterEstado: string;
+  setFilterEstado: React.Dispatch<React.SetStateAction<string>>;
+  filterDepartamento: string;
+  setFilterDepartamento: React.Dispatch<React.SetStateAction<string>>;
+  showModal: boolean;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  modalType: 'create' | 'edit' | 'view';
+  selectedAdmin: Admin | null;
+  handleCreateAdmin: () => void;
+  handleEditAdmin: (admin: Admin) => void;
+  handleViewAdmin: (admin: Admin) => void;
+  handleDeleteAdmin: (id: number) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+};
+
+const PersonalTab: React.FC<PersonalTabProps> = ({ 
   administrativos, administrativosFiltrados, searchTerm, setSearchTerm,
   filterEstado, setFilterEstado, filterDepartamento, setFilterDepartamento,
   showModal, setShowModal, modalType, selectedAdmin,

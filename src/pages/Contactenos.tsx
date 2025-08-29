@@ -50,7 +50,7 @@ const Contactenos = () => {
     'Modalidad Intensiva'
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowSuccess(true);
     setTimeout(() => {
@@ -66,7 +66,7 @@ const Contactenos = () => {
     }, 3000);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -449,8 +449,8 @@ const Contactenos = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                       />
                     </div>
 
@@ -481,8 +481,8 @@ const Contactenos = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                       />
                     </div>
                   </div>
@@ -514,8 +514,8 @@ const Contactenos = () => {
                         background: 'rgba(0, 0, 0, 0.4)',
                         color: '#fff'
                       }}
-                      onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                      onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                      onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                     />
                   </div>
 
@@ -553,8 +553,8 @@ const Contactenos = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                       >
                         <option value="">Seleccionar curso</option>
                         {cursosDisponibles.map((curso, index) => (
@@ -588,8 +588,8 @@ const Contactenos = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                       >
                         <option value="">Seleccionar horario</option>
                         {horariosDisponibles.map((horario, index) => (
@@ -614,7 +614,7 @@ const Contactenos = () => {
                       name="mensaje"
                       value={formData.mensaje}
                       onChange={handleChange}
-                      rows="4"
+                      rows={4}
                       placeholder="Cuéntanos sobre tus objetivos profesionales, experiencia previa o cualquier pregunta específica..."
                       style={{
                         width: '100%',
@@ -628,8 +628,8 @@ const Contactenos = () => {
                         fontFamily: 'inherit',
                         color: '#fff'
                       }}
-                      onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                      onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                      onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                     />
                   </div>
 
@@ -653,12 +653,12 @@ const Contactenos = () => {
                       gap: '12px'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                      e.target.style.boxShadow = '0 12px 35px rgba(251, 191, 36, 0.5)';
+                      (e.target as HTMLButtonElement).style.transform = 'translateY(-2px) scale(1.02)';
+                      (e.target as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(251, 191, 36, 0.5)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0) scale(1)';
-                      e.target.style.boxShadow = '0 8px 25px rgba(251, 191, 36, 0.4)';
+                      (e.target as HTMLButtonElement).style.transform = 'translateY(0) scale(1)';
+                      (e.target as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(251, 191, 36, 0.4)';
                     }}
                   >
                     <Send size={18} />
@@ -767,7 +767,7 @@ const Contactenos = () => {
                       border: 0,
                       borderRadius: '14px'
                     }}
-                    allowFullScreen=""
+                    allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     title="Jessica Vélez Escuela de Esteticistas - Ubicación"
@@ -800,12 +800,12 @@ const Contactenos = () => {
                       transition: 'all 0.3s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.background = 'rgba(251, 191, 36, 0.2)';
-                      e.target.style.transform = 'translateY(-2px)';
+                      (e.target as HTMLAnchorElement).style.background = 'rgba(251, 191, 36, 0.2)';
+                      (e.target as HTMLAnchorElement).style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.background = 'rgba(251, 191, 36, 0.1)';
-                      e.target.style.transform = 'translateY(0)';
+                      (e.target as HTMLAnchorElement).style.background = 'rgba(251, 191, 36, 0.1)';
+                      (e.target as HTMLAnchorElement).style.transform = 'translateY(0)';
                     }}
                   >
                     <MapPin size={16} />
@@ -831,12 +831,12 @@ const Contactenos = () => {
                       transition: 'all 0.3s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.background = 'rgba(251, 191, 36, 0.2)';
-                      e.target.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.background = 'rgba(251, 191, 36, 0.1)';
-                      e.target.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)';
+                      e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
                     <Calendar size={16} />
@@ -915,12 +915,12 @@ const Contactenos = () => {
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.filter = 'brightness(1.05)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.filter = 'brightness(1.05)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.filter = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.filter = 'none';
                     }}
                   >
                     <MessageCircle size={18} /> WhatsApp
@@ -943,12 +943,12 @@ const Contactenos = () => {
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.background = 'rgba(225, 48, 108, 0.22)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.background = 'rgba(225, 48, 108, 0.22)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.background = 'rgba(225, 48, 108, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(225, 48, 108, 0.15)';
                     }}
                   >
                     <Instagram size={18} /> Instagram
@@ -971,12 +971,12 @@ const Contactenos = () => {
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.18)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.12)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                     }}
                   >
                     <TikTokIcon size={18} /> TikTok
@@ -999,12 +999,12 @@ const Contactenos = () => {
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.background = 'rgba(66, 103, 178, 0.22)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.background = 'rgba(66, 103, 178, 0.22)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.background = 'rgba(66, 103, 178, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(66, 103, 178, 0.15)';
                     }}
                   >
                     <Facebook size={18} /> Facebook
@@ -1101,12 +1101,12 @@ const Contactenos = () => {
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.filter = 'brightness(1.05)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.filter = 'brightness(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.filter = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.filter = 'none';
                 }}
               >
                 <MessageCircle size={18} /> WhatsApp
@@ -1129,12 +1129,12 @@ const Contactenos = () => {
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.background = 'rgba(225, 48, 108, 0.22)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.background = 'rgba(225, 48, 108, 0.22)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(225, 48, 108, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'rgba(225, 48, 108, 0.15)';
                 }}
               >
                 <Instagram size={18} /> Instagram
@@ -1157,12 +1157,12 @@ const Contactenos = () => {
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.18)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                 }}
               >
                 <TikTokIcon size={18} /> TikTok
@@ -1185,12 +1185,12 @@ const Contactenos = () => {
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.background = 'rgba(66, 103, 178, 0.22)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.background = 'rgba(66, 103, 178, 0.22)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(66, 103, 178, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'rgba(66, 103, 178, 0.15)';
                 }}
               >
                 <Facebook size={18} /> Facebook

@@ -8,7 +8,11 @@ import 'aos/dist/aos.css';
 AOS.init({ duration: 600, easing: 'ease-out', once: true, offset: 40 });
 window.addEventListener('load', () => AOS.refresh());
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error("Root container with id 'root' not found");
+}
+const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
     <App />

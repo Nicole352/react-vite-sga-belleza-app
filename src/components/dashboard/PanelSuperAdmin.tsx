@@ -417,10 +417,10 @@ const PanelSuperAdmin = () => {
                       transform: selectedAdmin.permisos.includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
                     }}
                     onClick={() => {
-                      const newPermisos = selectedAdmin.permisos.includes(permiso.id)
+                      const nuevos = selectedAdmin.permisos.includes(permiso.id)
                         ? selectedAdmin.permisos.filter(p => p !== permiso.id)
                         : [...selectedAdmin.permisos, permiso.id];
-                      setSelectedAdmin({...selectedAdmin, permisos: newPermisos});
+                      setSelectedAdmin({...selectedAdmin, permisos: nuevos});
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -454,7 +454,7 @@ const PanelSuperAdmin = () => {
           {/* Botones */}
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
             <button
-              onClick={() => setShowEditAdminModal(false)}
+              onClick={() => setShowCreateAdminModal(false)}
               style={{
                 padding: '14px 28px',
                 background: 'rgba(255,255,255,0.1)',
@@ -470,7 +470,7 @@ const PanelSuperAdmin = () => {
               Cancelar
             </button>
             <button
-              onClick={handleEditAdmin}
+              onClick={handleCreateAdmin}
               style={{
                 padding: '14px 28px',
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -488,7 +488,7 @@ const PanelSuperAdmin = () => {
               }}
             >
               <Save size={16} />
-              Guardar Cambios
+              Crear Administrador
             </button>
           </div>
         </div>
@@ -633,8 +633,8 @@ const PanelSuperAdmin = () => {
               </label>
               <input
                 type="email"
-                value={selectedAdmin.email}
-                onChange={(e) => setSelectedAdmin({...selectedAdmin, email: e.target.value})}
+                value={newAdmin.email}
+                onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -656,8 +656,8 @@ const PanelSuperAdmin = () => {
               </label>
               <input
                 type="tel"
-                value={selectedAdmin.telefono}
-                onChange={(e) => setSelectedAdmin({...selectedAdmin, telefono: e.target.value})}
+                value={newAdmin.telefono}
+                onChange={(e) => setNewAdmin({...newAdmin, telefono: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -687,19 +687,19 @@ const PanelSuperAdmin = () => {
                   <div 
                     key={permiso.id}
                     style={{
-                      background: selectedAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${selectedAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
+                      background: newAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${newAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
                       borderRadius: '12px',
                       padding: '16px',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
-                      transform: selectedAdmin.permisos.includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
+                      transform: newAdmin.permisos.includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
                     }}
                     onClick={() => {
-                      const newPermisos = selectedAdmin.permisos.includes(permiso.id)
-                        ? selectedAdmin.permisos.filter(p => p !== permiso.id)
-                        : [...selectedAdmin.permisos, permiso.id];
-                      setSelectedAdmin({...selectedAdmin, permisos: newPermisos});
+                      const nuevos = newAdmin.permisos.includes(permiso.id)
+                        ? newAdmin.permisos.filter(p => p !== permiso.id)
+                        : [...newAdmin.permisos, permiso.id];
+                      setNewAdmin({...newAdmin, permisos: nuevos});
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -711,10 +711,10 @@ const PanelSuperAdmin = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: selectedAdmin.permisos.includes(permiso.id) ? '#ef4444' : 'transparent',
+                        background: newAdmin.permisos.includes(permiso.id) ? '#ef4444' : 'transparent',
                         transition: 'all 0.2s'
                       }}>
-                        {selectedAdmin.permisos.includes(permiso.id) && <Check size={14} color="#fff" />}
+                        {newAdmin.permisos.includes(permiso.id) && <Check size={14} color="#fff" />}
                       </div>
                       <IconComponent size={20} color="rgba(255,255,255,0.8)" />
                       <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>
@@ -733,7 +733,7 @@ const PanelSuperAdmin = () => {
           {/* Botones */}
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
             <button
-              onClick={() => setShowEditAdminModal(false)}
+              onClick={() => setShowCreateAdminModal(false)}
               style={{
                 padding: '14px 28px',
                 background: 'rgba(255,255,255,0.1)',
@@ -749,7 +749,7 @@ const PanelSuperAdmin = () => {
               Cancelar
             </button>
             <button
-              onClick={handleEditAdmin}
+              onClick={handleCreateAdmin}
               style={{
                 padding: '14px 28px',
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -767,7 +767,7 @@ const PanelSuperAdmin = () => {
               }}
             >
               <Save size={16} />
-              Guardar Cambios
+              Crear Administrador
             </button>
           </div>
         </div>
