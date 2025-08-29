@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 // Interfaces para tipado
 interface CursoInfo {
@@ -20,14 +21,12 @@ interface FormData {
 }
 
 interface PaymentCardProps {
-  method: string;
   title: string;
   icon: React.ReactNode;
   description: string;
   isSelected: boolean;
   onClick: () => void;
 }
-import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeftCircle,
   CreditCard,
@@ -35,14 +34,9 @@ import {
   Upload,
   CheckCircle,
   AlertCircle,
-  X,
-  DollarSign,
   Calendar,
   User,
-  Phone,
-  Mail,
   FileImage,
-  Download,
   Sparkles,
   Shield
 } from 'lucide-react';
@@ -184,7 +178,7 @@ const Pago: React.FC = () => {
     }, 3000);
   };
 
-  const PaymentCard: React.FC<PaymentCardProps> = ({ method, title, icon, description, isSelected, onClick }) => (
+  const PaymentCard: React.FC<PaymentCardProps> = ({ title, icon, description, isSelected, onClick }) => (
     <div
       onClick={onClick}
       style={{
@@ -735,7 +729,6 @@ const Pago: React.FC = () => {
                     marginBottom: '24px'
                   }}>
                     <PaymentCard
-                      method="paypal"
                       title="PayPal"
                       icon={<CreditCard size={24} />}
                       description="Pago seguro y rápido con tu cuenta de PayPal"
@@ -744,7 +737,6 @@ const Pago: React.FC = () => {
                     />
                     
                     <PaymentCard
-                      method="transferencia"
                       title="Transferencia Bancaria"
                       icon={<QrCode size={24} />}
                       description="Transfiere directamente a nuestra cuenta bancaria"

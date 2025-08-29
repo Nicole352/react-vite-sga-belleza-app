@@ -1,5 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 import { 
   MapPin, 
   Phone, 
@@ -12,8 +12,7 @@ import {
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  const footerStyle = {
+  const footerStyle: CSSProperties = {
     background: 'rgba(0, 0, 0, 0.95)',
     backdropFilter: 'blur(20px)',
     borderTop: '2px solid rgba(251, 191, 36, 0.3)',
@@ -25,7 +24,7 @@ const Footer = () => {
     fontFamily: "'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   };
 
-  const containerStyle = {
+  const containerStyle: CSSProperties = {
     maxWidth: '100%',
     margin: '0',
     padding: '0 5%',
@@ -33,7 +32,7 @@ const Footer = () => {
     zIndex: 1,
   };
 
-  const footerMainStyle = {
+  const footerMainStyle: CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr 1fr',
     gap: '40px',
@@ -43,20 +42,20 @@ const Footer = () => {
     margin: '0 auto 30px auto',
   };
 
-  const logoSectionStyle = {
+  const logoSectionStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '14px', // igual que el espacio entre título "Enlaces" y su lista
   };
 
-  const logoContainerStyle = {
+  const logoContainerStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
     marginBottom: '0', // evitamos duplicar espacio ya dado por gap: 14px
   };
 
-  const descriptionStyle = {
+  const descriptionStyle: CSSProperties = {
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: '1.6',
     marginBottom: '0',
@@ -66,14 +65,14 @@ const Footer = () => {
     textAlign: 'justify',
   };
 
-  const contactInfoStyle = {
+  const contactInfoStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
     marginTop: '14px',
   };
 
-  const contactItemStyle = {
+  const contactItemStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
@@ -84,17 +83,17 @@ const Footer = () => {
     flexWrap: 'wrap',
   };
 
-  const iconStyle = {
+  const iconStyle: CSSProperties = {
     color: '#fbbf24',
     flexShrink: 0,
   };
 
-  const sectionStyle = {
+  const sectionStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
   };
 
-  const sectionTitleStyle = {
+  const sectionTitleStyle: CSSProperties = {
     fontSize: '18px',
     fontWeight: '600',
     color: '#fbbf24',
@@ -103,14 +102,14 @@ const Footer = () => {
     letterSpacing: '0.5px',
   };
 
-  const linkListStyle = {
+  const linkListStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
     marginTop: '14px',
   };
 
-  const linkStyle = {
+  const linkStyle: CSSProperties = {
     color: 'rgba(255, 255, 255, 0.9)',
     textDecoration: 'none',
     fontSize: '15px',
@@ -122,11 +121,7 @@ const Footer = () => {
     display: 'inline-block',
   };
 
-  const socialContainerStyle = {
-    marginTop: '18px',
-  };
-
-  const socialGridStyle = {
+  const socialGridStyle: CSSProperties = {
     display: 'flex',
     gap: '12px',
     marginTop: '0px',
@@ -134,7 +129,7 @@ const Footer = () => {
     alignItems: 'center',
   };
 
-  const socialLinkStyle = {
+  const socialLinkStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -151,7 +146,7 @@ const Footer = () => {
     willChange: 'transform, background, border-color',
   };
 
-  const bottomBarStyle = {
+  const bottomBarStyle: CSSProperties = {
     borderTop: '1px solid rgba(255, 255, 255, 0.1)',
     paddingTop: '30px',
     display: 'flex',
@@ -161,7 +156,7 @@ const Footer = () => {
     gap: '20px',
   };
 
-  const copyrightStyle = {
+  const copyrightStyle: CSSProperties = {
     color: 'rgba(255, 255, 255, 0.9)',
     fontSize: '14px',
     fontFamily: "'Montserrat', sans-serif",
@@ -175,7 +170,7 @@ const Footer = () => {
     width: '100%',
   };
 
-  const badgeStyle = {
+  const badgeStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -224,12 +219,14 @@ const Footer = () => {
                 }}
                 className="footer-logo"
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'scale(1.05)';
-                  e.target.style.filter = 'drop-shadow(0 6px 20px rgba(251, 191, 36, 0.5))';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = 'scale(1.05)';
+                  el.style.filter = 'drop-shadow(0 6px 20px rgba(251, 191, 36, 0.5))';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'scale(1)';
-                  e.target.style.filter = 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.3))';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = 'scale(1)';
+                  el.style.filter = 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.3))';
                 }}
               />
             </div>
@@ -247,12 +244,14 @@ const Footer = () => {
                 to="/" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Inicio
@@ -261,12 +260,14 @@ const Footer = () => {
                 to="/cursos" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Cursos
@@ -275,12 +276,14 @@ const Footer = () => {
                 to="/avales" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Avales
@@ -289,12 +292,14 @@ const Footer = () => {
                 to="/sobre-nosotros" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Sobre nosotros
@@ -303,12 +308,14 @@ const Footer = () => {
                 to="/contactenos" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Contáctenos
@@ -317,12 +324,14 @@ const Footer = () => {
                 to="/aula-virtual" 
                 style={linkStyle}
                 onMouseEnter={(e) => {
-                  e.target.style.color = '#fbbf24';
-                  e.target.style.paddingLeft = '8px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = '#fbbf24';
+                  el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.paddingLeft = '0px';
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.paddingLeft = '0px';
                 }}
               >
                 Aula Virtual
@@ -372,13 +381,13 @@ const Footer = () => {
                   style={socialLinkStyle}
                   className="social-link tiktok-link"
                   onMouseEnter={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(-2px)';
                     el.style.background = 'rgba(255, 0, 80, 0.15)';
                     el.style.borderColor = 'rgba(255, 0, 80, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
                     el.style.background = 'rgba(255, 255, 255, 0.08)';
                     el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -394,13 +403,13 @@ const Footer = () => {
                   style={socialLinkStyle}
                   className="social-link instagram-link"
                   onMouseEnter={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(-2px)';
                     el.style.background = 'rgba(225, 48, 108, 0.15)';
                     el.style.borderColor = 'rgba(225, 48, 108, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
                     el.style.background = 'rgba(255, 255, 255, 0.08)';
                     el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -416,13 +425,13 @@ const Footer = () => {
                   style={socialLinkStyle}
                   className="social-link facebook-link"
                   onMouseEnter={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(-2px)';
                     el.style.background = 'rgba(66, 103, 178, 0.15)';
                     el.style.borderColor = 'rgba(66, 103, 178, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
                     el.style.background = 'rgba(255, 255, 255, 0.08)';
                     el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -438,13 +447,13 @@ const Footer = () => {
                   style={socialLinkStyle}
                   className="social-link whatsapp-link"
                   onMouseEnter={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(-2px)';
                     el.style.background = 'rgba(37, 211, 102, 0.15)';
                     el.style.borderColor = 'rgba(37, 211, 102, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    const el = e.currentTarget;
+                    const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
                     el.style.background = 'rgba(255, 255, 255, 0.08)';
                     el.style.borderColor = 'rgba(255, 255, 255, 0.15)';

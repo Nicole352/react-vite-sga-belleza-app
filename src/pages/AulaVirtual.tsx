@@ -1,4 +1,4 @@
-import { 
+import React, { 
   useState, 
   useEffect 
 } from 'react';
@@ -7,9 +7,7 @@ import 'aos/dist/aos.css';
 import { 
   Eye, 
   EyeOff, 
-  LogIn, 
   Mail,
-  Sparkles,
   Shield,
   CheckCircle,
   ArrowRight,
@@ -36,7 +34,7 @@ const AulaVirtual = () => {
     setTimeout(() => AOS.refresh(), 0);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -54,7 +52,7 @@ const AulaVirtual = () => {
     }, 1500);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value

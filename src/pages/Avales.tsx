@@ -4,9 +4,7 @@ import 'aos/dist/aos.css';
 import { 
   Award, 
   Shield, 
-  Star, 
   CheckCircle, 
-  Users, 
   Trophy,
   Sparkles,
   MapPin,
@@ -14,9 +12,31 @@ import {
 } from 'lucide-react';
 import Footer from '../components/Footer';
 
+type Certificacion = {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  entidad: string;
+  vigencia: string;
+  tipo: string;
+  icono: React.ReactNode;
+  color: string;
+  prestigio?: string;
+  documento?: string;
+  valorAdicional?: boolean;
+  detalles?: string[];
+};
+
+type Reconocimiento = {
+  año: string;
+  titulo: string;
+  otorgante: string;
+  descripcion: string;
+};
+
 const Avales = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [showMoreCerts, setShowMoreCerts] = useState(false);
 
   useEffect(() => {
@@ -28,7 +48,7 @@ const Avales = () => {
     });
   }, []);
 
-  const certificaciones = [
+  const certificaciones: Certificacion[] = [
     {
       id: 1,
       titulo: 'Ministerio del Trabajo del Ecuador',
@@ -105,7 +125,7 @@ const Avales = () => {
     }
   ];
 
-  const reconocimientos = [
+  const reconocimientos: Reconocimiento[] = [
     {
       año: '2024',
       titulo: 'Centro de Excelencia en Formación Técnica',
@@ -132,7 +152,7 @@ const Avales = () => {
     }
   ];
 
-  const CertificationCard = ({ cert, index }) => {
+  const CertificationCard: React.FC<{ cert: Certificacion; index: number }> = ({ cert, index }) => {
     const isHovered = hoveredCard === cert.id;
 
     return (
@@ -410,12 +430,14 @@ const Avales = () => {
                 transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = `${cert.color}1a`;
-                e.target.style.transform = 'translateY(-1px)';
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background = `${cert.color}1a`;
+                el.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.transform = 'translateY(0)';
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background = 'transparent';
+                el.style.transform = 'translateY(0)';
               }}
             >
               Ver Certificado
@@ -672,14 +694,16 @@ const Avales = () => {
                       boxShadow: '0 6px 16px rgba(0,0,0,0.25)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.10)';
-                      e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      const el = e.currentTarget as HTMLDivElement;
+                      el.style.background = 'rgba(251, 191, 36, 0.10)';
+                      el.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+                      el.style.transform = 'translateY(-1px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(251, 191, 36, 0.06)';
-                      e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.25)';
-                      e.currentTarget.style.transform = 'translateY(0)';
+                      const el = e.currentTarget as HTMLDivElement;
+                      el.style.background = 'rgba(251, 191, 36, 0.06)';
+                      el.style.borderColor = 'rgba(251, 191, 36, 0.25)';
+                      el.style.transform = 'translateY(0)';
                     }}
                   >
                     <CheckCircle size={16} color="#10b981" />
@@ -883,12 +907,14 @@ const Avales = () => {
                     overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.5)';
+                    const el = e.currentTarget as HTMLDivElement;
+                    el.style.transform = 'translateY(-5px) scale(1.02)';
+                    el.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.5)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.4)';
+                    const el = e.currentTarget as HTMLDivElement;
+                    el.style.transform = 'translateY(0) scale(1)';
+                    el.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.4)';
                   }}
                 >
                   <div
@@ -1034,12 +1060,14 @@ const Avales = () => {
                   transition: 'all 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                  e.target.style.boxShadow = '0 12px 35px rgba(251, 191, 36, 0.5)';
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.transform = 'translateY(-2px) scale(1.05)';
+                  el.style.boxShadow = '0 12px 35px rgba(251, 191, 36, 0.5)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.4)';
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.transform = 'translateY(0) scale(1)';
+                  el.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.4)';
                 }}
               >
                 <Sparkles size={18} />
@@ -1064,14 +1092,16 @@ const Avales = () => {
                   transition: 'all 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(251, 191, 36, 0.1)';
-                  e.target.style.borderColor = 'rgba(251, 191, 36, 0.6)';
-                  e.target.style.transform = 'translateY(-2px)';
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'rgba(251, 191, 36, 0.1)';
+                  el.style.borderColor = 'rgba(251, 191, 36, 0.6)';
+                  el.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
-                  e.target.style.transform = 'translateY(0)';
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'rgba(255, 255, 255, 0.1)';
+                  el.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+                  el.style.transform = 'translateY(0)';
                 }}
               >
                 <MapPin size={18} />

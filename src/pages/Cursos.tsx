@@ -17,7 +17,22 @@ import Footer from '../components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-const cursosData = [
+type Curso = {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  imagen: string;
+  enlace: string;
+  duracion: string;
+  estudiantes: number;
+  rating: number;
+  icon: React.ReactNode;
+  color: string;
+  categoria: string;
+  certificacion?: string;
+};
+
+const cursosData: Curso[] = [
   {
     id: 1,
     titulo: 'Cosmetología',
@@ -101,7 +116,7 @@ const cursosData = [
 
 const Cursos = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
@@ -126,7 +141,7 @@ const Cursos = () => {
     }))
   ), []);
 
-  const AnimatedCard = ({ curso, index }) => {
+  const AnimatedCard: React.FC<{ curso: Curso; index: number }> = ({ curso, index }) => {
     const isHovered = hoveredCard === curso.id;
 
     return (
@@ -350,6 +365,16 @@ const Cursos = () => {
                   textDecoration: 'none',
                   transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms ease',
                   transform: isHovered ? 'translateY(-1px)' : 'translateY(0)'
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(-1px)';
+                  el.style.boxShadow = '0 12px 36px rgba(0,0,0,0.45)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(0)';
+                  el.style.boxShadow = '0 10px 28px rgba(0,0,0,0.35)';
                 }}
               >
                 <Sparkles size={18} />
@@ -729,12 +754,14 @@ const Cursos = () => {
                   overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px) scale(1.03)';
-                  e.target.style.boxShadow = '0 14px 40px rgba(251, 191, 36, 0.45)';
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(-2px) scale(1.03)';
+                  el.style.boxShadow = '0 14px 40px rgba(251, 191, 36, 0.45)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.4)';
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(0) scale(1)';
+                  el.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.4)';
                 }}
               >
                 <Calendar size={20} />
