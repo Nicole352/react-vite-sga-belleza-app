@@ -1,4 +1,32 @@
 import React, { useState, useEffect } from 'react';
+
+// Interfaces para tipado
+interface CursoInfo {
+  titulo: string;
+  precio: number;
+  duracion: string;
+  imagen: string;
+}
+
+interface DetallesCursos {
+  [key: string]: CursoInfo;
+}
+
+interface FormData {
+  nombre: string;
+  email: string;
+  telefono: string;
+  cedula: string;
+}
+
+interface PaymentCardProps {
+  method: string;
+  title: string;
+  icon: React.ReactNode;
+  description: string;
+  isSelected: boolean;
+  onClick: () => void;
+}
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeftCircle,
@@ -21,7 +49,7 @@ import {
 import Footer from '../components/Footer';
 
 // Datos de cursos (mismos que en DetalleCurso)
-const detallesCursos = {
+const detallesCursos: DetallesCursos = {
   cosmetologia: {
     titulo: 'Cosmetología',
     precio: 2500,
@@ -66,7 +94,7 @@ const detallesCursos = {
   }
 };
 
-const Pago = () => {
+const Pago: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
@@ -75,9 +103,9 @@ const Pago = () => {
 
   const [selectedPayment, setSelectedPayment] = useState('paypal');
   const [isVisible, setIsVisible] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     nombre: '',
     email: '',
     telefono: '',
@@ -117,7 +145,7 @@ const Pago = () => {
     );
   }
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = (file: File | null) => {
     if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg')) {
       setUploadedFile(file);
     } else {
@@ -125,7 +153,7 @@ const Pago = () => {
     }
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -135,7 +163,7 @@ const Pago = () => {
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -144,7 +172,7 @@ const Pago = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (selectedPayment === 'transferencia' && !uploadedFile) {
       alert('Por favor, sube el comprobante de transferencia');
@@ -156,7 +184,7 @@ const Pago = () => {
     }, 3000);
   };
 
-  const PaymentCard = ({ method, title, icon, description, isSelected, onClick }) => (
+  const PaymentCard: React.FC<PaymentCardProps> = ({ method, title, icon, description, isSelected, onClick }) => (
     <div
       onClick={onClick}
       style={{
@@ -391,12 +419,14 @@ const Pago = () => {
               fontSize: '1.1rem'
             }}
             onMouseEnter={(e) => {
-              e.target.style.transform = 'translateX(-5px)';
-              e.target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.2)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'translateX(-5px)';
+              target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.2)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.transform = 'translateX(0)';
-              e.target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'translateX(0)';
+              target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
             }}
           >
             <ArrowLeftCircle size={24} />
@@ -577,8 +607,8 @@ const Pago = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
                     <div>
@@ -605,8 +635,8 @@ const Pago = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
                   </div>
@@ -640,8 +670,8 @@ const Pago = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
                     <div>
@@ -668,8 +698,8 @@ const Pago = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
                   </div>
@@ -871,13 +901,13 @@ const Pago = () => {
                             cursor: 'pointer',
                             position: 'relative'
                           }}
-                          onClick={() => document.getElementById('fileInput').click()}
+                          onClick={() => document.getElementById('fileInput')?.click()}
                         >
                           <input
                             id="fileInput"
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleFileUpload(e.target.files[0])}
+                            onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
                             style={{ display: 'none' }}
                             required
                           />
@@ -909,7 +939,7 @@ const Pago = () => {
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
-                                {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(2)} MB)
+                                {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
                               </p>
                               <button
                                 type="button"
@@ -1028,12 +1058,14 @@ const Pago = () => {
                     gap: '12px'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-3px) scale(1.02)';
-                    e.target.style.boxShadow = '0 16px 50px rgba(251, 191, 36, 0.5)';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(-3px) scale(1.02)';
+                    target.style.boxShadow = '0 16px 50px rgba(251, 191, 36, 0.5)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0) scale(1)';
-                    e.target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.4)';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(0) scale(1)';
+                    target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.4)';
                   }}
                 >
                   <Sparkles size={20} />

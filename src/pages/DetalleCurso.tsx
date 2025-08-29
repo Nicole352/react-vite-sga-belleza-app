@@ -1,4 +1,40 @@
 import React, { useState, useEffect } from 'react';
+
+// Interfaces para tipado
+interface CursoDetalle {
+  titulo: string;
+  descripcion: string;
+  duracion: string;
+  requisitos: string[];
+  malla: string[];
+  promociones: string[];
+  imagen: string;
+  rating: number;
+  estudiantes: number;
+  instructor: string;
+  precio: string;
+  certificacion: string;
+}
+
+interface DetallesCursos {
+  [key: string]: CursoDetalle;
+}
+
+interface SectionCardProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'gold' | 'glass' | 'premium';
+  delay?: number;
+  icon?: React.ReactNode;
+  title?: string;
+  isExpandable?: boolean;
+  sectionId?: string;
+}
+
+interface AnimatedButtonProps {
+  children: React.ReactNode;
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, 
@@ -17,7 +53,7 @@ import {
 import Footer from '../components/Footer';
 
 // Simulación de datos detallados por curso
-const detallesCursos = {
+const detallesCursos: DetallesCursos = {
   facial: {
     titulo: 'Cosmetología',
     descripcion: 'Aprende técnicas profesionales de limpieza, hidratación y rejuvenecimiento facial.',
@@ -128,14 +164,14 @@ const detallesCursos = {
   }
 };
 
-const DetalleCurso = () => {
+const DetalleCurso: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const cursoKey = params.get('curso') || 'facial';
   const curso = detallesCursos[cursoKey];
 
-  const [activeSection, setActiveSection] = useState(null);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -176,11 +212,11 @@ const DetalleCurso = () => {
     );
   }
 
-  const handleSectionClick = (section) => {
+  const handleSectionClick = (section: string) => {
     setActiveSection(activeSection === section ? null : section);
   };
 
-  const SectionCard = ({ 
+  const SectionCard: React.FC<SectionCardProps> = ({ 
     children, 
     variant = 'default', 
     delay = 0, 
@@ -189,7 +225,7 @@ const DetalleCurso = () => {
     isExpandable = false,
     sectionId
   }) => {
-    const baseStyle = {
+    const baseStyle: React.CSSProperties = {
       borderRadius: '24px',
       marginBottom: '32px',
       padding: '32px',
@@ -202,7 +238,7 @@ const DetalleCurso = () => {
       overflow: 'hidden'
     };
 
-    const variants = {
+    const variants: Record<string, React.CSSProperties> = {
       default: {
         ...baseStyle,
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
@@ -236,7 +272,7 @@ const DetalleCurso = () => {
       }
     };
 
-    const hoverEffect = variant === 'default' ? {
+    const hoverEffect: React.CSSProperties = variant === 'default' ? {
       transform: 'translateY(-5px) scale(1.02)',
       boxShadow: '0 25px 50px rgba(251, 191, 36, 0.15), 0 0 0 1px rgba(251, 191, 36, 0.2)'
     } : variant === 'gold' ? {
@@ -249,14 +285,16 @@ const DetalleCurso = () => {
 
     return (
       <div
-        style={variants[variant]}
+        style={variants[variant] as React.CSSProperties}
         onMouseEnter={(e) => {
-          Object.assign(e.target.style, hoverEffect);
+          const target = e.currentTarget as HTMLElement;
+          Object.assign(target.style, hoverEffect);
         }}
         onMouseLeave={(e) => {
-          Object.assign(e.target.style, variants[variant]);
+          const target = e.currentTarget as HTMLElement;
+          Object.assign(target.style, variants[variant]);
         }}
-        onClick={isExpandable ? () => handleSectionClick(sectionId) : undefined}
+        onClick={isExpandable ? () => handleSectionClick(sectionId || '') : undefined}
       >
         {/* Efecto de brillo animado */}
         <div style={{
@@ -317,8 +355,8 @@ const DetalleCurso = () => {
     );
   };
 
-  const AnimatedButton = ({ children, href, variant = 'primary' }) => {
-    const baseStyle = {
+  const AnimatedButton: React.FC<AnimatedButtonProps> = ({ children, href, variant = 'primary' }) => {
+    const baseStyle: React.CSSProperties = {
       display: 'inline-flex',
       alignItems: 'center',
       gap: '12px',
@@ -335,7 +373,7 @@ const DetalleCurso = () => {
       marginTop: '20px'
     };
 
-    const variants = {
+    const variants: Record<string, React.CSSProperties> = {
       primary: {
         ...baseStyle,
         background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -354,16 +392,18 @@ const DetalleCurso = () => {
     return (
       <Link
         to={href}
-        style={variants[variant]}
+        style={variants[variant] as React.CSSProperties}
         onMouseEnter={(e) => {
-          e.target.style.transform = 'translateY(-2px) scale(1.05)';
-          e.target.style.boxShadow = variant === 'primary' ? 
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'translateY(-2px) scale(1.05)';
+          target.style.boxShadow = variant === 'primary' ? 
             '0 12px 40px rgba(251, 191, 36, 0.4)' : 
             '0 12px 40px rgba(251, 191, 36, 0.2)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.transform = 'translateY(0) scale(1)';
-          e.target.style.boxShadow = variants[variant].boxShadow;
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'translateY(0) scale(1)';
+          target.style.boxShadow = (variants[variant] as any).boxShadow || '';
         }}
       >
         <div style={{
@@ -490,12 +530,14 @@ const DetalleCurso = () => {
               fontSize: '1.1rem'
             }}
             onMouseEnter={(e) => {
-              e.target.style.transform = 'translateX(-5px)';
-              e.target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.2)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'translateX(-5px)';
+              target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.2)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.transform = 'translateX(0)';
-              e.target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'translateX(0)';
+              target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
             }}
           >
             <ArrowLeftCircle size={24} />
@@ -535,10 +577,12 @@ const DetalleCurso = () => {
                   transition: 'transform 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'scale(1.1)';
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.transform = 'scale(1.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'scale(1)';
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.transform = 'scale(1)';
                 }}
               />
             </div>
@@ -731,12 +775,14 @@ const DetalleCurso = () => {
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-4px)';
-                    e.target.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.2)';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(-4px)';
+                    target.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.2)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = 'none';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(0)';
+                    target.style.boxShadow = 'none';
                   }}
                 >
                   <div style={{ 
@@ -917,12 +963,14 @@ const DetalleCurso = () => {
                     marginTop: '20px'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(0, 0, 0, 0.3)';
-                    e.target.style.transform = 'translateY(-2px)';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.background = 'rgba(0, 0, 0, 0.3)';
+                    target.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'rgba(0, 0, 0, 0.2)';
-                    e.target.style.transform = 'translateY(0)';
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.background = 'rgba(0, 0, 0, 0.2)';
+                    target.style.transform = 'translateY(0)';
                   }}
                 >
                   <Users size={18} />

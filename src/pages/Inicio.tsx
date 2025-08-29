@@ -13,12 +13,12 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { gsap } from 'gsap';
 
-const PaginaInicio = () => {
+const PaginaInicio: React.FC = () => {
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
-  const videoRef = useRef(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const subtitleRef = useRef<HTMLSpanElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Manteniendo exactamente las URLs proporcionadas para el hero
   const heroImages = [
@@ -62,8 +62,8 @@ const PaginaInicio = () => {
 
     // Limpia y cancela animaciones previas
     gsap.killTweensOf([titleRef.current, subtitleRef.current]);
-    titleRef.current.textContent = '';
-    subtitleRef.current.textContent = '';
+    if (titleRef.current) titleRef.current.textContent = '';
+    if (subtitleRef.current) subtitleRef.current.textContent = '';
 
     const titleProxy = { len: 0 };
     const subtitleProxy = { len: 0 };
@@ -74,7 +74,9 @@ const PaginaInicio = () => {
       duration: Math.min(1.2, 0.04 * titleText.length),
       ease: 'none',
       onUpdate: () => {
-        titleRef.current.textContent = titleText.slice(0, Math.floor(titleProxy.len));
+        if (titleRef.current) {
+          titleRef.current.textContent = titleText.slice(0, Math.floor(titleProxy.len));
+        }
       }
     })
     .to(subtitleProxy, {
@@ -82,7 +84,9 @@ const PaginaInicio = () => {
       duration: Math.min(1.0, 0.035 * subtitleText.length),
       ease: 'none',
       onUpdate: () => {
-        subtitleRef.current.textContent = subtitleText.slice(0, Math.floor(subtitleProxy.len));
+        if (subtitleRef.current) {
+          subtitleRef.current.textContent = subtitleText.slice(0, Math.floor(subtitleProxy.len));
+        }
       }
     }, '>-0.1');
 
@@ -113,7 +117,9 @@ const PaginaInicio = () => {
         if (p && typeof p.then === 'function') {
           p.catch(() => {});
         }
-      } catch (_) {}
+      } catch (error) {
+        // Error silenciado intencionalmente
+      }
     };
 
     const observer = new IntersectionObserver(

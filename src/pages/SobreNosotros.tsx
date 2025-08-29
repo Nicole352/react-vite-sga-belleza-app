@@ -1,4 +1,42 @@
 import React, { useState, useEffect, useMemo } from 'react';
+
+// Tipos para los datos
+interface Valor {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  icono: React.ReactNode;
+  color: string;
+}
+
+interface CarouselImage {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  gradient: string;
+}
+
+interface HistoriaItem {
+  año: string;
+  evento: string;
+  descripcion: string;
+}
+
+interface EquipoMiembro {
+  nombre: string;
+  cargo: string;
+  especializacion: string;
+  experiencia: string;
+  descripcion: string;
+  imagen: string;
+}
+
+interface Logro {
+  numero: string;
+  texto: string;
+  icono: React.ReactNode;
+}
 import { 
   Heart, 
   Users, 
@@ -19,13 +57,13 @@ import 'aos/dist/aos.css';
 import SpotlightCard from '../components/cards/SpotlightCard';
 import LogoLoop from '../components/LogoLoop';
 
-const SobreNosotros = () => {
+const SobreNosotros: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Imágenes del carrusel de instalaciones - EXACTAMENTE IGUAL que en Inicio.js
-  const carouselImages = [
+  const carouselImages: CarouselImage[] = [
     {
       id: 1,
       title: "Tratamientos Faciales de Lujo",
@@ -76,7 +114,7 @@ const SobreNosotros = () => {
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
-  const valores = [
+  const valores: Valor[] = [
     {
       id: 1,
       titulo: 'Excelencia Educativa',
@@ -107,7 +145,7 @@ const SobreNosotros = () => {
     }
   ];
 
-  const historia = [
+  const historia: HistoriaItem[] = [
     {
       año: '2010',
       evento: 'Fundación de la Escuela',
@@ -140,7 +178,7 @@ const SobreNosotros = () => {
     }
   ];
 
-  const equipo = [
+  const equipo: EquipoMiembro[] = [
     {
       nombre: 'Jessica Vélez',
       cargo: 'Directora y Fundadora',
@@ -151,7 +189,7 @@ const SobreNosotros = () => {
     }
   ];
 
-  const logros = [
+  const logros: Logro[] = [
     { numero: '1,200+', texto: 'Estudiantes Graduadas', icono: <Users size={24} /> },
     { numero: '98%', texto: 'Tasa de Empleabilidad', icono: <Trophy size={24} /> },
     { numero: '15', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
@@ -179,11 +217,11 @@ const SobreNosotros = () => {
     title: hito.evento,
   })), []);
 
-  const sectionStyle = {
+  const sectionStyle: React.CSSProperties = {
     marginBottom: '80px'
   };
 
-  const cardContentStyle = {
+  const cardContentStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
@@ -191,7 +229,7 @@ const SobreNosotros = () => {
     textAlign: 'center'
   };
 
-  const iconContainerStyle = (color, isHovered) => ({
+  const iconContainerStyle = (color: string, isHovered: boolean): React.CSSProperties => ({
     width: '70px',
     height: '70px',
     background: `linear-gradient(135deg, ${color}, ${color}dd)`,
@@ -206,7 +244,7 @@ const SobreNosotros = () => {
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
   });
 
-  const titleStyle = {
+  const titleStyle: React.CSSProperties = {
     fontSize: '1.3rem',
     fontWeight: '700',
     color: '#f3f4f6',
@@ -218,7 +256,7 @@ const SobreNosotros = () => {
     justifyContent: 'center'
   };
 
-  const paragraphStyle = {
+  const paragraphStyle: React.CSSProperties = {
     fontSize: '0.95rem',
     color: '#cbd5e1',
     lineHeight: 1.5,
@@ -229,14 +267,14 @@ const SobreNosotros = () => {
     justifyContent: 'center'
   };
 
-  const missionVisionGridStyle = {
+  const missionVisionGridStyle: React.CSSProperties = {
     display: 'grid',
     gap: '30px',
     margin: '20px 0 80px',
     alignItems: 'stretch'
   };
 
-  const ValueCard = ({ valor, index }) => {
+  const ValueCard: React.FC<{ valor: Valor; index: number }> = ({ valor, index }) => {
     const isHovered = hoveredCard === valor.id;
 
     return (
@@ -696,8 +734,16 @@ const SobreNosotros = () => {
                     transitionDelay: `${index * 100 + 300}ms`,
                     boxShadow: '0 16px 50px rgba(0,0,0,0.4)'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 22px 60px rgba(0,0,0,0.5)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 16px 50px rgba(0,0,0,0.4)'; }}
+                  onMouseEnter={(e) => { 
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(-3px)';
+                    target.style.boxShadow = '0 22px 60px rgba(0,0,0,0.5)';
+                  }}
+                  onMouseLeave={(e) => { 
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(0)';
+                    target.style.boxShadow = '0 16px 50px rgba(0,0,0,0.4)';
+                  }}
                   data-aos="zoom-in"
                   data-aos-delay={`${index * 100}`}
                 >

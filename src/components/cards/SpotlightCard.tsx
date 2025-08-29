@@ -1,10 +1,24 @@
-import React, { useRef } from "react";
+import React, { useRef, CSSProperties } from "react";
 import "./SpotlightCard.css";
 
-const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(255, 255, 255, 0.25)" }) => {
-  const divRef = useRef(null);
+interface SpotlightCardProps {
+  children: React.ReactNode;
+  className?: string;
+  spotlightColor?: string;
+  style?: CSSProperties;
+}
 
-  const handleMouseMove = (e) => {
+const SpotlightCard: React.FC<SpotlightCardProps> = ({ 
+  children, 
+  className = "", 
+  spotlightColor = "rgba(255, 255, 255, 0.25)",
+  style 
+}) => {
+  const divRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!divRef.current) return;
+    
     const rect = divRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -19,6 +33,7 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(255, 2
       ref={divRef}
       onMouseMove={handleMouseMove}
       className={`card-spotlight ${className}`}
+      style={style}
     >
       {children}
     </div>
