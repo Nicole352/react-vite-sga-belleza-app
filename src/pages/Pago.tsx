@@ -15,9 +15,13 @@ interface DetallesCursos {
 
 interface FormData {
   nombre: string;
+  apellido: string;
   email: string;
   telefono: string;
   cedula: string;
+  fechaNacimiento: string;
+  direccion: string;
+  genero: '' | 'masculino' | 'femenino' | 'otro';
 }
 
 interface PaymentCardProps {
@@ -41,6 +45,9 @@ import {
   Shield
 } from 'lucide-react';
 import Footer from '../components/Footer';
+
+// Backend API base (sin proxy de Vite)
+const API_BASE = 'http://localhost:3000/api';
 
 // Datos de cursos (mismos que en DetalleCurso)
 const detallesCursos: DetallesCursos = {
@@ -93,6 +100,18 @@ const Pago: React.FC = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const cursoKey = params.get('curso') || 'facial';
+  // Permitir recibir id_curso por URL, si no, mapear por clave localmente
+  const cursoIdMap: Record<string, number> = {
+    cosmetologia: 1,
+    cosmiatria: 2,
+    maquillaje: 3,
+    lashista: 4,
+    unas: 5,
+    integral: 6,
+    facial: 1 // facial apunta a cosmetología en este dataset
+  };
+  const idCursoFromUrl = params.get('id_curso');
+  const cursoId = Number(idCursoFromUrl ?? cursoIdMap[cursoKey] ?? 0);
   const curso = detallesCursos[cursoKey];
 
   const [selectedPayment, setSelectedPayment] = useState('paypal');
@@ -101,11 +120,16 @@ const Pago: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     nombre: '',
+    apellido: '',
     email: '',
     telefono: '',
-    cedula: ''
+    cedula: '',
+    fechaNacimiento: '',
+    direccion: '',
+    genero: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
@@ -140,11 +164,18 @@ const Pago: React.FC = () => {
   }
 
   const handleFileUpload = (file: File | null) => {
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg')) {
-      setUploadedFile(file);
-    } else {
-      alert('Por favor, sube solo archivos de imagen (JPG, PNG)');
+    if (!file) { setUploadedFile(null); return; }
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (!allowed.includes(file.type)) {
+      alert('Formato no permitido. Usa PDF, JPG, PNG o WEBP.');
+      return;
     }
+    if (file.size > maxBytes) {
+      alert('El archivo supera 5MB. Por favor, sube un archivo más pequeño.');
+      return;
+    }
+    setUploadedFile(file);
   };
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -166,16 +197,86 @@ const Pago: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (selectedPayment === 'transferencia' && !uploadedFile) {
-      alert('Por favor, sube el comprobante de transferencia');
+    // Validaciones mínimas
+    if (!formData.apellido) {
+      alert('Apellido es obligatorio');
       return;
     }
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigate('/cursos');
-    }, 3000);
+    if (selectedPayment === 'transferencia') {
+      if (!uploadedFile) {
+        alert('Por favor, sube el comprobante de transferencia');
+        return;
+      }
+      const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(uploadedFile.type)) {
+        alert('Formato no permitido. Usa PDF, JPG, PNG o WEBP.');
+        return;
+      }
+      if (uploadedFile.size > 5 * 1024 * 1024) {
+        alert('El archivo supera 5MB.');
+        return;
+      }
+    }
+
+    try {
+      let response: Response;
+      if (selectedPayment === 'transferencia') {
+        const body = new FormData();
+        body.append('cedula_solicitante', formData.cedula);
+        body.append('nombre_solicitante', formData.nombre);
+        body.append('apellido_solicitante', formData.apellido);
+        body.append('telefono_solicitante', formData.telefono);
+        body.append('email_solicitante', formData.email);
+        if (formData.fechaNacimiento) body.append('fecha_nacimiento_solicitante', formData.fechaNacimiento);
+        if (formData.direccion) body.append('direccion_solicitante', formData.direccion);
+        if (formData.genero) body.append('genero_solicitante', formData.genero);
+        body.append('id_curso', String(cursoId));
+        body.append('monto_matricula', String(curso.precio));
+        body.append('metodo_pago', 'transferencia');
+        if (uploadedFile) body.append('comprobante', uploadedFile);
+
+        response = await fetch(`${API_BASE}/solicitudes`, {
+          method: 'POST',
+          body
+        });
+      } else {
+        const payload = {
+          cedula_solicitante: formData.cedula,
+          nombre_solicitante: formData.nombre,
+          apellido_solicitante: formData.apellido,
+          telefono_solicitante: formData.telefono,
+          email_solicitante: formData.email,
+          fecha_nacimiento_solicitante: formData.fechaNacimiento || null,
+          direccion_solicitante: formData.direccion || null,
+          genero_solicitante: formData.genero || null,
+          id_curso: cursoId,
+          monto_matricula: curso.precio,
+          metodo_pago: 'paypal'
+        };
+
+        response = await fetch(`${API_BASE}/solicitudes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText || 'Error al enviar la solicitud');
+      }
+      const data = await response.json();
+      if (data?.codigo_solicitud) setCodigoSolicitud(data.codigo_solicitud);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/cursos');
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+      alert('No se pudo enviar la solicitud. Intenta nuevamente.');
+    }
   };
 
   const PaymentCard: React.FC<PaymentCardProps> = ({ title, icon, description, isSelected, onClick }) => (
@@ -281,6 +382,16 @@ const Pago: React.FC = () => {
           }}>
             ¡Pago Procesado!
           </h2>
+          {codigoSolicitud && (
+            <p style={{
+              color: '#fbbf24',
+              fontWeight: 700,
+              marginTop: -8,
+              marginBottom: 16
+            }}>
+              Código de solicitud: {codigoSolicitud}
+            </p>
+          )}
           <p style={{
             color: 'rgba(255, 255, 255, 0.8)',
             fontSize: '1.1rem',
@@ -584,7 +695,7 @@ const Pago: React.FC = () => {
                         fontWeight: '600',
                         color: '#fff'
                       }}>
-                        Nombre Completo *
+                        Nombre *
                       </label>
                       <input
                         type="text"
@@ -633,6 +744,130 @@ const Pago: React.FC = () => {
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
+                  </div>
+
+                  {/* Campos adicionales solicitados */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '20px',
+                    marginBottom: '20px'
+                  }}>
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
+                        color: '#fff'
+                      }}>
+                        Apellido *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.apellido}
+                        onChange={(e) => setFormData({ ...formData, apellido: (e.target as HTMLInputElement).value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          borderRadius: '12px',
+                          fontSize: '1rem',
+                          transition: 'border-color 0.3s ease',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
+                        }}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                      />
+                    </div>
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
+                        color: '#fff'
+                      }}>
+                        Fecha de Nacimiento
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.fechaNacimiento}
+                        onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          borderRadius: '12px',
+                          fontSize: '1rem',
+                          transition: 'border-color 0.3s ease',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
+                        }}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      fontWeight: '600',
+                      color: '#fff'
+                    }}>
+                      Dirección
+                    </label>
+                    <textarea
+                      value={formData.direccion}
+                      onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid rgba(251, 191, 36, 0.2)',
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        transition: 'border-color 0.3s ease',
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        color: '#fff',
+                        minHeight: '90px'
+                      }}
+                      onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      fontWeight: '600',
+                      color: '#fff'
+                    }}>
+                      Género
+                    </label>
+                    <select
+                      value={formData.genero}
+                      onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid rgba(251, 191, 36, 0.2)',
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        transition: 'border-color 0.3s ease',
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        color: '#fff'
+                      }}
+                      onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="masculino">Masculino</option>
+                      <option value="femenino">Femenino</option>
+                      <option value="otro">Otro</option>
+                    </select>
                   </div>
 
                   <div style={{
@@ -898,7 +1133,7 @@ const Pago: React.FC = () => {
                           <input
                             id="fileInput"
                             type="file"
-                            accept="image/*"
+                            accept=".pdf,image/jpeg,image/png,image/webp"
                             onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
                             style={{ display: 'none' }}
                             required
@@ -986,7 +1221,7 @@ const Pago: React.FC = () => {
                                 color: '#999',
                                 fontSize: '0.8rem'
                               }}>
-                                Formatos: JPG, PNG (Máx. 10MB)
+                                Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
                               </p>
                             </div>
                           )}

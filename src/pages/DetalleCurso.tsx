@@ -36,6 +36,9 @@ interface AnimatedButtonProps {
   variant?: 'primary' | 'secondary';
 }
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+
+// Backend API base
+const API_BASE = 'http://localhost:3000/api';
 import { 
   Sparkles, 
   ArrowLeftCircle, 
@@ -169,14 +172,78 @@ const DetalleCurso: React.FC = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const cursoKey = params.get('curso') || 'facial';
-  const curso = detallesCursos[cursoKey];
-
+  const cursoId = params.get('id_curso');
+  
+  const [curso, setCurso] = useState<CursoDetalle | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+
+  // Cargar datos del curso desde el backend
+  useEffect(() => {
+    const fetchCurso = async () => {
+      try {
+        if (cursoId) {
+          // Si tenemos ID específico, obtener del backend
+          const response = await fetch(`${API_BASE}/cursos/${cursoId}`);
+          if (response.ok) {
+            const cursoData = await response.json();
+            setCurso({
+              titulo: cursoData.nombre,
+              descripcion: cursoData.descripcion || 'Curso profesional de belleza estética',
+              duracion: `${Math.ceil((new Date(cursoData.fecha_fin).getTime() - new Date(cursoData.fecha_inicio).getTime()) / (1000 * 60 * 60 * 24 * 30))} meses`,
+              requisitos: ['Ser mayor de 16 años', 'Secundaria completa', 'Entrevista personal'],
+              malla: ['Módulo 1: Fundamentos', 'Módulo 2: Técnicas básicas', 'Módulo 3: Técnicas avanzadas', 'Módulo 4: Práctica supervisada', 'Módulo 5: Certificación'],
+              promociones: ['10% de descuento por pago al contado', 'Matrícula gratis hasta fin de mes'],
+              imagen: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80',
+              rating: 4.8,
+              estudiantes: 850,
+              instructor: 'Instructor Profesional',
+              precio: `$${cursoData.precio_base?.toLocaleString() || '2,500'}`,
+              certificacion: 'Certificado Profesional'
+            });
+          } else {
+            // Fallback a datos locales
+            setCurso(detallesCursos[cursoKey] || detallesCursos['facial']);
+          }
+        } else {
+          // Usar datos locales
+          setCurso(detallesCursos[cursoKey] || detallesCursos['facial']);
+        }
+      } catch (error) {
+        console.error('Error cargando curso:', error);
+        setCurso(detallesCursos[cursoKey] || detallesCursos['facial']);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCurso();
+  }, [cursoKey, cursoId]);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  if (loading) {
+    return (
+      <div style={{ 
+        paddingTop: 120, 
+        textAlign: 'center', 
+        color: '#fbbf24',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div>
+          <Sparkles size={40} color="#fbbf24" style={{ animation: 'pulse 2s infinite' }} />
+          <h2 style={{ marginTop: 20 }}>Cargando curso...</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!curso) {
     return (
