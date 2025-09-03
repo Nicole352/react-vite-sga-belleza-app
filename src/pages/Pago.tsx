@@ -24,6 +24,14 @@ interface FormData {
   genero: '' | 'masculino' | 'femenino' | 'otro';
 }
 
+interface FormErrors {
+  nombre?: string;
+  apellido?: string;
+  cedula?: string;
+  telefono?: string;
+  email?: string;
+}
+
 interface PaymentCardProps {
   title: string;
   icon: React.ReactNode;
@@ -128,6 +136,7 @@ const Pago: React.FC = () => {
     direccion: '',
     genero: ''
   });
+  const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
 
@@ -202,6 +211,23 @@ const Pago: React.FC = () => {
     // Validaciones mínimas
     if (!formData.apellido) {
       alert('Apellido es obligatorio');
+      return;
+    }
+    // Email formato básico
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email);
+    if (!emailOk) {
+      setErrors((prev) => ({ ...prev, email: 'Ingresa un correo válido' }));
+      alert('Correo electrónico inválido.');
+      return;
+    }
+    // Cédula: validar solo que tenga exactamente 10 dígitos en el submit
+    if (!/^\d{10}$/.test(formData.cedula)) {
+      alert('La cédula debe tener exactamente 10 dígitos.');
+      return;
+    }
+    // Teléfono Ecuador: 10 dígitos iniciando con 09
+    if (!/^09\d{8}$/.test(formData.telefono)) {
+      alert('El teléfono debe tener 10 dígitos y comenzar con 09 (formato Ecuador).');
       return;
     }
     if (selectedPayment === 'transferencia') {
@@ -701,11 +727,16 @@ const Pago: React.FC = () => {
                         type="text"
                         required
                         value={formData.nombre}
-                        onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                        onChange={(e) => {
+                          const val = (e.target as HTMLInputElement).value;
+                          const filtered = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          setFormData({ ...formData, nombre: filtered });
+                          setErrors((prev) => ({ ...prev, nombre: val !== filtered ? 'Este dato es solo letras' : undefined }));
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          border: errors.nombre ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
@@ -715,6 +746,12 @@ const Pago: React.FC = () => {
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
+                      {errors.nombre && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <AlertCircle size={16} color="#ef4444" />
+                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.nombre}</span>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label style={{
@@ -723,17 +760,22 @@ const Pago: React.FC = () => {
                         fontWeight: '600',
                         color: '#fff'
                       }}>
-                        Cédula/DNI *
+                        Apellido *
                       </label>
                       <input
                         type="text"
                         required
-                        value={formData.cedula}
-                        onChange={(e) => setFormData({...formData, cedula: e.target.value})}
+                        value={formData.apellido}
+                        onChange={(e) => {
+                          const val = (e.target as HTMLInputElement).value;
+                          const filtered = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          setFormData({ ...formData, apellido: filtered });
+                          setErrors((prev) => ({ ...prev, apellido: val !== filtered ? 'Este dato es solo letras' : undefined }));
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          border: errors.apellido ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
@@ -743,6 +785,12 @@ const Pago: React.FC = () => {
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
+                      {errors.apellido && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <AlertCircle size={16} color="#ef4444" />
+                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.apellido}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -760,17 +808,33 @@ const Pago: React.FC = () => {
                         fontWeight: '600',
                         color: '#fff'
                       }}>
-                        Apellido *
+                        Cédula/DNI *
                       </label>
                       <input
                         type="text"
                         required
-                        value={formData.apellido}
-                        onChange={(e) => setFormData({ ...formData, apellido: (e.target as HTMLInputElement).value })}
+                        inputMode="numeric"
+                        pattern="^[0-9]{10}$"
+                        maxLength={10}
+                        minLength={10}
+                        title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
+                        value={formData.cedula}
+                        onChange={(e) => {
+                          const val = (e.target as HTMLInputElement).value;
+                          const filtered = val.replace(/\D/g, '');
+                          setFormData({ ...formData, cedula: filtered });
+                          setErrors((prev) => ({ ...prev, cedula: val !== filtered ? 'Este dato es solo numérico' : undefined }));
+                        }}
+                        onInvalid={(e) => {
+                          (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
+                        }}
+                        onInput={(e) => {
+                          (e.target as HTMLInputElement).setCustomValidity('');
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          border: errors.cedula ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
@@ -780,6 +844,12 @@ const Pago: React.FC = () => {
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
+                      {errors.cedula && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <AlertCircle size={16} color="#ef4444" />
+                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.cedula}</span>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label style={{
@@ -788,12 +858,44 @@ const Pago: React.FC = () => {
                         fontWeight: '600',
                         color: '#fff'
                       }}>
-                        Fecha de Nacimiento
+                        Fecha de Nacimiento *
                       </label>
                       <input
                         type="date"
+                        required
                         value={formData.fechaNacimiento}
                         onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => {
+                          const el = e.target as HTMLInputElement;
+                          const val = el.value.trim();
+                          // Permitir que el usuario escriba DD/MM/AAAA o DD-MM-AAAA y normalizar a AAAA-MM-DD
+                          const m1 = val.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+                          if (m1) {
+                            const [_, dd, mm, yyyy] = m1;
+                            const norm = `${yyyy}-${mm}-${dd}`;
+                            setFormData(prev => ({ ...prev, fechaNacimiento: norm }));
+                            el.value = norm;
+                            el.setCustomValidity('');
+                            // Restaurar borde original al salir
+                            el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                            return;
+                          }
+                          // Validar AAAA-MM-DD; si no cumple, mostrar mensaje
+                          if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                            el.setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                          } else {
+                            el.setCustomValidity('');
+                          }
+                          // Restaurar borde original al salir
+                          el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                        }}
+                        onInvalid={(e) => {
+                          (e.target as HTMLInputElement).setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                        }}
+                        onInput={(e) => {
+                          (e.target as HTMLInputElement).setCustomValidity('');
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
@@ -804,8 +906,6 @@ const Pago: React.FC = () => {
                           background: 'rgba(0, 0, 0, 0.4)',
                           color: '#fff'
                         }}
-                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
                     </div>
                   </div>
@@ -820,6 +920,7 @@ const Pago: React.FC = () => {
                       Dirección
                     </label>
                     <textarea
+                      required
                       value={formData.direccion}
                       onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value })}
                       style={{
@@ -848,6 +949,7 @@ const Pago: React.FC = () => {
                       Género
                     </label>
                     <select
+                      required
                       value={formData.genero}
                       onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
                       style={{
@@ -863,7 +965,7 @@ const Pago: React.FC = () => {
                       onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                       onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                     >
-                      <option value="">Seleccionar</option>
+                      <option value="" disabled>Seleccionar</option>
                       <option value="masculino">Masculino</option>
                       <option value="femenino">Femenino</option>
                       <option value="otro">Otro</option>
@@ -887,12 +989,20 @@ const Pago: React.FC = () => {
                       <input
                         type="email"
                         required
+                        inputMode="email"
+                        pattern="[^\s@]+@[^\s@]+\.[^\s@]{2,}"
+                        title="Ingresa un correo válido (ej: usuario@dominio.com)"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => {
+                          const val = (e.target as HTMLInputElement).value;
+                          const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+                          setFormData({ ...formData, email: val });
+                          setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          border: errors.email ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
@@ -902,6 +1012,12 @@ const Pago: React.FC = () => {
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
+                      {errors.email && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <AlertCircle size={16} color="#ef4444" />
+                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.email}</span>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label style={{
@@ -915,12 +1031,40 @@ const Pago: React.FC = () => {
                       <input
                         type="tel"
                         required
+                        inputMode="numeric"
+                        pattern="^09[0-9]{8}$"
+                        maxLength={10}
+                        minLength={10}
+                        title="Formato Ecuador: 10 dígitos y empieza con 09"
                         value={formData.telefono}
-                        onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                        onChange={(e) => {
+                          const val = (e.target as HTMLInputElement).value;
+                          const filtered = val.replace(/\D/g, '');
+                          setFormData({ ...formData, telefono: filtered });
+                          let msg: string | undefined = undefined;
+                          if (val !== filtered) {
+                            msg = 'Este dato es solo numérico';
+                          } else if (filtered && !filtered.startsWith('09')) {
+                            msg = 'El teléfono debe empezar con 09';
+                          }
+                          setErrors((prev) => ({ ...prev, telefono: msg }));
+                        }}
+                        onInvalid={(e) => {
+                          (e.target as HTMLInputElement).setCustomValidity('Formato Ecuador: debe empezar con 09 y tener 10 dígitos');
+                        }}
+                        onInput={(e) => {
+                          const el = e.target as HTMLInputElement;
+                          const v = el.value;
+                          if (v && !/^09/.test(v)) {
+                            el.setCustomValidity('El teléfono debe empezar con 09');
+                          } else {
+                            el.setCustomValidity('');
+                          }
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          border: errors.telefono ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
@@ -930,6 +1074,12 @@ const Pago: React.FC = () => {
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                       />
+                      {errors.telefono && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <AlertCircle size={16} color="#ef4444" />
+                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
