@@ -37,6 +37,12 @@ interface Logro {
   texto: string;
   icono: React.ReactNode;
 }
+
+interface Certificate {
+  id: number;
+  imageUrl: string;
+  title: string;
+}
 import { 
   Heart, 
   Users, 
@@ -61,6 +67,7 @@ const SobreNosotros: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentCertSlide, setCurrentCertSlide] = useState(0);
 
   // Imágenes del carrusel de instalaciones - EXACTAMENTE IGUAL que en Inicio.js
   const carouselImages: CarouselImage[] = [
@@ -113,6 +120,14 @@ const SobreNosotros: React.FC = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, [carouselImages.length]);
+
+  // Auto-scroll del carrusel de certificados cada 4 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCertSlide((prev) => (prev + 1) % certificates.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const valores: Valor[] = [
     {
@@ -194,6 +209,24 @@ const SobreNosotros: React.FC = () => {
     { numero: '98%', texto: 'Tasa de Empleabilidad', icono: <Trophy size={24} /> },
     { numero: '15', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
     { numero: '4', texto: 'Certificaciones Oficiales', icono: <Award size={24} /> }
+  ];
+
+  const certificates: Certificate[] = [
+    { 
+      id: 1, 
+      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
+      title: 'Certificación en Cosmetología Avanzada'
+    },
+    { 
+      id: 2, 
+      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
+      title: 'Diploma en Medicina Estética'
+    },
+    { 
+      id: 3, 
+      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
+      title: 'Reconocimiento Ministerial'
+    }
   ];
 
   const historiaNodes = useMemo(() => historia.map((hito) => ({
@@ -576,9 +609,77 @@ const SobreNosotros: React.FC = () => {
           /* Liderazgo: dos columnas responsivo */
           .liderazgo-grid {
             display: grid;
-            grid-template-columns: 220px 1fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: start;
+          }
+          
+          .cert-carousel-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(6px);
+          }
+          
+          .cert-carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .cert-slide {
+            flex: 0 0 100%;
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+          }
+          
+          .cert-slide img {
+            max-width: 85%;
+            max-height: 70%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5));
+            border-radius: 12px;
+            margin-bottom: 16px;
+          }
+          
+          .cert-title {
+            color: #fbbf24;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+          }
+          
+          .cert-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+          }
+          
+          .cert-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+          
+          .cert-dot.active {
+            width: 28px;
+            border-radius: 8px;
+            background: #fbbf24;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.6);
           }
           @media (max-width: 768px) {
             .liderazgo-grid {
@@ -974,57 +1075,59 @@ const SobreNosotros: React.FC = () => {
                 >
                   <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
                     <div className="liderazgo-grid">
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <img
-                          src={miembro.imagen}
-                          alt={miembro.nombre}
-                          style={{
-                            width: '200px',
-                            height: '200px',
-                            borderRadius: '20px',
-                            objectFit: 'cover',
-                            boxShadow: '0 8px 18px rgba(251, 191, 36, 0.15)'
-                          }}
-                        />
-                      </div>
-
+                      {/* Columna izquierda: Información del liderazgo */}
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '16px', flexWrap: 'wrap' }}>
-                          <span
+                        <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
+                          <img
+                            src={miembro.imagen}
+                            alt={miembro.nombre}
                             style={{
-                              display: 'inline-block',
-                              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                              color: '#000',
-                              padding: '8px 14px',
+                              width: '100px',
+                              height: '100px',
                               borderRadius: '20px',
-                              fontSize: '0.9rem',
-                              fontWeight: '600'
+                              objectFit: 'cover',
+                              boxShadow: '0 8px 18px rgba(251, 191, 36, 0.15)'
                             }}
-                          >
-                            {miembro.cargo}
-                          </span>
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              background: 'rgba(251, 191, 36, 0.15)',
-                              color: '#fbbf24',
-                              padding: '6px 12px',
-                              borderRadius: '16px',
-                              fontSize: '0.85rem',
-                              fontWeight: '700',
-                              border: '1px solid rgba(251, 191, 36, 0.35)'
-                            }}
-                          >
-                            {miembro.experiencia}
-                          </span>
+                          />
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '12px', flexWrap: 'wrap' }}>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                                  color: '#000',
+                                  padding: '6px 12px',
+                                  borderRadius: '16px',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '600'
+                                }}
+                              >
+                                {miembro.cargo}
+                              </span>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  background: 'rgba(251, 191, 36, 0.15)',
+                                  color: '#fbbf24',
+                                  padding: '4px 10px',
+                                  borderRadius: '12px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: '700',
+                                  border: '1px solid rgba(251, 191, 36, 0.35)'
+                                }}
+                              >
+                                {miembro.experiencia}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
                         <h3
                           style={{
-                            fontSize: '2rem',
+                            fontSize: '2.2rem',
                             fontWeight: '800',
                             color: '#f3f4f6',
-                            marginBottom: '8px'
+                            marginBottom: '12px'
                           }}
                         >
                           {miembro.nombre}
@@ -1032,8 +1135,8 @@ const SobreNosotros: React.FC = () => {
 
                         <p
                           style={{
-                            color: '#cbd5e1',
-                            fontSize: '1rem',
+                            color: '#fbbf24',
+                            fontSize: '1.1rem',
                             fontWeight: '600',
                             marginBottom: '16px'
                           }}
@@ -1051,6 +1154,46 @@ const SobreNosotros: React.FC = () => {
                         >
                           {miembro.descripcion}
                         </p>
+                      </div>
+
+                      {/* Columna derecha: Carrusel de certificados */}
+                      <div>
+                        <h4 style={{
+                          color: '#f3f4f6',
+                          fontSize: '1.3rem',
+                          fontWeight: '700',
+                          marginBottom: '16px',
+                          textAlign: 'center'
+                        }}>
+                          Certificaciones y Reconocimientos
+                        </h4>
+                        
+                        <div className="cert-carousel-container">
+                          <div
+                            className="cert-carousel-track"
+                            style={{
+                              width: `${certificates.length * 100}%`,
+                              transform: `translateX(-${currentCertSlide * (100 / certificates.length)}%)`
+                            }}
+                          >
+                            {certificates.map((cert) => (
+                              <div key={cert.id} className="cert-slide">
+                                <img src={cert.imageUrl} alt={cert.title} />
+                                <div className="cert-title">{cert.title}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="cert-dots">
+                          {certificates.map((_, i) => (
+                            <div
+                              key={i}
+                              className={`cert-dot ${i === currentCertSlide ? 'active' : ''}`}
+                              onClick={() => setCurrentCertSlide(i)}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </SpotlightCard>
