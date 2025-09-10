@@ -477,67 +477,133 @@ const PersonalTab: React.FC<PersonalTabProps> = ({
   );
 };
 
-// Componente Cursos
-const CursosTab = () => {
-  const [cursos, setCursos] = useState([
-    {
-      id: 1,
-      nombre: 'Cosmetología Básica',
-      descripcion: 'Curso introductorio de cosmetología y cuidado facial',
-      duracion: '3 meses',
-      precio: 250,
-      cupos: 20,
-      inscritos: 15,
-      estado: 'activo',
-      instructor: 'Prof. María González',
-      fechaInicio: '2024-02-01',
-      fechaFin: '2024-05-01',
-      modalidad: 'presencial'
-    },
-    {
-      id: 2,
-      nombre: 'Peluquería Profesional',
-      descripcion: 'Técnicas avanzadas de corte, peinado y coloración',
-      duracion: '4 meses',
-      precio: 320,
-      cupos: 15,
-      inscritos: 12,
-      estado: 'activo',
-      instructor: 'Prof. Carlos Ruiz',
-      fechaInicio: '2024-01-15',
-      fechaFin: '2024-05-15',
-      modalidad: 'presencial'
-    },
-    {
-      id: 3,
-      nombre: 'Manicure y Pedicure',
-      descripcion: 'Cuidado completo de uñas y técnicas de nail art',
-      duracion: '2 meses',
-      precio: 180,
-      cupos: 25,
-      inscritos: 20,
-      estado: 'activo',
-      instructor: 'Prof. Ana Martínez',
-      fechaInicio: '2024-03-01',
-      fechaFin: '2024-05-01',
-      modalidad: 'presencial'
-    }
-  ]);
+// Componente Cursos completo para reemplazar en PanelAdministrativos.tsx
+// Importar estos iconos adicionales al inicio del archivo si no están:
+// Save, BookOpen, Edit, Eye, Trash2, Plus, Search, X
 
+const CursosTab = () => {
+  const [cursos, setCursos] = useState([]);
+  const [tiposCursos, setTiposCursos] = useState([]);
+  const [aulas, setAulas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('create');
   const [selectedCurso, setSelectedCurso] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
-  const [filterModalidad, setFilterModalidad] = useState('todos');
+  const [filterTipo, setFilterTipo] = useState('todos');
 
+  const API_BASE = 'http://localhost:3000/api';
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([
+        cargarCursos(),
+        cargarTiposCursos(),
+        cargarAulas()
+      ]);
+    } catch (err) {
+      console.error('Error cargando datos:', err);
+      setError('Error al cargar los datos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para obtener el token de autenticación
+  const getAuthToken = () => {
+    return sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+  };
+
+  // Cargar cursos desde la API
+  const cargarCursos = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/cursos?estado=${filterEstado}&tipo=${filterTipo}&limit=50`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar cursos');
+      }
+      
+      const data = await response.json();
+      setCursos(data.success ? data.data : []);
+    } catch (err) {
+      console.error('Error cargando cursos:', err);
+      throw err;
+    }
+  };
+
+  // Cargar tipos de cursos
+  const cargarTiposCursos = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/cursos/tipos`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar tipos de cursos');
+      }
+      
+      const data = await response.json();
+      setTiposCursos(data.success ? data.data : []);
+    } catch (err) {
+      console.error('Error cargando tipos de cursos:', err);
+      throw err;
+    }
+  };
+
+  // Cargar aulas disponibles
+  const cargarAulas = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/cursos/aulas`, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar aulas');
+      }
+      
+      const data = await response.json();
+      setAulas(data.success ? data.data : []);
+    } catch (err) {
+      console.error('Error cargando aulas:', err);
+      throw err;
+    }
+  };
+
+  // Filtrar cursos
   const cursosFiltrados = cursos.filter(curso => {
     const matchesSearch = curso.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         curso.instructor.toLowerCase().includes(searchTerm.toLowerCase());
+                         curso.codigo_curso.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (curso.profesores && curso.profesores.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesEstado = filterEstado === 'todos' || curso.estado === filterEstado;
-    const matchesModalidad = filterModalidad === 'todos' || curso.modalidad === filterModalidad;
-    return matchesSearch && matchesEstado && matchesModalidad;
+    const matchesTipo = filterTipo === 'todos' || curso.id_tipo_curso.toString() === filterTipo;
+    return matchesSearch && matchesEstado && matchesTipo;
   });
+
+  // Recargar cursos cuando cambien los filtros
+  useEffect(() => {
+    if (!loading) {
+      cargarCursos();
+    }
+  }, [filterEstado, filterTipo]);
 
   const handleCreateCurso = () => {
     setSelectedCurso(null);
@@ -557,44 +623,139 @@ const CursosTab = () => {
     setShowModal(true);
   };
 
-  const handleDeleteCurso = (id) => {
+  const handleDeleteCurso = async (id) => {
     if (window.confirm('¿Está seguro de que desea eliminar este curso?')) {
-      setCursos(cursos.filter(curso => curso.id !== id));
+      try {
+        const response = await fetch(`${API_BASE}/cursos/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al eliminar curso');
+        }
+
+        await cargarCursos();
+        alert('Curso eliminado exitosamente');
+      } catch (err) {
+        console.error('Error eliminando curso:', err);
+        alert(err.message || 'Error al eliminar el curso');
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const cursoData = {
-      nombre: formData.get('nombre'),
-      descripcion: formData.get('descripcion'),
-      duracion: formData.get('duracion'),
-      precio: parseFloat(formData.get('precio')),
-      cupos: parseInt(formData.get('cupos')),
-      instructor: formData.get('instructor'),
-      fechaInicio: formData.get('fechaInicio'),
-      fechaFin: formData.get('fechaFin'),
-      modalidad: formData.get('modalidad'),
-      estado: formData.get('estado') || 'activo'
-    };
-
-    if (modalType === 'create') {
-      const newCurso = {
-        ...cursoData,
-        id: Math.max(...cursos.map(c => c.id)) + 1,
-        inscritos: 0
+    
+    try {
+      const formData = new FormData(e.target);
+      const cursoData = {
+        codigo_curso: formData.get('codigo_curso'),
+        nombre: formData.get('nombre'),
+        descripcion: formData.get('descripcion'),
+        id_tipo_curso: parseInt(formData.get('id_tipo_curso')),
+        id_aula: formData.get('id_aula') ? parseInt(formData.get('id_aula')) : null,
+        capacidad_maxima: parseInt(formData.get('capacidad_maxima')),
+        fecha_inicio: formData.get('fecha_inicio'),
+        fecha_fin: formData.get('fecha_fin'),
+        horario: formData.get('horario'),
+        estado: formData.get('estado') || 'planificado'
       };
-      setCursos([...cursos, newCurso]);
-    } else if (modalType === 'edit') {
-      setCursos(cursos.map(curso => 
-        curso.id === selectedCurso.id 
-          ? { ...curso, ...cursoData }
-          : curso
-      ));
+
+      const url = modalType === 'create' 
+        ? `${API_BASE}/cursos`
+        : `${API_BASE}/cursos/${selectedCurso.id_curso}`;
+      
+      const method = modalType === 'create' ? 'POST' : 'PUT';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cursoData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar curso');
+      }
+
+      await cargarCursos();
+      setShowModal(false);
+      alert(modalType === 'create' ? 'Curso creado exitosamente' : 'Curso actualizado exitosamente');
+    } catch (err) {
+      console.error('Error guardando curso:', err);
+      alert(err.message || 'Error al guardar el curso');
     }
-    setShowModal(false);
   };
+
+  if (loading) {
+    return (
+      <div style={{
+        padding: '32px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        fontSize: '1.2rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            border: '3px solid rgba(255,255,255,0.3)',
+            borderTop: '3px solid #ef4444',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          Cargando cursos...
+        </div>
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        padding: '32px',
+        textAlign: 'center',
+        color: '#ef4444'
+      }}>
+        <div style={{ fontSize: '1.2rem', marginBottom: '16px' }}>
+          {error}
+        </div>
+        <button
+          onClick={cargarDatos}
+          style={{
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '12px 24px',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '32px' }}>
@@ -613,7 +774,7 @@ const CursosTab = () => {
           Gestión de Cursos
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
-          Administra los cursos disponibles en la academia
+          Administra los cursos disponibles en la academia ({cursosFiltrados.length} cursos)
         </p>
       </div>
 
@@ -633,7 +794,7 @@ const CursosTab = () => {
               <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
-                placeholder="Buscar cursos o instructores..."
+                placeholder="Buscar cursos, códigos o profesores..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -662,14 +823,15 @@ const CursosTab = () => {
               }}
             >
               <option value="todos">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="inactivo">Inactivos</option>
-              <option value="finalizado">Finalizados</option>
+              <option value="planificado">Planificado</option>
+              <option value="activo">Activo</option>
+              <option value="finalizado">Finalizado</option>
+              <option value="cancelado">Cancelado</option>
             </select>
 
             <select
-              value={filterModalidad}
-              onChange={(e) => setFilterModalidad(e.target.value)}
+              value={filterTipo}
+              onChange={(e) => setFilterTipo(e.target.value)}
               style={{
                 padding: '12px 16px',
                 background: 'rgba(255,255,255,0.1)',
@@ -679,10 +841,12 @@ const CursosTab = () => {
                 fontSize: '0.9rem'
               }}
             >
-              <option value="todos">Todas las modalidades</option>
-              <option value="presencial">Presencial</option>
-              <option value="virtual">Virtual</option>
-              <option value="hibrido">Híbrido</option>
+              <option value="todos">Todos los tipos</option>
+              {tiposCursos.map(tipo => (
+                <option key={tipo.id_tipo_curso} value={tipo.id_tipo_curso}>
+                  {tipo.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -712,127 +876,211 @@ const CursosTab = () => {
 
       {/* Lista de Cursos */}
       <div style={{ display: 'grid', gap: '20px' }}>
-        {cursosFiltrados.map(curso => (
-          <div key={curso.id} style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '20px',
-            padding: '24px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 8px 0' }}>
-                  {curso.nombre}
-                </h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', fontSize: '0.9rem' }}>
-                  {curso.descripcion}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Instructor:</strong> {curso.instructor}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Duración:</strong> {curso.duracion}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Precio:</strong> ${curso.precio}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Cupos:</strong> {curso.inscritos}/{curso.cupos}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                  color: curso.estado === 'activo' ? '#10b981' : '#ef4444'
-                }}>
-                  {curso.estado.charAt(0).toUpperCase() + curso.estado.slice(1)}
+        {cursosFiltrados.map(curso => {
+          const estadoColor = 
+            curso.estado === 'activo' ? '#10b981' :
+            curso.estado === 'planificado' ? '#3b82f6' :
+            curso.estado === 'finalizado' ? '#6b7280' : '#ef4444';
+          
+          const ocupacion = curso.capacidad_maxima > 0 
+            ? (curso.estudiantes_inscritos / curso.capacidad_maxima) * 100 
+            : 0;
+
+          return (
+            <div key={curso.id_curso} style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '20px',
+              padding: '24px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <div style={{
+                      background: `${estadoColor}20`,
+                      color: estadoColor,
+                      padding: '4px 12px',
+                      borderRadius: '16px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600'
+                    }}>
+                      {curso.codigo_curso}
+                    </div>
+                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
+                      {curso.tipo_curso_nombre}
+                    </span>
+                  </div>
+                  
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', margin: '0 0 8px 0' }}>
+                    {curso.nombre}
+                  </h3>
+                  
+                  <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', fontSize: '0.9rem' }}>
+                    {curso.descripcion || 'Sin descripción'}
+                  </p>
+                  
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      <strong>Profesor:</strong> {curso.profesores || 'Sin asignar'}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      <strong>Aula:</strong> {curso.aula_nombre || 'Sin asignar'}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      <strong>Capacidad:</strong> {curso.estudiantes_inscritos || 0}/{curso.capacidad_maxima}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      <strong>Horario:</strong> {curso.horario || 'Por definir'}
+                    </span>
+                  </div>
                 </div>
                 
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={() => handleViewCurso(curso)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '8px',
-                      color: '#3b82f6',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleEditCurso(curso)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(245, 158, 11, 0.2)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
-                      borderRadius: '8px',
-                      color: '#f59e0b',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCurso(curso.id)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(239, 68, 68, 0.2)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '8px',
-                      color: '#ef4444',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    background: `${estadoColor}20`,
+                    color: estadoColor
+                  }}>
+                    {curso.estado.charAt(0).toUpperCase() + curso.estado.slice(1)}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => handleViewCurso(curso)}
+                      style={{
+                        padding: '8px',
+                        background: 'rgba(59, 130, 246, 0.2)',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        borderRadius: '8px',
+                        color: '#3b82f6',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleEditCurso(curso)}
+                      style={{
+                        padding: '8px',
+                        background: 'rgba(245, 158, 11, 0.2)',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
+                        borderRadius: '8px',
+                        color: '#f59e0b',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCurso(curso.id_curso)}
+                      style={{
+                        padding: '8px',
+                        background: 'rgba(239, 68, 68, 0.2)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '8px',
+                        color: '#ef4444',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información adicional */}
+              <div style={{ 
+                background: 'rgba(255,255,255,0.02)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                border: '1px solid rgba(255,255,255,0.05)',
+                marginBottom: '16px'
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Fecha Inicio</div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600' }}>
+                      {curso.fecha_inicio ? new Date(curso.fecha_inicio).toLocaleDateString() : 'Por definir'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Fecha Fin</div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600' }}>
+                      {curso.fecha_fin ? new Date(curso.fecha_fin).toLocaleDateString() : 'Por definir'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Progreso</div>
+                    <div style={{ color: '#f59e0b', fontSize: '0.9rem', fontWeight: '600' }}>
+                      {curso.progreso || 0}%
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Precio Base</div>
+                    <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600' }}>
+                      ${curso.precio_base || 0}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Barra de progreso de ocupación */}
+              <div style={{ marginTop: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Ocupación del curso</span>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
+                    {Math.round(ocupacion)}%
+                  </span>
+                </div>
+                <div style={{
+                  width: '100%',
+                  height: '6px',
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: '3px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${ocupacion}%`,
+                    height: '100%',
+                    background: `linear-gradient(90deg, ${
+                      ocupacion > 80 ? '#ef4444' : 
+                      ocupacion > 60 ? '#f59e0b' : '#10b981'
+                    }, ${
+                      ocupacion > 80 ? '#dc2626' : 
+                      ocupacion > 60 ? '#d97706' : '#059669'
+                    })`,
+                    borderRadius: '3px'
+                  }} />
                 </div>
               </div>
             </div>
-
-            {/* Barra de progreso de cupos */}
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Ocupación</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
-                  {Math.round((curso.inscritos / curso.cupos) * 100)}%
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: '6px',
-                background: 'rgba(255,255,255,0.1)',
-                borderRadius: '3px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${(curso.inscritos / curso.cupos) * 100}%`,
-                  height: '100%',
-                  background: `linear-gradient(90deg, ${
-                    (curso.inscritos / curso.cupos) > 0.8 ? '#ef4444' : 
-                    (curso.inscritos / curso.cupos) > 0.6 ? '#f59e0b' : '#10b981'
-                  }, ${
-                    (curso.inscritos / curso.cupos) > 0.8 ? '#dc2626' : 
-                    (curso.inscritos / curso.cupos) > 0.6 ? '#d97706' : '#059669'
-                  })`,
-                  borderRadius: '3px'
-                }} />
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {/* Mensaje cuando no hay cursos */}
+      {cursosFiltrados.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '60px',
+          color: 'rgba(255,255,255,0.6)'
+        }}>
+          <BookOpen size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
+          <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '8px' }}>
+            No se encontraron cursos
+          </div>
+          <div style={{ fontSize: '0.9rem' }}>
+            {searchTerm || filterEstado !== 'todos' || filterTipo !== 'todos' 
+              ? 'Intenta con otros filtros de búsqueda' 
+              : 'Crea tu primer curso'}
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -856,7 +1104,7 @@ const CursosTab = () => {
             borderRadius: '20px',
             padding: '32px',
             width: '100%',
-            maxWidth: '600px',
+            maxWidth: '800px',
             maxHeight: '90vh',
             overflowY: 'auto'
           }}>
@@ -879,12 +1127,103 @@ const CursosTab = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            {modalType === 'view' && selectedCurso ? (
+              // Vista de detalles del curso
               <div style={{ display: 'grid', gap: '20px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Nombre del Curso
+                      Código del Curso
+                    </label>
+                    <div style={{ color: '#fff', fontSize: '1rem', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                      {selectedCurso.codigo_curso}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                      Estado
+                    </label>
+                    <div style={{ color: '#fff', fontSize: '1rem', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                      {selectedCurso.estado}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                    Nombre del Curso
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '1rem', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                    {selectedCurso.nombre}
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                    Descripción
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '1rem', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                    {selectedCurso.descripcion || 'Sin descripción'}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Formulario de creación/edición
+              <form onSubmit={handleSubmit}>
+                <div style={{ display: 'grid', gap: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Código del Curso *
+                      </label>
+                      <input
+                        name="codigo_curso"
+                        type="text"
+                        defaultValue={selectedCurso?.codigo_curso || ''}
+                        disabled={modalType === 'view'}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                        placeholder="Ej: COS-001"
+                      />
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Tipo de Curso *
+                      </label>
+                      <select
+                        name="id_tipo_curso"
+                        defaultValue={selectedCurso?.id_tipo_curso || ''}
+                        disabled={modalType === 'view'}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        <option value="">Seleccionar tipo</option>
+                        {tiposCursos.map(tipo => (
+                          <option key={tipo.id_tipo_curso} value={tipo.id_tipo_curso}>
+                            {tipo.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                      Nombre del Curso *
                     </label>
                     <input
                       name="nombre"
@@ -901,253 +1240,217 @@ const CursosTab = () => {
                         color: '#fff',
                         fontSize: '0.9rem'
                       }}
+                      placeholder="Nombre del curso"
                     />
                   </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Duración
-                    </label>
-                    <input
-                      name="duracion"
-                      type="text"
-                      defaultValue={selectedCurso?.duracion || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                    Descripción
-                  </label>
-                  <textarea
-                    name="descripcion"
-                    defaultValue={selectedCurso?.descripcion || ''}
-                    disabled={modalType === 'view'}
-                    required
-                    rows={3}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '0.9rem',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
+                  <div>
+                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                      Descripción
+                    </label>
+                    <textarea
+                      name="descripcion"
+                      defaultValue={selectedCurso?.descripcion || ''}
+                      disabled={modalType === 'view'}
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '12px',
+                        color: '#fff',
+                        fontSize: '0.9rem',
+                        resize: 'vertical'
+                      }}
+                      placeholder="Descripción del curso"
+                    />
+                  </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Precio ($)
-                    </label>
-                    <input
-                      name="precio"
-                      type="number"
-                      step="0.01"
-                      defaultValue={selectedCurso?.precio || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Aula
+                      </label>
+                      <select
+                        name="id_aula"
+                        defaultValue={selectedCurso?.id_aula || ''}
+                        disabled={modalType === 'view'}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        <option value="">Sin aula asignada</option>
+                        {aulas.map(aula => (
+                          <option key={aula.id_aula} value={aula.id_aula}>
+                            {aula.nombre} - {aula.ubicacion} (Cap: {aula.capacidad})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Capacidad Máxima *
+                      </label>
+                      <input
+                        name="capacidad_maxima"
+                        type="number"
+                        min="1"
+                        max="100"
+                        defaultValue={selectedCurso?.capacidad_maxima || 20}
+                        disabled={modalType === 'view'}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Cupos
-                    </label>
-                    <input
-                      name="cupos"
-                      type="number"
-                      defaultValue={selectedCurso?.cupos || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Modalidad
-                    </label>
-                    <select
-                      name="modalidad"
-                      defaultValue={selectedCurso?.modalidad || 'presencial'}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    >
-                      <option value="presencial">Presencial</option>
-                      <option value="virtual">Virtual</option>
-                      <option value="hibrido">Híbrido</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Instructor
-                    </label>
-                    <input
-                      name="instructor"
-                      type="text"
-                      defaultValue={selectedCurso?.instructor || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Fecha de Inicio *
+                      </label>
+                      <input
+                        name="fecha_inicio"
+                        type="date"
+                        defaultValue={selectedCurso?.fecha_inicio || ''}
+                        disabled={modalType === 'view'}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Fecha de Fin *
+                      </label>
+                      <input
+                        name="fecha_fin"
+                        type="date"
+                        defaultValue={selectedCurso?.fecha_fin || ''}
+                        disabled={modalType === 'view'}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Fecha Inicio
-                    </label>
-                    <input
-                      name="fechaInicio"
-                      type="date"
-                      defaultValue={selectedCurso?.fechaInicio || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Fecha Fin
-                    </label>
-                    <input
-                      name="fechaFin"
-                      type="date"
-                      defaultValue={selectedCurso?.fechaFin || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Horario
+                      </label>
+                      <input
+                        name="horario"
+                        type="text"
+                        defaultValue={selectedCurso?.horario || ''}
+                        disabled={modalType === 'view'}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                        placeholder="Ej: Lunes a Viernes 8:00-12:00"
+                      />
+                    </div>
+                    <div>
+                      <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                        Estado
+                      </label>
+                      <select
+                        name="estado"
+                        defaultValue={selectedCurso?.estado || 'planificado'}
+                        disabled={modalType === 'view'}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        <option value="planificado">Planificado</option>
+                        <option value="activo">Activo</option>
+                        <option value="finalizado">Finalizado</option>
+                        <option value="cancelado">Cancelado</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
                 {modalType !== 'view' && (
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Estado
-                    </label>
-                    <select
-                      name="estado"
-                      defaultValue={selectedCurso?.estado || 'activo'}
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '32px', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
                       style={{
-                        width: '100%',
-                        padding: '12px 16px',
+                        padding: '12px 24px',
                         background: 'rgba(255,255,255,0.1)',
                         border: '1px solid rgba(255,255,255,0.2)',
                         borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
+                        color: 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer'
                       }}
                     >
-                      <option value="activo">Activo</option>
-                      <option value="inactivo">Inactivo</option>
-                      <option value="finalizado">Finalizado</option>
-                    </select>
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 24px',
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        border: 'none',
+                        borderRadius: '12px',
+                        color: '#fff',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Save size={16} />
+                      {modalType === 'create' ? 'Crear Curso' : 'Guardar Cambios'}
+                    </button>
                   </div>
                 )}
-              </div>
-
-              {modalType !== 'view' && (
-                <div style={{ display: 'flex', gap: '12px', marginTop: '32px', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    style={{
-                      padding: '12px 24px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
-                      color: 'rgba(255,255,255,0.7)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '12px 24px',
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      border: 'none',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Save size={16} />
-                    {modalType === 'create' ? 'Crear Curso' : 'Guardar Cambios'}
-                  </button>
-                </div>
-              )}
-            </form>
+              </form>
+            )}
           </div>
         </div>
       )}
