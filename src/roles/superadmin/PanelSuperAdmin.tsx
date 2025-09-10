@@ -59,12 +59,20 @@ const PanelSuperAdmin = () => {
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [notification, setNotification] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const API_BASE = 'http://localhost:3000/api';
   const [filterStatus, setFilterStatus] = useState('all');
+  const [roles, setRoles] = useState<Array<{ id_rol: number; nombre_rol: string; descripcion?: string }>>([]);
   
   const [newAdmin, setNewAdmin] = useState({
+    cedula: '',
     nombre: '',
+    apellido: '',
     email: '',
     telefono: '',
+    fecha_nacimiento: '',
+    direccion: '',
+    genero: '',
+    foto_perfil: '',
     password: '',
     confirmPassword: '',
     permisos: []
@@ -143,58 +151,119 @@ const PanelSuperAdmin = () => {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Función para crear nuevo administrador
-  const handleCreateAdmin = () => {
-    if (!newAdmin.nombre || !newAdmin.email || !newAdmin.password) {
-      showNotification('Todos los campos obligatorios deben completarse', 'error');
-      return;
+  // Helper para leer valores de inputs por id
+  const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null)?.value?.trim() || '';
+
+  // Función para crear nuevo administrador (backend)
+  const handleCreateAdmin = async () => {
+    try {
+      const cedula = getVal('new-admin-cedula');
+      const nombre = getVal('new-admin-nombre');
+      const apellido = getVal('new-admin-apellido');
+      const email = getVal('new-admin-email');
+      const telefono = getVal('new-admin-telefono');
+      const fecha_nacimiento = getVal('new-admin-fecha-nacimiento');
+      const genero = getVal('new-admin-genero');
+      const direccion = getVal('new-admin-direccion');
+      const foto_perfil = getVal('new-admin-foto');
+      const password = getVal('new-admin-password');
+      const confirmPassword = getVal('new-admin-confirm');
+
+      if (!cedula || !nombre || !apellido || !email || !password) {
+        showNotification('Cédula, Nombre, Apellido, Email y Contraseña son obligatorios', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showNotification('Las contraseñas no coinciden', 'error');
+        return;
+      }
+
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        showNotification('Sesión expirada. Vuelve a iniciar sesión.', 'error');
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/admins`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cedula,
+          nombre,
+          apellido,
+          email,
+          telefono: telefono || null,
+          fecha_nacimiento: fecha_nacimiento || null,
+          direccion: direccion || null,
+          genero: genero || null,
+          foto_perfil: foto_perfil || null,
+          password,
+          roleName: getVal('new-admin-role') || 'administrativo'
+        })
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        const msg = txt || 'No se pudo crear el administrador';
+        showNotification(msg, 'error');
+        return;
+      }
+
+      // Refrescar lista
+      await loadAdmins();
+      setShowCreateAdminModal(false);
+      // Limpiar inputs del formulario
+      ['new-admin-cedula','new-admin-nombre','new-admin-apellido','new-admin-email','new-admin-telefono','new-admin-fecha-nacimiento','new-admin-genero','new-admin-direccion','new-admin-foto','new-admin-password','new-admin-confirm']
+        .forEach((id) => {
+          const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+          if (el) (el as any).value = '';
+        });
+      setNewAdmin({ ...newAdmin, permisos: [] });
+      showNotification('Administrador creado exitosamente');
+    } catch (e) {
+      console.error(e);
+      showNotification('Error inesperado creando administrador', 'error');
     }
-
-    if (newAdmin.password !== newAdmin.confirmPassword) {
-      showNotification('Las contraseñas no coinciden', 'error');
-      return;
-    }
-
-    if (administradores.find(admin => admin.email === newAdmin.email)) {
-      showNotification('El email ya está registrado en el sistema', 'error');
-      return;
-    }
-
-    const adminToCreate = {
-      id: administradores.length + 1,
-      nombre: newAdmin.nombre,
-      email: newAdmin.email,
-      telefono: newAdmin.telefono,
-      fechaCreacion: new Date().toISOString().split('T')[0],
-      ultimoAcceso: 'Nunca',
-      estado: 'activo',
-      permisos: newAdmin.permisos,
-      rol: newAdmin.permisos.length > 3 ? 'Administrador Principal' : 'Administrador'
-    };
-
-    setAdministradores([...administradores, adminToCreate]);
-    setShowCreateAdminModal(false);
-    setNewAdmin({ nombre: '', email: '', telefono: '', password: '', confirmPassword: '', permisos: [] });
-    showNotification('Administrador creado exitosamente');
   };
 
   // Función para editar administrador
   const handleEditAdmin = () => {
-    if (!selectedAdmin.nombre || !selectedAdmin.email) {
+    // Leer valores del DOM (inputs no controlados)
+    const nombre = (document.getElementById('edit-admin-nombre') as HTMLInputElement)?.value?.trim() || '';
+    const apellido = (document.getElementById('edit-admin-apellido') as HTMLInputElement)?.value?.trim() || '';
+    const email = (document.getElementById('edit-admin-email') as HTMLInputElement)?.value?.trim() || '';
+    const telefono = (document.getElementById('edit-admin-telefono') as HTMLInputElement)?.value?.trim() || '';
+    const roleName = (document.getElementById('edit-admin-role') as HTMLSelectElement)?.value?.trim() || '';
+
+    if (!nombre || !email) {
       showNotification('Nombre y email son obligatorios', 'error');
       return;
     }
 
-    const existingAdmin = administradores.find(admin => admin.email === selectedAdmin.email && admin.id !== selectedAdmin.id);
+    // Evitar duplicado de email en otra fila
+    const existingAdmin = administradores.find(admin => admin.email === email && admin.id !== selectedAdmin.id);
     if (existingAdmin) {
       showNotification('El email ya está registrado', 'error');
       return;
     }
 
+    const permisos = (selectedAdmin.permisos || []);
+    const rolDerivado = roleName || selectedAdmin.rol || selectedAdmin.nombre_rol || (permisos.length > 3 ? 'Administrador Principal' : 'Administrador');
+
     setAdministradores(administradores.map(admin => 
       admin.id === selectedAdmin.id ? {
-        ...selectedAdmin,
-        rol: selectedAdmin.permisos.length > 3 ? 'Administrador Principal' : 'Administrador'
+        ...admin,
+        nombre,
+        apellido,
+        email,
+        telefono,
+        rol: rolDerivado,
+        nombre_rol: rolDerivado,
+        permisos
       } : admin
     ));
     setShowEditAdminModal(false);
@@ -327,12 +396,34 @@ const PanelSuperAdmin = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
             <div>
               <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Cédula
+              </label>
+              <input
+                type="text"
+                id="edit-admin-cedula"
+                defaultValue={selectedAdmin.cedula}
+                readOnly
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="—"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
                 Nombre Completo *
               </label>
               <input
                 type="text"
-                value={selectedAdmin.nombre}
-                onChange={(e) => setSelectedAdmin({...selectedAdmin, nombre: e.target.value})}
+                id="edit-admin-nombre"
+                defaultValue={selectedAdmin.nombre}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -344,8 +435,27 @@ const PanelSuperAdmin = () => {
                   transition: 'all 0.2s'
                 }}
                 placeholder="Ej: Juan Pérez"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Apellido
+              </label>
+              <input
+                type="text"
+                id="edit-admin-apellido"
+                defaultValue={selectedAdmin.apellido}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="Ej: Pérez"
               />
             </div>
             <div>
@@ -354,8 +464,8 @@ const PanelSuperAdmin = () => {
               </label>
               <input
                 type="email"
-                value={selectedAdmin.email}
-                onChange={(e) => setSelectedAdmin({...selectedAdmin, email: e.target.value})}
+                id="edit-admin-email"
+                defaultValue={selectedAdmin.email}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -367,8 +477,6 @@ const PanelSuperAdmin = () => {
                   transition: 'all 0.2s'
                 }}
                 placeholder="admin@instituto.edu"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
               />
             </div>
             <div>
@@ -377,8 +485,8 @@ const PanelSuperAdmin = () => {
               </label>
               <input
                 type="tel"
-                value={selectedAdmin.telefono}
-                onChange={(e) => setSelectedAdmin({...selectedAdmin, telefono: e.target.value})}
+                id="edit-admin-telefono"
+                defaultValue={selectedAdmin.telefono}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -390,9 +498,31 @@ const PanelSuperAdmin = () => {
                   transition: 'all 0.2s'
                 }}
                 placeholder="+593 99 123 4567"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
               />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Rol del sistema
+              </label>
+              <select
+                id="edit-admin-role"
+                defaultValue={selectedAdmin.rol || selectedAdmin.nombre_rol || ''}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <option value="" style={{ color: '#000' }}>Seleccionar rol</option>
+                {roles.map(r => (
+                  <option key={r.id_rol} value={r.nombre_rol} style={{ color: '#000' }}>{r.nombre_rol}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -408,19 +538,20 @@ const PanelSuperAdmin = () => {
                   <div 
                     key={permiso.id}
                     style={{
-                      background: selectedAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${selectedAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
+                      background: (selectedAdmin.permisos || []).includes(permiso.id) ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${(selectedAdmin.permisos || []).includes(permiso.id) ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
                       borderRadius: '12px',
                       padding: '16px',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
-                      transform: selectedAdmin.permisos.includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
+                      transform: (selectedAdmin.permisos || []).includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
                     }}
                     onClick={() => {
-                      const nuevos = selectedAdmin.permisos.includes(permiso.id)
-                        ? selectedAdmin.permisos.filter(p => p !== permiso.id)
-                        : [...selectedAdmin.permisos, permiso.id];
-                      setSelectedAdmin({...selectedAdmin, permisos: nuevos});
+                      const current = selectedAdmin.permisos || [];
+                      const nuevos = current.includes(permiso.id)
+                        ? current.filter(p => p !== permiso.id)
+                        : [...current, permiso.id];
+                      setSelectedAdmin({ ...selectedAdmin, permisos: nuevos });
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -595,8 +726,6 @@ const PanelSuperAdmin = () => {
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.3)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.2)'}
             >
               <X size={20} />
             </button>
@@ -606,12 +735,11 @@ const PanelSuperAdmin = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
             <div>
               <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                Nombre Completo *
+                Cédula *
               </label>
               <input
+                id="new-admin-cedula"
                 type="text"
-                value={newAdmin.nombre}
-                onChange={(e) => setNewAdmin({...newAdmin, nombre: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -622,9 +750,129 @@ const PanelSuperAdmin = () => {
                   fontSize: '1rem',
                   transition: 'all 0.2s'
                 }}
-                placeholder="Ej: Juan Pérez"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
+                placeholder="Ej: 0102030405"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Nombre *
+              </label>
+              <input
+                id="new-admin-nombre"
+                type="text"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="Ej: Juan"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Apellido *
+              </label>
+              <input
+                id="new-admin-apellido"
+                type="text"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="Ej: Pérez"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Fecha de Nacimiento
+              </label>
+              <input
+                id="new-admin-fecha-nacimiento"
+                type="date"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Género
+              </label>
+              <select
+                id="new-admin-genero"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <option value="" style={{ color: '#000' }}>Seleccionar</option>
+                <option value="masculino" style={{ color: '#000' }}>Masculino</option>
+                <option value="femenino" style={{ color: '#000' }}>Femenino</option>
+                <option value="otro" style={{ color: '#000' }}>Otro</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Dirección
+              </label>
+              <input
+                id="new-admin-direccion"
+                type="text"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="Calle Ejemplo 123, Ciudad"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Foto de Perfil (URL)
+              </label>
+              <input
+                id="new-admin-foto"
+                type="url"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="https://..."
               />
             </div>
             <div>
@@ -632,9 +880,8 @@ const PanelSuperAdmin = () => {
                 Email *
               </label>
               <input
+                id="new-admin-email"
                 type="email"
-                value={newAdmin.email}
-                onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -646,8 +893,6 @@ const PanelSuperAdmin = () => {
                   transition: 'all 0.2s'
                 }}
                 placeholder="admin@instituto.edu"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
               />
             </div>
             <div>
@@ -655,9 +900,8 @@ const PanelSuperAdmin = () => {
                 Teléfono
               </label>
               <input
+                id="new-admin-telefono"
                 type="tel"
-                value={newAdmin.telefono}
-                onChange={(e) => setNewAdmin({...newAdmin, telefono: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '14px 16px',
@@ -669,8 +913,46 @@ const PanelSuperAdmin = () => {
                   transition: 'all 0.2s'
                 }}
                 placeholder="+593 99 123 4567"
-                onFocus={(e) => e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Contraseña *
+              </label>
+              <input
+                id="new-admin-password"
+                type="password"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                Confirmar Contraseña *
+              </label>
+              <input
+                id="new-admin-confirm"
+                type="password"
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
+                }}
+                placeholder="••••••••"
               />
             </div>
           </div>
@@ -1228,14 +1510,6 @@ const PanelSuperAdmin = () => {
               position: 'relative',
               overflow: 'hidden'
             }}
-            onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 16px 36px rgba(239, 68, 68, 0.5)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 12px 28px rgba(239, 68, 68, 0.4)';
-            }}
           >
             <UserPlus size={20} />
             Nuevo Administrador
@@ -1402,7 +1676,11 @@ const PanelSuperAdmin = () => {
                       fontWeight: '700',
                       fontSize: '1.1rem'
                     }}>
-                      {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                      {(admin && (admin.nombre || admin.email) ? (admin.nombre || admin.email).toString().split(' ') : ['?'])
+                        .map(n => (n && n[0]) || '')
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)}
                     </span>
                     {/* Indicador de estado */}
                     <div style={{
@@ -1424,14 +1702,14 @@ const PanelSuperAdmin = () => {
                       fontSize: '1.1rem',
                       marginBottom: '4px'
                     }}>
-                      {admin.nombre}
+                      {admin.nombre || admin.email}
                     </div>
                     <div style={{
                       color: 'rgba(255,255,255,0.6)',
                       fontSize: '0.85rem',
                       marginBottom: '2px'
                     }}>
-                      {admin.rol}
+                      {admin.rol || admin.nombre_rol || '—'}
                     </div>
                     <div style={{
                       color: 'rgba(255,255,255,0.5)',
@@ -1441,7 +1719,7 @@ const PanelSuperAdmin = () => {
                     </div>
                     {/* Permisos badges */}
                     <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap' }}>
-                      {admin.permisos.slice(0, 2).map(permiso => (
+                      {(admin.permisos || []).slice(0, 2).map(permiso => (
                         <span
                           key={permiso}
                           style={{
@@ -1457,7 +1735,7 @@ const PanelSuperAdmin = () => {
                           {permiso}
                         </span>
                       ))}
-                      {admin.permisos.length > 2 && (
+                      {(admin.permisos || []).length > 2 && (
                         <span style={{
                           background: 'rgba(255,255,255,0.1)',
                           color: 'rgba(255,255,255,0.7)',
@@ -1528,10 +1806,10 @@ const PanelSuperAdmin = () => {
                   justifyContent: 'center',
                   gap: '8px'
                 }}>
-                  <Tooltip content="Editar administrador">
+                  <Tooltip content="Editar">
                     <button
                       onClick={() => {
-                        setSelectedAdmin(admin);
+                        setSelectedAdmin({ ...admin, permisos: (admin.permisos || []) });
                         setShowEditAdminModal(true);
                       }}
                       className="action-btn"
@@ -1684,8 +1962,6 @@ const PanelSuperAdmin = () => {
                 gap: '6px',
                 transition: 'all 0.2s'
               }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
             >
               <RefreshCw size={14} />
               Actualizar
@@ -1704,8 +1980,6 @@ const PanelSuperAdmin = () => {
                 gap: '6px',
                 transition: 'all 0.2s'
               }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
             >
               <Download size={14} />
               Exportar
@@ -1722,6 +1996,40 @@ const PanelSuperAdmin = () => {
     { id: 'logs', name: 'Logs del Sistema', icon: FileText },
     { id: 'config', name: 'Configuración', icon: Settings },
   ];
+
+  // Cargar administradores desde backend
+  const loadAdmins = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+      const res = await fetch(`${API_BASE}/admins`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      // Esperamos campos: id_usuario, nombre, apellido, email, telefono, estado, fecha_registro
+      setAdministradores(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error('Error cargando administradores', e);
+    }
+  };
+
+  useEffect(() => {
+    loadAdmins();
+    // Cargar roles solo para superadmin
+    (async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/roles`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) setRoles(data);
+      } catch (e) {
+        console.error('Error cargando roles', e);
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -1778,18 +2086,6 @@ const PanelSuperAdmin = () => {
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       boxShadow: selectedTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none'
-                    }}
-                    onMouseOver={(e) => {
-                      if (selectedTab !== tab.id) {
-                        e.target.style.background = 'rgba(255,255,255,0.1)';
-                        e.target.style.color = 'rgba(255,255,255,0.9)';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (selectedTab !== tab.id) {
-                        e.target.style.background = 'rgba(255,255,255,0.05)';
-                        e.target.style.color = 'rgba(255,255,255,0.7)';
-                      }
                     }}
                   >
                     <IconComponent size={18} />

@@ -2,6 +2,7 @@ import React, {
   useState, 
   useEffect 
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { 
@@ -17,7 +18,10 @@ import {
   Lock
 } from 'lucide-react';
 
+const API_BASE = 'http://localhost:3000/api';
+
 const AulaVirtual = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,6 +30,7 @@ const AulaVirtual = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
@@ -34,22 +39,43 @@ const AulaVirtual = () => {
     setTimeout(() => AOS.refresh(), 0);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simular proceso de login
-    setTimeout(() => {
-      setIsLoading(false);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Credenciales inválidas');
+      }
+      const data = await res.json();
+      if (!data?.token || !data?.user) throw new Error('Respuesta inválida del servidor');
+      // Guardar token y usuario en sessionStorage para que al cerrar la pestaña se cierre la sesión
+      sessionStorage.setItem('auth_token', data.token);
+      sessionStorage.setItem('auth_user', JSON.stringify(data.user));
+
+      // Redirección según rol
+      if (data.user.rol === 'superadmin') {
+        navigate('/panel/superadmin');
+        return;
+      }
+      if (data.user.rol === 'administrativo') {
+        navigate('/panel/administrativo');
+        return;
+      }
+      // Otros roles: por ahora mostrar éxito y quedar en la página
       setShowSuccess(true);
-      
-      // Simular redirección después del éxito
-      setTimeout(() => {
-        setShowSuccess(false);
-        // Aquí podrías redirigir al dashboard del aula virtual
-        console.log('Redirigir al dashboard del aula virtual');
-      }, 2000);
-    }, 1500);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'No se pudo iniciar sesión');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -875,6 +901,21 @@ const AulaVirtual = () => {
                         </button>
                       </div>
                     </div>
+
+                    {errorMsg && (
+                      <div
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          border: '1px solid rgba(239, 68, 68, 0.35)',
+                          color: '#fecaca',
+                          padding: '10px 14px',
+                          borderRadius: 12,
+                          marginBottom: 10
+                        }}
+                      >
+                        {errorMsg}
+                      </div>
+                    )}
 
                     <button
                       type="submit"

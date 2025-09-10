@@ -45,20 +45,22 @@ const Footer = () => {
   const logoSectionStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '14px', // igual que el espacio entre título "Enlaces" y su lista
+    gap: '14px', 
   };
 
   const logoContainerStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginBottom: '0', // evitamos duplicar espacio ya dado por gap: 14px
+    justifyContent: 'center',
+    marginBottom: '0', 
+    marginTop: '-49px', // subir más el logo 
   };
 
   const descriptionStyle: CSSProperties = {
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: '1.6',
     marginBottom: '0',
+    marginTop: '-40px',
     fontFamily: "'Montserrat', sans-serif",
     fontSize: '15px',
     maxWidth: '300px',
@@ -207,11 +209,11 @@ const Footer = () => {
           <div style={logoSectionStyle} className="footer-logo-section" data-aos="fade-right">
             <div style={logoContainerStyle}>
               <img 
-                src="https://res.cloudinary.com/di090ggjn/image/upload/v1755893582/catjq75bgehyzkzb0ryc.jpg"
+                src="https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png"
                 alt="Jessica Vélez - Escuela de Esteticistas"
                 style={{
-                  height: '80px',
-                  width: '80px',
+                  height: '200px',
+                  width: '200px',
                   borderRadius: '50%',
                   filter: 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.3))',
                   transition: 'all 0.3s ease',
@@ -535,8 +537,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 60px !important;
-            width: 60px !important;
+            height: 190px !important;
+            width: 190px !important;
           }
         }
 
@@ -573,8 +575,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 70px !important;
-            width: 70px !important;
+            height: 170px !important;
+            width: 170px !important;
           }
           
           .footer-bottom {
@@ -608,8 +610,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 70px !important;
-            width: 70px !important;
+            height: 150px !important;
+            width: 150px !important;
           }
           
           .footer-description {
@@ -690,8 +692,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 60px !important;
-            width: 60px !important;
+            height: 130px !important;
+            width: 130px !important;
           }
           
           .footer-description {
@@ -779,8 +781,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 55px !important;
-            width: 55px !important;
+            height: 130px !important;
+            width: 130px !important;
           }
           
           .footer-description {
@@ -878,8 +880,8 @@ const Footer = () => {
           }
           
           .footer-logo {
-            height: 50px !important;
-            width: 50px !important;
+            height: 115px !important;
+            width: 115px !important;
           }
           
           .footer-description {

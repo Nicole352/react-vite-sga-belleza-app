@@ -234,7 +234,7 @@ return (
           {/* Logo con imagen */}
           <Link to="/" style={logoContainerStyle} data-aos="zoom-in" data-aos-duration="600">
             <img 
-              src="https://res.cloudinary.com/di090ggjn/image/upload/v1755893582/catjq75bgehyzkzb0ryc.jpg"
+              src="https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png"
               alt="Jessica Vélez - Escuela de Esteticistas"
               style={logoImageStyle}
               className="logo-img"

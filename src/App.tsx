@@ -9,7 +9,10 @@ import PaginaContactenos from './pages/Contactenos';
 import DetalleCurso from './pages/DetalleCurso';
 import Header from './components/Header';
 import Pago from './pages/Pago';
-import DashboardLayout from './pages/DashboardLayout';
+import PanelSuperAdmin from './roles/superadmin/PanelSuperAdmin';
+import PanelAdministrativos from './roles/admin/PanelAdministrativos';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import RoleRedirect from './components/auth/RoleRedirect';
 
 const App: React.FC = () => {
   return (
@@ -28,9 +31,29 @@ const App: React.FC = () => {
           <Route path="/contactenos" element={<><Header /><PaginaContactenos /></>} />
           <Route path="/detalle-curso" element={<><Header /><DetalleCurso /></>} />
           <Route path="/pago" element={<><Header /><Pago /></>} />
+          {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
+          <Route
+            path="/panel/superadmin"
+            element={
+              <ProtectedRoute allowRoles={['superadmin']}>
+                <PanelSuperAdmin />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Panel Administrativos */}
+          <Route
+            path="/panel/administrativo"
+            element={
+              <ProtectedRoute allowRoles={['administrativo','superadmin']}>
+                <PanelAdministrativos />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
-          <Route path="/dashboard/*" element={<DashboardLayout />} />
+          {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
+          <Route path="/dashboard/*" element={<RoleRedirect />} />
         </Routes>
       </div>
     </Router>

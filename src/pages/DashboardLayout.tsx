@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Users, GraduationCap, BookOpen, Menu, X, Home, UserCheck, Shield, Settings } from 'lucide-react';
 
 // Importar los componentes de cada panel
-import PanelEstudiantes from '../components/dashboard/PanelEstudiantes';
-import PanelDocentes from '../components/dashboard/PanelDocentes';
-import PanelAdministrativos from '../components/dashboard/PanelAdministrativos';
-import PanelSuperAdmin from '../components/dashboard/PanelSuperAdmin';
-import DocenteDashboard from '../docente/DocenteDashboard';
+import PanelEstudiantes from '../roles/estudiante/PanelEstudiantes';
+import PanelDocentes from '../roles/docente/PanelDocentes';
+import PanelAdministrativos from '../roles/admin/PanelAdministrativos';
+import PanelSuperAdmin from '../roles/superadmin/PanelSuperAdmin';
+import DocenteDashboard from '../roles/docente/DocenteDashboard';
 
 const DashboardLayout = () => {
   const [activeSection, setActiveSection] = useState('estudiantes');
