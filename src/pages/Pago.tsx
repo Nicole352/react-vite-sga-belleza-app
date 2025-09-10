@@ -140,6 +140,29 @@ const Pago: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
 
+  // Validador estricto de cédula ecuatoriana
+  const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
+    if (!/^\d{10}$/.test(ced)) return { ok: false, reason: 'La cédula debe tener exactamente 10 dígitos' };
+    // Rechazar repetitivas (0000000000, 1111111111, ...)
+    if (/^(\d)\1{9}$/.test(ced)) return { ok: false, reason: 'La cédula es inválida (repetitiva)' };
+    const prov = parseInt(ced.slice(0, 2), 10);
+    if (prov < 1 || prov > 24) return { ok: false, reason: 'Código de provincia inválido (01-24)' };
+    const digits = ced.split('').map(n => parseInt(n, 10));
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      let val = digits[i];
+      if ((i + 1) % 2 !== 0) { // posiciones impares 1,3,5,7,9
+        val = val * 2;
+        if (val > 9) val -= 9;
+      }
+      sum += val;
+    }
+    const nextTen = Math.ceil(sum / 10) * 10;
+    const verifier = (nextTen - sum) % 10; // si es 10, queda 0
+    if (verifier !== digits[9]) return { ok: false, reason: 'Dígito verificador inválido' };
+    return { ok: true };
+  };
+
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -729,9 +752,11 @@ const Pago: React.FC = () => {
                         value={formData.nombre}
                         onChange={(e) => {
                           const val = (e.target as HTMLInputElement).value;
-                          const filtered = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          const filtered = removedInvalid.toUpperCase();
                           setFormData({ ...formData, nombre: filtered });
-                          setErrors((prev) => ({ ...prev, nombre: val !== filtered ? 'Este dato es solo letras' : undefined }));
+                          const hadInvalid = removedInvalid.length !== val.length;
+                          setErrors((prev) => ({ ...prev, nombre: hadInvalid ? 'Este dato es solo letras' : undefined }));
                         }}
                         style={{
                           width: '100%',
@@ -768,9 +793,11 @@ const Pago: React.FC = () => {
                         value={formData.apellido}
                         onChange={(e) => {
                           const val = (e.target as HTMLInputElement).value;
-                          const filtered = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                          const filtered = removedInvalid.toUpperCase();
                           setFormData({ ...formData, apellido: filtered });
-                          setErrors((prev) => ({ ...prev, apellido: val !== filtered ? 'Este dato es solo letras' : undefined }));
+                          const hadInvalid = removedInvalid.length !== val.length;
+                          setErrors((prev) => ({ ...prev, apellido: hadInvalid ? 'Este dato es solo letras' : undefined }));
                         }}
                         style={{
                           width: '100%',
@@ -823,7 +850,17 @@ const Pago: React.FC = () => {
                           const val = (e.target as HTMLInputElement).value;
                           const filtered = val.replace(/\D/g, '');
                           setFormData({ ...formData, cedula: filtered });
-                          setErrors((prev) => ({ ...prev, cedula: val !== filtered ? 'Este dato es solo numérico' : undefined }));
+                          // Validación en vivo
+                          let msg: string | undefined = undefined;
+                          if (val !== filtered) {
+                            msg = 'Este dato es solo numérico';
+                          } else if (filtered.length === 10) {
+                            const res = validateCedulaEC(filtered);
+                            if (!res.ok) msg = res.reason || 'Cédula inválida';
+                          } else if (filtered.length > 0 && filtered.length < 10) {
+                            msg = 'Debe tener 10 dígitos';
+                          }
+                          setErrors((prev) => ({ ...prev, cedula: msg }));
                         }}
                         onInvalid={(e) => {
                           (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
@@ -922,7 +959,7 @@ const Pago: React.FC = () => {
                     <textarea
                       required
                       value={formData.direccion}
-                      onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value })}
+                      onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value.toUpperCase() })}
                       style={{
                         width: '100%',
                         padding: '12px 16px',
@@ -994,7 +1031,8 @@ const Pago: React.FC = () => {
                         title="Ingresa un correo válido (ej: usuario@dominio.com)"
                         value={formData.email}
                         onChange={(e) => {
-                          const val = (e.target as HTMLInputElement).value;
+                          const raw = (e.target as HTMLInputElement).value;
+                          const val = raw.toLowerCase();
                           const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
                           setFormData({ ...formData, email: val });
                           setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
