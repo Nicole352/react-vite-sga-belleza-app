@@ -3,7 +3,6 @@ import React, {
   useEffect 
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Importar useAuth
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { 
@@ -19,9 +18,10 @@ import {
   Lock
 } from 'lucide-react';
 
+const API_BASE = 'http://localhost:3000/api';
+
 const AulaVirtual = () => {
   const navigate = useNavigate();
-  const { login, user, isAuthenticated, isLoading: authLoading } = useAuth(); // Usar AuthContext
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,52 +35,43 @@ const AulaVirtual = () => {
   useEffect(() => {
     setIsVisible(true);
     AOS.init({ duration: 1000, once: true, easing: 'ease-out-back' });
+    // En caso de contenido dinámico
     setTimeout(() => AOS.refresh(), 0);
   }, []);
-
-  // Manejar redirección automática si ya está autenticado
-  useEffect(() => {
-    console.log('🎓 AulaVirtual - isAuthenticated:', isAuthenticated, 'user:', user?.rol);
-    
-    if (!authLoading && isAuthenticated && user) {
-      console.log('✅ Usuario ya autenticado, redirigiendo...');
-      
-      setTimeout(() => {
-        switch (user.rol) {
-          case 'superadmin':
-            navigate('/panel/superadmin');
-            break;
-          case 'administrativo':
-            navigate('/panel/administrativo');
-            break;
-          default:
-            // Para estudiantes y otros roles, mostrar éxito
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 3000);
-            break;
-        }
-      }, 500);
-    }
-  }, [isAuthenticated, user, navigate, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
-
-    console.log('🎓 AulaVirtual - Intentando login...');
-
     try {
-      const result = await login(formData.email, formData.password);
-      
-      if (result.success) {
-        console.log('✅ Login exitoso desde AulaVirtual');
-        // La redirección se maneja en el useEffect
-      } else {
-        setErrorMsg(result.error || 'No se pudo iniciar sesión');
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Credenciales inválidas');
       }
+      const data = await res.json();
+      if (!data?.token || !data?.user) throw new Error('Respuesta inválida del servidor');
+      // Guardar token y usuario en sessionStorage para que al cerrar la pestaña se cierre la sesión
+      sessionStorage.setItem('auth_token', data.token);
+      sessionStorage.setItem('auth_user', JSON.stringify(data.user));
+
+      // Redirección según rol
+      if (data.user.rol === 'superadmin') {
+        navigate('/panel/superadmin');
+        return;
+      }
+      if (data.user.rol === 'administrativo') {
+        navigate('/panel/administrativo');
+        return;
+      }
+      // Otros roles: por ahora mostrar éxito y quedar en la página
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
     } catch (err: any) {
-      console.error('❌ Error en AulaVirtual login:', err);
       setErrorMsg(err.message || 'No se pudo iniciar sesión');
     } finally {
       setIsLoading(false);
@@ -97,56 +88,6 @@ const AulaVirtual = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  // Mostrar loading mientras se verifica autenticación
-  if (authLoading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 110,
-        fontFamily: "'Cormorant Garamond', 'Playfair Display', 'Georgia', serif"
-      }}>
-        <div 
-          style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '32px',
-            padding: '60px',
-            textAlign: 'center',
-            maxWidth: '500px',
-            margin: '0 24px',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(251, 191, 36, 0.3)',
-            boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)'
-          }}
-        >
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(251, 191, 36, 0.3)',
-            borderTop: '4px solid #fbbf24',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }} />
-          <p style={{ color: '#666', fontSize: '1.2rem' }}>
-            Verificando sesión...
-          </p>
-          <style>
-            {`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}
-          </style>
-        </div>
-      </div>
-    );
-  }
 
   if (showSuccess) {
     return (
@@ -209,7 +150,8 @@ const AulaVirtual = () => {
               fontFamily: "'Crimson Text', serif"
             }}
           >
-            Has ingresado exitosamente al Aula Virtual como <strong>{user?.rol}</strong>.
+            Has ingresado exitosamente al Aula Virtual. 
+            Redirigiendo al panel de estudiante...
           </p>
           <div 
             style={{
@@ -225,7 +167,7 @@ const AulaVirtual = () => {
               margin: 0,
               fontFamily: "'Montserrat', sans-serif"
             }}>
-              {user?.rol === 'estudiante' ? 'Accediendo a tu panel de estudiante...' : 'Redirigiendo...'}
+              Accediendo a tu panel de estudiante...
             </p>
           </div>
         </div>
@@ -311,18 +253,18 @@ const AulaVirtual = () => {
             position: relative;
             overflow: hidden;
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            padding-top: 0;
+            padding-top: 0; /* sin separación extra con el navbar */
             display: flex;
             align-items: center;
           }
           
           .main-content {
-            max-width: none;
+            max-width: none; /* permitir ancho completo para imagen half-bleed */
             margin: 0;
-            padding: 0;
+            padding: 0; /* sin padding para que la imagen llegue al borde */
             position: relative;
             z-index: 1;
-            width: 100vw;
+            width: 100vw; /* asegurar ocupar todo el viewport */
           }
           
           .login-grid {
@@ -348,7 +290,7 @@ const AulaVirtual = () => {
             position: absolute;
             top: 0;
             right: 0;
-            width: 48px;
+            width: 48px; /* reducir halo para no parecer margen vacío */
             height: 100%;
             background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.95) 100%);
             z-index: 2;
@@ -372,7 +314,7 @@ const AulaVirtual = () => {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 92px 48px 52px;
+            padding: 92px 48px 52px; /* ajustar para que quepa sin scroll en desktop */
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 14, 14, 0.9) 100%);
             position: relative;
           }
@@ -390,8 +332,8 @@ const AulaVirtual = () => {
           
           .login-header {
             text-align: center;
-            margin-top: 0;
-            margin-bottom: 24px;
+            margin-top: 0; /* manejado por el padding-top del contenedor */
+            margin-bottom: 24px; /* menos espacio entre textos y tarjeta */
             position: relative;
             z-index: 1;
           }
@@ -399,11 +341,11 @@ const AulaVirtual = () => {
           .badge {
             display: inline-flex;
             align-items: center;
-            background-color: rgba(251, 191, 36, 0.28);
-            border: 1px solid rgba(251, 191, 36, 0.55);
+            background-color: rgba(251, 191, 36, 0.28); /* más contraste */
+            border: 1px solid rgba(251, 191, 36, 0.55); /* borde más visible */
             border-radius: 24px;
             padding: 10px 20px;
-            margin-bottom: 12px;
+            margin-bottom: 12px; /* más compacto */
             backdrop-filter: blur(15px);
             box-shadow: 0 8px 32px rgba(251, 191, 36, 0.22), inset 0 0 0 1px rgba(0,0,0,0.12);
             font-family: 'Montserrat', 'Inter', 'Helvetica', sans-serif;
@@ -417,7 +359,7 @@ const AulaVirtual = () => {
           }
           
           .badge span {
-            color: #fff1bf;
+            color: #fff1bf; /* texto más claro */
             font-size: 1rem;
             font-weight: 500;
           }
@@ -437,7 +379,7 @@ const AulaVirtual = () => {
           .subtitle {
             font-size: 1.05rem;
             color: rgba(255, 255, 255, 0.86);
-            margin-bottom: 16px;
+            margin-bottom: 16px; /* reducir separación con la tarjeta */
             line-height: 1.6;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -451,11 +393,11 @@ const AulaVirtual = () => {
             -webkit-backdrop-filter: blur(24px) saturate(140%);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 28px;
-            padding: 32px;
+            padding: 32px; /* más compacto para doble columna */
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
             position: relative;
             z-index: 1;
-            max-width: 640px;
+            max-width: 640px; /* más ancho para acomodar dos columnas */
             margin: 0 auto;
             color: #fff;
             display: grid;
@@ -485,7 +427,7 @@ const AulaVirtual = () => {
           }
           
           .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 16px; /* compactar verticalmente */
           }
           
           .form-label {
@@ -577,7 +519,7 @@ const AulaVirtual = () => {
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin-top: 16px;
+            margin-top: 16px; /* menos aire debajo del formulario */
             position: relative;
             overflow: hidden;
           }
@@ -632,6 +574,125 @@ const AulaVirtual = () => {
           }
           
           /* RESPONSIVE DESIGN */
+          @media (max-width: 768px) {
+            .login-container {
+              padding-top: 0;
+            }
+            
+            .main-content {
+              padding: 0;
+            }
+            
+            .login-grid {
+              grid-template-columns: 1fr;
+              gap: 0;
+              min-height: 100vh;
+            }
+            
+            .image-section {
+              height: 40vh;
+              min-height: 300px;
+            }
+            
+            .image-section::before {
+              width: 100%;
+              height: 80px;
+              top: auto;
+              bottom: 0;
+              right: auto;
+              left: 0;
+              background: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, transparent 100%);
+            }
+            
+            .hero-image {
+              height: 100%;
+            }
+            
+            .login-section {
+              padding: 40px 20px;
+              min-height: 60vh;
+            }
+            
+            .main-title {
+              font-size: 2.5rem;
+            }
+            
+            .subtitle {
+              font-size: 1.1rem;
+            }
+            
+            .login-form {
+              padding: 32px 24px;
+              border-radius: 24px;
+            }
+            
+            .form-input {
+              padding: 14px 44px 14px 44px;
+              font-size: 1rem;
+            }
+            
+            .login-button {
+              font-size: 1.1rem;
+              padding: 16px 28px;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .image-section {
+              height: 35vh;
+              min-height: 250px;
+            }
+            
+            .login-section {
+              padding: 30px 16px;
+            }
+            
+            .badge {
+              padding: 8px 16px;
+              font-size: 0.85rem;
+            }
+            
+            .main-title {
+              font-size: 2rem;
+            }
+            
+            .login-form {
+              padding: 24px 20px;
+              border-radius: 20px;
+            }
+          }
+          
+          @media (min-width: 769px) and (max-width: 1024px) {
+            .login-section {
+              padding: 60px 40px;
+            }
+            
+            .login-form {
+              padding: 45px;
+            }
+          }
+          
+          @media (min-width: 1400px) {
+            .login-section {
+              padding: 104px 64px 64px; /* balance entre navbar y evitar scroll */
+            }
+            
+            .login-form {
+              padding: 36px; /* más chata en pantallas grandes */
+              max-width: 680px;
+              gap: 36px;
+            }
+            .badge {
+              padding: 12px 22px; /* un poco más grande para que se aprecie */
+              border-width: 1.25px;
+            }
+            .badge span { font-size: 1.05rem; }
+            .main-title { font-size: 3rem; }
+            .subtitle { margin-bottom: 14px; }
+            .features-list { margin-top: 0; padding-top: 0; }
+          }
+          
+          /* Responsive: una columna en móvil */
           @media (max-width: 991px) {
             .login-form {
               grid-template-columns: 1fr;
@@ -645,10 +706,53 @@ const AulaVirtual = () => {
               margin-top: 16px;
             }
           }
+
+          /* Ajustes para pantallas HD pequeñas (1366x768, etc.) */
+          @media (min-width: 1200px) and (max-height: 800px) {
+            .login-section {
+              padding: 100px 48px 30px; /* más padding-top para evitar solapamiento con navbar */
+            }
+            .main-title {
+              font-size: 2.6rem; /* más pequeño en pantallas bajas */
+              margin-bottom: 8px;
+            }
+            .subtitle {
+              font-size: 0.95rem;
+              margin-bottom: 12px;
+            }
+            .login-form {
+              padding: 28px;
+              gap: 28px;
+              max-width: 600px;
+            }
+            .features-title {
+              font-size: 1rem;
+              margin-bottom: 12px;
+            }
+            .feature-item {
+              font-size: 0.85rem;
+              margin-bottom: 10px;
+            }
+            .form-group {
+              margin-bottom: 14px;
+            }
+            .login-button {
+              padding: 14px 24px;
+              font-size: 1rem;
+              margin-top: 12px;
+            }
+          }
+
+          /* Evitar scroll vertical solo en pantallas grandes con altura suficiente */
+          @media (min-width: 1200px) and (min-height: 900px) {
+            .login-grid { height: 100vh; }
+            .login-container { overflow-y: hidden; }
+          }
         `}
       </style>
 
       <div className="login-container">
+        {/* Efectos de fondo con partículas animadas - Igual que Inicio.js */}
         <div className="floating-particles">
           {[...Array(20)].map((_, i) => (
             <div
@@ -668,6 +772,7 @@ const AulaVirtual = () => {
 
         <div className="main-content">
           <div className="login-grid">
+            {/* Sección de imagen (izquierda) */}
             <div 
               className="image-section"
               data-aos="zoom-in"
@@ -678,6 +783,7 @@ const AulaVirtual = () => {
                 transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
+              {/* Aquí va tu imagen - Por ahora uso una placeholder */}
               <img 
                 src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1600&q=80"
                 alt="Aula Virtual - Jessica Vélez Escuela de Esteticistas"
@@ -685,6 +791,7 @@ const AulaVirtual = () => {
               />
             </div>
 
+            {/* Sección de login (derecha) */}
             <div 
               className="login-section"
               data-aos="zoom-in-up"
@@ -698,28 +805,33 @@ const AulaVirtual = () => {
               }}
             >
               <div className="login-header">
+                {/* Badge */}
                 <div className="badge">
                   <Eye size={16} />
                   <span>Plataforma Virtual de Aprendizaje</span>
                 </div>
 
+                {/* Título Principal */}
                 <h1 className="main-title">
                   Aula
                   <span className="gradient-text"> Virtual</span>
                 </h1>
 
+                {/* Subtítulo */}
                 <p className="subtitle">
                   Accede a tu plataforma de aprendizaje personalizada. 
                   Continúa tu formación profesional desde cualquier lugar.
                 </p>
               </div>
 
+              {/* Formulario de Login */}
               <form 
                 onSubmit={handleSubmit} 
                 className="login-form" 
                 data-aos="fade-up" 
                 data-aos-delay="200"
               >
+                {/* Columna izquierda: Características */}
                 <div className="login-form-section">
                   <h3 className="features-title">¿Por qué elegir nuestro Aula Virtual?</h3>
                   <div className="features-list">
@@ -742,6 +854,7 @@ const AulaVirtual = () => {
                   </div>
                 </div>
 
+                {/* Columna derecha: Formulario */}
                 <div className="login-form-section">
                   <div className="form-inputs">
                     <div className="form-group">
@@ -756,7 +869,7 @@ const AulaVirtual = () => {
                           value={formData.email}
                           onChange={handleChange}
                           className="form-input"
-                          placeholder="admin@belleza.edu"
+                          placeholder="tu@email.com"
                           required
                         />
                         <Mail size={20} className="input-icon" />
@@ -821,36 +934,13 @@ const AulaVirtual = () => {
                         </>
                       )}
                     </button>
-
-                    {/* Credenciales de prueba */}
-                    <div style={{
-                      marginTop: '20px',
-                      padding: '12px',
-                      background: 'rgba(16, 185, 129, 0.05)',
-                      border: '1px solid rgba(16, 185, 129, 0.1)',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
-                      color: 'rgba(255,255,255,0.7)'
-                    }}>
-                      <div style={{ 
-                        color: '#10b981', 
-                        fontWeight: '600', 
-                        marginBottom: '8px', 
-                        textAlign: 'center' 
-                      }}>
-                        Credenciales de Prueba
-                      </div>
-                      <div>
-                        <strong>Admin:</strong> admin@belleza.edu / admin123<br />
-                        <strong>Coord:</strong> coord@belleza.edu / coord123
-                      </div>
-                    </div>
                   </div>
                 </div>
               </form>
             </div>
           </div>
         </div>
+
       </div>
     </>
   );
