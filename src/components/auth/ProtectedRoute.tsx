@@ -1,84 +1,73 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Sparkles } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowRoles?: string[];
+  allowRoles: string[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowRoles = [] }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowRoles }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
 
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff'
+        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+        color: '#fff',
+        fontSize: '1.2rem'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-            borderRadius: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px',
-            animation: 'pulse 2s infinite'
-          }}>
-            <Sparkles size={36} color="#000" />
-          </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '12px' }}>
-            Verificando acceso...
-          </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-            Por favor espera un momento
-          </p>
+            width: '40px',
+            height: '40px',
+            border: '4px solid rgba(255,255,255,0.3)',
+            borderTop: '4px solid #ef4444',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          Verificando acceso...
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
         </div>
-        <style>
-          {`
-            @keyframes pulse {
-              0%, 100% { transform: scale(1); }
-              50% { transform: scale(1.05); }
-            }
-          `}
-        </style>
       </div>
     );
   }
 
   // Si no está autenticado, redirigir al login
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
 
-  // Si está autenticado pero no tiene el rol requerido
-  if (allowRoles.length > 0 && user && !allowRoles.includes(user.rol)) {
+  // Si no tiene el rol necesario, mostrar acceso denegado
+  if (user && !allowRoles.includes(user.rol)) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',
+        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
         padding: '20px'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
           backdropFilter: 'blur(20px)',
+          borderRadius: '32px',
           border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '24px',
-          padding: '48px',
+          padding: '60px',
           textAlign: 'center',
           maxWidth: '500px'
         }}>
@@ -86,32 +75,46 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowRoles = 
             width: '80px',
             height: '80px',
             background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-            borderRadius: '24px',
+            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 24px'
+            margin: '0 auto 24px',
+            fontSize: '2rem'
           }}>
-            <Sparkles size={36} color="#fff" />
+            🚫
           </div>
-          <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '16px', color: '#ef4444' }}>
+          <h2 style={{
+            color: '#ef4444',
+            fontSize: '2rem',
+            fontWeight: '700',
+            marginBottom: '16px'
+          }}>
             Acceso Denegado
           </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.8)', marginBottom: '24px', lineHeight: 1.6 }}>
-            No tienes permisos para acceder a esta sección. Tu rol actual es: <strong>{user.rol}</strong>
+          <p style={{
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: '1.1rem',
+            marginBottom: '24px'
+          }}>
+            No tienes permisos para acceder a esta sección.
           </p>
-          <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem' }}>
-            Roles requeridos: {allowRoles.join(', ')}
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '0.9rem'
+          }}>
+            Tu rol actual: <strong>{user.rol}</strong><br />
+            Roles permitidos: <strong>{allowRoles.join(', ')}</strong>
           </p>
           <button
             onClick={() => window.history.back()}
             style={{
               marginTop: '24px',
-              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              color: '#000',
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
               border: 'none',
               borderRadius: '12px',
-              padding: '12px 24px',
+              color: '#fff',
               fontSize: '1rem',
               fontWeight: '600',
               cursor: 'pointer'
