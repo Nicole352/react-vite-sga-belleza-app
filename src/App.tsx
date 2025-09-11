@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import PaginaInicio from './pages/Inicio';
 import PaginaCursos from './pages/Cursos';
 import PaginaAvales from './pages/Avales';
 import PaginaSobreNosotros from './pages/SobreNosotros';
-import PaginaAulaVirtual from './pages/AulaVirtual';
 import PaginaContactenos from './pages/Contactenos';
 import DetalleCurso from './pages/DetalleCurso';
 import Header from './components/Header';
@@ -13,8 +13,7 @@ import PanelSuperAdmin from './roles/superadmin/PanelSuperAdmin';
 import PanelAdministrativos from './roles/admin/PanelAdministrativos';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
-import { AuthProvider } from './contexts/AuthContext';
-import Login from './auth/Login';
+import PaginaAulaVirtual from './pages/AulaVirtual';
 
 const App: React.FC = () => {
   return (
@@ -26,7 +25,7 @@ const App: React.FC = () => {
         <div className="App">
           <Routes>
             {/* Ruta de login */}
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<PaginaAulaVirtual />} />
             
             {/* Rutas públicas con Header */}
             <Route path="/" element={<><Header /><PaginaInicio /></>} />
@@ -38,7 +37,7 @@ const App: React.FC = () => {
             <Route path="/detalle-curso" element={<><Header /><DetalleCurso /></>} />
             <Route path="/pago" element={<><Header /><Pago /></>} />
             
-            {/* Paneles administrativos protegidos */}
+            {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
             <Route
               path="/panel/superadmin"
               element={
@@ -48,6 +47,7 @@ const App: React.FC = () => {
               }
             />
 
+            {/* Panel Administrativos */}
             <Route
               path="/panel/administrativo"
               element={
@@ -57,7 +57,8 @@ const App: React.FC = () => {
               }
             />
             
-            {/* Rutas del dashboard - redirige según rol */}
+            {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
+            {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
             <Route path="/dashboard/*" element={<RoleRedirect />} />
           </Routes>
         </div>
