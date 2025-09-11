@@ -21,6 +21,60 @@ interface Admin {
   permisos: string[];
 }
 
+{/* Header */}
+<div style={{ padding: '40px 40px 0 40px', textAlign: 'center' }}>
+<div style={{
+  width: '120px', height: '120px',
+  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+  borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  margin: '0 auto 24px auto', boxShadow: '0 20px 40px rgba(239, 68, 68, 0.3)'
+}}>
+  <UserCheck size={48} color="#fff" />
+</div>
+<h1 style={{
+  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+  fontSize: '3rem', fontWeight: '800', margin: '0 0 16px 0'
+}}>
+  Panel Administrativos
+</h1>
+<p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', margin: '0 0 16px 0' }}>
+  Sistema de gestión integral para administradores
+</p>
+{user && (
+  <div style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    gap: '20px',
+    marginBottom: '40px'
+  }}>
+    <span style={{ color: 'rgba(255,255,255,0.8)' }}>
+      Bienvenido, <strong>{user.nombre} {user.apellido}</strong> ({user.rol})
+    </span>
+    <button
+      onClick={handleLogout}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        background: 'rgba(239, 68, 68, 0.2)',
+        border: '1px solid rgba(239, 68, 68, 0.3)',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        color: '#ef4444',
+        cursor: 'pointer',
+        fontSize: '0.9rem',
+        fontWeight: '500'
+      }}
+    >
+      <LogOut size={16} />
+      Cerrar Sesión
+    </button>
+  </div>
+)}
+</div>
+
 const PanelAdministrativos = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [administrativos, setAdministrativos] = useState<Admin[]>([

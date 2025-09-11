@@ -13,50 +13,56 @@ import PanelSuperAdmin from './roles/superadmin/PanelSuperAdmin';
 import PanelAdministrativos from './roles/admin/PanelAdministrativos';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
+import { AuthProvider } from './contexts/AuthContext';
+import Login from './auth/Login';
 
 const App: React.FC = () => {
   return (
-    <Router future={{ 
-      v7_startTransition: true,
-      v7_relativeSplatPath: true 
-    }}>
-      <div className="App">
-        <Routes>
-          {/* Rutas públicas con Header */}
-          <Route path="/" element={<><Header /><PaginaInicio /></>} />
-          <Route path="/cursos" element={<><Header /><PaginaCursos /></>} />
-          <Route path="/avales" element={<><Header /><PaginaAvales /></>} />
-          <Route path="/sobre-nosotros" element={<><Header /><PaginaSobreNosotros /></>} />
-          <Route path="/aula-virtual" element={<><Header /><PaginaAulaVirtual /></>} />
-          <Route path="/contactenos" element={<><Header /><PaginaContactenos /></>} />
-          <Route path="/detalle-curso" element={<><Header /><DetalleCurso /></>} />
-          <Route path="/pago" element={<><Header /><Pago /></>} />
-          {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
-          <Route
-            path="/panel/superadmin"
-            element={
-              <ProtectedRoute allowRoles={['superadmin']}>
-                <PanelSuperAdmin />
-              </ProtectedRoute>
-            }
-          />
+    <AuthProvider>
+      <Router future={{ 
+        v7_startTransition: true,
+        v7_relativeSplatPath: true 
+      }}>
+        <div className="App">
+          <Routes>
+            {/* Ruta de login */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Rutas públicas con Header */}
+            <Route path="/" element={<><Header /><PaginaInicio /></>} />
+            <Route path="/cursos" element={<><Header /><PaginaCursos /></>} />
+            <Route path="/avales" element={<><Header /><PaginaAvales /></>} />
+            <Route path="/sobre-nosotros" element={<><Header /><PaginaSobreNosotros /></>} />
+            <Route path="/aula-virtual" element={<><Header /><PaginaAulaVirtual /></>} />
+            <Route path="/contactenos" element={<><Header /><PaginaContactenos /></>} />
+            <Route path="/detalle-curso" element={<><Header /><DetalleCurso /></>} />
+            <Route path="/pago" element={<><Header /><Pago /></>} />
+            
+            {/* Paneles administrativos protegidos */}
+            <Route
+              path="/panel/superadmin"
+              element={
+                <ProtectedRoute allowRoles={['superadmin']}>
+                  <PanelSuperAdmin />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Panel Administrativos */}
-          <Route
-            path="/panel/administrativo"
-            element={
-              <ProtectedRoute allowRoles={['administrativo','superadmin']}>
-                <PanelAdministrativos />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
-          {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
-          <Route path="/dashboard/*" element={<RoleRedirect />} />
-        </Routes>
-      </div>
-    </Router>
+            <Route
+              path="/panel/administrativo"
+              element={
+                <ProtectedRoute allowRoles={['administrativo','superadmin']}>
+                  <PanelAdministrativos />
+                </ProtectedRoute>
+              }
+            />
+            
+            {/* Rutas del dashboard - redirige según rol */}
+            <Route path="/dashboard/*" element={<RoleRedirect />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 };
 
