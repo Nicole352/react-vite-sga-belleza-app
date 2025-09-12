@@ -49,7 +49,6 @@ import {
   Calendar,
   User,
   FileImage,
-  Sparkles,
   Shield
 } from 'lucide-react';
 import Footer from '../components/Footer';
@@ -126,6 +125,7 @@ const Pago: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [cursoBackend, setCursoBackend] = useState<any | null>(null);
   const [formData, setFormData] = useState<FormData>({
     nombre: '',
     apellido: '',
@@ -167,6 +167,45 @@ const Pago: React.FC = () => {
     setIsVisible(true);
   }, []);
 
+  // Cargar datos reales del curso desde backend (estado y cupos) solo al montar y al recuperar foco/visibilidad
+  useEffect(() => {
+    if (!cursoId) return;
+    let cancelled = false;
+
+    const loadCurso = async () => {
+      if (cancelled) return;
+      try {
+        const res = await fetch(`${API_BASE}/cursos/${cursoId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setCursoBackend(data);
+      } catch {}
+    };
+
+    // Carga inicial
+    loadCurso();
+
+    // Recargar cuando la pestaña recupere foco o visibilidad
+    const onFocus = () => loadCurso();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') loadCurso();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [cursoId]);
+
+  const isBlocked = !!cursoBackend && (cursoBackend.estado === 'cancelado' || Number(cursoBackend.cupos_disponibles || 0) <= 0);
+  
+  // Debug: mostrar estado del curso
+  console.log('cursoBackend:', cursoBackend);
+  console.log('isBlocked:', isBlocked);
+
   if (!curso) {
     return (
       <div style={{
@@ -196,6 +235,7 @@ const Pago: React.FC = () => {
   }
 
   const handleFileUpload = (file: File | null) => {
+    if (isBlocked) return; // bloquear interacción
     if (!file) { setUploadedFile(null); return; }
     const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     const maxBytes = 5 * 1024 * 1024; // 5MB
@@ -213,6 +253,7 @@ const Pago: React.FC = () => {
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isBlocked) return;
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
@@ -223,6 +264,7 @@ const Pago: React.FC = () => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isBlocked) return;
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileUpload(e.dataTransfer.files[0]);
@@ -231,6 +273,11 @@ const Pago: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Bloqueo por estado/cupos desde backend
+    if (isBlocked) {
+      alert('La matrícula para este curso está cerrada o no hay cupos disponibles.');
+      return;
+    }
     // Validaciones mínimas
     if (!formData.apellido) {
       alert('Apellido es obligatorio');
@@ -652,6 +699,35 @@ const Pago: React.FC = () => {
                         <Calendar size={16} color="#fbbf24" />
                         <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{curso.duracion}</span>
                       </div>
+                      {cursoBackend && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {cursoBackend.estado === 'cancelado' ? (
+                            <span style={{
+                              padding: '4px 10px',
+                              borderRadius: '9999px',
+                              background: 'rgba(239, 68, 68, 0.15)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              color: '#ef4444',
+                              fontWeight: 700,
+                              fontSize: '0.8rem'
+                            }}>
+                              Matrícula cerrada
+                            </span>
+                          ) : (
+                            <span style={{
+                              padding: '4px 10px',
+                              borderRadius: '9999px',
+                              background: 'rgba(16, 185, 129, 0.15)',
+                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              color: '#10b981',
+                              fontWeight: 700,
+                              fontSize: '0.8rem'
+                            }}>
+                              Cupos: {Number(cursoBackend.cupos_disponibles ?? 0)}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div style={{
                       fontSize: '2rem',
@@ -705,9 +781,29 @@ const Pago: React.FC = () => {
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '200ms'
+              transitionDelay: '200ms',
+              position: 'relative'
             }}>
+              {isBlocked && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0.6)',
+                  zIndex: 5,
+                  borderRadius: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  color: '#fff',
+                  fontWeight: 800,
+                  letterSpacing: 0.5
+                }}>
+                  Matrícula cerrada temporalmente
+                </div>
+              )}
               <form onSubmit={handleSubmit}>
+                <fieldset disabled={isBlocked} style={{ border: 'none', padding: 0, margin: 0 }}>
                 {/* Información personal */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
@@ -1455,36 +1551,21 @@ const Pago: React.FC = () => {
                 {/* Botón de envío */}
                 <button
                   type="submit"
+                  disabled={isBlocked}
                   style={{
                     width: '100%',
-                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                    background: isBlocked ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                     color: '#000',
+                    padding: '16px 24px',
+                    borderRadius: '16px',
                     border: 'none',
-                    borderRadius: '50px',
-                    padding: '20px 32px',
-                    fontSize: '1.2rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '12px'
-                  }}
-                  onMouseEnter={(e) => {
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'translateY(-3px) scale(1.02)';
-                    target.style.boxShadow = '0 16px 50px rgba(251, 191, 36, 0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'translateY(0) scale(1)';
-                    target.style.boxShadow = '0 12px 40px rgba(251, 191, 36, 0.4)';
+                    fontWeight: 800,
+                    fontSize: '1.1rem',
+                    cursor: isBlocked ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 12px 40px rgba(251, 191, 36, 0.25)'
                   }}
                 >
-                  <Sparkles size={20} />
-                  {selectedPayment === 'paypal' ? 'Pagar con PayPal' : 'Confirmar Inscripción'}
+                  Confirmar Inscripción
                 </button>
 
                 <p style={{
@@ -1498,6 +1579,7 @@ const Pago: React.FC = () => {
                   <br />
                   Recibirás un email de confirmación una vez procesado el pago.
                 </p>
+                </fieldset>
               </form>
             </div>
           </div>
