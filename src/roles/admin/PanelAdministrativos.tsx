@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { 
   Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText
 } from 'lucide-react';
+import LogoutButton from '../../components/LogoutButton';
 
 // Importar componentes modulares
 import Dashboard from './Dashboard';
@@ -31,7 +32,10 @@ const PanelAdministrativos = () => {
         boxShadow: '0 32px 64px rgba(0, 0, 0, 0.3)', overflow: 'hidden'
       }}>
         {/* Header */}
-        <div style={{ padding: '40px 40px 0 40px', textAlign: 'center' }}>
+        <div style={{ padding: '40px 40px 0 40px', textAlign: 'center', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '40px', right: '40px' }}>
+            <LogoutButton />
+          </div>
           <div style={{
             width: '120px', height: '120px',
             background: 'linear-gradient(135deg, #ef4444, #dc2626)',

@@ -2,9 +2,27 @@ import React, { useState } from 'react';
 import { 
   Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users
 } from 'lucide-react';
+import { StyledSelect } from '../../components/StyledSelect';
 
-const AsignacionAula = () => {
-  const [asignaciones, setAsignaciones] = useState([
+type EstadoAsignacion = 'activa' | 'inactiva';
+type EstadoFiltro = 'todas' | EstadoAsignacion;
+
+type Asignacion = {
+  id: number;
+  aula: string;
+  curso: string;
+  profesor: string;
+  horario: string;
+  dias: string[];
+  fechaInicio: string; // YYYY-MM-DD
+  fechaFin: string;    // YYYY-MM-DD
+  capacidad: number;
+  estudiantesInscritos: number;
+  estado: EstadoAsignacion;
+};
+
+const AsignacionAula: React.FC = () => {
+  const [asignaciones, setAsignaciones] = useState<Asignacion[]>([
     {
       id: 1, aula: 'Aula 101', curso: 'Cosmetología Básica', profesor: 'Dr. Carlos Mendoza',
       horario: '08:00 - 12:00', dias: ['Lunes', 'Miércoles', 'Viernes'],
@@ -25,18 +43,18 @@ const AsignacionAula = () => {
     }
   ]);
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('create');
-  const [selectedAsignacion, setSelectedAsignacion] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('todas');
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<'create' | 'edit'>('create');
+  const [selectedAsignacion, setSelectedAsignacion] = useState<Asignacion | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>('todas');
 
   const aulas = ['Aula 101', 'Aula 102', 'Aula 103', 'Aula 201', 'Aula 202', 'Laboratorio A', 'Laboratorio B'];
   const cursos = ['Cosmetología Básica', 'Cosmetología Avanzada', 'Peluquería Profesional', 'Maquillaje Profesional', 'Manicure y Pedicure', 'Barbería Moderna'];
   const profesores = ['Dr. Carlos Mendoza', 'Lic. María González', 'Lic. Ana Rodríguez', 'Prof. Luis Martínez'];
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-  const asignacionesFiltradas = asignaciones.filter(asignacion => {
+  const asignacionesFiltradas = asignaciones.filter((asignacion: Asignacion) => {
     const matchesSearch = asignacion.aula.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          asignacion.curso.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          asignacion.profesor.toLowerCase().includes(searchTerm.toLowerCase());
@@ -50,39 +68,41 @@ const AsignacionAula = () => {
     setShowModal(true);
   };
 
-  const handleEditAsignacion = (asignacion) => {
+  const handleEditAsignacion = (asignacion: Asignacion) => {
     setSelectedAsignacion(asignacion);
     setModalType('edit');
     setShowModal(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const diasSeleccionados = Array.from(formData.getAll('dias'));
+    const formData = new FormData(e.currentTarget);
+    const diasSeleccionados = Array.from(formData.getAll('dias')) as string[];
     
-    const asignacionData = {
-      aula: formData.get('aula'),
-      curso: formData.get('curso'),
-      profesor: formData.get('profesor'),
-      horario: formData.get('horario'),
+    const asignacionData: Omit<Asignacion, 'id'> = {
+      aula: String(formData.get('aula') || ''),
+      curso: String(formData.get('curso') || ''),
+      profesor: String(formData.get('profesor') || ''),
+      horario: String(formData.get('horario') || ''),
       dias: diasSeleccionados,
-      fechaInicio: formData.get('fechaInicio'),
-      fechaFin: formData.get('fechaFin'),
-      capacidad: parseInt(formData.get('capacidad')),
-      estudiantesInscritos: parseInt(formData.get('estudiantesInscritos')) || 0,
-      estado: 'activa'
+      fechaInicio: String(formData.get('fechaInicio') || ''),
+      fechaFin: String(formData.get('fechaFin') || ''),
+      capacidad: Number(formData.get('capacidad') || 0),
+      estudiantesInscritos: Number(formData.get('estudiantesInscritos') || 0),
+      estado: 'activa',
     };
 
     if (modalType === 'create') {
-      const newAsignacion = {
+      const nextId = Math.max(0, ...asignaciones.map((a) => a.id)) + 1;
+      const newAsignacion: Asignacion = {
         ...asignacionData,
-        id: Math.max(...asignaciones.map(a => a.id)) + 1
+        id: nextId,
       };
       setAsignaciones([...asignaciones, newAsignacion]);
     } else if (modalType === 'edit') {
-      setAsignaciones(asignaciones.map(asignacion => 
-        asignacion.id === selectedAsignacion.id 
+      if (!selectedAsignacion) return;
+      setAsignaciones(asignaciones.map((asignacion) =>
+        asignacion.id === selectedAsignacion.id
           ? { ...asignacion, ...asignacionData }
           : asignacion
       ));
@@ -90,7 +110,7 @@ const AsignacionAula = () => {
     setShowModal(false);
   };
 
-  const getOcupacionColor = (inscritos, capacidad) => {
+  const getOcupacionColor = (inscritos: number, capacidad: number) => {
     const porcentaje = (inscritos / capacidad) * 100;
     if (porcentaje >= 90) return '#ef4444';
     if (porcentaje >= 70) return '#f59e0b';
@@ -132,18 +152,18 @@ const AsignacionAula = () => {
                 }}
               />
             </div>
-            <select
-              value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}
-              style={{
-                padding: '12px 16px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
-                color: '#fff', fontSize: '0.9rem', minWidth: '150px'
-              }}
-            >
-              <option value="todas">Todas</option>
-              <option value="activa">Activas</option>
-              <option value="inactiva">Inactivas</option>
-            </select>
+            <div style={{ minWidth: 180 }}>
+              <StyledSelect
+                name="filtroEstado"
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value as EstadoFiltro)}
+                options={[
+                  { value: 'todas', label: 'Todas' },
+                  { value: 'activa', label: 'Activas' },
+                  { value: 'inactiva', label: 'Inactivas' },
+                ]}
+              />
+            </div>
           </div>
           <button
             onClick={handleCreateAsignacion}
@@ -288,56 +308,35 @@ const AsignacionAula = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Aula</label>
-                  <select
-                    name="aula" required
+                  <StyledSelect
+                    name="aula"
+                    required
                     defaultValue={selectedAsignacion?.aula || ''}
-                    style={{
-                      width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                      color: '#fff', fontSize: '0.9rem'
-                    }}
-                  >
-                    <option value="">Seleccionar aula</option>
-                    {aulas.map(aula => (
-                      <option key={aula} value={aula} style={{ background: '#1a1a1a' }}>{aula}</option>
-                    ))}
-                  </select>
+                    placeholder="Seleccionar aula"
+                    options={aulas.map(a => ({ value: a, label: a }))}
+                  />
                 </div>
                 <div>
                   <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Curso</label>
-                  <select
-                    name="curso" required
+                  <StyledSelect
+                    name="curso"
+                    required
                     defaultValue={selectedAsignacion?.curso || ''}
-                    style={{
-                      width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                      color: '#fff', fontSize: '0.9rem'
-                    }}
-                  >
-                    <option value="">Seleccionar curso</option>
-                    {cursos.map(curso => (
-                      <option key={curso} value={curso} style={{ background: '#1a1a1a' }}>{curso}</option>
-                    ))}
-                  </select>
+                    placeholder="Seleccionar curso"
+                    options={cursos.map(c => ({ value: c, label: c }))}
+                  />
                 </div>
               </div>
 
               <div>
                 <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Profesor</label>
-                <select
-                  name="profesor" required
+                <StyledSelect
+                  name="profesor"
+                  required
                   defaultValue={selectedAsignacion?.profesor || ''}
-                  style={{
-                    width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                    color: '#fff', fontSize: '0.9rem'
-                  }}
-                >
-                  <option value="">Seleccionar profesor</option>
-                  {profesores.map(profesor => (
-                    <option key={profesor} value={profesor} style={{ background: '#1a1a1a' }}>{profesor}</option>
-                  ))}
-                </select>
+                  placeholder="Seleccionar profesor"
+                  options={profesores.map(p => ({ value: p, label: p }))}
+                />
               </div>
 
               <div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   Users, Search, Plus, Edit, Eye, Trash2, X, UserCheck
 } from 'lucide-react';
+import { StyledSelect } from '../../components/StyledSelect';
 
 // Tipos
 interface Admin {
@@ -147,40 +148,32 @@ const GestionEstudiantes = () => {
             </div>
 
             {/* Filtros */}
-            <select
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              style={{
-                padding: '12px 16px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '0.9rem'
-              }}
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="inactivo">Inactivos</option>
-            </select>
+            <div style={{ minWidth: 200 }}>
+              <StyledSelect
+                name="filterEstado"
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los estados' },
+                  { value: 'activo', label: 'Activos' },
+                  { value: 'inactivo', label: 'Inactivos' },
+                ]}
+              />
+            </div>
 
-            <select
-              value={filterDepartamento}
-              onChange={(e) => setFilterDepartamento(e.target.value)}
-              style={{
-                padding: '12px 16px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '0.9rem'
-              }}
-            >
-              <option value="todos">Todos los departamentos</option>
-              <option value="Académico">Académico</option>
-              <option value="Administrativo">Administrativo</option>
-              <option value="Financiero">Financiero</option>
-            </select>
+            <div style={{ minWidth: 220 }}>
+              <StyledSelect
+                name="filterDepartamento"
+                value={filterDepartamento}
+                onChange={(e) => setFilterDepartamento(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los departamentos' },
+                  { value: 'Académico', label: 'Académico' },
+                  { value: 'Administrativo', label: 'Administrativo' },
+                  { value: 'Financiero', label: 'Financiero' },
+                ]}
+              />
+            </div>
           </div>
 
           {/* Botón Crear */}

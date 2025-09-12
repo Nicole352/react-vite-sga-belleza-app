@@ -190,7 +190,7 @@ const DetalleCurso: React.FC = () => {
             const cursoData = await response.json();
             setCurso({
               titulo: cursoData.nombre,
-              descripcion: cursoData.descripcion || 'Curso profesional de belleza estética',
+              descripcion: cursoData.tipo_descripcion || 'Curso profesional de belleza estética',
               duracion: `${Math.ceil((new Date(cursoData.fecha_fin).getTime() - new Date(cursoData.fecha_inicio).getTime()) / (1000 * 60 * 60 * 24 * 30))} meses`,
               requisitos: ['Ser mayor de 16 años', 'Secundaria completa', 'Entrevista personal'],
               malla: ['Módulo 1: Fundamentos', 'Módulo 2: Técnicas básicas', 'Módulo 3: Técnicas avanzadas', 'Módulo 4: Práctica supervisada', 'Módulo 5: Certificación'],

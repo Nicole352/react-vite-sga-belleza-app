@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { 
   Search, GraduationCap, Eye, X, Check, XCircle, Download
 } from 'lucide-react';
+import { StyledSelect } from '../../components/StyledSelect';
 
 type Solicitud = {
   id_solicitud: number;
@@ -172,37 +173,31 @@ const GestionMatricula = () => {
             />
           </div>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <select
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value as any)}
-              style={{
-                padding: '12px 16px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
-                color: '#fff', fontSize: '0.9rem'
-              }}
-            >
-              <option value="todos">Todos</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="aprobado">Aprobado</option>
-              <option value="rechazado">Rechazado</option>
-              <option value="observaciones">Observaciones</option>
-            </select>
-            <select
-              value={filterTipo}
-              onChange={(e) => setFilterTipo(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
-              style={{
-                padding: '12px 16px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
-                color: '#fff', fontSize: '0.9rem'
-              }}
-            >
-              <option value="todos">Todos los tipos</option>
-              {tipos.map(t => (
-                <option key={t.id_tipo_curso} value={t.id_tipo_curso}>
-                  {t.codigo ? `${t.codigo} - ${t.nombre}` : t.nombre}
-                </option>
-              ))}
-            </select>
+            <div style={{ minWidth: 180 }}>
+              <StyledSelect
+                name="filterEstado"
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value as any)}
+                options={[
+                  { value: 'todos', valueOf: undefined as any, label: 'Todos' } as any,
+                  { value: 'pendiente', label: 'Pendiente' },
+                  { value: 'aprobado', label: 'Aprobado' },
+                  { value: 'rechazado', label: 'Rechazado' },
+                  { value: 'observaciones', label: 'Observaciones' },
+                ]}
+              />
+            </div>
+            <div style={{ minWidth: 220 }}>
+              <StyledSelect
+                name="filterTipo"
+                value={String(filterTipo)}
+                onChange={(e) => setFilterTipo(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
+                options={[
+                  { value: 'todos', label: 'Todos los tipos' },
+                  ...tipos.map(t => ({ value: t.id_tipo_curso, label: t.nombre }))
+                ]}
+              />
+            </div>
             <button onClick={fetchSolicitudes} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer' }}>Refrescar</button>
           </div>
         </div>

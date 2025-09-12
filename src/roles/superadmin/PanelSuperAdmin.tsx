@@ -14,6 +14,7 @@ import {
   Database,
   Wifi
 } from 'lucide-react';
+import LogoutButton from '../../components/LogoutButton';
 
 // Importar los nuevos componentes
 import AdministradoresPanel from './AdministradoresPanel';
@@ -46,8 +47,12 @@ const PanelSuperAdmin: React.FC = () => {
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '20px 20px 0 0',
           padding: '24px 32px',
-          marginBottom: '0'
+          marginBottom: '0',
+          position: 'relative'
         }}>
+          <div style={{ position: 'absolute', top: '24px', right: '32px' }}>
+            <LogoutButton />
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
             <Shield size={28} color="#ef4444" />
             <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: '700', margin: 0 }}>

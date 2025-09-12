@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, X, BookOpen, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Search, Plus, Edit, Eye, Trash2, X, Save, Calendar, Users, BookOpen, Clock, DollarSign
+} from 'lucide-react';
+import { StyledSelect } from '../../components/StyledSelect';
 
 type TipoCurso = {
   id_tipo_curso: number;
-  codigo: string;
   nombre: string;
   descripcion?: string | null;
   duracion_meses?: number | null;
@@ -21,6 +23,16 @@ const GestionTiposCurso: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [selected, setSelected] = useState<TipoCurso | null>(null);
+
+  // Helper: formato de precio consistente
+  const formatPrice = (v?: number | null) => {
+    if (v === null || v === undefined || isNaN(Number(v))) return '-';
+    return new Intl.NumberFormat('es-EC', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    }).format(Number(v));
+  };
 
   const fetchTipos = async () => {
     try {
@@ -78,7 +90,6 @@ const GestionTiposCurso: React.FC = () => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const payload = {
-      codigo: String(fd.get('codigo') || '').trim(),
       nombre: String(fd.get('nombre') || '').trim(),
       descripcion: String(fd.get('descripcion') || ''),
       duracion_meses: fd.get('duracion_meses') ? Number(fd.get('duracion_meses')) : null,
@@ -86,10 +97,6 @@ const GestionTiposCurso: React.FC = () => {
       estado: String(fd.get('estado') || 'activo'),
     } as Record<string, any>;
 
-    if (!payload.codigo) {
-      setError('El código es obligatorio');
-      return;
-    }
     if (!payload.nombre) {
       setError('El nombre es obligatorio');
       return;
@@ -134,18 +141,12 @@ const GestionTiposCurso: React.FC = () => {
   return (
     <div style={{ padding: '32px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2
-          style={{
-            color: '#fff',
-            fontSize: '2rem',
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            margin: 0,
-          }}
-        >
-          <BookOpen size={32} color="#ef4444" /> Tipos de Curso
+        <h2 style={{ 
+          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
+          display: 'flex', alignItems: 'center', gap: '12px'
+        }}>
+          <BookOpen size={32} color="#ef4444" />
+          Gestión de Tipos de Curso
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0 0' }}>
           Administra los tipos de curso antes de crear cursos.
@@ -195,26 +196,24 @@ const GestionTiposCurso: React.FC = () => {
               borderRadius: 16,
             }}
           >
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left' }}>Código</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left' }}>Nombre</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left' }}>Duración</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left' }}>Precio</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'center' }}>Estado</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right' }}>Acciones</th>
+                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left', width: '42%' }}>Nombre</th>
+                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '18%' }}>Duración</th>
+                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '20%' }}>Precio</th>
+                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'center', width: '10%' }}>Estado</th>
+                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '10%' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style={{ padding: 12, color: '#fff' }}>{t.codigo}</td>
                   <td style={{ padding: 12, color: '#fff' }}>{t.nombre}</td>
-                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.85)' }}>
-                    {t.duracion_meses ?? '-'} {t.duracion_meses ? 'meses' : ''}
+                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.9)', textAlign: 'right' }}>
+                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </td>
-                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.85)' }}>
-                    {t.precio_base ? `$${t.precio_base}` : '-'}
+                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.95)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                    {formatPrice(t.precio_base ?? null)}
                   </td>
                   <td style={{ padding: 12, textAlign: 'center' }}>
                     <span
@@ -321,26 +320,12 @@ const GestionTiposCurso: React.FC = () => {
 
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Código</label>
-                  <input
-                    name="codigo"
-                    defaultValue={selected?.codigo || ''}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: 12,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
-                      color: '#fff',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Nombre</label>
+                {/* Nombre - ancho completo */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Nombre del tipo</label>
                   <input
                     name="nombre"
+                    placeholder="Ej. Cosmetología, Maquillaje Profesional"
                     defaultValue={selected?.nombre || ''}
                     required
                     style={{
@@ -352,13 +337,19 @@ const GestionTiposCurso: React.FC = () => {
                       color: '#fff',
                     }}
                   />
+                  <div style={{ marginTop: 6, color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
+                    El nombre que verán los estudiantes en la web.
+                  </div>
                 </div>
+
+                {/* Descripción - ahora arriba, ancho completo */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Descripción</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Descripción (opcional)</label>
                   <textarea
                     name="descripcion"
                     defaultValue={selected?.descripcion || ''}
-                    rows={3}
+                    placeholder="Resumen atractivo del programa, objetivos y beneficios principales."
+                    rows={4}
                     style={{
                       width: '100%',
                       padding: 12,
@@ -369,12 +360,18 @@ const GestionTiposCurso: React.FC = () => {
                     }}
                   />
                 </div>
+
+                {/* Separador sutil */}
+                <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+
+                {/* Duración y Precio en la misma fila */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Duración (meses)</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Duración (meses)</label>
                   <input
                     type="number"
                     min={1}
                     name="duracion_meses"
+                    placeholder="Ej. 6"
                     defaultValue={selected?.duracion_meses ?? ''}
                     style={{
                       width: '100%',
@@ -387,12 +384,13 @@ const GestionTiposCurso: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Precio Base</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Precio base (USD)</label>
                   <input
                     type="number"
                     step="0.01"
                     min={0}
                     name="precio_base"
+                    placeholder="Ej. 2500"
                     defaultValue={selected?.precio_base ?? ''}
                     style={{
                       width: '100%',
@@ -404,23 +402,18 @@ const GestionTiposCurso: React.FC = () => {
                     }}
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)' }}>Estado</label>
-                  <select
+
+                {/* Estado al final a ancho completo, con StyledSelect */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Estado</label>
+                  <StyledSelect
                     name="estado"
                     defaultValue={selected?.estado || 'activo'}
-                    style={{
-                      width: '100%',
-                      padding: 12,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
-                      color: '#fff',
-                    }}
-                  >
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
+                    options={[
+                      { value: 'activo', label: 'Activo' },
+                      { value: 'inactivo', label: 'Inactivo' },
+                    ]}
+                  />
                 </div>
               </div>
 
