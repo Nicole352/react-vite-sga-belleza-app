@@ -8,15 +8,26 @@ import {
 // Tipos
 interface Admin {
   id: number;
+  // nombre completo para mostrar en la lista
   nombre: string;
-  apellido?: string;
+  // nombres y apellidos separados para edición
+  firstName?: string;
+  lastName?: string;
+  // campos adicionales
+  cedula?: string;
+  apellido?: string; // mantener compatibilidad si se usa en otra parte
   email: string;
   telefono?: string;
   fechaCreacion?: string;
+  fecha_nacimiento?: string;
+  direccion?: string;
+  genero?: string;
+  foto_perfil?: string;
   ultimoAcceso?: string;
   estado: 'activo' | 'inactivo';
   permisos: string[];
   rol: string;
+  rolId?: number;
 }
 
 // Tooltip component
@@ -89,19 +100,48 @@ const AdministradoresPanel: React.FC = () => {
       if (Array.isArray(data)) {
         const mapped: Admin[] = data.map((d: any) => ({
           id: d.id || d.id_usuario || 0,
+          // Mostrar nombre completo en la lista
           nombre: d.nombre ? `${d.nombre}${d.apellido ? ' ' + d.apellido : ''}` : (d.nombre_completo || d.fullName || d.email || 'Sin nombre'),
+          // Guardar nombres y apellidos por separado para el modal de edición
+          firstName: d.nombre || d.firstName || '',
+          lastName: d.apellido || d.lastName || '',
+          cedula: d.cedula || d.num_documento || '',
           email: d.email || d.correo || '',
           telefono: d.telefono || '',
           fechaCreacion: d.fecha_registro || d.fechaCreacion || '',
+          fecha_nacimiento: d.fecha_nacimiento || d.fechaNacimiento || '',
+          direccion: d.direccion || d.dirección || '',
+          genero: d.genero || d.genero_sexo || '',
+          foto_perfil: d.foto_perfil || d.foto || d.avatar || '',
           ultimoAcceso: d.fecha_ultima_conexion || d.ultimo_acceso || d.ultimoAcceso || '',
           estado: (d.estado === 'activo' || d.estado === 'inactivo') ? d.estado : 'activo',
           permisos: Array.isArray(d.permisos) ? d.permisos : [],
-          rol: d.rol?.nombre || d.nombre_rol || d.rol || 'Administrador'
+          rol: d.rol?.nombre || d.nombre_rol || d.rol || 'Administrador',
+          rolId: d.rol?.id_rol || d.id_rol || d.rolId || undefined
         }));
         setAdministradores(mapped);
       }
     } catch (e) {
       console.error('Error cargando administradores', e);
+    }
+  };
+
+  // Helper para mostrar fechas legibles en la tabla: dd/MM/yyyy HH:mm
+  const formatDateTime = (d?: string): string => {
+    if (!d) return '-';
+    try {
+      // Si ya viene en formato ISO o fecha válida
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return d; // Dejar como viene si no parsea
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const day = pad(date.getDate());
+      const month = pad(date.getMonth() + 1);
+      const year = date.getFullYear();
+      const hours = pad(date.getHours());
+      const mins = pad(date.getMinutes());
+      return `${day}/${month}/${year} ${hours}:${mins}`;
+    } catch {
+      return d;
     }
   };
 
@@ -164,6 +204,20 @@ const AdministradoresPanel: React.FC = () => {
   };
 
   const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null)?.value?.trim() || '';
+
+  // Helper para normalizar fechas al formato yyyy-MM-dd que esperan los inputs type="date"
+  const formatDateForInput = (d?: string): string => {
+    try {
+      if (!d) return '';
+      // Si ya viene en formato yyyy-MM-dd lo devolvemos tal cual
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().split('T')[0];
+    } catch {
+      return '';
+    }
+  };
 
   // Funciones principales con validaciones del primer archivo
   const handleCreateAdmin = async () => {
@@ -278,29 +332,85 @@ const AdministradoresPanel: React.FC = () => {
   };
 
   const handleEditAdmin = async () => {
-    const nombre = getVal('edit-admin-nombre');
-    const email = getVal('edit-admin-email');
+    // Capturar valores del formulario
+    const firstName = getVal('edit-admin-nombre').trim();
+    const lastName = getVal('edit-admin-apellido').trim();
+    const email = getVal('edit-admin-email').trim();
     const telefono = getVal('edit-admin-telefono');
     const rolId = getVal('edit-admin-rol');
+    const fecha_nacimiento = getVal('edit-admin-fecha-nacimiento');
+    const genero = getVal('edit-admin-genero');
+    const direccion = getVal('edit-admin-direccion');
 
-    if (!nombre || !email) {
-      showNotification('Nombre y email son obligatorios', 'error');
+    if (!firstName || !email) {
+      showNotification('Nombres y Email son obligatorios para actualizar', 'error');
       return;
     }
 
     try {
       const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({ nombre, email, telefono, rolId: Number(rolId) || undefined, permisos: selectedAdmin?.permisos || [] })
-      });
+
+      // Revisar si hay archivo de foto
+      const fotoInput = document.getElementById('edit-admin-foto-file') as HTMLInputElement | null;
+      const fotoFile = fotoInput?.files?.[0] || null;
+
+      let res: Response;
+      // Derivar roleName desde el rolId seleccionado (cuando exista)
+      const roleIdNum = Number(rolId) || undefined;
+      const roleName = roleIdNum ? (visibleRoles.find(r => r.id_rol === roleIdNum)?.nombre_rol || '') : '';
+
+      if (fotoFile) {
+        // Usar FormData si se adjunta foto
+        const fd = new FormData();
+        fd.append('nombre', firstName);
+        if (lastName) fd.append('apellido', lastName);
+        fd.append('email', email);
+        if (telefono) fd.append('telefono', telefono);
+        if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
+        // No enviar genero para evitar problemas de ENUM en la BD
+        if (direccion) fd.append('direccion', direccion);
+        if (roleIdNum) fd.append('rolId', String(roleIdNum));
+        if (roleName) fd.append('roleName', roleName);
+        // Enviar permisos como array en FormData
+        (selectedAdmin?.permisos || []).forEach((p: string) => fd.append('permisos[]', p));
+        fd.append('foto_perfil', fotoFile);
+
+        res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
+          method: 'PUT',
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: fd
+        });
+      } else {
+        // JSON normal si no hay foto
+        const payload: any = {
+          nombre: firstName,
+          apellido: lastName || undefined,
+          email,
+          telefono,
+          fecha_nacimiento: fecha_nacimiento || undefined,
+          // No enviar genero para evitar problemas de ENUM en la BD
+          direccion: direccion || undefined,
+          rolId: roleIdNum,
+          roleName: roleName || undefined,
+          permisos: selectedAdmin?.permisos || []
+        };
+
+        res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
       if (!res.ok) {
-        const err = await res.text();
-        showNotification(`Error actualizando: ${err || res.status}`, 'error');
+        const errText = await res.text();
+        console.error('Error al actualizar admin', res.status, errText);
+        showNotification(`Error actualizando (${res.status}): ${errText || 'sin detalle'}`, 'error');
         return;
       }
       await loadAdmins();
@@ -427,6 +537,44 @@ const AdministradoresPanel: React.FC = () => {
           .action-btn:hover {
             transform: scale(1.1);
           }
+
+          /* Tabla responsive */
+          .admins-grid {
+            display: grid;
+            grid-template-columns: minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(120px, 0.6fr) minmax(180px, 0.8fr) 160px;
+            gap: 20px;
+            align-items: center;
+          }
+          .admins-grid-header {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 20px 24px;
+          }
+
+          @media (max-width: 1100px) {
+            .admins-grid {
+              grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1fr) minmax(110px, 0.6fr) minmax(160px, 0.8fr) 140px;
+            }
+          }
+          @media (max-width: 900px) {
+            .admins-grid {
+              grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(110px, 0.8fr) 140px;
+            }
+            .col-estado { display: none; }
+          }
+          @media (max-width: 720px) {
+            .admins-grid {
+              grid-template-columns: minmax(200px, 1.6fr) minmax(160px, 1fr) 120px;
+            }
+            .col-email { display: none; }
+            .col-estado { display: none; }
+          }
+          @media (max-width: 520px) {
+            .admins-grid {
+              grid-template-columns: 1fr 1fr; /* Admin | Último acceso; Acciones caerá abajo */
+            }
+            .col-acciones { grid-column: 1 / span 2; justify-content: flex-end; }
+          }
         `}
       </style>
 
@@ -530,24 +678,20 @@ const AdministradoresPanel: React.FC = () => {
         borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
       }}>
         {/* Header de la tabla */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-          borderBottom: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px 24px',
-          display: 'grid', gridTemplateColumns: '1fr 200px 120px 150px 180px', gap: '20px', alignItems: 'center'
-        }}>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+        <div className="admins-grid admins-grid-header">
+          <div className="col-admin" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
             Administrador
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-email" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
             Email
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-estado" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
             Estado
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-ultimo" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
             Último Acceso
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', textAlign: 'center' }}>
+          <div className="col-acciones" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', textAlign: 'center' }}>
             Acciones
           </div>
         </div>
@@ -565,15 +709,14 @@ const AdministradoresPanel: React.FC = () => {
             filteredAdministradores.map((admin, index) => (
               <div
                 key={admin.id}
-                className="admin-card"
+                className="admin-card admins-grid"
                 style={{
                   padding: '24px', borderBottom: index < filteredAdministradores.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                  display: 'grid', gridTemplateColumns: '1fr 200px 120px 150px 180px', gap: '20px', alignItems: 'center',
                   background: admin.estado === 'activo' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent)' : 'linear-gradient(135deg, rgba(107, 114, 128, 0.05), transparent)'
                 }}
               >
                 {/* Información del administrador */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{
                     width: '56px', height: '56px', borderRadius: '16px',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
@@ -604,12 +747,12 @@ const AdministradoresPanel: React.FC = () => {
                 </div>
 
                 {/* Email */}
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                <div className="col-email" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', wordBreak: 'break-word' }}>
                   {admin.email}
                 </div>
 
                 {/* Estado */}
-                <div>
+                <div className="col-estado">
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
@@ -628,17 +771,34 @@ const AdministradoresPanel: React.FC = () => {
                 </div>
 
                 {/* Último acceso */}
-                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div className="col-ultimo" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Clock size={14} />
-                  {admin.ultimoAcceso}
+                  {formatDateTime(admin.ultimoAcceso)}
                 </div>
 
                 {/* Acciones */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <div className="col-acciones" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <Tooltip content="Editar">
                     <button
                       onClick={() => {
-                        setSelectedAdmin({ ...admin, permisos: (admin.permisos || []) });
+                        // Intentar inferir rolId si no existe usando el nombre del rol
+                        const matchedRole = visibleRoles.find(r => r.nombre_rol?.toLowerCase() === (admin.rol || '').toLowerCase());
+                        // Derivar nombres si faltan usando el nombre completo
+                        const full = (admin.nombre || '').trim();
+                        const parts = full.split(/\s+/);
+                        const derivedFirst = admin.firstName && admin.firstName.trim().length > 0
+                          ? admin.firstName
+                          : (parts.length > 1 ? parts.slice(0, parts.length - 1).join(' ') : parts[0] || '');
+                        const derivedLast = admin.lastName && admin.lastName.trim().length > 0
+                          ? admin.lastName
+                          : (parts.length > 1 ? parts[parts.length - 1] : (admin.apellido || ''));
+                        setSelectedAdmin({
+                          ...admin,
+                          firstName: derivedFirst,
+                          lastName: derivedLast,
+                          permisos: (admin.permisos || []),
+                          rolId: admin.rolId || matchedRole?.id_rol
+                        });
                         setShowEditAdminModal(true);
                       }}
                       className="action-btn"
@@ -1282,65 +1442,262 @@ const AdministradoresPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Edit Admin Modal */}
+      {/* Edit Admin Modal: estilos unificados con el de crear */}
       {showEditAdminModal && selectedAdmin && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ width: '640px', maxWidth: '90%', background: 'linear-gradient(180deg, #0b0b0b, #1a1a1a)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: 16, padding: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ color: '#fff', margin: 0 }}>Editar Administrador</h3>
-              <button onClick={() => setShowEditAdminModal(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}><X size={20} /></button>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          padding: '20px',
+          paddingTop: '40px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            borderRadius: '24px',
+            padding: '32px',
+            width: '100%',
+            maxWidth: '700px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
+                }}>
+                  <Edit3 size={24} color="#fff" />
+                </div>
+                <div>
+                  <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
+                    Editar Administrador
+                  </h2>
+                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', margin: 0 }}>
+                    Actualiza la información del administrador seleccionado
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setShowEditAdminModal(false)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {/* Cédula (solo lectura para evitar cambios accidentales) */}
               <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Nombre</label>
-                <input id="edit-admin-nombre" defaultValue={selectedAdmin?.nombre} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Cédula</label>
+                <input id="edit-admin-cedula" defaultValue={selectedAdmin?.cedula || ''} readOnly style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#9ca3af' }} />
               </div>
+              {/* Rol */}
+              <div>
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Rol</label>
+                <select id="edit-admin-rol" defaultValue={selectedAdmin?.rolId ? String(selectedAdmin.rolId) : ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}>
+                  <option value="">Sin cambio</option>
+                  {visibleRoles.map(r => (
+                    <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Nombres y Apellidos */}
+              <div>
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Nombres</label>
+                <input
+                  id="edit-admin-nombre"
+                  defaultValue={selectedAdmin?.firstName || ''}
+                  onInput={(e) => {
+                    const t = e.target as HTMLInputElement;
+                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
+                  }}
+                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
+                />
+              </div>
+              <div>
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Apellidos</label>
+                <input
+                  id="edit-admin-apellido"
+                  defaultValue={selectedAdmin?.lastName || selectedAdmin?.apellido || ''}
+                  onInput={(e) => {
+                    const t = e.target as HTMLInputElement;
+                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
+                  }}
+                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
+                />
+              </div>
+
+              {/* Email y Teléfono */}
               <div>
                 <label style={{ color: '#e5e7eb', fontSize: 12 }}>Email</label>
                 <input id="edit-admin-email" type="email" defaultValue={selectedAdmin?.email} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
               </div>
               <div>
                 <label style={{ color: '#e5e7eb', fontSize: 12 }}>Teléfono</label>
-                <input id="edit-admin-telefono" defaultValue={selectedAdmin?.telefono} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
+                <input
+                  id="edit-admin-telefono"
+                  defaultValue={selectedAdmin?.telefono || ''}
+                  onInput={(e) => {
+                    const t = e.target as HTMLInputElement;
+                    t.value = t.value.replace(/\D/g, '');
+                  }}
+                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
+                />
+              </div>
+
+              {/* Fecha de Nacimiento y Género */}
+              <div>
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Fecha de Nacimiento</label>
+                <input id="edit-admin-fecha-nacimiento" type="date" defaultValue={formatDateForInput(selectedAdmin?.fecha_nacimiento)} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
               </div>
               <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Rol</label>
-                <select id="edit-admin-rol" defaultValue="" style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}>
-                  <option value="">Sin cambio</option>
-                  {roles.map(r => (
-                    <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
-                  ))}
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Género</label>
+                <select id="edit-admin-genero" defaultValue={selectedAdmin?.genero || ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}>
+                  <option value="">Sin especificar</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro</option>
                 </select>
               </div>
 
+              {/* Dirección (ocupa dos columnas) */}
               <div style={{ gridColumn: '1 / span 2' }}>
-                <label style={{ color: '#e5e7eb', fontSize: 12, display: 'block', marginBottom: 6 }}>Permisos</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {['usuarios','cursos','reportes','configuracion','pagos','inventario'].map((p: string) => (
-                    <label key={p} style={{ color: '#e5e7eb', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                      <input
-                        type="checkbox"
-                        defaultChecked={selectedAdmin?.permisos?.includes(p)}
-                        onChange={(e) => {
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Dirección</label>
+                <input id="edit-admin-direccion" defaultValue={selectedAdmin?.direccion || ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
+              </div>
+
+              {/* Foto de perfil (opcional) */}
+              <div style={{ gridColumn: '1 / span 2' }}>
+                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Foto de Perfil (opcional)</label>
+                <input id="edit-admin-foto-file" type="file" accept="image/png,image/jpeg,image/webp" style={{ width: '100%', padding: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
+                {selectedAdmin?.foto_perfil && (
+                  <div style={{ marginTop: 8, color: '#9ca3af', fontSize: 12 }}>
+                    Imagen actual:
+                    {(selectedAdmin.foto_perfil.startsWith('http') || selectedAdmin.foto_perfil.startsWith('data:')) ? (
+                      <div style={{ marginTop: 8 }}>
+                        <img src={selectedAdmin.foto_perfil} alt="Foto actual" style={{ maxWidth: '100%', maxHeight: 160, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }} />
+                      </div>
+                    ) : (
+                      <span> {selectedAdmin.foto_perfil}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Permisos - estilo tarjetas con íconos, sincronizados con selectedAdmin */}
+              <div style={{ gridColumn: '1 / span 2', marginTop: 8 }}>
+                <label style={{ color: '#e5e7eb', fontSize: 12, display: 'block', marginBottom: 10 }}>Permisos del Sistema</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+                  {permisosDisponibles.map(permiso => {
+                    const IconComponent = permiso.icon;
+                    const isActive = selectedAdmin?.permisos?.includes(permiso.id);
+                    return (
+                      <div
+                        key={permiso.id}
+                        style={{
+                          background: isActive ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${isActive ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
+                          borderRadius: '12px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          transform: isActive ? 'scale(1.02)' : 'scale(1)'
+                        }}
+                        onClick={() => {
                           setSelectedAdmin((prev: Admin | null) => {
                             if (!prev) return prev;
-                            return { ...prev, permisos: e.target.checked ? [...(prev.permisos||[]), p] : (prev.permisos||[]).filter((x: string) => x !== p) } as Admin;
+                            const has = (prev.permisos || []).includes(permiso.id);
+                            return {
+                              ...prev,
+                              permisos: has
+                                ? (prev.permisos || []).filter((p: string) => p !== permiso.id)
+                                : [ ...(prev.permisos || []), permiso.id ]
+                            } as Admin;
                           });
                         }}
-                      />
-                      {p}
-                    </label>
-                  ))}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <div style={{
+                            width: '24px', height: '24px', border: '2px solid rgba(239, 68, 68, 0.5)', borderRadius: '6px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: isActive ? '#ef4444' : 'transparent', transition: 'all 0.2s'
+                          }}>
+                            {isActive && <Check size={14} color="#fff" />}
+                          </div>
+                          <IconComponent size={20} color="rgba(255,255,255,0.8)" />
+                          <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>{permiso.nombre}</span>
+                        </div>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', margin: 0, paddingLeft: '36px' }}>{permiso.descripcion}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-              <button onClick={() => setShowEditAdminModal(false)} style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, color: '#e5e7eb', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowEditAdminModal(false)}
+                style={{
+                  padding: '14px 28px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '12px',
+                  color: 'rgba(255,255,255,0.8)',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s'
+                }}
+              >
                 Cancelar
               </button>
-              <button onClick={handleEditAdmin} style={{ padding: '10px 16px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', border: 'none', borderRadius: 10, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Save size={16} /> Actualizar
+              <button
+                onClick={handleEditAdmin}
+                style={{
+                  padding: '14px 28px',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Save size={16} />
+                Actualizar
               </button>
             </div>
           </div>
