@@ -36,6 +36,10 @@ const GestionMatricula = () => {
   const [selected, setSelected] = useState<Solicitud | null>(null);
   const [decidiendo, setDecidiendo] = useState(false);
   const [cursos, setCursos] = useState<Array<{ id_curso: number; nombre: string; estado: string }>>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
 
   const fetchCursos = async () => {
     try {
@@ -51,14 +55,45 @@ const GestionMatricula = () => {
     } catch {}
   };
 
+  // Contadores agregados independientes del filtro de estado
+  const fetchCounters = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('aggregate', 'by_estado');
+      if (filterTipo !== 'todos') {
+        params.set('tipo', String(filterTipo));
+      }
+      const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // Validar y aplicar defaults
+      setCounters({
+        pendiente: Number(data?.pendiente || 0),
+        aprobado: Number(data?.aprobado || 0),
+        rechazado: Number(data?.rechazado || 0),
+        observaciones: Number(data?.observaciones || 0),
+      });
+    } catch {}
+  };
+
   const fetchSolicitudes = async () => {
     try {
       setLoading(true);
       setError(null);
-      const estado = filterEstado === 'todos' ? 'pendiente' : filterEstado; // default a pendientes
-      const tipoQS = filterTipo === 'todos' ? '' : `&tipo=${filterTipo}`;
-      const res = await fetch(`${API_BASE}/api/solicitudes?estado=${encodeURIComponent(estado)}&limit=50${tipoQS}`);
+      // Construir query dinámicamente: si es "todos", no enviar estado para traer todas
+      const params = new URLSearchParams();
+      if (filterEstado !== 'todos') {
+        params.set('estado', filterEstado);
+      }
+      params.set('limit', String(limit));
+      params.set('page', String(page));
+      if (filterTipo !== 'todos') {
+        params.set('tipo', String(filterTipo));
+      }
+      const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
       if (!res.ok) throw new Error('No se pudo cargar solicitudes');
+      const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
+      setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
       const data = await res.json();
       setSolicitudes(data);
     } catch (e: any) {
@@ -71,7 +106,12 @@ const GestionMatricula = () => {
   useEffect(() => { 
     fetchSolicitudes(); 
     fetchCursos();
-  }, [filterEstado, filterTipo]);
+  }, [filterEstado, filterTipo, page, limit]);
+
+  // Cargar counters al inicio y cuando cambia el tipo (no depende del estado)
+  useEffect(() => {
+    fetchCounters();
+  }, [filterTipo]);
 
   const fetchTipos = async () => {
     try {
@@ -117,6 +157,7 @@ const GestionMatricula = () => {
       setShowModal(false);
       setSelected(null);
       await fetchSolicitudes();
+      await fetchCounters();
     } catch (e: any) {
       setError(e.message || 'Error actualizando estado');
     } finally {
@@ -137,6 +178,13 @@ const GestionMatricula = () => {
     const matchesEstado = filterEstado === 'todos' || s.estado === filterEstado;
     return matchesSearch && matchesEstado;
   });
+
+  // Los contadores ahora vienen del backend (counters)
+
+  // Resetear página cuando cambian filtros principales
+  useEffect(() => {
+    setPage(1);
+  }, [filterEstado, filterTipo]);
 
   return (
     <div style={{ padding: '32px' }}>
@@ -201,6 +249,54 @@ const GestionMatricula = () => {
             <button onClick={fetchSolicitudes} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer' }}>Refrescar</button>
           </div>
         </div>
+        {/* Counters + Pagination */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginTop: 12, flexWrap: 'wrap' }}>
+          {/* Counters */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
+            }}>Pendiente: {counters.pendiente}</span>
+            <span style={{
+              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
+            }}>Aprobado: {counters.aprobado}</span>
+            <span style={{
+              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
+            }}>Rechazado: {counters.rechazado}</span>
+            <span style={{
+              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
+            }}>Observaciones: {counters.observaciones}</span>
+          </div>
+          {/* Pagination */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Por página:</span>
+              <div style={{ minWidth: 120 }}>
+                <StyledSelect
+                  name="limit"
+                  value={String(limit)}
+                  onChange={(e) => setLimit(Number(e.target.value))}
+                  options={[
+                    { value: '10', label: '10' },
+                    { value: '20', label: '20' },
+                    { value: '50', label: '50' },
+                  ]}
+                />
+              </div>
+            </div>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginLeft: 8 }}>Total: {totalCount}</span>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
+              padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
+            }}>Anterior</button>
+            <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
+            <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
+              padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
+            }}>Siguiente</button>
+          </div>
+        </div>
       </div>
 
       {/* Lista de Solicitudes */}
@@ -231,7 +327,7 @@ const GestionMatricula = () => {
                     <div style={{ color: '#fff', fontSize: '0.9rem' }}>{sol.email_solicitante}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Curso</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Estado</div>
                     <div style={{ 
                       color: '#fff', 
                       fontSize: '0.9rem',
@@ -239,26 +335,27 @@ const GestionMatricula = () => {
                       alignItems: 'center',
                       gap: '8px'
                     }}>
-                      {(sol as any).curso_nombre || `#${sol.id_curso}`}
-                      {(() => {
-                        const curso = cursos.find(c => c.id_curso === sol.id_curso);
-                        if (curso?.estado === 'cancelado') {
-                          return (
-                            <span style={{
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              color: '#ef4444',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
-                              fontWeight: '600'
-                            }}>
-                              🔒 BLOQUEADO
-                            </span>
-                          );
-                        }
-                        return null;
-                      })()}
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        textTransform: 'capitalize',
+                        background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
+                                   sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
+                                   sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                                   'rgba(156, 163, 175, 0.15)',
+                        border: sol.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                               sol.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                               sol.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                               '1px solid rgba(156, 163, 175, 0.3)',
+                        color: sol.estado === 'aprobado' ? '#10b981' :
+                              sol.estado === 'rechazado' ? '#ef4444' :
+                              sol.estado === 'observaciones' ? '#fbbf24' :
+                              '#9ca3af'
+                      }}>
+                        {sol.estado}
+                      </span>
                     </div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
@@ -310,8 +407,29 @@ const GestionMatricula = () => {
                 <div style={{ color: '#fff' }}>{selected.direccion_solicitante || '-'}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Curso</div>
-                <div style={{ color: '#fff' }}>{(selected as any).curso_nombre || `#${selected.id_curso}`}</div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
+                <div style={{ 
+                  display: 'inline-flex',
+                  padding: '6px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  textTransform: 'capitalize',
+                  background: selected.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
+                             selected.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
+                             selected.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                             'rgba(156, 163, 175, 0.15)',
+                  border: selected.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                         selected.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                         selected.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                         '1px solid rgba(156, 163, 175, 0.3)',
+                  color: selected.estado === 'aprobado' ? '#10b981' :
+                        selected.estado === 'rechazado' ? '#ef4444' :
+                        selected.estado === 'observaciones' ? '#fbbf24' :
+                        '#9ca3af'
+                }}>
+                  {selected.estado}
+                </div>
               </div>
               {(selected as any).tipo_curso_nombre && (
                 <div>

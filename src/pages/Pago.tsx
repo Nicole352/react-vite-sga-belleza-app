@@ -107,25 +107,81 @@ const Pago: React.FC = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const cursoKey = params.get('curso') || 'facial';
-  // Permitir recibir id_curso por URL, si no, mapear por clave localmente
-  const cursoIdMap: Record<string, number> = {
-    cosmetologia: 1,
-    cosmiatria: 2,
-    maquillaje: 3,
-    lashista: 4,
-    unas: 5,
-    integral: 6,
-    facial: 1 // facial apunta a cosmetología en este dataset
+  // Detección automática de similitud entre nombres de cursos y cards
+  const getMatchingTipoCurso = (cursoKey: string, tiposCursos: any[]) => {
+    // Nombres base de las cards para comparación automática
+    const cardNames: Record<string, string[]> = {
+      maquillaje: ['maquillaje', 'makeup', 'make up'],
+      unas: ['uñas', 'unas', 'manicure', 'pedicure', 'nail'],
+      cosmetologia: ['cosmetología', 'cosmetologia', 'depilación', 'depilacion'],
+      facial: ['facial', 'faciales', 'rostro', 'cara'],
+      cosmiatria: ['cosmiatría', 'cosmiatria', 'masajes', 'massage'],
+      integral: ['integral', 'belleza', 'peluquería', 'peluqueria', 'estilismo', 'hair'],
+      lashista: ['pestañas', 'pestanas', 'lashes', 'extensiones', 'lash']
+    };
+    
+    // Función para calcular similitud entre strings
+    const calculateSimilarity = (str1: string, str2: string): number => {
+      const s1 = str1.toLowerCase().trim();
+      const s2 = str2.toLowerCase().trim();
+      
+      // Coincidencia exacta
+      if (s1 === s2) return 1.0;
+      
+      // Contiene la palabra completa
+      if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+      
+      // Similitud por palabras comunes
+      const words1 = s1.split(/\s+/);
+      const words2 = s2.split(/\s+/);
+      const commonWords = words1.filter(w => words2.some(w2 => w2.includes(w) || w.includes(w2)));
+      
+      if (commonWords.length > 0) {
+        return commonWords.length / Math.max(words1.length, words2.length) * 0.6;
+      }
+      
+      return 0;
+    };
+    
+    let bestMatch: any = null;
+    let bestScore = 0;
+    
+    // Buscar el mejor match para cada curso
+    tiposCursos.forEach((tc: any) => {
+      const nombreCurso = tc.nombre;
+      
+      // Comparar con nombres base de la card
+      const cardKeywords = cardNames[cursoKey] || [cursoKey];
+      
+      cardKeywords.forEach(keyword => {
+        const score = calculateSimilarity(nombreCurso, keyword);
+        if (score > bestScore && score > 0.3) { // Umbral mínimo de similitud
+          bestScore = score;
+          bestMatch = tc;
+        }
+      });
+      
+      // También comparar directamente con el nombre de la card
+      const directScore = calculateSimilarity(nombreCurso, cursoKey);
+      if (directScore > bestScore && directScore > 0.3) {
+        bestScore = directScore;
+        bestMatch = tc;
+      }
+    });
+    
+    console.log(`Mejor match para card '${cursoKey}':`, bestMatch?.nombre, `(score: ${bestScore.toFixed(2)})`);
+    return bestMatch;
   };
-  const idCursoFromUrl = params.get('id_curso');
-  const cursoId = Number(idCursoFromUrl ?? cursoIdMap[cursoKey] ?? 0);
+  // Eliminamos la referencia al mapeo estático ya que ahora es dinámico
+  const [tipoCursoId, setTipoCursoId] = useState<number>(0);
   const curso = detallesCursos[cursoKey];
 
   const [selectedPayment, setSelectedPayment] = useState('paypal');
   const [isVisible, setIsVisible] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  const [cursoBackend, setCursoBackend] = useState<any | null>(null);
+  const [tipoCursoBackend, setTipoCursoBackend] = useState<any | null>(null);
+  const [tiposCursosDisponibles, setTiposCursosDisponibles] = useState<any[]>([]);
   const [formData, setFormData] = useState<FormData>({
     nombre: '',
     apellido: '',
@@ -167,28 +223,112 @@ const Pago: React.FC = () => {
     setIsVisible(true);
   }, []);
 
-  // Cargar datos reales del curso desde backend (estado y cupos) solo al montar y al recuperar foco/visibilidad
+  // Cargar tipos de cursos disponibles
   useEffect(() => {
-    if (!cursoId) return;
     let cancelled = false;
 
-    const loadCurso = async () => {
+    const loadTiposCursos = async () => {
       if (cancelled) return;
       try {
-        const res = await fetch(`${API_BASE}/cursos/${cursoId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setCursoBackend(data);
+        const resTipo = await fetch(`${API_BASE}/tipos-cursos?estado=activo`);
+        if (!resTipo.ok) return;
+        const tiposCursos = await resTipo.json();
+        setTiposCursosDisponibles(tiposCursos);
+        
+        // Resolución por card_key (preferida) y fallback a similitud
+        console.log('=== RESOLUCIÓN TIPO ===');
+        console.log('Card (query ?curso=):', cursoKey);
+        console.log('Tipos disponibles:', tiposCursos.map((tc: any) => `${tc.card_key || '-'} | ${tc.nombre}`));
+
+        // 1) Intentar por card_key directa
+        const byCardKey = tiposCursos.find((tc: any) => 
+          (tc.card_key || '').toLowerCase() === String(cursoKey).toLowerCase()
+        );
+
+        if (byCardKey) {
+          console.log('✅ Tipo resuelto por card_key:', byCardKey);
+          setTipoCursoId(byCardKey.id_tipo_curso);
+        } else {
+          // 2) Fallback a similitud si no hay card_key cargada
+          const tipoCursoEncontrado = getMatchingTipoCurso(cursoKey, tiposCursos);
+          if (tipoCursoEncontrado) {
+            console.log('✅ Tipo detectado por similitud:', tipoCursoEncontrado);
+            setTipoCursoId(tipoCursoEncontrado.id_tipo_curso);
+          } else {
+            console.log('❌ No se pudo resolver el tipo para card:', cursoKey);
+          }
+        }
+        console.log('============================');
+      } catch {}
+    };
+
+    loadTiposCursos();
+    return () => { cancelled = true; };
+  }, [cursoKey]);
+
+  // Cargar datos del tipo de curso específico y verificar disponibilidad
+  useEffect(() => {
+    if (!tipoCursoId) return;
+    let cancelled = false;
+
+    const loadTipoCurso = async () => {
+      if (cancelled) return;
+      try {
+        // Encontrar el tipo de curso en los datos ya cargados
+        const tipoCurso = tiposCursosDisponibles.find((tc: any) => 
+          tc.id_tipo_curso === tipoCursoId
+        );
+        
+        if (tipoCurso) {
+          // Verificar todos los cursos de este tipo (activos, planificados, cancelados)
+          const resCursos = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
+          if (resCursos.ok) {
+            const todosCursos = await resCursos.json();
+            
+            // Contar cursos por estado
+            const cursosActivos = todosCursos.filter((c: any) => 
+              c.estado === 'activo' && Number(c.cupos_disponibles || 0) > 0
+            );
+            const cursosPlanificados = todosCursos.filter((c: any) => 
+              c.estado === 'planificado'
+            );
+            const cursosCancelados = todosCursos.filter((c: any) => 
+              c.estado === 'cancelado'
+            );
+            
+            // Hay disponibilidad si hay cursos activos con cupos O cursos planificados
+            const hayDisponibles = cursosActivos.length > 0 || cursosPlanificados.length > 0;
+            
+            setTipoCursoBackend({
+              ...tipoCurso,
+              disponible: hayDisponibles,
+              cursosActivos: cursosActivos.length,
+              cursosPlanificados: cursosPlanificados.length,
+              cursosCancelados: cursosCancelados.length,
+              totalCursos: todosCursos.length
+            });
+          } else {
+            // Si no se pueden cargar los cursos, asumir no disponible
+            setTipoCursoBackend({
+              ...tipoCurso,
+              disponible: false,
+              cursosActivos: 0,
+              cursosPlanificados: 0,
+              cursosCancelados: 0,
+              totalCursos: 0
+            });
+          }
+        }
       } catch {}
     };
 
     // Carga inicial
-    loadCurso();
+    loadTipoCurso();
 
     // Recargar cuando la pestaña recupere foco o visibilidad
-    const onFocus = () => loadCurso();
+    const onFocus = () => loadTipoCurso();
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') loadCurso();
+      if (document.visibilityState === 'visible') loadTipoCurso();
     };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVisibility);
@@ -198,13 +338,23 @@ const Pago: React.FC = () => {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [cursoId]);
+  }, [tipoCursoId, tiposCursosDisponibles]);
 
-  const isBlocked = !!cursoBackend && (cursoBackend.estado === 'cancelado' || Number(cursoBackend.cupos_disponibles || 0) <= 0);
+  const isBlocked = !!tipoCursoBackend && (!tipoCursoBackend.disponible || tipoCursoBackend.estado !== 'activo');
   
-  // Debug: mostrar estado del curso
-  console.log('cursoBackend:', cursoBackend);
+  // Debug: mostrar estado del tipo de curso
+  console.log('=== DEBUG BLOQUEO ===');
+  console.log('cursoKey:', cursoKey);
+  console.log('cursoKey:', cursoKey);
+  console.log('tipoCursoId:', tipoCursoId);
+  console.log('tipoCursoBackend:', tipoCursoBackend);
   console.log('isBlocked:', isBlocked);
+  if (tipoCursoBackend) {
+    console.log(`Cursos - Activos: ${tipoCursoBackend.cursosActivos}, Planificados: ${tipoCursoBackend.cursosPlanificados}, Cancelados: ${tipoCursoBackend.cursosCancelados}`);
+    console.log('Disponible:', tipoCursoBackend.disponible);
+    console.log('Estado tipo curso:', tipoCursoBackend.estado);
+  }
+  console.log('=====================');
 
   if (!curso) {
     return (
@@ -328,7 +478,7 @@ const Pago: React.FC = () => {
         if (formData.fechaNacimiento) body.append('fecha_nacimiento_solicitante', formData.fechaNacimiento);
         if (formData.direccion) body.append('direccion_solicitante', formData.direccion);
         if (formData.genero) body.append('genero_solicitante', formData.genero);
-        body.append('id_curso', String(cursoId));
+        body.append('id_tipo_curso', String(tipoCursoId));
         body.append('monto_matricula', String(curso.precio));
         body.append('metodo_pago', 'transferencia');
         if (uploadedFile) body.append('comprobante', uploadedFile);
@@ -347,7 +497,7 @@ const Pago: React.FC = () => {
           fecha_nacimiento_solicitante: formData.fechaNacimiento || null,
           direccion_solicitante: formData.direccion || null,
           genero_solicitante: formData.genero || null,
-          id_curso: cursoId,
+          id_tipo_curso: tipoCursoId,
           monto_matricula: curso.precio,
           metodo_pago: 'paypal'
         };
@@ -699,9 +849,9 @@ const Pago: React.FC = () => {
                         <Calendar size={16} color="#fbbf24" />
                         <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{curso.duracion}</span>
                       </div>
-                      {cursoBackend && (
+                      {tipoCursoBackend && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {cursoBackend.estado === 'cancelado' ? (
+                          {!tipoCursoBackend.disponible || tipoCursoBackend.estado !== 'activo' ? (
                             <span style={{
                               padding: '4px 10px',
                               borderRadius: '9999px',
@@ -723,7 +873,9 @@ const Pago: React.FC = () => {
                               fontWeight: 700,
                               fontSize: '0.8rem'
                             }}>
-                              Cupos: {Number(cursoBackend.cupos_disponibles ?? 0)}
+                              {tipoCursoBackend.cursosActivos > 0 ? `Activos: ${tipoCursoBackend.cursosActivos}` : 
+                               tipoCursoBackend.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend.cursosPlanificados}` : 
+                               'Disponible'}
                             </span>
                           )}
                         </div>

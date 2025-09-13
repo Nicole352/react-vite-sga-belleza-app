@@ -36,7 +36,7 @@ const App: React.FC = () => {
             path="/panel/superadmin"
             element={
               <ProtectedRoute allowRoles={['superadmin']}>
-                <PanelSuperAdmin onLogout={() => {}} />
+                <PanelSuperAdmin />
               </ProtectedRoute>
             }
           />
@@ -44,7 +44,7 @@ const App: React.FC = () => {
             path="/panel/superadmin/:tab"
             element={
               <ProtectedRoute allowRoles={['superadmin']}>
-                <PanelSuperAdmin onLogout={() => {}} />
+                <PanelSuperAdmin />
               </ProtectedRoute>
             }
           />
