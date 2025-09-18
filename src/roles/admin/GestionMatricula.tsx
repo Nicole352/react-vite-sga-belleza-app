@@ -7,7 +7,7 @@ import { StyledSelect } from '../../components/StyledSelect';
 type Solicitud = {
   id_solicitud: number;
   codigo_solicitud: string;
-  cedula_solicitante?: string;
+  identificacion_solicitante?: string;
   nombre_solicitante: string;
   apellido_solicitante: string;
   telefono_solicitante?: string;
@@ -170,7 +170,7 @@ const GestionMatricula = () => {
     const haystack = [
       fullName,
       s.email_solicitante?.toLowerCase?.() || '',
-      s.cedula_solicitante || '',
+      s.identificacion_solicitante || '',
       (s as any).curso_nombre?.toLowerCase?.() || '',
       (s as any).tipo_curso_nombre?.toLowerCase?.() || ''
     ].join(' ');
@@ -319,8 +319,8 @@ const GestionMatricula = () => {
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Cédula</div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{sol.cedula_solicitante || '-'}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Identificación</div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Email</div>
@@ -395,8 +395,8 @@ const GestionMatricula = () => {
                 <div style={{ color: '#fff' }}>{selected.email_solicitante}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Cédula</div>
-                <div style={{ color: '#fff' }}>{selected.cedula_solicitante || '-'}</div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
+                <div style={{ color: '#fff' }}>{selected.identificacion_solicitante || '-'}</div>
               </div>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>

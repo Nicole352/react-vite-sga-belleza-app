@@ -162,24 +162,7 @@ const GestionCursos = () => {
     }
   };
 
-  // Clonar edición
-  const handleCloneCurso = async (id: number) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`${API_BASE}/api/cursos/${id}/clonar`, { method: 'POST' });
-      if (!res.ok) throw new Error('No se pudo clonar el curso');
-      
-      const newCurso = await res.json();
-      // Agregar el nuevo curso clonado a la lista inmediatamente
-      setCursos(prev => [newCurso, ...prev]);
-      alert('Se creó una nueva edición del curso. Ajusta fechas si es necesario.');
-    } catch (e: any) {
-      setError(e.message || 'Error clonando curso');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Funcionalidad de clonado eliminada
 
   useEffect(() => {
     fetchCursos(filterEstado as EstadoFilter);
@@ -540,9 +523,6 @@ const GestionCursos = () => {
                         }}
                       >
                         {curso.estado === 'cancelado' ? '🔓 Reanudar' : '🔒 Bloquear'}
-                      </button>
-                      <button onClick={() => handleCloneCurso(curso.id_curso)} style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer' }}>
-                        Clonar
                       </button>
                     </div>
                   </td>
