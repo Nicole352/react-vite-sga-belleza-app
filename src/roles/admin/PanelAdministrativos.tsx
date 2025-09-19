@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText
+  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Sun, Moon
 } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
+import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 
 // Importar componentes modulares
 import Dashboard from './Dashboard';
@@ -16,6 +17,52 @@ import GestionTiposCurso from './GestionTiposCurso';
 
 const PanelAdministrativos = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [darkMode, setDarkMode] = useState(() => {
+    // Cargar preferencia guardada o usar modo oscuro por defecto
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Guardar preferencia de modo cuando cambie
+  useEffect(() => {
+    localStorage.setItem('admin-dark-mode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  // Función para alternar modo
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  // Funciones para obtener colores según el tema
+  const getThemeColors = () => {
+    if (darkMode) {
+      return {
+        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)',
+        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
+        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+        textPrimary: '#fff',
+        textSecondary: 'rgba(255,255,255,0.8)',
+        textMuted: 'rgba(255,255,255,0.7)',
+        border: 'rgba(239, 68, 68, 0.2)',
+        accent: '#ef4444'
+      };
+    } else {
+      return {
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
+        contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
+        textPrimary: '#1e293b',
+        textSecondary: 'rgba(30,41,59,0.8)',
+        textMuted: 'rgba(30,41,59,0.7)',
+        border: 'rgba(239, 68, 68, 0.2)',
+        accent: '#ef4444'
+      };
+    }
+  };
+
+  const theme = getThemeColors();
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
@@ -29,18 +76,64 @@ const PanelAdministrativos = () => {
   ];
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-      fontFamily: 'Montserrat, sans-serif',
-      display: 'flex'
-    }}>
+    <>
+      {/* Variables CSS globales para el tema */}
+      <style>{`
+        :root {
+          --admin-bg-primary: ${theme.background};
+          --admin-bg-secondary: ${theme.contentBg};
+          --admin-text-primary: ${theme.textPrimary};
+          --admin-text-secondary: ${theme.textSecondary};
+          --admin-text-muted: ${theme.textMuted};
+          --admin-border: ${theme.border};
+          --admin-accent: ${theme.accent};
+          --admin-input-bg: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'};
+          --admin-input-border: ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
+          --admin-hover-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
+          --admin-modal-bg: ${darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)'};
+          --admin-card-bg: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'};
+        }
+        
+        /* Estilos globales para componentes hijos */
+        .admin-panel * {
+          --text-primary: ${theme.textPrimary};
+          --text-secondary: ${theme.textSecondary};
+          --text-muted: ${theme.textMuted};
+          --bg-primary: ${theme.background};
+          --bg-secondary: ${theme.contentBg};
+          --border-color: ${theme.border};
+        }
+        
+        /* Estilos automáticos para inputs y elementos comunes */
+        .admin-panel input,
+        .admin-panel textarea,
+        .admin-panel select {
+          background: var(--admin-input-bg) !important;
+          border: 1px solid var(--admin-input-border) !important;
+          color: var(--admin-text-primary) !important;
+        }
+        
+        .admin-panel input::placeholder,
+        .admin-panel textarea::placeholder {
+          color: var(--admin-text-muted) !important;
+        }
+      `}</style>
+      
+      <div 
+        className="admin-panel"
+        style={{
+          minHeight: '100vh',
+          background: theme.background,
+          fontFamily: 'Montserrat, sans-serif',
+          display: 'flex'
+        }}
+      >
       {/* Sidebar */}
       <div style={{
         width: '280px',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)',
+        background: theme.sidebarBg,
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
+        border: `1px solid ${theme.border}`,
         borderRadius: '0 20px 20px 0',
         padding: '24px',
         position: 'fixed',
@@ -48,7 +141,7 @@ const PanelAdministrativos = () => {
         left: 0,
         top: 0,
         zIndex: 1000,
-        boxShadow: '4px 0 20px rgba(0, 0, 0, 0.3)'
+        boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
       }}>
         {/* Header del Sidebar */}
         <div style={{ 
@@ -57,7 +150,7 @@ const PanelAdministrativos = () => {
           gap: '12px', 
           marginBottom: '32px',
           paddingBottom: '24px',
-          borderBottom: '1px solid rgba(239, 68, 68, 0.2)'
+          borderBottom: `1px solid ${theme.border}`
         }}>
           <div style={{
             width: '48px',
@@ -73,7 +166,7 @@ const PanelAdministrativos = () => {
           </div>
           <div>
             <h1 style={{ 
-              color: '#fff', 
+              color: theme.textPrimary, 
               fontSize: '1.2rem', 
               fontWeight: '700', 
               margin: 0,
@@ -82,7 +175,7 @@ const PanelAdministrativos = () => {
               Panel
             </h1>
             <p style={{ 
-              color: 'rgba(255,255,255,0.7)', 
+              color: theme.textMuted, 
               fontSize: '0.9rem', 
               margin: 0 
             }}>
@@ -111,7 +204,7 @@ const PanelAdministrativos = () => {
                   background: activeTab === tab.id ? 
                     'linear-gradient(135deg, #ef4444, #dc2626)' : 
                     'transparent',
-                  color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.7)',
+                  color: activeTab === tab.id ? '#fff' : theme.textMuted,
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   cursor: 'pointer',
@@ -121,12 +214,14 @@ const PanelAdministrativos = () => {
                 }}
                 onMouseEnter={(e) => {
                   if (activeTab !== tab.id) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                    e.currentTarget.style.color = theme.textSecondary;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (activeTab !== tab.id) {
                     e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = theme.textMuted;
                   }
                 }}
               >
@@ -144,7 +239,16 @@ const PanelAdministrativos = () => {
           left: '24px', 
           right: '24px' 
         }}>
-          <LogoutButton />
+          <div style={{
+            background: darkMode 
+              ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))' 
+              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '12px',
+            padding: '12px'
+          }}>
+            <LogoutButton darkMode={darkMode} />
+          </div>
         </div>
       </div>
 
@@ -155,16 +259,20 @@ const PanelAdministrativos = () => {
         padding: '24px',
         minHeight: '100vh'
       }}>
-        {/* Header del contenido */}
+        {/* Navbar */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          background: theme.navbarBg,
+          border: `1px solid ${theme.border}`,
           borderRadius: '20px',
-          padding: '24px 32px',
+          padding: '20px 32px',
           marginBottom: '24px',
           backdropFilter: 'blur(20px)',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}>
+          {/* Información del módulo activo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
               width: '56px',
@@ -186,17 +294,13 @@ const PanelAdministrativos = () => {
               <h1 style={{ 
                 fontSize: '1.8rem', 
                 fontWeight: '800', 
-                color: '#fff',
-                margin: 0,
-                background: 'linear-gradient(135deg, #fff, #f3f4f6)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                color: theme.textPrimary,
+                margin: 0
               }}>
                 {tabs.find(t => t.id === activeTab)?.name || 'Dashboard'}
               </h1>
               <p style={{ 
-                color: 'rgba(255,255,255,0.8)', 
+                color: theme.textSecondary, 
                 margin: 0, 
                 fontSize: '1rem',
                 marginTop: '4px'
@@ -212,28 +316,70 @@ const PanelAdministrativos = () => {
               </p>
             </div>
           </div>
+
+          {/* Toggle de modo claro/oscuro */}
+          <button
+            onClick={toggleDarkMode}
+            style={{
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' 
+                : 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))',
+              border: `1px solid ${theme.border}`,
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(10px)',
+              boxShadow: darkMode 
+                ? '0 4px 12px rgba(0, 0, 0, 0.2)' 
+                : '0 4px 12px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.boxShadow = darkMode 
+                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                : '0 6px 20px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = darkMode 
+                ? '0 4px 12px rgba(0, 0, 0, 0.2)' 
+                : '0 4px 12px rgba(0, 0, 0, 0.1)';
+            }}
+          >
+            {darkMode ? (
+              <Sun size={24} color={theme.textPrimary} />
+            ) : (
+              <Moon size={24} color={theme.textPrimary} />
+            )}
+          </button>
         </div>
 
         {/* Contenido de la sección activa */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+          background: theme.contentBg,
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          border: `1px solid ${theme.border}`,
           borderRadius: '20px',
           minHeight: '600px',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
         }}>
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'tipos' && <GestionTiposCurso />}
-          {activeTab === 'estudiantes' && <GestionEstudiantes />}
-          {activeTab === 'cursos' && <GestionCursos />}
-          {activeTab === 'matricula' && <GestionMatricula />}
-          {activeTab === 'docentes' && <GestionDocentes />}
-          {activeTab === 'aulas' && <AsignacionAula />}
-          {activeTab === 'reportes' && <Reportes />}
+          {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}
+          {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}
+          {activeTab === 'estudiantes' && <AdminThemeWrapper darkMode={darkMode}><GestionEstudiantes /></AdminThemeWrapper>}
+          {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
+          {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
+          {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
+          {activeTab === 'aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
+          {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

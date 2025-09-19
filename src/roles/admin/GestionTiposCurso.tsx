@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Plus, Edit, Eye, Trash2, X, Save, Calendar, Users, BookOpen, Clock, DollarSign
+  Plus, Edit, Trash2, X, Save, BookOpen
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -142,29 +142,28 @@ const GestionTiposCurso: React.FC = () => {
     <div style={{ padding: '32px' }}>
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ 
-          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
+          color: 'var(--admin-text-primary, #fff)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
           display: 'flex', alignItems: 'center', gap: '12px'
         }}>
           <BookOpen size={32} color="#ef4444" />
           Gestión de Tipos de Curso
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0 0' }}>
+        <p style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', margin: '8px 0 0 0' }}>
           Administra los tipos de curso antes de crear cursos.
         </p>
       </div>
 
       <div
         style={{
-          background:
-            'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
           borderRadius: '20px',
           padding: '24px',
           marginBottom: '20px',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ color: 'rgba(255,255,255,0.7)' }}>Total: {tipos.length}</div>
+          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))' }}>Total: {tipos.length}</div>
           <button
             onClick={openCreate}
             style={{
@@ -190,29 +189,28 @@ const GestionTiposCurso: React.FC = () => {
           <div
             key={t.id_tipo_curso}
             style={{
-              background:
-                'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
+              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
               borderRadius: 16,
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'left', width: '42%' }}>Nombre</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '18%' }}>Duración</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '20%' }}>Precio</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'center', width: '10%' }}>Estado</th>
-                  <th style={{ padding: 12, color: 'rgba(255,255,255,0.7)', textAlign: 'right', width: '10%' }}>Acciones</th>
+                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'left', width: '42%' }}>Nombre</th>
+                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '18%' }}>Duración</th>
+                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '20%' }}>Precio</th>
+                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'center', width: '10%' }}>Estado</th>
+                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '10%' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style={{ padding: 12, color: '#fff' }}>{t.nombre}</td>
-                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.9)', textAlign: 'right' }}>
+                  <td style={{ padding: 12, color: 'var(--admin-text-primary, #fff)' }}>{t.nombre}</td>
+                  <td style={{ padding: 12, color: 'var(--admin-text-secondary, rgba(255,255,255,0.9))', textAlign: 'right' }}>
                     {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </td>
-                  <td style={{ padding: 12, color: 'rgba(255,255,255,0.95)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                  <td style={{ padding: 12, color: 'var(--admin-text-secondary, rgba(255,255,255,0.95))', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                     {formatPrice(t.precio_base ?? null)}
                   </td>
                   <td style={{ padding: 12, textAlign: 'center' }}>
@@ -268,10 +266,10 @@ const GestionTiposCurso: React.FC = () => {
           </div>
         ))}
         {!loading && tipos.length === 0 && (
-          <div style={{ color: 'rgba(255,255,255,0.7)', padding: 12 }}>No hay tipos de curso</div>
+          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', padding: 12 }}>No hay tipos de curso</div>
         )}
         {loading && (
-          <div style={{ color: 'rgba(255,255,255,0.7)', padding: 12 }}>Cargando...</div>
+          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', padding: 12 }}>Cargando...</div>
         )}
         {error && <div style={{ color: '#ef4444', padding: 12 }}>{error}</div>}
       </div>
@@ -290,13 +288,12 @@ const GestionTiposCurso: React.FC = () => {
         >
           <div
             style={{
-              background:
-                'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%))',
+              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.3))',
               borderRadius: 16,
               width: 'min(680px, 92vw)',
               padding: 24,
-              color: '#fff',
+              color: 'var(--admin-text-primary, #fff)',
             }}
           >
             <div
@@ -312,7 +309,7 @@ const GestionTiposCurso: React.FC = () => {
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--admin-text-primary, #fff)', cursor: 'pointer' }}
               >
                 <X />
               </button>
@@ -322,7 +319,7 @@ const GestionTiposCurso: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {/* Nombre - ancho completo */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Nombre del tipo</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Nombre del tipo</label>
                   <input
                     name="nombre"
                     placeholder="Ej. Cosmetología, Maquillaje Profesional"
@@ -337,14 +334,14 @@ const GestionTiposCurso: React.FC = () => {
                       color: '#fff',
                     }}
                   />
-                  <div style={{ marginTop: 6, color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
+                  <div style={{ marginTop: 6, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.8rem' }}>
                     El nombre que verán los estudiantes en la web.
                   </div>
                 </div>
 
                 {/* Descripción - ahora arriba, ancho completo */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Descripción (opcional)</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Descripción (opcional)</label>
                   <textarea
                     name="descripcion"
                     defaultValue={selected?.descripcion || ''}
@@ -356,7 +353,7 @@ const GestionTiposCurso: React.FC = () => {
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: 10,
-                      color: '#fff',
+                      color: 'var(--admin-text-primary, #fff)',
                     }}
                   />
                 </div>
@@ -366,7 +363,7 @@ const GestionTiposCurso: React.FC = () => {
 
                 {/* Duración y Precio en la misma fila */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Duración (meses)</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Duración (meses)</label>
                   <input
                     type="number"
                     min={1}
@@ -379,12 +376,12 @@ const GestionTiposCurso: React.FC = () => {
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: 10,
-                      color: '#fff',
+                      color: 'var(--admin-text-primary, #fff)',
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Precio base (USD)</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Precio base (USD)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -398,14 +395,14 @@ const GestionTiposCurso: React.FC = () => {
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: 10,
-                      color: '#fff',
+                      color: 'var(--admin-text-primary, #fff)',
                     }}
                   />
                 </div>
 
                 {/* Estado al final a ancho completo, con StyledSelect */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Estado</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Estado</label>
                   <StyledSelect
                     name="estado"
                     defaultValue={selected?.estado || 'activo'}
@@ -426,7 +423,7 @@ const GestionTiposCurso: React.FC = () => {
                     background: 'rgba(255,255,255,0.1)',
                     border: '1px solid rgba(255,255,255,0.2)',
                     borderRadius: 12,
-                    color: 'rgba(255,255,255,0.7)',
+                    color: 'var(--admin-text-muted, rgba(255,255,255,0.7))',
                     cursor: 'pointer',
                   }}
                 >

@@ -41,16 +41,17 @@ const ConfiguracionPanel: React.FC = () => {
             <h1 style={{ 
               fontSize: '2.2rem', 
               fontWeight: '800', 
-              color: '#fff',
-              margin: 0,
-              background: 'linear-gradient(135deg, #fff, #f3f4f6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
+              color: 'var(--superadmin-text-primary, var(--admin-text-primary, #1e293b))',
+              margin: 0
             }}>
               Configuración del Sistema
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '8px', margin: 0, fontSize: '1.1rem' }}>
+            <p style={{ 
+              color: 'var(--superadmin-text-secondary, var(--admin-text-secondary, rgba(30,41,59,0.8)))', 
+              marginTop: '8px', 
+              margin: 0, 
+              fontSize: '1.1rem' 
+            }}>
               Configuraciones generales y perfil del Super Administrador
             </p>
           </div>

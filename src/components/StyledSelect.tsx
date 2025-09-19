@@ -12,16 +12,19 @@ type StyledSelectProps = {
   disabled?: boolean;
   placeholder?: string;
   style?: React.CSSProperties;
+  darkMode?: boolean;
 };
 
-const baseStyle: React.CSSProperties = {
+const getBaseStyle = (darkMode: boolean = true): React.CSSProperties => ({
   width: '100%',
   padding: '12px',
-  background: 'rgba(17,17,17,0.9)',
-  border: '1px solid rgba(255,255,255,0.2)',
+  background: darkMode ? 'rgba(17,17,17,0.9)' : 'rgba(255,255,255,0.9)',
+  border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)',
   borderRadius: 10,
-  color: '#fff',
-};
+  color: darkMode ? '#fff' : '#1e293b',
+  fontSize: '14px',
+  fontFamily: 'inherit'
+});
 
 export const StyledSelect: React.FC<StyledSelectProps> = ({
   name,
@@ -33,7 +36,10 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
   disabled,
   placeholder,
   style,
+  darkMode = true,
 }) => {
+  const baseStyle = getBaseStyle(darkMode);
+  
   return (
     <select
       name={name}
@@ -45,12 +51,27 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
       style={{ ...baseStyle, ...style }}
     >
       {placeholder !== undefined && (
-        <option value="" disabled style={{ background: '#111', color: '#bbb' }}>
+        <option 
+          value="" 
+          disabled 
+          style={{ 
+            background: darkMode ? '#111' : '#f8f9fa', 
+            color: darkMode ? '#bbb' : '#6b7280' 
+          }}
+        >
           {placeholder}
         </option>
       )}
       {options.map((opt) => (
-        <option key={opt.value} value={opt.value} style={{ background: '#111', color: '#fff' }}>
+        <option 
+          key={opt.value} 
+          value={opt.value} 
+          style={{ 
+            background: darkMode ? '#111' : '#fff', 
+            color: darkMode ? '#fff' : '#1e293b',
+            padding: '8px'
+          }}
+        >
           {opt.label}
         </option>
       ))}

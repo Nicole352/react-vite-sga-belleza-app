@@ -528,6 +528,8 @@ const AdministradoresPanel: React.FC = () => {
           
           .admin-card:hover {
             transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.04)) !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
           }
           
           .action-btn {
@@ -600,13 +602,19 @@ const AdministradoresPanel: React.FC = () => {
             </div>
             <div>
               <h1 style={{ 
-                fontSize: '2.2rem', fontWeight: '800', color: '#fff', margin: 0,
-                background: 'linear-gradient(135deg, #fff, #f3f4f6)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+                fontSize: '2.2rem', 
+                fontWeight: '800', 
+                color: 'var(--superadmin-text-primary, var(--admin-text-primary, #1e293b))', 
+                margin: 0
               }}>
                 Gestión de Administradores
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '8px', margin: 0, fontSize: '1.1rem' }}>
+              <p style={{ 
+                color: 'var(--superadmin-text-secondary, var(--admin-text-secondary, rgba(30,41,59,0.8)))', 
+                marginTop: '8px', 
+                margin: 0, 
+                fontSize: '1.1rem' 
+              }}>
                 Administra los usuarios con permisos del sistema institucional
               </p>
             </div>
@@ -678,20 +686,55 @@ const AdministradoresPanel: React.FC = () => {
         borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
       }}>
         {/* Header de la tabla */}
-        <div className="admins-grid admins-grid-header">
-          <div className="col-admin" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+        <div className="admins-grid admins-grid-header" style={{
+          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.08))',
+          borderBottom: '2px solid rgba(239, 68, 68, 0.3)',
+          padding: '24px'
+        }}>
+          <div className="col-admin" style={{ 
+            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+            fontWeight: '800', 
+            fontSize: '0.95rem', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Administrador
           </div>
-          <div className="col-email" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-email" style={{ 
+            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+            fontWeight: '800', 
+            fontSize: '0.95rem', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Email
           </div>
-          <div className="col-estado" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-estado" style={{ 
+            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+            fontWeight: '800', 
+            fontSize: '0.95rem', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Estado
           </div>
-          <div className="col-ultimo" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+          <div className="col-ultimo" style={{ 
+            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+            fontWeight: '800', 
+            fontSize: '0.95rem', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Último Acceso
           </div>
-          <div className="col-acciones" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', textAlign: 'center' }}>
+          <div className="col-acciones" style={{ 
+            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+            fontWeight: '800', 
+            fontSize: '0.95rem', 
+            textTransform: 'uppercase', 
+            textAlign: 'center',
+            letterSpacing: '0.5px'
+          }}>
             Acciones
           </div>
         </div>
@@ -711,24 +754,46 @@ const AdministradoresPanel: React.FC = () => {
                 key={admin.id}
                 className="admin-card admins-grid"
                 style={{
-                  padding: '24px', borderBottom: index < filteredAdministradores.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                  background: admin.estado === 'activo' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent)' : 'linear-gradient(135deg, rgba(107, 114, 128, 0.05), transparent)'
+                  padding: '20px 24px',
+                  borderBottom: index < filteredAdministradores.length - 1 ? '2px solid rgba(255,255,255,0.12)' : 'none',
+                  background: admin.estado === 'activo'
+                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02))'
+                    : 'linear-gradient(135deg, rgba(107, 114, 128, 0.06), rgba(107, 114, 128, 0.02))',
+                  transition: 'all 0.3s ease'
                 }}
               >
                 {/* Información del administrador */}
                 <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{
-                    width: '56px', height: '56px', borderRadius: '16px',
+                    width: '60px', 
+                    height: '60px', 
+                    minWidth: '60px',
+                    minHeight: '60px',
+                    borderRadius: '12px',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)', position: 'relative'
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)', 
+                    position: 'relative',
+                    flexShrink: 0
                   }}>
-                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '1.1rem' }}>
+                    <span style={{ 
+                      color: '#fff', 
+                      fontWeight: '700', 
+                      fontSize: '1.2rem',
+                      textAlign: 'center',
+                      lineHeight: '1'
+                    }}>
                       {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                     </span>
                     <div style={{
-                      position: 'absolute', bottom: '-2px', right: '-2px',
-                      width: '16px', height: '16px', borderRadius: '50%',
+                      position: 'absolute', 
+                      bottom: '-2px', 
+                      right: '-2px',
+                      width: '16px', 
+                      height: '16px', 
+                      borderRadius: '50%',
                       background: admin.estado === 'activo' ? '#10b981' : '#6b7280',
                       border: '2px solid rgba(0,0,0,0.9)'
                     }} />
