@@ -256,8 +256,9 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         /* Excepciones para colores específicos que deben mantenerse */
         .admin-theme-wrapper [style*="color: #10b981"],
         .admin-theme-wrapper [style*="color: #ef4444"],
-        .admin-theme-wrapper [style*="color: #3b82f6"] {
-          color: inherit !important;
+        .admin-theme-wrapper [style*="color: #3b82f6"],
+        .admin-theme-wrapper .error-text-red {
+          color: #ef4444 !important;
         }
       `}</style>
       

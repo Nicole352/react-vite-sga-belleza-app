@@ -1,32 +1,96 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   GraduationCap, BookOpen, DollarSign, Award, TrendingUp, 
   AlertTriangle, UserCheck, Target, PieChart, BarChart3, 
-  Activity, UserPlus
+  Activity, UserPlus, Shield, Users, Clock, CheckCircle
 } from 'lucide-react';
 
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    totalAdministradores: 0,
+    totalEstudiantes: 0,
+    totalDocentes: 0,
+    cursosActivos: 0,
+    matriculasAceptadas: 0,
+    matriculasPendientes: 0,
+    porcentajeAdministradores: 0,
+    porcentajeEstudiantes: 0,
+    porcentajeDocentes: 0,
+    porcentajeCursos: 0,
+    porcentajeMatriculasAceptadas: 0,
+    porcentajeMatriculasPendientes: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const API_BASE = 'http://localhost:3000/api';
+
+  // Cargar estadísticas reales
+  useEffect(() => {
+    let isMounted = true; // Flag para evitar actualizaciones si el componente se desmonta
+    
+    const loadStats = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
+        
+        if (!token) {
+          console.log('No hay token disponible');
+          if (isMounted) setLoading(false);
+          return;
+        }
+
+        const res = await fetch(`${API_BASE}/users/admin-stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setStats(data);
+          }
+        } else {
+          console.log('Error al cargar estadísticas:', res.status);
+        }
+      } catch (error) {
+        console.error('Error cargando estadísticas:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadStats();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Array de dependencias vacío para que solo se ejecute una vez
+
   return (
     <div style={{ padding: '32px' }}>
       {/* Tarjetas principales */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-        {/* Total Estudiantes */}
+        {/* Total Administradores */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05))',
-          border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
+          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
+          border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Total Estudiantes</h3>
-              <p style={{ color: '#3b82f6', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>247</p>
+              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Total Administradores</h3>
+              <p style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.totalAdministradores.toLocaleString()}
+              </p>
             </div>
-            <div style={{ background: 'rgba(59, 130, 246, 0.2)', borderRadius: '12px', padding: '12px' }}>
-              <GraduationCap size={28} color="#3b82f6" />
+            <div style={{ background: 'rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '12px' }}>
+              <Shield size={28} color="#ef4444" />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#10b981" />
-            <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>+12%</span>
+            <TrendingUp size={16} color={stats.porcentajeAdministradores >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
+            </span>
             <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
           </div>
         </div>
@@ -39,58 +103,120 @@ const Dashboard = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
               <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Cursos Activos</h3>
-              <p style={{ color: '#10b981', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>12</p>
+              <p style={{ color: '#10b981', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.cursosActivos.toLocaleString()}
+              </p>
             </div>
             <div style={{ background: 'rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '12px' }}>
               <BookOpen size={28} color="#10b981" />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#10b981" />
-            <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>+2</span>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>nuevos este mes</span>
+            <TrendingUp size={16} color={stats.porcentajeCursos >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeCursos >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeCursos >= 0 ? '+' : ''}${stats.porcentajeCursos}%`}
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
           </div>
         </div>
 
-        {/* Ingresos Mensuales */}
+        {/* Matrículas Aceptadas */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(21, 128, 61, 0.05))',
+          border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div>
+              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Matrículas Aceptadas</h3>
+              <p style={{ color: '#22c55e', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.matriculasAceptadas.toLocaleString()}
+              </p>
+            </div>
+            <div style={{ background: 'rgba(34, 197, 94, 0.2)', borderRadius: '12px', padding: '12px' }}>
+              <CheckCircle size={28} color="#22c55e" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingUp size={16} color={stats.porcentajeMatriculasAceptadas >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeMatriculasAceptadas >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeMatriculasAceptadas >= 0 ? '+' : ''}${stats.porcentajeMatriculasAceptadas}%`}
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Matrículas Pendientes */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05))',
           border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Ingresos Mensuales</h3>
-              <p style={{ color: '#f59e0b', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>$45,280</p>
+              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Matrículas Pendientes</h3>
+              <p style={{ color: '#f59e0b', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.matriculasPendientes.toLocaleString()}
+              </p>
             </div>
             <div style={{ background: 'rgba(245, 158, 11, 0.2)', borderRadius: '12px', padding: '12px' }}>
-              <DollarSign size={28} color="#f59e0b" />
+              <Clock size={28} color="#f59e0b" />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#10b981" />
-            <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>+8.5%</span>
+            <TrendingUp size={16} color={stats.porcentajeMatriculasPendientes >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeMatriculasPendientes >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeMatriculasPendientes >= 0 ? '+' : ''}${stats.porcentajeMatriculasPendientes}%`}
+            </span>
             <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
           </div>
         </div>
 
-        {/* Certificados Emitidos */}
+        {/* Total Estudiantes */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05))',
+          border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div>
+              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Total Estudiantes</h3>
+              <p style={{ color: '#3b82f6', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
+              </p>
+            </div>
+            <div style={{ background: 'rgba(59, 130, 246, 0.2)', borderRadius: '12px', padding: '12px' }}>
+              <GraduationCap size={28} color="#3b82f6" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingUp size={16} color={stats.porcentajeEstudiantes >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Total Docentes */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.05))',
           border: '1px solid rgba(168, 85, 247, 0.2)', borderRadius: '20px', padding: '24px', backdropFilter: 'blur(10px)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Certificados Emitidos</h3>
-              <p style={{ color: '#a855f7', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>89</p>
+              <h3 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>Total Docentes</h3>
+              <p style={{ color: '#a855f7', fontSize: '2.5rem', fontWeight: '700', margin: 0 }}>
+                {loading ? '...' : stats.totalDocentes.toLocaleString()}
+              </p>
             </div>
             <div style={{ background: 'rgba(168, 85, 247, 0.2)', borderRadius: '12px', padding: '12px' }}>
-              <Award size={28} color="#a855f7" />
+              <Users size={28} color="#a855f7" />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#10b981" />
-            <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>+15</span>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>este mes</span>
+            <TrendingUp size={16} color={stats.porcentajeDocentes >= 0 ? '#10b981' : '#ef4444'} />
+            <span style={{ color: stats.porcentajeDocentes >= 0 ? '#10b981' : '#ef4444', fontSize: '0.8rem', fontWeight: '600' }}>
+              {loading ? '...' : `${stats.porcentajeDocentes >= 0 ? '+' : ''}${stats.porcentajeDocentes}%`}
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>vs mes anterior</span>
           </div>
         </div>
       </div>

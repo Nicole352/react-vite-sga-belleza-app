@@ -194,7 +194,7 @@ const AdministradoresPanel: React.FC = () => {
     }
     const nextTen = Math.ceil(sum / 10) * 10;
     const verifier = (nextTen - sum) % 10;
-    if (verifier !== digits[9]) return { ok: false, reason: 'Dígito verificador inválido' };
+    if (verifier !== digits[9]) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     return { ok: true };
   };
 
@@ -230,8 +230,6 @@ const AdministradoresPanel: React.FC = () => {
       const fecha_nacimiento = getVal('new-admin-fecha-nacimiento');
       const genero = getVal('new-admin-genero');
       const direccion = getVal('new-admin-direccion');
-      const fotoInput = document.getElementById('new-admin-foto-file') as HTMLInputElement | null;
-      const fotoFile = fotoInput?.files?.[0] || null;
       const password = getVal('new-admin-password');
       const confirmPassword = getVal('new-admin-confirm');
 
@@ -264,17 +262,7 @@ const AdministradoresPanel: React.FC = () => {
         setPwdError(null);
       }
 
-      // Validar tipo de archivo si se adjunta foto
-      if (fotoFile) {
-        const allowed = ['image/png', 'image/jpeg', 'image/webp'];
-        if (!allowed.includes(fotoFile.type)) {
-          setFileError('Formato no válido. Solo se permiten PNG, JPG o WEBP.');
-          showNotification('La foto debe ser PNG, JPG o WEBP', 'error');
-          return;
-        } else {
-          setFileError(null);
-        }
-      }
+
 
       const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
       if (!token) {
@@ -292,7 +280,7 @@ const AdministradoresPanel: React.FC = () => {
       if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
       if (direccion) fd.append('direccion', direccion);
       // No enviar genero para evitar problemas de ENUM en la BD
-      if (fotoFile) fd.append('foto_perfil', fotoFile);
+
       fd.append('password', password);
       // Rol por nombre como en el backend
       const roleName = getVal('new-admin-role') || 'administrativo';
@@ -311,7 +299,7 @@ const AdministradoresPanel: React.FC = () => {
 
       await loadAdmins();
       setShowCreateAdminModal(false);
-      ['new-admin-cedula','new-admin-nombre','new-admin-apellido','new-admin-email','new-admin-telefono','new-admin-fecha-nacimiento','new-admin-genero','new-admin-direccion','new-admin-foto-file','new-admin-password','new-admin-confirm','new-admin-role']
+      ['new-admin-cedula','new-admin-nombre','new-admin-apellido','new-admin-email','new-admin-telefono','new-admin-fecha-nacimiento','new-admin-genero','new-admin-direccion','new-admin-password','new-admin-confirm','new-admin-role']
         .forEach((id) => {
           const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
           if (el) (el as any).value = '';
@@ -540,11 +528,16 @@ const AdministradoresPanel: React.FC = () => {
             transform: scale(1.1);
           }
 
+          /* Error text in red - force override */
+          .error-text-red {
+            color: #ef4444 !important;
+          }
+
           /* Tabla responsive */
           .admins-grid {
             display: grid;
-            grid-template-columns: minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(120px, 0.6fr) minmax(180px, 0.8fr) 160px;
-            gap: 20px;
+            grid-template-columns: minmax(200px, 1.2fr) minmax(180px, 1fr) minmax(100px, 0.6fr) minmax(140px, 0.8fr) 140px;
+            gap: 16px;
             align-items: center;
           }
           .admins-grid-header {
@@ -763,25 +756,25 @@ const AdministradoresPanel: React.FC = () => {
                 }}
               >
                 {/* Información del administrador */}
-                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{
-                    width: '60px', 
-                    height: '60px', 
-                    minWidth: '60px',
-                    minHeight: '60px',
-                    borderRadius: '12px',
+                    width: '45px', 
+                    height: '45px', 
+                    minWidth: '45px',
+                    minHeight: '45px',
+                    borderRadius: '10px',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
-                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)', 
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)', 
                     position: 'relative',
                     flexShrink: 0
                   }}>
                     <span style={{ 
                       color: '#fff', 
                       fontWeight: '700', 
-                      fontSize: '1.2rem',
+                      fontSize: '1rem',
                       textAlign: 'center',
                       lineHeight: '1'
                     }}>
@@ -1053,11 +1046,8 @@ const AdministradoresPanel: React.FC = () => {
                   }}
                 />
                 <div style={{ marginTop: '8px' }}>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
-                    Debe contener 10 dígitos. Provincia 01-24 y dígito verificador válido.
-                  </p>
                   {cedulaError && (
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#ef4444' }}>
+                    <p className="error-text-red" style={{ margin: '6px 0 0 0', fontSize: '0.8rem', fontWeight: '600' }}>
                       {cedulaError}
                     </p>
                   )}
@@ -1238,14 +1228,14 @@ const AdministradoresPanel: React.FC = () => {
                 </select>
               </div>
 
-              {/* Dirección con validación */}
-              <div>
+              {/* Dirección con validación - ocupa toda la fila */}
+              <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
                   Dirección
                 </label>
-                <input
+                <textarea
                   id="new-admin-direccion"
-                  type="text"
+                  rows={3}
                   style={{
                     width: '100%',
                     padding: '14px 16px',
@@ -1254,57 +1244,19 @@ const AdministradoresPanel: React.FC = () => {
                     borderRadius: '12px',
                     color: '#fff',
                     fontSize: '1rem',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    resize: 'vertical',
+                    fontFamily: 'inherit'
                   }}
-                  placeholder="Calle Ejemplo 123, Ciudad"
+                  placeholder="Calle Ejemplo 123, Ciudad&#10;Sector, Barrio&#10;Ciudad, Provincia"
                   onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
+                    const t = e.target as HTMLTextAreaElement;
                     t.value = t.value.toUpperCase();
                   }}
                 />
               </div>
 
-              {/* Foto con validación */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Foto de Perfil
-                </label>
-                <input
-                  id="new-admin-foto-file"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: `1px solid ${fileError ? 'rgba(239, 68, 68, 0.6)' : 'rgba(255,255,255,0.2)'}`,
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '0.95rem',
-                    transition: 'all 0.2s'
-                  }}
-                  onChange={(e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0] || null;
-                    if (!file) { setFileError(null); return; }
-                    const allowed = ['image/png', 'image/jpeg', 'image/webp'];
-                    if (!allowed.includes(file.type)) {
-                      setFileError('Formato no válido. Solo se permiten PNG, JPG o WEBP.');
-                    } else {
-                      setFileError(null);
-                    }
-                  }}
-                />
-                <div style={{ marginTop: '8px' }}>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
-                    Formatos permitidos: PNG, JPG, WEBP
-                  </p>
-                  {fileError && (
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#ef4444' }}>
-                      {fileError}
-                    </p>
-                  )}
-                </div>
-              </div>
+
 
               <div>
                 <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>

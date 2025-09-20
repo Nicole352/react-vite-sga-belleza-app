@@ -60,48 +60,48 @@ import Footer from '../components/Footer';
 // Backend API base (sin proxy de Vite)
 const API_BASE = 'http://localhost:3000/api';
 
-// Datos de cursos (mismos que en DetalleCurso)
+// Datos reales de cursos con precios y modalidades actualizadas
 const detallesCursos: DetallesCursos = {
   cosmetologia: {
     titulo: 'Cosmetología',
-    precio: 2500,
-    duracion: '6 meses',
+    precio: 90,
+    duracion: '12 meses - $90 mensuales',
     imagen: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80'
   },
   cosmiatria: {
     titulo: 'Cosmiatría',
-    precio: 3200,
-    duracion: '8 meses',
+    precio: 90,
+    duracion: '7 meses - $90 mensuales',
     imagen: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80'
-  },
-  maquillaje: {
-    titulo: 'Maquillaje Profesional',
-    precio: 1800,
-    duracion: '4 meses',
-    imagen: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80'
-  },
-  lashista: {
-    titulo: 'Lashista Profesional',
-    precio: 1500,
-    duracion: '3 meses',
-    imagen: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=600&q=80'
-  },
-  unas: {
-    titulo: 'Técnico en Uñas',
-    precio: 2000,
-    duracion: '5 meses',
-    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80'
   },
   integral: {
     titulo: 'Belleza Integral',
-    precio: 4500,
-    duracion: '12 meses',
+    precio: 90,
+    duracion: '12 meses - $90 mensuales',
     imagen: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=600&q=80'
+  },
+  unas: {
+    titulo: 'Técnica de Uñas',
+    precio: 50,
+    duracion: '16 clases - Matrícula $50 + $15.40/clase',
+    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80'
+  },
+  lashista: {
+    titulo: 'Lashista Profesional',
+    precio: 50,
+    duracion: '6 clases - Matrícula $50 + $26/clase',
+    imagen: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=600&q=80'
+  },
+  maquillaje: {
+    titulo: 'Maquillaje Profesional',
+    precio: 90,
+    duracion: '6 meses - $90 mensuales',
+    imagen: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80'
   },
   facial: {
     titulo: 'Cosmetología',
-    precio: 2500,
-    duracion: '6 meses',
+    precio: 90,
+    duracion: '12 meses - $90 mensuales',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1755893924/cursos_xrnjuu.png'
   }
 };
@@ -206,11 +206,11 @@ const Pago: React.FC = () => {
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
-    if (!/^\d{10}$/.test(ced)) return { ok: false, reason: 'La cédula debe tener exactamente 10 dígitos' };
+    if (!/^\d{10}$/.test(ced)) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     // Rechazar repetitivas (0000000000, 1111111111, ...)
-    if (/^(\d)\1{9}$/.test(ced)) return { ok: false, reason: 'La cédula es inválida (repetitiva)' };
+    if (/^(\d)\1{9}$/.test(ced)) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     const prov = parseInt(ced.slice(0, 2), 10);
-    if (prov < 1 || prov > 24) return { ok: false, reason: 'Código de provincia inválido (01-24)' };
+    if (prov < 1 || prov > 24) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     const digits = ced.split('').map(n => parseInt(n, 10));
     let sum = 0;
     for (let i = 0; i < 9; i++) {
@@ -223,12 +223,20 @@ const Pago: React.FC = () => {
     }
     const nextTen = Math.ceil(sum / 10) * 10;
     const verifier = (nextTen - sum) % 10; // si es 10, queda 0
-    if (verifier !== digits[9]) return { ok: false, reason: 'Dígito verificador inválido' };
+    if (verifier !== digits[9]) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     return { ok: true };
   };
 
   useEffect(() => {
     setIsVisible(true);
+    
+    // Asegurar que existe la meta tag viewport
+    if (!document.querySelector('meta[name="viewport"]')) {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
   }, []);
 
 
@@ -583,6 +591,7 @@ const Pago: React.FC = () => {
   const PaymentCard: React.FC<PaymentCardProps> = ({ title, icon, description, isSelected, onClick }) => (
     <div
       onClick={onClick}
+      className="payment-method-card"
       style={{
         padding: '24px',
         borderRadius: '20px',
@@ -798,6 +807,300 @@ const Pago: React.FC = () => {
               opacity: 0.3;
             }
           }
+
+          /* SUPER RESPONSIVE STYLES - ULTRA AGRESIVO */
+          
+          /* Tablet y móvil grande */
+          @media (max-width: 1024px) {
+            .payment-grid {
+              grid-template-columns: 1fr !important;
+              gap: 24px !important;
+            }
+          }
+
+          /* Móvil y tablet pequeño */
+          @media (max-width: 768px) {
+            /* CONTENEDOR PRINCIPAL */
+            .payment-container {
+              padding: 0 12px !important;
+              max-width: 100% !important;
+            }
+            
+            /* GRID PRINCIPAL - FORZAR 1 COLUMNA */
+            .payment-grid {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 16px !important;
+              width: 100% !important;
+            }
+            
+            /* TÍTULO PRINCIPAL */
+            .payment-title {
+              font-size: 1.8rem !important;
+              text-align: center !important;
+              margin-bottom: 16px !important;
+              padding: 0 8px !important;
+            }
+            
+            /* CARD DEL CURSO - COMPLETAMENTE RESPONSIVA */
+            .curso-card {
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 16px 12px !important;
+              margin-bottom: 16px !important;
+              box-sizing: border-box !important;
+            }
+            
+            .curso-card > div:first-child {
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: center !important;
+              text-align: center !important;
+              gap: 12px !important;
+            }
+            
+            .curso-image {
+              width: 70px !important;
+              height: 70px !important;
+              margin: 0 auto 8px auto !important;
+            }
+            
+            .curso-price {
+              font-size: 1.4rem !important;
+              margin-top: 8px !important;
+              text-align: center !important;
+            }
+            
+            /* SECCIONES DEL FORMULARIO */
+            .form-section {
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 16px 12px !important;
+              margin-bottom: 16px !important;
+              box-sizing: border-box !important;
+            }
+            
+            .modalidad-info {
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 12px 8px !important;
+              margin-bottom: 12px !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* FORMULARIO - ULTRA RESPONSIVO */
+            .form-row {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 12px !important;
+              width: 100% !important;
+            }
+            
+            .document-tabs {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 8px !important;
+              width: 100% !important;
+            }
+            
+            .document-tab {
+              width: 100% !important;
+              padding: 12px 16px !important;
+              font-size: 0.9rem !important;
+              text-align: center !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* INPUTS - ULTRA RESPONSIVOS */
+            .form-input, 
+            input, 
+            select, 
+            textarea,
+            input[type="text"], 
+            input[type="email"], 
+            input[type="tel"], 
+            input[type="date"],
+            input[type="number"] {
+              width: 100% !important;
+              max-width: 100% !important;
+              font-size: 16px !important;
+              padding: 12px 14px !important;
+              box-sizing: border-box !important;
+              margin: 0 !important;
+            }
+            
+            .form-label {
+              font-size: 0.9rem !important;
+              margin-bottom: 6px !important;
+              display: block !important;
+            }
+            
+            /* MÉTODOS DE PAGO */
+            .payment-methods {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 10px !important;
+              width: 100% !important;
+            }
+            
+            .payment-method-card {
+              width: 100% !important;
+              padding: 14px 10px !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* UPLOAD AREA */
+            .upload-area {
+              width: 100% !important;
+              padding: 16px 8px !important;
+              min-height: 80px !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* BOTÓN SUBMIT */
+            .submit-button {
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 14px 16px !important;
+              font-size: 1rem !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* TÍTULOS Y TEXTO */
+            .section-title {
+              font-size: 1.1rem !important;
+              text-align: center !important;
+            }
+            
+            .modalidad-title {
+              font-size: 0.9rem !important;
+            }
+            
+            .modalidad-list {
+              font-size: 0.8rem !important;
+              padding-left: 16px !important;
+            }
+            
+            /* FORZAR ANCHO COMPLETO A TODOS LOS ELEMENTOS */
+            div, section, form, fieldset {
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+            }
+          }
+
+          /* MÓVIL PEQUEÑO - ULTRA OPTIMIZADO */
+          @media (max-width: 480px) {
+            .payment-container {
+              padding: 0 8px !important;
+            }
+            
+            .payment-title {
+              font-size: 1.6rem !important;
+              padding: 0 4px !important;
+            }
+            
+            .curso-card {
+              padding: 12px 8px !important;
+            }
+            
+            .form-section {
+              padding: 12px 8px !important;
+              margin-bottom: 12px !important;
+            }
+            
+            .modalidad-info {
+              padding: 8px 6px !important;
+            }
+            
+            .payment-method-card {
+              padding: 10px 6px !important;
+            }
+            
+            .form-input, 
+            input, 
+            select, 
+            textarea {
+              padding: 10px 12px !important;
+              font-size: 16px !important;
+            }
+            
+            .upload-area {
+              padding: 12px 6px !important;
+              min-height: 60px !important;
+            }
+            
+            .submit-button {
+              padding: 12px 14px !important;
+              font-size: 0.95rem !important;
+            }
+            
+            .section-title {
+              font-size: 1rem !important;
+            }
+            
+            .modalidad-title {
+              font-size: 0.85rem !important;
+            }
+            
+            .modalidad-list {
+              font-size: 0.75rem !important;
+            }
+          }
+          
+          /* REGLAS ESPECÍFICAS PARA PÁGINA DE PAGOS */
+          @media (max-width: 768px) {
+            /* Solo aplicar box-sizing a elementos dentro del contenedor de pagos */
+            .payment-container * {
+              box-sizing: border-box !important;
+            }
+            
+            /* Forzar que todos los contenedores principales sean responsivos */
+            .payment-container,
+            .payment-container > *,
+            .payment-grid,
+            .payment-grid > * {
+              width: 100% !important;
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* Reglas específicas para elementos problemáticos SOLO en payment-container */
+            .payment-container div[style*="gridTemplateColumns"] {
+              grid-template-columns: 1fr !important;
+            }
+            
+            .payment-container div[style*="display: flex"][style*="alignItems: center"] {
+              flex-direction: column !important;
+              align-items: center !important;
+            }
+            
+            /* Asegurar que los textos no se salgan SOLO en payment-container */
+            .payment-container h1, 
+            .payment-container h2, 
+            .payment-container h3, 
+            .payment-container h4, 
+            .payment-container h5, 
+            .payment-container h6, 
+            .payment-container p, 
+            .payment-container span, 
+            .payment-container div {
+              word-wrap: break-word !important;
+              overflow-wrap: break-word !important;
+              max-width: 100% !important;
+            }
+            
+            /* Forzar que los botones sean responsivos SOLO en payment-container */
+            .payment-container button {
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+            }
+            
+            /* Asegurar que las imágenes sean responsivas SOLO en payment-container */
+            .payment-container img {
+              max-width: 100% !important;
+              height: auto !important;
+            }
+          }
         `}
       </style>
 
@@ -827,7 +1130,7 @@ const Pago: React.FC = () => {
           ))}
         </div>
 
-        <div style={{ 
+        <div className="payment-container" style={{ 
           maxWidth: '1200px', 
           margin: '0 auto', 
           padding: '0 24px',
@@ -869,7 +1172,7 @@ const Pago: React.FC = () => {
             Volver
           </button>
 
-          <div style={{
+          <div className="payment-grid" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '60px',
@@ -881,20 +1184,20 @@ const Pago: React.FC = () => {
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}>
-              <h1 style={{
-                fontSize: '3rem',
-                fontWeight: '800',
-                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                marginBottom: '24px',
-                lineHeight: 1.2
-              }}>
-                Finalizar Inscripción
-              </h1>
+              <h1 className="payment-title" style={{
+              fontSize: '3rem',
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              marginBottom: '24px',
+              lineHeight: 1.2
+            }}>
+              Finalizar Inscripción
+            </h1>
 
               {/* Card del curso */}
-              <div style={{
+              <div className="curso-card" style={{
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
                 borderRadius: '24px',
                 padding: '32px',
@@ -907,6 +1210,7 @@ const Pago: React.FC = () => {
                   <img 
                     src={curso.imagen} 
                     alt={curso.titulo}
+                    className="curso-image"
                     style={{
                       width: '100px',
                       height: '100px',
@@ -978,7 +1282,7 @@ const Pago: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    <div style={{
+                    <div className="curso-price" style={{
                       fontSize: '2rem',
                       fontWeight: '800',
                       background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
@@ -988,6 +1292,94 @@ const Pago: React.FC = () => {
                       ${curso.precio.toLocaleString()}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Información de modalidades de pago */}
+              <div className="modalidad-info" style={{
+                background: 'rgba(251, 191, 36, 0.1)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                borderRadius: '16px',
+                padding: '24px',
+                marginBottom: '24px'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px',
+                  marginBottom: '16px'
+                }}>
+                  <Calendar size={24} color="#fbbf24" />
+                  <span style={{ 
+                    color: '#fbbf24', 
+                    fontWeight: '700',
+                    fontSize: '1.2rem'
+                  }}>
+                    Modalidad de Pago
+                  </span>
+                </div>
+                
+                {/* Información específica por curso */}
+                {cursoKey === 'unas' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                      Técnica de Uñas - Modalidad por Clases
+                    </h4>
+                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                      <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
+                      <li><strong>Total de clases:</strong> 16 clases</li>
+                      <li><strong>Clases restantes:</strong> $15.40 USD cada una (15 clases)</li>
+                      <li><strong>Frecuencia:</strong> 2 clases por semana</li>
+                      <li><strong>Duración:</strong> 8 semanas aproximadamente</li>
+                    </ul>
+                  </div>
+                )}
+                
+                {cursoKey === 'lashista' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                      Lashista Profesional - Modalidad por Clases
+                    </h4>
+                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                      <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
+                      <li><strong>Total de clases:</strong> 6 clases</li>
+                      <li><strong>Clases restantes:</strong> $26 USD cada una (5 clases)</li>
+                      <li><strong>Frecuencia:</strong> 1 clase por semana</li>
+                      <li><strong>Duración:</strong> 6 semanas</li>
+                    </ul>
+                  </div>
+                )}
+                
+                {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                      {curso.titulo} - Modalidad Mensual
+                    </h4>
+                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                      <li><strong>Modalidad:</strong> Pago mensual únicamente</li>
+                      <li><strong>Valor mensual:</strong> $90 USD cada mes</li>
+                      <li><strong>Duración:</strong> {cursoKey === 'cosmiatria' ? '7 meses' : cursoKey === 'maquillaje' ? '6 meses' : '12 meses'}</li>
+                      <li><strong>Incluye:</strong> Materiales, productos y certificación</li>
+                      {cursoKey === 'cosmiatria' && <li><strong>Requisito:</strong> Ser Cosmetóloga Graduada</li>}
+                    </ul>
+                  </div>
+                )}
+                
+                <div style={{
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  marginTop: '16px'
+                }}>
+                  <p style={{
+                    color: '#10b981',
+                    fontSize: '0.85rem',
+                    margin: 0,
+                    fontWeight: '600',
+                    textAlign: 'center'
+                  }}>
+                    ✨ Con tu primer pago ya inicias tus clases ✨
+                  </p>
                 </div>
               </div>
 
@@ -1054,7 +1446,7 @@ const Pago: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <fieldset disabled={isBlocked} style={{ border: 'none', padding: 0, margin: 0 }}>
                 {/* Información personal */}
-                <div style={{
+                <div className="form-section" style={{
                   background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
                   borderRadius: '24px',
                   padding: '32px',
@@ -1063,7 +1455,7 @@ const Pago: React.FC = () => {
                   border: '1px solid rgba(251, 191, 36, 0.2)',
                   boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                 }}>
-                  <h3 style={{
+                  <h3 className="section-title" style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
                     color: '#fff',
@@ -1082,7 +1474,7 @@ const Pago: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span style={{ color: '#fff', fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem' }}>Tipo de documento</span>
                     </div>
-                    <div role="tablist" aria-label="Tipo de documento" style={{
+                    <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
                       display: 'grid',
                       gridTemplateColumns: '1fr 1fr',
                       gap: '10px'
@@ -1106,6 +1498,7 @@ const Pago: React.FC = () => {
                           });
                           setErrors({});
                         }}
+                        className="document-tab"
                         style={{
                           padding: '12px 14px',
                           borderRadius: 12,
@@ -1193,7 +1586,7 @@ const Pago: React.FC = () => {
                       <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
                         {formData.tipoDocumento === 'ecuatoriano' ? (
                           <>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
                               Cédula *
                             </label>
                             <input
@@ -1205,6 +1598,7 @@ const Pago: React.FC = () => {
                               minLength={10}
                               title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
                               value={formData.cedula}
+                              className="form-input"
                               onChange={(e) => {
                                 const val = (e.target as HTMLInputElement).value;
                                 const filtered = val.replace(/\D/g, '');
@@ -1248,7 +1642,7 @@ const Pago: React.FC = () => {
                           </>
                         ) : (
                           <>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
                               Pasaporte *
                             </label>
                             <input
@@ -1259,6 +1653,7 @@ const Pago: React.FC = () => {
                               maxLength={20}
                               title="Pasaporte: 6 a 20 caracteres alfanuméricos"
                               value={formData.pasaporte || ''}
+                              className="form-input"
                               onChange={(e) => {
                                 const val = (e.target as HTMLInputElement).value;
                                 const filtered = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -1268,12 +1663,6 @@ const Pago: React.FC = () => {
                                   msg = 'Pasaporte inválido (6-20 alfanumérico)';
                                 }
                                 setErrors((prev) => ({ ...prev, pasaporte: msg }));
-                              }}
-                              onInvalid={(e) => {
-                                (e.target as HTMLInputElement).setCustomValidity('Pasaporte inválido: use 6-20 caracteres alfanuméricos');
-                              }}
-                              onInput={(e) => {
-                                (e.target as HTMLInputElement).setCustomValidity('');
                               }}
                               style={{
                                 width: '100%',
@@ -1299,7 +1688,7 @@ const Pago: React.FC = () => {
                       </div>
 
                       {/* Luego Nombre y Apellido */}
-                      <div style={{
+                      <div className="form-row" style={{
                         display: 'grid',
                         gridTemplateColumns: '1fr 1fr',
                         gap: '20px',
@@ -1307,13 +1696,14 @@ const Pago: React.FC = () => {
                         animation: 'scaleFade 1s ease-in-out'
                       }}>
                         <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
-                          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                          <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
                             Nombres completos *
                           </label>
                           <input
                             type="text"
                             required
                             value={formData.nombre}
+                            className="form-input"
                             onChange={(e) => {
                               const val = (e.target as HTMLInputElement).value;
                               const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
@@ -1501,7 +1891,7 @@ const Pago: React.FC = () => {
                     </select>
                   </div>
 
-                  <div style={{
+                  <div className="form-row" style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
                     gap: '20px',
@@ -1630,7 +2020,7 @@ const Pago: React.FC = () => {
                   border: '1px solid rgba(251, 191, 36, 0.2)',
                   boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                 }}>
-                  <h3 style={{
+                  <h3 className="section-title" style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
                     color: '#fff',
@@ -1643,7 +2033,7 @@ const Pago: React.FC = () => {
                     Método de Pago
                   </h3>
 
-                  <div style={{ 
+                  <div className="payment-methods" style={{ 
                     display: 'grid', 
                     gridTemplateColumns: '1fr',
                     gap: '16px',
@@ -1826,6 +2216,7 @@ const Pago: React.FC = () => {
                         </h5>
                         
                         <div
+                          className="upload-area"
                           onDragEnter={handleDrag}
                           onDragLeave={handleDrag}
                           onDragOver={handleDrag}
@@ -2177,6 +2568,7 @@ const Pago: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isBlocked}
+                  className="submit-button"
                   style={{
                     width: '100%',
                     background: isBlocked ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',

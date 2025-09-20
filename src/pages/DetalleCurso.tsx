@@ -51,119 +51,234 @@ import {
   Check,
   BookOpen,
   Gift,
-  Calendar
+  Calendar,
+  CreditCard
 } from 'lucide-react';
 import Footer from '../components/Footer';
 
-// Simulación de datos detallados por curso
+// Datos reales de los cursos con información actualizada
 const detallesCursos: DetallesCursos = {
-  facial: {
-    titulo: 'Cosmetología',
-    descripcion: 'Aprende técnicas profesionales de limpieza, hidratación y rejuvenecimiento facial.',
-    duracion: '6 meses',
-    requisitos: [
-      'Ser mayor de 16 años',
-      'Secundaria completa',
-      'Entrevista personal'
-    ],
-    malla: [
-      'Anatomía y fisiología de la piel',
-      'Técnicas de limpieza facial',
-      'Tratamientos hidratantes',
-      'Rejuvenecimiento facial',
-      'Prácticas supervisadas'
-    ],
-    promociones: [
-      '10% de descuento por pago al contado',
-      'Matrícula gratis hasta el 30 de septiembre'
-    ],
-    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1755893924/cursos_xrnjuu.png',
-    rating: 4.9,
-    estudiantes: 1250,
-    instructor: 'María González',
-    precio: '$2,500',
-    certificacion: 'Certificado Profesional'
-  },
   cosmetologia: {
     titulo: 'Cosmetología',
-    descripcion: 'Aprende técnicas profesionales de limpieza, hidratación y rejuvenecimiento facial.',
-    duracion: '6 meses',
+    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza.',
+    duracion: '12 meses',
     requisitos: [
-      'Ser mayor de 16 años',
-      'Secundaria completa',
-      'Entrevista personal'
+      'Edad mínima: 16 años',
+      'No requiere bachillerato',
+      'Pasión por la belleza y estética'
     ],
     malla: [
       'Anatomía y fisiología de la piel',
-      'Técnicas de limpieza facial',
-      'Tratamientos hidratantes',
-      'Rejuvenecimiento facial',
-      'Prácticas supervisadas'
+      'Técnicas de limpieza facial profunda',
+      'Tratamientos hidratantes y nutritivos',
+      'Depilación con cera y técnicas avanzadas',
+      'Masajes relajantes y terapéuticos',
+      'Tratamientos corporales',
+      'Prácticas supervisadas con clientes reales',
+      'Emprendimiento y atención al cliente'
     ],
     promociones: [
-      '10% de descuento por pago al contado',
-      'Matrícula gratis hasta el 30 de septiembre'
+      'Pago mensual de $90 USD',
+      'Materiales y productos incluidos',
+      'Certificación profesional avalada'
     ],
     imagen: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80',
     rating: 4.9,
     estudiantes: 850,
-    instructor: 'María González',
-    precio: '$2,500',
-    certificacion: 'Certificado Profesional'
+    instructor: 'Especialistas Certificados',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Cosmetología'
   },
   cosmiatria: {
     titulo: 'Cosmiatría',
-    descripcion: 'Especialízate en tratamientos estéticos avanzados y equipos de última tecnología.',
-    duracion: '8 meses',
+    descripcion: 'Especialízate en tratamientos estéticos avanzados con equipos de última tecnología. Programa exclusivo para cosmetólogas graduadas.',
+    duracion: '7 meses',
     requisitos: [
-      'Ser mayor de 18 años',
-      'Bachillerato completo',
-      'Curso básico de cosmetología'
+      'Edad mínima: 17 años',
+      'Requisito: Ser Cosmetóloga graduada (presentar certificado)'
     ],
     malla: [
-      'Equipos de alta tecnología',
-      'Tratamientos faciales avanzados',
-      'Microdermoabrasión',
-      'Radiofrecuencia',
-      'Prácticas con equipos'
+      'Equipos de alta tecnología estética',
+      'Tratamientos faciales con aparatología',
+      'Microdermoabrasión y peeling químico',
+      'Radiofrecuencia y cavitación',
+      'Mesoterapia facial',
+      'Tratamientos anti-edad avanzados',
+      'Prácticas con equipos profesionales',
+      'Protocolos de seguridad y bioseguridad'
     ],
     promociones: [
-      '15% de descuento por pago al contado',
-      'Financiamiento en 6 cuotas sin interés'
+      'Pago mensual de $90 USD',
+      'Acceso a equipos de última generación',
+      'Prácticas en spa profesional'
     ],
     imagen: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80',
     rating: 4.8,
-    estudiantes: 620,
-    instructor: 'Dr. Carlos Mendoza',
-    precio: '$3,200',
-    certificacion: 'Certificado Profesional'
+    estudiantes: 320,
+    instructor: 'Especialistas en Cosmiatría',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Cosmiatría'
+  },
+  integral: {
+    titulo: 'Belleza Integral',
+    descripcion: 'El programa más completo que combina cosmetología, peluquería y técnicas avanzadas de belleza. Conviértete en un profesional integral.',
+    duracion: '12 meses',
+    requisitos: [
+      'Edad mínima recomendada: 16 años',
+      'Si es menor de 14 años: autorización escrita del tutor',
+      'No requiere bachillerato'
+    ],
+    malla: [
+      'Cosmetología facial y corporal',
+      'Peluquería y corte profesional',
+      'Colorimetría y técnicas de tinturado',
+      'Peinados y recogidos',
+      'Manicure y pedicure',
+      'Depilación integral',
+      'Maquillaje social y profesional',
+      'Tratamientos capilares',
+      'Emprendimiento en belleza',
+      'Atención al cliente VIP'
+    ],
+    promociones: [
+      'Pago mensual de $90 USD',
+      'Kit completo de herramientas incluido',
+      'Prácticas en salón profesional'
+    ],
+    imagen: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    estudiantes: 650,
+    instructor: 'Equipo Multidisciplinario',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Belleza Integral'
+  },
+  unas: {
+    titulo: 'Técnica de Uñas',
+    descripcion: 'Especialízate en el arte del nail art y técnicas profesionales de manicure. Un programa intensivo con modalidad de pago flexible.',
+    duracion: '16 clases (8 semanas)',
+    requisitos: [
+      'Sin límite de edad',
+      'Si es menor de 14 años: autorización escrita del tutor',
+      'No requiere experiencia previa'
+    ],
+    malla: [
+      'Anatomía de las uñas',
+      'Técnicas de manicure clásico',
+      'Esmaltado permanente (gel)',
+      'Nail art y decoración',
+      'Uñas acrílicas básicas',
+      'Uñas en gel',
+      'Diseños creativos y tendencias',
+      'Cuidado y mantenimiento',
+      'Atención al cliente especializada'
+    ],
+    promociones: [
+      'Primer pago: $50 USD',
+      'Clases restantes: $15.40 cada una',
+      '2 clases por semana - Horarios flexibles',
+      'Kit de herramientas incluido'
+    ],
+    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+    rating: 4.8,
+    estudiantes: 420,
+    instructor: 'Especialista en Nail Art',
+    precio: '$50 matrícula + $15.40/clase',
+    certificacion: 'Certificado en Técnica de Uñas'
+  },
+  lashista: {
+    titulo: 'Lashista Profesional',
+    descripcion: 'Conviértete en experta en extensiones de pestañas con las técnicas más avanzadas del mercado. Programa intensivo y práctico.',
+    duracion: '6 clases (6 semanas)',
+    requisitos: [
+      'Edad mínima: 15 años',
+      'Destreza manual',
+      'Paciencia y precisión'
+    ],
+    malla: [
+      'Anatomía del ojo y pestañas',
+      'Técnicas de extensión clásica',
+      'Técnica volumen ruso',
+      'Selección de materiales',
+      'Aplicación paso a paso',
+      'Mantenimiento y retoque',
+      'Cuidados post-aplicación',
+      'Atención especializada al cliente'
+    ],
+    promociones: [
+      'Primer pago: $50 USD',
+      'Clases restantes: $26 cada una',
+      '1 clase por semana',
+      'Kit profesional incluido'
+    ],
+    imagen: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=600&q=80',
+    rating: 4.9,
+    estudiantes: 280,
+    instructor: 'Lashista Certificada Internacional',
+    precio: '$50 matrícula + $26/clase',
+    certificacion: 'Certificado Profesional Lashista'
   },
   maquillaje: {
     titulo: 'Maquillaje Profesional',
-    descripcion: 'Domina el arte del maquillaje social, artístico y de alta costura.',
-    duracion: '4 meses',
+    descripcion: 'Domina el arte del maquillaje desde lo básico hasta técnicas avanzadas. Ideal para emprender o trabajar en el mundo de la belleza.',
+    duracion: '6 meses',
     requisitos: [
-      'Ser mayor de 16 años',
-      'Secundaria completa',
-      'Portafolio básico'
+      'Edad mínima: 18 años',
+      'No requiere experiencia previa',
+      'Certificación profesional al finalizar (según normativa vigente)'
     ],
     malla: [
-      'Teoría del color',
-      'Maquillaje social',
-      'Maquillaje artístico',
-      'Técnicas de contouring',
+      'Teoría del color aplicada',
+      'Preparación de la piel',
+      'Maquillaje social día y noche',
+      'Técnicas de contouring y highlighting',
+      'Maquillaje para fotografía',
+      'Maquillaje de novias',
+      'Corrección de imperfecciones',
+      'Tendencias y estilos actuales',
       'Portfolio profesional'
     ],
     promociones: [
+      'Pago mensual de $90 USD',
       'Kit de maquillaje profesional incluido',
-      '20% de descuento por pago anticipado'
+      'Prácticas con modelos reales'
     ],
     imagen: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80',
     rating: 4.9,
-    estudiantes: 1200,
-    instructor: 'Isabella Rodríguez',
-    precio: '$1,800',
-    certificacion: 'Certificado Profesional'
+    estudiantes: 520,
+    instructor: 'Maquilladora Profesional',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Maquillaje'
+  },
+  facial: {
+    titulo: 'Cosmetología',
+    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza.',
+    duracion: '12 meses',
+    requisitos: [
+      'Ser mayor de 16 años',
+      'No requiere bachillerato',
+      'Pasión por la belleza y estética'
+    ],
+    malla: [
+      'Anatomía y fisiología de la piel',
+      'Técnicas de limpieza facial profunda',
+      'Tratamientos hidratantes y nutritivos',
+      'Depilación con cera y técnicas avanzadas',
+      'Masajes relajantes y terapéuticos',
+      'Tratamientos corporales',
+      'Prácticas supervisadas con clientes reales',
+      'Emprendimiento y atención al cliente'
+    ],
+    promociones: [
+      'Pago mensual de $90 USD',
+      'Materiales y productos incluidos',
+      'Certificación profesional avalada'
+    ],
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1755893924/cursos_xrnjuu.png',
+    rating: 4.9,
+    estudiantes: 850,
+    instructor: 'Especialistas Certificados',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Cosmetología'
   }
 };
 
@@ -352,6 +467,7 @@ const DetalleCurso: React.FC = () => {
 
     return (
       <div
+        className="section-card"
         style={variants[variant] as React.CSSProperties}
         onMouseEnter={(e) => {
           const target = e.currentTarget as HTMLElement;
@@ -389,10 +505,11 @@ const DetalleCurso: React.FC = () => {
                   fontSize: '1.6rem', 
                   fontWeight: '700',
                   margin: 0,
-                  background: variant === 'gold' || variant === 'premium' ? 
-                    'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'inherit',
-                  WebkitBackgroundClip: variant === 'gold' || variant === 'premium' ? 'text' : 'inherit',
-                  WebkitTextFillColor: variant === 'gold' || variant === 'premium' ? 'transparent' : 'inherit'
+                  // Para mejor contraste: en tarjetas doradas usar texto sólido oscuro
+                  background: variant === 'premium' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'inherit',
+                  WebkitBackgroundClip: variant === 'premium' ? 'text' : 'inherit',
+                  WebkitTextFillColor: variant === 'premium' ? 'transparent' : 'inherit',
+                  color: variant === 'gold' ? '#111' : 'inherit'
                 }}>
                   {title}
                 </h2>
@@ -545,6 +662,85 @@ const DetalleCurso: React.FC = () => {
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
+
+          /* Responsive Styles */
+          @media (max-width: 768px) {
+            .header-content {
+              flex-direction: column !important;
+              text-align: center !important;
+              gap: 24px !important;
+            }
+            
+            .header-image {
+              width: 120px !important;
+              height: 120px !important;
+            }
+            
+            .header-title {
+              font-size: 2rem !important;
+            }
+            
+            .header-description {
+              font-size: 1.1rem !important;
+            }
+            
+            .metrics-container {
+              justify-content: center !important;
+              gap: 16px !important;
+            }
+            
+            .duration-grid {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+            }
+            
+            .duration-content {
+              flex-direction: column !important;
+              text-align: center !important;
+            }
+            
+            .duration-image {
+              width: 120px !important;
+              height: 120px !important;
+              margin: 0 auto !important;
+            }
+            
+            .requisitos-grid {
+              grid-template-columns: 1fr !important;
+            }
+            
+            .malla-grid {
+              grid-template-columns: 1fr !important;
+            }
+            
+            .promociones-grid {
+              grid-template-columns: 1fr !important;
+            }
+            
+            .section-card {
+              margin-bottom: 24px !important;
+              padding: 24px 20px !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .header-title {
+              font-size: 1.8rem !important;
+            }
+            
+            .header-description {
+              font-size: 1rem !important;
+            }
+            
+            .section-card {
+              padding: 20px 16px !important;
+              margin-bottom: 20px !important;
+            }
+            
+            .duration-card, .requisito-card, .malla-card, .promocion-card {
+              padding: 16px !important;
+            }
+          }
         `}
       </style>
       
@@ -612,7 +808,7 @@ const DetalleCurso: React.FC = () => {
           </button>
 
           {/* Header del curso mejorado */}
-          <div style={{
+          <div className="header-content" style={{
             display: 'flex',
             alignItems: 'center',
             gap: 40,
@@ -637,6 +833,7 @@ const DetalleCurso: React.FC = () => {
               <img 
                 src={curso.imagen} 
                 alt={curso.titulo} 
+                className="header-image"
                 style={{ 
                   width: 180, 
                   height: 180, 
@@ -654,7 +851,7 @@ const DetalleCurso: React.FC = () => {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <h1 className="gradient-text" style={{ 
+              <h1 className="gradient-text header-title" style={{ 
                 fontSize: '3rem', 
                 fontWeight: '800', 
                 marginBottom: 16,
@@ -662,7 +859,7 @@ const DetalleCurso: React.FC = () => {
               }}>
                 {curso.titulo}
               </h1>
-              <p style={{ 
+              <p className="header-description" style={{ 
                 color: 'rgba(255, 255, 255, 0.8)', 
                 fontSize: '1.3rem', 
                 marginBottom: 24,
@@ -672,7 +869,7 @@ const DetalleCurso: React.FC = () => {
               </p>
               
               {/* Métricas del curso */}
-              <div style={{ 
+              <div className="metrics-container" style={{ 
                 display: 'flex', 
                 gap: 32, 
                 alignItems: 'center',
@@ -701,15 +898,15 @@ const DetalleCurso: React.FC = () => {
             icon={<Clock size={28} color="#fbbf24" />}
             title="Duración del Curso"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+            <div className="duration-content" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ 
+                <div className="duration-grid" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
                   gap: 24,
                   marginBottom: 24
                 }}>
-                  <div style={{
+                  <div className="duration-card" style={{
                     padding: '20px',
                     background: 'rgba(251, 191, 36, 0.1)',
                     borderRadius: '16px',
@@ -721,7 +918,7 @@ const DetalleCurso: React.FC = () => {
                     </div>
                     <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>Duración total</div>
                   </div>
-                  <div style={{
+                  <div className="duration-card" style={{
                     padding: '20px',
                     background: 'rgba(251, 191, 36, 0.1)',
                     borderRadius: '16px',
@@ -742,6 +939,7 @@ const DetalleCurso: React.FC = () => {
               <img 
                 src={curso.imagen} 
                 alt="Duración" 
+                className="duration-image"
                 style={{
                   width: 160,
                   height: 160,
@@ -764,14 +962,14 @@ const DetalleCurso: React.FC = () => {
             icon={<Check size={28} color="#000" />}
             title="Requisitos de Ingreso"
           >
-            <div style={{ 
+            <div className="requisitos-grid" style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
               gap: 24,
               marginBottom: 24
             }}>
               {curso.requisitos.map((req, idx) => (
-                <div key={idx} style={{
+                <div key={idx} className="requisito-card" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 16,
@@ -810,7 +1008,7 @@ const DetalleCurso: React.FC = () => {
             }}>
               Todos los requisitos son flexibles y evaluamos cada caso de manera individual.
             </p>
-            <AnimatedButton href={`/pago?curso=${cursoKey}`} variant="secondary">
+            <AnimatedButton href={`/pago?curso=${cursoKey}`} variant="primary">
               <Sparkles size={18} />
               Consultar Admisión
             </AnimatedButton>
@@ -825,7 +1023,7 @@ const DetalleCurso: React.FC = () => {
             isExpandable={true}
             sectionId="malla"
           >
-            <div style={{ 
+            <div className="malla-grid" style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
               gap: 24 
@@ -833,6 +1031,7 @@ const DetalleCurso: React.FC = () => {
               {curso.malla.map((modulo, idx) => (
                 <div 
                   key={idx} 
+                  className="malla-card"
                   style={{
                     padding: '24px',
                     background: 'rgba(251, 191, 36, 0.1)',
@@ -892,21 +1091,21 @@ const DetalleCurso: React.FC = () => {
             </AnimatedButton>
           </SectionCard>
 
-          {/* Sección Promociones */}
+          {/* Sección Plan de Pago y Modalidad */}
           <SectionCard 
             variant="glass" 
             delay={800}
-            icon={<Gift size={28} color="#fbbf24" />}
-            title="Promociones Especiales"
+            icon={<CreditCard size={28} color="#fbbf24" />}
+            title="Plan de Pago y Modalidad"
           >
-            <div style={{ 
+            <div className="promociones-grid" style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
               gap: 24,
               marginBottom: 24
             }}>
               {curso.promociones.map((promo, idx) => (
-                <div key={idx} style={{
+                <div key={idx} className="promocion-card" style={{
                   padding: '24px',
                   background: 'rgba(251, 191, 36, 0.1)',
                   borderRadius: '20px',
