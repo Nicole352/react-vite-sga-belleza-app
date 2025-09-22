@@ -311,46 +311,67 @@ const PanelSuperAdmin: React.FC = () => {
             </div>
           </div>
 
-          {/* Toggle de modo claro/oscuro */}
-          <button
+          {/* Toggle Switch de modo claro/oscuro - Estilo Navbar */}
+          <div
             onClick={toggleDarkMode}
             style={{
+              position: 'relative',
+              width: '52px',
+              height: '26px',
               background: darkMode 
-                ? 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' 
-                : 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '50%',
-              width: '50px',
-              height: '50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+                ? 'rgba(55, 65, 81, 0.8)' 
+                : 'rgba(229, 231, 235, 0.8)',
+              borderRadius: '13px',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              backdropFilter: 'blur(10px)',
+              transition: 'all 0.25s ease',
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
               boxShadow: darkMode 
-                ? '0 4px 12px rgba(0, 0, 0, 0.2)' 
-                : '0 4px 12px rgba(0, 0, 0, 0.1)'
+                ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
+                : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
+              backdropFilter: 'blur(8px)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.1)';
-              e.currentTarget.style.boxShadow = darkMode 
-                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
-                : '0 6px 20px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(55, 65, 81, 0.9)' 
+                : 'rgba(229, 231, 235, 0.9)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = darkMode 
-                ? '0 4px 12px rgba(0, 0, 0, 0.2)' 
-                : '0 4px 12px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(55, 65, 81, 0.8)' 
+                : 'rgba(229, 231, 235, 0.8)';
             }}
           >
-            {darkMode ? (
-              <Sun size={24} color={theme.textPrimary} />
-            ) : (
-              <Moon size={24} color={theme.textPrimary} />
-            )}
-          </button>
+            {/* Círculo deslizante más pequeño */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '2px',
+                left: darkMode ? '26px' : '2px',
+                width: '22px',
+                height: '22px',
+                background: darkMode 
+                  ? 'linear-gradient(135deg, #374151, #4b5563)' 
+                  : 'linear-gradient(135deg, #ffffff, #f9fafb)',
+                borderRadius: '50%',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: darkMode 
+                  ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
+                  : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
+              }}
+            >
+              {darkMode ? (
+                <Moon size={12} color="#d1d5db" />
+              ) : (
+                <Sun size={12} color="#f59e0b" />
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Contenido de la sección activa */}

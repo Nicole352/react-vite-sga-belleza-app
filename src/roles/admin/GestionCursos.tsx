@@ -22,6 +22,7 @@ type EstadoFilter = 'todos' | Course['estado'];
 type TipoCursoOption = {
   id_tipo_curso: number;
   nombre: string;
+  estado?: 'activo' | 'inactivo';
 };
 
 // Eliminado manejo de aulas en esta UI
@@ -51,34 +52,111 @@ const GestionCursos = () => {
       .substring(0, 2); // Máximo 2 caracteres
   };
 
-  // Función para generar código automático
-  const generateCourseCode = (tipoId: number): string => {
+  // Resolver el Tipo de Curso a partir de la lista cargada y los datos del curso
+  const resolveTipoCursoForCurso = (curso: Course | null): TipoCursoOption | null => {
+    if (!curso) return null;
+    // 1) Por ID directo
+    let tipo = tiposCursos.find(t => t.id_tipo_curso === curso.id_tipo_curso) || null;
+    if (tipo) return tipo;
+    // 2) Por nombre exacto (muchos cursos usan el nombre del tipo)
+    tipo = tiposCursos.find(t => t.nombre.trim().toLowerCase() === curso.nombre.trim().toLowerCase()) || null;
+    if (tipo) return tipo;
+    // 3) Por iniciales: si el nombre del curso empieza por el nombre del tipo o viceversa
+    const initials = generateInitials(curso.nombre);
+    tipo = tiposCursos.find(t => generateInitials(t.nombre) === initials) || null;
+    return tipo || null;
+  };
+
+  const getTipoCursoName = (curso: Course | null): string => {
+    const t = resolveTipoCursoForCurso(curso);
+    if (t) return t.nombre;
+    const id = curso?.id_tipo_curso ?? 0;
+    return id ? `Tipo ID ${id} (no encontrado)` : 'Tipo no encontrado';
+  };
+
+  // Función para generar código automático validando contra BD
+  const generateCourseCode = async (tipoId: number): Promise<string> => {
     const tipo = tiposCursos.find(t => t.id_tipo_curso === tipoId);
     if (!tipo) return '';
     
     const initials = generateInitials(tipo.nombre);
     
-    // Contar cursos existentes con las mismas iniciales
-    const existingCourses = cursos.filter(curso => {
-      const tipoDelCurso = tiposCursos.find(t => t.id_tipo_curso === curso.id_tipo_curso);
-      return tipoDelCurso && generateInitials(tipoDelCurso.nombre) === initials;
-    });
-    
-    const nextNumber = existingCourses.length + 1;
-    return `${initials}-${nextNumber.toString().padStart(3, '0')}`;
+    try {
+      // Consultar todos los códigos existentes en la BD
+      const response = await fetch(`${API_BASE}/api/cursos?limit=1000`);
+      if (!response.ok) {
+        console.log('Error consultando cursos existentes, usando datos locales');
+        // Fallback a datos locales si falla la consulta
+        const existingCourses = cursos.filter(curso => {
+          const tipoDelCurso = tiposCursos.find(t => t.id_tipo_curso === curso.id_tipo_curso);
+          return tipoDelCurso && generateInitials(tipoDelCurso.nombre) === initials;
+        });
+        const nextNumber = existingCourses.length + 1;
+        return `${initials}-${nextNumber.toString().padStart(3, '0')}`;
+      }
+      
+      const cursosData = await response.json();
+      const cursosReales = Array.isArray(cursosData) ? cursosData : (Array.isArray(cursosData?.rows) ? cursosData.rows : []);
+      
+      // Obtener todos los códigos existentes que empiecen con las mismas iniciales
+      const existingCodes = cursosReales
+        .map((curso: any) => curso.codigo_curso)
+        .filter((codigo: string) => codigo && codigo.startsWith(`${initials}-`))
+        .map((codigo: string) => {
+          const numberPart = codigo.split('-')[1];
+          return parseInt(numberPart) || 0;
+        })
+        .sort((a: number, b: number) => a - b);
+      
+      // Encontrar el siguiente número disponible
+      let nextNumber = 1;
+      for (const num of existingCodes) {
+        if (num === nextNumber) {
+          nextNumber++;
+        } else {
+          break;
+        }
+      }
+      
+      const newCode = `${initials}-${nextNumber.toString().padStart(3, '0')}`;
+      
+      console.log(`=== GENERACIÓN DE CÓDIGO (BD) ===`);
+      console.log(`Tipo: ${tipo.nombre}`);
+      console.log(`Iniciales: ${initials}`);
+      console.log(`Códigos existentes en BD:`, existingCodes);
+      console.log(`Próximo número: ${nextNumber}`);
+      console.log(`Código generado: ${newCode}`);
+      console.log(`================================`);
+      
+      return newCode;
+      
+    } catch (error) {
+      console.error('Error generando código:', error);
+      // Fallback a método simple
+      const nextNumber = cursos.length + 1;
+      return `${initials}-${nextNumber.toString().padStart(3, '0')}`;
+    }
   };
 
   // Manejar cambio de tipo de curso
-  const handleTipoCursoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTipoCursoChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const tipoId = parseInt(e.target.value);
     setSelectedTipoCurso(tipoId);
     
     if (tipoId && (modalType === 'create' || modalType === 'edit')) {
       const tipo = tiposCursos.find(t => t.id_tipo_curso === tipoId);
       if (tipo) {
-        // Generar código automático
-        const code = generateCourseCode(tipoId);
-        setAutoGeneratedCode(code);
+        // Generar código automático (ahora es async)
+        try {
+          const code = await generateCourseCode(tipoId);
+          setAutoGeneratedCode(code);
+        } catch (error) {
+          console.error('Error generando código:', error);
+          // Fallback simple
+          const initials = generateInitials(tipo.nombre);
+          const fallbackCode = `${initials}-001`;
+          setAutoGeneratedCode(fallbackCode);
+        }
         
         // Establecer nombre automático
         setAutoGeneratedName(tipo.nombre);
@@ -114,6 +192,29 @@ const GestionCursos = () => {
       setError(e.message || 'Error cargando cursos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Obtener un curso por ID con todos sus campos desde el backend
+  const fetchCursoById = async (id: number): Promise<Course | null> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/cursos/${id}`);
+      if (!res.ok) return null;
+      const row = await res.json();
+      const c: Course = {
+        id_curso: Number(row.id_curso ?? id),
+        codigo_curso: String(row.codigo_curso ?? ''),
+        id_tipo_curso: Number(row.id_tipo_curso ?? 0),
+        nombre: String(row.nombre ?? ''),
+        capacidad_maxima: Number(row.capacidad_maxima ?? 20),
+        fecha_inicio: String((row.fecha_inicio ?? '').slice ? (row.fecha_inicio as string).slice(0,10) : row.fecha_inicio ?? ''),
+        fecha_fin: String((row.fecha_fin ?? '').slice ? (row.fecha_fin as string).slice(0,10) : row.fecha_fin ?? ''),
+        estado: (row.estado as Course['estado']) ?? 'planificado',
+        cupos_disponibles: Number(row.cupos_disponibles ?? row.capacidad_maxima ?? 20)
+      };
+      return c;
+    } catch {
+      return null;
     }
   };
 
@@ -169,12 +270,15 @@ const GestionCursos = () => {
     // cargar catálogos
     (async () => {
       try {
-        const resTipos = await fetch(`${API_BASE}/api/tipos-cursos?estado=activo`);
+        // Cargar TODOS los tipos de curso (activos e inactivos) para mostrar nombres correctos
+        const resTipos = await fetch(`${API_BASE}/api/tipos-cursos?limit=100`);
         if (resTipos.ok) {
           const dataTipos = await resTipos.json();
           setTiposCursos(dataTipos);
+          console.log('Tipos de curso cargados:', dataTipos.length);
         }
       } catch (e) {
+        console.error('Error cargando tipos de curso:', e);
         // silencioso, no bloquear UI por catálogos
       }
     })();
@@ -189,13 +293,31 @@ const GestionCursos = () => {
     setShowModal(true);
   };
 
-  const handleEditCurso = (curso: Course) => {
-    setSelectedCurso(curso);
+  const handleEditCurso = async (curso: Course) => {
+    console.log('=== EDITAR CURSO (abrir) ===');
+    console.log('Listado -> id_tipo_curso:', curso.id_tipo_curso);
     setModalType('edit');
-    setSelectedTipoCurso(curso.id_tipo_curso);
+    setLoading(true);
+    // Intentar obtener el curso con todos sus campos (incluido id_tipo_curso real)
+    const full = await fetchCursoById(curso.id_curso);
+    let finalCurso = full ?? curso;
+    // Si el backend no trae id_tipo_curso válido, intentar resolverlo
+    if (!finalCurso.id_tipo_curso || finalCurso.id_tipo_curso === 0) {
+      const resolved = resolveTipoCursoForCurso(finalCurso);
+      if (resolved) {
+        finalCurso = { ...finalCurso, id_tipo_curso: resolved.id_tipo_curso };
+        console.log('id_tipo_curso resuelto por frontend:', resolved);
+      }
+    }
+    console.log('Backend -> curso completo:', full);
+    console.log('Usado para edición -> id_tipo_curso:', finalCurso.id_tipo_curso);
+
+    setSelectedCurso(finalCurso);
+    setSelectedTipoCurso(finalCurso.id_tipo_curso);
     setAutoGeneratedCode('');
     setAutoGeneratedName('');
     setShowModal(true);
+    setLoading(false);
   };
 
   const handleViewCurso = (curso: Course) => {
@@ -264,6 +386,37 @@ const GestionCursos = () => {
     if (!payload.id_tipo_curso) {
       setError('Debes seleccionar un tipo de curso');
       return;
+    }
+    
+    // Validación adicional: verificar que el código no esté duplicado en BD
+    if (modalType === 'create' && payload.codigo_curso) {
+      try {
+        const response = await fetch(`${API_BASE}/api/cursos?limit=1000`);
+        if (response.ok) {
+          const cursosData = await response.json();
+          const cursosReales = Array.isArray(cursosData) ? cursosData : (Array.isArray(cursosData?.rows) ? cursosData.rows : []);
+          
+          const codigoExistente = cursosReales.find((curso: any) => 
+            curso.codigo_curso && curso.codigo_curso.toLowerCase() === payload.codigo_curso.toLowerCase()
+          );
+          
+          if (codigoExistente) {
+            setError(`El código "${payload.codigo_curso}" ya existe en la base de datos. Regenerando...`);
+            // Regenerar código automáticamente
+            try {
+              const nuevoCodigo = await generateCourseCode(payload.id_tipo_curso);
+              setAutoGeneratedCode(nuevoCodigo);
+              return;
+            } catch (genError) {
+              setError('Error regenerando código. Intenta de nuevo.');
+              return;
+            }
+          }
+        }
+      } catch (validateError) {
+        console.log('Error validando código duplicado:', validateError);
+        // Continuar con la creación si falla la validación
+      }
     }
     const dInicio = new Date(payload.fecha_inicio);
     const dFin = new Date(payload.fecha_fin);
@@ -590,16 +743,57 @@ const GestionCursos = () => {
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Tipo de curso</label>
-                  <StyledSelect
-                    name="id_tipo_curso"
-                    value={modalType === 'edit' ? (selectedTipoCurso || selectedCurso?.id_tipo_curso || '') : (selectedTipoCurso || '')}
-                    defaultValue={selectedCurso?.id_tipo_curso || ''}
-                    required
-                    placeholder="Selecciona un tipo"
-                    options={tiposCursos.map(tc => ({ value: tc.id_tipo_curso, label: tc.nombre }))}
-                    onChange={handleTipoCursoChange}
-                    disabled={modalType === 'view'}
-                  />
+                  {modalType === 'edit' ? (
+                    // En edición: mostrar solo el nombre del tipo (no editable)
+                    <div style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '10px',
+                      color: 'rgba(255,255,255,0.8)',
+                      fontSize: '0.9rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ 
+                        background: 'rgba(239, 68, 68, 0.15)', 
+                        color: '#ef4444', 
+                        padding: '2px 6px', 
+                        borderRadius: '4px', 
+                        fontSize: '0.7rem', 
+                        fontWeight: '600' 
+                      }}>
+                        TIPO
+                      </span>
+                      {tiposCursos.find(tc => tc.id_tipo_curso === selectedCurso?.id_tipo_curso)?.nombre || `Tipo ID ${selectedCurso?.id_tipo_curso} (no encontrado)`}
+                      <input 
+                        type="hidden" 
+                        name="id_tipo_curso" 
+                        value={selectedCurso?.id_tipo_curso || ''} 
+                      />
+                    </div>
+                  ) : (
+                    // En creación: select normal
+                    <StyledSelect
+                      name="id_tipo_curso"
+                      value={selectedTipoCurso || ''}
+                      required
+                      placeholder="Selecciona un tipo"
+                      options={tiposCursos
+                        .filter(tc => tc.estado === 'activo') // Solo tipos activos para crear cursos
+                        .map(tc => ({ value: tc.id_tipo_curso, label: tc.nombre }))
+                      }
+                      onChange={handleTipoCursoChange}
+                      disabled={modalType === 'view'}
+                    />
+                  )}
+                  {modalType === 'edit' && (
+                    <div style={{ marginTop: 6, color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
+                      El tipo de curso no se puede cambiar en edición.
+                    </div>
+                  )}
                 </div>
 
                 {/* Fila 2: Nombre (izquierda) y Capacidad (derecha) */}
@@ -608,35 +802,82 @@ const GestionCursos = () => {
                   <input 
                     name="nombre" 
                     placeholder={modalType === 'create' ? "Selecciona un tipo de curso primero" : "Nombre del curso"} 
-                    value={modalType === 'create' ? autoGeneratedName : (modalType === 'edit' && autoGeneratedName ? autoGeneratedName : selectedCurso?.nombre || '')} 
+                    defaultValue={modalType === 'edit' ? selectedCurso?.nombre : ''}
+                    value={modalType === 'create' ? autoGeneratedName : undefined}
                     required 
-                    disabled={modalType === 'view' || (modalType === 'create' && !selectedTipoCurso)}
-                    readOnly={true}
+                    disabled={modalType === 'view'}
+                    readOnly={modalType === 'create'}
                     style={{ 
                       width: '100%', 
                       padding: '12px', 
-                      background: 'rgba(255,255,255,0.05)', 
+                      background: modalType === 'edit' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
                       borderRadius: '10px', 
-                      color: 'rgba(255,255,255,0.7)',
-                      cursor: 'not-allowed'
+                      color: modalType === 'edit' ? '#fff' : 'rgba(255,255,255,0.7)',
+                      cursor: modalType === 'edit' ? 'text' : 'not-allowed'
                     }} 
                   />
                   <div style={{ marginTop: 6, color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
-                    Se completa automáticamente con el nombre del tipo de curso.
+                    {modalType === 'create' 
+                      ? 'Se completa automáticamente con el nombre del tipo de curso.'
+                      : 'Puedes editar el nombre del curso.'
+                    }
                   </div>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Capacidad</label>
-                  <input type="number" name="capacidad_maxima" defaultValue={selectedCurso?.capacidad_maxima || 20} min={1} required style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', color: '#fff' }} />
+                  <input 
+                    type="number" 
+                    name="capacidad_maxima" 
+                    defaultValue={modalType === 'edit' ? selectedCurso?.capacidad_maxima : 20} 
+                    min={1} 
+                    required 
+                    disabled={modalType === 'view'}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      background: 'rgba(255,255,255,0.1)', 
+                      border: '1px solid rgba(255,255,255,0.2)', 
+                      borderRadius: '10px', 
+                      color: '#fff' 
+                    }} 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Fecha Inicio</label>
-                  <input type="date" name="fecha_inicio" defaultValue={selectedCurso?.fecha_inicio || ''} required style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', color: '#fff' }} />
+                  <input 
+                    type="date" 
+                    name="fecha_inicio" 
+                    defaultValue={selectedCurso?.fecha_inicio || ''} 
+                    required 
+                    disabled={modalType === 'view'}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      background: 'rgba(255,255,255,0.1)', 
+                      border: '1px solid rgba(255,255,255,0.2)', 
+                      borderRadius: '10px', 
+                      color: '#fff' 
+                    }} 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Fecha Fin</label>
-                  <input type="date" name="fecha_fin" defaultValue={selectedCurso?.fecha_fin || ''} required style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', color: '#fff' }} />
+                  <input 
+                    type="date" 
+                    name="fecha_fin" 
+                    defaultValue={selectedCurso?.fecha_fin || ''} 
+                    required 
+                    disabled={modalType === 'view'}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      background: 'rgba(255,255,255,0.1)', 
+                      border: '1px solid rgba(255,255,255,0.2)', 
+                      borderRadius: '10px', 
+                      color: '#fff' 
+                    }} 
+                  />
                 </div>
                 {/* Fila extra: Estado a lo ancho para mantener tamaños de fecha iguales */}
                 <div style={{ gridColumn: '1 / -1' }}>

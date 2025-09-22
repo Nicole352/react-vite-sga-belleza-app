@@ -24,6 +24,7 @@ interface FormData {
   fechaNacimiento: string;
   direccion: string;
   genero: '' | 'masculino' | 'femenino' | 'otro';
+  montoMatricula: number;
 }
 
 interface FormErrors {
@@ -198,11 +199,13 @@ const Pago: React.FC = () => {
     tipoDocumento: '',
     fechaNacimiento: '',
     direccion: '',
-    genero: ''
+    genero: '',
+    montoMatricula: curso?.precio || 0
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
+  const [showMontoAlert, setShowMontoAlert] = useState(false);
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -531,6 +534,8 @@ const Pago: React.FC = () => {
 
     try {
       let response: Response;
+      let debugInfo: any = {};
+      
       if (selectedPayment === 'transferencia' || selectedPayment === 'efectivo') {
         const body = new FormData();
         body.append('identificacion_solicitante', documento.toUpperCase());
@@ -542,18 +547,34 @@ const Pago: React.FC = () => {
         if (formData.direccion) body.append('direccion_solicitante', formData.direccion);
         if (formData.genero) body.append('genero_solicitante', formData.genero);
         body.append('id_tipo_curso', String(tipoCursoId));
-        body.append('monto_matricula', String(curso.precio));
+        body.append('monto_matricula', String(formData.montoMatricula));
         body.append('metodo_pago', selectedPayment);
         if (uploadedFile) body.append('comprobante', uploadedFile);
+
+        // Para debug - convertir FormData a objeto
+        debugInfo = {
+          identificacion_solicitante: documento.toUpperCase(),
+          nombre_solicitante: formData.nombre,
+          apellido_solicitante: formData.apellido,
+          telefono_solicitante: formData.telefono,
+          email_solicitante: formData.email,
+          fecha_nacimiento_solicitante: formData.fechaNacimiento,
+          direccion_solicitante: formData.direccion,
+          genero_solicitante: formData.genero,
+          id_tipo_curso: tipoCursoId,
+          monto_matricula: formData.montoMatricula,
+          metodo_pago: selectedPayment,
+          comprobante: uploadedFile ? 'Archivo adjunto' : 'Sin archivo'
+        };
 
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
           body
         });
       } else {
-        const montoFinal = selectedPayment === 'payphone' ? curso.precio + 7 : curso.precio;
-        const payload = {
-          identificacion_solicitante: documento.toUpperCase(),
+        const montoFinal = selectedPayment === 'payphone' ? formData.montoMatricula + 7 : formData.montoMatricula;
+        debugInfo = {
+          cedula_solicitante: documento.toUpperCase(),
           nombre_solicitante: formData.nombre,
           apellido_solicitante: formData.apellido,
           telefono_solicitante: formData.telefono,
@@ -568,12 +589,19 @@ const Pago: React.FC = () => {
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(debugInfo)
         });
       }
 
       if (!response.ok) {
         const errText = await response.text();
+        console.error('=== ERROR 400 DEBUG ===');
+        console.error('Status:', response.status);
+        console.error('Error del servidor:', errText);
+        console.error('Datos enviados:', debugInfo);
+        console.error('tipoCursoId:', tipoCursoId);
+        console.error('selectedPayment:', selectedPayment);
+        console.error('=======================');
         throw new Error(errText || 'Error al enviar la solicitud');
       }
       const data = await response.json();
@@ -778,6 +806,17 @@ const Pago: React.FC = () => {
             to {
               opacity: 0;
               transform: translateY(-10px) scale(0.98);
+            }
+          }
+          
+          @keyframes slideInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
             }
           }
           
@@ -1494,7 +1533,8 @@ const Pago: React.FC = () => {
                             tipoDocumento: 'ecuatoriano',
                             fechaNacimiento: '',
                             direccion: '',
-                            genero: ''
+                            genero: '',
+                            montoMatricula: curso?.precio || 0
                           });
                           setErrors({});
                         }}
@@ -1536,7 +1576,8 @@ const Pago: React.FC = () => {
                             tipoDocumento: 'extranjero',
                             fechaNacimiento: '',
                             direccion: '',
-                            genero: ''
+                            genero: '',
+                            montoMatricula: curso?.precio || 0
                           });
                           setErrors({});
                         }}
@@ -2000,6 +2041,84 @@ const Pago: React.FC = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                           <AlertCircle size={16} color="#ef4444" />
                           <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Campo Monto a Pagar */}
+                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
+                        color: '#fff'
+                      }}>
+                        Monto a pagar (USD) *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        step="0.01"
+                        value={formData.montoMatricula}
+                        onChange={(e) => {
+                          const newMonto = parseFloat(e.target.value) || 0;
+                          setFormData({ ...formData, montoMatricula: newMonto });
+                          
+                          // Mostrar alerta si el monto es diferente al precio original del curso
+                          const precioOriginal = curso?.precio || 0;
+                          setShowMontoAlert(newMonto !== precioOriginal);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          borderRadius: '12px',
+                          fontSize: '1rem',
+                          transition: 'border-color 0.3s ease',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff',
+                          fontWeight: '600'
+                        }}
+                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                      />
+                      
+                      {/* Alerta motivacional cuando se edita el monto */}
+                      {showMontoAlert && (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'flex-start', 
+                          gap: 12, 
+                          marginTop: 12,
+                          padding: '16px',
+                          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '12px',
+                          animation: 'slideInUp 0.3s ease-out'
+                        }}>
+                          <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                          <div>
+                            <div style={{ 
+                              color: '#ef4444', 
+                              fontSize: '0.95rem', 
+                              fontWeight: '700',
+                              marginBottom: '6px'
+                            }}>
+                              💡 ¡Recordatorio importante!
+                            </div>
+                            <div style={{ 
+                              color: '#fca5a5', 
+                              fontSize: '0.9rem', 
+                              lineHeight: '1.5'
+                            }}>
+                              Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>. 
+                              ¡No pierdas esta oportunidad de transformar tu futuro profesional! 
+                              <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+                                ✨ Tu carrera en belleza te está esperando.
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
