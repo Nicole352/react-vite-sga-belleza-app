@@ -33,8 +33,11 @@ import {
   Plus,
   X,
   Search,
-  Filter
+  Filter,
+  EyeOff
 } from 'lucide-react';
+
+const API_BASE = 'http://localhost:3000/api';
 
 const PanelEstudiantes = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,10 +45,89 @@ const PanelEstudiantes = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
+  const [passwordResetData, setPasswordResetData] = useState({ newPassword: '', confirmPassword: '' });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
 
   useEffect(() => {
     setIsVisible(true);
+    checkPasswordReset();
   }, []);
+
+  // Verificar si necesita cambiar contraseña en primer ingreso
+  const checkPasswordReset = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.needs_password_reset) {
+          setShowPasswordResetModal(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando estado de contraseña:', error);
+    }
+  };
+
+  // Manejar cambio de contraseña
+  const handlePasswordReset = async () => {
+    if (passwordResetData.newPassword !== passwordResetData.confirmPassword) {
+      setResetError('Las contraseñas no coinciden');
+      return;
+    }
+    if (passwordResetData.newPassword.length < 6) {
+      setResetError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    setResetLoading(true);
+    setResetError('');
+
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          newPassword: passwordResetData.newPassword,
+          confirmPassword: passwordResetData.confirmPassword
+        })
+      });
+
+      if (response.ok) {
+        setShowPasswordResetModal(false);
+        setPasswordResetData({ newPassword: '', confirmPassword: '' });
+        // Mostrar mensaje de éxito
+        alert('¡Contraseña actualizada exitosamente!');
+      } else {
+        const errorData = await response.json();
+        setResetError(errorData.error || 'Error al actualizar la contraseña');
+      }
+    } catch (error) {
+      setResetError('Error de conexión. Inténtalo de nuevo.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handlePasswordResetChange = (field, value) => {
+    setPasswordResetData(prev => ({ ...prev, [field]: value }));
+    setResetError('');
+  };
 
   // Datos del estudiante actual (simulado)
   const estudianteInfo = {
@@ -217,6 +299,11 @@ const PanelEstudiantes = () => {
               transform: translateY(-20px) rotate(180deg);
               opacity: 0.3;
             }
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
           }
           
           .floating-particles {
@@ -1064,6 +1151,237 @@ const PanelEstudiantes = () => {
             </div>
           )}
         </div>
+
+        {/* Modal de Restablecer Contraseña (Primer Ingreso) */}
+        {showPasswordResetModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '2px solid rgba(251, 191, 36, 0.4)',
+              borderRadius: '20px',
+              padding: '40px',
+              maxWidth: '500px',
+              width: '100%',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 25px 50px rgba(251, 191, 36, 0.3)'
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px',
+                  boxShadow: '0 10px 30px rgba(251, 191, 36, 0.4)'
+                }}>
+                  <Lock size={32} color="#000" />
+                </div>
+                <h2 style={{
+                  fontSize: '1.8rem',
+                  fontWeight: '700',
+                  color: '#fff',
+                  margin: '0 0 12px 0',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  🔐 Restablecer Contraseña
+                </h2>
+                <p style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '1rem',
+                  margin: 0,
+                  lineHeight: 1.5
+                }}>
+                  Por seguridad, debes cambiar tu contraseña temporal antes de continuar.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  Nueva Contraseña
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={passwordResetData.newPassword}
+                    onChange={(e) => handlePasswordResetChange('newPassword', e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    style={{
+                      width: '100%',
+                      padding: '14px 50px 14px 16px',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  Confirmar Contraseña
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={passwordResetData.confirmPassword}
+                    onChange={(e) => handlePasswordResetChange('confirmPassword', e.target.value)}
+                    placeholder="Repite la contraseña"
+                    style={{
+                      width: '100%',
+                      padding: '14px 50px 14px 16px',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {resetError && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  color: '#fecaca',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  marginBottom: '20px',
+                  fontSize: '0.9rem',
+                  textAlign: 'center'
+                }}>
+                  {resetError}
+                </div>
+              )}
+
+              <button
+                onClick={handlePasswordReset}
+                disabled={resetLoading || !passwordResetData.newPassword || !passwordResetData.confirmPassword}
+                style={{
+                  width: '100%',
+                  background: resetLoading ? 'rgba(251, 191, 36, 0.5)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '16px 24px',
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  cursor: resetLoading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                {resetLoading ? (
+                  <>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid rgba(0,0,0,0.3)',
+                      borderTop: '2px solid #000',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    Actualizando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={20} />
+                    Cambiar Contraseña
+                  </>
+                )}
+              </button>
+
+              <div style={{
+                marginTop: '20px',
+                padding: '16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}>
+                <p style={{
+                  color: '#93c5fd',
+                  fontSize: '0.85rem',
+                  margin: 0,
+                  lineHeight: 1.4
+                }}>
+                  💡 <strong>Tip:</strong> Usa una contraseña segura que puedas recordar fácilmente. Una vez cambiada, podrás acceder normalmente con tu nuevo password.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

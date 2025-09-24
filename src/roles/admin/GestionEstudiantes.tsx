@@ -1,518 +1,563 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Users, Search, Plus, Edit, Eye, Trash2, X, UserCheck
+  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
 // Tipos
-interface Admin {
-  id: number;
+interface Estudiante {
+  id_usuario: number;
+  cedula: string;
   nombre: string;
   apellido: string;
+  username: string;
   email: string;
-  telefono: string;
-  cargo: string;
-  departamento: string;
-  fechaIngreso: string;
-  estado: string;
-  permisos: string[];
+  telefono?: string;
+  fecha_nacimiento?: string;
+  genero?: 'masculino' | 'femenino' | 'otro';
+  direccion?: string;
+  estado: 'activo' | 'inactivo' | 'pendiente';
+  fecha_registro: string;
+  fecha_ultima_conexion?: string;
 }
 
-const GestionEstudiantes = () => {
-  const [administrativos, setAdministrativos] = useState<Admin[]>([
-    {
-      id: 1, nombre: 'Lcda. Patricia', apellido: 'González',
-      email: 'patricia.gonzalez@belleza.edu', telefono: '+58 414-123-4567',
-      cargo: 'Coordinadora Académica', departamento: 'Académico',
-      fechaIngreso: '2023-01-15', estado: 'activo',
-      permisos: ['cursos', 'estudiantes', 'reportes']
-    }
-  ]);
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
+const GestionEstudiantes = () => {
+  const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'create' | 'edit' | 'view'>('create');
-  const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
-  const [filterDepartamento, setFilterDepartamento] = useState('todos');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const administrativosFiltrados = administrativos.filter(admin => {
-    const matchesSearch = admin.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         admin.apellido.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesEstado = filterEstado === 'todos' || admin.estado === filterEstado;
-    const matchesDepartamento = filterDepartamento === 'todos' || admin.departamento === filterDepartamento;
-    return matchesSearch && matchesEstado && matchesDepartamento;
+  // Función para obtener estudiantes
+  const fetchEstudiantes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('limit', String(limit));
+      if (searchTerm) params.set('search', searchTerm);
+      
+      const response = await fetch(`${API_BASE}/api/estudiantes?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Error cargando estudiantes');
+      }
+      
+      const data = await response.json();
+      const headerVal = response.headers.get('X-Total-Count');
+      const totalHeader = headerVal !== null ? Number(headerVal) : NaN;
+
+      // Fallbacks si el backend no envía X-Total-Count
+      const computedTotal = Number.isFinite(totalHeader) && totalHeader >= 0
+        ? totalHeader
+        : (typeof data?.total === 'number' ? data.total : (Array.isArray(data) ? data.length : 0));
+
+      setEstudiantes(Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []));
+      setTotalCount(computedTotal);
+    } catch (err: any) {
+      setError(err.message || 'Error cargando estudiantes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEstudiantes();
+  }, [page, limit, searchTerm]);
+
+  const estudiantesFiltrados = estudiantes.filter(estudiante => {
+    const matchesEstado = filterEstado === 'todos' || estudiante.estado === filterEstado;
+    return matchesEstado;
   });
 
-  const handleCreateAdmin = () => {
-    setSelectedAdmin(null);
-    setModalType('create');
+  const handleViewEstudiante = (estudiante: Estudiante) => {
+    setSelectedEstudiante(estudiante);
     setShowModal(true);
   };
 
-  const handleEditAdmin = (admin: Admin) => {
-    setSelectedAdmin(admin);
-    setModalType('edit');
-    setShowModal(true);
-  };
+  const totalPages = Math.ceil(totalCount / limit);
 
-  const handleViewAdmin = (admin: Admin) => {
-    setSelectedAdmin(admin);
-    setModalType('view');
-    setShowModal(true);
-  };
-
-  const handleDeleteAdmin = (id: number) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este administrativo?')) {
-      setAdministrativos(administrativos.filter(admin => admin.id !== id));
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'No especificado';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES');
+    } catch {
+      return 'Fecha inválida';
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const adminData: Omit<Admin, 'id'> = {
-      nombre: String(formData.get('nombre') || ''),
-      apellido: String(formData.get('apellido') || ''),
-      email: String(formData.get('email') || ''),
-      telefono: String(formData.get('telefono') || ''),
-      cargo: String(formData.get('cargo') || ''),
-      departamento: String(formData.get('departamento') || ''),
-      fechaIngreso: String(formData.get('fechaIngreso') || ''),
-      estado: String(formData.get('estado') || 'activo'),
-      permisos: (formData.getAll('permisos') as string[])
-    };
-
-    if (modalType === 'create') {
-      const newAdmin: Admin = { 
-        ...adminData, 
-        id: administrativos.length ? Math.max(...administrativos.map(a => a.id)) + 1 : 1 
-      };
-      setAdministrativos([...administrativos, newAdmin]);
-    } else if (modalType === 'edit') {
-      setAdministrativos(administrativos.map(admin => 
-        admin.id === selectedAdmin!.id ? { ...admin, ...adminData } : admin
-      ));
-    }
-    setShowModal(false);
   };
 
   return (
-    <div style={{ padding: '32px' }}>
-      <h2 style={{ 
-        color: '#fff', 
-        fontSize: '2rem', 
-        fontWeight: '700', 
-        margin: '0 0 8px 0',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <UserCheck size={32} color="#ef4444" />
-        Gestión de Estudiantes
-      </h2>
-      <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 32px 0' }}>
-        Administra el personal estudiantil y sus permisos de acceso
-      </p>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
+      padding: 32, 
+      color: '#fff' 
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+          <GraduationCap size={28} color="#10b981" />
+          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700' }}>Gestión de Estudiantes</h1>
+        </div>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+          Administra y visualiza la información de todos los estudiantes registrados
+        </p>
+      </div>
 
-      {/* Controles */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '24px'
+      {/* Filtros y Búsqueda */}
+      <div style={{ 
+        background: 'rgba(255,255,255,0.05)', 
+        borderRadius: 16, 
+        padding: 24, 
+        marginBottom: 24,
+        border: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flex: 1 }}>
-            {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: '300px' }}>
-              <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16, alignItems: 'end' }}>
+          {/* Búsqueda */}
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+              Buscar Estudiante
+            </label>
+            <div style={{ position: 'relative' }}>
+              <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
-                placeholder="Buscar estudiantes..."
+                placeholder="Buscar por nombre, apellido, cédula o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px 12px 12px 44px',
-                  background: 'rgba(255,255,255,0.1)',
+                  padding: '12px 12px 12px 40px',
+                  borderRadius: 10,
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
                   fontSize: '0.9rem'
                 }}
               />
             </div>
-
-            {/* Filtros */}
-            <div style={{ minWidth: 200 }}>
-              <StyledSelect
-                name="filterEstado"
-                value={filterEstado}
-                onChange={(e) => setFilterEstado(e.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los estados' },
-                  { value: 'activo', label: 'Activos' },
-                  { value: 'inactivo', label: 'Inactivos' },
-                ]}
-              />
-            </div>
-
-            <div style={{ minWidth: 220 }}>
-              <StyledSelect
-                name="filterDepartamento"
-                value={filterDepartamento}
-                onChange={(e) => setFilterDepartamento(e.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los departamentos' },
-                  { value: 'Académico', label: 'Académico' },
-                  { value: 'Administrativo', label: 'Administrativo' },
-                  { value: 'Financiero', label: 'Financiero' },
-                ]}
-              />
-            </div>
           </div>
 
-          {/* Botón Crear */}
-          <button
-            onClick={handleCreateAdmin}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              border: 'none',
-              borderRadius: '12px',
-              color: '#fff',
+          {/* Filtro Estado */}
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+              Estado
+            </label>
+            <StyledSelect
+              name="filterEstado"
+              value={filterEstado}
+              onChange={(e) => setFilterEstado(e.target.value)}
+              options={[
+                { value: 'todos', label: 'Todos los estados' },
+                { value: 'activo', label: 'Activos' },
+                { value: 'inactivo', label: 'Inactivos' },
+                { value: 'pendiente', label: 'Pendientes' }
+              ]}
+            />
+          </div>
+
+          {/* Botón Refrescar */}
+          <button 
+            onClick={fetchEstudiantes}
+            disabled={loading}
+            style={{ 
+              padding: '12px 20px', 
+              borderRadius: 10, 
+              border: '1px solid rgba(16, 185, 129, 0.3)', 
+              background: 'rgba(16, 185, 129, 0.15)', 
+              color: '#10b981', 
+              cursor: loading ? 'not-allowed' : 'pointer',
               fontSize: '0.9rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+              fontWeight: '500',
+              opacity: loading ? 0.7 : 1
             }}
           >
-            <Plus size={20} />
-            Nuevo Estudiante
+            {loading ? 'Cargando...' : 'Refrescar'}
           </button>
         </div>
       </div>
 
-      {/* Lista de Estudiantes */}
-      <div style={{ display: 'grid', gap: '20px' }}>
-        {administrativosFiltrados.map(admin => (
-          <div key={admin.id} style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '20px',
-            padding: '24px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 8px 0' }}>
-                  {admin.nombre} {admin.apellido}
-                </h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', fontSize: '0.9rem' }}>
-                  {admin.cargo} - {admin.departamento}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Email:</strong> {admin.email}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Teléfono:</strong> {admin.telefono}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    <strong>Ingreso:</strong> {new Date(admin.fechaIngreso).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                  color: admin.estado === 'activo' ? '#10b981' : '#ef4444'
-                }}>
-                  {admin.estado.charAt(0).toUpperCase() + admin.estado.slice(1)}
-                </div>
-                
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={() => handleViewAdmin(admin)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '8px',
-                      color: '#3b82f6',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleEditAdmin(admin)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(245, 158, 11, 0.2)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
-                      borderRadius: '8px',
-                      color: '#f59e0b',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAdmin(admin.id)}
-                    style={{
-                      padding: '8px',
-                      background: 'rgba(239, 68, 68, 0.2)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '8px',
-                      color: '#ef4444',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Permisos */}
-            <div style={{ 
-              background: 'rgba(16, 185, 129, 0.05)', 
-              borderRadius: '12px', 
-              padding: '16px',
-              border: '1px solid rgba(16, 185, 129, 0.1)'
-            }}>
-              <h4 style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 8px 0' }}>
-                Permisos de Acceso
-              </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {admin.permisos.map((permiso, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(16, 185, 129, 0.2)', 
-                    color: '#10b981',
-                    padding: '4px 8px', 
-                    borderRadius: '6px', 
-                    fontSize: '0.75rem', 
-                    fontWeight: '600'
-                  }}>
-                    {permiso}
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Estadísticas */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+        <div style={{ 
+          background: 'rgba(16, 185, 129, 0.1)', 
+          border: '1px solid rgba(16, 185, 129, 0.3)', 
+          borderRadius: 12, 
+          padding: 20, 
+          textAlign: 'center' 
+        }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981', marginBottom: 4 }}>
+            {totalCount}
           </div>
-        ))}
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+            Total Estudiantes
+          </div>
+        </div>
+        
+        <div style={{ 
+          background: 'rgba(59, 130, 246, 0.1)', 
+          border: '1px solid rgba(59, 130, 246, 0.3)', 
+          borderRadius: 12, 
+          padding: 20, 
+          textAlign: 'center' 
+        }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6', marginBottom: 4 }}>
+            {estudiantes.filter(e => e.estado === 'activo').length}
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+            Estudiantes Activos
+          </div>
+        </div>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px'
+      {/* Error */}
+      {error && (
+        <div style={{ 
+          background: 'rgba(239, 68, 68, 0.1)', 
+          border: '1px solid rgba(239, 68, 68, 0.3)', 
+          borderRadius: 12, 
+          padding: 16, 
+          marginBottom: 24, 
+          color: '#ef4444' 
         }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '20px',
-            padding: '32px',
-            width: '100%',
-            maxWidth: '600px',
-            maxHeight: '90vh',
-            overflowY: 'auto'
+          {error}
+        </div>
+      )}
+
+      {/* Tabla de Estudiantes */}
+      <div style={{ 
+        background: 'rgba(255,255,255,0.05)', 
+        borderRadius: 16, 
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'rgba(255,255,255,0.1)' }}>
+                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Estudiante
+                </th>
+                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Cédula
+                </th>
+                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Usuario
+                </th>
+                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Estado
+                </th>
+                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Fecha Registro
+                </th>
+                <th style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {estudiantesFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
+                  </td>
+                </tr>
+              ) : (
+                estudiantesFiltrados.map((estudiante, index) => (
+                  <tr key={estudiante.id_usuario} style={{ 
+                    borderTop: index > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                    transition: 'background-color 0.2s'
+                  }}>
+                    <td style={{ padding: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ 
+                          width: 40, 
+                          height: 40, 
+                          borderRadius: '50%', 
+                          background: 'rgba(16, 185, 129, 0.2)', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center' 
+                        }}>
+                          <User size={18} color="#10b981" />
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.9rem' }}>
+                            {estudiante.nombre} {estudiante.apellido}
+                          </div>
+                          {estudiante.telefono && (
+                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>
+                              {estudiante.telefono}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                      {estudiante.cedula}
+                    </td>
+                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                      {estudiante.username || 'No asignado'}
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        padding: '4px 12px',
+                        borderRadius: '9999px',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                        textTransform: 'capitalize',
+                        background: estudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                                   estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
+                                   'rgba(251, 191, 36, 0.15)',
+                        border: estudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                               estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                               '1px solid rgba(251, 191, 36, 0.3)',
+                        color: estudiante.estado === 'activo' ? '#10b981' :
+                              estudiante.estado === 'inactivo' ? '#ef4444' :
+                              '#fbbf24'
+                      }}>
+                        {estudiante.estado}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                      {formatDate(estudiante.fecha_registro)}
+                    </td>
+                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                      <button
+                        onClick={() => handleViewEstudiante(estudiante)}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.15)',
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
+                          color: '#3b82f6',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: '500',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          margin: '0 auto'
+                        }}
+                      >
+                        <Eye size={14} />
+                        Ver
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div style={{ 
+            padding: '16px 24px', 
+            borderTop: '1px solid rgba(255,255,255,0.1)', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center' 
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                {modalType === 'create' ? 'Nuevo Estudiante' : 
-                 modalType === 'edit' ? 'Editar Estudiante' : 'Detalles del Estudiante'}
-              </h3>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+              Mostrando {((page - 1) * limit) + 1} - {Math.min(page * limit, totalCount)} de {totalCount} estudiantes
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255,255,255,0.7)',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                  color: page === 1 ? 'rgba(255,255,255,0.4)' : '#fff',
+                  cursor: page === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '0.8rem'
+                }}
+              >
+                Anterior
+              </button>
+              <span style={{ 
+                padding: '8px 12px', 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '0.8rem' 
+              }}>
+                {page} de {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                  color: page === totalPages ? 'rgba(255,255,255,0.4)' : '#fff',
+                  cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '0.8rem'
+                }}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Modal de Detalle */}
+      {showModal && selectedEstudiante && (
+        <div style={{ 
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(0,0,0,0.6)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 50 
+        }}>
+          <div style={{ 
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
+            border: '1px solid rgba(59, 130, 246, 0.3)', 
+            borderRadius: 16, 
+            width: 'min(600px, 90vw)', 
+            maxHeight: '90vh',
+            overflow: 'auto',
+            padding: 24, 
+            color: '#fff' 
+          }}>
+            {/* Header del Modal */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <GraduationCap size={20} />
+                Información del Estudiante
+              </h3>
+              <button 
+                onClick={() => setShowModal(false)} 
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  color: '#fff', 
                   cursor: 'pointer',
                   padding: '4px'
                 }}
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gap: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Nombre
-                    </label>
-                    <input
-                      name="nombre"
-                      type="text"
-                      defaultValue={selectedAdmin?.nombre || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Apellido
-                    </label>
-                    <input
-                      name="apellido"
-                      type="text"
-                      defaultValue={selectedAdmin?.apellido || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                    Email
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    defaultValue={selectedAdmin?.email || ''}
-                    disabled={modalType === 'view'}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '0.9rem'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Teléfono
-                    </label>
-                    <input
-                      name="telefono"
-                      type="tel"
-                      defaultValue={selectedAdmin?.telefono || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                      Cargo
-                    </label>
-                    <input
-                      name="cargo"
-                      type="text"
-                      defaultValue={selectedAdmin?.cargo || ''}
-                      disabled={modalType === 'view'}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '0.9rem'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {modalType !== 'view' && (
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '32px', justifyContent: 'flex-end' }}>
-                    <button
-                      type="button"
-                      onClick={() => setShowModal(false)}
-                      style={{
-                        padding: '12px 24px',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        color: 'rgba(255,255,255,0.7)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '12px 24px',
-                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {modalType === 'create' ? 'Crear Estudiante' : 'Guardar Cambios'}
-                    </button>
-                  </div>
-                )}
+            {/* Información del Estudiante */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
+                <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.nombre}</div>
               </div>
-            </form>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Apellidos</div>
+                <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.apellido}</div>
+              </div>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Cédula</div>
+                <div style={{ color: '#fff', fontFamily: 'monospace' }}>{selectedEstudiante.cedula}</div>
+              </div>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>
+                <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <User size={16} color="#3b82f6" />
+                  {selectedEstudiante.username || 'No asignado'}
+                </div>
+              </div>
+              {selectedEstudiante.telefono && (
+                <div>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Phone size={16} color="#10b981" />
+                    {selectedEstudiante.telefono}
+                  </div>
+                </div>
+              )}
+              {selectedEstudiante.fecha_nacimiento && (
+                <div>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Calendar size={16} color="#fbbf24" />
+                    {formatDate(selectedEstudiante.fecha_nacimiento)}
+                  </div>
+                </div>
+              )}
+              {selectedEstudiante.genero && (
+                <div>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Género</div>
+                  <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selectedEstudiante.genero}</div>
+                </div>
+              )}
+              {selectedEstudiante.direccion && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Dirección</div>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <MapPin size={16} color="#ef4444" />
+                    {selectedEstudiante.direccion}
+                  </div>
+                </div>
+              )}
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
+                <span style={{
+                  display: 'inline-flex',
+                  padding: '6px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  textTransform: 'capitalize',
+                  background: selectedEstudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                             selectedEstudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
+                             'rgba(251, 191, 36, 0.15)',
+                  border: selectedEstudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                         selectedEstudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                         '1px solid rgba(251, 191, 36, 0.3)',
+                  color: selectedEstudiante.estado === 'activo' ? '#10b981' :
+                        selectedEstudiante.estado === 'inactivo' ? '#ef4444' :
+                        '#fbbf24'
+                }}>
+                  {selectedEstudiante.estado}
+                </span>
+              </div>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Registro</div>
+                <div style={{ color: '#fff' }}>{formatDate(selectedEstudiante.fecha_registro)}</div>
+              </div>
+            </div>
+
+            {/* Botón Cerrar */}
+            <div style={{ marginTop: 24, textAlign: 'right' }}>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: 'rgba(156, 163, 175, 0.15)',
+                  border: '1px solid rgba(156, 163, 175, 0.3)',
+                  color: '#9ca3af',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '500'
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

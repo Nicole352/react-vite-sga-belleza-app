@@ -86,8 +86,8 @@ const AdministradoresPanel: React.FC = () => {
   const [showPwd, setShowPwd] = useState<boolean>(false);
   const [showPwdConfirm, setShowPwdConfirm] = useState<boolean>(false);
 
-  // Roles visibles (oculta superadmin)
-  const visibleRoles = roles.filter(r => r.nombre_rol?.toLowerCase() !== 'superadmin');
+  // Roles visibles: SOLO 'administrativo'
+  const visibleRoles = roles.filter(r => r.nombre_rol?.toLowerCase() === 'administrativo');
 
   // Cargar admins del backend
   const loadAdmins = async () => {

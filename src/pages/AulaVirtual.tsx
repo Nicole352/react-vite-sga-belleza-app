@@ -25,7 +25,7 @@ const AulaVirtual = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // usuario o correo
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -44,10 +44,14 @@ const AulaVirtual = () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      const isEmail = formData.identifier.includes('@');
+      const payload = isEmail
+        ? { email: formData.identifier.trim(), password: formData.password }
+        : { username: formData.identifier.trim(), password: formData.password };
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, password: formData.password })
+        body: JSON.stringify(payload)
       });
       if (!res.ok) {
         const txt = await res.text();
@@ -68,7 +72,11 @@ const AulaVirtual = () => {
         navigate('/panel/administrativo');
         return;
       }
-      // Otros roles: por ahora mostrar éxito y quedar en la página
+      if (data.user.rol === 'estudiante') {
+        navigate('/panel/estudiante');
+        return;
+      }
+      // Otros roles: mostrar éxito y quedar en la página
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 1500);
     } catch (err: any) {
@@ -858,21 +866,21 @@ const AulaVirtual = () => {
                 <div className="login-form-section">
                   <div className="form-inputs">
                     <div className="form-group">
-                      <label htmlFor="email" className="form-label">
-                        Correo Electrónico
+                      <label htmlFor="identifier" className="form-label">
+                        Usuario
                       </label>
                       <div className="input-wrapper">
                         <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
+                          type="text"
+                          id="identifier"
+                          name="identifier"
+                          value={formData.identifier}
                           onChange={handleChange}
                           className="form-input"
-                          placeholder="tu@email.com"
+                          placeholder="tu usuario (o correo si eres admin)"
                           required
                         />
-                        <Mail size={20} className="input-icon" />
+                        <User size={20} className="input-icon" />
                       </div>
                     </div>
 

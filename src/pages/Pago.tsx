@@ -25,6 +25,7 @@ interface FormData {
   direccion: string;
   genero: '' | 'masculino' | 'femenino' | 'otro';
   montoMatricula: number;
+  horarioPreferido: '' | 'matutino' | 'vespertino';
 }
 
 interface FormErrors {
@@ -54,7 +55,9 @@ import {
   User,
   FileImage,
   Shield,
-  Globe
+  Globe,
+  FileText,
+  IdCard
 } from 'lucide-react';
 import Footer from '../components/Footer';
 
@@ -184,6 +187,8 @@ const Pago: React.FC = () => {
   const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'payphone' | 'efectivo'>('transferencia');
   const [isVisible, setIsVisible] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [documentoIdentificacion, setDocumentoIdentificacion] = useState<File | null>(null);
+  const [documentoEstatusLegal, setDocumentoEstatusLegal] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [submitAlert, setSubmitAlert] = useState<null | { type: 'error' | 'info' | 'success'; text: string }>(null);
   const [alertAnimatingOut, setAlertAnimatingOut] = useState(false);
@@ -200,12 +205,18 @@ const Pago: React.FC = () => {
     fechaNacimiento: '',
     direccion: '',
     genero: '',
-    montoMatricula: curso?.precio || 0
+    montoMatricula: curso?.precio || 0,
+    horarioPreferido: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
   const [showMontoAlert, setShowMontoAlert] = useState(false);
+  
+  // Estados para datos del comprobante
+  const [numeroComprobante, setNumeroComprobante] = useState('');
+  const [bancoComprobante, setBancoComprobante] = useState('');
+  const [fechaTransferencia, setFechaTransferencia] = useState('');
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -408,7 +419,11 @@ const Pago: React.FC = () => {
 
   const handleFileUpload = (file: File | null) => {
     if (isBlocked) return; // bloquear interacción
-    if (!file) { setUploadedFile(null); return; }
+    if (!file) { 
+      setUploadedFile(null); 
+      setNumeroComprobante('');
+      return; 
+    }
     const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     const maxBytes = 5 * 1024 * 1024; // 5MB
     if (!allowed.includes(file.type)) {
@@ -420,6 +435,40 @@ const Pago: React.FC = () => {
       return;
     }
     setUploadedFile(file);
+    
+    // OCR deshabilitado - usuario ingresa manualmente el número
+  };
+
+  const handleDocumentoIdentificacionUpload = (file: File | null) => {
+    if (isBlocked) return;
+    if (!file) { setDocumentoIdentificacion(null); return; }
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (!allowed.includes(file.type)) {
+      alert('Formato no permitido. Usa PDF, JPG, PNG o WEBP.');
+      return;
+    }
+    if (file.size > maxBytes) {
+      alert('El archivo supera 5MB. Por favor, sube un archivo más pequeño.');
+      return;
+    }
+    setDocumentoIdentificacion(file);
+  };
+
+  const handleDocumentoEstatusLegalUpload = (file: File | null) => {
+    if (isBlocked) return;
+    if (!file) { setDocumentoEstatusLegal(null); return; }
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (!allowed.includes(file.type)) {
+      alert('Formato no permitido. Usa PDF, JPG, PNG o WEBP.');
+      return;
+    }
+    if (file.size > maxBytes) {
+      alert('El archivo supera 5MB. Por favor, sube un archivo más pequeño.');
+      return;
+    }
+    setDocumentoEstatusLegal(file);
   };
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -443,6 +492,11 @@ const Pago: React.FC = () => {
     }
   };
 
+  // Función para limpiar el número de comprobante al quitar archivo
+  const limpiarDatosComprobante = () => {
+    setNumeroComprobante('');
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Bloqueo por estado/cupos desde backend
@@ -455,6 +509,18 @@ const Pago: React.FC = () => {
     }
     if (!formData.tipoDocumento) {
       alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
+      return;
+    }
+    if (!formData.horarioPreferido) {
+      alert('Selecciona el horario preferido (Matutino o Vespertino).');
+      return;
+    }
+    if (!documentoIdentificacion) {
+      alert(`Por favor, sube la copia de ${formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}.`);
+      return;
+    }
+    if (formData.tipoDocumento === 'extranjero' && !documentoEstatusLegal) {
+      alert('Por favor, sube el documento de estatus legal (visa de estudiante o permiso de residencia).');
       return;
     }
     // Validaciones mínimas
@@ -491,6 +557,31 @@ const Pago: React.FC = () => {
       return;
     }
     if (selectedPayment === 'transferencia' || selectedPayment === 'efectivo') {
+      // Validar campos del comprobante para transferencia
+      if (selectedPayment === 'transferencia') {
+        if (!numeroComprobante.trim()) {
+          setSubmitAlert({
+            type: 'error',
+            text: 'Por favor, ingresa el número de comprobante.'
+          });
+          return;
+        }
+        if (!bancoComprobante) {
+          setSubmitAlert({
+            type: 'error',
+            text: 'Por favor, selecciona el banco.'
+          });
+          return;
+        }
+        if (!fechaTransferencia) {
+          setSubmitAlert({
+            type: 'error',
+            text: 'Por favor, ingresa la fecha de transferencia.'
+          });
+          return;
+        }
+      }
+      
       if (!uploadedFile) {
         setSubmitAlert({
           type: 'error',
@@ -546,10 +637,17 @@ const Pago: React.FC = () => {
         if (formData.fechaNacimiento) body.append('fecha_nacimiento_solicitante', formData.fechaNacimiento);
         if (formData.direccion) body.append('direccion_solicitante', formData.direccion);
         if (formData.genero) body.append('genero_solicitante', formData.genero);
+        body.append('horario_preferido', formData.horarioPreferido);
         body.append('id_tipo_curso', String(tipoCursoId));
         body.append('monto_matricula', String(formData.montoMatricula));
         body.append('metodo_pago', selectedPayment);
+        // Nuevos campos del comprobante
+        if (numeroComprobante) body.append('numero_comprobante', numeroComprobante);
+        if (bancoComprobante) body.append('banco_comprobante', bancoComprobante);
+        if (fechaTransferencia) body.append('fecha_transferencia', fechaTransferencia);
         if (uploadedFile) body.append('comprobante', uploadedFile);
+        if (documentoIdentificacion) body.append('documento_identificacion', documentoIdentificacion);
+        if (documentoEstatusLegal) body.append('documento_estatus_legal', documentoEstatusLegal);
 
         // Para debug - convertir FormData a objeto
         debugInfo = {
@@ -561,10 +659,13 @@ const Pago: React.FC = () => {
           fecha_nacimiento_solicitante: formData.fechaNacimiento,
           direccion_solicitante: formData.direccion,
           genero_solicitante: formData.genero,
+          horario_preferido: formData.horarioPreferido,
           id_tipo_curso: tipoCursoId,
           monto_matricula: formData.montoMatricula,
           metodo_pago: selectedPayment,
-          comprobante: uploadedFile ? 'Archivo adjunto' : 'Sin archivo'
+          comprobante: uploadedFile ? 'Archivo adjunto' : 'Sin archivo',
+          documento_identificacion: documentoIdentificacion ? 'Archivo adjunto' : 'Sin archivo',
+          documento_estatus_legal: documentoEstatusLegal ? 'Archivo adjunto' : 'Sin archivo'
         };
 
         response = await fetch(`${API_BASE}/solicitudes`, {
@@ -574,7 +675,7 @@ const Pago: React.FC = () => {
       } else {
         const montoFinal = selectedPayment === 'payphone' ? formData.montoMatricula + 7 : formData.montoMatricula;
         debugInfo = {
-          cedula_solicitante: documento.toUpperCase(),
+          identificacion_solicitante: documento.toUpperCase(),
           nombre_solicitante: formData.nombre,
           apellido_solicitante: formData.apellido,
           telefono_solicitante: formData.telefono,
@@ -582,6 +683,7 @@ const Pago: React.FC = () => {
           fecha_nacimiento_solicitante: formData.fechaNacimiento || null,
           direccion_solicitante: formData.direccion || null,
           genero_solicitante: formData.genero || null,
+          horario_preferido: formData.horarioPreferido,
           id_tipo_curso: tipoCursoId,
           monto_matricula: montoFinal,
           metodo_pago: selectedPayment
@@ -602,6 +704,37 @@ const Pago: React.FC = () => {
         console.error('tipoCursoId:', tipoCursoId);
         console.error('selectedPayment:', selectedPayment);
         console.error('=======================');
+        
+        // Manejo especial para error de comprobante duplicado
+        let errorObj;
+        try {
+          errorObj = JSON.parse(errText);
+        } catch {
+          errorObj = { error: errText };
+        }
+        
+        if (errorObj.error && errorObj.error.includes('número de comprobante ya fue utilizado')) {
+          // Alerta profesional para comprobante duplicado
+          setSubmitAlert({
+            type: 'error',
+            text: `🚨 COMPROBANTE DUPLICADO DETECTADO
+
+⚠️ El número de comprobante "${numeroComprobante}" ya fue registrado anteriormente en nuestro sistema.
+
+📋 POR FAVOR, VERIFICA:
+• Que no hayas enviado esta solicitud antes
+• Que el comprobante sea de una transferencia nueva
+• Que el número esté correcto
+
+🔒 POLÍTICA DE SEGURIDAD:
+Cada comprobante debe ser único para garantizar la transparencia y evitar pagos duplicados. Esta medida protege tanto a estudiantes como a la institución.
+
+💡 SOLUCIÓN:
+Realiza una nueva transferencia o verifica si ya tienes una solicitud previa registrada.`
+          });
+          return;
+        }
+        
         throw new Error(errText || 'Error al enviar la solicitud');
       }
       const data = await response.json();
@@ -1534,9 +1667,12 @@ const Pago: React.FC = () => {
                             fechaNacimiento: '',
                             direccion: '',
                             genero: '',
-                            montoMatricula: curso?.precio || 0
+                            montoMatricula: curso?.precio || 0,
+                            horarioPreferido: ''
                           });
                           setErrors({});
+                          setDocumentoIdentificacion(null);
+                          setDocumentoEstatusLegal(null);
                         }}
                         className="document-tab"
                         style={{
@@ -1577,9 +1713,12 @@ const Pago: React.FC = () => {
                             fechaNacimiento: '',
                             direccion: '',
                             genero: '',
-                            montoMatricula: curso?.precio || 0
+                            montoMatricula: curso?.precio || 0,
+                            horarioPreferido: ''
                           });
                           setErrors({});
+                          setDocumentoIdentificacion(null);
+                          setDocumentoEstatusLegal(null);
                         }}
                         style={{
                           padding: '12px 14px',
@@ -1899,37 +2038,78 @@ const Pago: React.FC = () => {
                     />
                   </div>
 
-                  <div style={{ marginBottom: '20px', animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
-                    <label style={{
-                      display: 'block',
-                      marginBottom: '8px',
-                      fontWeight: '600',
-                      color: '#fff'
-                    }}>
-                      Género
-                    </label>
-                    <select
-                      required
-                      value={formData.genero}
-                      onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid rgba(251, 191, 36, 0.2)',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
-                        transition: 'border-color 0.3s ease',
-                        background: 'rgba(0, 0, 0, 0.4)',
+                  <div className="form-row" style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '20px',
+                    marginBottom: '20px',
+                    animation: 'scaleFade 1.2s ease-in-out',
+                    animationDelay: '200ms'
+                  }}>
+                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
                         color: '#fff'
-                      }}
-                      onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                      onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                    >
-                      <option value="" disabled>Seleccionar</option>
-                      <option value="masculino">Masculino</option>
-                      <option value="femenino">Femenino</option>
-                      <option value="otro">Otro</option>
-                    </select>
+                      }}>
+                        Género *
+                      </label>
+                      <select
+                        required
+                        value={formData.genero}
+                        onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          borderRadius: '12px',
+                          fontSize: '1rem',
+                          transition: 'border-color 0.3s ease',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
+                        }}
+                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                      >
+                        <option value="" disabled>Seleccionar</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                      </select>
+                    </div>
+
+                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '220ms' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
+                        color: '#fff'
+                      }}>
+                        Horario Preferido *
+                      </label>
+                      <select
+                        required
+                        value={formData.horarioPreferido}
+                        onChange={(e) => setFormData({ ...formData, horarioPreferido: (e.target as HTMLSelectElement).value as FormData['horarioPreferido'] })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: '2px solid rgba(251, 191, 36, 0.2)',
+                          borderRadius: '12px',
+                          fontSize: '1rem',
+                          transition: 'border-color 0.3s ease',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          color: '#fff'
+                        }}
+                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                      >
+                        <option value="" disabled>Seleccionar horario</option>
+                        <option value="matutino">Matutino</option>
+                        <option value="vespertino">Vespertino</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="form-row" style={{
@@ -2126,6 +2306,329 @@ const Pago: React.FC = () => {
                   </>
                   )}
 
+                  {/* Sección de Documentos */}
+                  {formData.tipoDocumento !== '' && (
+                    <div style={{
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      marginTop: '24px',
+                      animation: 'scaleFade 1.2s ease-in-out',
+                      animationDelay: '400ms'
+                    }}>
+                      <h4 style={{
+                        fontSize: '1.2rem',
+                        fontWeight: '700',
+                        color: '#fff',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                      }}>
+                        <FileText size={24} color="#3b82f6" />
+                        Documentos Requeridos
+                      </h4>
+
+                      {/* Documento de Identificación */}
+                      <div style={{ marginBottom: '24px' }}>
+                        <label style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          marginBottom: '12px',
+                          fontWeight: '600',
+                          color: '#fff'
+                        }}>
+                          <IdCard size={18} color="#3b82f6" />
+                          {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
+                        </label>
+                        
+                        <div
+                          onDragEnter={handleDrag}
+                          onDragLeave={handleDrag}
+                          onDragOver={handleDrag}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (isBlocked) return;
+                            setDragActive(false);
+                            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                              handleDocumentoIdentificacionUpload(e.dataTransfer.files[0]);
+                            }
+                          }}
+                          style={{
+                            border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                            borderRadius: '12px',
+                            padding: '20px',
+                            textAlign: 'center',
+                            background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => document.getElementById('documentoIdentificacionInput')?.click()}
+                        >
+                          <input
+                            id="documentoIdentificacionInput"
+                            type="file"
+                            accept=".pdf,image/jpeg,image/png,image/webp"
+                            onChange={(e) => handleDocumentoIdentificacionUpload(e.target.files?.[0] || null)}
+                            style={{ display: 'none' }}
+                          />
+                          
+                          {documentoIdentificacion ? (
+                            <div>
+                              <div style={{
+                                width: '50px',
+                                height: '50px',
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 12px'
+                              }}>
+                                <CheckCircle size={24} color="#fff" />
+                              </div>
+                              <p style={{
+                                color: '#10b981',
+                                fontWeight: '600',
+                                fontSize: '1rem',
+                                marginBottom: '6px'
+                              }}>
+                                ¡Documento subido!
+                              </p>
+                              <p style={{
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                fontSize: '0.85rem',
+                                marginBottom: '12px'
+                              }}>
+                                {documentoIdentificacion?.name} ({((documentoIdentificacion?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                              </p>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDocumentoIdentificacion(null);
+                                }}
+                                style={{
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  borderRadius: '6px',
+                                  padding: '6px 12px',
+                                  color: '#dc2626',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                Cambiar
+                              </button>
+                            </div>
+                          ) : (
+                            <div>
+                              <div style={{
+                                width: '50px',
+                                height: '50px',
+                                background: 'rgba(59, 130, 246, 0.2)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 12px'
+                              }}>
+                                <IdCard size={24} color="#3b82f6" />
+                              </div>
+                              <p style={{
+                                color: '#fff',
+                                fontWeight: '600',
+                                fontSize: '1rem',
+                                marginBottom: '6px'
+                              }}>
+                                Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
+                              </p>
+                              <p style={{
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                fontSize: '0.85rem',
+                                marginBottom: '12px'
+                              }}>
+                                Arrastra y suelta o haz clic para seleccionar
+                              </p>
+                              <p style={{
+                                color: '#999',
+                                fontSize: '0.75rem'
+                              }}>
+                                PDF, JPG, PNG, WEBP (Máx. 5MB)
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Documento de Estatus Legal - Solo para extranjeros */}
+                      {formData.tipoDocumento === 'extranjero' && (
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '12px',
+                            fontWeight: '600',
+                            color: '#fff'
+                          }}>
+                            <FileText size={18} color="#3b82f6" />
+                            Documento de Estatus Legal *
+                          </label>
+                          
+                          <div style={{
+                            background: 'rgba(251, 191, 36, 0.1)',
+                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            marginBottom: '12px'
+                          }}>
+                            <p style={{
+                              color: '#fbbf24',
+                              fontSize: '0.85rem',
+                              margin: 0,
+                              fontWeight: '600'
+                            }}>
+                              📋 Documentos aceptados:
+                            </p>
+                            <ul style={{
+                              color: 'rgba(255, 255, 255, 0.8)',
+                              fontSize: '0.8rem',
+                              margin: '8px 0 0 0',
+                              paddingLeft: '16px'
+                            }}>
+                              <li>Visa de estudiante vigente</li>
+                              <li>Permiso de residencia válido</li>
+                            </ul>
+                          </div>
+                          
+                          <div
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isBlocked) return;
+                              setDragActive(false);
+                              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                handleDocumentoEstatusLegalUpload(e.dataTransfer.files[0]);
+                              }
+                            }}
+                            style={{
+                              border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                              borderRadius: '12px',
+                              padding: '20px',
+                              textAlign: 'center',
+                              background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                              transition: 'all 0.3s ease',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => document.getElementById('documentoEstatusLegalInput')?.click()}
+                          >
+                            <input
+                              id="documentoEstatusLegalInput"
+                              type="file"
+                              accept=".pdf,image/jpeg,image/png,image/webp"
+                              onChange={(e) => handleDocumentoEstatusLegalUpload(e.target.files?.[0] || null)}
+                              style={{ display: 'none' }}
+                            />
+                            
+                            {documentoEstatusLegal ? (
+                              <div>
+                                <div style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 12px'
+                                }}>
+                                  <CheckCircle size={24} color="#fff" />
+                                </div>
+                                <p style={{
+                                  color: '#10b981',
+                                  fontWeight: '600',
+                                  fontSize: '1rem',
+                                  marginBottom: '6px'
+                                }}>
+                                  ¡Documento subido!
+                                </p>
+                                <p style={{
+                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  fontSize: '0.85rem',
+                                  marginBottom: '12px'
+                                }}>
+                                  {documentoEstatusLegal?.name} ({((documentoEstatusLegal?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDocumentoEstatusLegal(null);
+                                  }}
+                                  style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '6px',
+                                    padding: '6px 12px',
+                                    color: '#dc2626',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Cambiar
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  background: 'rgba(59, 130, 246, 0.2)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 12px'
+                                }}>
+                                  <FileText size={24} color="#3b82f6" />
+                                </div>
+                                <p style={{
+                                  color: '#fff',
+                                  fontWeight: '600',
+                                  fontSize: '1rem',
+                                  marginBottom: '6px'
+                                }}>
+                                  Subir documento de estatus legal
+                                </p>
+                                <p style={{
+                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  fontSize: '0.85rem',
+                                  marginBottom: '12px'
+                                }}>
+                                  Arrastra y suelta o haz clic para seleccionar
+                                </p>
+                                <p style={{
+                                  color: '#999',
+                                  fontSize: '0.75rem'
+                                }}>
+                                  PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   
                 </div>
 
@@ -2315,6 +2818,138 @@ const Pago: React.FC = () => {
                             fontStyle: 'italic'
                           }}>
                             Escanea el QR o usa los datos bancarios para realizar la transferencia
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Información del comprobante */}
+                      <div style={{ marginBottom: '24px' }}>
+                        <h5 style={{
+                          color: '#b45309',
+                          fontSize: '1.1rem',
+                          fontWeight: '600',
+                          marginBottom: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <FileText size={18} />
+                          Datos del Comprobante *
+                        </h5>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                          {/* Banco */}
+                          <div>
+                            <label style={{
+                              display: 'block',
+                              color: 'rgba(255, 255, 255, 0.8)',
+                              fontSize: '0.9rem',
+                              marginBottom: '8px',
+                              fontWeight: '500'
+                            }}>
+                              Banco *
+                            </label>
+                            <select
+                              value={bancoComprobante}
+                              onChange={(e) => setBancoComprobante(e.target.value)}
+                              required
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                color: '#fff',
+                                fontSize: '1rem'
+                              }}
+                            >
+                              <option value="">Selecciona el banco</option>
+                              <option value="pichincha">Banco Pichincha</option>
+                              <option value="guayaquil">Banco de Guayaquil</option>
+                              <option value="pacifico">Banco del Pacífico</option>
+                              <option value="produbanco">Produbanco</option>
+                              <option value="bolivariano">Banco Bolivariano</option>
+                              <option value="internacional">Banco Internacional</option>
+                              <option value="machala">Banco de Machala</option>
+                              <option value="austro">Banco del Austro</option>
+                              <option value="cooperativa">Cooperativa</option>
+                              <option value="otro">Otro</option>
+                            </select>
+                          </div>
+
+                          {/* Fecha de transferencia */}
+                          <div>
+                            <label style={{
+                              display: 'block',
+                              color: 'rgba(255, 255, 255, 0.8)',
+                              fontSize: '0.9rem',
+                              marginBottom: '8px',
+                              fontWeight: '500'
+                            }}>
+                              Fecha de transferencia *
+                            </label>
+                            <input
+                              type="date"
+                              value={fechaTransferencia}
+                              onChange={(e) => setFechaTransferencia(e.target.value)}
+                              required
+                              max={new Date().toISOString().split('T')[0]}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                color: '#fff',
+                                fontSize: '1rem'
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Número de comprobante */}
+                        <div>
+                          <label style={{
+                            display: 'block',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            fontSize: '0.9rem',
+                            marginBottom: '8px',
+                            fontWeight: '500'
+                          }}>
+                            Número de comprobante *
+                            <span style={{ 
+                              color: '#ef4444', 
+                              fontSize: '0.8rem', 
+                              marginLeft: '8px' 
+                            }}>
+                              (Debe ser único - no se puede repetir)
+                            </span>
+                          </label>
+                          <input
+                            type="text"
+                            value={numeroComprobante}
+                            onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
+                            placeholder="Ej: 123456789, ABC-123-XYZ"
+                            required
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              borderRadius: '12px',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              background: 'rgba(0, 0, 0, 0.3)',
+                              color: '#fff',
+                              fontSize: '1rem',
+                              fontFamily: 'monospace'
+                            }}
+                          />
+                          <p style={{
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            fontSize: '0.8rem',
+                            margin: '8px 0 0 0',
+                            lineHeight: 1.4
+                          }}>
+                            Ingresa el número de referencia/transacción que aparece en tu comprobante bancario. 
+                            <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
                           </p>
                         </div>
                       </div>
@@ -2652,32 +3287,52 @@ const Pago: React.FC = () => {
                     border:
                       submitAlert.type === 'error' ? '1px solid rgba(239, 68, 68, 0.35)' : submitAlert.type === 'success' ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(59,130,246,0.35)',
                     borderRadius: 12,
-                    padding: '16px 20px',
+                    padding: '20px 24px',
                     marginBottom: 24,
                     animation: alertAnimatingOut
                       ? 'alertFadeOut 0.35s ease-in forwards'
-                      : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)'
+                      : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                    maxWidth: '100%',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <AlertCircle size={20} color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'} />
-                        <span style={{ color: 'rgba(255,255,255,0.95)', fontSize: '1rem', fontWeight: '500' }}>{submitAlert.text}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                        <AlertCircle 
+                          size={24} 
+                          color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'} 
+                          style={{ marginTop: '2px', flexShrink: 0 }}
+                        />
+                        <div style={{ 
+                          color: 'rgba(255,255,255,0.95)', 
+                          fontSize: '0.95rem', 
+                          fontWeight: '500',
+                          lineHeight: 1.6,
+                          whiteSpace: 'pre-line',
+                          flex: 1
+                        }}>
+                          {submitAlert.text}
+                        </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => setSubmitAlert(null)}
                         style={{
-                          background: 'rgba(255,255,255,0.1)',
+                          background: 'rgba(255,255,255,0.15)',
                           border: '1px solid rgba(255,255,255,0.3)',
                           color: 'rgba(255,255,255,0.9)',
                           borderRadius: 8,
-                          padding: '8px 12px',
+                          padding: '10px 14px',
                           fontWeight: 600,
                           cursor: 'pointer',
-                          fontSize: '0.9rem'
+                          fontSize: '0.9rem',
+                          alignSelf: 'flex-start',
+                          flexShrink: 0,
+                          transition: 'all 0.2s ease'
                         }}
+                        onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)'}
+                        onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)'}
                       >
-                        ✕
+                        Entendido
                       </button>
                     </div>
                   </div>
