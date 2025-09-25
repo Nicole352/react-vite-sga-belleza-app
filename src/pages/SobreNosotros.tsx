@@ -231,7 +231,11 @@ const SobreNosotros: React.FC = () => {
 
   const historiaNodes = useMemo(() => historia.map((hito) => ({
     node: (
-      <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
+      <SpotlightCard
+        className="custom-spotlight-card"
+        spotlightColor="rgba(251, 191, 36, 0.2)"
+        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 420 }}>
           <div style={{ width: 60, height: 60, background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}>
             {hito.año}
@@ -240,7 +244,7 @@ const SobreNosotros: React.FC = () => {
             <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f3f4f6', margin: 0, lineHeight: 1.3 }}>
               {hito.evento}
             </h3>
-            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
+            <p style={{ color: 'var(--muted-strong)', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
               {hito.descripcion}
             </p>
           </div>
@@ -280,7 +284,7 @@ const SobreNosotros: React.FC = () => {
   const titleStyle: React.CSSProperties = {
     fontSize: '1.3rem',
     fontWeight: '700',
-    color: '#f3f4f6',
+    color: 'var(--fg)',
     marginBottom: '12px',
     lineHeight: 1.2,
     minHeight: '3rem',
@@ -291,7 +295,7 @@ const SobreNosotros: React.FC = () => {
 
   const paragraphStyle: React.CSSProperties = {
     fontSize: '0.95rem',
-    color: '#cbd5e1',
+    color: 'var(--muted)',
     lineHeight: 1.5,
     margin: 0,
     flex: 1,
@@ -327,7 +331,7 @@ const SobreNosotros: React.FC = () => {
         <SpotlightCard 
           spotlightColor={`${valor.color}40`}
           className="custom-spotlight-card"
-          style={{ height: '100%' }}
+          style={{ height: '100%', background: 'var(--surface-2)', border: '1px solid var(--border)' }}
         >
           <div style={cardContentStyle}>
             <div style={iconContainerStyle(valor.color, isHovered)}>
@@ -408,7 +412,7 @@ const SobreNosotros: React.FC = () => {
           .section-title {
             font-size: 2.8rem;
             font-weight: 700;
-            color: white;
+            color: var(--fg);
             margin-bottom: 15px; // Reducido de 20px
             text-align: center;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -463,7 +467,7 @@ const SobreNosotros: React.FC = () => {
 
           .slide-content {
             text-align: center;
-            color: white;
+            color: var(--fg);
             z-index: 3;
             padding: 24px;
             position: absolute;
@@ -475,9 +479,9 @@ const SobreNosotros: React.FC = () => {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.35);
+            background: var(--glass-weak);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(251, 191, 36, 0.25);
+            border: 1px solid var(--border);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
           }
@@ -513,7 +517,7 @@ const SobreNosotros: React.FC = () => {
             width: 12px;
             height: 12px;
             border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.4);
+            background-color: var(--border);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           }
@@ -620,9 +624,9 @@ const SobreNosotros: React.FC = () => {
             height: 320px;
             border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(251, 191, 36, 0.25);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--border);
+            // box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            background: var(--glass-weak);
             backdrop-filter: blur(6px);
           }
           
@@ -670,7 +674,7 @@ const SobreNosotros: React.FC = () => {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.4);
+            background: var(--border);
             cursor: pointer;
             transition: all 0.3s ease;
           }
@@ -705,11 +709,21 @@ const SobreNosotros: React.FC = () => {
           }
         `}
       </style>
+      <style>
+        {`
+          /* Tarjetas Spotlight alineadas al tema */
+          .custom-spotlight-card {
+            background: var(--surface-2) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--fg) !important;
+          }
+        `}
+      </style>
 
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          background: 'linear-gradient(135deg, var(--page-grad-from) 0%, var(--page-grad-mid) 50%, var(--page-grad-to) 100%)',
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '100px', // Reducido de 110px
@@ -795,7 +809,7 @@ const SobreNosotros: React.FC = () => {
             <p
               style={{
                 fontSize: '1.4rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: 'var(--muted)',
                 maxWidth: '800px',
                 margin: '0 auto 32px',
                 lineHeight: 1.6
@@ -823,7 +837,7 @@ const SobreNosotros: React.FC = () => {
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-2)',
                     backdropFilter: 'blur(25px)',
                     borderRadius: '20px',
                     padding: '28px 32px',
@@ -867,7 +881,7 @@ const SobreNosotros: React.FC = () => {
                   </div>
                   <div style={{
                     fontSize: '0.95rem',
-                    color: '#f3f4f6'
+                    color: 'var(--fg)'
                   }}>
                     {logro.texto}
                   </div>
@@ -892,7 +906,11 @@ const SobreNosotros: React.FC = () => {
               data-aos="fade-right"
             >
               <div style={{ height: '100%' }}>
-                <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                <SpotlightCard
+                  className="custom-spotlight-card"
+                  spotlightColor="rgba(251, 191, 36, 0.2)"
+                  style={{ height: '100%', minHeight: '280px', background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+                >
                   <div style={cardContentStyle}>
                     <div style={iconContainerStyle('#f59e0b', false)}>
                       <Target size={36} color="#fff" />
@@ -925,7 +943,11 @@ const SobreNosotros: React.FC = () => {
               data-aos="fade-left"
             >
               <div style={{ height: '100%' }}>
-                <SpotlightCard spotlightColor="rgba(16, 185, 129, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                <SpotlightCard
+                  className="custom-spotlight-card"
+                  spotlightColor="rgba(16, 185, 129, 0.2)"
+                  style={{ height: '100%', minHeight: '280px', background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+                >
                   <div style={cardContentStyle}>
                     <div style={iconContainerStyle('#10b981', false)}>
                       <Eye size={36} color="#fff" />
@@ -1033,7 +1055,7 @@ const SobreNosotros: React.FC = () => {
                 pauseOnHover
                 className="historia-loop"
                 fadeOut
-                fadeOutColor="#161616"
+                fadeOutColor="var(--page-grad-from)"
                 ariaLabel="Historia SGA Belleza"
               />
             </div>   
@@ -1073,7 +1095,11 @@ const SobreNosotros: React.FC = () => {
                   }}
                   data-aos="zoom-in"
                 >
-                  <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
+                  <SpotlightCard
+                    className="custom-spotlight-card"
+                    spotlightColor="rgba(251, 191, 36, 0.2)"
+                    style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+                  >
                     <div className="liderazgo-grid">
                       {/* Columna izquierda: Información del liderazgo */}
                       <div>
@@ -1143,10 +1169,9 @@ const SobreNosotros: React.FC = () => {
                         >
                           {miembro.especializacion}
                         </p>
-
                         <p
                           style={{
-                            color: '#cbd5e1',
+                            color: 'var(--muted-strong)',
                             fontSize: '1rem',
                             lineHeight: 1.6,
                             margin: 0
@@ -1159,9 +1184,9 @@ const SobreNosotros: React.FC = () => {
                       {/* Columna derecha: Carrusel de certificados */}
                       <div>
                         <h4 style={{
-                          color: '#f3f4f6',
+                          color: 'var(--fg)',
                           fontSize: '1.3rem',
-                          fontWeight: '700',
+                          fontWeight: 700,
                           marginBottom: '16px',
                           textAlign: 'center'
                         }}>

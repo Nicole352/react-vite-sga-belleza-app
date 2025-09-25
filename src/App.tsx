@@ -14,6 +14,7 @@ import PanelAdministrativos from './roles/admin/PanelAdministrativos';
 import PanelEstudiantes from './roles/estudiante/PanelEstudiantes';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
+import FloatingThemeToggle from './components/FloatingThemeToggle';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,8 @@ const App: React.FC = () => {
       v7_relativeSplatPath: true 
     }}>
       <div className="App">
+        {/* Botón flotante de modo claro/oscuro (debajo del header) */}
+        <FloatingThemeToggle />
         <Routes>
           {/* Rutas públicas con Header */}
           <Route path="/" element={<><Header /><PaginaInicio /></>} />

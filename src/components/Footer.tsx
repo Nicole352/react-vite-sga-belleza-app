@@ -13,11 +13,11 @@ import {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const footerStyle: CSSProperties = {
-    background: 'rgba(0, 0, 0, 0.95)',
+    background: 'linear-gradient(135deg, var(--page-grad-from) 0%, var(--page-grad-mid) 50%, var(--page-grad-to) 100%)',
     backdropFilter: 'blur(20px)',
     borderTop: '2px solid rgba(251, 191, 36, 0.3)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-    color: 'white',
+    color: 'var(--fg)',
     padding: '60px 0 30px',
     position: 'relative',
     overflow: 'hidden',
@@ -57,7 +57,7 @@ const Footer = () => {
   };
 
   const descriptionStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'var(--fg)',
     lineHeight: '1.6',
     marginBottom: '0',
     marginTop: '-40px',
@@ -112,7 +112,7 @@ const Footer = () => {
   };
 
   const linkStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'var(--fg)',
     textDecoration: 'none',
     fontSize: '15px',
     fontFamily: "'Montserrat', sans-serif",
@@ -140,16 +140,16 @@ const Footer = () => {
     borderRadius: '10px',
     transition: 'transform 0.25s ease, background 0.25s ease, border-color 0.25s ease',
     textDecoration: 'none',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: '1px solid var(--border)',
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',
-    background: 'rgba(255, 255, 255, 0.08)', // base consistente con estado de salida
+    background: 'var(--surface-2)', // base consistente con estado de salida
     willChange: 'transform, background, border-color',
   };
 
   const bottomBarStyle: CSSProperties = {
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: '1px solid var(--border)',
     paddingTop: '30px',
     display: 'flex',
     justifyContent: 'center',
@@ -159,7 +159,7 @@ const Footer = () => {
   };
 
   const copyrightStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'var(--fg)',
     fontSize: '14px',
     fontFamily: "'Montserrat', sans-serif",
     display: 'flex',
@@ -252,7 +252,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -268,7 +268,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -284,7 +284,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -300,7 +300,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -316,7 +316,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -332,7 +332,7 @@ const Footer = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = 'var(--fg)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -364,7 +364,7 @@ const Footer = () => {
           <div style={sectionStyle} className="footer-social-section" data-aos="fade-left" data-aos-delay="250">
             <h3 style={sectionTitleStyle}>Síguenos</h3>
             <p style={{
-              color: 'rgba(255, 255, 255, 0.8)',
+              color: 'var(--fg)',
               fontSize: '14px',
               fontFamily: "'Montserrat', sans-serif",
               lineHeight: '1.5',
@@ -391,8 +391,8 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = 'var(--surface-2)';
+                    el.style.borderColor = 'var(--border)';
                   }}
                 >
                   <TikTokIcon />
@@ -413,11 +413,11 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = 'var(--surface-2)';
+                    el.style.borderColor = 'var(--border)';
                   }}
                 >
-                  <Instagram size={20} color="#fff" />
+                  <Instagram size={20} color="var(--fg)" />
                 </a>
 
                 <a 
@@ -435,11 +435,11 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = 'var(--surface-2)';
+                    el.style.borderColor = 'var(--border)';
                   }}
                 >
-                  <Facebook size={20} color="#fff" />
+                  <Facebook size={20} color="var(--fg)" />
                 </a>
 
                 <a 
@@ -986,16 +986,8 @@ const Footer = () => {
             transform: none !important;
             background: rgba(255, 255, 255, 0.08) !important;
           }
-          
           .footer-logo:hover {
             transform: none !important;
-          }
-        }
-
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-          footer {
-            background: rgba(0, 0, 0, 0.98) !important;
           }
         }
 
@@ -1012,14 +1004,16 @@ const Footer = () => {
           footer {
             border-top: 3px solid #fbbf24 !important;
           }
-          
           .social-link {
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border: 2px solid var(--border) !important;
+          }
+          .social-link:hover {
+            background: var(--accent-hover) !important;
           }
         }
-      `}</style>
+      `
+      }</style>
     </footer>
   );
 };
-
 export default Footer;

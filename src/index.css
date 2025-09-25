@@ -13,8 +13,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000;
-  color: white;
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color 200ms ease, color 200ms ease;
   /* Prevenir cambios horizontales de layout */
   overflow-x: hidden;
 }
