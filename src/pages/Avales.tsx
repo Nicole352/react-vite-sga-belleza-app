@@ -606,7 +606,7 @@ const Avales = () => {
             >
               <Shield size={20} color="#fbbf24" />
               <span style={{ 
-                color: '#FFB837', 
+                color: '#fde68a', 
                 fontWeight: '600',
                 fontSize: '0.9rem',
                 letterSpacing: '0.5px'
@@ -661,7 +661,7 @@ const Avales = () => {
                 }}>
                   <Award size={18} color="#000" />
                 </div>
-                <h3 style={{ margin: 0, color: '#D17B2F', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
+                <h3 style={{ margin: 0, color: '#e5e7eb', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
               </div>
 
               <div
@@ -828,7 +828,7 @@ const Avales = () => {
               >
                 Respaldo Gubernamental
               </h2>
-              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#3b82f6', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '20px' }}>
                 Ministerio del Trabajo + SENESCYT
               </h3>
               <p style={{ color: 'rgba(255,255,255,0.9)', maxWidth: 800, margin: '0 auto 24px', lineHeight: 1.6 }}>
@@ -1078,7 +1078,7 @@ const Avales = () => {
                 href="/contactenos"
                 style={{
                   background: 'rgba(255, 255, 255, 0.1)',
-                  color: 'rgba(218, 123, 46, 0.81)',
+                  color: '#fff',
                   padding: '16px 32px',
                   borderRadius: '50px',
                   textDecoration: 'none',
