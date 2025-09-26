@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Sun, Moon
+  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Sun, Moon, Building2
 } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
@@ -12,6 +12,7 @@ import GestionMatricula from './GestionMatricula';
 import GestionEstudiantes from './GestionEstudiantes';
 import GestionDocentes from './GestionDocentes';
 import AsignacionAula from './AsignacionAula';
+import GestionAulas from './GestionAulas';
 import Reportes from './Reportes';
 import GestionTiposCurso from './GestionTiposCurso';
 
@@ -71,7 +72,8 @@ const PanelAdministrativos = () => {
     { id: 'matricula', name: 'Gestión Matrícula', icon: GraduationCap },
     { id: 'estudiantes', name: 'Gestión Estudiantes', icon: Users },
     { id: 'docentes', name: 'Gestión Docentes', icon: UserCheck },
-    { id: 'aulas', name: 'Asignación Aula', icon: MapPin },
+    { id: 'gestion-aulas', name: 'Gestión Aulas', icon: Building2 },
+    { id: 'asignacion-aulas', name: 'Asignación Aula', icon: MapPin },
     { id: 'reportes', name: 'Reportes', icon: FileText }
   ];
 
@@ -311,7 +313,8 @@ const PanelAdministrativos = () => {
                 {activeTab === 'matricula' && 'Control de matrículas y inscripciones'}
                 {activeTab === 'estudiantes' && 'Gestión de estudiantes registrados'}
                 {activeTab === 'docentes' && 'Administración de profesores y docentes'}
-                {activeTab === 'aulas' && 'Asignación y control de aulas'}
+                {activeTab === 'gestion-aulas' && 'Administración y configuración de aulas'}
+                {activeTab === 'asignacion-aulas' && 'Asignación y control de aulas por curso'}
                 {activeTab === 'reportes' && 'Reportes y estadísticas del sistema'}
               </p>
             </div>
@@ -395,7 +398,8 @@ const PanelAdministrativos = () => {
           {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
           {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
           {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
-          {activeTab === 'aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
+          {activeTab === 'gestion-aulas' && <AdminThemeWrapper darkMode={darkMode}><GestionAulas /></AdminThemeWrapper>}
+          {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
           {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
         </div>
       </div>

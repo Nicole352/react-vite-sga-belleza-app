@@ -235,12 +235,12 @@ const GestionMatricula = () => {
 
 📋 Información del nuevo estudiante:
 • Nombre: ${data.estudiante.nombre} ${data.estudiante.apellido}
-• Cédula: ${data.estudiante.cedula}
+• Identificación: ${data.estudiante.identificacion}
 • Email: ${data.estudiante.email}
 • Usuario: ${data.estudiante.username}
 • Contraseña temporal: ${data.estudiante.password_temporal}
 
-El estudiante puede ingresar con su cédula como contraseña.`);
+El estudiante puede ingresar con su identificación como contraseña.`);
       
       // Cerrar modal y refrescar datos
       setShowApprovalModal(false);
@@ -890,7 +890,7 @@ El estudiante puede ingresar con su cédula como contraseña.`);
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <IdCard size={14} color="#3b82f6" />
-                        Copia de Cédula
+                        Documento de Identificación
                       </div>
                       <a 
                         href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`} 
@@ -910,7 +910,7 @@ El estudiante puede ingresar con su cédula como contraseña.`);
                           fontWeight: '500'
                         }}
                       >
-                        <Download size={14} /> Ver/Descargar Cédula
+                        <Download size={14} /> Ver/Descargar Identificación
                       </a>
                     </div>
                   );

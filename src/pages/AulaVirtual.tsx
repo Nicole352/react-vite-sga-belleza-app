@@ -76,6 +76,10 @@ const AulaVirtual = () => {
         navigate('/panel/estudiante');
         return;
       }
+      if (data.user.rol === 'docente') {
+        navigate('/panel/docente');
+        return;
+      }
       // Otros roles: mostrar éxito y quedar en la página
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 1500);

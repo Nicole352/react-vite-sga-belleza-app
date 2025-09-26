@@ -1,694 +1,573 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  GraduationCap, 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
   Eye,
-  Mail,
-  Phone,
-  Calendar,
-  Book,
-  Award,
-  X,
+  EyeOff,
+  Lock,
+  CheckCircle,
   User,
-  MapPin
+  BookOpen,
+  Settings,
+  Sun,
+  Moon
 } from 'lucide-react';
+import LogoutButton from '../../components/LogoutButton';
+
+const API_BASE = 'http://localhost:3000/api';
 
 const PanelDocentes = () => {
-  // Estado para los docentes
-  const [docentes, setDocentes] = useState([
-    {
-      id: 1,
-      nombre: 'Dr. María Elena',
-      apellido: 'Vásquez',
-      email: 'maria.vasquez@instituto.edu',
-      telefono: '+593 99 234 5678',
-      cedula: '1234567890',
-      especialidad: 'Cosmetología Avanzada',
-      experiencia: 10,
-      estado: 'Activo',
-      fechaContratacion: '2020-03-15',
-      salario: 1200,
-      cursosAsignados: ['Cosmetología', 'Técnicas Faciales'],
-      certificaciones: ['Certificado en Cosmetología', 'Especialización en Dermatología'],
-      foto: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      id: 2,
-      nombre: 'Mg. Carlos Eduardo',
-      apellido: 'Morales',
-      email: 'carlos.morales@instituto.edu',
-      telefono: '+593 98 345 6789',
-      cedula: '0987654321',
-      especialidad: 'Cosmiatría y Estética',
-      experiencia: 8,
-      estado: 'Activo',
-      fechaContratacion: '2021-01-20',
-      salario: 1100,
-      cursosAsignados: ['Cosmiatría', 'Radiofrecuencia'],
-      certificaciones: ['Maestría en Estética', 'Certificado en Equipos Médicos'],
-      foto: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      id: 3,
-      nombre: 'Lcda. Ana Patricia',
-      apellido: 'Rodríguez',
-      email: 'ana.rodriguez@instituto.edu',
-      telefono: '+593 97 456 7890',
-      cedula: '1122334455',
-      especialidad: 'Maquillaje Artístico',
-      experiencia: 6,
-      estado: 'Vacaciones',
-      fechaContratacion: '2022-08-10',
-      salario: 950,
-      cursosAsignados: ['Maquillaje Profesional', 'Colorimetría'],
-      certificaciones: ['Licenciatura en Artes', 'Especialización en Maquillaje'],
-      foto: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face'
-    }
-  ]);
-
-  // Estados para UI
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterEstado, setFilterEstado] = useState('Todos');
-  const [filterEspecialidad, setFilterEspecialidad] = useState('Todos');
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('create');
-  const [selectedTeacher, setSelectedTeacher] = useState(null);
-
-  // Estado para el formulario
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    email: '',
-    telefono: '',
-    cedula: '',
-    especialidad: '',
-    experiencia: '',
-    estado: 'Activo',
-    fechaContratacion: '',
-    salario: '',
-    cursosAsignados: [],
-    certificaciones: []
+  const [activeTab, setActiveTab] = useState('mi-aula');
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('docente-dark-mode');
+    return saved !== null ? JSON.parse(saved) : false;
   });
 
-  // Filtrar docentes
-  const docentesFiltrados = docentes.filter(docente => {
-    const matchesSearch = docente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         docente.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         docente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         docente.especialidad.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesEstado = filterEstado === 'Todos' || docente.estado === filterEstado;
-    const matchesEspecialidad = filterEspecialidad === 'Todos' || docente.especialidad.includes(filterEspecialidad);
-    
-    return matchesSearch && matchesEstado && matchesEspecialidad;
-  });
+  // Estados para modal de cambio de contraseña
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
+  const [passwordResetData, setPasswordResetData] = useState({ newPassword: '', confirmPassword: '' });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
 
-  // Funciones CRUD
-  const handleCreateTeacher = () => {
-    setModalType('create');
-    setFormData({
-      nombre: '',
-      apellido: '',
-      email: '',
-      telefono: '',
-      cedula: '',
-      especialidad: '',
-      experiencia: '',
-      estado: 'Activo',
-      fechaContratacion: '',
-      salario: '',
-      cursosAsignados: [],
-      certificaciones: []
-    });
-    setShowModal(true);
-  };
+  // Guardar preferencia de modo cuando cambie
+  useEffect(() => {
+    localStorage.setItem('docente-dark-mode', JSON.stringify(darkMode));
+  }, [darkMode]);
 
-  const handleEditTeacher = (teacher) => {
-    setModalType('edit');
-    setSelectedTeacher(teacher);
-    setFormData({
-      nombre: teacher.nombre,
-      apellido: teacher.apellido,
-      email: teacher.email,
-      telefono: teacher.telefono,
-      cedula: teacher.cedula,
-      especialidad: teacher.especialidad,
-      experiencia: teacher.experiencia,
-      estado: teacher.estado,
-      fechaContratacion: teacher.fechaContratacion,
-      salario: teacher.salario,
-      cursosAsignados: teacher.cursosAsignados,
-      certificaciones: teacher.certificaciones
-    });
-    setShowModal(true);
-  };
+  useEffect(() => {
+    checkPasswordReset();
+  }, []);
 
-  const handleViewTeacher = (teacher) => {
-    setModalType('view');
-    setSelectedTeacher(teacher);
-    setShowModal(true);
-  };
+  // Verificar si necesita cambiar contraseña en primer ingreso
+  const checkPasswordReset = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
 
-  const handleDeleteTeacher = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este docente?')) {
-      setDocentes(docentes.filter(doc => doc.id !== id));
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.needs_password_reset) {
+          setShowPasswordResetModal(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando estado de contraseña:', error);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (modalType === 'create') {
-      const newTeacher = {
-        ...formData,
-        id: Date.now(),
-        experiencia: parseInt(formData.experiencia),
-        salario: parseFloat(formData.salario),
-        foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  // Manejar cambio de contraseña
+  const handlePasswordReset = async () => {
+    if (passwordResetData.newPassword !== passwordResetData.confirmPassword) {
+      setResetError('Las contraseñas no coinciden');
+      return;
+    }
+    if (passwordResetData.newPassword.length < 6) {
+      setResetError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    setResetLoading(true);
+    setResetError('');
+
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          newPassword: passwordResetData.newPassword,
+          confirmPassword: passwordResetData.confirmPassword
+        })
+      });
+
+      if (response.ok) {
+        setShowPasswordResetModal(false);
+        setPasswordResetData({ newPassword: '', confirmPassword: '' });
+        alert('¡Contraseña actualizada exitosamente!');
+      } else {
+        const errorData = await response.json();
+        setResetError(errorData.error || 'Error al actualizar la contraseña');
+      }
+    } catch (error) {
+      setResetError('Error de conexión. Inténtalo de nuevo.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handlePasswordResetChange = (field: string, value: string) => {
+    setPasswordResetData(prev => ({ ...prev, [field]: value }));
+    setResetError('');
+  };
+
+  // Función para alternar modo
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  // Funciones para obtener colores según el tema
+  const getThemeColors = () => {
+    if (darkMode) {
+      return {
+        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
+        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+        textPrimary: '#fff',
+        textSecondary: 'rgba(255,255,255,0.8)',
+        textMuted: 'rgba(255,255,255,0.7)',
+        border: 'rgba(239, 68, 68, 0.2)',
+        accent: '#ef4444'
       };
-      setDocentes([...docentes, newTeacher]);
-    } else if (modalType === 'edit') {
-      setDocentes(docentes.map(doc => 
-        doc.id === selectedTeacher.id ? { 
-          ...doc, 
-          ...formData, 
-          experiencia: parseInt(formData.experiencia),
-          salario: parseFloat(formData.salario)
-        } : doc
-      ));
+    } else {
+      return {
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
+        contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
+        textPrimary: '#1e293b',
+        textSecondary: 'rgba(30,41,59,0.8)',
+        textMuted: 'rgba(30,41,59,0.7)',
+        border: 'rgba(239, 68, 68, 0.2)',
+        accent: '#ef4444'
+      };
     }
-    
-    setShowModal(false);
   };
 
-  const Modal = ({ children }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
-        {children}
-      </div>
-    </div>
-  );
+  const theme = getThemeColors();
+
+  const tabs = [
+    { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
+    { id: 'servicios', name: 'Servicios', icon: Settings },
+    { id: 'perfil', name: 'Mi Perfil', icon: User }
+  ];
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <GraduationCap className="h-6 w-6 text-green-600" />
-              Gestión de Docentes
+    <>
+      {/* Variables CSS globales para el tema */}
+      <style>{`
+        :root {
+          --docente-bg-primary: ${theme.background};
+          --docente-bg-secondary: ${theme.contentBg};
+          --docente-text-primary: ${theme.textPrimary};
+          --docente-text-secondary: ${theme.textSecondary};
+          --docente-text-muted: ${theme.textMuted};
+          --docente-border: ${theme.border};
+          --docente-accent: ${theme.accent};
+          --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'};
+          --docente-input-border: ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
+          --docente-hover-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
+          --docente-modal-bg: ${darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)'};
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div 
+        className="docente-panel" 
+        style={{
+          minHeight: '100vh',
+          background: theme.background,
+          fontFamily: 'Montserrat, sans-serif',
+          display: 'flex'
+        }}
+      >
+        {/* Sidebar */}
+        <div style={{
+          width: '280px',
+          background: theme.sidebarBg,
+          backdropFilter: 'blur(20px)',
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0 20px 20px 0',
+          padding: '24px',
+          position: 'fixed',
+          height: '100vh',
+          left: 0,
+          top: 0,
+          zIndex: 1000,
+          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
+        }}>
+          {/* Logo */}
+          <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+            <h2 style={{ 
+              margin: 0, 
+              color: theme.accent, 
+              fontSize: '1.5rem', 
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              Panel Docente
             </h2>
-            <p className="text-gray-600 mt-1">
-              {docentesFiltrados.length} docente{docentesFiltrados.length !== 1 ? 's' : ''} encontrado{docentesFiltrados.length !== 1 ? 's' : ''}
-            </p>
           </div>
-          <button
-            onClick={handleCreateTeacher}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-200"
-          >
-            <Plus className="h-4 w-4" />
-            Nuevo Docente
-          </button>
-        </div>
 
-        {/* Filtros y búsqueda */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, apellido, email o especialidad..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            <select
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="Todos">Todos los estados</option>
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-              <option value="Vacaciones">Vacaciones</option>
-              <option value="Licencia">Licencia</option>
-            </select>
-            
-            <select
-              value={filterEspecialidad}
-              onChange={(e) => setFilterEspecialidad(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="Todos">Todas las especialidades</option>
-              <option value="Cosmetología">Cosmetología</option>
-              <option value="Cosmiatría">Cosmiatría</option>
-              <option value="Maquillaje">Maquillaje</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabla de docentes */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Docente
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contacto
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Especialidad
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Experiencia
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Salario
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {docentesFiltrados.map((docente) => (
-              <tr key={docente.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-12 w-12">
-                      <img 
-                        className="h-12 w-12 rounded-full object-cover" 
-                        src={docente.foto} 
-                        alt={`${docente.nombre} ${docente.apellido}`} 
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {docente.nombre} {docente.apellido}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Cédula: {docente.cedula}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {docente.email}
-                  </div>
-                  <div className="text-sm text-gray-500 flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {docente.telefono}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{docente.especialidad}</div>
-                  <div className="text-sm text-gray-500">
-                    {docente.cursosAsignados.length} curso{docente.cursosAsignados.length !== 1 ? 's' : ''} asignado{docente.cursosAsignados.length !== 1 ? 's' : ''}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{docente.experiencia} años</div>
-                  <div className="text-sm text-gray-500">
-                    Desde: {new Date(docente.fechaContratacion).toLocaleDateString()}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    docente.estado === 'Activo' ? 'bg-green-100 text-green-800' :
-                    docente.estado === 'Inactivo' ? 'bg-red-100 text-red-800' :
-                    docente.estado === 'Vacaciones' ? 'bg-blue-100 text-blue-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {docente.estado}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    ${docente.salario}
-                  </div>
-                  <div className="text-sm text-gray-500">mensual</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleViewTeacher(docente)}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                      title="Ver detalles"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleEditTeacher(docente)}
-                      className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                      title="Editar"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTeacher(docente.id)}
-                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {docentesFiltrados.length === 0 && (
-        <div className="text-center py-12">
-          <GraduationCap className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No hay docentes</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            No se encontraron docentes con los filtros aplicados.
-          </p>
-        </div>
-      )}
-
-      {/* Modal */}
-      {showModal && (
-        <Modal>
-          {modalType === 'view' && selectedTeacher ? (
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Detalles del Docente</h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+          {/* Navigation */}
+          <nav style={{ marginBottom: '32px' }}>
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <img 
-                    className="h-20 w-20 rounded-full object-cover" 
-                    src={selectedTeacher.foto} 
-                    alt={`${selectedTeacher.nombre} ${selectedTeacher.apellido}`} 
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    width: '100%',
+                    padding: '16px 20px',
+                    marginBottom: '8px',
+                    background: isActive ? `rgba(239, 68, 68, 0.15)` : 'transparent',
+                    border: isActive ? `1px solid rgba(239, 68, 68, 0.3)` : '1px solid transparent',
+                    borderRadius: '12px',
+                    color: isActive ? theme.accent : theme.textSecondary,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    fontSize: '0.95rem',
+                    fontWeight: isActive ? '600' : '500',
+                    textAlign: 'left'
+                  }}
+                >
+                  <Icon size={20} />
+                  {tab.name}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Theme Toggle */}
+          <div style={{ marginBottom: '24px' }}>
+            <button
+              onClick={toggleDarkMode}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '8px',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontSize: '0.9rem'
+              }}
+            >
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+              {darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+            </button>
+          </div>
+
+          {/* Logout */}
+          <div style={{ marginTop: 'auto' }}>
+            <LogoutButton />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div style={{ 
+          marginLeft: '280px', 
+          flex: 1, 
+          padding: '32px',
+          background: theme.contentBg,
+          minHeight: '100vh'
+        }}>
+          <div style={{
+            background: theme.contentBg,
+            borderRadius: '20px',
+            padding: '32px',
+            border: `1px solid ${theme.border}`,
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h1 style={{ 
+              margin: '0 0 24px 0', 
+              color: theme.textPrimary, 
+              fontSize: '2rem', 
+              fontWeight: '700' 
+            }}>
+              Bienvenido al Panel de Docente
+            </h1>
+            
+            <p style={{ 
+              color: theme.textSecondary, 
+              fontSize: '1.1rem', 
+              lineHeight: 1.6,
+              margin: '0 0 32px 0'
+            }}>
+              Gestiona tus clases, estudiantes y recursos educativos desde este panel.
+            </p>
+
+            {/* Content based on active tab */}
+            {activeTab === 'mi-aula' && (
+              <div>
+                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Mi Aula Virtual</h2>
+                <p style={{ color: theme.textSecondary }}>Aquí podrás gestionar tus clases y estudiantes.</p>
+              </div>
+            )}
+
+            {activeTab === 'servicios' && (
+              <div>
+                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Servicios</h2>
+                <p style={{ color: theme.textSecondary }}>Accede a los servicios disponibles para docentes.</p>
+              </div>
+            )}
+
+            {activeTab === 'perfil' && (
+              <div>
+                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Mi Perfil</h2>
+                <p style={{ color: theme.textSecondary }}>Gestiona tu información personal y configuración.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Modal de Restablecer Contraseña (Primer Ingreso) */}
+        {showPasswordResetModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '2px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '20px',
+              padding: '40px',
+              maxWidth: '500px',
+              width: '100%',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 25px 50px rgba(239, 68, 68, 0.3)'
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px',
+                  boxShadow: '0 10px 30px rgba(239, 68, 68, 0.4)'
+                }}>
+                  <Lock size={32} color="#fff" />
+                </div>
+                <h2 style={{
+                  fontSize: '1.8rem',
+                  fontWeight: '700',
+                  color: '#fff',
+                  margin: '0 0 12px 0',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  🔐 Restablecer Contraseña
+                </h2>
+                <p style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '1rem',
+                  margin: 0,
+                  lineHeight: 1.5
+                }}>
+                  Por seguridad, debes cambiar tu contraseña temporal antes de continuar.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  Nueva Contraseña
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={passwordResetData.newPassword}
+                    onChange={(e) => handlePasswordResetChange('newPassword', e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    style={{
+                      width: '100%',
+                      padding: '14px 50px 14px 16px',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1.5px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
                   />
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-900">
-                      {selectedTeacher.nombre} {selectedTeacher.apellido}
-                    </h4>
-                    <p className="text-gray-500">Cédula: {selectedTeacher.cedula}</p>
-                    <p className="text-green-600 font-medium">{selectedTeacher.especialidad}</p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Email</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedTeacher.email}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Teléfono</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedTeacher.telefono}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Experiencia</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedTeacher.experiencia} años</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Salario</label>
-                      <p className="mt-1 text-sm text-gray-900">${selectedTeacher.salario} mensual</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Estado</label>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        selectedTeacher.estado === 'Activo' ? 'bg-green-100 text-green-800' :
-                        selectedTeacher.estado === 'Inactivo' ? 'bg-red-100 text-red-800' :
-                        selectedTeacher.estado === 'Vacaciones' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {selectedTeacher.estado}
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Fecha de Contratación</label>
-                      <p className="mt-1 text-sm text-gray-900">
-                        {new Date(selectedTeacher.fechaContratacion).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Cursos Asignados</label>
-                      <div className="mt-1 space-y-1">
-                        {selectedTeacher.cursosAsignados.map((curso, idx) => (
-                          <span key={idx} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1">
-                            {curso}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Certificaciones</label>
-                      <div className="mt-1 space-y-1">
-                        {selectedTeacher.certificaciones.map((cert, idx) => (
-                          <span key={idx} className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                            {cert}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  Confirmar Contraseña
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={passwordResetData.confirmPassword}
+                    onChange={(e) => handlePasswordResetChange('confirmPassword', e.target.value)}
+                    placeholder="Repite la contraseña"
+                    style={{
+                      width: '100%',
+                      padding: '14px 50px 14px 16px',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1.5px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
+              </div>
+
+              {resetError && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  color: '#fecaca',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  marginBottom: '20px',
+                  fontSize: '0.9rem',
+                  textAlign: 'center'
+                }}>
+                  {resetError}
+                </div>
+              )}
+
+              <button
+                onClick={handlePasswordReset}
+                disabled={resetLoading || !passwordResetData.newPassword || !passwordResetData.confirmPassword}
+                style={{
+                  width: '100%',
+                  background: resetLoading ? 'rgba(239, 68, 68, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '16px 24px',
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  cursor: resetLoading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                {resetLoading ? (
+                  <>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTop: '2px solid #fff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    Actualizando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={20} />
+                    Cambiar Contraseña
+                  </>
+                )}
+              </button>
+
+              <div style={{
+                marginTop: '20px',
+                padding: '16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}>
+                <p style={{
+                  color: '#93c5fd',
+                  fontSize: '0.85rem',
+                  margin: 0,
+                  lineHeight: 1.4
+                }}>
+                  💡 <strong>Tip:</strong> Usa una contraseña segura que puedas recordar fácilmente. Una vez cambiada, podrás acceder normalmente con tu nuevo password.
+                </p>
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {modalType === 'create' ? 'Nuevo Docente' : 'Editar Docente'}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ingrese el nombre"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Apellido *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.apellido}
-                    onChange={(e) => setFormData({...formData, apellido: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ingrese el apellido"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="correo@instituto.edu"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="+593 99 123 4567"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cédula *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.cedula}
-                    onChange={(e) => setFormData({...formData, cedula: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="1234567890"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Especialidad *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.especialidad}
-                    onChange={(e) => setFormData({...formData, especialidad: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ej: Cosmetología Avanzada"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Experiencia (años) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.experiencia}
-                    onChange={(e) => setFormData({...formData, experiencia: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha de Contratación *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.fechaContratacion}
-                    onChange={(e) => setFormData({...formData, fechaContratacion: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Salario Mensual (USD) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.salario}
-                    onChange={(e) => setFormData({...formData, salario: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="1000.00"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado
-                  </label>
-                  <select
-                    value={formData.estado}
-                    onChange={(e) => setFormData({...formData, estado: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                    <option value="Vacaciones">Vacaciones</option>
-                    <option value="Licencia">Licencia</option>
-                  </select>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cursos Asignados (separados por coma)
-                  </label>
-                  <input
-                    type="text"
-                    value={Array.isArray(formData.cursosAsignados) ? formData.cursosAsignados.join(', ') : ''}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      cursosAsignados: e.target.value.split(',').map(curso => curso.trim()).filter(curso => curso)
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ej: Cosmetología, Técnicas Faciales"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Certificaciones (separadas por coma)
-                  </label>
-                  <input
-                    type="text"
-                    value={Array.isArray(formData.certificaciones) ? formData.certificaciones.join(', ') : ''}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      certificaciones: e.target.value.split(',').map(cert => cert.trim()).filter(cert => cert)
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Ej: Certificado en Cosmetología, Especialización en Dermatología"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
-                >
-                  {modalType === 'create' ? 'Crear Docente' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
-          )}
-        </Modal>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

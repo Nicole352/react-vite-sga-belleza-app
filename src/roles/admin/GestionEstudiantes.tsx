@@ -7,7 +7,7 @@ import { StyledSelect } from '../../components/StyledSelect';
 // Tipos
 interface Estudiante {
   id_usuario: number;
-  cedula: string;
+  identificacion: string;
   nombre: string;
   apellido: string;
   username: string;
@@ -249,7 +249,7 @@ const GestionEstudiantes = () => {
                   Estudiante
                 </th>
                 <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
-                  Cédula
+                  Identificación
                 </th>
                 <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Usuario
@@ -304,7 +304,7 @@ const GestionEstudiantes = () => {
                       </div>
                     </td>
                     <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
-                      {estudiante.cedula}
+                      {estudiante.identificacion}
                     </td>
                     <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
                       {estudiante.username || 'No asignado'}
@@ -469,8 +469,8 @@ const GestionEstudiantes = () => {
                 <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.apellido}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Cédula</div>
-                <div style={{ color: '#fff', fontFamily: 'monospace' }}>{selectedEstudiante.cedula}</div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
+                <div style={{ color: '#fff', fontFamily: 'monospace' }}>{selectedEstudiante.identificacion}</div>
               </div>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>

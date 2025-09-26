@@ -12,6 +12,7 @@ import Pago from './pages/Pago';
 import PanelSuperAdmin from './roles/superadmin/PanelSuperAdmin';
 import PanelAdministrativos from './roles/admin/PanelAdministrativos';
 import PanelEstudiantes from './roles/estudiante/PanelEstudiantes';
+import PanelDocentes from './roles/docente/PanelDocentes';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
 
@@ -64,6 +65,15 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute allowRoles={['estudiante']}>
                 <PanelEstudiantes />
+              </ProtectedRoute>
+            }
+          />
+          {/* Panel Docentes */}
+          <Route
+            path="/panel/docente"
+            element={
+              <ProtectedRoute allowRoles={['docente']}>
+                <PanelDocentes />
               </ProtectedRoute>
             }
           />
