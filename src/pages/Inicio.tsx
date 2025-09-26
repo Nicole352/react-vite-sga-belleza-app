@@ -23,22 +23,22 @@ const PaginaInicio: React.FC = () => {
   // Manteniendo exactamente las URLs proporcionadas para el hero
   const heroImages = [
     {
-      url: 'https://www.lahora.com.ec/__export/1753063265364/sites/lahora/img/2025/07/20/jexssica_vexlez.jpeg_1981115046.jpeg',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758847053/WhatsApp_Image_2025-09-25_at_4.45.29_PM_ikeigz.jpg',
       title: 'Técnicas Avanzadas en Estética',
       subtitle: 'Aprende con la mejor tecnología del mercado'
     },
     {
-      url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00311_fkcmay.jpg',
       title: 'Tratamientos Faciales de Lujo',
       subtitle: 'Formación integral en cuidado facial profesional'
     },
     {
-      url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00505_p2d798.jpg',
       title: 'Medicina Estética Moderna',
       subtitle: 'Cursos especializados en las últimas tendencias'
     },
     {
-      url: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846970/WhatsApp_Image_2025-09-25_at_4.59.46_PM_yueit3.jpg',
       title: 'Instalaciones de Primera Clase',
       subtitle: 'Ambiente profesional para tu formación'
     }
@@ -276,7 +276,7 @@ const PaginaInicio: React.FC = () => {
                   poster="https://res.cloudinary.com/di090ggjn/image/upload/v1755893582/catjq75bgehyzkzb0ryc.jpg"
                   className="presentation-video"
                 >
-                  <source src="https://res.cloudinary.com/di090ggjn/video/upload/v1756004505/sp0c1wtvlihpi4ml6qbo.mp4" type="video/mp4" />
+                  <source src="https://res.cloudinary.com/dfczvdz7b/video/upload/v1758847064/WhatsApp_Video_2025-09-25_at_4.45.51_PM_ylzapp.mp4" type="video/mp4" />
                   Tu navegador no soporta el elemento de video.
                 </video>
               </div>
