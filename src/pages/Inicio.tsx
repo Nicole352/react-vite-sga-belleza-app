@@ -23,17 +23,17 @@ const PaginaInicio: React.FC = () => {
   // Manteniendo exactamente las URLs proporcionadas para el hero
   const heroImages = [
     {
-      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758847053/WhatsApp_Image_2025-09-25_at_4.45.29_PM_ikeigz.jpg',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758898722/team_xwopde.jpg',
       title: 'Técnicas Avanzadas en Estética',
       subtitle: 'Aprende con la mejor tecnología del mercado'
     },
     {
-      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00311_fkcmay.jpg',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758897992/DSC00484c_x0rcwl.jpg',
       title: 'Tratamientos Faciales de Lujo',
       subtitle: 'Formación integral en cuidado facial profesional'
     },
     {
-      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00505_p2d798.jpg',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758898722/DSC00505c_gjktoh.jpg',
       title: 'Medicina Estética Moderna',
       subtitle: 'Cursos especializados en las últimas tendencias'
     },
@@ -417,7 +417,6 @@ const PaginaInicio: React.FC = () => {
           opacity: 0;
           transition: opacity 1.5s ease-in-out;
         }
-
         .hero-image.active {
           opacity: 1;
         }
@@ -426,11 +425,11 @@ const PaginaInicio: React.FC = () => {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          object-position: center center;
+          object-position: top center;
           filter: contrast(1.1) brightness(1.05) saturate(1.1);
           transform: scale(1.02);
         }
-
+        
         .hero-image::before {
           content: '';
           position: absolute;
