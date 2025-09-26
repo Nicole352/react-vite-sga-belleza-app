@@ -110,6 +110,21 @@ const GestionDocentes = () => {
     }
   };
 
+  // Función para convertir texto a MAYÚSCULAS
+  const toUpperCase = (text: string) => {
+    return text.toUpperCase();
+  };
+
+  // Función para permitir solo números en teléfono
+  const formatPhoneNumber = (value: string) => {
+    return value.replace(/\D/g, ''); // Elimina todo lo que no sea dígito
+  };
+
+  // Función para convertir email a minúsculas
+  const formatEmail = (value: string) => {
+    return value.toLowerCase();
+  };
+
   // Función para manejar cambios en los campos de nombre
   const handleNameChange = (nombres: string, apellidos: string) => {
     const preview = generateUsernamePreview(nombres, apellidos);
@@ -752,8 +767,12 @@ const GestionDocentes = () => {
                       required
                       defaultValue={selectedDocente?.nombres || ''}
                       onChange={(e) => {
+                        // Aplicar formato MAYÚSCULAS automáticamente
+                        const formattedValue = toUpperCase(e.target.value);
+                        e.target.value = formattedValue;
+                        
                         const apellidosInput = document.querySelector('input[name="apellidos"]') as HTMLInputElement;
-                        handleNameChange(e.target.value, apellidosInput?.value || '');
+                        handleNameChange(formattedValue, apellidosInput?.value || '');
                       }}
                       style={{
                         width: '100%',
@@ -778,8 +797,12 @@ const GestionDocentes = () => {
                       required
                       defaultValue={selectedDocente?.apellidos || ''}
                       onChange={(e) => {
+                        // Aplicar formato MAYÚSCULAS automáticamente
+                        const formattedValue = toUpperCase(e.target.value);
+                        e.target.value = formattedValue;
+                        
                         const nombresInput = document.querySelector('input[name="nombres"]') as HTMLInputElement;
-                        handleNameChange(nombresInput?.value || '', e.target.value);
+                        handleNameChange(nombresInput?.value || '', formattedValue);
                       }}
                       style={{
                         width: '100%',
@@ -824,6 +847,11 @@ const GestionDocentes = () => {
                       type="email"
                       name="gmail"
                       defaultValue={selectedDocente?.gmail || ''}
+                      onChange={(e) => {
+                        // Convertir automáticamente a minúsculas
+                        const formattedValue = formatEmail(e.target.value);
+                        e.target.value = formattedValue;
+                      }}
                       style={{
                         width: '100%',
                         padding: '10px',
@@ -845,6 +873,17 @@ const GestionDocentes = () => {
                       type="tel"
                       name="telefono"
                       defaultValue={selectedDocente?.telefono || ''}
+                      onChange={(e) => {
+                        // Permitir solo números
+                        const formattedValue = formatPhoneNumber(e.target.value);
+                        e.target.value = formattedValue;
+                      }}
+                      onKeyPress={(e) => {
+                        // Prevenir entrada de caracteres no numéricos
+                        if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                          e.preventDefault();
+                        }
+                      }}
                       style={{
                         width: '100%',
                         padding: '10px',
