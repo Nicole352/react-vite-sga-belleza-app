@@ -1,63 +1,34 @@
 import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
-import { 
-  MapPin, 
-  Phone, 
+import {
+  MapPin,
+  Phone,
   Mail,
   Heart,
   Award,
   Instagram,
   Facebook
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
+  const { theme } = useTheme();
   const currentYear = new Date().getFullYear();
+
   const footerStyle: CSSProperties = {
-    background: 'rgba(0, 0, 0, 0.95)',
+    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.98)',
     backdropFilter: 'blur(20px)',
-    borderTop: '2px solid rgba(251, 191, 36, 0.3)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-    color: 'white',
+    borderTop: `2px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+    boxShadow: `0 8px 32px ${theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+    color: theme === 'dark' ? 'white' : '#1a1a1a',
     padding: '60px 0 30px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: "'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   };
 
-  const containerStyle: CSSProperties = {
-    maxWidth: '100%',
-    margin: '0',
-    padding: '0 5%',
-    position: 'relative',
-    zIndex: 1,
-  };
-
-  const footerMainStyle: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr',
-    gap: '40px',
-    marginBottom: '30px',
-    alignItems: 'start',
-    maxWidth: '1400px',
-    margin: '0 auto 30px auto',
-  };
-
-  const logoSectionStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px', 
-  };
-
-  const logoContainerStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '0', 
-    marginTop: '-49px', // subir más el logo 
-  };
-
   const descriptionStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     lineHeight: '1.6',
     marginBottom: '0',
     marginTop: '-40px',
@@ -67,18 +38,11 @@ const Footer = () => {
     textAlign: 'justify',
   };
 
-  const contactInfoStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    marginTop: '14px',
-  };
-
   const contactItemStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     fontSize: '14px',
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: '400',
@@ -86,33 +50,21 @@ const Footer = () => {
   };
 
   const iconStyle: CSSProperties = {
-    color: '#fbbf24',
+    color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
     flexShrink: 0,
-  };
-
-  const sectionStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
   };
 
   const sectionTitleStyle: CSSProperties = {
     fontSize: '18px',
     fontWeight: '600',
-    color: '#fbbf24',
+    color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
     marginBottom: '0',
     fontFamily: "'Montserrat', sans-serif",
     letterSpacing: '0.5px',
   };
 
-  const linkListStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    marginTop: '14px',
-  };
-
   const linkStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     textDecoration: 'none',
     fontSize: '15px',
     fontFamily: "'Montserrat', sans-serif",
@@ -121,14 +73,6 @@ const Footer = () => {
     padding: '0',
     letterSpacing: '0.3px',
     display: 'inline-block',
-  };
-
-  const socialGridStyle: CSSProperties = {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '0px',
-    flexWrap: 'wrap',
-    alignItems: 'center',
   };
 
   const socialLinkStyle: CSSProperties = {
@@ -140,16 +84,16 @@ const Footer = () => {
     borderRadius: '10px',
     transition: 'transform 0.25s ease, background 0.25s ease, border-color 0.25s ease',
     textDecoration: 'none',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)'}`,
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',
-    background: 'rgba(255, 255, 255, 0.08)', // base consistente con estado de salida
+    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
     willChange: 'transform, background, border-color',
   };
 
   const bottomBarStyle: CSSProperties = {
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
     paddingTop: '30px',
     display: 'flex',
     justifyContent: 'center',
@@ -159,7 +103,7 @@ const Footer = () => {
   };
 
   const copyrightStyle: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     fontSize: '14px',
     fontFamily: "'Montserrat', sans-serif",
     display: 'flex',
@@ -177,10 +121,10 @@ const Footer = () => {
     alignItems: 'center',
     gap: '8px',
     padding: '8px 16px',
-    background: 'rgba(251, 191, 36, 0.1)',
-    border: '1px solid rgba(251, 191, 36, 0.3)',
+    background: theme === 'dark' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(214, 158, 46, 0.1)',
+    border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(214, 158, 46, 0.3)'}`,
     borderRadius: '20px',
-    color: '#fbbf24',
+    color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
     fontSize: '13px',
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: '500',
@@ -192,7 +136,7 @@ const Footer = () => {
     <div style={{
       width: '20px',
       height: '20px',
-      background: '#fff',
+      background: theme === 'dark' ? '#fff' : '#1a1a1a',
       maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z'/%3E%3C/svg%3E")`,
       maskRepeat: 'no-repeat',
       maskPosition: 'center',
@@ -202,13 +146,37 @@ const Footer = () => {
 
   return (
     <footer style={footerStyle}>
-      <div style={containerStyle} className="footer-container">
+      <div style={{
+        maxWidth: '100%',
+        margin: '0',
+        padding: '0 5%',
+        position: 'relative',
+        zIndex: 1,
+      }} className="footer-container">
         {/* Main Footer Content */}
-        <div style={footerMainStyle} className="footer-main">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr 1fr',
+          gap: '40px',
+          marginBottom: '30px',
+          alignItems: 'start',
+          maxWidth: '1400px',
+          margin: '0 auto 30px auto',
+        }} className="footer-main">
           {/* Logo & Description */}
-          <div style={logoSectionStyle} className="footer-logo-section" data-aos="fade-right">
-            <div style={logoContainerStyle}>
-              <img 
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+          }} className="footer-logo-section" data-aos="fade-right">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '0',
+              marginTop: '-49px',
+            }}>
+              <img
                 src="https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png"
                 alt="Jessica Vélez - Escuela de Esteticistas"
                 style={{
@@ -232,107 +200,115 @@ const Footer = () => {
                 }}
               />
             </div>
-            
+
             <p style={descriptionStyle} className="footer-description" data-aos="fade-up" data-aos-delay="100">
               Líder en formación de esteticistas profesionales en Ecuador. Más de 15 años transformando vidas a través de la belleza.
             </p>
           </div>
 
           {/* Enlaces Rápidos */}
-          <div style={sectionStyle} className="footer-links" data-aos="fade-up" data-aos-delay="150">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }} className="footer-links" data-aos="fade-up" data-aos-delay="150">
             <h3 style={sectionTitleStyle}>Enlaces</h3>
-            <div style={linkListStyle}>
-              <Link 
-                to="/" 
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              marginTop: '14px',
+            }}>
+              <Link
+                to="/"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
                 Inicio
               </Link>
-              <Link 
-                to="/cursos" 
+              <Link
+                to="/cursos"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
                 Cursos
               </Link>
-              <Link 
-                to="/avales" 
+              <Link
+                to="/avales"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
                 Avales
               </Link>
-              <Link 
-                to="/sobre-nosotros" 
+              <Link
+                to="/sobre-nosotros"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
                 Sobre nosotros
               </Link>
-              <Link 
-                to="/contactenos" 
+              <Link
+                to="/contactenos"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
                 Contáctenos
               </Link>
-              <Link 
-                to="/aula-virtual" 
+              <Link
+                to="/aula-virtual"
                 style={linkStyle}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = '#fbbf24';
+                  el.style.color = theme === 'dark' ? '#fbbf24' : '#d69e2e';
                   el.style.paddingLeft = '8px';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color = 'rgba(255, 255, 255, 0.9)';
+                  el.style.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)';
                   el.style.paddingLeft = '0px';
                 }}
               >
@@ -342,9 +318,17 @@ const Footer = () => {
           </div>
 
           {/* Información de Contacto */}
-          <div style={sectionStyle} className="footer-contact-section" data-aos="fade-up" data-aos-delay="200">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }} className="footer-contact-section" data-aos="fade-up" data-aos-delay="200">
             <h3 style={sectionTitleStyle}>Contacto</h3>
-            <div style={contactInfoStyle} className="footer-contact">
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              marginTop: '14px',
+            }} className="footer-contact">
               <div style={contactItemStyle} className="contact-item">
                 <MapPin size={16} style={iconStyle} />
                 <span>Santo Domingo, Ecuador</span>
@@ -361,10 +345,13 @@ const Footer = () => {
           </div>
 
           {/* Redes Sociales */}
-          <div style={sectionStyle} className="footer-social-section" data-aos="fade-left" data-aos-delay="250">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }} className="footer-social-section" data-aos="fade-left" data-aos-delay="250">
             <h3 style={sectionTitleStyle}>Síguenos</h3>
             <p style={{
-              color: 'rgba(255, 255, 255, 0.8)',
+              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(26, 26, 26, 0.7)',
               fontSize: '14px',
               fontFamily: "'Montserrat', sans-serif",
               lineHeight: '1.5',
@@ -373,10 +360,16 @@ const Footer = () => {
             }} className="social-description">
               Conecta con nosotras en redes sociales
             </p>
-            
+
             <div style={{marginTop: '0px'}}>
-              <div style={socialGridStyle} className="social-grid">
-                <a 
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                marginTop: '0px',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }} className="social-grid">
+                <a
                   href="https://www.tiktok.com/@escuelajessicavelez?_t=ZM-8z5xZqX5GTN&_r=1"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -391,14 +384,14 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    el.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
                   }}
                 >
                   <TikTokIcon />
                 </a>
 
-                <a 
+                <a
                   href="https://www.instagram.com/escuelajessicavelez/?igshid=MWtxMXBhMmFxMmN5bg%3D%3D#"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -413,14 +406,14 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    el.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
                   }}
                 >
-                  <Instagram size={20} color="#fff" />
+                  <Instagram size={20} color={theme === 'dark' ? "#fff" : "#1a1a1a"} />
                 </a>
 
-                <a 
+                <a
                   href="#facebook"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -435,14 +428,14 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    el.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
                   }}
                 >
-                  <Facebook size={20} color="#fff" />
+                  <Facebook size={20} color={theme === 'dark' ? "#fff" : "#1a1a1a"} />
                 </a>
 
-                <a 
+                <a
                   href="#whatsapp"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -457,11 +450,11 @@ const Footer = () => {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = 'translateY(0)';
-                    el.style.background = 'rgba(255, 255, 255, 0.08)';
-                    el.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    el.style.background = theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    el.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
                   }}
                 >
-                  <Mail size={20} color="#fff" />
+                  <Mail size={20} color={theme === 'dark' ? "#fff" : "#1a1a1a"} />
                 </a>
               </div>
             </div>
@@ -471,10 +464,10 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div style={bottomBarStyle} className="footer-bottom" data-aos="fade-up" data-aos-delay="120">
           <div style={copyrightStyle} className="copyright">
-            <Heart size={16} color="#fbbf24" />
+            <Heart size={16} color={theme === 'dark' ? "#fbbf24" : "#d69e2e"} />
             <span>  {currentYear} Jessica Vélez - Escuela de Esteticistas. Todos los derechos reservados.</span>
           </div>
-          
+
           <div style={badgeStyle} className="certification-badge">
             <Award size={14} />
             <span>Educación Certificada</span>
@@ -491,12 +484,12 @@ const Footer = () => {
           .footer-container {
             padding: 0 8% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr 1fr 1fr 1fr !important;
             gap: 50px !important;
           }
-          
+
           .footer-description {
             max-width: 300px !important;
             font-size: 16px !important;
@@ -508,7 +501,7 @@ const Footer = () => {
           .footer-container {
             padding: 0 6% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr 1fr 1fr 1fr !important;
             gap: 35px !important;
@@ -520,22 +513,22 @@ const Footer = () => {
           .footer-container {
             padding: 0 4% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr 1fr !important;
             gap: 30px !important;
           }
-          
+
           .footer-contact-section {
             grid-column: 1 / -1 !important;
             text-align: center !important;
           }
-          
+
           .footer-description {
             max-width: 280px !important;
             font-size: 15px !important;
           }
-          
+
           .footer-logo {
             height: 190px !important;
             width: 190px !important;
@@ -547,38 +540,38 @@ const Footer = () => {
           .footer-container {
             padding: 0 4% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr 1fr !important;
             gap: 30px !important;
             text-align: left !important;
           }
-          
+
           .footer-social-section {
             grid-column: 1 / -1 !important;
             text-align: center !important;
             margin-top: 20px !important;
           }
-          
+
           .footer-contact-section {
             grid-column: 1 / -1 !important;
             text-align: center !important;
             margin-top: 15px !important;
           }
-          
+
           .social-grid {
             justify-content: center !important;
           }
-          
+
           .footer-description {
             max-width: none !important;
           }
-          
+
           .footer-logo {
             height: 170px !important;
             width: 170px !important;
           }
-          
+
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
@@ -592,28 +585,28 @@ const Footer = () => {
           footer {
             padding: 40px 0 20px !important;
           }
-          
+
           .footer-container {
             padding: 0 4% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 25px !important;
             text-align: center !important;
             margin-bottom: 25px !important;
           }
-          
+
           .footer-logo-section {
             align-items: center !important;
             gap: 16px !important;
           }
-          
+
           .footer-logo {
             height: 150px !important;
             width: 150px !important;
           }
-          
+
           .footer-description {
             max-width: 90% !important;
             font-size: 14px !important;
@@ -621,33 +614,33 @@ const Footer = () => {
             line-height: 1.6 !important;
             margin: 0 auto !important;
           }
-          
+
           .footer-contact {
             align-items: center !important;
             gap: 12px !important;
           }
-          
+
           .contact-item {
             justify-content: center !important;
             font-size: 14px !important;
             gap: 10px !important;
           }
-          
+
           .social-description {
             font-size: 13px !important;
             margin-bottom: 16px !important;
           }
-          
+
           .social-grid {
             justify-content: center !important;
             gap: 12px !important;
           }
-          
+
           .social-link {
             width: 46px !important;
             height: 46px !important;
           }
-          
+
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
@@ -655,14 +648,14 @@ const Footer = () => {
             justify-content: center !important;
             padding-top: 20px !important;
           }
-          
+
           .copyright {
             font-size: 13px !important;
             justify-content: center !important;
             width: 100% !important;
             line-height: 1.5 !important;
           }
-          
+
           .certification-badge {
             font-size: 12px !important;
             padding: 6px 12px !important;
@@ -674,28 +667,28 @@ const Footer = () => {
           footer {
             padding: 30px 0 20px !important;
           }
-          
+
           .footer-container {
             padding: 0 5% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
             text-align: center !important;
             margin-bottom: 20px !important;
           }
-          
+
           .footer-logo-section {
             align-items: center !important;
             gap: 12px !important;
           }
-          
+
           .footer-logo {
             height: 130px !important;
             width: 130px !important;
           }
-          
+
           .footer-description {
             font-size: 13px !important;
             line-height: 1.5 !important;
@@ -703,12 +696,12 @@ const Footer = () => {
             margin: 0 auto !important;
             text-align: center !important;
           }
-          
+
           .footer-contact {
             align-items: center !important;
             gap: 10px !important;
           }
-          
+
           .contact-item {
             font-size: 13px !important;
             flex-direction: row !important;
@@ -716,42 +709,42 @@ const Footer = () => {
             justify-content: center !important;
             gap: 8px !important;
           }
-          
+
           .social-description {
             font-size: 12px !important;
             margin-bottom: 12px !important;
           }
-          
+
           .social-grid {
             gap: 10px !important;
             flex-wrap: wrap !important;
             justify-content: center !important;
           }
-          
+
           .social-link {
             width: 40px !important;
             height: 40px !important;
           }
-          
+
           .social-link svg,
           .social-link div {
             width: 16px !important;
             height: 16px !important;
           }
-          
+
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
             gap: 12px !important;
             padding-top: 15px !important;
           }
-          
+
           .copyright {
             font-size: 11px !important;
             line-height: 1.4 !important;
             justify-content: center !important;
           }
-          
+
           .certification-badge {
             font-size: 10px !important;
             padding: 5px 10px !important;
@@ -763,81 +756,81 @@ const Footer = () => {
           footer {
             padding: 25px 0 15px !important;
           }
-          
+
           .footer-container {
             padding: 0 4% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 18px !important;
             text-align: center !important;
             margin-bottom: 18px !important;
           }
-          
+
           .footer-logo-section {
             align-items: center !important;
             gap: 10px !important;
           }
-          
+
           .footer-logo {
             height: 130px !important;
             width: 130px !important;
           }
-          
+
           .footer-description {
             font-size: 12px !important;
             line-height: 1.4 !important;
             max-width: 100% !important;
             text-align: center !important;
           }
-          
+
           .footer-contact {
             align-items: center !important;
             gap: 8px !important;
           }
-          
+
           .contact-item {
             font-size: 11px !important;
             gap: 6px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
-          
+
           .contact-item svg {
             width: 12px !important;
             height: 12px !important;
           }
-          
+
           .social-description {
             font-size: 11px !important;
             margin-bottom: 10px !important;
           }
-          
+
           .social-grid {
             gap: 8px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
-          
+
           .social-link {
             width: 36px !important;
             height: 36px !important;
           }
-          
+
           .social-link svg,
           .social-link div {
             width: 14px !important;
             height: 14px !important;
           }
-          
+
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
             gap: 10px !important;
             padding-top: 12px !important;
           }
-          
+
           .copyright {
             flex-direction: column !important;
             gap: 4px !important;
@@ -845,12 +838,12 @@ const Footer = () => {
             line-height: 1.3 !important;
             justify-content: center !important;
           }
-          
+
           .certification-badge {
             font-size: 9px !important;
             padding: 4px 8px !important;
           }
-          
+
           .certification-badge svg {
             width: 10px !important;
             height: 10px !important;
@@ -862,81 +855,81 @@ const Footer = () => {
           footer {
             padding: 20px 0 12px !important;
           }
-          
+
           .footer-container {
             padding: 0 3% !important;
           }
-          
+
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 15px !important;
             text-align: center !important;
             margin-bottom: 15px !important;
           }
-          
+
           .footer-logo-section {
             align-items: center !important;
             gap: 8px !important;
           }
-          
+
           .footer-logo {
             height: 115px !important;
             width: 115px !important;
           }
-          
+
           .footer-description {
             font-size: 11px !important;
             line-height: 1.3 !important;
             max-width: 100% !important;
             text-align: center !important;
           }
-          
+
           .footer-contact {
             align-items: center !important;
             gap: 6px !important;
           }
-          
+
           .contact-item {
             font-size: 10px !important;
             gap: 4px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
-          
+
           .contact-item svg {
             width: 10px !important;
             height: 10px !important;
           }
-          
+
           .social-description {
             font-size: 10px !important;
             margin-bottom: 8px !important;
           }
-          
+
           .social-grid {
             gap: 6px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
-          
+
           .social-link {
             width: 32px !important;
             height: 32px !important;
           }
-          
+
           .social-link svg,
           .social-link div {
             width: 12px !important;
             height: 12px !important;
           }
-          
+
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
             gap: 8px !important;
             padding-top: 10px !important;
           }
-          
+
           .copyright {
             flex-direction: column !important;
             gap: 3px !important;
@@ -944,12 +937,12 @@ const Footer = () => {
             line-height: 1.2 !important;
             justify-content: center !important;
           }
-          
+
           .certification-badge {
             font-size: 8px !important;
             padding: 3px 6px !important;
           }
-          
+
           .certification-badge svg {
             width: 8px !important;
             height: 8px !important;
@@ -961,12 +954,12 @@ const Footer = () => {
           footer {
             padding: 20px 0 15px !important;
           }
-          
+
           .footer-main {
             gap: 20px !important;
             margin-bottom: 20px !important;
           }
-          
+
           .footer-bottom {
             padding-top: 15px !important;
           }
@@ -984,18 +977,11 @@ const Footer = () => {
         @media (hover: none) {
           .social-link:hover {
             transform: none !important;
-            background: rgba(255, 255, 255, 0.08) !important;
+            background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'} !important;
           }
-          
+
           .footer-logo:hover {
             transform: none !important;
-          }
-        }
-
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-          footer {
-            background: rgba(0, 0, 0, 0.98) !important;
           }
         }
 
@@ -1010,11 +996,11 @@ const Footer = () => {
         /* High Contrast Mode */
         @media (prefers-contrast: high) {
           footer {
-            border-top: 3px solid #fbbf24 !important;
+            border-top: 3px solid ${theme === 'dark' ? '#fbbf24' : '#d69e2e'} !important;
           }
-          
+
           .social-link {
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border: 2px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'} !important;
           }
         }
       `}</style>

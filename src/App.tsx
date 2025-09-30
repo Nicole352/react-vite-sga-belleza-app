@@ -7,7 +7,7 @@ import PaginaSobreNosotros from './pages/SobreNosotros';
 import PaginaAulaVirtual from './pages/AulaVirtual';
 import PaginaContactenos from './pages/Contactenos';
 import DetalleCurso from './pages/DetalleCurso';
-import Header from './components/Header';
+import PublicLayout from './components/PublicLayout';
 import Pago from './pages/Pago';
 import PanelSuperAdmin from './roles/superadmin/PanelSuperAdmin';
 import PanelAdministrativos from './roles/admin/PanelAdministrativos';
@@ -24,15 +24,16 @@ const App: React.FC = () => {
     }}>
       <div className="App">
         <Routes>
-          {/* Rutas públicas con Header */}
-          <Route path="/" element={<><Header /><PaginaInicio /></>} />
-          <Route path="/cursos" element={<><Header /><PaginaCursos /></>} />
-          <Route path="/avales" element={<><Header /><PaginaAvales /></>} />
-          <Route path="/sobre-nosotros" element={<><Header /><PaginaSobreNosotros /></>} />
-          <Route path="/aula-virtual" element={<><Header /><PaginaAulaVirtual /></>} />
-          <Route path="/contactenos" element={<><Header /><PaginaContactenos /></>} />
-          <Route path="/detalle-curso" element={<><Header /><DetalleCurso /></>} />
-          <Route path="/pago" element={<><Header /><Pago /></>} />
+          {/* Rutas públicas con PublicLayout */}
+          <Route path="/" element={<PublicLayout><PaginaInicio /></PublicLayout>} />
+          <Route path="/cursos" element={<PublicLayout><PaginaCursos /></PublicLayout>} />
+          <Route path="/avales" element={<PublicLayout><PaginaAvales /></PublicLayout>} />
+          <Route path="/sobre-nosotros" element={<PublicLayout><PaginaSobreNosotros /></PublicLayout>} />
+          <Route path="/aula-virtual" element={<PublicLayout><PaginaAulaVirtual /></PublicLayout>} />
+          <Route path="/contactenos" element={<PublicLayout><PaginaContactenos /></PublicLayout>} />
+          <Route path="/detalle-curso" element={<PublicLayout><DetalleCurso /></PublicLayout>} />
+          <Route path="/pago" element={<PublicLayout><Pago /></PublicLayout>} />
+          
           {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
           <Route
             path="/panel/superadmin"

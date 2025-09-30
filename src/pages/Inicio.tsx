@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Sparkles, 
-  Users, 
-  Award, 
-  ArrowRight, 
-  Star, 
+import {
+  Sparkles,
+  Users,
+  Award,
+  ArrowRight,
+  Star,
   Heart
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { gsap } from 'gsap';
+import { useTheme } from '../context/ThemeContext';
 
 const PaginaInicio: React.FC = () => {
+  const { theme } = useTheme();
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const titleRef = useRef<HTMLSpanElement>(null);
@@ -33,7 +35,7 @@ const PaginaInicio: React.FC = () => {
       subtitle: 'Formación integral en cuidado facial profesional'
     },
     {
-      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758898722/DSC00505c_gjktoh.jpg',
+      url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758922216/DSC00505cc_arsvkf.jpg',
       title: 'Medicina Estética Moderna',
       subtitle: 'Cursos especializados en las últimas tendencias'
     },
@@ -149,7 +151,7 @@ const PaginaInicio: React.FC = () => {
   `;
 
   return (
-    <div className="container">
+    <div className="container" style={{ background: theme === 'dark' ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.95)' }}>
 
       {/* Efectos de fondo con partículas animadas */}
       <div className="particles">
@@ -358,10 +360,12 @@ const PaginaInicio: React.FC = () => {
       <style>{`
         .container {
           min-height: 100vh;
-          background: rgba(0, 0, 0, 0.95);
+          background: ${theme === 'dark' ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
+          color: ${theme === 'dark' ? '#f3f4f6' : '#1f2937'};
           position: relative;
           overflow: hidden;
           font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
+          transition: background 0.4s ease, color 0.4s ease;
         }
 
         .particles {
@@ -371,7 +375,7 @@ const PaginaInicio: React.FC = () => {
           width: 100%;
           height: 100%;
           pointer-events: none;
-          opacity: 0.12;
+          opacity: ${theme === 'dark' ? '0.12' : '0.08'};
           z-index: 0;
         }
 
@@ -379,7 +383,7 @@ const PaginaInicio: React.FC = () => {
           position: absolute;
           width: 3px;
           height: 3px;
-          background-color: #fbbf24;
+          background-color: ${theme === 'dark' ? '#fbbf24' : '#d69e2e'};
           border-radius: 50%;
           animation: twinkle ease-in-out infinite;
         }
@@ -447,7 +451,9 @@ const PaginaInicio: React.FC = () => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+          background: ${theme === 'dark' 
+            ? 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%)' 
+            : 'radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%)'};
           z-index: 0;
         }
 
@@ -468,50 +474,35 @@ const PaginaInicio: React.FC = () => {
         .hero-title {
           font-size: 4.2rem;
           font-weight: 400;
-          color: white;
+          color: ${theme === 'dark' ? 'white' : '#1f2937'};
           margin-bottom: 16px;
           line-height: 1.05;
-          text-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+          text-shadow: 0 8px 40px ${theme === 'dark' ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.2)'};
           font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.02em;
         }
 
         .gradient-text {
-          background: linear-gradient(45deg, #fbbf24, #f59e0b, #fbbf24, #d97706);
+          background: linear-gradient(45deg, #fbbf24, #f59e0b, #eab308, #d97706);
           background-size: 300% 300%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          display: block;
-          animation: gradientShift 3s ease-in-out infinite;
-          font-style: italic;
-        }
-
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        .dynamic-subtitle {
-          font-size: 1.15rem;
-          color: #fde68a;
-          margin-bottom: 28px;
-          font-style: italic;
-          text-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
-          font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
-          opacity: 0.95;
-          transition: all 1s ease-in-out;
-          font-weight: 300;
+          background-clip: text;
+          text-fill-color: transparent;
           letter-spacing: 0.5px;
+          text-shadow: none;
+          display: inline-block;
         }
 
         .hero-subtitle {
           font-size: 1.2rem;
-          color: #f3f4f6;
+          color: ${theme === 'dark' ? '#f3f4f6' : '#4b5563'};
           margin: 0 auto 32px;
           max-width: 750px;
           line-height: 1.7;
-          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+          text-shadow: ${theme === 'dark' 
+            ? '0 4px 20px rgba(0, 0, 0, 0.8)' 
+            : '0 2px 10px rgba(0, 0, 0, 0.1)'};
           font-family: 'Montserrat', sans-serif;
           font-weight: 400;
           letter-spacing: 0.3px;
@@ -613,15 +604,17 @@ const PaginaInicio: React.FC = () => {
         }
 
         .stat-card {
-          background-color: rgba(255, 255, 255, 0.08);
+          background-color: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.8)'};
           backdrop-filter: blur(25px);
-          border: 1px solid rgba(251, 191, 36, 0.3);
+          border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(209, 160, 42, 0.4)'};
           border-radius: 20px;
           padding: 28px 36px;
           transform: translateY(0);
           opacity: 1;
           transition: all 0.8s ease-out;
-          box-shadow: 0 16px 50px rgba(0, 0, 0, 0.4);
+          box-shadow: ${theme === 'dark' 
+            ? '0 16px 50px rgba(0, 0, 0, 0.4)' 
+            : '0 10px 30px rgba(0, 0, 0, 0.1)'};
           text-align: center;
         }
 
@@ -636,7 +629,7 @@ const PaginaInicio: React.FC = () => {
         }
 
         .stat-text {
-          color: #f3f4f6;
+          color: ${theme === 'dark' ? '#f3f4f6' : '#1f2937'};
           display: flex;
           align-items: center;
           justify-content: center;
@@ -678,7 +671,6 @@ const PaginaInicio: React.FC = () => {
           color: white;
           margin-bottom: 32px;
           text-align: center;
-          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
           font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
         }
@@ -777,7 +769,6 @@ const PaginaInicio: React.FC = () => {
           font-weight: 700;
           color: white;
           margin-bottom: 16px;
-          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
           font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
         }
@@ -905,7 +896,6 @@ const PaginaInicio: React.FC = () => {
           font-weight: 700;
           color: white;
           margin-bottom: 24px;
-          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
           font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
           line-height: 1.2;
