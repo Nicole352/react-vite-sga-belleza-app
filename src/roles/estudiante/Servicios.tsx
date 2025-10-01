@@ -1,29 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Calendar,
   Clock,
-  MapPin,
-  Phone,
   Mail,
-  FileText,
-  Download,
-  Upload,
-  MessageCircle,
-  HelpCircle,
-  BookOpen,
-  Award,
-  Users,
-  Video,
-  Headphones,
-  Globe,
-  Star,
   CheckCircle,
-  AlertCircle,
-  Info,
-  ExternalLink,
   Search,
-  Filter
+  CreditCard
 } from 'lucide-react';
+
+// Importar el componente de Pagos Mensuales
+import PagosMenuales from './PagosMenuales';
 
 interface ServiciosProps {
   darkMode: boolean;
@@ -31,8 +16,8 @@ interface ServiciosProps {
 
 const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('academicos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showPagosMenuales, setShowPagosMenuales] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -71,166 +56,21 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
 
   const theme = getThemeColors();
 
-  const categories = [
-    { id: 'academicos', name: 'Servicios Académicos', icon: BookOpen },
-    { id: 'soporte', name: 'Soporte Técnico', icon: HelpCircle },
-    { id: 'bienestar', name: 'Bienestar Estudiantil', icon: Users },
-    { id: 'biblioteca', name: 'Biblioteca Digital', icon: FileText }
+  // Solo servicio de Pagar Mensualidad
+  const services = [
+    {
+      id: 1,
+      title: 'Pagar Mensualidad',
+      description: 'Gestiona y paga las mensualidades de tus cursos matriculados de forma rápida y segura',
+      icon: CreditCard,
+      status: 'available',
+      schedule: '24/7 Online',
+      contact: 'pagos@sgabelleza.edu.ec',
+      action: 'Gestionar Pagos',
+      features: ['Pagos online seguros', 'Historial de pagos', 'Múltiples métodos de pago'],
+      isSpecial: true
+    }
   ];
-
-  const services = {
-    academicos: [
-      {
-        id: 1,
-        title: 'Tutoría Académica',
-        description: 'Sesiones personalizadas de apoyo académico con profesores especializados',
-        icon: Users,
-        status: 'available',
-        schedule: 'Lun-Vie 8:00-18:00',
-        contact: 'tutoria@sgabelleza.edu.ec',
-        action: 'Solicitar Cita',
-        features: ['Apoyo personalizado', 'Refuerzo en materias', 'Preparación para exámenes']
-      },
-      {
-        id: 2,
-        title: 'Certificaciones',
-        description: 'Gestiona y descarga tus certificados académicos y de competencias',
-        icon: Award,
-        status: 'available',
-        schedule: '24/7 Online',
-        contact: 'certificados@sgabelleza.edu.ec',
-        action: 'Ver Certificados',
-        features: ['Certificados digitales', 'Validación online', 'Historial académico']
-      },
-      {
-        id: 3,
-        title: 'Aula Virtual Extendida',
-        description: 'Acceso a clases grabadas, material adicional y recursos interactivos',
-        icon: Video,
-        status: 'available',
-        schedule: '24/7 Online',
-        contact: 'aula@sgabelleza.edu.ec',
-        action: 'Acceder al Aula',
-        features: ['Clases grabadas', 'Material interactivo', 'Recursos multimedia']
-      },
-      {
-        id: 4,
-        title: 'Evaluaciones Online',
-        description: 'Sistema de evaluaciones y exámenes en línea con retroalimentación inmediata',
-        icon: CheckCircle,
-        status: 'available',
-        schedule: 'Según programación',
-        contact: 'evaluaciones@sgabelleza.edu.ec',
-        action: 'Ver Evaluaciones',
-        features: ['Exámenes online', 'Retroalimentación', 'Calificaciones automáticas']
-      }
-    ],
-    soporte: [
-      {
-        id: 5,
-        title: 'Mesa de Ayuda Técnica',
-        description: 'Soporte técnico para problemas con la plataforma, acceso y herramientas',
-        icon: HelpCircle,
-        status: 'available',
-        schedule: 'Lun-Vie 7:00-19:00',
-        contact: 'soporte@sgabelleza.edu.ec',
-        action: 'Crear Ticket',
-        features: ['Soporte 24/7', 'Chat en vivo', 'Resolución rápida']
-      },
-      {
-        id: 6,
-        title: 'Guías y Tutoriales',
-        description: 'Biblioteca de guías paso a paso para usar todas las funcionalidades',
-        icon: BookOpen,
-        status: 'available',
-        schedule: '24/7 Online',
-        contact: 'guias@sgabelleza.edu.ec',
-        action: 'Ver Guías',
-        features: ['Videos tutoriales', 'Guías PDF', 'FAQ completo']
-      },
-      {
-        id: 7,
-        title: 'Configuración de Cuenta',
-        description: 'Ayuda para configurar tu perfil, notificaciones y preferencias',
-        icon: Users,
-        status: 'available',
-        schedule: 'Lun-Vie 8:00-17:00',
-        contact: 'cuentas@sgabelleza.edu.ec',
-        action: 'Solicitar Ayuda',
-        features: ['Configuración perfil', 'Recuperación acceso', 'Cambio datos']
-      }
-    ],
-    bienestar: [
-      {
-        id: 8,
-        title: 'Consejería Estudiantil',
-        description: 'Apoyo psicológico y orientación académica para estudiantes',
-        icon: MessageCircle,
-        status: 'available',
-        schedule: 'Lun-Vie 9:00-16:00',
-        contact: 'consejeria@sgabelleza.edu.ec',
-        action: 'Agendar Cita',
-        features: ['Apoyo psicológico', 'Orientación vocacional', 'Confidencial']
-      },
-      {
-        id: 9,
-        title: 'Becas y Financiamiento',
-        description: 'Información sobre becas, descuentos y opciones de financiamiento',
-        icon: Award,
-        status: 'available',
-        schedule: 'Lun-Vie 8:00-16:00',
-        contact: 'becas@sgabelleza.edu.ec',
-        action: 'Consultar Becas',
-        features: ['Becas académicas', 'Descuentos', 'Planes de pago']
-      },
-      {
-        id: 10,
-        title: 'Actividades Extracurriculares',
-        description: 'Participación en eventos, talleres y actividades complementarias',
-        icon: Users,
-        status: 'available',
-        schedule: 'Según calendario',
-        contact: 'actividades@sgabelleza.edu.ec',
-        action: 'Ver Actividades',
-        features: ['Talleres', 'Eventos', 'Competencias']
-      }
-    ],
-    biblioteca: [
-      {
-        id: 11,
-        title: 'Biblioteca Digital',
-        description: 'Acceso a libros digitales, revistas especializadas y recursos académicos',
-        icon: BookOpen,
-        status: 'available',
-        schedule: '24/7 Online',
-        contact: 'biblioteca@sgabelleza.edu.ec',
-        action: 'Acceder a Biblioteca',
-        features: ['Libros digitales', 'Revistas', 'Base de datos']
-      },
-      {
-        id: 12,
-        title: 'Repositorio Institucional',
-        description: 'Tesis, trabajos de investigación y proyectos de estudiantes',
-        icon: FileText,
-        status: 'available',
-        schedule: '24/7 Online',
-        contact: 'repositorio@sgabelleza.edu.ec',
-        action: 'Explorar Repositorio',
-        features: ['Tesis digitales', 'Proyectos', 'Investigaciones']
-      },
-      {
-        id: 13,
-        title: 'Préstamo de Equipos',
-        description: 'Solicitud de equipos especializados para prácticas y proyectos',
-        icon: Video,
-        status: 'limited',
-        schedule: 'Lun-Vie 8:00-17:00',
-        contact: 'equipos@sgabelleza.edu.ec',
-        action: 'Solicitar Equipo',
-        features: ['Equipos especializados', 'Reserva online', 'Inventario actualizado']
-      }
-    ]
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -250,10 +90,10 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
     }
   };
 
-  const filteredServices = services[activeCategory as keyof typeof services]?.filter(service =>
+  const filteredServices = services.filter(service =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.description.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   return (
     <div style={{
@@ -275,14 +115,14 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
           <div style={{
             width: '80px',
             height: '80px',
-            background: `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
+            background: `linear-gradient(135deg, ${theme.success}, #059669)`,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: `0 8px 24px ${theme.accent}30`
+            boxShadow: `0 8px 24px ${theme.success}30`
           }}>
-            <HelpCircle size={32} color={darkMode ? '#000' : '#fff'} />
+            <CreditCard size={32} color={darkMode ? '#000' : '#fff'} />
           </div>
           <div>
             <h1 style={{ 
@@ -291,14 +131,14 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               color: theme.textPrimary, 
               margin: '0 0 8px 0' 
             }}>
-              Servicios Estudiantiles 🎓
+              Gestión de Pagos 💳
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
               fontSize: '1.1rem', 
               margin: '0 0 4px 0' 
             }}>
-              Accede a todos los servicios y recursos disponibles para estudiantes
+              Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
             </p>
           </div>
         </div>
@@ -314,7 +154,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
           }} />
           <input
             type="text"
-            placeholder="Buscar servicios..."
+            placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -328,61 +168,6 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               fontFamily: 'Montserrat, sans-serif'
             }}
           />
-        </div>
-      </div>
-
-      {/* Categorías */}
-      <div style={{
-        background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isActive = activeCategory === category.id;
-            
-            return (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                style={{
-                  padding: '12px 24px',
-                  background: isActive ? theme.accent : 'transparent',
-                  color: isActive ? (darkMode ? '#000' : '#fff') : theme.textSecondary,
-                  border: isActive ? 'none' : `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = theme.accent + '20';
-                    e.currentTarget.style.color = theme.accent;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = theme.textSecondary;
-                  }
-                }}
-              >
-                <Icon size={18} />
-                {category.name}
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -515,9 +300,17 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               </div>
 
               {/* Botón de acción */}
-              <button style={{
+              <button 
+                onClick={() => {
+                  if ((service as any).isSpecial && service.id === 1) {
+                    setShowPagosMenuales(true);
+                  }
+                }}
+                style={{
                 width: '100%',
-                background: `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
+                background: (service as any).isSpecial 
+                  ? 'linear-gradient(135deg, #10b981, #059669)' 
+                  : `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
                 color: darkMode ? '#000' : '#fff',
                 border: 'none',
                 borderRadius: '12px',
@@ -531,7 +324,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                 justifyContent: 'center',
                 gap: '8px'
               }}>
-                <ExternalLink size={18} />
+                <CreditCard size={18} />
                 {service.action}
               </button>
             </div>
@@ -564,12 +357,56 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
             fontSize: '1rem',
             margin: 0
           }}>
-            Intenta con otros términos de búsqueda o cambia de categoría
-          </p>
+            Intenta con otros términos de búsqueda
+        </p>
+      </div>
+    )}
+
+    {/* Componente de Pagos Mensuales */}
+    {showPagosMenuales && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        zIndex: 2000,
+        overflow: 'hidden'
+      }}>
+        {/* Botón de cerrar flotante */}
+        <button
+          onClick={() => setShowPagosMenuales(false)}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            color: '#fff',
+            padding: '12px 16px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontFamily: 'Montserrat, sans-serif',
+            zIndex: 2001,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: '600'
+          }}
+        >
+          ✕ Cerrar
+        </button>
+        
+        {/* Componente de Pagos Mensuales a pantalla completa */}
+        <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+          <PagosMenuales darkMode={darkMode} />
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 };
 
 export default Servicios;

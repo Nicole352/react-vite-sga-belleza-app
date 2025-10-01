@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
-  User, BookOpen, Settings, Sun, Moon, Eye, EyeOff, CheckCircle, Lock, X
-} from 'lucide-react';
+  BookOpen, UserCircle, Settings, Sun, Moon, Camera, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
+import SchoolLogo from '../../components/SchoolLogo';
 
 // Importar componentes modulares
 import MiAula from './MiAula';
@@ -18,14 +18,15 @@ const PanelEstudiantes = () => {
     const saved = localStorage.getItem('estudiante-dark-mode');
     return saved !== null ? JSON.parse(saved) : false;
   });
-
+  
   // Estados para modal de cambio de contraseña
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   const [passwordResetData, setPasswordResetData] = useState({ newPassword: '', confirmPassword: '' });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
@@ -35,6 +36,23 @@ const PanelEstudiantes = () => {
   useEffect(() => {
     checkPasswordReset();
   }, []);
+
+  // Cerrar menú de perfil al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showProfileMenu) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    if (showProfileMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   // Verificar si necesita cambiar contraseña en primer ingreso
   const checkPasswordReset = async () => {
@@ -146,7 +164,7 @@ const PanelEstudiantes = () => {
   const tabs = [
     { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
     { id: 'servicios', name: 'Servicios', icon: Settings },
-    { id: 'perfil', name: 'Mi Perfil', icon: User }
+    { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
   return (
@@ -197,46 +215,41 @@ const PanelEstudiantes = () => {
           zIndex: 1000,
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
-          {/* Header del Sidebar */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-            gap: '12px', 
-            marginBottom: '32px',
-            paddingBottom: '24px',
-            borderBottom: `1px solid ${theme.border}`
+          {/* Header del Sidebar - Logo y Texto */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: `1px solid ${theme.border}`,
+            paddingTop: '8px'
           }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)'
-            }}>
-              <User size={24} color="#fff" />
-                </div>
-            <div>
+            <SchoolLogo size={120} darkMode={darkMode} />
+            <div style={{ marginTop: '8px', textAlign: 'center' }}>
               <h1 style={{ 
                 color: theme.textPrimary, 
                 fontSize: '1.2rem', 
-                fontWeight: '700', 
+                fontWeight: '600', 
                 margin: 0,
-                lineHeight: 1.2
+                lineHeight: 1.2,
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
               }}>
                 Panel
               </h1>
-                    <p style={{ 
+              <p style={{ 
                 color: theme.textMuted, 
                 fontSize: '0.9rem', 
-                margin: 0 
+                margin: 0,
+                marginTop: '2px',
+                fontWeight: '400',
+                letterSpacing: '0.3px'
               }}>
                 Estudiantes
               </p>
             </div>
-                </div>
+          </div>
                 
           {/* Navegación del Sidebar */}
           <nav style={{ marginBottom: '32px' }}>
@@ -329,7 +342,9 @@ const PanelEstudiantes = () => {
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            position: 'relative',
+            zIndex: 2
           }}>
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -371,16 +386,161 @@ const PanelEstudiantes = () => {
                     </div>
                     </div>
 
-            {/* Toggle Switch de modo claro/oscuro - Estilo Navbar */}
-            <div
-              onClick={toggleDarkMode}
-                        style={{
-                position: 'relative',
-                width: '52px',
-                height: '26px',
-                background: darkMode 
-                  ? 'rgba(55, 65, 81, 0.8)' 
-                  : 'rgba(229, 231, 235, 0.8)',
+            {/* Iconos del lado derecho */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* Icono de Perfil de Usuario */}
+              <div style={{ position: 'relative' }}>
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Icono clickeado, showProfileMenu actual:', showProfileMenu);
+                    setShowProfileMenu(!showProfileMenu);
+                  }}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    background: darkMode ? '#4b5563' : '#d1d5db',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.background = darkMode ? '#6b7280' : '#9ca3af';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.background = darkMode ? '#4b5563' : '#d1d5db';
+                  }}>
+                  <UserCircle size={22} color={darkMode ? '#e5e7eb' : '#6b7280'} />
+                </div>
+
+                {/* Menú desplegable con animaciones */}
+                {showProfileMenu && (
+                  <div 
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      position: 'absolute',
+                      top: '50px',
+                      right: '0px',
+                      background: darkMode ? theme.contentBg : theme.contentBg,
+                      borderRadius: '12px',
+                      boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+                      border: `1px solid ${theme.border}`,
+                      minWidth: '250px',
+                      zIndex: 999,
+                      animation: 'slideInDown 0.3s ease-out',
+                      backdropFilter: 'blur(20px)'
+                    }}>
+                    {/* Header del menú */}
+                    <div style={{
+                      padding: '12px 16px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      background: theme.navbarBg,
+                      borderRadius: '12px 12px 0 0'
+                    }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: theme.textSecondary,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        textAlign: 'center'
+                      }}>
+                        Mi Perfil
+                      </div>
+                    </div>
+
+                    {/* Opción 1: Cambiar foto */}
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowProfileMenu(false);
+                        alert('Función de cambiar foto de perfil próximamente');
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        color: theme.textPrimary,
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        borderBottom: `1px solid ${theme.border}`,
+                        background: 'transparent'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}>
+                      <Camera size={18} color={theme.textSecondary} />
+                      <span>Cambiar foto de perfil</span>
+                    </div>
+
+                    {/* Opción 2: Cambiar contraseña */}
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowProfileMenu(false);
+                        setShowPasswordResetModal(true);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        color: theme.textPrimary,
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        background: 'transparent'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}>
+                      <Lock size={18} color={theme.textSecondary} />
+                      <span>Cambiar contraseña</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Estilos CSS para animaciones */}
+                <style>{`
+                  @keyframes slideInDown {
+                    from {
+                      opacity: 0;
+                      transform: translateY(-10px) scale(0.95);
+                    }
+                    to {
+                      opacity: 1;
+                      transform: translateY(0) scale(1);
+                    }
+                  }
+                `}</style>
+              </div>
+
+              {/* Toggle Switch de modo claro/oscuro */}
+              <div
+                onClick={toggleDarkMode}
+                style={{
+                  position: 'relative',
+                  width: '52px',
+                  height: '26px',
+                  background: darkMode 
+                    ? 'rgba(55, 65, 81, 0.8)' 
+                    : 'rgba(229, 231, 235, 0.8)',
                 borderRadius: '13px',
                           cursor: 'pointer',
                 transition: 'all 0.25s ease',
@@ -433,6 +593,7 @@ const PanelEstudiantes = () => {
                     </div>
                   </div>
                 </div>
+              </div>
 
           {/* Contenido de la sección activa */}
           <div style={{
@@ -441,7 +602,9 @@ const PanelEstudiantes = () => {
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
             minHeight: '600px',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
+            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            zIndex: 1
           }}>
             {activeTab === 'mi-aula' && <MiAula darkMode={darkMode} />}
             {activeTab === 'servicios' && <Servicios darkMode={darkMode} />}

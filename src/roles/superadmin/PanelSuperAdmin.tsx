@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Shield, 
   BarChart3, 
   FileText,
   Settings,
@@ -10,6 +9,7 @@ import {
 } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
+import SchoolLogo from '../../components/SchoolLogo';
 
 // Importar los nuevos componentes
 import AdministradoresPanel from './AdministradoresPanel';
@@ -141,41 +141,36 @@ const PanelSuperAdmin: React.FC = () => {
           zIndex: 1000,
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
-        {/* Header del Sidebar */}
+        {/* Header del Sidebar - Logo y Texto */}
         <div style={{ 
           display: 'flex', 
-          alignItems: 'center', 
-          gap: '12px', 
-          marginBottom: '32px',
-          paddingBottom: '24px',
-          borderBottom: `1px solid ${theme.border}`
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: `1px solid ${theme.border}`,
+          paddingTop: '8px'
         }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
-          }}>
-            <Shield size={24} color="#fff" />
-          </div>
-          <div>
+          <SchoolLogo size={120} darkMode={darkMode} />
+          <div style={{ marginTop: '8px', textAlign: 'center' }}>
             <h1 style={{ 
               color: theme.textPrimary, 
               fontSize: '1.2rem', 
-              fontWeight: '700', 
+              fontWeight: '600', 
               margin: 0,
-              lineHeight: 1.2
+              lineHeight: 1.2,
+              letterSpacing: '1px',
+              textTransform: 'uppercase'
             }}>
               Panel Super
             </h1>
             <p style={{ 
               color: theme.textMuted, 
               fontSize: '0.9rem', 
-              margin: 0 
+              margin: 0,
+              marginTop: '2px',
+              fontWeight: '400',
+              letterSpacing: '0.3px'
             }}>
               Administrador
             </p>
@@ -311,16 +306,42 @@ const PanelSuperAdmin: React.FC = () => {
             </div>
           </div>
 
-          {/* Toggle Switch de modo claro/oscuro - Estilo Navbar */}
-          <div
-            onClick={toggleDarkMode}
-            style={{
-              position: 'relative',
-              width: '52px',
-              height: '26px',
-              background: darkMode 
-                ? 'rgba(55, 65, 81, 0.8)' 
-                : 'rgba(229, 231, 235, 0.8)',
+          {/* Iconos del lado derecho */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Icono de Perfil de Usuario */}
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+            }}>
+              <Users size={22} color="#fff" />
+            </div>
+
+            {/* Toggle Switch de modo claro/oscuro */}
+            <div
+              onClick={toggleDarkMode}
+              style={{
+                position: 'relative',
+                width: '52px',
+                height: '26px',
+                background: darkMode 
+                  ? 'rgba(55, 65, 81, 0.8)' 
+                  : 'rgba(229, 231, 235, 0.8)',
               borderRadius: '13px',
               cursor: 'pointer',
               transition: 'all 0.25s ease',
@@ -372,6 +393,7 @@ const PanelSuperAdmin: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
         </div>
 
         {/* Contenido de la sección activa */}

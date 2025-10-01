@@ -1014,6 +1014,45 @@ El estudiante puede ingresar con su identificación como contraseña.`);
                 );
               }
 
+              // Solo mostrar botones si el estado es 'pendiente'
+              if (selected.estado !== 'pendiente') {
+                return (
+                  <div style={{ marginTop: 24, textAlign: 'center' }}>
+                    <div style={{
+                      background: selected.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                      border: selected.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'inline-block'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>
+                          {selected.estado === 'aprobado' ? '✅' : selected.estado === 'rechazado' ? '❌' : '⚠️'}
+                        </span>
+                        <div style={{ textAlign: 'left' }}>
+                          <h4 style={{ 
+                            color: selected.estado === 'aprobado' ? '#10b981' : '#ef4444', 
+                            margin: '0 0 4px 0', 
+                            fontSize: '1rem', 
+                            fontWeight: '600',
+                            textTransform: 'capitalize'
+                          }}>
+                            Solicitud {selected.estado}
+                          </h4>
+                          <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
+                            {selected.estado === 'aprobado' 
+                              ? 'Esta solicitud ya fue aprobada y el estudiante fue creado exitosamente.'
+                              : selected.estado === 'rechazado'
+                              ? 'Esta solicitud fue rechazada anteriormente.'
+                              : 'Esta solicitud tiene observaciones pendientes.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 }}>
                   <button 
