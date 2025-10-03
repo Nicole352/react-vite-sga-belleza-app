@@ -27,6 +27,37 @@ const PanelDocentes = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
+  const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
+
+  // Obtener datos del usuario
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos del usuario:', error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  // Función para obtener iniciales del usuario
+  const getInitials = () => {
+    if (!userData?.nombres || !userData?.apellidos) return 'DC';
+    const firstInitial = userData.nombres.charAt(0).toUpperCase();
+    const lastInitial = userData.apellidos.charAt(0).toUpperCase();
+    return `${firstInitial}${lastInitial}`;
+  };
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
@@ -190,7 +221,7 @@ const PanelDocentes = () => {
           backdropFilter: 'blur(20px)',
           border: `1px solid ${theme.border}`,
           borderRadius: '0 20px 20px 0',
-          padding: '24px',
+          padding: '12px 24px 24px 24px',
           position: 'fixed',
           height: '100vh',
           left: 0,
@@ -198,42 +229,18 @@ const PanelDocentes = () => {
           zIndex: 1000,
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
-          {/* Header del Sidebar - Logo y Texto */}
-          <div style={{ 
+                   {/* Header del Sidebar - Solo Logo */}
+                   <div style={{ 
             display: 'flex', 
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '16px',
-            paddingBottom: '12px',
+            marginBottom: '8px',
+            paddingBottom: '4px',
             borderBottom: `1px solid ${theme.border}`,
-            paddingTop: '8px'
+            paddingTop: '0px'
           }}>
-            <SchoolLogo size={120} darkMode={darkMode} />
-            <div style={{ marginTop: '8px', textAlign: 'center' }}>
-              <h1 style={{ 
-                color: theme.textPrimary, 
-                fontSize: '1.2rem', 
-                fontWeight: '600', 
-                margin: 0,
-                lineHeight: 1.2,
-                letterSpacing: '1px',
-                textTransform: 'uppercase'
-              }}>
-                Panel
-              </h1>
-              <p style={{ 
-                color: theme.textMuted, 
-                fontSize: '0.9rem', 
-                margin: 0,
-                marginTop: '2px',
-                fontWeight: '400',
-                letterSpacing: '0.3px'
-              }}>
-                Docentes
-              </p>
-            </div>
+            <SchoolLogo size={140} darkMode={darkMode} />
           </div>
-                
           {/* Navegación del Sidebar */}
           <nav style={{ marginBottom: '32px' }}>
             {tabs.map((tab) => {
@@ -246,17 +253,17 @@ const PanelDocentes = () => {
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    padding: '16px',
-                    marginBottom: '8px',
+                    gap: '10px',
+                    padding: '12px 16px',
+                    marginBottom: '6px',
                     borderRadius: '12px',
                     border: 'none',
                     background: activeTab === tab.id ? 
                       'linear-gradient(135deg, #3b82f6, #2563eb)' : 
                       'transparent',
                     color: activeTab === tab.id ? '#ffffff' : theme.textMuted,
-                    fontSize: '0.95rem',
-                    fontWeight: '600',
+                    fontSize: '0.85rem',
+                    fontWeight: '500',
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'left',
@@ -354,7 +361,7 @@ const PanelDocentes = () => {
                   color: theme.textPrimary,
                   margin: 0
                 }}>
-                  {tabs.find(tab => tab.id === activeTab)?.name || 'Panel Docente'}
+                  Panel Docente
                 </h1>
                 <p style={{ 
                   color: theme.textSecondary, 
@@ -362,74 +369,101 @@ const PanelDocentes = () => {
                   fontSize: '1rem',
                   marginTop: '4px'
                 }}>
-                  {activeTab === 'dashboard' && 'Tu espacio de gestión académica'}
-                  {activeTab === 'cursos' && 'Administra tus cursos y contenido'}
-                  {activeTab === 'estudiantes' && 'Monitorea el progreso de tus estudiantes'}
-                  {activeTab === 'horario' && 'Visualiza tu calendario de clases'}
-                  {activeTab === 'perfil' && 'Gestiona tu información personal'}
+                  Sistema de gestión académica
                 </p>
               </div>
             </div>
 
-            {/* Toggle Switch de modo claro/oscuro */}
-            <div
-              onClick={toggleDarkMode}
-              style={{
-                position: 'relative',
-                width: '52px',
-                height: '26px',
-                background: darkMode 
-                  ? 'rgba(55, 65, 81, 0.8)' 
-                  : 'rgba(229, 231, 235, 0.8)',
-                borderRadius: '13px',
+            {/* Iconos del lado derecho */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* Iniciales del Usuario */}
+              <div style={{
+                width: '44px',
+                height: '44px',
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 cursor: 'pointer',
-                transition: 'all 0.25s ease',
-                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
-                boxShadow: darkMode 
-                  ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
-                  : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
-                backdropFilter: 'blur(8px)'
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                fontWeight: '700',
+                fontSize: '0.95rem',
+                color: '#fff',
+                letterSpacing: '0.5px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.background = darkMode 
-                  ? 'rgba(55, 65, 81, 0.9)' 
-                  : 'rgba(229, 231, 235, 0.9)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.background = darkMode 
-                  ? 'rgba(55, 65, 81, 0.8)' 
-                  : 'rgba(229, 231, 235, 0.8)';
-              }}
-            >
-              {/* Círculo deslizante */}
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+              }}>
+                {getInitials()}
+              </div>
+
+              {/* Toggle Switch de modo claro/oscuro */}
               <div
+                onClick={toggleDarkMode}
                 style={{
-                  position: 'absolute',
-                  top: '2px',
-                  left: darkMode ? '26px' : '2px',
-                  width: '22px',
-                  height: '22px',
+                  position: 'relative',
+                  width: '52px',
+                  height: '26px',
                   background: darkMode 
-                    ? 'linear-gradient(135deg, #374151, #4b5563)' 
-                    : 'linear-gradient(135deg, #ffffff, #f9fafb)',
-                  borderRadius: '50%',
-                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                    ? 'rgba(55, 65, 81, 0.8)' 
+                    : 'rgba(229, 231, 235, 0.8)',
+                  borderRadius: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s ease',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
                   boxShadow: darkMode 
-                    ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
-                    : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
-                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
+                    ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
+                    : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
+                  backdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                  e.currentTarget.style.background = darkMode 
+                    ? 'rgba(55, 65, 81, 0.9)' 
+                    : 'rgba(229, 231, 235, 0.9)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.background = darkMode 
+                    ? 'rgba(55, 65, 81, 0.8)' 
+                    : 'rgba(229, 231, 235, 0.8)';
                 }}
               >
-                {darkMode ? (
-                  <Moon size={12} color="#d1d5db" />
-                ) : (
-                  <Sun size={12} color="#3b82f6" />
-                )}
+                {/* Círculo deslizante */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    left: darkMode ? '26px' : '2px',
+                    width: '22px',
+                    height: '22px',
+                    background: darkMode 
+                      ? 'linear-gradient(135deg, #374151, #4b5563)' 
+                      : 'linear-gradient(135deg, #ffffff, #f9fafb)',
+                    borderRadius: '50%',
+                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: darkMode 
+                      ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
+                      : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
+                  }}
+                >
+                  {darkMode ? (
+                    <Moon size={12} color="#d1d5db" />
+                  ) : (
+                    <Sun size={12} color="#3b82f6" />
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { DollarSign, FileText, HelpCircle, Settings, CreditCard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { DollarSign, FileText, HelpCircle, Settings, CreditCard, Search, CheckCircle, Clock, Mail } from 'lucide-react';
 
 // Importar el componente de Pagos Mensuales
 import PagosMenuales from './PagosMenuales';

@@ -25,6 +25,37 @@ const PanelAdministrativos = () => {
     const saved = localStorage.getItem('admin-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
+
+  // Obtener datos del usuario
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:3000/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos del usuario:', error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  // Función para obtener iniciales del usuario
+  const getInitials = () => {
+    if (!userData?.nombres || !userData?.apellidos) return 'AD';
+    const firstInitial = userData.nombres.charAt(0).toUpperCase();
+    const lastInitial = userData.apellidos.charAt(0).toUpperCase();
+    return `${firstInitial}${lastInitial}`;
+  };
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
@@ -140,7 +171,7 @@ const PanelAdministrativos = () => {
         backdropFilter: 'blur(20px)',
         border: `1px solid ${theme.border}`,
         borderRadius: '0 20px 20px 0',
-        padding: '24px',
+        padding: '12px 24px 24px 24px',
         position: 'fixed',
         height: '100vh',
         left: 0,
@@ -148,40 +179,17 @@ const PanelAdministrativos = () => {
         zIndex: 1000,
         boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
       }}>
-        {/* Header del Sidebar - Logo y Texto */}
+        {/* Header del Sidebar - Solo Logo */}
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column',
           alignItems: 'center',
-          marginBottom: '16px',
-          paddingBottom: '12px',
+          marginBottom: '8px',
+          paddingBottom: '4px',
           borderBottom: `1px solid ${theme.border}`,
-          paddingTop: '8px'
+          paddingTop: '0px'
         }}>
-          <SchoolLogo size={120} darkMode={darkMode} />
-          <div style={{ marginTop: '8px', textAlign: 'center' }}>
-            <h1 style={{ 
-              color: theme.textPrimary, 
-              fontSize: '1.2rem', 
-              fontWeight: '600', 
-              margin: 0,
-              lineHeight: 1.2,
-              letterSpacing: '1px',
-              textTransform: 'uppercase'
-            }}>
-              Panel
-            </h1>
-            <p style={{ 
-              color: theme.textMuted, 
-              fontSize: '0.9rem', 
-              margin: 0,
-              marginTop: '2px',
-              fontWeight: '400',
-              letterSpacing: '0.3px'
-            }}>
-              Administrativos
-            </p>
-          </div>
+          <SchoolLogo size={140} darkMode={darkMode} />
         </div>
         
         {/* Navegación del Sidebar */}
@@ -196,17 +204,17 @@ const PanelAdministrativos = () => {
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  padding: '16px',
-                  marginBottom: '8px',
+                  gap: '10px',
+                  padding: '12px 16px',
+                  marginBottom: '6px',
                   borderRadius: '12px',
                   border: 'none',
                   background: activeTab === tab.id ? 
                     'linear-gradient(135deg, #ef4444, #dc2626)' : 
                     'transparent',
                   color: activeTab === tab.id ? '#fff' : theme.textMuted,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
+                  fontSize: '0.85rem',
+                  fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   textAlign: 'left',
@@ -297,7 +305,7 @@ const PanelAdministrativos = () => {
                 color: theme.textPrimary,
                 margin: 0
               }}>
-                {tabs.find(t => t.id === activeTab)?.name || 'Dashboard'}
+                Panel Administrativos
               </h1>
               <p style={{ 
                 color: theme.textSecondary, 
@@ -305,26 +313,17 @@ const PanelAdministrativos = () => {
                 fontSize: '1rem',
                 marginTop: '4px'
               }}>
-                {activeTab === 'dashboard' && 'Resumen general del sistema administrativo'}
-                {activeTab === 'tipos' && 'Gestión de tipos y categorías de cursos'}
-                {activeTab === 'cursos' && 'Administración de cursos y programas'}
-                {activeTab === 'matricula' && 'Control de matrículas y inscripciones'}
-                {activeTab === 'estudiantes' && 'Gestión de estudiantes registrados'}
-                {activeTab === 'docentes' && 'Administración de profesores y docentes'}
-                {activeTab === 'gestion-aulas' && 'Administración y configuración de aulas'}
-                {activeTab === 'asignacion-aulas' && 'Asignación y control de aulas por curso'}
-                {activeTab === 'pagos' && 'Gestión y verificación de pagos mensuales'}
-                {activeTab === 'reportes' && 'Reportes y estadísticas del sistema'}
+                Sistema de gestión académica
               </p>
             </div>
           </div>
 
           {/* Iconos del lado derecho */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* Icono de Perfil de Usuario */}
+            {/* Iniciales del Usuario */}
             <div style={{
-              width: '40px',
-              height: '40px',
+              width: '44px',
+              height: '44px',
               background: 'linear-gradient(135deg, #ef4444, #dc2626)',
               borderRadius: '50%',
               display: 'flex',
@@ -332,7 +331,11 @@ const PanelAdministrativos = () => {
               justifyContent: 'center',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              fontWeight: '700',
+              fontSize: '0.95rem',
+              color: '#fff',
+              letterSpacing: '0.5px'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'scale(1.05)';
@@ -342,7 +345,7 @@ const PanelAdministrativos = () => {
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
             }}>
-              <UserCheck size={22} color="#fff" />
+              {getInitials()}
             </div>
 
             {/* Toggle Switch de modo claro/oscuro */}
