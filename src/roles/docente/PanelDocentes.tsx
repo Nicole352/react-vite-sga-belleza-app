@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Eye,
-  EyeOff,
-  Lock,
-  CheckCircle,
-  User,
-  BookOpen,
-  Settings,
-  Sun,
-  Moon
+  BarChart3, BookOpen, Users, Calendar, Settings, Sun, Moon, GraduationCap, Eye, EyeOff, Lock, CheckCircle
 } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
+import SchoolLogo from '../../components/SchoolLogo';
+
+// Importar componentes modulares
+import DocenteDashboard from './DocenteDashboard';
+import MisCursos from './MisCursos';
+import MisEstudiantes from './MisEstudiantes';
+import MiHorario from './MiHorario';
+import MiPerfil from './MiPerfil';
 
 const API_BASE = 'http://localhost:3000/api';
 
 const PanelDocentes = () => {
-  const [activeTab, setActiveTab] = useState('mi-aula');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('docente-dark-mode');
-    return saved !== null ? JSON.parse(saved) : false;
+    return saved !== null ? JSON.parse(saved) : true;
   });
 
   // Estados para modal de cambio de contraseña
@@ -98,47 +98,41 @@ const PanelDocentes = () => {
         setResetError(errorData.error || 'Error al actualizar la contraseña');
       }
     } catch (error) {
-      setResetError('Error de conexión. Inténtalo de nuevo.');
+      console.error('Error:', error);
+      setResetError('Error de conexión');
     } finally {
       setResetLoading(false);
     }
   };
 
-  const handlePasswordResetChange = (field: string, value: string) => {
-    setPasswordResetData(prev => ({ ...prev, [field]: value }));
-    setResetError('');
-  };
-
-  // Función para alternar modo
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // Funciones para obtener colores según el tema
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)',
+        navbarBg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))',
+        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
         textPrimary: '#fff',
         textSecondary: 'rgba(255,255,255,0.8)',
         textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(239, 68, 68, 0.2)',
-        accent: '#ef4444'
+        border: 'rgba(59, 130, 246, 0.2)',
+        accent: '#3b82f6'
       };
     } else {
       return {
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
         sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
+        navbarBg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(37, 99, 235, 0.05))',
         contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
         textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(239, 68, 68, 0.2)',
-        accent: '#ef4444'
+        border: 'rgba(59, 130, 246, 0.2)',
+        accent: '#3b82f6'
       };
     }
   };
@@ -146,14 +140,16 @@ const PanelDocentes = () => {
   const theme = getThemeColors();
 
   const tabs = [
-    { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
-    { id: 'servicios', name: 'Servicios', icon: Settings },
-    { id: 'perfil', name: 'Mi Perfil', icon: User }
+    { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
+    { id: 'cursos', name: 'Mis Cursos', icon: BookOpen },
+    { id: 'estudiantes', name: 'Mis Estudiantes', icon: Users },
+    { id: 'horario', name: 'Mi Horario', icon: Calendar },
+    { id: 'perfil', name: 'Mi Perfil', icon: Settings }
   ];
 
   return (
     <>
-      {/* Variables CSS globales para el tema */}
+      {/* Variables CSS globales */}
       <style>{`
         :root {
           --docente-bg-primary: ${theme.background};
@@ -165,18 +161,19 @@ const PanelDocentes = () => {
           --docente-accent: ${theme.accent};
           --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'};
           --docente-input-border: ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
-          --docente-hover-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
-          --docente-modal-bg: ${darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)'};
         }
         
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        .docente-panel input,
+        .docente-panel textarea,
+        .docente-panel select {
+          background: var(--docente-input-bg) !important;
+          border: 1px solid var(--docente-input-border) !important;
+          color: var(--docente-text-primary) !important;
         }
       `}</style>
 
       <div 
-        className="docente-panel" 
+        className="docente-panel"
         style={{
           minHeight: '100vh',
           background: theme.background,
@@ -199,374 +196,433 @@ const PanelDocentes = () => {
           zIndex: 1000,
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
-          {/* Logo */}
-          <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-            <h2 style={{ 
-              margin: 0, 
-              color: theme.accent, 
-              fontSize: '1.5rem', 
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Panel Docente
-            </h2>
+          {/* Header del Sidebar - Logo y Texto */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: `1px solid ${theme.border}`,
+            paddingTop: '8px'
+          }}>
+            <SchoolLogo size={120} darkMode={darkMode} />
+            <div style={{ marginTop: '8px', textAlign: 'center' }}>
+              <h1 style={{ 
+                color: theme.textPrimary, 
+                fontSize: '1.2rem', 
+                fontWeight: '600', 
+                margin: 0,
+                lineHeight: 1.2,
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+              }}>
+                Panel
+              </h1>
+              <p style={{ 
+                color: theme.textMuted, 
+                fontSize: '0.9rem', 
+                margin: 0,
+                marginTop: '2px',
+                fontWeight: '400',
+                letterSpacing: '0.3px'
+              }}>
+                Docentes
+              </p>
+            </div>
           </div>
-
-          {/* Navigation */}
+                
+          {/* Navegación del Sidebar */}
           <nav style={{ marginBottom: '32px' }}>
             {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              
+              const IconComponent = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
                     width: '100%',
-                    padding: '16px 20px',
-                    marginBottom: '8px',
-                    background: isActive ? `rgba(239, 68, 68, 0.15)` : 'transparent',
-                    border: isActive ? `1px solid rgba(239, 68, 68, 0.3)` : '1px solid transparent',
-                    borderRadius: '12px',
-                    color: isActive ? theme.accent : theme.textSecondary,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
+                    padding: '16px',
+                    marginBottom: '8px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: activeTab === tab.id ? 
+                      'linear-gradient(135deg, #3b82f6, #2563eb)' : 
+                      'transparent',
+                    color: activeTab === tab.id ? '#ffffff' : theme.textMuted,
                     fontSize: '0.95rem',
-                    fontWeight: isActive ? '600' : '500',
-                    textAlign: 'left'
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    textAlign: 'left',
+                    fontFamily: 'Montserrat, sans-serif',
+                    boxShadow: activeTab === tab.id ? '0 8px 20px rgba(59, 130, 246, 0.3)' : 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = darkMode 
+                        ? 'rgba(59, 130, 246, 0.1)' 
+                        : 'rgba(59, 130, 246, 0.08)';
+                      e.currentTarget.style.color = theme.accent;
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = theme.textMuted;
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }
                   }}
                 >
-                  <Icon size={20} />
-                  {tab.name}
+                  <IconComponent size={20} />
+                  <span>{tab.name}</span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Theme Toggle */}
-          <div style={{ marginBottom: '24px' }}>
-            <button
+          {/* Botón de Cerrar Sesión */}
+          <div style={{ 
+            position: 'absolute', 
+            bottom: '24px', 
+            left: '24px', 
+            right: '24px' 
+          }}>
+            <div style={{
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))' 
+                : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
+              border: `1px solid ${theme.border}`,
+              borderRadius: '12px',
+              padding: '12px'
+            }}>
+              <LogoutButton darkMode={darkMode} />
+            </div>
+          </div>
+        </div>
+
+        {/* Contenido Principal */}
+        <div style={{ 
+          marginLeft: '280px', 
+          flex: 1, 
+          padding: '24px',
+          minHeight: '100vh'
+        }}>
+          {/* Navbar */}
+          <div style={{
+            background: theme.navbarBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            padding: '20px 32px',
+            marginBottom: '24px',
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            {/* Información del módulo activo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
+              }}>
+                {(() => {
+                  const activeTabData = tabs.find(t => t.id === activeTab);
+                  const IconComponent = activeTabData?.icon || BarChart3;
+                  return <IconComponent size={28} color="#fff" />;
+                })()}
+              </div>
+              <div>
+                <h1 style={{ 
+                  fontSize: '1.8rem', 
+                  fontWeight: '800', 
+                  color: theme.textPrimary,
+                  margin: 0
+                }}>
+                  {tabs.find(tab => tab.id === activeTab)?.name || 'Panel Docente'}
+                </h1>
+                <p style={{ 
+                  color: theme.textSecondary, 
+                  margin: 0, 
+                  fontSize: '1rem',
+                  marginTop: '4px'
+                }}>
+                  {activeTab === 'dashboard' && 'Tu espacio de gestión académica'}
+                  {activeTab === 'cursos' && 'Administra tus cursos y contenido'}
+                  {activeTab === 'estudiantes' && 'Monitorea el progreso de tus estudiantes'}
+                  {activeTab === 'horario' && 'Visualiza tu calendario de clases'}
+                  {activeTab === 'perfil' && 'Gestiona tu información personal'}
+                </p>
+              </div>
+            </div>
+
+            {/* Toggle Switch de modo claro/oscuro */}
+            <div
               onClick={toggleDarkMode}
               style={{
-                width: '100%',
-                padding: '12px 16px',
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '8px',
-                color: theme.textSecondary,
+                position: 'relative',
+                width: '52px',
+                height: '26px',
+                background: darkMode 
+                  ? 'rgba(55, 65, 81, 0.8)' 
+                  : 'rgba(229, 231, 235, 0.8)',
+                borderRadius: '13px',
                 cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+                boxShadow: darkMode 
+                  ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
+                  : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
+                backdropFilter: 'blur(8px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.background = darkMode 
+                  ? 'rgba(55, 65, 81, 0.9)' 
+                  : 'rgba(229, 231, 235, 0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.background = darkMode 
+                  ? 'rgba(55, 65, 81, 0.8)' 
+                  : 'rgba(229, 231, 235, 0.8)';
+              }}
+            >
+              {/* Círculo deslizante */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: darkMode ? '26px' : '2px',
+                  width: '22px',
+                  height: '22px',
+                  background: darkMode 
+                    ? 'linear-gradient(135deg, #374151, #4b5563)' 
+                    : 'linear-gradient(135deg, #ffffff, #f9fafb)',
+                  borderRadius: '50%',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: darkMode 
+                    ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
+                    : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
+                }}
+              >
+                {darkMode ? (
+                  <Moon size={12} color="#d1d5db" />
+                ) : (
+                  <Sun size={12} color="#3b82f6" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Contenido del Tab Activo */}
+          <div style={{
+            background: theme.contentBg,
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            padding: '32px',
+            minHeight: 'calc(100vh - 180px)',
+            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            {activeTab === 'dashboard' && <DocenteDashboard darkMode={darkMode} />}
+            {activeTab === 'cursos' && <MisCursos darkMode={darkMode} />}
+            {activeTab === 'estudiantes' && <MisEstudiantes darkMode={darkMode} />}
+            {activeTab === 'horario' && <MiHorario darkMode={darkMode} />}
+            {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de Cambio de Contraseña */}
+      {showPasswordResetModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{
+            background: darkMode ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            borderRadius: '20px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+            border: `1px solid ${theme.border}`
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+                boxShadow: `0 8px 24px ${theme.accent}40`
+              }}>
+                <Lock size={40} color="#fff" />
+              </div>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0' }}>
+                Cambiar Contraseña
+              </h2>
+              <p style={{ color: theme.textMuted, fontSize: '0.95rem', margin: 0 }}>
+                Por seguridad, debes cambiar tu contraseña temporal
+              </p>
+            </div>
+
+            {resetError && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '12px',
+                padding: '12px',
+                marginBottom: '20px',
+                color: '#ef4444',
+                fontSize: '0.9rem',
+                textAlign: 'center'
+              }}>
+                {resetError}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                Nueva Contraseña
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={passwordResetData.newPassword}
+                  onChange={(e) => setPasswordResetData({ ...passwordResetData, newPassword: e.target.value })}
+                  placeholder="Mínimo 6 caracteres"
+                  style={{
+                    width: '100%',
+                    padding: '14px 45px 14px 14px',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '12px',
+                    color: theme.textPrimary,
+                    fontSize: '0.95rem'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px'
+                  }}
+                >
+                  {showNewPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                Confirmar Contraseña
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={passwordResetData.confirmPassword}
+                  onChange={(e) => setPasswordResetData({ ...passwordResetData, confirmPassword: e.target.value })}
+                  placeholder="Repite la contraseña"
+                  style={{
+                    width: '100%',
+                    padding: '14px 45px 14px 14px',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '12px',
+                    color: theme.textPrimary,
+                    fontSize: '0.95rem'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px'
+                  }}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePasswordReset}
+              disabled={resetLoading}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+                border: 'none',
+                borderRadius: '12px',
+                color: '#fff',
+                fontSize: '1rem',
+                fontWeight: '700',
+                cursor: resetLoading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                fontSize: '0.9rem'
+                boxShadow: `0 4px 12px ${theme.accent}40`,
+                opacity: resetLoading ? 0.7 : 1
               }}
             >
-              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-              {darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+              {resetLoading ? (
+                <>Actualizando...</>
+              ) : (
+                <>
+                  <CheckCircle size={20} />
+                  Cambiar Contraseña
+                </>
+              )}
             </button>
           </div>
-
-          {/* Logout */}
-          <div style={{ marginTop: 'auto' }}>
-            <LogoutButton />
-          </div>
         </div>
-
-        {/* Main Content */}
-        <div style={{ 
-          marginLeft: '280px', 
-          flex: 1, 
-          padding: '32px',
-          background: theme.contentBg,
-          minHeight: '100vh'
-        }}>
-          <div style={{
-            background: theme.contentBg,
-            borderRadius: '20px',
-            padding: '32px',
-            border: `1px solid ${theme.border}`,
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h1 style={{ 
-              margin: '0 0 24px 0', 
-              color: theme.textPrimary, 
-              fontSize: '2rem', 
-              fontWeight: '700' 
-            }}>
-              Bienvenido al Panel de Docente
-            </h1>
-            
-            <p style={{ 
-              color: theme.textSecondary, 
-              fontSize: '1.1rem', 
-              lineHeight: 1.6,
-              margin: '0 0 32px 0'
-            }}>
-              Gestiona tus clases, estudiantes y recursos educativos desde este panel.
-            </p>
-
-            {/* Content based on active tab */}
-            {activeTab === 'mi-aula' && (
-              <div>
-                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Mi Aula Virtual</h2>
-                <p style={{ color: theme.textSecondary }}>Aquí podrás gestionar tus clases y estudiantes.</p>
-              </div>
-            )}
-
-            {activeTab === 'servicios' && (
-              <div>
-                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Servicios</h2>
-                <p style={{ color: theme.textSecondary }}>Accede a los servicios disponibles para docentes.</p>
-              </div>
-            )}
-
-            {activeTab === 'perfil' && (
-              <div>
-                <h2 style={{ color: theme.textPrimary, marginBottom: '16px' }}>Mi Perfil</h2>
-                <p style={{ color: theme.textSecondary }}>Gestiona tu información personal y configuración.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Modal de Restablecer Contraseña (Primer Ingreso) */}
-        {showPasswordResetModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.9)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px'
-          }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '2px solid rgba(239, 68, 68, 0.4)',
-              borderRadius: '20px',
-              padding: '40px',
-              maxWidth: '500px',
-              width: '100%',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 25px 50px rgba(239, 68, 68, 0.3)'
-            }}>
-              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 20px',
-                  boxShadow: '0 10px 30px rgba(239, 68, 68, 0.4)'
-                }}>
-                  <Lock size={32} color="#fff" />
-                </div>
-                <h2 style={{
-                  fontSize: '1.8rem',
-                  fontWeight: '700',
-                  color: '#fff',
-                  margin: '0 0 12px 0',
-                  fontFamily: 'Montserrat, sans-serif'
-                }}>
-                  🔐 Restablecer Contraseña
-                </h2>
-                <p style={{
-                  color: 'rgba(255,255,255,0.8)',
-                  fontSize: '1rem',
-                  margin: 0,
-                  lineHeight: 1.5
-                }}>
-                  Por seguridad, debes cambiar tu contraseña temporal antes de continuar.
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{
-                  display: 'block',
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  marginBottom: '8px'
-                }}>
-                  Nueva Contraseña
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={passwordResetData.newPassword}
-                    onChange={(e) => handlePasswordResetChange('newPassword', e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
-                    style={{
-                      width: '100%',
-                      padding: '14px 50px 14px 16px',
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1.5px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '16px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: 'rgba(255,255,255,0.7)',
-                      cursor: 'pointer',
-                      padding: '4px'
-                    }}
-                  >
-                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{
-                  display: 'block',
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  marginBottom: '8px'
-                }}>
-                  Confirmar Contraseña
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={passwordResetData.confirmPassword}
-                    onChange={(e) => handlePasswordResetChange('confirmPassword', e.target.value)}
-                    placeholder="Repite la contraseña"
-                    style={{
-                      width: '100%',
-                      padding: '14px 50px 14px 16px',
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1.5px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '16px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: 'rgba(255,255,255,0.7)',
-                      cursor: 'pointer',
-                      padding: '4px'
-                    }}
-                  >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              {resetError && (
-                <div style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
-                  color: '#fecaca',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  marginBottom: '20px',
-                  fontSize: '0.9rem',
-                  textAlign: 'center'
-                }}>
-                  {resetError}
-                </div>
-              )}
-
-              <button
-                onClick={handlePasswordReset}
-                disabled={resetLoading || !passwordResetData.newPassword || !passwordResetData.confirmPassword}
-                style={{
-                  width: '100%',
-                  background: resetLoading ? 'rgba(239, 68, 68, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '16px 24px',
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  cursor: resetLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  fontFamily: 'Montserrat, sans-serif',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                {resetLoading ? (
-                  <>
-                    <div style={{
-                      width: '20px',
-                      height: '20px',
-                      border: '2px solid rgba(255,255,255,0.3)',
-                      borderTop: '2px solid #fff',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
-                    }} />
-                    Actualizando...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle size={20} />
-                    Cambiar Contraseña
-                  </>
-                )}
-              </button>
-
-              <div style={{
-                marginTop: '20px',
-                padding: '16px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <p style={{
-                  color: '#93c5fd',
-                  fontSize: '0.85rem',
-                  margin: 0,
-                  lineHeight: 1.4
-                }}>
-                  💡 <strong>Tip:</strong> Usa una contraseña segura que puedas recordar fácilmente. Una vez cambiada, podrás acceder normalmente con tu nuevo password.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </>
   );
 };

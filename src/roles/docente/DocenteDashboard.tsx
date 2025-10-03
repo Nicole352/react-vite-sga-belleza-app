@@ -1,857 +1,636 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   Users, 
-  BarChart3, 
-  Star,
-  TrendingUp,
-  CheckCircle,
-  AlertCircle,
+  Calendar,
   Clock,
   Award,
-  ChevronRight,
-  Calendar,
-  FileText,
-  Eye,
-  Edit3,
+  GraduationCap,
+  Target,
+  MapPin,
   Bell,
-  MessageCircle
+  TrendingUp,
+  ChevronRight,
+  FileText,
+  CheckCircle
 } from 'lucide-react';
 
-const DocenteDashboard = () => {
+const API_BASE = 'http://localhost:3000/api';
+
+interface DocenteDashboardProps {
+  darkMode: boolean;
+}
+
+interface UserData {
+  id_usuario: number;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  titulo_profesional: string;
+}
+
+interface CursoResumen {
+  id_curso: number;
+  codigo_curso: string;
+  nombre: string;
+  total_estudiantes: number;
+  capacidad_maxima: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  aula_nombre?: string;
+  aula_ubicacion?: string;
+}
+
+const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [cursos, setCursos] = useState<CursoResumen[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true);
+    fetchUserData();
+    fetchCursos();
   }, []);
 
-  // Datos simulados del docente
-  const docenteInfo = {
-    nombre: 'Dra. María Elena Vásquez',
-    especialidad: 'Cosmetología Avanzada',
-    email: 'maria.vasquez@sgabelleza.edu.ec',
-    cursosActivos: 3,
-    totalEstudiantes: 45,
-    calificacion: 4.9,
-    foto: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
+  const fetchUserData = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Error obteniendo datos del usuario:', error);
+    }
   };
 
-  // Cursos asignados
-  const cursosAsignados = [
-    {
-      id: 1,
-      nombre: 'Cosmetología Avanzada',
-      codigo: 'COS-301',
-      estudiantes: 18,
-      aprobados: 14,
-      reprobados: 2,
-      enProgreso: 2,
-      promedioGeneral: 8.5,
-      ultimaActividad: 'Hace 2 horas',
-      color: '#10b981'
-    },
-    {
-      id: 2,
-      nombre: 'Técnicas Faciales Básicas',
-      codigo: 'TEC-201',
-      estudiantes: 15,
-      aprobados: 12,
-      reprobados: 1,
-      enProgreso: 2,
-      promedioGeneral: 7.8,
-      ultimaActividad: 'Hace 4 horas',
-      color: '#3b82f6'
-    },
-    {
-      id: 3,
-      nombre: 'Dermaplaning Profesional',
-      codigo: 'DER-401',
-      estudiantes: 12,
-      aprobados: 8,
-      reprobados: 1,
-      enProgreso: 3,
-      promedioGeneral: 8.9,
-      ultimaActividad: 'Hace 1 día',
-      color: '#8b5cf6'
+  const fetchCursos = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem('auth_token');
+      
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE}/docentes/mis-cursos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCursos(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  // Actividades pendientes por revisar
-  const actividadesPendientes = [
-    {
-      id: 1,
-      curso: 'Cosmetología Avanzada',
-      actividad: 'Examen Práctico Final',
-      pendientes: 5,
-      fechaLimite: '2024-01-20',
-      tipo: 'Examen',
-      prioridad: 'alta'
-    },
-    {
-      id: 2,
-      curso: 'Técnicas Faciales Básicas',
-      actividad: 'Proyecto Caso Clínico',
-      pendientes: 3,
-      fechaLimite: '2024-01-18',
-      tipo: 'Proyecto',
-      prioridad: 'media'
-    },
-    {
-      id: 3,
-      curso: 'Dermaplaning Profesional',
-      actividad: 'Evaluación Práctica',
-      pendientes: 2,
-      fechaLimite: '2024-01-25',
-      tipo: 'Práctica',
-      prioridad: 'baja'
+  const getThemeColors = () => {
+    if (darkMode) {
+      return {
+        cardBg: 'rgba(255, 255, 255, 0.05)',
+        textPrimary: '#fff',
+        textSecondary: 'rgba(255,255,255,0.8)',
+        textMuted: 'rgba(255,255,255,0.7)',
+        border: 'rgba(59, 130, 246, 0.1)',
+        accent: '#3b82f6',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444'
+      };
+    } else {
+      return {
+        cardBg: 'rgba(255, 255, 255, 0.8)',
+        textPrimary: '#1e293b',
+        textSecondary: 'rgba(30,41,59,0.8)',
+        textMuted: 'rgba(30,41,59,0.7)',
+        border: 'rgba(59, 130, 246, 0.2)',
+        accent: '#3b82f6',
+        success: '#059669',
+        warning: '#d97706',
+        danger: '#dc2626'
+      };
     }
-  ];
+  };
 
-  // Estudiantes con actividad reciente
-  const estudiantesRecientes = [
-    {
-      id: 1,
-      nombre: 'Ana García',
-      curso: 'Cosmetología Avanzada',
-      ultimoAcceso: 'Hace 30 min',
-      estado: 'online',
-      calificacion: 9.2,
-      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b55c?w=40&h=40&fit=crop&crop=face'
-    },
-    {
-      id: 2,
-      nombre: 'Carlos Mendoza',
-      curso: 'Técnicas Faciales',
-      ultimoAcceso: 'Hace 1 hora',
-      estado: 'offline',
-      calificacion: 8.7,
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
-    },
-    {
-      id: 3,
-      nombre: 'María Rodríguez',
-      curso: 'Dermaplaning',
-      ultimoAcceso: 'Hace 2 horas',
-      estado: 'offline',
-      calificacion: 7.8,
-      foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face'
-    }
-  ];
+  const theme = getThemeColors();
 
-  const StatCard = ({ title, value, icon: Icon, color, trend, subtitle, delay = 0 }) => (
-    <div 
-      style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(251, 191, 36, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        overflow: 'hidden',
-        transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.9)',
-        opacity: isVisible ? 1 : 0,
-        transitionDelay: `${delay}ms`
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
-        e.currentTarget.style.boxShadow = '0 25px 50px rgba(251, 191, 36, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.5)';
-      }}
-    >
-      {/* Shimmer effect */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: '-100%',
-        width: '100%',
-        height: '100%',
-        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-        animation: `shimmer 3s ease-in-out infinite`,
-        animationDelay: `${delay + 1000}ms`,
-        pointerEvents: 'none'
-      }} />
-      
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          background: `linear-gradient(135deg, ${color}, ${color}dd)`,
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          boxShadow: `0 8px 25px ${color}40`
-        }}>
-          <Icon size={24} />
-        </div>
-        {trend && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: trend > 0 ? '#10b981' : '#ef4444',
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            <TrendingUp size={16} style={{ transform: trend < 0 ? 'rotate(180deg)' : 'none' }} />
-            {Math.abs(trend)}%
-          </div>
-        )}
-      </div>
-      
-      <div style={{ fontSize: '2.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>
-        {value}
-      </div>
-      <div style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '8px' }}>
-        {title}
-      </div>
-      {subtitle && (
-        <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-          {subtitle}
-        </div>
-      )}
-    </div>
-  );
-
-  const CourseCard = ({ curso, index }) => (
-    <div
-      style={{
-        padding: '20px',
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: '16px',
-        border: '1px solid rgba(251, 191, 36, 0.1)',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-        opacity: isVisible ? 1 : 0,
-        transitionDelay: `${600 + (index * 100)}ms`
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-        e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)';
-        e.currentTarget.style.transform = 'translateY(-2px)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.1)';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <div style={{
-          background: `${curso.color}20`,
-          color: curso.color,
-          padding: '4px 12px',
-          borderRadius: '16px',
-          fontSize: '0.8rem',
-          fontWeight: '600'
-        }}>
-          {curso.codigo}
-        </div>
-        <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem' }}>
-          {curso.estudiantes} estudiantes
-        </div>
-      </div>
-      
-      <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#fff', margin: '0 0 8px 0' }}>
-        {curso.nombre}
-      </h3>
-      
-      <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '12px' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <CheckCircle size={14} color="#10b981" />
-          {curso.aprobados} aprobados
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <AlertCircle size={14} color="#ef4444" />
-          {curso.reprobados} reprobados
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <Clock size={14} color="#f59e0b" />
-          {curso.enProgreso} en progreso
-        </span>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)' }}>
-          Última actividad: {curso.ultimaActividad}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Star size={14} color="#fbbf24" />
-          <span style={{ color: '#fbbf24', fontSize: '0.9rem', fontWeight: '600' }}>
-            {curso.promedioGeneral}/10
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+  const totalEstudiantes = cursos.reduce((acc, curso) => acc + curso.total_estudiantes, 0);
+  const capacidadTotal = cursos.reduce((acc, curso) => acc + curso.capacidad_maxima, 0);
+  const promedioOcupacion = capacidadTotal > 0 ? Math.round((totalEstudiantes / capacidadTotal) * 100) : 0;
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-          }
-          
-          @keyframes float {
-            0%, 100% {
-              transform: translateY(0px) rotate(0deg);
-              opacity: 0.1;
-            }
-            50% {
-              transform: translateY(-20px) rotate(180deg);
-              opacity: 0.3;
-            }
-          }
-          
-          .floating-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-          }
-          
-          .particle {
-            position: absolute;
-            background: #fbbf24;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-          }
-          
-          .gradient-text {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-        `}
-      </style>
-
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '32px 24px',
-          fontFamily: 'Montserrat, sans-serif'
-        }}
-      >
-        {/* Partículas flotantes */}
-        <div className="floating-particles">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                animationDelay: `${Math.random() * 6}s`,
-                animationDuration: `${Math.random() * 3 + 4}s`
-              }}
-            />
-          ))}
+    <div style={{
+      transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
+      opacity: isVisible ? 1 : 0,
+      transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+    }}>
+      {/* Header de Bienvenida */}
+      <div style={{
+        background: theme.cardBg,
+        border: `1px solid ${theme.border}`,
+        borderRadius: '20px',
+        padding: '32px',
+        marginBottom: '32px',
+        backdropFilter: 'blur(20px)',
+        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: `0 8px 24px ${theme.accent}30`
+          }}>
+            <GraduationCap size={32} color="#fff" />
+          </div>
+          <div>
+            <h1 style={{ 
+              fontSize: '2.2rem', 
+              fontWeight: '800', 
+              color: theme.textPrimary, 
+              margin: '0 0 8px 0' 
+            }}>
+              ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}! 👋
+            </h1>
+            <p style={{ 
+              color: theme.textSecondary, 
+              fontSize: '1.1rem', 
+              margin: '0 0 4px 0' 
+            }}>
+              {userData?.titulo_profesional || 'Gestiona tus cursos y estudiantes'}
+            </p>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '16px',
+              fontSize: '0.9rem',
+              color: theme.textMuted
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Calendar size={16} />
+                {new Date().toLocaleDateString('es-ES')}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={16} />
+                {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          
-          {/* Header de Bienvenida */}
+        {/* Estadísticas rápidas - 4 tarjetas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08))',
-            border: '1px solid rgba(251, 191, 36, 0.2)',
-            borderRadius: '20px',
-            padding: '32px',
-            marginBottom: '32px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-            transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
-            opacity: isVisible ? 1 : 0,
-            transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+            background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+            border: `1px solid ${theme.accent}30`,
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <img 
-                src={docenteInfo.foto}
-                alt={docenteInfo.nombre}
-                style={{ 
-                  width: '80px', 
-                  height: '80px', 
-                  borderRadius: '50%', 
-                  objectFit: 'cover',
-                  boxShadow: '0 8px 24px rgba(251, 191, 36, 0.3)'
-                }}
-              />
-              <div>
-                <h1 style={{ 
-                  fontSize: '2.2rem', 
-                  fontWeight: '800', 
-                  color: '#fff', 
-                  margin: '0 0 8px 0' 
-                }}>
-                  ¡Bienvenida, Dra. Vásquez! 👋
-                </h1>
-                <p style={{ 
-                  color: 'rgba(255, 255, 255, 0.8)', 
-                  fontSize: '1.1rem', 
-                  margin: '0 0 4px 0' 
-                }}>
-                  {docenteInfo.especialidad}
-                </p>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '16px',
-                  fontSize: '0.9rem',
-                  color: 'rgba(255, 255, 255, 0.7)'
-                }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <BookOpen size={16} />
-                    {docenteInfo.cursosActivos} cursos activos
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Users size={16} />
-                    {docenteInfo.totalEstudiantes} estudiantes
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Star size={16} />
-                    {docenteInfo.calificacion}/5.0
-                  </span>
-                </div>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+              <BookOpen size={20} color={theme.accent} />
+              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '600' }}>Cursos Activos</span>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.accent }}>
+              {cursos.length}
             </div>
           </div>
 
-          {/* Estadísticas principales */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-            gap: '24px', 
-            marginBottom: '40px' 
+          <div style={{
+            background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
+            border: `1px solid ${theme.success}30`,
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'center'
           }}>
-            <StatCard 
-              title="Cursos Activos" 
-              value={docenteInfo.cursosActivos} 
-              icon={BookOpen} 
-              color="#3b82f6" 
-              trend={15}
-              subtitle="Este semestre"
-              delay={200}
-            />
-            <StatCard 
-              title="Total Estudiantes" 
-              value={docenteInfo.totalEstudiantes} 
-              icon={Users} 
-              color="#10b981" 
-              trend={8}
-              subtitle="En todos los cursos"
-              delay={300}
-            />
-            <StatCard 
-              title="Calificación Docente" 
-              value={`${docenteInfo.calificacion}/5.0`} 
-              icon={Star} 
-              color="#fbbf24" 
-              trend={5}
-              subtitle="Evaluación estudiantes"
-              delay={400}
-            />
-            <StatCard 
-              title="Por Revisar" 
-              value="10" 
-              icon={AlertCircle} 
-              color="#ef4444" 
-              subtitle="Actividades pendientes"
-              delay={500}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Users size={20} color={theme.success} />
+              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>Total Estudiantes</span>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.success }}>
+              {totalEstudiantes}
+            </div>
           </div>
 
-          {/* Grid principal: Cursos y Actividades */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-            
-            {/* Cursos Activos */}
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(251, 191, 36, 0.2)',
-              borderRadius: '20px',
-              padding: '32px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-              transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-              opacity: isVisible ? 1 : 0,
-              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '600ms'
+          <div style={{
+            background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+            border: `1px solid ${theme.warning}30`,
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Target size={20} color={theme.warning} />
+              <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '600' }}>Ocupación</span>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.warning }}>
+              {promedioOcupacion}%
+            </div>
+          </div>
+
+          <div style={{
+            background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Award size={20} color="#8b5cf6" />
+              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '600' }}>Capacidad Total</span>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#8b5cf6' }}>
+              {capacidadTotal}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+        {/* Panel principal - Mis Cursos Activos */}
+        <div style={{
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '20px',
+          padding: '32px',
+          backdropFilter: 'blur(20px)',
+          boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        }}>
+        <h2 style={{ 
+          fontSize: '1.6rem', 
+          fontWeight: '700', 
+          color: theme.textPrimary, 
+          margin: '0 0 24px 0' 
+        }}>
+          Mis Cursos Activos
+        </h2>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <div style={{ 
+              fontSize: '1.1rem', 
+              color: theme.textSecondary,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between', 
-                marginBottom: '24px' 
-              }}>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#fff', margin: 0 }}>
-                  Mis Cursos Activos
-                </h2>
-                <button style={{
-                  background: 'transparent',
-                  color: '#fbbf24',
-                  border: '1px solid rgba(251, 191, 36, 0.3)',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
-                  Ver todos
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {cursosAsignados.map((curso, index) => (
-                  <CourseCard key={curso.id} curso={curso} index={index} />
-                ))}
-              </div>
-            </div>
-
-            {/* Panel lateral */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
-              {/* Actividades Pendientes */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(251, 191, 36, 0.2)',
-                borderRadius: '20px',
-                padding: '24px',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-                transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-                opacity: isVisible ? 1 : 0,
-                transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                transitionDelay: '700ms'
-              }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px',
-                  marginBottom: '20px' 
-                }}>
-                  <div style={{
-                    background: '#ef4444',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <AlertCircle size={18} color="#fff" />
-                  </div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#fff', margin: 0 }}>
-                    Por Revisar
-                  </h3>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {actividadesPendientes.map((actividad, index) => (
-                    <div 
-                      key={actividad.id} 
-                      style={{
-                        padding: '16px',
-                        background: actividad.prioridad === 'alta' ? 'rgba(239, 68, 68, 0.1)' :
-                                   actividad.prioridad === 'media' ? 'rgba(245, 158, 11, 0.1)' :
-                                   'rgba(59, 130, 246, 0.1)',
-                        border: `1px solid ${actividad.prioridad === 'alta' ? 'rgba(239, 68, 68, 0.3)' :
-                                                actividad.prioridad === 'media' ? 'rgba(245, 158, 11, 0.3)' :
-                                                'rgba(59, 130, 246, 0.3)'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        transform: `translateX(${isVisible ? '0' : '30px'})`,
-                        opacity: isVisible ? 1 : 0,
-                        transitionDelay: `${800 + (index * 100)}ms`
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateX(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }}
-                    >
+                width: '20px',
+                height: '20px',
+                border: `2px solid ${theme.textMuted}`,
+                borderTop: `2px solid ${theme.accent}`,
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+              Cargando cursos...
+            </div>
+          </div>
+        ) : cursos.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px'
+          }}>
+            <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '16px', opacity: 0.5 }} />
+            <h3 style={{ color: theme.textPrimary, margin: '0 0 8px 0' }}>
+              No tienes cursos asignados
+            </h3>
+            <p style={{ color: theme.textMuted, margin: 0 }}>
+              Contacta con el administrador para más información
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: '20px' }}>
+            {cursos.map((curso) => (
+              <div
+                key={curso.id_curso}
+                style={{
+                  padding: '24px',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                  borderRadius: '16px',
+                  border: `1px solid ${theme.border}`,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                      <div style={{
+                        background: `${theme.accent}20`,
+                        color: theme.accent,
+                        padding: '4px 12px',
+                        borderRadius: '16px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600'
+                      }}>
+                        {curso.codigo_curso}
+                      </div>
+                      <span style={{ color: theme.textMuted, fontSize: '0.9rem' }}>
+                        {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
+                      </span>
+                    </div>
+                    <h3 style={{ 
+                      fontSize: '1.3rem', 
+                      fontWeight: '700', 
+                      color: theme.textPrimary, 
+                      margin: '0 0 12px 0' 
+                    }}>
+                      {curso.nombre}
+                    </h3>
+
+                    {/* Información del aula */}
+                    {curso.aula_nombre && (
                       <div style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        justifyContent: 'space-between', 
-                        marginBottom: '8px' 
+                        gap: '8px',
+                        color: theme.textMuted,
+                        fontSize: '0.9rem',
+                        marginBottom: '8px'
                       }}>
-                        <span style={{
-                          background: actividad.prioridad === 'alta' ? '#ef4444' :
-                                     actividad.prioridad === 'media' ? '#f59e0b' : '#3b82f6',
-                          color: '#fff',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '0.75rem',
-                          fontWeight: '600'
-                        }}>
-                          {actividad.pendientes} pendientes
-                        </span>
-                        <span style={{ 
-                          color: 'rgba(255, 255, 255, 0.6)', 
-                          fontSize: '0.8rem' 
-                        }}>
-                          {actividad.tipo}
-                        </span>
+                        <MapPin size={16} color={theme.success} />
+                        <span><strong style={{ color: theme.textPrimary }}>{curso.aula_nombre}</strong>{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}</span>
                       </div>
-                      
-                      <h4 style={{ 
-                        fontSize: '1rem', 
-                        fontWeight: '600', 
-                        color: '#fff', 
-                        margin: '0 0 4px 0' 
-                      }}>
-                        {actividad.actividad}
-                      </h4>
-                      
-                      <p style={{ 
-                        fontSize: '0.85rem', 
-                        color: 'rgba(255, 255, 255, 0.7)', 
-                        margin: '0 0 8px 0' 
-                      }}>
-                        {actividad.curso}
-                      </p>
-                      
-                      <div style={{ 
-                        fontSize: '0.8rem', 
-                        color: actividad.prioridad === 'alta' ? '#ef4444' :
-                               actividad.prioridad === 'media' ? '#f59e0b' : '#3b82f6',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        <Calendar size={12} />
-                        Vence: {actividad.fechaLimite}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    )}
 
-              {/* Estudiantes Recientes */}
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(251, 191, 36, 0.2)',
-                borderRadius: '20px',
-                padding: '24px',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-                transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-                opacity: isVisible ? 1 : 0,
-                transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                transitionDelay: '900ms'
-              }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px',
-                  marginBottom: '20px' 
-                }}>
-                  <div style={{
-                    background: '#10b981',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Users size={18} color="#fff" />
-                  </div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#fff', margin: 0 }}>
-                    Actividad Reciente
-                  </h3>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {estudiantesRecientes.map((estudiante, index) => (
-                    <div 
-                      key={estudiante.id} 
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: '12px',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer',
-                        transform: `translateX(${isVisible ? '0' : '30px'})`,
-                        opacity: isVisible ? 1 : 0,
-                        transitionDelay: `${1000 + (index * 100)}ms`
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                      }}
-                    >
-                      <img 
-                        src={estudiante.foto}
-                        alt={estudiante.nombre}
-                        style={{ 
-                          width: '40px', 
-                          height: '40px', 
-                          borderRadius: '50%', 
-                          objectFit: 'cover' 
-                        }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between',
-                          marginBottom: '4px'
-                        }}>
-                          <h4 style={{ 
-                            fontSize: '0.95rem', 
-                            fontWeight: '600', 
-                            color: '#fff', 
-                            margin: 0 
-                          }}>
-                            {estudiante.nombre}
-                          </h4>
-                          <div style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            background: estudiante.estado === 'online' ? '#10b981' : '#6b7280'
-                          }} />
-                        </div>
-                        <p style={{ 
-                          fontSize: '0.8rem', 
-                          color: 'rgba(255, 255, 255, 0.7)', 
-                          margin: '0 0 4px 0' 
-                        }}>
-                          {estudiante.curso}
-                        </p>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between',
-                          fontSize: '0.75rem'
-                        }}>
-                          <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                            {estudiante.ultimoAcceso}
-                          </span>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '4px',
-                            color: '#fbbf24'
-                          }}>
-                            <Star size={12} />
-                            {estudiante.calificacion}
-                          </div>
-                        </div>
-                      </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      color: theme.textMuted,
+                      fontSize: '0.9rem'
+                    }}>
+                      <Users size={16} />
+                      <span>{curso.total_estudiantes} estudiantes matriculados</span>
                     </div>
-                  ))}
+                  </div>
+
+                  <div style={{ 
+                    textAlign: 'right',
+                    minWidth: '120px'
+                  }}>
+                    <div style={{ 
+                      fontSize: '2rem', 
+                      fontWeight: '800', 
+                      color: theme.accent,
+                      lineHeight: 1
+                    }}>
+                      {curso.total_estudiantes}
+                    </div>
+                    <div style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
+                      de {curso.capacidad_maxima}
+                    </div>
+                    
+                    {/* Barra de progreso */}
+                    <div style={{ 
+                      width: '100%', 
+                      height: '8px', 
+                      background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      marginTop: '8px'
+                    }}>
+                      <div style={{
+                        width: `${(curso.total_estudiantes / curso.capacidad_maxima) * 100}%`,
+                        height: '100%',
+                        background: `linear-gradient(90deg, ${theme.accent}, ${theme.accent}dd)`,
+                        borderRadius: '4px'
+                      }} />
+                    </div>
+                    <div style={{ 
+                      color: theme.textMuted, 
+                      fontSize: '0.75rem', 
+                      marginTop: '4px' 
+                    }}>
+                      {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
+                    </div>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+        </div>
+
+        {/* Panel lateral */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Próximas Clases */}
+          <div style={{
+            background: theme.cardBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            padding: '24px',
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+              Próximas Clases
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {cursos.slice(0, 2).map((curso, index) => (
+                <div key={curso.id_curso} style={{
+                  padding: '16px',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                  borderRadius: '12px',
+                  border: `1px solid ${theme.border}`
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: index === 0 ? theme.accent : theme.success
+                    }} />
+                    <span style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                      {new Date(curso.fecha_inicio).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
+                    {curso.nombre}
+                  </p>
+                  {curso.aula_nombre && (
+                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                      {curso.aula_nombre} {curso.aula_ubicacion && `- ${curso.aula_ubicacion}`}
+                    </p>
+                  )}
+                </div>
+              ))}
+              
+              {cursos.length === 0 && (
+                <div style={{
+                  padding: '16px',
+                  textAlign: 'center',
+                  color: theme.textMuted,
+                  fontSize: '0.9rem'
+                }}>
+                  No hay clases programadas
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Acciones rápidas */}
+          {/* Estadísticas de Estudiantes */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(251, 191, 36, 0.2)',
+            background: theme.cardBg,
+            border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '32px',
-            marginTop: '32px',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-            transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-            opacity: isVisible ? 1 : 0,
-            transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-            transitionDelay: '1200ms'
+            padding: '24px',
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ 
-              fontSize: '1.6rem', 
-              fontWeight: '700', 
-              color: '#fff', 
-              margin: '0 0 24px 0',
-              textAlign: 'center'
-            }}>
-              Acciones Rápidas
-            </h2>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+              Resumen de Estudiantes
+            </h3>
             
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-              gap: '16px' 
-            }}>
-              {[
-                { icon: FileText, label: 'Crear Evaluación', color: '#3b82f6' },
-                { icon: Eye, label: 'Ver Calificaciones', color: '#10b981' },
-                { icon: Edit3, label: 'Editar Curso', color: '#f59e0b' },
-                { icon: Bell, label: 'Enviar Notificación', color: '#8b5cf6' },
-                { icon: MessageCircle, label: 'Mensajes', color: '#ef4444' },
-                { icon: Award, label: 'Generar Certificados', color: '#fbbf24' }
-              ].map((action, index) => (
-                <button
-                  key={index}
-                  style={{
-                    background: `linear-gradient(135deg, ${action.color}20, ${action.color}10)`,
-                    border: `1px solid ${action.color}40`,
-                    borderRadius: '12px',
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {cursos.length > 0 ? (
+                <>
+                  <div style={{
                     padding: '16px',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    transform: `translateY(${isVisible ? '0' : '20px'})`,
-                    opacity: isVisible ? 1 : 0,
-                    transitionDelay: `${1300 + (index * 100)}ms`
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = `linear-gradient(135deg, ${action.color}30, ${action.color}20)`;
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = `0 8px 25px ${action.color}40`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = `linear-gradient(135deg, ${action.color}20, ${action.color}10)`;
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <action.icon size={24} color={action.color} />
-                  {action.label}
-                </button>
-              ))}
+                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                    borderRadius: '12px',
+                    border: `1px solid ${theme.accent}30`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <Users size={16} color={theme.accent} />
+                      <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '600' }}>
+                        Total Estudiantes
+                      </span>
+                    </div>
+                    <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
+                      {totalEstudiantes}
+                    </p>
+                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                      En {cursos.length} curso{cursos.length > 1 ? 's' : ''}
+                    </p>
+                  </div>
+
+                  <div style={{
+                    padding: '16px',
+                    background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
+                    borderRadius: '12px',
+                    border: `1px solid ${theme.success}30`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <CheckCircle size={16} color={theme.success} />
+                      <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>
+                        Ocupación Promedio
+                      </span>
+                    </div>
+                    <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
+                      {promedioOcupacion}%
+                    </p>
+                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                      De capacidad total
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  padding: '16px',
+                  textAlign: 'center',
+                  color: theme.textMuted,
+                  fontSize: '0.9rem'
+                }}>
+                  Sin datos disponibles
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Acceso Rápido */}
+          <div style={{
+            background: theme.cardBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            padding: '24px',
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+              Acceso Rápido
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button style={{
+                background: 'transparent',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '8px',
+                padding: '12px',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}>
+                <TrendingUp size={16} />
+                Calificaciones
+                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+              </button>
+
+              <button style={{
+                background: 'transparent',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '8px',
+                padding: '12px',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}>
+                <FileText size={16} />
+                Material de Clase
+                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+              </button>
+
+              <button style={{
+                background: 'transparent',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '8px',
+                padding: '12px',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}>
+                <Bell size={16} />
+                Notificaciones
+                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

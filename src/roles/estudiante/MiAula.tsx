@@ -14,7 +14,9 @@ import {
   Upload,
   Download,
   Target,
-  Play
+  Play,
+  MapPin,
+  GraduationCap
 } from 'lucide-react';
 
 interface MiAulaProps {
@@ -32,8 +34,23 @@ interface Curso {
   progreso: number;
   calificacion: number;
   tareasPendientes: number;
-  ultimaClase: string;
   proximaClase: string;
+  aula?: {
+    codigo: string;
+    nombre: string;
+    ubicacion: string;
+  };
+  horario?: {
+    hora_inicio: string;
+    hora_fin: string;
+    dias: string;
+  };
+  docente?: {
+    nombres: string;
+    apellidos: string;
+    titulo: string;
+    nombre_completo: string;
+  };
 }
 
 interface UserData {
@@ -89,7 +106,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         return;
       }
 
-      // Obtener cursos matriculados específicos del estudiante autenticado
       const response = await fetch(`${API_BASE}/estudiantes/mis-cursos`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -98,6 +114,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const cursos = await response.json();
+        console.log('📚 Cursos cargados:', cursos);
         setCursosMatriculados(cursos);
         setError('');
       } else {
@@ -111,7 +128,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
     }
   };
 
-  // Función para obtener colores según el tema
   const getThemeColors = () => {
     if (darkMode) {
       return {
@@ -368,7 +384,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                     <div style={{
                       background: `${theme.success}20`,
@@ -384,11 +400,102 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                       {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
                     {curso.nombre || 'Curso sin nombre'}
                   </h3>
-                  <p style={{ color: theme.textMuted, fontSize: '0.9rem', margin: 0 }}>
-                    Próxima clase: {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString()}
+                  
+                  {/* Información del curso en grid profesional */}
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(3, 1fr)', 
+                    gap: '12px', 
+                    marginBottom: '12px',
+                    padding: '12px',
+                    background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
+                    borderRadius: '12px',
+                    border: `1px solid ${theme.border}`
+                  }}>
+                    {/* Docente */}
+                    {curso.docente?.nombre_completo && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <GraduationCap size={16} color="#3b82f6" />
+                          <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Docente
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', lineHeight: '1.3' }}>
+                          {curso.docente.nombre_completo}
+                        </div>
+                        {curso.docente.titulo && (
+                          <div style={{ color: theme.textMuted, fontSize: '0.75rem', fontStyle: 'italic' }}>
+                            {curso.docente.titulo}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Aula */}
+                    {curso.aula?.nombre && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <MapPin size={16} color={theme.success} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Aula
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                          {curso.aula.nombre}
+                        </div>
+                        {curso.aula.ubicacion && (
+                          <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                            📍 {curso.aula.ubicacion}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Horario */}
+                    {curso.horario?.hora_inicio && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Clock size={16} color={theme.accent} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Horario
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                          {curso.horario.hora_inicio?.substring(0, 5)} - {curso.horario.hora_fin?.substring(0, 5)}
+                        </div>
+                        {curso.horario.dias && (
+                          <div style={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: '4px',
+                            marginTop: '2px'
+                          }}>
+                            {curso.horario.dias.split(',').map((dia: string, idx: number) => (
+                              <span key={idx} style={{
+                                padding: '2px 6px',
+                                background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.1)',
+                                color: theme.accent,
+                                fontSize: '0.7rem',
+                                fontWeight: '600',
+                                borderRadius: '4px',
+                                border: `1px solid ${theme.accent}30`
+                              }}>
+                                {dia.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar size={14} />
+                    Próxima clase: {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
                   </p>
                 </div>
                 
@@ -448,7 +555,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                   {curso.tareasPendientes > 0 ? (
                     <button
                       onClick={() => {
-                        // TODO: Implementar subida de tareas
                         console.log('Subir tarea para curso:', curso.nombre);
                       }}
                       style={{
@@ -554,9 +660,11 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                   <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
                     {curso.nombre}
                   </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                    {curso.codigo_curso || 'Aula Virtual'}
-                  </p>
+                  {curso.aula?.nombre && (
+                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                      {curso.aula.nombre} {curso.aula.ubicacion && `- ${curso.aula.ubicacion}`}
+                    </p>
+                  )}
                 </div>
               ))}
               
