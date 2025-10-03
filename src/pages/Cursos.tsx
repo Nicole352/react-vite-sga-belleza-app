@@ -592,18 +592,34 @@ const Cursos = () => {
             </p>
           </div>
 
-          {/* Grid de cursos */}
+          {/* Grid de cursos - primeras 6 cards */}
           <div
             data-aos="fade-up"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
               gap: '40px',
-              marginBottom: '100px'
+              marginBottom: '40px'
             }}
           >
-            {cursosData.map((curso, index) => (
+            {cursosData.slice(0, 6).map((curso, index) => (
               <AnimatedCard key={curso.id} curso={curso} index={index} />
+            ))}
+          </div>
+
+          {/* Grid de 2 columnas centrado para las últimas 2 cards */}
+          <div
+            data-aos="fade-up"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(360px, 460px))',
+              gap: '40px',
+              marginBottom: '100px',
+              justifyContent: 'center'
+            }}
+          >
+            {cursosData.slice(6).map((curso, index) => (
+              <AnimatedCard key={curso.id} curso={curso} index={index + 6} />
             ))}
           </div>
 

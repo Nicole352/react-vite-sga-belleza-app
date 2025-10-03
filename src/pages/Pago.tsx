@@ -70,43 +70,55 @@ const detallesCursos: DetallesCursos = {
     titulo: 'Cosmetología',
     precio: 90,
     duracion: '12 meses - $90 mensuales',
-    imagen: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908042/cosme1_cjsu3k.jpg'
   },
   cosmiatria: {
     titulo: 'Cosmiatría',
     precio: 90,
     duracion: '7 meses - $90 mensuales',
-    imagen: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758901284/cosmeto_cy3e36.jpg'
   },
   integral: {
     titulo: 'Belleza Integral',
     precio: 90,
     duracion: '12 meses - $90 mensuales',
-    imagen: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908293/cos2_se1xyb.jpg'
   },
   unas: {
     titulo: 'Técnica de Uñas',
     precio: 50,
     duracion: '16 clases - Matrícula $50 + $15.40/clase',
-    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg'
   },
   lashista: {
     titulo: 'Lashista Profesional',
     precio: 50,
     duracion: '6 clases - Matrícula $50 + $26/clase',
-    imagen: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758900822/lashi_vuiiiv.jpg'
   },
   maquillaje: {
     titulo: 'Maquillaje Profesional',
     precio: 90,
     duracion: '6 meses - $90 mensuales',
-    imagen: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80'
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758899626/eff_rxclz1.jpg'
   },
   facial: {
     titulo: 'Cosmetología',
     precio: 90,
     duracion: '12 meses - $90 mensuales',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1755893924/cursos_xrnjuu.png'
+  },
+  'alta-peluqueria': {
+    titulo: 'Alta Peluquería',
+    precio: 90,
+    duracion: '8 meses - $90 mensuales',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png'
+  },
+  'moldin-queen': {
+    titulo: 'Moldin Queen',
+    precio: 90,
+    duracion: '6 meses - $90 mensuales',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png'
   }
 };
 
@@ -125,7 +137,9 @@ const Pago: React.FC = () => {
       facial: ['facial', 'faciales', 'rostro', 'cara'],
       cosmiatria: ['cosmiatría', 'cosmiatria', 'masajes', 'massage'],
       integral: ['integral', 'belleza', 'peluquería', 'peluqueria', 'estilismo', 'hair'],
-      lashista: ['pestañas', 'pestanas', 'lashes', 'extensiones', 'lash']
+      lashista: ['pestañas', 'pestanas', 'lashes', 'extensiones', 'lash'],
+      'alta-peluqueria': ['alta peluquería', 'peluquería', 'peluqueria', 'cortes', 'tintes', 'colorimetría', 'balayage', 'hair'],
+      'moldin-queen': ['moldin', 'modelado', 'estilizado', 'queen', 'molding']
     };
     
     // Función para calcular similitud entre strings

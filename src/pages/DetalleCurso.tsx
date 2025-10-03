@@ -1,4 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { 
+  Sparkles, 
+  ArrowLeftCircle, 
+  Clock, 
+  Users, 
+  Award, 
+  Star, 
+  ChevronDown, 
+  Play, 
+  Check,
+  BookOpen,
+  Gift,
+  Calendar,
+  CreditCard
+} from 'lucide-react';
+import Footer from '../components/Footer';
+
+// Backend API base
+const API_BASE = 'http://localhost:3000/api';
 
 // Interfaces para tipado
 interface CursoDetalle {
@@ -35,26 +55,6 @@ interface AnimatedButtonProps {
   href: string;
   variant?: 'primary' | 'secondary';
 }
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-
-// Backend API base
-const API_BASE = 'http://localhost:3000/api';
-import { 
-  Sparkles, 
-  ArrowLeftCircle, 
-  Clock, 
-  Users, 
-  Award, 
-  Star, 
-  ChevronDown, 
-  Play, 
-  Check,
-  BookOpen,
-  Gift,
-  Calendar,
-  CreditCard
-} from 'lucide-react';
-import Footer from '../components/Footer';
 
 // Datos reales de los cursos con información actualizada
 const detallesCursos: DetallesCursos = {
@@ -71,7 +71,6 @@ const detallesCursos: DetallesCursos = {
       'Anatomía y fisiología de la piel',
       'Técnicas de limpieza facial profunda',
       'Tratamientos hidratantes y nutritivos',
-      'Depilación con cera y técnicas avanzadas',
       'Masajes relajantes y terapéuticos',
       'Tratamientos corporales',
       'Prácticas supervisadas con clientes reales',
@@ -82,7 +81,7 @@ const detallesCursos: DetallesCursos = {
       'Materiales y productos incluidos',
       'Certificación profesional avalada'
     ],
-    imagen: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908042/cosme1_cjsu3k.jpg',
     rating: 4.9,
     estudiantes: 850,
     instructor: 'Especialistas Certificados',
@@ -112,7 +111,7 @@ const detallesCursos: DetallesCursos = {
       'Acceso a equipos de última generación',
       'Prácticas en spa profesional'
     ],
-    imagen: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758901284/cosmeto_cy3e36.jpg',
     rating: 4.8,
     estudiantes: 320,
     instructor: 'Especialistas en Cosmiatría',
@@ -145,7 +144,7 @@ const detallesCursos: DetallesCursos = {
       'Kit completo de herramientas incluido',
       'Prácticas en salón profesional'
     ],
-    imagen: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908293/cos2_se1xyb.jpg',
     rating: 4.9,
     estudiantes: 650,
     instructor: 'Equipo Multidisciplinario',
@@ -178,7 +177,7 @@ const detallesCursos: DetallesCursos = {
       '2 clases por semana - Horarios flexibles',
       'Kit de herramientas incluido'
     ],
-    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg',
     rating: 4.8,
     estudiantes: 420,
     instructor: 'Especialista en Nail Art',
@@ -210,7 +209,7 @@ const detallesCursos: DetallesCursos = {
       '1 clase por semana',
       'Kit profesional incluido'
     ],
-    imagen: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758900822/lashi_vuiiiv.jpg',
     rating: 4.9,
     estudiantes: 280,
     instructor: 'Lashista Certificada Internacional',
@@ -242,7 +241,7 @@ const detallesCursos: DetallesCursos = {
       'Kit de maquillaje profesional incluido',
       'Prácticas con modelos reales'
     ],
-    imagen: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80',
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758899626/eff_rxclz1.jpg',
     rating: 4.9,
     estudiantes: 520,
     instructor: 'Maquilladora Profesional',
@@ -279,6 +278,68 @@ const detallesCursos: DetallesCursos = {
     instructor: 'Especialistas Certificados',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Cosmetología'
+  },
+  'alta-peluqueria': {
+    titulo: 'Alta Peluquería',
+    descripcion: 'Formación premium en cortes avanzados, colorimetría, balayage, mechas y peinados de alta moda. Orientado a quienes buscan destacar en salones profesionales.',
+    duracion: '8 meses',
+    requisitos: [
+      'Edad mínima: 16 años',
+      'No requiere experiencia previa',
+      'Pasión por el estilismo capilar'
+    ],
+    malla: [
+      'Fundamentos de corte profesional',
+      'Técnicas de colorimetría avanzada',
+      'Balayage y mechas californianas',
+      'Peinados de alta moda',
+      'Tratamientos capilares especializados',
+      'Tendencias internacionales',
+      'Prácticas en salón profesional',
+      'Gestión de negocio y atención al cliente'
+    ],
+    promociones: [
+      'Pago mensual de $90 USD',
+      'Kit profesional de herramientas incluido',
+      'Certificación avalada internacionalmente'
+    ],
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png',
+    rating: 4.9,
+    estudiantes: 680,
+    instructor: 'Estilista Profesional Certificado',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional en Alta Peluquería'
+  },
+  'moldin-queen': {
+    titulo: 'Moldin Queen',
+    descripcion: 'Técnicas especializadas de modelado y estilizado con enfoque en precisión, simetría y acabado impecable. Ideal para elevar tu portafolio profesional.',
+    duracion: '6 meses',
+    requisitos: [
+      'Edad mínima: 16 años',
+      'Destreza manual',
+      'Atención al detalle'
+    ],
+    malla: [
+      'Fundamentos de modelado profesional',
+      'Técnicas de simetría y proporción',
+      'Acabados impecables',
+      'Estilos contemporáneos',
+      'Técnicas avanzadas de moldeado',
+      'Productos profesionales especializados',
+      'Prácticas supervisadas',
+      'Portfolio profesional'
+    ],
+    promociones: [
+      'Pago mensual de $90 USD',
+      'Materiales especializados incluidos',
+      'Certificación profesional'
+    ],
+    imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png',
+    rating: 4.8,
+    estudiantes: 540,
+    instructor: 'Especialista en Modelado',
+    precio: '$90/mes',
+    certificacion: 'Certificado Profesional Moldin Queen'
   }
 };
 
@@ -340,60 +401,6 @@ const DetalleCurso: React.FC = () => {
     setIsVisible(true);
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ 
-        paddingTop: 120, 
-        textAlign: 'center', 
-        color: '#fbbf24',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div>
-          <Sparkles size={40} color="#fbbf24" style={{ animation: 'pulse 2s infinite' }} />
-          <h2 style={{ marginTop: 20 }}>Cargando curso...</h2>
-        </div>
-      </div>
-    );
-  }
-
-  if (!curso) {
-    return (
-      <div style={{ 
-        paddingTop: 120, 
-        textAlign: 'center', 
-        color: '#fbbf24',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
-      }}>
-        <h2>Curso no encontrado</h2>
-        <Link 
-          to="/" 
-          style={{
-            background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-            color: '#000',
-            padding: '12px 32px',
-            borderRadius: '30px',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontWeight: '700',
-            boxShadow: '0 8px 32px rgba(251,191,36,0.3)',
-            transition: 'all 0.3s ease'
-          }}
-        >
-          <Sparkles size={16} />
-          Volver al inicio
-        </Link>
-        <Footer />
-      </div>
-    );
-  }
-
   const handleSectionClick = (section: string) => {
     setActiveSection(activeSection === section ? null : section);
   };
@@ -454,7 +461,9 @@ const DetalleCurso: React.FC = () => {
       }
     };
 
-    const hoverEffect: React.CSSProperties = variant === 'default' ? {
+    const [isHovered, setIsHovered] = useState(false);
+
+    const hoverStyle: React.CSSProperties = variant === 'default' ? {
       transform: 'translateY(-5px) scale(1.02)',
       boxShadow: '0 25px 50px rgba(251, 191, 36, 0.15), 0 0 0 1px rgba(251, 191, 36, 0.2)'
     } : variant === 'gold' ? {
@@ -465,19 +474,15 @@ const DetalleCurso: React.FC = () => {
       boxShadow: '0 25px 50px rgba(251, 191, 36, 0.3)'
     };
 
+    const currentStyle = isHovered ? { ...variants[variant], ...hoverStyle } : variants[variant];
+
     return (
       <div
         className="section-card"
-        style={variants[variant] as React.CSSProperties}
-        onMouseEnter={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          Object.assign(target.style, hoverEffect);
-        }}
-        onMouseLeave={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          Object.assign(target.style, variants[variant]);
-        }}
-        onClick={isExpandable ? () => handleSectionClick(sectionId || '') : undefined}
+        style={currentStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={isExpandable && sectionId ? () => handleSectionClick(sectionId) : undefined}
       >
         {/* Efecto de brillo animado */}
         <div style={{
@@ -505,7 +510,6 @@ const DetalleCurso: React.FC = () => {
                   fontSize: '1.6rem', 
                   fontWeight: '700',
                   margin: 0,
-                  // Para mejor contraste: en tarjetas doradas usar texto sólido oscuro
                   background: variant === 'premium' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'inherit',
                   WebkitBackgroundClip: variant === 'premium' ? 'text' : 'inherit',
                   WebkitTextFillColor: variant === 'premium' ? 'transparent' : 'inherit',
@@ -528,9 +532,8 @@ const DetalleCurso: React.FC = () => {
           <div style={{
             maxHeight: isExpandable && activeSection !== sectionId ? '0px' : '1000px',
             overflow: 'hidden',
-            transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            opacity: isExpandable && activeSection !== sectionId ? 0 : 1,
-            transitionProperty: 'max-height, opacity'
+            transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+            opacity: isExpandable && activeSection !== sectionId ? 0 : 1
           }}>
             {children}
           </div>
@@ -540,6 +543,8 @@ const DetalleCurso: React.FC = () => {
   };
 
   const AnimatedButton: React.FC<AnimatedButtonProps> = ({ children, href, variant = 'primary' }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
     const baseStyle: React.CSSProperties = {
       display: 'inline-flex',
       alignItems: 'center',
@@ -573,27 +578,26 @@ const DetalleCurso: React.FC = () => {
       }
     };
 
+    const hoverStyle: React.CSSProperties = {
+      transform: 'translateY(-2px) scale(1.05)',
+      boxShadow: variant === 'primary' ? 
+        '0 12px 40px rgba(251, 191, 36, 0.4)' : 
+        '0 12px 40px rgba(251, 191, 36, 0.2)'
+    };
+
+    const currentStyle = isHovered ? { ...variants[variant], ...hoverStyle } : variants[variant];
+
     return (
       <Link
         to={href}
-        style={variants[variant] as React.CSSProperties}
-        onMouseEnter={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'translateY(-2px) scale(1.05)';
-          target.style.boxShadow = variant === 'primary' ? 
-            '0 12px 40px rgba(251, 191, 36, 0.4)' : 
-            '0 12px 40px rgba(251, 191, 36, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'translateY(0) scale(1)';
-          target.style.boxShadow = (variants[variant] as any).boxShadow || '';
-        }}
+        style={currentStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div style={{
           position: 'absolute',
           top: 0,
-          left: '-100%',
+          left: isHovered ? '100%' : '-100%',
           width: '100%',
           height: '100%',
           background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
@@ -604,6 +608,60 @@ const DetalleCurso: React.FC = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div style={{ 
+        paddingTop: 120, 
+        textAlign: 'center', 
+        color: '#fbbf24',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div>
+          <Sparkles size={40} color="#fbbf24" style={{ animation: 'pulse 2s infinite' }} />
+          <h2 style={{ marginTop: 20 }}>Cargando curso...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (!curso) {
+    return (
+      <div style={{ 
+        paddingTop: 120, 
+        textAlign: 'center', 
+        color: '#fbbf24',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+      }}>
+        <h2>Curso no encontrado</h2>
+        <Link 
+          to="/" 
+          style={{
+            background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+            color: '#000',
+            padding: '12px 32px',
+            borderRadius: '30px',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: '700',
+            boxShadow: '0 8px 32px rgba(251,191,36,0.3)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <Sparkles size={16} />
+          Volver al inicio
+        </Link>
+        <Footer />
+      </div>
+    );
+  }
+  
   return (
     <>
       <style>
