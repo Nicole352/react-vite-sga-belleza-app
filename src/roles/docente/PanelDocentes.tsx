@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Users, Calendar, User, Lock, Eye, EyeOff, CheckCircle2, BarChart3, Settings, Moon, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, Users, Calendar, User, Lock, Eye, EyeOff, CheckCircle2, BarChart3, Settings, Moon, Sun, Camera, Info, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
-import LogoutButton from '../../components/LogoutButton';
 import SchoolLogo from '../../components/SchoolLogo';
 
 // Importar componentes modulares
@@ -14,6 +14,7 @@ import MiPerfil from './MiPerfil';
 const API_BASE = 'http://localhost:3000/api';
 
 const PanelDocentes = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('docente-dark-mode');
@@ -27,6 +28,7 @@ const PanelDocentes = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
 
   // Obtener datos del usuario
@@ -67,6 +69,23 @@ const PanelDocentes = () => {
   useEffect(() => {
     checkPasswordReset();
   }, []);
+
+  // Cerrar menú de perfil al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showProfileMenu) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    if (showProfileMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   // Verificar si necesita cambiar contraseña en primer ingreso
   const checkPasswordReset = async () => {
@@ -140,6 +159,18 @@ const PanelDocentes = () => {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    // Limpiar datos de sesión
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    
+    // Redirigir al login de aula virtual
+    navigate('/aula-virtual');
   };
 
   const getThemeColors = () => {
@@ -294,24 +325,6 @@ const PanelDocentes = () => {
             })}
           </nav>
 
-          {/* Botón de Cerrar Sesión */}
-          <div style={{ 
-            position: 'absolute', 
-            bottom: '24px', 
-            left: '24px', 
-            right: '24px' 
-          }}>
-            <div style={{
-              background: darkMode 
-                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))' 
-                : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '12px',
-              padding: '12px'
-            }}>
-              <LogoutButton darkMode={darkMode} />
-            </div>
-          </div>
         </div>
 
         {/* Contenido Principal */}
@@ -375,34 +388,184 @@ const PanelDocentes = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
               {/* Iniciales del Usuario */}
-              <div style={{
-                width: '44px',
-                height: '44px',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                fontWeight: '700',
-                fontSize: '0.95rem',
-                color: '#fff',
-                letterSpacing: '0.5px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-              }}>
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Icono clickeado, showProfileMenu actual:', showProfileMenu);
+                  setShowProfileMenu(!showProfileMenu);
+                }}
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  color: '#fff',
+                  letterSpacing: '0.5px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                }}>
                 {getInitials()}
               </div>
+
+              {/* Menú desplegable con animaciones */}
+              {showProfileMenu && (
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: 'absolute',
+                    top: '50px',
+                    right: '0px',
+                    background: darkMode ? theme.contentBg : theme.contentBg,
+                    borderRadius: '12px',
+                    boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+                    border: `1px solid ${theme.border}`,
+                    minWidth: '250px',
+                    zIndex: 999,
+                    animation: 'slideInDown 0.3s ease-out',
+                    backdropFilter: 'blur(20px)'
+                  }}>
+                  {/* Header del menú */}
+                  <div style={{
+                    padding: '12px 16px',
+                    borderBottom: `1px solid ${theme.border}`,
+                    background: theme.navbarBg,
+                    borderRadius: '12px 12px 0 0'
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: theme.textSecondary,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      textAlign: 'center'
+                    }}>
+                      Mi Perfil
+                    </div>
+                  </div>
+
+                  {/* Opción 1: Cambiar foto */}
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProfileMenu(false);
+                      toast('Función de cambiar foto de perfil próximamente', {
+                        icon: <Info size={20} />,
+                        duration: 3000,
+                      });
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      color: theme.textPrimary,
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      background: 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                    <Camera size={18} color={theme.textSecondary} />
+                    <span>Cambiar foto de perfil</span>
+                  </div>
+
+                  {/* Opción 2: Cambiar contraseña */}
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProfileMenu(false);
+                      setShowPasswordResetModal(true);
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      color: theme.textPrimary,
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      borderBottom: `1px solid ${theme.border}`,
+                      background: 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                    <Lock size={18} color={theme.textSecondary} />
+                    <span>Cambiar contraseña</span>
+                  </div>
+
+                  {/* Opción 3: Cerrar Sesión */}
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProfileMenu(false);
+                      handleLogout();
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      color: '#ef4444',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      background: 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                    <LogOut size={18} color="#ef4444" />
+                    <span>Cerrar Sesión</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Estilos CSS para animaciones */}
+              <style>{`
+                @keyframes slideInDown {
+                  from {
+                    opacity: 0;
+                    transform: translateY(-10px) scale(0.95);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                  }
+                }
+              `}</style>
 
               {/* Toggle Switch de modo claro/oscuro */}
               <div
