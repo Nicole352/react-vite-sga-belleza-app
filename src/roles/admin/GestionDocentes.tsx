@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit
+  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Key, Lock, Info
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 
 // Tipos
@@ -176,7 +177,31 @@ const GestionDocentes = () => {
       
       // Mostrar credenciales si es un nuevo docente
       if (modalMode === 'create' && result.docente?.username && result.docente?.password_temporal) {
-        alert(`¡Docente creado exitosamente!\n\nCredenciales de acceso:\nUsuario: ${result.docente.username}\nContraseña temporal: ${result.docente.password_temporal}\n\nGuarde estas credenciales para entregar al docente.`);
+        toast.success(
+          <div style={{ lineHeight: '1.6' }}>
+            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckCircle2 size={20} />
+              Docente creado exitosamente
+            </div>
+            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+              <div style={{ marginTop: '8px', padding: '8px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '6px' }}>
+                <div style={{ fontWeight: '600', marginBottom: '4px' }}>Credenciales de acceso:</div>
+                <div><strong>Usuario:</strong> {result.docente.username}</div>
+                <div style={{ color: '#fbbf24', fontWeight: '600' }}>
+                  <strong>Contraseña temporal:</strong> {result.docente.password_temporal}
+                </div>
+              </div>
+              <div style={{ marginTop: '6px', fontSize: '0.85rem', opacity: 0.8 }}>Guarde estas credenciales para entregar al docente.</div>
+            </div>
+          </div>,
+          {
+            duration: 10000,
+            style: {
+              minWidth: '450px',
+            },
+            icon: <CheckCircle2 size={24} />,
+          }
+        );
       }
 
       setShowModal(false);
@@ -619,7 +644,7 @@ const GestionDocentes = () => {
                     marginBottom: 20 
                   }}>
                     <h4 style={{ margin: '0 0 12px 0', color: '#3b82f6', fontSize: '1rem', fontWeight: '600' }}>
-                      🔐 Credenciales de Acceso
+                      <Lock size={18} style={{ display: 'inline', marginRight: '6px' }} /> Credenciales de Acceso
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       {selectedDocente.username && (
@@ -730,7 +755,7 @@ const GestionDocentes = () => {
                     color: '#3b82f6',
                     fontSize: '0.9rem'
                   }}>
-                    ℹ️ <strong>Credenciales automáticas:</strong> El sistema generará automáticamente un username único (iniciales + apellido) y usará la identificación como contraseña temporal.
+                    <Info size={16} style={{ display: 'inline', marginRight: '6px' }} /> <strong>Credenciales automáticas:</strong> El sistema generará automáticamente un username único (iniciales + apellido) y usará la identificación como contraseña temporal.
                   </div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>

@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   Users, 
-  Calendar,
+  Calendar, 
+  Award, 
+  Hand, 
   Clock,
-  Award,
-  GraduationCap,
-  Target,
-  MapPin,
-  Bell,
   TrendingUp,
   ChevronRight,
   FileText,
-  CheckCircle
+  CheckCircle,
+  GraduationCap,
+  Target,
+  MapPin,
+  Bell
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000/api';
@@ -167,7 +168,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               color: theme.textPrimary, 
               margin: '0 0 8px 0' 
             }}>
-              ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}! 👋
+              <Hand size={32} style={{ display: 'inline', marginRight: '8px' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { 
   Search, Download, Filter, BarChart3, PieChart, TrendingUp, 
-  Users, BookOpen, DollarSign, Calendar, FileText, Eye
+  Users, BookOpen, DollarSign, Calendar, FileText, Eye, FileCheck, CheckCircle2
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Reportes = () => {
   const [tipoReporte, setTipoReporte] = useState('estudiantes');
@@ -94,11 +95,18 @@ const Reportes = () => {
 
   const generarReporte = () => {
     // Simulación de generación de reporte
-    alert(`Generando reporte de ${reportesDisponibles.find(r => r.id === tipoReporte)?.titulo} desde ${fechaInicio} hasta ${fechaFin}`);
+    const reporteTitulo = reportesDisponibles.find(r => r.id === tipoReporte)?.titulo;
+    toast.success(`Generando reporte de ${reporteTitulo} desde ${fechaInicio} hasta ${fechaFin}`, {
+      icon: <FileCheck size={20} />,
+      duration: 3000,
+    });
   };
 
   const exportarReporte = (formato) => {
-    alert(`Exportando reporte en formato ${formato.toUpperCase()}`);
+    toast.success(`Exportando reporte en formato ${formato.toUpperCase()}`, {
+      icon: <Download size={20} />,
+      duration: 3000,
+    });
   };
 
   const renderEstadisticas = () => {

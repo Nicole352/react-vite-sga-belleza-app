@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, CreditCard, Building, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Upload, AlertCircle, CheckCircle, Info, CreditCard, Building } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -309,7 +309,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
               fontSize: '0.85rem'
             }}>
-              <span style={{ fontSize: '1.1rem' }}>💡</span>
+              <Info size={18} style={{ flexShrink: 0 }} />
               <span>Puedes pagar más del monto de la cuota para adelantar pagos</span>
             </div>
           </div>

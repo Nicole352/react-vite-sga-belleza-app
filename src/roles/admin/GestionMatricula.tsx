@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock
+  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 type Solicitud = {
   id_solicitud: number;
@@ -184,8 +185,8 @@ const GestionMatricula = () => {
 
   // Función para abrir modal de aprobación
   const openApprovalModal = (solicitud: Solicitud) => {
-    console.log('🔍 Datos de la solicitud para aprobar:', solicitud);
-    console.log('📋 Campos específicos:', {
+    console.log('Datos de la solicitud para aprobar:', solicitud);
+    console.log('Campos específicos:', {
       nombre: solicitud.nombre_solicitante,
       apellido: solicitud.apellido_solicitante,
       telefono: solicitud.telefono_solicitante,
@@ -230,17 +231,30 @@ const GestionMatricula = () => {
       
       const data = await response.json();
       
-      // Mostrar información del estudiante creado
-      alert(`✅ Estudiante creado exitosamente!
-
-📋 Información del nuevo estudiante:
-• Nombre: ${data.estudiante.nombre} ${data.estudiante.apellido}
-• Identificación: ${data.estudiante.identificacion}
-• Email: ${data.estudiante.email}
-• Usuario: ${data.estudiante.username}
-• Contraseña temporal: ${data.estudiante.password_temporal}
-
-El estudiante puede ingresar con su identificación como contraseña.`);
+      // Notificación de éxito con información del estudiante
+      toast.success(
+        <div style={{ lineHeight: '1.6' }}>
+          <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={20} />
+            Estudiante creado exitosamente
+          </div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+            <div><strong>Nombre:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
+            <div><strong>Usuario:</strong> {data.estudiante.username}</div>
+            <div><strong>Email:</strong> {data.estudiante.email}</div>
+            <div style={{ marginTop: '6px', color: '#fbbf24', fontWeight: '600' }}>
+              <strong>Contraseña:</strong> {data.estudiante.password_temporal}
+            </div>
+          </div>
+        </div>,
+        {
+          duration: 8000,
+          style: {
+            minWidth: '420px',
+          },
+          icon: <CheckCircle2 size={24} />,
+        }
+      );
       
       // Cerrar modal y refrescar datos
       setShowApprovalModal(false);
@@ -253,7 +267,10 @@ El estudiante puede ingresar con su identificación como contraseña.`);
       
     } catch (error: any) {
       console.error('Error creando estudiante:', error);
-      alert(`❌ Error creando estudiante: ${error.message}`);
+      toast.error(`Error: ${error.message}`, {
+        duration: 5000,
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setDecidiendo(false);
     }
@@ -284,8 +301,32 @@ El estudiante puede ingresar con su identificación como contraseña.`);
       
       await fetchSolicitudes();
       await fetchCounters();
+      
+      // Notificación según el estado
+      if (estado === 'aprobado') {
+        toast.success('Solicitud aprobada correctamente', {
+          icon: <CheckCircle2 size={20} />,
+        });
+      } else if (estado === 'rechazado') {
+        toast.error('Solicitud rechazada', {
+          icon: <Ban size={20} />,
+        });
+      } else {
+        toast('Observaciones agregadas', {
+          icon: <FileCheck size={20} />,
+          style: {
+            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
+            border: '1px solid rgba(251, 191, 36, 0.4)',
+            color: '#fbbf24',
+            backdropFilter: 'blur(10px)',
+          },
+        });
+      }
     } catch (e: any) {
       setError(e.message || 'Error actualizando estado');
+      toast.error(`${e.message || 'Error actualizando estado'}`, {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setDecidiendo(false);
     }
@@ -995,7 +1036,7 @@ El estudiante puede ingresar con su identificación como contraseña.`);
                       marginBottom: '16px'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>🔒</span>
+                        <Lock size={20} />
                         <h4 style={{ color: '#ef4444', margin: 0, fontSize: '1rem', fontWeight: '600' }}>
                           Curso Bloqueado
                         </h4>
@@ -1026,8 +1067,8 @@ El estudiante puede ingresar con su identificación como contraseña.`);
                       display: 'inline-block'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>
-                          {selected.estado === 'aprobado' ? '✅' : selected.estado === 'rechazado' ? '❌' : '⚠️'}
+                        <span>
+                          {selected.estado === 'aprobado' ? <CheckCircle2 size={28} color="#10b981" /> : selected.estado === 'rechazado' ? <XCircle size={28} color="#ef4444" /> : <AlertCircle size={28} color="#f59e0b" />}
                         </span>
                         <div style={{ textAlign: 'left' }}>
                           <h4 style={{ 

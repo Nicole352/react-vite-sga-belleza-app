@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
-  DollarSign, Search, Eye, Download, X
+  DollarSign, Search, Eye, Download, X, AlertCircle
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -89,7 +90,9 @@ const GestionPagos = () => {
 
     } catch (error) {
       console.error('Error cargando datos:', error);
-      alert('Error cargando datos de pagos');
+      toast.error('Error cargando datos de pagos', {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setLoading(false);
     }

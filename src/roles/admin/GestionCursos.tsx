@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Plus, Edit, Eye, Trash2, X, Save, BookOpen
+  Search, Plus, Edit, Eye, Trash2, X, Save, BookOpen, CheckCircle2, AlertCircle, Ban, PlayCircle, Lock, Unlock
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 
 type Course = {
@@ -254,10 +255,20 @@ const GestionCursos = () => {
 
       // Mostrar mensaje de confirmación
       const accion = target === 'cancelado' ? 'bloqueado' : 'reanudado';
-      alert(`Curso ${accion} exitosamente. ${target === 'cancelado' ? 'Las matrículas están suspendidas.' : 'Las matrículas están habilitadas.'}`);
+      if (target === 'cancelado') {
+        toast.error(`Curso bloqueado. Las matrículas están suspendidas.`, {
+          icon: <Ban size={20} />,
+        });
+      } else {
+        toast.success(`Curso reanudado. Las matrículas están habilitadas.`, {
+          icon: <PlayCircle size={20} />,
+        });
+      }
     } catch (e: any) {
       setError(e.message || 'Error actualizando estado');
-      alert(`Error: ${e.message || 'No se pudo actualizar el estado del curso'}`);
+      toast.error(`Error: ${e.message || 'No se pudo actualizar el estado del curso'}`, {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setLoading(false);
     }
@@ -872,7 +883,7 @@ const GestionCursos = () => {
                           e.currentTarget.style.background = curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
                         }}
                       >
-                        <span style={{ fontSize: '0.9rem' }}>{curso.estado === 'cancelado' ? '🔓' : '🔒'}</span>
+                        {curso.estado === 'cancelado' ? <Unlock size={18} /> : <Lock size={18} />}
                         <span>{curso.estado === 'cancelado' ? 'Reanudar' : 'Cerrar'}</span>
                       </button>
                     </div>

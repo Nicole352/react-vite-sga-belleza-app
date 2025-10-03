@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle
+  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, CheckCircle2
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 
 const API_BASE = 'http://localhost:3000';
@@ -123,7 +124,7 @@ const AsignacionAula: React.FC = () => {
       const cursosData = await cursosRes.json();
       const docentesData = await docentesRes.json();
 
-      console.log('📊 Datos cargados:', {
+      console.log('Datos cargados:', {
         asignaciones: asignacionesData,
         aulas: aulasData,
         cursos: cursosData,
@@ -141,7 +142,7 @@ const AsignacionAula: React.FC = () => {
       setCursos(cursosList);
       setDocentes(docentesList);
       
-      console.log('✅ Estados actualizados:', {
+      console.log('Estados actualizados:', {
         totalAsignaciones: asignacionesList.length,
         totalAulas: aulasList.length,
         totalCursos: cursosList.length,
@@ -182,7 +183,9 @@ const AsignacionAula: React.FC = () => {
     const diasSeleccionados = Array.from(formData.getAll('dias')) as string[];
     
     if (diasSeleccionados.length === 0) {
-      alert('Debe seleccionar al menos un día de clase');
+      toast.error('Debe seleccionar al menos un día de clase', {
+        icon: <AlertCircle size={20} />,
+      });
       return;
     }
 
@@ -214,7 +217,9 @@ const AsignacionAula: React.FC = () => {
           throw new Error(errorData.error || 'Error creando asignación');
         }
 
-        alert('Asignación creada exitosamente');
+        toast.success('Asignación creada exitosamente', {
+          icon: <CheckCircle2 size={20} />,
+        });
       } else if (modalType === 'edit' && selectedAsignacion) {
         const res = await fetch(`${API_BASE}/api/asignaciones-aulas/${selectedAsignacion.id_asignacion}`, {
           method: 'PUT',
@@ -227,14 +232,18 @@ const AsignacionAula: React.FC = () => {
           throw new Error(errorData.error || 'Error actualizando asignación');
         }
 
-        alert('Asignación actualizada exitosamente');
+        toast.success('Asignación actualizada exitosamente', {
+          icon: <CheckCircle2 size={20} />,
+        });
       }
 
       setShowModal(false);
       loadData();
     } catch (err: any) {
       console.error('Error guardando asignación:', err);
-      alert(err.message || 'Error guardando asignación');
+      toast.error(err.message || 'Error guardando asignación', {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setSaving(false);
     }

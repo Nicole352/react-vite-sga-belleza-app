@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { 
-  BarChart3, BookOpen, Users, Calendar, Settings, Sun, Moon, GraduationCap, Eye, EyeOff, Lock, CheckCircle
-} from 'lucide-react';
+import { BookOpen, Users, Calendar, User, Lock, Eye, EyeOff, CheckCircle2, BarChart3, Settings, Moon, Sun } from 'lucide-react';
+import toast from 'react-hot-toast';
 import LogoutButton from '../../components/LogoutButton';
 import SchoolLogo from '../../components/SchoolLogo';
 
@@ -92,7 +91,10 @@ const PanelDocentes = () => {
       if (response.ok) {
         setShowPasswordResetModal(false);
         setPasswordResetData({ newPassword: '', confirmPassword: '' });
-        alert('¡Contraseña actualizada exitosamente!');
+        toast.success('Contraseña actualizada exitosamente', {
+          icon: <CheckCircle2 size={20} />,
+          duration: 4000,
+        });
       } else {
         const errorData = await response.json();
         setResetError(errorData.error || 'Error al actualizar la contraseña');
@@ -615,7 +617,7 @@ const PanelDocentes = () => {
                 <>Actualizando...</>
               ) : (
                 <>
-                  <CheckCircle size={20} />
+                  <CheckCircle2 size={20} />
                   Cambiar Contraseña
                 </>
               )}

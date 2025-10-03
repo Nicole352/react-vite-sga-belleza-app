@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Calendar, Award, MapPin, Edit2, Save, X } from 'lucide-react';
+import { User, Mail, Phone, Calendar, MapPin, Edit, Save, X, CheckCircle2, AlertCircle, Award, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -68,11 +69,15 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       if (response.ok) {
         await fetchPerfil();
         setEditing(false);
-        alert('Perfil actualizado exitosamente');
+        toast.success('Perfil actualizado exitosamente', {
+          icon: <CheckCircle2 size={20} />,
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al actualizar el perfil');
+      toast.error('Error al actualizar el perfil', {
+        icon: <AlertCircle size={20} />,
+      });
     }
   };
 
@@ -139,7 +144,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               gap: '8px'
             }}
           >
-            <Edit2 size={18} />
+            <Edit size={18} />
             Editar Perfil
           </button>
         ) : (
@@ -289,7 +294,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 color: theme.textPrimary,
                 fontSize: '0.95rem'
               }}>
-                📋 {docente.identificacion}
+                <FileText size={16} style={{ display: 'inline', marginRight: '6px' }} /> {docente.identificacion}
               </div>
             </div>
 

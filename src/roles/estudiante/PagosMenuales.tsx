@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, AlertCircle, CheckCircle, Eye } from 'lucide-react';
+import { DollarSign, Calendar, AlertCircle, CheckCircle, Clock, Eye, X, XCircle, CreditCard } from 'lucide-react';
 import ModalPagoMensualidad from './ModalPagoMensualidad';
 
 const API_BASE = 'http://localhost:3000';
@@ -565,7 +565,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                           <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
                           <div>
                             <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#ef4444', marginBottom: '4px' }}>
-                              ❌ Pago Rechazado
+                              <XCircle size={16} style={{ display: 'inline', marginRight: '4px' }} /> Pago Rechazado
                             </div>
                             <div style={{ fontSize: '0.85rem', color: darkMode ? 'rgba(255,255,255,0.8)' : '#1f2937' }}>
                               {cuota.observaciones}

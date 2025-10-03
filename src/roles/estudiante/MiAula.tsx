@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
+  Calendar, 
   Users, 
-  Star,
-  CheckCircle,
-  AlertCircle,
-  Clock,
+  Clock, 
+  MapPin, 
+  Circle,
   Award,
   ChevronRight,
-  Calendar,
   FileText,
   Eye,
   Upload,
   Download,
   Target,
   Play,
-  MapPin,
-  GraduationCap
+  GraduationCap,
+  AlertCircle,
+  CheckCircle,
+  Star,
+  Hand
 } from 'lucide-react';
 
 interface MiAulaProps {
@@ -114,7 +116,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const cursos = await response.json();
-        console.log('📚 Cursos cargados:', cursos);
+        console.log('Cursos cargados:', cursos);
         setCursosMatriculados(cursos);
         setError('');
       } else {
@@ -194,7 +196,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               color: theme.textPrimary, 
               margin: '0 0 8px 0' 
             }}>
-              ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}! 👋
+              <Hand size={32} style={{ display: 'inline', marginRight: '8px' }} /> ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
@@ -449,7 +451,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         </div>
                         {curso.aula.ubicacion && (
                           <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
-                            📍 {curso.aula.ubicacion}
+                            <MapPin size={12} style={{ display: 'inline', marginRight: '4px' }} /> {curso.aula.ubicacion}
                           </div>
                         )}
                       </div>

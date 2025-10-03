@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Clock,
-  Mail,
-  CheckCircle,
-  Search,
-  CreditCard
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { DollarSign, FileText, HelpCircle, Settings, CreditCard } from 'lucide-react';
 
 // Importar el componente de Pagos Mensuales
 import PagosMenuales from './PagosMenuales';
@@ -131,7 +125,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               color: theme.textPrimary, 
               margin: '0 0 8px 0' 
             }}>
-              Gestión de Pagos 💳
+              <CreditCard size={28} style={{ display: 'inline', marginRight: '8px' }} /> Gestión de Pagos
             </h1>
             <p style={{ 
               color: theme.textSecondary, 

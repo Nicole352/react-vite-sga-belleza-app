@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import PaginaInicio from './pages/Inicio';
 import PaginaCursos from './pages/Cursos';
 import PaginaAvales from './pages/Avales';
@@ -23,6 +24,70 @@ const App: React.FC = () => {
       v7_relativeSplatPath: true 
     }}>
       <div className="App">
+        {/* Toaster global - Notificaciones profesionales */}
+        <Toaster
+          position="bottom-right"
+          reverseOrder={false}
+          gutter={12}
+          containerStyle={{
+            bottom: 40,
+            right: 40,
+          }}
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              fontSize: '0.95rem',
+              fontWeight: '600',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              minWidth: '320px',
+              maxWidth: '500px',
+            },
+            success: {
+              duration: 4000,
+              style: {
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                color: '#10b981',
+                backdropFilter: 'blur(10px)',
+              },
+              iconTheme: {
+                primary: '#10b981',
+                secondary: 'rgba(16, 185, 129, 0.1)',
+              },
+            },
+            error: {
+              duration: 5000,
+              style: {
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                border: '1px solid rgba(239, 68, 68, 0.4)',
+                color: '#ef4444',
+                backdropFilter: 'blur(10px)',
+              },
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: 'rgba(239, 68, 68, 0.1)',
+              },
+            },
+            loading: {
+              style: {
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)',
+                border: '1px solid rgba(59, 130, 246, 0.4)',
+                color: '#3b82f6',
+                backdropFilter: 'blur(10px)',
+              },
+              iconTheme: {
+                primary: '#3b82f6',
+                secondary: 'rgba(59, 130, 246, 0.1)',
+              },
+            },
+          }}
+        />
         <Routes>
           {/* Rutas públicas con PublicLayout */}
           <Route path="/" element={<PublicLayout><PaginaInicio /></PublicLayout>} />

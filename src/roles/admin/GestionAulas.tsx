@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Building2, MapPin, Calendar, Plus, Edit, X, AlertCircle
+  Search, Plus, Edit, X, Save, MapPin, Building2, Calendar, AlertCircle, Info
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -918,7 +918,7 @@ const GestionAulas = () => {
                     color: 'var(--admin-text-muted)',
                     marginTop: '4px'
                   }}>
-                    💡 El código se genera automáticamente basado en las iniciales del nombre
+                    <Info size={14} style={{ display: 'inline', marginRight: '4px' }} /> El código se genera automáticamente basado en las iniciales del nombre
                   </div>
                 </div>
               </div>

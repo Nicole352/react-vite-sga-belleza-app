@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, DollarSign, Eye, Check, X, Download } from 'lucide-react';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 
 const API_BASE = 'http://localhost:3000';
@@ -107,7 +108,9 @@ const GestionPagosEstudiante = () => {
 
     } catch (error) {
       console.error('Error cargando datos:', error);
-      alert('Error cargando datos de pagos');
+      toast.error('Error cargando datos de pagos', {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setLoading(false);
     }
@@ -211,11 +214,16 @@ const GestionPagosEstudiante = () => {
       setCuotasAVerificar([]);
       await loadData();
       
-      alert(`✅ ${cuotasAVerificar.length} cuota(s) verificada(s) exitosamente`);
+      toast.success(`${cuotasAVerificar.length} cuota(s) verificada(s) exitosamente`, {
+        duration: 4000,
+        icon: <CheckCircle2 size={20} />,
+      });
       
     } catch (error) {
       console.error('Error:', error);
-      alert('Error verificando los pagos');
+      toast.error('Error verificando los pagos', {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setProcesando(false);
     }
@@ -229,7 +237,9 @@ const GestionPagosEstudiante = () => {
 
   const confirmarRechazo = async () => {
     if (!motivoRechazo.trim()) {
-      alert('Por favor ingrese el motivo del rechazo');
+      toast.error('Por favor ingrese el motivo del rechazo', {
+        icon: <AlertCircle size={20} />,
+      });
       return;
     }
 
@@ -254,11 +264,17 @@ const GestionPagosEstudiante = () => {
       setShowRechazoModal(false);
       setPagoARechazar(null);
       setMotivoRechazo('');
-      loadData();
+      await loadData();
+      
+      toast.success('Pago rechazado correctamente', {
+        icon: <XCircle size={20} />,
+      });
       
     } catch (error) {
       console.error('Error:', error);
-      alert('Error rechazando el pago');
+      toast.error('Error rechazando el pago', {
+        icon: <AlertCircle size={20} />,
+      });
     } finally {
       setProcesando(false);
     }
@@ -811,7 +827,7 @@ const GestionPagosEstudiante = () => {
                     letterSpacing: '1px',
                     marginBottom: '8px'
                   }}>
-                    💰 Monto
+                    <DollarSign size={16} style={{ display: 'inline', marginRight: '4px' }} /> Monto
                   </div>
                   <div style={{ 
                     color: '#10b981', 
@@ -850,7 +866,7 @@ const GestionPagosEstudiante = () => {
                     letterSpacing: '1px',
                     marginBottom: '8px'
                   }}>
-                    📅 Cuota
+                    <Calendar size={16} style={{ display: 'inline', marginRight: '4px' }} /> Cuota
                   </div>
                   <div style={{ 
                     color: '#3b82f6', 
@@ -886,7 +902,7 @@ const GestionPagosEstudiante = () => {
                     letterSpacing: '1px',
                     marginBottom: '12px'
                   }}>
-                    📊 Estado
+                    <BarChart3 size={16} style={{ display: 'inline', marginRight: '4px' }} /> Estado
                   </div>
                   <span style={{
                     display: 'inline-block',
@@ -955,7 +971,7 @@ const GestionPagosEstudiante = () => {
                         letterSpacing: '1px',
                         marginBottom: '6px'
                       }}>
-                        👤 Estudiante
+                        <User size={16} style={{ display: 'inline', marginRight: '4px' }} /> Estudiante
                       </div>
                       <div style={{ 
                         color: '#fff', 
@@ -1003,7 +1019,7 @@ const GestionPagosEstudiante = () => {
                     letterSpacing: '1px',
                     marginBottom: '12px'
                   }}>
-                    📚 Curso Matriculado
+                    <BookOpen size={16} style={{ display: 'inline', marginRight: '4px' }} /> Curso Matriculado
                   </div>
                   <div style={{ 
                     color: '#fff', 
@@ -1078,7 +1094,7 @@ const GestionPagosEstudiante = () => {
                       color: '#fff',
                       boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                     }}>
-                      👤
+                      <User size={20} />
                     </div>
                     <div>
                       <div style={{ 
@@ -1147,7 +1163,7 @@ const GestionPagosEstudiante = () => {
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    📝 Observaciones Importantes
+                    <FileText size={18} style={{ display: 'inline', marginRight: '6px' }} /> Observaciones Importantes
                   </div>
                   <div style={{ 
                     color: 'rgba(255,255,255,0.95)', 
@@ -1639,8 +1655,8 @@ const GestionPagosEstudiante = () => {
               padding: '16px',
               marginBottom: '24px'
             }}>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '8px' }}>
-                ⚠️ Al rechazar este pago:
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <AlertCircle size={16} /> Al rechazar este pago:
               </div>
               <ul style={{ 
                 color: 'rgba(255,255,255,0.9)', 

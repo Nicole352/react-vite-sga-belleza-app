@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
-  BookOpen, UserCircle, Settings, Sun, Moon, Camera, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+  BookOpen, UserCircle, Settings, Sun, Moon, Camera, Lock, Eye, EyeOff, CheckCircle, Info, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import LogoutButton from '../../components/LogoutButton';
 import SchoolLogo from '../../components/SchoolLogo';
 
@@ -108,7 +109,10 @@ const PanelEstudiantes = () => {
       if (response.ok) {
         setShowPasswordResetModal(false);
         setPasswordResetData({ newPassword: '', confirmPassword: '' });
-        alert('¡Contraseña actualizada exitosamente!');
+        toast.success('Contraseña actualizada exitosamente', {
+          icon: <CheckCircle2 size={20} />,
+          duration: 4000,
+        });
       } else {
         const errorData = await response.json();
         setResetError(errorData.error || 'Error al actualizar la contraseña');
@@ -460,7 +464,10 @@ const PanelEstudiantes = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowProfileMenu(false);
-                        alert('Función de cambiar foto de perfil próximamente');
+                        toast('Función de cambiar foto de perfil próximamente', {
+                          icon: <Info size={20} />,
+                          duration: 3000,
+                        });
                       }}
                       style={{
                         padding: '12px 16px',
@@ -658,7 +665,7 @@ const PanelEstudiantes = () => {
                   margin: '0 0 12px 0',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
-                  🔐 Restablecer Contraseña
+                  Restablecer Contraseña
                 </h2>
                 <p style={{
                   color: 'rgba(255,255,255,0.8)',
@@ -810,35 +817,27 @@ const PanelEstudiantes = () => {
                       border: '2px solid rgba(0,0,0,0.3)',
                       borderTop: '2px solid #000',
                       borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
+                      animation: 'spin 0.8s linear infinite'
                     }} />
-                    Actualizando...
+                    <span>Actualizando...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle size={20} />
-                    Cambiar Contraseña
+                    <span>Cambiar Contraseña</span>
                   </>
                 )}
               </button>
 
-              <div style={{
+              <p style={{
+                textAlign: 'center',
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: '0.85rem',
                 marginTop: '20px',
-                padding: '16px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                textAlign: 'center'
+                marginBottom: 0
               }}>
-                <p style={{
-                  color: '#93c5fd',
-                  fontSize: '0.85rem',
-                  margin: 0,
-                  lineHeight: 1.4
-                }}>
-                  💡 <strong>Tip:</strong> Usa una contraseña segura que puedas recordar fácilmente. Una vez cambiada, podrás acceder normalmente con tu nuevo password.
-                </p>
-              </div>
+                <Info size={16} style={{ display: 'inline', marginRight: '6px' }} /> Tip: Usa una contraseña segura que incluya letras, números y símbolos
+              </p>
             </div>
           </div>
         )}

@@ -50,7 +50,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('📚 Cursos del docente:', data);
+        console.log('Cursos del docente:', data);
         setCursos(data);
         setError('');
       } else {
