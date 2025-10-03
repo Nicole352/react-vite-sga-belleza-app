@@ -1109,9 +1109,11 @@ El estudiante puede ingresar con su identificación como contraseña.`);
           inset: 0, 
           background: 'rgba(0,0,0,0.8)', 
           display: 'flex', 
-          alignItems: 'center', 
+          alignItems: 'flex-start', 
           justifyContent: 'center', 
-          zIndex: 60 
+          zIndex: 60,
+          paddingTop: '80px',
+          overflowY: 'auto'
         }}>
           <div style={{ 
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 

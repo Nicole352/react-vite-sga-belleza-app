@@ -78,6 +78,17 @@ const AsignacionAula: React.FC = () => {
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+  // Función para formatear fechas: 03/Oct/2025
+  const formatearFecha = (fecha: string): string => {
+    if (!fecha) return '';
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const date = new Date(fecha);
+    const dia = date.getDate().toString().padStart(2, '0');
+    const mes = meses[date.getMonth()];
+    const año = date.getFullYear();
+    return `${dia}/${mes}/${año}`;
+  };
+
   // Cargar datos iniciales
   useEffect(() => {
     loadData();
@@ -366,7 +377,7 @@ const AsignacionAula: React.FC = () => {
                         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Período</div>
                         <div style={{ color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Calendar size={14} />
-                          {asignacion.fecha_inicio} - {asignacion.fecha_fin}
+                          {formatearFecha(asignacion.fecha_inicio)} - {formatearFecha(asignacion.fecha_fin)}
                         </div>
                       </div>
                     </div>
@@ -473,7 +484,7 @@ const AsignacionAula: React.FC = () => {
                     placeholder="Seleccionar curso"
                     options={cursos.filter(c => c.estado === 'activo' || c.estado === 'planificado').map(c => ({ 
                       value: c.id_curso, 
-                      label: `${c.nombre} (${c.fecha_inicio} - ${c.fecha_fin})` 
+                      label: `${c.nombre} (${formatearFecha(c.fecha_inicio)} - ${formatearFecha(c.fecha_fin)})` 
                     }))}
                   />
                 </div>

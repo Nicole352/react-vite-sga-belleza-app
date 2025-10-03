@@ -582,56 +582,173 @@ const GestionCursos = () => {
         </div>
       </div>
 
-      {/* Lista de Cursos */}
-      <div style={{ display: 'grid', gap: '20px' }}>
-        {cursos
-          .filter(c => {
-            const matchesSearch = c.nombre.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesEstado = filterEstado === 'todos' || c.estado === filterEstado;
-            return matchesSearch && matchesEstado;
-          })
-          .map((curso) => (
-          <div key={curso.id_curso} style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '20px', overflow: 'hidden'
-          }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.7)' }}>Código</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.7)' }}>Nombre</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.7)' }}>Fecha Inicio</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.7)' }}>Fecha Fin</th>
-                  <th style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>Cupos</th>
-                  <th style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>Estado</th>
-                  <th style={{ padding: '16px', textAlign: 'right', color: 'rgba(255,255,255,0.7)' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr key={`curso-${curso.id_curso}`} style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                  <td style={{ padding: '16px', color: 'rgba(255,255,255,0.9)' }}>{curso.codigo_curso}</td>
-                  <td style={{ padding: '16px', color: '#fff' }}>{curso.nombre}</td>
-                  <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)' }}>{curso.fecha_inicio}</td>
-                  <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)' }}>{curso.fecha_fin}</td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+      {/* Lista de Cursos - Tabla Profesional */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'rgba(239, 68, 68, 0.1)', borderBottom: '2px solid rgba(239, 68, 68, 0.3)' }}>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'left',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '12%'
+              }}>
+                Código
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'left',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '20%'
+              }}>
+                Nombre
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '12%'
+              }}>
+                Fecha Inicio
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '12%'
+              }}>
+                Fecha Fin
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '12%'
+              }}>
+                Cupos
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '12%'
+              }}>
+                Estado
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: '#fff', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '20%'
+              }}>
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {cursos
+              .filter(c => {
+                const matchesSearch = c.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesEstado = filterEstado === 'todos' || c.estado === filterEstado;
+                return matchesSearch && matchesEstado;
+              })
+              .map((curso, index) => (
+                <tr
+                  key={curso.id_curso}
+                  style={{
+                    borderBottom: index < cursos.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                    transition: 'background 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <td style={{ 
+                    padding: '16px 20px', 
+                    color: 'rgba(255,255,255,0.9)',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    fontFamily: 'monospace'
+                  }}>
+                    {curso.codigo_curso}
+                  </td>
+                  <td style={{ 
+                    padding: '16px 20px', 
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.95rem'
+                  }}>
+                    {curso.nombre}
+                  </td>
+                  <td style={{ 
+                    padding: '16px 20px', 
+                    color: 'rgba(255,255,255,0.8)', 
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
+                  }}>
+                    {curso.fecha_inicio}
+                  </td>
+                  <td style={{ 
+                    padding: '16px 20px', 
+                    color: 'rgba(255,255,255,0.8)', 
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
+                  }}>
+                    {curso.fecha_fin}
+                  </td>
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                     {curso.estado === 'cancelado' ? (
                       <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '8px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
+                        display: 'inline-block',
+                        padding: '6px 12px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
                         background: 'rgba(156, 163, 175, 0.2)',
-                        color: '#9ca3af'
+                        color: '#9ca3af',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
                       }}>
                         Cerrado
                       </span>
                     ) : (
                       <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '8px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
+                        display: 'inline-block',
+                        padding: '6px 12px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
                         background: (curso.cupos_disponibles || 0) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                         color: (curso.cupos_disponibles || 0) > 0 ? '#10b981' : '#ef4444'
                       }}>
@@ -639,8 +756,15 @@ const GestionCursos = () => {
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
-                    <span style={{ padding: '6px 10px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 700,
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <span style={{ 
+                      display: 'inline-block',
+                      padding: '6px 14px', 
+                      borderRadius: '12px', 
+                      fontSize: '0.75rem', 
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
                       background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)'
                                : curso.estado === 'planificado' ? 'rgba(59, 130, 246, 0.15)'
                                : curso.estado === 'finalizado' ? 'rgba(156, 163, 175, 0.2)'
@@ -648,23 +772,82 @@ const GestionCursos = () => {
                       color: curso.estado === 'activo' ? '#10b981'
                              : curso.estado === 'planificado' ? '#3b82f6'
                              : curso.estado === 'finalizado' ? '#9ca3af'
-                             : '#ef4444' }}>
+                             : '#ef4444' 
+                    }}>
                       {curso.estado}
                     </span>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => handleViewCurso(curso)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer' }}>
+                  <td style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <button 
+                        onClick={() => handleViewCurso(curso)} 
+                        style={{ 
+                          background: 'rgba(255,255,255,0.08)', 
+                          border: '1px solid rgba(255,255,255,0.15)', 
+                          color: '#fff', 
+                          padding: '8px 12px', 
+                          borderRadius: '10px', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
                         <Eye size={16} />
                       </button>
-                      <button onClick={() => handleEditCurso(curso)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer' }}>
+                      <button 
+                        onClick={() => handleEditCurso(curso)} 
+                        style={{ 
+                          background: 'rgba(255,255,255,0.08)', 
+                          border: '1px solid rgba(255,255,255,0.15)', 
+                          color: '#fff', 
+                          padding: '8px 12px', 
+                          borderRadius: '10px', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
                         <Edit size={16} />
                       </button>
-                      <button onClick={() => handleDeleteCurso(curso.id_curso)} style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '8px 12px', borderRadius: '10px', cursor: 'pointer' }}>
+                      <button 
+                        onClick={() => handleDeleteCurso(curso.id_curso)} 
+                        style={{ 
+                          background: 'rgba(239, 68, 68, 0.15)', 
+                          border: '1px solid rgba(239, 68, 68, 0.3)', 
+                          color: '#ef4444', 
+                          padding: '8px 12px', 
+                          borderRadius: '10px', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
                         <Trash2 size={16} />
                       </button>
                       <button 
                         onClick={() => handleToggleMatricula(curso)} 
+                        title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
                         style={{ 
                           background: curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', 
                           border: curso.estado === 'cancelado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)', 
@@ -672,27 +855,65 @@ const GestionCursos = () => {
                           padding: '8px 12px', 
                           borderRadius: '10px', 
                           cursor: 'pointer',
-                          fontWeight: '600'
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.background = curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.background = curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
                         }}
                       >
-                        {curso.estado === 'cancelado' ? '🔓 Reanudar' : '🔒 Bloquear'}
+                        <span style={{ fontSize: '0.9rem' }}>{curso.estado === 'cancelado' ? '🔓' : '🔒'}</span>
+                        <span>{curso.estado === 'cancelado' ? 'Reanudar' : 'Cerrar'}</span>
                       </button>
                     </div>
                   </td>
                 </tr>
-              </tbody>
-            </table>
-            {loading && (
-              <div style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>Cargando...</div>
-            )}
-            {error && (
-              <div style={{ padding: '16px', color: '#ef4444' }}>{error}</div>
-            )}
-            {(!loading && !error && cursos.length === 0) && (
-              <div style={{ padding: '16px', color: 'rgba(255,255,255,0.7)' }}>No hay cursos</div>
-            )}
+              ))}
+          </tbody>
+        </table>
+        
+        {loading && (
+          <div style={{ 
+            color: 'rgba(255,255,255,0.6)', 
+            padding: '40px 20px',
+            textAlign: 'center',
+            fontSize: '0.95rem'
+          }}>
+            Cargando cursos...
           </div>
-        ))}
+        )}
+        {error && (
+          <div style={{ 
+            color: '#ef4444', 
+            padding: '20px',
+            textAlign: 'center',
+            background: 'rgba(239, 68, 68, 0.1)',
+            borderTop: '1px solid rgba(239, 68, 68, 0.3)',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
+        {(!loading && !error && cursos.length === 0) && (
+          <div style={{ 
+            color: 'rgba(255,255,255,0.6)', 
+            padding: '40px 20px',
+            textAlign: 'center',
+            fontSize: '0.95rem'
+          }}>
+            No hay cursos registrados
+          </div>
+        )}
       </div>
 
       {/* Modal */}

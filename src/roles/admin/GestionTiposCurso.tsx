@@ -184,94 +184,217 @@ const GestionTiposCurso: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: 12 }}>
-        {tipos.map((t) => (
-          <div
-            key={t.id_tipo_curso}
-            style={{
-              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-              borderRadius: 16,
-            }}
-          >
-            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-              <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'left', width: '42%' }}>Nombre</th>
-                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '18%' }}>Duración</th>
-                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '20%' }}>Precio</th>
-                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'center', width: '10%' }}>Estado</th>
-                  <th style={{ padding: 12, color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', textAlign: 'right', width: '10%' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ padding: 12, color: 'var(--admin-text-primary, #fff)' }}>{t.nombre}</td>
-                  <td style={{ padding: 12, color: 'var(--admin-text-secondary, rgba(255,255,255,0.9))', textAlign: 'right' }}>
-                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
-                  </td>
-                  <td style={{ padding: 12, color: 'var(--admin-text-secondary, rgba(255,255,255,0.95))', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                    {formatPrice(t.precio_base ?? null)}
-                  </td>
-                  <td style={{ padding: 12, textAlign: 'center' }}>
-                    <span
+      <div
+        style={{
+          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+          borderRadius: 16,
+          overflow: 'hidden',
+        }}
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'rgba(239, 68, 68, 0.1)', borderBottom: '2px solid rgba(239, 68, 68, 0.3)' }}>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: 'var(--admin-text-primary, #fff)', 
+                textAlign: 'left', 
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '35%'
+              }}>
+                Nombre
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: 'var(--admin-text-primary, #fff)', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '15%'
+              }}>
+                Duración
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: 'var(--admin-text-primary, #fff)', 
+                textAlign: 'right',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '20%'
+              }}>
+                Precio
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: 'var(--admin-text-primary, #fff)', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '15%'
+              }}>
+                Estado
+              </th>
+              <th style={{ 
+                padding: '16px 20px', 
+                color: 'var(--admin-text-primary, #fff)', 
+                textAlign: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px',
+                width: '15%'
+              }}>
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {tipos.map((t, index) => (
+              <tr
+                key={t.id_tipo_curso}
+                style={{
+                  borderBottom: index < tipos.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <td style={{ 
+                  padding: '16px 20px', 
+                  color: 'var(--admin-text-primary, #fff)',
+                  fontWeight: 600,
+                  fontSize: '0.95rem'
+                }}>
+                  {t.nombre}
+                </td>
+                <td style={{ 
+                  padding: '16px 20px', 
+                  color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', 
+                  textAlign: 'center',
+                  fontSize: '0.9rem'
+                }}>
+                  {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                </td>
+                <td style={{ 
+                  padding: '16px 20px', 
+                  color: 'var(--admin-text-secondary, rgba(255,255,255,0.9))', 
+                  textAlign: 'right',
+                  fontVariantNumeric: 'tabular-nums',
+                  fontWeight: 600,
+                  fontSize: '0.95rem'
+                }}>
+                  {formatPrice(t.precio_base ?? null)}
+                </td>
+                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      padding: '6px 14px',
+                      borderRadius: 12,
+                      background: t.estado === 'activo' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                      color: t.estado === 'activo' ? '#10b981' : '#ef4444',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    {t.estado || 'activo'}
+                  </span>
+                </td>
+                <td style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                    <button
+                      onClick={() => openEdit(t)}
                       style={{
-                        padding: '6px 10px',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: '#fff',
+                        padding: '8px 12px',
                         borderRadius: 10,
-                        background:
-                          t.estado === 'activo'
-                            ? 'rgba(16,185,129,0.15)'
-                            : 'rgba(239,68,68,0.15)',
-                        color: t.estado === 'activo' ? '#10b981' : '#ef4444',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
-                      {t.estado || 'activo'}
-                    </span>
-                  </td>
-                  <td style={{ padding: 12, textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => openEdit(t)}
-                        style={{
-                          background: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          color: '#fff',
-                          padding: '8px 12px',
-                          borderRadius: 10,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(t.id_tipo_curso)}
-                        style={{
-                          background: 'rgba(239, 68, 68, 0.15)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          color: '#ef4444',
-                          padding: '8px 12px',
-                          borderRadius: 10,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        ))}
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(t.id_tipo_curso)}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
+                        padding: '8px 12px',
+                        borderRadius: 10,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
         {!loading && tipos.length === 0 && (
-          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', padding: 12 }}>No hay tipos de curso</div>
+          <div style={{ 
+            color: 'var(--admin-text-muted, rgba(255,255,255,0.6))', 
+            padding: '40px 20px',
+            textAlign: 'center',
+            fontSize: '0.95rem'
+          }}>
+            No hay tipos de curso registrados
+          </div>
         )}
         {loading && (
-          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', padding: 12 }}>Cargando...</div>
+          <div style={{ 
+            color: 'var(--admin-text-muted, rgba(255,255,255,0.6))', 
+            padding: '40px 20px',
+            textAlign: 'center',
+            fontSize: '0.95rem'
+          }}>
+            Cargando tipos de curso...
+          </div>
         )}
-        {error && <div style={{ color: '#ef4444', padding: 12 }}>{error}</div>}
+        {error && (
+          <div style={{ 
+            color: '#ef4444', 
+            padding: '20px',
+            textAlign: 'center',
+            background: 'rgba(239, 68, 68, 0.1)',
+            borderTop: '1px solid rgba(239, 68, 68, 0.3)',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
       </div>
 
       {showModal && (
