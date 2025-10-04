@@ -17,10 +17,12 @@ import {
   User,
   Lock
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const API_BASE = 'http://localhost:3000/api';
 
 const AulaVirtual = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -105,7 +107,9 @@ const AulaVirtual = () => {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -122,7 +126,7 @@ const AulaVirtual = () => {
             margin: '0 24px',
             backdropFilter: 'blur(20px)',
             border: '1px solid rgba(251, 191, 36, 0.3)',
-            boxShadow: '0 25px 50px rgba(251, 191, 36, 0.2)'
+            boxShadow: '0 10px 25px rgba(251, 191, 36, 0.1)'
           }}
           data-aos="fade-up"
           data-aos-delay="60"
@@ -261,7 +265,9 @@ const AulaVirtual = () => {
           
           .login-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #000 0%, #101010 50%, #000 100%);
+            background: theme === 'dark'
+              ? 'linear-gradient(135deg, #000 0%, #101010 50%, #000 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)';
             position: relative;
             overflow: hidden;
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -327,7 +333,9 @@ const AulaVirtual = () => {
             flex-direction: column;
             justify-content: center;
             padding: 92px 48px 52px; /* ajustar para que quepa sin scroll en desktop */
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 14, 14, 0.9) 100%);
+            background: theme === 'dark'
+              ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 14, 14, 0.9) 100%)'
+              : 'rgba(255, 255, 255, 0.97)';
             position: relative;
           }
           
@@ -353,15 +361,12 @@ const AulaVirtual = () => {
           .badge {
             display: inline-flex;
             align-items: center;
-            background-color: rgba(251, 191, 36, 0.28); /* más contraste */
-            border: 1px solid rgba(251, 191, 36, 0.55); /* borde más visible */
             border-radius: 24px;
             padding: 10px 20px;
-            margin-bottom: 12px; /* más compacto */
+            margin-bottom: 12px;
             backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.22), inset 0 0 0 1px rgba(0,0,0,0.12);
             font-family: 'Montserrat', 'Inter', 'Helvetica', sans-serif;
-            font-weight: 500;
+            font-weight: 600;
             letter-spacing: 0.5px;
             gap: 8px;
           }
@@ -371,7 +376,6 @@ const AulaVirtual = () => {
           }
           
           .badge span {
-            color: #fff1bf; /* texto más claro */
             font-size: 1rem;
             font-weight: 500;
           }
@@ -379,10 +383,10 @@ const AulaVirtual = () => {
           .main-title {
             font-size: 3.05rem;
             font-weight: 800;
-            color: #fff;
+            color: theme === 'dark' ? '#fff' : '#1f2937';
             margin-bottom: 12px;
             line-height: 1.1;
-            text-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             letter-spacing: -0.01em;
             text-align: center;
@@ -390,28 +394,28 @@ const AulaVirtual = () => {
           
           .subtitle {
             font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.86);
+            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.86)' : 'rgba(31, 41, 55, 0.8)';
             margin-bottom: 16px; /* reducir separación con la tarjeta */
             line-height: 1.6;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             font-weight: 500;
             text-align: center;
           }
           
           .login-form {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff';
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(209, 160, 42, 0.2)';
             border-radius: 28px;
             padding: 32px; /* más compacto para doble columna */
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
             z-index: 1;
             max-width: 640px; /* más ancho para acomodar dos columnas */
             margin: 0 auto;
-            color: #fff;
+            color: theme === 'dark' ? '#fff' : '#1f2937';
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 32px;
@@ -463,7 +467,7 @@ const AulaVirtual = () => {
             font-size: 1.05rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             background: rgba(255, 255, 255, 0.08);
-            color: #fff;
+            color: theme === 'dark' ? '#fff' : '#1f2937';
             font-family: 'Montserrat', sans-serif;
             font-weight: 500;
           }
@@ -472,7 +476,7 @@ const AulaVirtual = () => {
           .form-input:focus {
             outline: none;
             border-color: rgba(251, 191, 36, 0.7);
-            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.15);
+            box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
             transform: translateY(-2px);
           }
           
@@ -523,7 +527,7 @@ const AulaVirtual = () => {
             border: none;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 12px 40px rgba(251, 191, 36, 0.4);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.15);
             font-family: 'Montserrat', 'Inter', 'Helvetica', sans-serif;
             letter-spacing: 0.8px;
             text-transform: uppercase;
@@ -538,7 +542,7 @@ const AulaVirtual = () => {
           
           .login-button:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 16px 50px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2);
           }
           
           .login-button:disabled {
@@ -797,7 +801,7 @@ const AulaVirtual = () => {
             >
               {/* Aquí va tu imagen - Por ahora uso una placeholder */}
               <img 
-                src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1600&q=80"
+                src="https://res.cloudinary.com/dfczvdz7b/image/upload/v1759544229/aula_qzzpke.jpg"
                 alt="Aula Virtual - Jessica Vélez Escuela de Esteticistas"
                 className="hero-image"
               />
@@ -818,8 +822,13 @@ const AulaVirtual = () => {
             >
               <div className="login-header">
                 {/* Badge */}
-                <div className="badge">
-                  <Eye size={16} />
+                <div className="badge" style={{
+                  backgroundColor: theme === 'dark' ? 'rgba(251, 191, 36, 0.28)' : 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(251, 191, 36, 0.55)',
+                  boxShadow: '0 4px 12px rgba(251, 191, 36, 0.08)',
+                  color: theme === 'dark' ? '#fff' : '#000'
+                }}>
+                  <Eye size={16} color="#fbbf24" />
                   <span>Plataforma Virtual de Aprendizaje</span>
                 </div>
 

@@ -1,4 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Heart, 
+  Users, 
+  Award, 
+  Target,
+  Eye,
+  Clock,
+  Star,
+  Calendar,
+  Trophy,
+  Lightbulb,
+  UserCheck,
+  CheckCircle
+} from 'lucide-react';
+import Footer from '../components/Footer';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import SpotlightCard from '../components/cards/SpotlightCard';
+import LogoLoop from '../components/LogoLoop';
+import { useTheme } from '../context/ThemeContext';
 
 // Tipos para los datos
 interface Valor {
@@ -43,39 +63,20 @@ interface Certificate {
   imageUrl: string;
   title: string;
 }
-import { 
-  Heart, 
-  Users, 
-  Award, 
-  Target,
-  Eye,
-  Clock,
-  Star,
-  Calendar,
-  Trophy,
-  Lightbulb,
-  UserCheck,
-  CheckCircle
-} from 'lucide-react';
-import Footer from '../components/Footer';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-import SpotlightCard from '../components/cards/SpotlightCard';
-import LogoLoop from '../components/LogoLoop';
 
 const SobreNosotros: React.FC = () => {
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentCertSlide, setCurrentCertSlide] = useState(0);
-
   // Imágenes del carrusel de instalaciones - EXACTAMENTE IGUAL que en Inicio.js
   const carouselImages: CarouselImage[] = [
     {
       id: 1,
       title: "Tratamientos Faciales de Lujo",
       description: "Tecnología de vanguardia para el cuidado facial profesional",
-      imageUrl: "https://www.lahora.com.ec/__export/1753063265364/sites/lahora/img/2025/07/20/jexssica_vexlez.jpeg_1981115046.jpeg",
+      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00126_oute0e.jpg",
       gradient: "linear-gradient(135deg, rgba(18, 19, 19, 0.8) 0%, rgba(212, 199, 225, 0.8) 100%)",
     },
     {
@@ -89,7 +90,7 @@ const SobreNosotros: React.FC = () => {
       id: 3,
       title: "Microblading Especializado",
       description: "Técnicas avanzadas en micropigmentación de cejas",
-      imageUrl: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00311_fkcmay.jpg",
       gradient: "linear-gradient(135deg, rgba(79, 172, 254, 0.8) 0%, rgba(0, 242, 254, 0.8) 100%)",
     },
     {
@@ -103,7 +104,7 @@ const SobreNosotros: React.FC = () => {
       id: 5,
       title: "Práctica Profesional",
       description: "Aprendizaje hands-on con casos reales",
-      imageUrl: "https://images.unsplash.com/photo-1559599238-1c04a77c2c9f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00505_p2d798.jpg",
       gradient: "linear-gradient(135deg, rgba(250, 112, 154, 0.8) 0%, rgba(254, 225, 64, 0.8) 100%)",
     }
   ];
@@ -237,10 +238,10 @@ const SobreNosotros: React.FC = () => {
             {hito.año}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f3f4f6', margin: 0, lineHeight: 1.3 }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: theme === 'dark' ? '#f3f4f6' : '#1f2937', margin: 0, lineHeight: 1.3 }}>
               {hito.evento}
             </h3>
-            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
+            <p style={{ color: theme === 'dark' ? '#cbd5e1' : '#4b5563', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
               {hito.descripcion}
             </p>
           </div>
@@ -248,7 +249,7 @@ const SobreNosotros: React.FC = () => {
       </SpotlightCard>
     ),
     title: hito.evento,
-  })), []);
+  })), [theme]);
 
   const sectionStyle: React.CSSProperties = {
     marginBottom: '80px'
@@ -280,7 +281,7 @@ const SobreNosotros: React.FC = () => {
   const titleStyle: React.CSSProperties = {
     fontSize: '1.3rem',
     fontWeight: '700',
-    color: '#f3f4f6',
+    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
     marginBottom: '12px',
     lineHeight: 1.2,
     minHeight: '3rem',
@@ -291,7 +292,7 @@ const SobreNosotros: React.FC = () => {
 
   const paragraphStyle: React.CSSProperties = {
     fontSize: '0.95rem',
-    color: '#cbd5e1',
+    color: theme === 'dark' ? '#cbd5e1' : '#4b5563',
     lineHeight: 1.5,
     margin: 0,
     flex: 1,
@@ -408,10 +409,10 @@ const SobreNosotros: React.FC = () => {
           .section-title {
             font-size: 2.8rem;
             font-weight: 700;
-            color: white;
+            color: ${theme === 'dark' ? 'white' : '#1f2937'};
             margin-bottom: 15px; // Reducido de 20px
             text-align: center;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-shadow: ${theme === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.1)'};
             font-family: 'Montserrat', sans-serif;
             letter-spacing: -0.01em;
           }
@@ -463,7 +464,7 @@ const SobreNosotros: React.FC = () => {
 
           .slide-content {
             text-align: center;
-            color: white;
+            color: ${theme === 'dark' ? 'white' : '#1f2937'};
             z-index: 3;
             padding: 24px;
             position: absolute;
@@ -475,9 +476,9 @@ const SobreNosotros: React.FC = () => {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.35);
+            background: ${theme === 'dark' ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.85)'};
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(251, 191, 36, 0.25);
+            border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(209, 160, 42, 0.3)'};
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
           }
@@ -620,9 +621,9 @@ const SobreNosotros: React.FC = () => {
             height: 320px;
             border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(251, 191, 36, 0.25);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            background: rgba(0,0,0,0.35);
+            border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(209, 160, 42, 0.3)'};
+            box-shadow: ${theme === 'dark' ? '0 20px 50px rgba(0, 0, 0, 0.5)' : '0 10px 30px rgba(0, 0, 0, 0.15)'};
+            background: ${theme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.9)'};
             backdrop-filter: blur(6px);
           }
           
@@ -646,7 +647,7 @@ const SobreNosotros: React.FC = () => {
             max-width: 85%;
             max-height: 70%;
             object-fit: contain;
-            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5));
+            filter: ${theme === 'dark' ? 'drop-shadow(0 10px 25px rgba(0,0,0,0.5))' : 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))'};
             border-radius: 12px;
             margin-bottom: 16px;
           }
@@ -656,7 +657,7 @@ const SobreNosotros: React.FC = () => {
             font-size: 1.1rem;
             font-weight: 600;
             text-align: center;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            text-shadow: ${theme === 'dark' ? '0 2px 8px rgba(0,0,0,0.5)' : '0 1px 4px rgba(0,0,0,0.2)'};
           }
           
           .cert-dots {
@@ -709,7 +710,9 @@ const SobreNosotros: React.FC = () => {
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          background: theme === 'dark' 
+            ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '100px', // Reducido de 110px
@@ -795,7 +798,7 @@ const SobreNosotros: React.FC = () => {
             <p
               style={{
                 fontSize: '1.4rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                 maxWidth: '800px',
                 margin: '0 auto 32px',
                 lineHeight: 1.6
@@ -823,17 +826,17 @@ const SobreNosotros: React.FC = () => {
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
+                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(25px)',
                     borderRadius: '20px',
                     padding: '28px 32px',
-                    border: '1px solid rgba(251, 191, 36, 0.3)',
+                    border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(209, 160, 42, 0.4)'}`,
                     textAlign: 'center',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
                     transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
                     transitionDelay: `${index * 100 + 300}ms`,
-                    boxShadow: '0 16px 50px rgba(0,0,0,0.4)'
+                    boxShadow: theme === 'dark' ? '0 16px 50px rgba(0,0,0,0.4)' : '0 10px 30px rgba(0,0,0,0.1)'
                   }}
                   onMouseEnter={(e) => { 
                     const target = e.currentTarget as HTMLElement;
@@ -867,7 +870,7 @@ const SobreNosotros: React.FC = () => {
                   </div>
                   <div style={{
                     fontSize: '0.95rem',
-                    color: '#f3f4f6'
+                    color: theme === 'dark' ? '#f3f4f6' : '#1f2937'
                   }}>
                     {logro.texto}
                   </div>
@@ -954,7 +957,7 @@ const SobreNosotros: React.FC = () => {
                 fontSize: '2.8rem',
                 fontWeight: '700',
                 textAlign: 'center',
-                color: '#fff',
+                color: theme === 'dark' ? '#fff' : '#1f2937',
                 marginBottom: '16px',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
@@ -968,7 +971,7 @@ const SobreNosotros: React.FC = () => {
               style={{
                 textAlign: 'center',
                 fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                 marginBottom: '25px', // Reducido de 40px
                 maxWidth: '600px',
                 margin: '0 auto 25px'
@@ -1000,7 +1003,7 @@ const SobreNosotros: React.FC = () => {
                 fontSize: '2.8rem',
                 fontWeight: '700',
                 textAlign: 'center',
-                color: '#fff',
+                color: theme === 'dark' ? '#fff' : '#1f2937',
                 marginBottom: '16px',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
@@ -1014,7 +1017,7 @@ const SobreNosotros: React.FC = () => {
               style={{
                 textAlign: 'center',
                 fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                 marginBottom: '25px', // Reducido de 40px
                 maxWidth: '600px',
                 margin: '0 auto 25px'
@@ -1046,7 +1049,7 @@ const SobreNosotros: React.FC = () => {
                 fontSize: '2.8rem',
                 fontWeight: '700',
                 textAlign: 'center',
-                color: '#fff',
+                color: theme === 'dark' ? '#fff' : '#1f2937',
                 marginBottom: '25px', // Reducido de 40px
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
@@ -1125,8 +1128,8 @@ const SobreNosotros: React.FC = () => {
                         <h3
                           style={{
                             fontSize: '2.2rem',
-                            fontWeight: '800',
-                            color: '#f3f4f6',
+                          fontWeight: '800',
+                          color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                             marginBottom: '12px'
                           }}
                         >
@@ -1146,10 +1149,10 @@ const SobreNosotros: React.FC = () => {
 
                         <p
                           style={{
-                            color: '#cbd5e1',
-                            fontSize: '1rem',
-                            lineHeight: 1.6,
-                            margin: 0
+                            color: theme === 'dark' ? '#cbd5e1' : '#4b5563',
+                          fontSize: '1rem',
+                          lineHeight: 1.6,
+                          margin: 0
                           }}
                         >
                           {miembro.descripcion}
@@ -1159,7 +1162,7 @@ const SobreNosotros: React.FC = () => {
                       {/* Columna derecha: Carrusel de certificados */}
                       <div>
                         <h4 style={{
-                          color: '#f3f4f6',
+                          color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                           fontSize: '1.3rem',
                           fontWeight: '700',
                           marginBottom: '16px',

@@ -11,6 +11,7 @@ import {
   Calendar
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 type Certificacion = {
   id: number;
@@ -35,6 +36,7 @@ type Reconocimiento = {
 };
 
 const Avales = () => {
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [showMoreCerts, setShowMoreCerts] = useState(false);
@@ -171,12 +173,12 @@ const Avales = () => {
         <div
           className="card-gloss"
           style={{
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '24px',
             padding: '32px',
             boxShadow: isHovered 
               ? `0 25px 50px ${cert.color}20, 0 0 0 1px ${cert.color}40`
-              : '0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+              : theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)' : '0 10px 28px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(209, 160, 42, 0.25)',
             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
             position: 'relative',
@@ -276,7 +278,7 @@ const Avales = () => {
                 style={{
                   fontSize: '1.4rem',
                   fontWeight: '700',
-                  color: '#f3f4f6',
+                  color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                   marginBottom: '8px',
                   lineHeight: 1.2
                 }}
@@ -301,7 +303,7 @@ const Avales = () => {
           <p
             style={{
               fontSize: '1rem',
-              color: 'rgba(255, 255, 255, 0.75)',
+              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(31, 41, 55, 0.75)',
               marginBottom: '20px',
               lineHeight: 1.6
             }}
@@ -315,7 +317,7 @@ const Avales = () => {
               <h4 style={{
                 fontSize: '0.9rem',
                 fontWeight: '600',
-                color: '#f3f4f6',
+                color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                 marginBottom: '12px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
@@ -335,7 +337,7 @@ const Avales = () => {
                     alignItems: 'center',
                     gap: '10px',
                     fontSize: '0.9rem',
-                    color: 'rgba(255, 255, 255, 0.85)'
+                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.85)'
                   }}>
                     <CheckCircle size={14} color={cert.color} />
                     {detalle}
@@ -360,7 +362,7 @@ const Avales = () => {
             <div>
               <div style={{ 
                 fontSize: '0.8rem', 
-                color: '#cbd5e1',
+                color: theme === 'dark' ? '#cbd5e1' : '#6b7280',
                 marginBottom: '4px',
                 fontWeight: '500'
               }}>
@@ -368,7 +370,7 @@ const Avales = () => {
               </div>
               <div style={{ 
                 fontWeight: '600', 
-                color: '#e5e7eb',
+                color: theme === 'dark' ? '#e5e7eb' : '#374151',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -380,7 +382,7 @@ const Avales = () => {
             <div>
               <div style={{ 
                 fontSize: '0.8rem', 
-                color: '#cbd5e1',
+                color: theme === 'dark' ? '#cbd5e1' : '#6b7280',
                 marginBottom: '4px',
                 fontWeight: '500'
               }}>
@@ -388,7 +390,7 @@ const Avales = () => {
               </div>
               <div style={{ 
                 fontWeight: '600', 
-                color: '#e5e7eb',
+                color: theme === 'dark' ? '#e5e7eb' : '#374151',
                 fontSize: '0.9rem'
               }}>
                 {cert.documento}
@@ -545,7 +547,9 @@ const Avales = () => {
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          background: theme === 'dark'
+            ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '110px',
@@ -631,7 +635,7 @@ const Avales = () => {
             <p
               style={{
                 fontSize: '1.4rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 maxWidth: '800px',
                 margin: '0 auto 16px',
                 lineHeight: 1.6
@@ -661,7 +665,7 @@ const Avales = () => {
                 }}>
                   <Award size={18} color="#000" />
                 </div>
-                <h3 style={{ margin: 0, color: '#e5e7eb', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
+                <h3 style={{ margin: 0, color: theme === 'dark' ? '#e5e7eb' : '#374151', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
               </div>
 
               <div
@@ -685,7 +689,7 @@ const Avales = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      color: 'rgba(255,255,255,0.92)',
+                      color: theme === 'dark' ? 'rgba(255,255,255,0.92)' : 'rgba(31, 41, 55, 0.92)',
                       fontSize: '0.95rem',
                       padding: '10px 12px',
                       borderRadius: '12px',
@@ -828,10 +832,10 @@ const Avales = () => {
               >
                 Respaldo Gubernamental
               </h2>
-              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: theme === 'dark' ? '#fff' : '#1f2937', marginBottom: '20px' }}>
                 Ministerio del Trabajo + SENESCYT
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.9)', maxWidth: 800, margin: '0 auto 24px', lineHeight: 1.6 }}>
+              <p style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)', maxWidth: 800, margin: '0 auto 24px', lineHeight: 1.6 }}>
                 Doble aval gubernamental: certificación laboral del Ministerio del Trabajo y reconocimiento educativo de SENESCYT.
               </p>
 
@@ -861,7 +865,7 @@ const Avales = () => {
                 fontSize: '2.8rem',
                 fontWeight: '700',
                 textAlign: 'center',
-                color: '#fff',
+                color: theme === 'dark' ? '#fff' : '#1f2937',
                 marginBottom: '16px',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
@@ -875,7 +879,7 @@ const Avales = () => {
               style={{
                 textAlign: 'center',
                 fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                 marginBottom: '60px',
                 maxWidth: '600px',
                 margin: '0 auto 60px'
@@ -893,12 +897,12 @@ const Avales = () => {
                 <div
                   key={index}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
+                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)',
                     borderRadius: '20px',
                     padding: '28px',
                     backdropFilter: 'blur(14px)',
                     border: '1px solid rgba(251, 191, 36, 0.25)',
-                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+                    boxShadow: theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0, 0, 0, 0.12)',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
                     transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -909,12 +913,12 @@ const Avales = () => {
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLDivElement;
                     el.style.transform = 'translateY(-5px) scale(1.02)';
-                    el.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.5)';
+                    el.style.boxShadow = theme === 'dark' ? '0 25px 50px rgba(0, 0, 0, 0.5)' : '0 15px 35px rgba(0, 0, 0, 0.15)';
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLDivElement;
                     el.style.transform = 'translateY(0) scale(1)';
-                    el.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.4)';
+                    el.style.boxShadow = theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0, 0, 0, 0.12)';
                   }}
                 >
                   <div
@@ -942,7 +946,7 @@ const Avales = () => {
                       style={{
                         fontSize: '1.3rem',
                         fontWeight: '700',
-                        color: '#f3f4f6',
+                        color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                         marginBottom: '8px',
                         lineHeight: 1.3
                       }}
@@ -963,7 +967,7 @@ const Avales = () => {
                     
                     <p
                       style={{
-                        color: 'rgba(255, 255, 255, 0.75)',
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(31, 41, 55, 0.75)',
                         fontSize: '0.95rem',
                         lineHeight: 1.5,
                         margin: 0
@@ -1026,7 +1030,7 @@ const Avales = () => {
             <p
               style={{
                 fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 marginBottom: '32px',
                 maxWidth: '600px',
                 margin: '0 auto 32px',
@@ -1077,8 +1081,8 @@ const Avales = () => {
               <a
                 href="/contactenos"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: '#fff',
+                  background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
                   padding: '16px 32px',
                   borderRadius: '50px',
                   textDecoration: 'none',
@@ -1099,7 +1103,7 @@ const Avales = () => {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.background = 'rgba(255, 255, 255, 0.1)';
+                  el.style.background = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)';
                   el.style.borderColor = 'rgba(251, 191, 36, 0.3)';
                   el.style.transform = 'translateY(0)';
                 }}

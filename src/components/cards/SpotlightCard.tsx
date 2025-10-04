@@ -1,4 +1,5 @@
-import React, { useRef, CSSProperties } from "react";
+﻿import React, { useRef, CSSProperties } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import "./SpotlightCard.css";
 
 interface SpotlightCardProps {
@@ -14,6 +15,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   spotlightColor = "rgba(255, 255, 255, 0.25)",
   style 
 }) => {
+  const { theme } = useTheme();
   const divRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -28,12 +30,18 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
     divRef.current.style.setProperty("--spotlight-color", spotlightColor);
   };
 
+  const cardStyle: CSSProperties = {
+    backgroundColor: theme === 'dark' ? '#111' : '#ffffff',
+    borderColor: theme === 'dark' ? '#222' : 'rgba(209, 160, 42, 0.3)',
+    ...style
+  };
+
   return (
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
       className={`card-spotlight ${className}`}
-      style={style}
+      style={cardStyle}
     >
       {children}
     </div>

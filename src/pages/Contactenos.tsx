@@ -14,8 +14,10 @@ import {
 import Footer from '../components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { useTheme } from '../context/ThemeContext';
 
 const Contactenos = () => {
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
@@ -198,7 +200,9 @@ const Contactenos = () => {
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          background: theme === 'dark'
+            ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '110px',
@@ -285,7 +289,7 @@ const Contactenos = () => {
             <p
               style={{
                 fontSize: '1.4rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 maxWidth: '700px',
                 margin: '0 auto',
                 lineHeight: 1.6
@@ -326,12 +330,14 @@ const Contactenos = () => {
             >
               <div
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
+                  background: theme === 'dark'
+                    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+                    : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '24px',
                   padding: '40px',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(251, 191, 36, 0.15)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                  border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
+                  boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
                   display: 'flex',
                   flexDirection: 'column',
                   flex: 1,
@@ -375,7 +381,7 @@ const Contactenos = () => {
                     </h2>
                     <p
                       style={{
-                        color: '#d1d5db',
+                        color: theme === 'dark' ? '#d1d5db' : '#4b5563',
                         fontSize: '0.95rem',
                         margin: 0
                       }}
@@ -428,7 +434,7 @@ const Contactenos = () => {
                           display: 'block',
                           marginBottom: '8px',
                           fontWeight: '600',
-                          color: '#f3f4f6'
+                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
                         Nombre Completo *
@@ -442,12 +448,12 @@ const Contactenos = () => {
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '1px solid rgba(251, 191, 36, 0.25)',
+                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#111827'
                         }}
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
@@ -460,7 +466,7 @@ const Contactenos = () => {
                           display: 'block',
                           marginBottom: '8px',
                           fontWeight: '600',
-                          color: '#f3f4f6'
+                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
                         Teléfono *
@@ -474,12 +480,12 @@ const Contactenos = () => {
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '1px solid rgba(251, 191, 36, 0.25)',
+                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#111827'
                         }}
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
@@ -493,7 +499,7 @@ const Contactenos = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#f3f4f6'
+                        color: theme === 'dark' ? '#f3f4f6' : '#374151'
                       }}
                     >
                       Email *
@@ -507,11 +513,11 @@ const Contactenos = () => {
                       style={{
                         width: '100%',
                         padding: '12px 16px',
-                        border: '1px solid rgba(251, 191, 36, 0.25)',
+                        border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                         borderRadius: '12px',
                         fontSize: '1rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
-                        background: 'rgba(0, 0, 0, 0.4)',
+                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         color: '#fff'
                       }}
                       onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
@@ -534,7 +540,7 @@ const Contactenos = () => {
                           display: 'block',
                           marginBottom: '8px',
                           fontWeight: '600',
-                          color: '#f3f4f6'
+                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
                         Curso de Interés
@@ -546,12 +552,12 @@ const Contactenos = () => {
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '1px solid rgba(251, 191, 36, 0.25)',
+                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#111827'
                         }}
                         onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
@@ -569,7 +575,7 @@ const Contactenos = () => {
                           display: 'block',
                           marginBottom: '8px',
                           fontWeight: '600',
-                          color: '#f3f4f6'
+                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
                         Horario Preferido
@@ -581,12 +587,12 @@ const Contactenos = () => {
                         style={{
                           width: '100%',
                           padding: '12px 16px',
-                          border: '1px solid rgba(251, 191, 36, 0.25)',
+                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#111827'
                         }}
                         onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
@@ -605,7 +611,7 @@ const Contactenos = () => {
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#f3f4f6'
+                        color: theme === 'dark' ? '#f3f4f6' : '#374151'
                       }}
                     >
                       Mensaje
@@ -619,11 +625,11 @@ const Contactenos = () => {
                       style={{
                         width: '100%',
                         padding: '12px 16px',
-                        border: '1px solid rgba(251, 191, 36, 0.25)',
+                        border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                         borderRadius: '12px',
                         fontSize: '1rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
-                        background: 'rgba(0, 0, 0, 0.4)',
+                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         resize: 'vertical',
                         fontFamily: 'inherit',
                         color: '#fff'
@@ -685,12 +691,14 @@ const Contactenos = () => {
               {/* Google Maps Real */}
               <div
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
+                  background: theme === 'dark'
+                    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+                    : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '24px',
                   padding: '32px',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(251, 191, 36, 0.15)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                  border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
+                  boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
                   display: 'flex',
                   flexDirection: 'column',
                   flex: 1,
@@ -754,8 +762,8 @@ const Contactenos = () => {
                     borderRadius: '16px',
                     marginBottom: '20px',
                     overflow: 'hidden',
-                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)'
+                    boxShadow: theme === 'dark' ? '0 8px 24px rgba(0, 0, 0, 0.4)' : '0 6px 16px rgba(0,0,0,0.12)',
+                    border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.2)' : '1px solid rgba(209, 160, 42, 0.25)'
                   }}
                   className="map-embed"
                 >

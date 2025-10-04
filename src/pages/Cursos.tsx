@@ -16,6 +16,7 @@ import {
 import Footer from '../components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { useTheme } from '../context/ThemeContext';
 
 type Curso = {
   id: number;
@@ -142,6 +143,7 @@ const cursosData: Curso[] = [
 ];
 
 const Cursos = () => {
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
@@ -191,11 +193,11 @@ const Cursos = () => {
         <div
           className="curso-card"
           style={{
-            background: '#0b0b0b',
+            background: theme === 'dark' ? '#0b0b0b' : '#ffffff',
             borderRadius: '24px',
             boxShadow: isHovered
               ? `0 18px 36px rgba(0,0,0,0.35), 0 0 0 1px ${curso.color}22, 0 6px 24px rgba(251,191,36,0.12)`
-              : '0 12px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)',
+              : theme === 'dark' ? '0 12px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)' : '0 8px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(209, 160, 42, 0.15)',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
@@ -203,7 +205,7 @@ const Cursos = () => {
             transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
             position: 'relative',
             height: '460px',
-            border: '1px solid #222',
+            border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.25)',
             willChange: 'transform, box-shadow'
           }}
         >
@@ -287,7 +289,7 @@ const Cursos = () => {
           <div
             style={{
               position: 'relative',
-              background: '#0b0b0b',
+              background: theme === 'dark' ? '#0b0b0b' : '#ffffff',
               width: '100%',
               padding: '22px 24px',
               marginTop: isHovered ? -68 : -10,
@@ -301,7 +303,7 @@ const Cursos = () => {
                 style={{
                   fontSize: '1.4rem',
                   fontWeight: 800,
-                  color: 'rgba(255,255,255,0.98)',
+                  color: theme === 'dark' ? 'rgba(255,255,255,0.98)' : 'rgba(31, 41, 55, 0.98)',
                   margin: 0,
                   paddingBottom: 6,
                   lineHeight: 1.25
@@ -325,7 +327,7 @@ const Cursos = () => {
               <p
                 style={{
                   fontSize: '0.98rem',
-                  color: 'rgba(255,255,255,0.78)',
+                  color: theme === 'dark' ? 'rgba(255,255,255,0.78)' : 'rgba(31, 41, 55, 0.78)',
                   lineHeight: 1.6,
                   margin: 0,
                   overflow: 'hidden',
@@ -346,26 +348,26 @@ const Cursos = () => {
                   gap: 12,
                   marginTop: 14,
                   padding: '12px 14px',
-                  background: '#151515',
+                  background: theme === 'dark' ? '#151515' : '#f9fafb',
                   borderRadius: 14,
-                  border: '1px solid #222'
+                  border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.2)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={16} color="rgba(255,255,255,0.75)" />
-                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
                     {curso.duracion}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Users size={16} color="rgba(255,255,255,0.75)" />
-                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
                     {curso.estudiantes}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
                     {curso.rating}
                   </span>
                 </div>
@@ -507,7 +509,9 @@ const Cursos = () => {
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+          background: theme === 'dark'
+            ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
           paddingTop: '168px',
@@ -572,7 +576,7 @@ const Cursos = () => {
                 justifyContent: 'center',
                 gap: '12px',
                 fontSize: '1.4rem',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 marginBottom: '16px'
               }}
             >
@@ -582,7 +586,7 @@ const Cursos = () => {
             <p
               style={{
                 fontSize: '1.1rem',
-                color: 'rgba(255, 255, 255, 0.6)',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                 maxWidth: '600px',
                 margin: '0 auto 32px',
                 lineHeight: 1.6
@@ -627,11 +631,11 @@ const Cursos = () => {
           <div
             className="proximamente-card"
             style={{
-              background: '#0d0d0d',
+              background: theme === 'dark' ? '#0d0d0d' : '#ffffff',
               borderRadius: '24px',
               padding: '20px 18px',
               textAlign: 'center',
-              border: '1px solid #222',
+              border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.25)',
               position: 'relative',
               overflow: 'hidden',
               transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
@@ -696,7 +700,7 @@ const Cursos = () => {
                 style={{
                   fontSize: '1.4rem',
                   fontWeight: '700',
-                  color: '#fff',
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
                   marginBottom: '12px'
                 }}
               >
@@ -707,7 +711,7 @@ const Cursos = () => {
                 className="proximamente-desc"
                 style={{
                   fontSize: '1rem',
-                  color: 'rgba(255, 255, 255, 0.8)',
+                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                   maxWidth: '680px',
                   margin: '0 auto 20px',
                   lineHeight: 1.55
@@ -732,9 +736,9 @@ const Cursos = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '10px 14px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
                     borderRadius: '25px',
-                    color: '#fff',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
                     fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
@@ -748,9 +752,9 @@ const Cursos = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '10px 14px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
                     borderRadius: '25px',
-                    color: '#fff',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
                     fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
@@ -764,9 +768,9 @@ const Cursos = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '10px 14px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
                     borderRadius: '25px',
-                    color: '#fff',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
                     fontSize: '0.95rem',
                     fontWeight: '600'
                   }}
@@ -814,7 +818,7 @@ const Cursos = () => {
               <p
                 style={{
                   fontSize: '0.85rem',
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                   marginTop: '12px',
                   fontStyle: 'italic'
                 }}

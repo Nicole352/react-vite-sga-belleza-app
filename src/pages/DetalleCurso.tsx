@@ -16,6 +16,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 // Backend API base
 const API_BASE = 'http://localhost:3000/api';
@@ -344,6 +345,7 @@ const detallesCursos: DetallesCursos = {
 };
 
 const DetalleCurso: React.FC = () => {
+  const { theme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
@@ -430,11 +432,11 @@ const DetalleCurso: React.FC = () => {
     const variants: Record<string, React.CSSProperties> = {
       default: {
         ...baseStyle,
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+        background: theme === 'dark' ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)' : 'rgba(255, 255, 255, 0.97)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(251, 191, 36, 0.2)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(251, 191, 36, 0.1)',
-        color: '#fff'
+        boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(251, 191, 36, 0.1)' : '0 10px 28px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(209, 160, 42, 0.2)',
+        color: theme === 'dark' ? '#fff' : '#1f2937'
       },
       gold: {
         ...baseStyle,
@@ -445,19 +447,19 @@ const DetalleCurso: React.FC = () => {
       },
       glass: {
         ...baseStyle,
-        background: 'rgba(255, 255, 255, 0.1)',
+        background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-        color: '#fff'
+        boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 10px 28px rgba(0, 0, 0, 0.12)',
+        color: theme === 'dark' ? '#fff' : '#1f2937'
       },
       premium: {
         ...baseStyle,
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+        background: theme === 'dark' ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)' : 'rgba(255, 255, 255, 0.97)',
         backdropFilter: 'blur(20px)',
         border: '2px solid #fbbf24',
         boxShadow: '0 20px 40px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-        color: '#fff'
+        color: theme === 'dark' ? '#fff' : '#1f2937'
       }
     };
 
@@ -571,7 +573,7 @@ const DetalleCurso: React.FC = () => {
       },
       secondary: {
         ...baseStyle,
-        background: 'rgba(255, 255, 255, 0.1)',
+        background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
         color: '#fbbf24',
         border: '2px solid #fbbf24',
         backdropFilter: 'blur(10px)'
@@ -615,7 +617,9 @@ const DetalleCurso: React.FC = () => {
         textAlign: 'center', 
         color: '#fbbf24',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -804,7 +808,9 @@ const DetalleCurso: React.FC = () => {
       
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
@@ -837,7 +843,7 @@ const DetalleCurso: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              background: 'rgba(0,0,0,0.8)',
+              background: theme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.95)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: '50px',
               padding: '12px 24px',
@@ -918,7 +924,7 @@ const DetalleCurso: React.FC = () => {
                 {curso.titulo}
               </h1>
               <p className="header-description" style={{ 
-                color: 'rgba(255, 255, 255, 0.8)', 
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', 
                 fontSize: '1.3rem', 
                 marginBottom: 24,
                 lineHeight: 1.6
@@ -939,11 +945,11 @@ const DetalleCurso: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Users size={20} color="#fff" />
-                  <span style={{ color: '#fff' }}>{curso.estudiantes} estudiantes</span>
+                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>{curso.estudiantes} estudiantes</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Award size={20} color="#fbbf24" />
-                  <span style={{ color: '#fff' }}>{curso.certificacion}</span>
+                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>{curso.certificacion}</span>
                 </div>
               </div>
             </div>
@@ -971,10 +977,10 @@ const DetalleCurso: React.FC = () => {
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
                     <Calendar size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: '#fff', fontSize: '1.2rem' }}>
+                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1.2rem' }}>
                       {curso.duracion}
                     </div>
-                    <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>Duración total</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.9rem' }}>Duración total</div>
                   </div>
                   <div className="duration-card" style={{
                     padding: '20px',
@@ -983,13 +989,13 @@ const DetalleCurso: React.FC = () => {
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
                     <BookOpen size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: '#fff', fontSize: '1.2rem' }}>
+                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1.2rem' }}>
                       Modalidad Mixta
                     </div>
-                    <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>Presencial + Virtual</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.9rem' }}>Presencial + Virtual</div>
                   </div>
                 </div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                <p style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '1.1rem', lineHeight: 1.6 }}>
                   Nuestro programa está diseñado para ofrecerte una experiencia de aprendizaje completa 
                   y flexible, combinando la práctica presencial con recursos digitales de vanguardia.
                 </p>
@@ -1132,7 +1138,7 @@ const DetalleCurso: React.FC = () => {
                     <Play size={16} color="#fbbf24" />
                   </div>
                   <h3 style={{ 
-                    color: '#fff', 
+                    color: theme === 'dark' ? '#fff' : '#1f2937', 
                     fontSize: '1.2rem', 
                     fontWeight: '600',
                     margin: 0,
@@ -1196,7 +1202,7 @@ const DetalleCurso: React.FC = () => {
                     Oferta Especial {idx + 1}
                   </h4>
                   <p style={{ 
-                    color: 'rgba(255, 255, 255, 0.9)', 
+                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.9)', 
                     fontSize: '1.1rem',
                     margin: 0,
                     lineHeight: 1.5
@@ -1221,7 +1227,7 @@ const DetalleCurso: React.FC = () => {
                 {curso.precio}
               </h3>
               <p style={{ 
-                color: 'rgba(255, 255, 255, 0.8)', 
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', 
                 fontSize: '1rem',
                 margin: 0
               }}>

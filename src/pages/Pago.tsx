@@ -60,6 +60,7 @@ import {
   IdCard
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 // Backend API base (sin proxy de Vite)
 const API_BASE = 'http://localhost:3000/api';
@@ -123,6 +124,7 @@ const detallesCursos: DetallesCursos = {
 };
 
 const Pago: React.FC = () => {
+  const { theme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
@@ -410,7 +412,9 @@ const Pago: React.FC = () => {
         textAlign: 'center',
         color: '#fbbf24',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)'
       }}>
         <h2>Curso no encontrado</h2>
         <Link to="/cursos" style={{
@@ -805,7 +809,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         </div>
         <div>
           <h3 style={{
-            color: isSelected ? '#fbbf24' : '#fff',
+            color: isSelected ? '#fbbf24' : (theme === 'dark' ? '#fff' : '#1f2937'),
             fontSize: '1.3rem',
             fontWeight: '700',
             margin: 0
@@ -815,7 +819,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         </div>
       </div>
       <p style={{
-        color: 'rgba(255, 255, 255, 0.7)',
+        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
         fontSize: '1rem',
         margin: 0,
         lineHeight: 1.5
@@ -829,14 +833,18 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         paddingTop: 110
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.92), rgba(26,26,26,0.92))',
+          background: theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.92), rgba(26,26,26,0.92))'
+            : 'rgba(255, 255, 255, 0.97)',
           borderRadius: '32px',
           padding: '60px',
           textAlign: 'center',
@@ -862,7 +870,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           <h2 style={{
             fontSize: '2rem',
             fontWeight: '800',
-            color: '#fff',
+            color: theme === 'dark' ? '#fff' : '#1f2937',
             marginBottom: '16px'
           }}>
             ¡Pago Procesado!
@@ -878,7 +886,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             </p>
           )}
           <p style={{
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
             fontSize: '1.1rem',
             marginBottom: '32px',
             lineHeight: 1.6
@@ -1292,7 +1300,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        background: theme === 'dark'
+          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
         paddingTop: 110,
@@ -1330,7 +1340,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              background: 'rgba(0,0,0,0.8)',
+              background: theme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.95)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: '50px',
               padding: '12px 24px',
@@ -1384,7 +1394,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
               {/* Card del curso */}
               <div className="curso-card" style={{
-                background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
+                background: theme === 'dark'
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                  : 'rgba(255, 255, 255, 0.97)',
                 borderRadius: '24px',
                 padding: '32px',
                 marginBottom: '40px',
@@ -1409,7 +1421,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     <h3 style={{
                       fontSize: '1.5rem',
                       fontWeight: '700',
-                      color: '#fff',
+                      color: theme === 'dark' ? '#fff' : '#1f2937',
                       marginBottom: '8px'
                     }}>
                       {curso.titulo}
@@ -1422,7 +1434,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Calendar size={16} color="#fbbf24" />
-                        <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{curso.duracion}</span>
+                        <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)' }}>{curso.duracion}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {notFoundOrNoCourse ? (
@@ -1508,10 +1520,10 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 {/* Información específica por curso */}
                 {cursoKey === 'unas' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
                       Técnica de Uñas - Modalidad por Clases
                     </h4>
-                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
                       <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
                       <li><strong>Total de clases:</strong> 16 clases</li>
                       <li><strong>Clases restantes:</strong> $15.40 USD cada una (15 clases)</li>
@@ -1523,10 +1535,10 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 
                 {cursoKey === 'lashista' && (
                   <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
                       Lashista Profesional - Modalidad por Clases
                     </h4>
-                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
                       <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
                       <li><strong>Total de clases:</strong> 6 clases</li>
                       <li><strong>Clases restantes:</strong> $26 USD cada una (5 clases)</li>
@@ -1538,10 +1550,10 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 
                 {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
                   <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
                       {curso.titulo} - Modalidad Mensual
                     </h4>
-                    <ul className="modalidad-list" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
                       <li><strong>Modalidad:</strong> Pago mensual únicamente</li>
                       <li><strong>Valor mensual:</strong> $90 USD cada mes</li>
                       <li><strong>Duración:</strong> {cursoKey === 'cosmiatria' ? '7 meses' : cursoKey === 'maquillaje' ? '6 meses' : '12 meses'}</li>
@@ -1593,7 +1605,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   </span>
                 </div>
                 <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
+                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                   fontSize: '0.9rem',
                   margin: 0,
                   lineHeight: 1.5
@@ -1622,7 +1634,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   alignItems: 'center',
                   justifyContent: 'center',
                   textAlign: 'center',
-                  color: '#fff',
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
                   fontWeight: 800,
                   letterSpacing: 0.5
                 }}>
@@ -1633,7 +1645,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 <fieldset disabled={isBlocked} style={{ border: 'none', padding: 0, margin: 0 }}>
                 {/* Información personal */}
                 <div className="form-section" style={{
-                  background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
+                  background: theme === 'dark'
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                  : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '24px',
                   padding: '32px',
                   marginBottom: '32px',
@@ -1644,7 +1658,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   <h3 className="section-title" style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#fff',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
                     marginBottom: '24px',
                     display: 'flex',
                     alignItems: 'center',
@@ -1658,7 +1672,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   {/* Tipo de documento - control segmentado estilizado (compacto) */}
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ color: '#fff', fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem' }}>Tipo de documento</span>
+                      <span style={{ fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem', color: theme === 'dark' ? '#fff' : '#1f2937' }}>Tipo de documento</span>
                     </div>
                     <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
                       display: 'grid',
@@ -1780,7 +1794,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
                         {formData.tipoDocumento === 'ecuatoriano' ? (
                           <>
-                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
                               Cédula *
                             </label>
                             <input
@@ -1821,8 +1835,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 borderRadius: '12px',
                                 fontSize: '1rem',
                                 transition: 'border-color 0.3s ease',
-                                background: 'rgba(0, 0, 0, 0.4)',
-                                color: '#fff'
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
                               }}
                               onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                               onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -1836,7 +1850,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           </>
                         ) : (
                           <>
-                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
                               Pasaporte *
                             </label>
                             <input
@@ -1865,8 +1879,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 borderRadius: '12px',
                                 fontSize: '1rem',
                                 transition: 'border-color 0.3s ease',
-                                background: 'rgba(0, 0, 0, 0.4)',
-                                color: '#fff'
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
                               }}
                               onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                               onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -1890,7 +1904,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         animation: 'scaleFade 1s ease-in-out'
                       }}>
                         <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
-                          <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                          <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
                             Nombres completos *
                           </label>
                           <input
@@ -1913,8 +1927,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               borderRadius: '12px',
                               fontSize: '1rem',
                               transition: 'border-color 0.3s ease',
-                              background: 'rgba(0, 0, 0, 0.4)',
-                              color: '#fff'
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
                             }}
                             onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                             onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -1927,7 +1941,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           )}
                         </div>
                         <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '80ms' }}>
-                          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#fff' }}>
+                          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
                             Apellidos completos *
                           </label>
                           <input
@@ -1949,8 +1963,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               borderRadius: '12px',
                               fontSize: '1rem',
                               transition: 'border-color 0.3s ease',
-                              background: 'rgba(0, 0, 0, 0.4)',
-                              color: '#fff'
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
                             }}
                             onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                             onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -1970,7 +1984,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           display: 'block',
                           marginBottom: '8px',
                           fontWeight: '600',
-                          color: '#fff'
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}>
                           Fecha de Nacimiento *
                         </label>
@@ -2013,8 +2027,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             borderRadius: '12px',
                             fontSize: '1rem',
                             transition: 'border-color 0.3s ease',
-                            background: 'rgba(0, 0, 0, 0.4)',
-                            color: '#fff'
+                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
                           }}
                         />
                       </div>
@@ -2028,7 +2042,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       display: 'block',
                       marginBottom: '8px',
                       fontWeight: '600',
-                      color: '#fff'
+                      color: theme === 'dark' ? '#fff' : '#1f2937'
                     }}>
                       Dirección
                     </label>
@@ -2043,8 +2057,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         borderRadius: '12px',
                         fontSize: '1rem',
                         transition: 'border-color 0.3s ease',
-                        background: 'rgba(0, 0, 0, 0.4)',
-                        color: '#fff',
+                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
                         minHeight: '90px'
                       }}
                       onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
@@ -2065,7 +2079,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
                       }}>
                         Género *
                       </label>
@@ -2080,8 +2094,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}
                         onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -2098,7 +2112,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
                       }}>
                         Horario Preferido *
                       </label>
@@ -2113,8 +2127,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}
                         onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -2138,7 +2152,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
                       }}>
                         Email *
                       </label>
@@ -2163,8 +2177,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -2181,7 +2195,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
                       }}>
                         Teléfono *
                       </label>
@@ -2225,8 +2239,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff'
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                         onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
@@ -2245,7 +2259,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         display: 'block',
                         marginBottom: '8px',
                         fontWeight: '600',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
                       }}>
                         Monto a pagar (USD) *
                       </label>
@@ -2270,8 +2284,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           borderRadius: '12px',
                           fontSize: '1rem',
                           transition: 'border-color 0.3s ease',
-                          background: 'rgba(0, 0, 0, 0.4)',
-                          color: '#fff',
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                          color: theme === 'dark' ? '#fff' : '#1f2937',
                           fontWeight: '600'
                         }}
                         onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
@@ -2334,7 +2348,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       <h4 style={{
                         fontSize: '1.2rem',
                         fontWeight: '700',
-                        color: '#fff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
                         marginBottom: '20px',
                         display: 'flex',
                         alignItems: 'center',
@@ -2352,7 +2366,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           gap: '8px',
                           marginBottom: '12px',
                           fontWeight: '600',
-                          color: '#fff'
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
                         }}>
                           <IdCard size={18} color="#3b82f6" />
                           {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
@@ -2413,7 +2427,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 ¡Documento subido!
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.85rem',
                                 marginBottom: '12px'
                               }}>
@@ -2454,7 +2468,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <IdCard size={24} color="#3b82f6" />
                               </div>
                               <p style={{
-                                color: '#fff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
                                 fontWeight: '600',
                                 fontSize: '1rem',
                                 marginBottom: '6px'
@@ -2462,7 +2476,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.85rem',
                                 marginBottom: '12px'
                               }}>
@@ -2488,7 +2502,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             gap: '8px',
                             marginBottom: '12px',
                             fontWeight: '600',
-                            color: '#fff'
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
                           }}>
                             <FileText size={18} color="#3b82f6" />
                             Documento de Estatus Legal *
@@ -2510,7 +2524,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               📋 Documentos aceptados:
                             </p>
                             <ul style={{
-                              color: 'rgba(255, 255, 255, 0.8)',
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                               fontSize: '0.8rem',
                               margin: '8px 0 0 0',
                               paddingLeft: '16px'
@@ -2575,7 +2589,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   ¡Documento subido!
                                 </p>
                                 <p style={{
-                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                   fontSize: '0.85rem',
                                   marginBottom: '12px'
                                 }}>
@@ -2616,7 +2630,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   <FileText size={24} color="#3b82f6" />
                                 </div>
                                 <p style={{
-                                  color: '#fff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
                                   fontWeight: '600',
                                   fontSize: '1rem',
                                   marginBottom: '6px'
@@ -2624,7 +2638,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   Subir documento de estatus legal
                                 </p>
                                 <p style={{
-                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                   fontSize: '0.85rem',
                                   marginBottom: '12px'
                                 }}>
@@ -2648,7 +2662,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                 {/* Métodos de pago */}
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))',
+                  background: theme === 'dark'
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                  : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '24px',
                   padding: '32px',
                   marginBottom: '32px',
@@ -2659,7 +2675,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   <h3 className="section-title" style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#fff',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
                     marginBottom: '24px',
                     display: 'flex',
                     alignItems: 'center',
@@ -2719,7 +2735,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         Pagar con PayPhone
                       </h4>
                       <p style={{
-                        color: 'rgba(255, 255, 255, 0.8)',
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                         marginBottom: '16px',
                         lineHeight: 1.6
                       }}>
@@ -2743,7 +2759,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       </div>
                       <div style={{
                         background: '#1a365d',
-                        color: '#fff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
                         padding: '16px 24px',
                         borderRadius: '12px',
                         textAlign: 'center',
@@ -2784,7 +2800,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         <div style={{
                           width: '150px',
                           height: '150px',
-                          background: 'rgba(0, 0, 0, 0.6)',
+                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
                           borderRadius: '12px',
                           display: 'flex',
                           alignItems: 'center',
@@ -2796,25 +2812,25 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{
-                            background: 'rgba(0, 0, 0, 0.6)',
+                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
                             padding: '16px',
                             borderRadius: '12px',
                             marginBottom: '12px'
                           }}>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#fff' }}>Banco:</strong>
-                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
+                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
+                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
                             </div>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#fff' }}>Cuenta:</strong>
-                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
+                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
+                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
                             </div>
                             <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: '#fff' }}>Titular:</strong>
-                              <span style={{ color: 'rgba(255, 255, 255, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
+                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
                             </div>
                             <div>
-                              <strong style={{ color: '#fff' }}>Monto:</strong>
+                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
                               <span style={{ 
                                 color: '#fbbf24', 
                                 marginLeft: '8px',
@@ -2826,7 +2842,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             </div>
                           </div>
                           <p style={{
-                            color: 'rgba(255, 255, 255, 0.7)',
+                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                             fontSize: '0.9rem',
                             margin: 0,
                             fontStyle: 'italic'
@@ -2856,7 +2872,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <div>
                             <label style={{
                               display: 'block',
-                              color: 'rgba(255, 255, 255, 0.8)',
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                               fontSize: '0.9rem',
                               marginBottom: '8px',
                               fontWeight: '500'
@@ -2872,8 +2888,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 padding: '12px 16px',
                                 borderRadius: '12px',
                                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: 'rgba(0, 0, 0, 0.3)',
-                                color: '#fff',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
                                 fontSize: '1rem'
                               }}
                             >
@@ -2895,7 +2911,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <div>
                             <label style={{
                               display: 'block',
-                              color: 'rgba(255, 255, 255, 0.8)',
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                               fontSize: '0.9rem',
                               marginBottom: '8px',
                               fontWeight: '500'
@@ -2913,8 +2929,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 padding: '12px 16px',
                                 borderRadius: '12px',
                                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: 'rgba(0, 0, 0, 0.3)',
-                                color: '#fff',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
                                 fontSize: '1rem'
                               }}
                             />
@@ -2925,7 +2941,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         <div>
                           <label style={{
                             display: 'block',
-                            color: 'rgba(255, 255, 255, 0.8)',
+                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                             fontSize: '0.9rem',
                             marginBottom: '8px',
                             fontWeight: '500'
@@ -2950,8 +2966,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               padding: '12px 16px',
                               borderRadius: '12px',
                               border: '1px solid rgba(255, 255, 255, 0.2)',
-                              background: 'rgba(0, 0, 0, 0.3)',
-                              color: '#fff',
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                              color: theme === 'dark' ? '#fff' : '#1f2937',
                               fontSize: '1rem',
                               fontFamily: 'monospace'
                             }}
@@ -3032,7 +3048,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 ¡Archivo subido correctamente!
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -3073,7 +3089,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <FileImage size={30} color="#fbbf24" />
                               </div>
                               <p style={{
-                                color: '#fff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
                                 fontWeight: '600',
                                 fontSize: '1.1rem',
                                 marginBottom: '8px'
@@ -3081,7 +3097,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 Arrastra y suelta tu comprobante aquí
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -3120,7 +3136,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             </span>
                           </div>
                           <p style={{
-                            color: 'rgba(255, 255, 255, 0.7)',
+                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                             fontSize: '0.85rem',
                             margin: 0,
                             lineHeight: 1.4
@@ -3153,7 +3169,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         Pago en Efectivo
                       </h4>
                       <p style={{
-                        color: 'rgba(255, 255, 255, 0.8)',
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
                         marginBottom: '16px',
                         lineHeight: 1.6
                       }}>
@@ -3224,7 +3240,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 ¡Archivo subido correctamente!
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -3265,7 +3281,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <FileImage size={30} color="#fbbf24" />
                               </div>
                               <p style={{
-                                color: '#fff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
                                 fontWeight: '600',
                                 fontSize: '1.1rem',
                                 marginBottom: '8px'
@@ -3273,7 +3289,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 Arrastra y suelta tu comprobante aquí
                               </p>
                               <p style={{
-                                color: 'rgba(255, 255, 255, 0.7)',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
                                 fontSize: '0.9rem',
                                 marginBottom: '16px'
                               }}>
@@ -3296,8 +3312,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 {/* Alerta de validación al enviar */}
                 {submitAlert && (
                   <div style={{
-                    background:
-                      submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
+                    background: theme === 'dark'
+                      ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
+                      : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
                     border:
                       submitAlert.type === 'error' ? '1px solid rgba(239, 68, 68, 0.35)' : submitAlert.type === 'success' ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(59,130,246,0.35)',
                     borderRadius: 12,
@@ -3317,7 +3334,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           style={{ marginTop: '2px', flexShrink: 0 }}
                         />
                         <div style={{ 
-                          color: 'rgba(255,255,255,0.95)', 
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)', 
                           fontSize: '0.95rem', 
                           fontWeight: '500',
                           lineHeight: 1.6,
@@ -3331,9 +3348,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         type="button"
                         onClick={() => setSubmitAlert(null)}
                         style={{
-                          background: 'rgba(255,255,255,0.15)',
-                          border: '1px solid rgba(255,255,255,0.3)',
-                          color: 'rgba(255,255,255,0.9)',
+                          background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
+                          border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
                           borderRadius: 8,
                           padding: '10px 14px',
                           fontWeight: 600,
@@ -3343,8 +3360,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           flexShrink: 0,
                           transition: 'all 0.2s ease'
                         }}
-                        onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)'}
-                        onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)'}
+                        onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
+                        onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
                       >
                         Entendido
                       </button>
