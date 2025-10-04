@@ -378,12 +378,14 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             {cursosMatriculados.map((curso) => (
             <div
               key={curso.id_curso}
+              onClick={() => window.location.href = `/panel/estudiante/curso/${curso.id_curso}`}
               style={{
               padding: '24px',
               background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
               borderRadius: '16px',
               border: `1px solid ${theme.border}`,
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              cursor: 'pointer'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>

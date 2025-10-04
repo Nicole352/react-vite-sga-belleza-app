@@ -19,9 +19,9 @@ import RoleRedirect from './components/auth/RoleRedirect';
 
 const App: React.FC = () => {
   return (
-    <Router future={{ 
+    <Router future={{
       v7_startTransition: true,
-      v7_relativeSplatPath: true 
+      v7_relativeSplatPath: true
     }}>
       <div className="App">
         {/* Toaster global - Notificaciones profesionales */}
@@ -98,7 +98,7 @@ const App: React.FC = () => {
           <Route path="/contactenos" element={<PublicLayout><PaginaContactenos /></PublicLayout>} />
           <Route path="/detalle-curso" element={<PublicLayout><DetalleCurso /></PublicLayout>} />
           <Route path="/pago" element={<PublicLayout><Pago /></PublicLayout>} />
-          
+
           {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
           <Route
             path="/panel/superadmin"
@@ -120,15 +120,14 @@ const App: React.FC = () => {
           <Route
             path="/panel/administrativo"
             element={
-              <ProtectedRoute allowRoles={['administrativo','superadmin']}>
+              <ProtectedRoute allowRoles={['administrativo', 'superadmin']}>
                 <PanelAdministrativos />
               </ProtectedRoute>
             }
           />
           {/* Panel Estudiantes */}
           <Route
-            path="/panel/estudiante"
-            element={
+            path="/panel/estudiante/*" element={
               <ProtectedRoute allowRoles={['estudiante']}>
                 <PanelEstudiantes />
               </ProtectedRoute>
@@ -136,14 +135,14 @@ const App: React.FC = () => {
           />
           {/* Panel Docentes */}
           <Route
-            path="/panel/docente"
+            path="/panel/docente/*"
             element={
               <ProtectedRoute allowRoles={['docente']}>
                 <PanelDocentes />
               </ProtectedRoute>
             }
           />
-          
+
           {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
           {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
           <Route path="/dashboard/*" element={<RoleRedirect />} />

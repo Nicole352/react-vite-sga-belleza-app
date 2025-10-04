@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
   Users, 
@@ -43,6 +44,7 @@ interface CursoResumen {
 }
 
 const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
@@ -322,12 +324,28 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             {cursos.map((curso) => (
               <div
                 key={curso.id_curso}
+                onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
                 style={{
                   padding: '24px',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                   borderRadius: '16px',
                   border: `1px solid ${theme.border}`,
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease', 
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.borderColor = theme.accent;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = darkMode 
+                    ? '0 8px 25px rgba(0, 0, 0, 0.4)' 
+                    : '0 8px 25px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
+                  e.currentTarget.style.borderColor = theme.border;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>

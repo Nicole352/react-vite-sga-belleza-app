@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { BookOpen, Users, Calendar, User, Lock, Eye, EyeOff, CheckCircle2, BarChart3, Settings, Moon, Sun, Camera, Info, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -10,6 +10,7 @@ import MisCursos from './MisCursos';
 import MisEstudiantes from './MisEstudiantes';
 import MiHorario from './MiHorario';
 import MiPerfil from './MiPerfil';
+import DetalleCursoDocente from './DetalleCursoDocente';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -279,7 +280,10 @@ const PanelDocentes = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    navigate('/panel/docente');
+                  }}
                   style={{
                     width: '100%',
                     display: 'flex',
@@ -631,7 +635,7 @@ const PanelDocentes = () => {
             </div>
           </div>
 
-          {/* Contenido del Tab Activo */}
+          {/* Contenido del Tab Activo o Rutas */}
           <div style={{
             background: theme.contentBg,
             backdropFilter: 'blur(20px)',
@@ -641,11 +645,18 @@ const PanelDocentes = () => {
             minHeight: 'calc(100vh - 180px)',
             boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
           }}>
-            {activeTab === 'dashboard' && <DocenteDashboard darkMode={darkMode} />}
-            {activeTab === 'cursos' && <MisCursos darkMode={darkMode} />}
-            {activeTab === 'estudiantes' && <MisEstudiantes darkMode={darkMode} />}
-            {activeTab === 'horario' && <MiHorario darkMode={darkMode} />}
-            {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
+            <Routes>
+              <Route path="/" element={
+                <>
+                  {activeTab === 'dashboard' && <DocenteDashboard darkMode={darkMode} />}
+                  {activeTab === 'cursos' && <MisCursos darkMode={darkMode} />}
+                  {activeTab === 'estudiantes' && <MisEstudiantes darkMode={darkMode} />}
+                  {activeTab === 'horario' && <MiHorario darkMode={darkMode} />}
+                  {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
+                </>
+              } />
+              <Route path="/curso/:id" element={<DetalleCursoDocente darkMode={darkMode} />} />
+            </Routes>
           </div>
         </div>
       </div>

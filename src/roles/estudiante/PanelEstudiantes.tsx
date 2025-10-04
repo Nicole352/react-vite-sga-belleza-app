@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  BookOpen, UserCircle, Settings, Sun, Moon, Camera, Lock, Eye, EyeOff, CheckCircle, Info, CheckCircle2, LogOut
+import { useNavigate, Routes, Route } from 'react-router-dom';
+import { BookOpen, UserCircle, Settings, Sun, Moon, Camera, Lock, Eye, EyeOff, CheckCircle, Info, CheckCircle2, LogOut
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -10,6 +9,7 @@ import SchoolLogo from '../../components/SchoolLogo';
 import MiAula from './MiAula';
 import Servicios from './Servicios';
 import Perfil from './Perfil';
+import DetalleCursoEstudiante from './DetalleCursoEstudiante';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -674,9 +674,16 @@ const PanelEstudiantes = () => {
             position: 'relative',
             zIndex: 1
           }}>
-            {activeTab === 'mi-aula' && <MiAula darkMode={darkMode} />}
-            {activeTab === 'servicios' && <Servicios darkMode={darkMode} />}
-            {activeTab === 'perfil' && <Perfil darkMode={darkMode} />}
+            <Routes>
+              <Route index element={
+                <>
+                  {activeTab === 'mi-aula' && <MiAula darkMode={darkMode} />}
+                  {activeTab === 'servicios' && <Servicios darkMode={darkMode} />}
+                  {activeTab === 'perfil' && <Perfil darkMode={darkMode} />}
+                </>
+              } />
+              <Route path="curso/:id" element={<DetalleCursoEstudiante darkMode={darkMode} />} />
+            </Routes>
           </div>
         </div>
 
