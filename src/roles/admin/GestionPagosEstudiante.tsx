@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen } from 'lucide-react';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -63,6 +63,10 @@ const GestionPagosEstudiante = () => {
   // Estados para selectores por tarjeta
   const [selectedCurso, setSelectedCurso] = useState<{[key: string]: number}>({});
   const [selectedCuota, setSelectedCuota] = useState<{[key: string]: number}>({});
+
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadData();
@@ -280,15 +284,29 @@ const GestionPagosEstudiante = () => {
     }
   };
 
-  // Filtrar estudiantes
-  const estudiantesFiltrados = estudiantes.filter(est => {
-    const matchSearch = 
-      est.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      est.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      est.estudiante_cedula.includes(searchTerm);
+  // Filtrar y ordenar estudiantes
+  const estudiantesFiltrados = estudiantes
+    .filter(est => {
+      const matchSearch = 
+        est.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        est.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        est.estudiante_cedula.includes(searchTerm);
 
-    return matchSearch;
-  });
+      return matchSearch;
+    })
+    .sort((a, b) => {
+      // Ordenar por fecha de vencimiento más antigua primero (prioridad)
+      const pagoA = a.cursos[0]?.pagos[0];
+      const pagoB = b.cursos[0]?.pagos[0];
+      if (!pagoA || !pagoB) return 0;
+      const dateA = new Date(pagoA.fecha_vencimiento).getTime();
+      const dateB = new Date(pagoB.fecha_vencimiento).getTime();
+      return dateA - dateB;
+    });
+
+  // Paginación
+  const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage);
+  const paginatedEstudiantes = estudiantesFiltrados.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   
   // Obtener el pago seleccionado para un estudiante
   const getPagoSeleccionado = (cedula: string): Pago | null => {
@@ -396,7 +414,7 @@ const GestionPagosEstudiante = () => {
 
       {/* Lista de estudiantes - UNA TARJETA POR ESTUDIANTE */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {estudiantesFiltrados.map((estudiante) => {
+        {paginatedEstudiantes.map((estudiante) => {
           const cursoActual = getCursoSeleccionado(estudiante);
           const pago = getPagoSeleccionado(estudiante.estudiante_cedula);
           
@@ -1463,6 +1481,87 @@ const GestionPagosEstudiante = () => {
                 Cerrar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Paginación */}
+      {estudiantesFiltrados.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          marginTop: '24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '20px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {currentPage} de {totalPages} • Total: {estudiantesFiltrados.length} estudiantes
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: currentPage === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: currentPage === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
           </div>
         </div>
       )}

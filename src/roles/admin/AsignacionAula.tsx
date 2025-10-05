@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, CheckCircle2
+  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, CheckCircle2, Grid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -76,6 +76,11 @@ const AsignacionAula: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>('activa');
   const [saving, setSaving] = useState(false);
+  
+  // Estados para paginación y vista
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [page, setPage] = useState(1);
+  const limit = 5; // 5 asignaciones por página
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -164,6 +169,13 @@ const AsignacionAula: React.FC = () => {
                          asignacion.docente_apellidos.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  // Paginación
+  const totalCount = asignacionesFiltradas.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const asignacionesPaginadas = asignacionesFiltradas.slice(startIndex, endIndex);
 
   const handleCreateAsignacion = () => {
     setSelectedAsignacion(null);
@@ -303,6 +315,48 @@ const AsignacionAula: React.FC = () => {
                 ]}
               />
             </div>
+            {/* Toggle Vista */}
+            <div style={{ display: 'flex', gap: '0' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  background: viewMode === 'cards' ? '#f87171' : 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px 0 0 8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Grid size={16} /> Tarjetas
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  background: viewMode === 'table' ? '#f87171' : 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderLeft: 'none',
+                  borderRadius: '0 8px 8px 0',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <List size={16} /> Tabla
+              </button>
+            </div>
           </div>
           <button
             onClick={handleCreateAsignacion}
@@ -337,110 +391,495 @@ const AsignacionAula: React.FC = () => {
         </div>
       )}
 
-      {/* Lista de Asignaciones */}
-      {!loading && !error && (
-        <div style={{ display: 'grid', gap: '20px' }}>
-          {asignacionesFiltradas.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.7)' }}>
-              No se encontraron asignaciones
+      {/* Vista Cards - Tarjetas Compactas */}
+      {!loading && !error && viewMode === 'cards' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+          {asignacionesPaginadas.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.7)' }}>
+              <MapPin size={40} style={{ marginBottom: '12px', opacity: 0.5 }} />
+              <div style={{ fontSize: '1rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
             </div>
           ) : (
-            asignacionesFiltradas.map(asignacion => (
+            asignacionesPaginadas.map(asignacion => (
               <div key={asignacion.id_asignacion} style={{
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '20px', padding: '24px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '20px' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                      <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: 0 }}>
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(248, 113, 113, 0.2)',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(248, 113, 113, 0.3)';
+                e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.2)';
+              }}
+              >
+                {/* Header */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
+                  padding: '16px 20px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <MapPin size={18} color="#fff" />
+                    </div>
+                    <div>
+                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', margin: 0 }}>
                         {asignacion.aula_nombre}
                       </h3>
-                      <div style={{
-                        background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                        color: asignacion.estado === 'activa' ? '#10b981' : '#9ca3af',
-                        padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '600'
-                      }}>
-                        {asignacion.estado}
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Curso</div>
-                        <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600' }}>{asignacion.curso_nombre}</div>
-                      </div>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Docente</div>
-                        <div style={{ color: '#fff', fontSize: '0.9rem' }}>{asignacion.docente_nombres} {asignacion.docente_apellidos}</div>
-                      </div>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Horario</div>
-                        <div style={{ color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Clock size={14} />
-                          {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Período</div>
-                        <div style={{ color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Calendar size={14} />
-                          {formatearFecha(asignacion.fecha_inicio)} - {formatearFecha(asignacion.fecha_fin)}
-                        </div>
+                      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+                        {asignacion.codigo_aula}
                       </div>
                     </div>
                   </div>
-                  
-                  <button
-                    onClick={() => handleEditAsignacion(asignacion)}
-                    style={{
-                      padding: '8px', background: 'rgba(245, 158, 11, 0.2)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px',
-                      color: '#f59e0b', cursor: 'pointer'
-                    }}
-                  >
-                    <Edit size={16} />
-                  </button>
+                  <div style={{
+                    background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(156, 163, 175, 0.3)',
+                    color: '#fff',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    textTransform: 'uppercase'
+                  }}>
+                    {asignacion.estado}
+                  </div>
                 </div>
 
-                {/* Días y Ocupación */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '20px', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '8px' }}>Días de Clase</div>
+                {/* Contenido */}
+                <div style={{ padding: '16px 20px' }}>
+                  {/* Curso y Docente */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={12} />
+                      CURSO
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '600' }}>
+                      {asignacion.curso_nombre}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Users size={12} />
+                      DOCENTE
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
+                      {asignacion.docente_nombres} {asignacion.docente_apellidos}
+                    </div>
+                  </div>
+
+                  {/* Horario y Período */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Clock size={12} />
+                        HORARIO
+                      </div>
+                      <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: '600' }}>
+                        {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px' }}>
+                        PERÍODO
+                      </div>
+                      <div style={{ color: '#fff', fontSize: '0.75rem' }}>
+                        {formatearFecha(asignacion.fecha_inicio)}
+                      </div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
+                        {formatearFecha(asignacion.fecha_fin)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Días */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '6px' }}>
+                      DÍAS DE CLASE
+                    </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {asignacion.dias.split(',').map((dia: string, idx: number) => (
                         <div key={idx} style={{
-                          background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6',
-                          padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600'
+                          background: 'rgba(59, 130, 246, 0.2)',
+                          color: '#60a5fa',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.7rem',
+                          fontWeight: '600',
+                          border: '1px solid rgba(59, 130, 246, 0.3)'
                         }}>
-                          {dia}
+                          {dia.trim()}
                         </div>
                       ))}
                     </div>
                   </div>
-                  
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '8px' }}>Ocupación</div>
-                    <div style={{ 
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      color: getOcupacionColor(asignacion.estudiantes_matriculados, asignacion.capacidad_maxima),
-                      fontSize: '1.1rem', fontWeight: '700'
-                    }}>
-                      <Users size={18} />
-                      {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
+
+                  {/* Ocupación */}
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    marginBottom: '12px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: '600' }}>
+                        OCUPACIÓN
+                      </div>
+                      <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700' }}>
+                        {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
+                      </div>
                     </div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem',
-                      marginTop: '4px'
+                    <div style={{
+                      width: '100%',
+                      height: '6px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '10px',
+                      overflow: 'hidden'
                     }}>
+                      <div style={{
+                        width: `${asignacion.porcentaje_ocupacion}%`,
+                        height: '100%',
+                        background: asignacion.porcentaje_ocupacion > 80 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 
+                                   asignacion.porcentaje_ocupacion > 50 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 
+                                   'linear-gradient(90deg, #10b981, #059669)',
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginTop: '4px', textAlign: 'right' }}>
                       {asignacion.porcentaje_ocupacion}% ocupado
                     </div>
                   </div>
+
+                  {/* Botón */}
+                  <button
+                    onClick={() => handleEditAsignacion(asignacion)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      background: 'rgba(245, 158, 11, 0.2)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      borderRadius: '8px',
+                      color: '#fbbf24',
+                      fontSize: '0.85rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                    }}
+                  >
+                    <Edit size={14} />
+                    Editar Asignación
+                  </button>
                 </div>
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* Vista Tabla Compacta */}
+      {!loading && !error && viewMode === 'table' && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(248, 113, 113, 0.2)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+        }}>
+          {asignacionesPaginadas.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.7)' }}>
+              <MapPin size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+              <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ 
+                    background: 'rgba(248, 113, 113, 0.15)',
+                    borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
+                  }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <MapPin size={14} />
+                        Aula
+                      </div>
+                    </th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Curso</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Docente</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Clock size={14} />
+                        Horario
+                      </div>
+                    </th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Días</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Calendar size={14} />
+                        Período
+                      </div>
+                    </th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                        <Users size={14} />
+                        Ocupación
+                      </div>
+                    </th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {asignacionesPaginadas.map((asignacion, index) => (
+                    <tr 
+                      key={asignacion.id_asignacion} 
+                      style={{ 
+                        borderBottom: '1px solid rgba(255,255,255,0.05)',
+                        background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                      }}
+                    >
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '8px',
+                            background: 'rgba(248, 113, 113, 0.2)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '1px solid rgba(248, 113, 113, 0.3)'
+                          }}>
+                            <MapPin size={14} color="#f87171" />
+                          </div>
+                          <div>
+                            <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.85rem' }}>{asignacion.aula_nombre}</div>
+                            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>{asignacion.codigo_aula}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.8rem' }}>{asignacion.curso_nombre}</div>
+                        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>{asignacion.tipo_curso_nombre}</div>
+                      </td>
+                      <td style={{ padding: '12px', color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem' }}>
+                        {asignacion.docente_nombres} {asignacion.docente_apellidos}
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          background: 'rgba(59, 130, 246, 0.15)',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(59, 130, 246, 0.3)'
+                        }}>
+                          <Clock size={12} color="#60a5fa" />
+                          <span style={{ color: '#60a5fa', fontWeight: '600', fontSize: '0.75rem' }}>
+                            {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {asignacion.dias.split(',').map((dia, idx) => (
+                            <span key={idx} style={{ 
+                              background: 'rgba(139, 92, 246, 0.2)', 
+                              color: '#a78bfa', 
+                              padding: '2px 6px', 
+                              borderRadius: '4px', 
+                              fontSize: '0.65rem',
+                              fontWeight: '600',
+                              border: '1px solid rgba(139, 92, 246, 0.3)'
+                            }}>
+                              {dia.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '600' }}>
+                          {formatearFecha(asignacion.fecha_inicio)}
+                        </div>
+                        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
+                          {formatearFecha(asignacion.fecha_fin)}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', marginBottom: '4px' }}>
+                          {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
+                        </div>
+                        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
+                          {asignacion.porcentaje_ocupacion}%
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <div style={{
+                          background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                          color: asignacion.estado === 'activa' ? '#10b981' : '#9ca3af',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          display: 'inline-block',
+                          textTransform: 'uppercase',
+                          border: `1px solid ${asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(156, 163, 175, 0.3)'}`
+                        }}>
+                          {asignacion.estado}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => handleEditAsignacion(asignacion)}
+                          style={{
+                            padding: '6px 10px',
+                            background: 'rgba(245, 158, 11, 0.2)',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            borderRadius: '6px',
+                            color: '#fbbf24',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                          }}
+                        >
+                          <Edit size={12} />
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Paginación */}
+      {!loading && asignacionesFiltradas.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {page} de {totalPages} • Total: {totalCount} asignaciones
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       )}
 

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
-  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X
+  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -32,8 +32,9 @@ const GestionEstudiantes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10); // 10 estudiantes por página
   const [totalCount, setTotalCount] = useState(0);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Función para obtener estudiantes
   const fetchEstudiantes = async () => {
@@ -74,10 +75,17 @@ const GestionEstudiantes = () => {
     fetchEstudiantes();
   }, [page, limit, searchTerm]);
 
-  const estudiantesFiltrados = estudiantes.filter(estudiante => {
-    const matchesEstado = filterEstado === 'todos' || estudiante.estado === filterEstado;
-    return matchesEstado;
-  });
+  const estudiantesFiltrados = estudiantes
+    .filter(estudiante => {
+      const matchesEstado = filterEstado === 'todos' || estudiante.estado === filterEstado;
+      return matchesEstado;
+    })
+    .sort((a, b) => {
+      // Ordenar por fecha de registro, más recientes primero
+      const dateA = new Date(a.fecha_registro).getTime();
+      const dateB = new Date(b.fecha_registro).getTime();
+      return dateB - dateA;
+    });
 
   const handleViewEstudiante = (estudiante: Estudiante) => {
     setSelectedEstudiante(estudiante);
@@ -122,9 +130,9 @@ const GestionEstudiantes = () => {
         marginBottom: 24,
         border: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16, alignItems: 'end' }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'end', flexWrap: 'wrap' }}>
           {/* Búsqueda */}
-          <div>
+          <div style={{ flex: '1 1 300px' }}>
             <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
               Buscar Estudiante
             </label>
@@ -149,7 +157,7 @@ const GestionEstudiantes = () => {
           </div>
 
           {/* Filtro Estado */}
-          <div>
+          <div style={{ minWidth: 180 }}>
             <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
               Estado
             </label>
@@ -164,6 +172,53 @@ const GestionEstudiantes = () => {
                 { value: 'pendiente', label: 'Pendientes' }
               ]}
             />
+          </div>
+
+          {/* Toggle Vista */}
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+              Vista
+            </label>
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', padding: '4px' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: viewMode === 'cards' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                  border: viewMode === 'cards' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'cards' ? '#10b981' : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Grid size={16} /> Tarjetas
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: viewMode === 'table' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                  border: viewMode === 'table' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'table' ? '#10b981' : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <List size={16} /> Tabla
+              </button>
+            </div>
           </div>
 
           {/* Botón Refrescar */}
@@ -234,15 +289,239 @@ const GestionEstudiantes = () => {
         </div>
       )}
 
-      {/* Tabla de Estudiantes */}
-      <div style={{ 
-        background: 'rgba(255,255,255,0.05)', 
-        borderRadius: 16, 
-        overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Vista Cards */}
+      {viewMode === 'cards' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+          {estudiantesFiltrados.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>
+              {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
+            </div>
+          ) : (
+            estudiantesFiltrados.map((estudiante) => (
+              <div
+                key={estudiante.id_usuario}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(16, 185, 129, 0.15)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.15)';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ 
+                      width: 50, 
+                      height: 50, 
+                      borderRadius: '50%', 
+                      background: 'rgba(16, 185, 129, 0.2)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center' 
+                    }}>
+                      <User size={24} color="#10b981" />
+                    </div>
+                    <div>
+                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                        {estudiante.nombre} {estudiante.apellido}
+                      </h3>
+                      <span style={{
+                        display: 'inline-flex',
+                        padding: '3px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        background: estudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                                   estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
+                                   'rgba(251, 191, 36, 0.15)',
+                        border: estudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                               estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                               '1px solid rgba(251, 191, 36, 0.3)',
+                        color: estudiante.estado === 'activo' ? '#10b981' :
+                              estudiante.estado === 'inactivo' ? '#ef4444' :
+                              '#fbbf24'
+                      }}>
+                        {estudiante.estado}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <IdCard size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Identificación
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                      {estudiante.identificacion}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <User size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Usuario
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                      {estudiante.username || 'No asignado'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <Mail size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Email
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                      {estudiante.email}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Registro
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                      {formatDate(estudiante.fecha_registro)}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleViewEstudiante(estudiante)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '10px',
+                    color: '#10b981',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                  }}
+                >
+                  <Eye size={14} /> Ver Detalles
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Paginación para Cards */}
+      {viewMode === 'cards' && !loading && estudiantesFiltrados.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+          marginBottom: '24px'
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {page} de {totalPages} • Total: {totalCount} estudiantes
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: page === pageNum ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Vista Tabla */}
+      {viewMode === 'table' && (
+        <div style={{ 
+          background: 'rgba(255,255,255,0.05)', 
+          borderRadius: 16, 
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.1)',
+          marginBottom: '24px'
+        }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.1)' }}>
                 <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
@@ -415,7 +694,8 @@ const GestionEstudiantes = () => {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Modal de Detalle */}
       {showModal && selectedEstudiante && (

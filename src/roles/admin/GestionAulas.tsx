@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Plus, Edit, X, Save, MapPin, Building2, Calendar, AlertCircle, Info
+  Search, Plus, Edit, X, Save, MapPin, Building2, Calendar, AlertCircle, Info, Grid, List, ChevronLeft, ChevronRight, Eye
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -28,8 +28,9 @@ const GestionAulas = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(5); // 5 aulas por página
   const [totalCount, setTotalCount] = useState(0);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Estados para crear/editar aula
   const [formData, setFormData] = useState({
@@ -234,8 +235,11 @@ const GestionAulas = () => {
     }
   };
 
+  // Ordenar aulas por ID (más antiguas primero)
+  const aulasSorted = [...aulas].sort((a, b) => a.id_aula - b.id_aula);
+  
   const totalPages = Math.ceil(totalCount / limit);
-  const aulasActivas = aulas.filter(a => a.estado === 'activa').length;
+  const aulasActivas = aulasSorted.filter(a => a.estado === 'activa').length;
 
   return (
     <div style={{ padding: '32px', minHeight: '100vh' }}>
@@ -376,13 +380,13 @@ const GestionAulas = () => {
         marginBottom: '24px'
       }}>
         <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '20px',
-          alignItems: 'end'
+          display: 'flex', 
+          gap: '16px',
+          alignItems: 'end',
+          flexWrap: 'wrap'
         }}>
           {/* Búsqueda */}
-          <div>
+          <div style={{ flex: '1 1 300px' }}>
             <label style={{ 
               display: 'block', 
               marginBottom: '8px', 
@@ -421,7 +425,7 @@ const GestionAulas = () => {
           </div>
 
           {/* Filtro por estado */}
-          <div>
+          <div style={{ minWidth: 180 }}>
             <label style={{ 
               display: 'block', 
               marginBottom: '8px', 
@@ -445,7 +449,7 @@ const GestionAulas = () => {
             />
           </div>
 
-          {/* Elementos por página */}
+          {/* Toggle Vista */}
           <div>
             <label style={{ 
               display: 'block', 
@@ -453,30 +457,204 @@ const GestionAulas = () => {
               fontWeight: '500',
               color: 'var(--admin-text-primary)'
             }}>
-              Mostrar
+              Vista
             </label>
-            <StyledSelect
-              name="limit"
-              value={limit}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              options={[
-                { value: 5, label: '5 por página' },
-                { value: 10, label: '10 por página' },
-                { value: 20, label: '20 por página' },
-                { value: 50, label: '50 por página' }
-              ]}
-              style={{ width: '100%' }}
-            />
+            <div style={{ display: 'flex', gap: '0' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  background: viewMode === 'cards' ? 'var(--admin-accent)' : 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
+                  borderRadius: '8px 0 0 8px',
+                  color: viewMode === 'cards' ? '#fff' : 'var(--admin-text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Grid size={16} /> Tarjetas
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  background: viewMode === 'table' ? 'var(--admin-accent)' : 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
+                  borderLeft: 'none',
+                  borderRadius: '0 8px 8px 0',
+                  color: viewMode === 'table' ? '#fff' : 'var(--admin-text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <List size={16} /> Tabla
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tabla de aulas */}
+      {/* Vista Cards */}
+      {viewMode === 'cards' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+          {loading ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: 'var(--admin-text-secondary)', fontSize: '1rem' }}>
+              Cargando aulas...
+            </div>
+          ) : error ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: '#ef4444', fontSize: '1rem' }}>
+              {error}
+            </div>
+          ) : aulasSorted.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: 'var(--admin-text-secondary)', fontSize: '1rem' }}>
+              No hay aulas registradas
+            </div>
+          ) : (
+            aulasSorted.map((aula) => (
+              <div
+                key={aula.id_aula}
+                style={{
+                  background: 'var(--admin-card-bg)',
+                  border: '1px solid var(--admin-border)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'var(--admin-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.style.borderColor = 'var(--admin-border)';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ 
+                      width: 50, 
+                      height: 50, 
+                      borderRadius: '50%', 
+                      background: `${getEstadoColor(aula.estado)}20`, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center' 
+                    }}>
+                      <Building2 size={24} color={getEstadoColor(aula.estado)} />
+                    </div>
+                    <div>
+                      <h3 style={{ color: 'var(--admin-text-primary)', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                        {aula.nombre}
+                      </h3>
+                      <span style={{
+                        display: 'inline-flex',
+                        padding: '3px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        background: `${getEstadoColor(aula.estado)}20`,
+                        color: getEstadoColor(aula.estado)
+                      }}>
+                        {getEstadoText(aula.estado)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', paddingTop: '12px', borderTop: '1px solid var(--admin-border)' }}>
+                  <div>
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      Código
+                    </div>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                      {aula.codigo_aula}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Fecha Creación
+                    </div>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                      {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
+                    </div>
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <MapPin size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Ubicación
+                    </div>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                      {aula.ubicacion || 'No especificada'}
+                    </div>
+                  </div>
+                  {aula.descripcion && (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                        Descripción
+                      </div>
+                      <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                        {aula.descripcion}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => openEditModal(aula)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    background: 'var(--admin-accent)',
+                    border: 'none',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                >
+                  <Edit size={14} /> Editar
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Vista Tabla */}
+      {viewMode === 'table' && (
       <div style={{
         background: 'var(--admin-card-bg)',
         border: '1px solid var(--admin-border)',
         borderRadius: '16px',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        marginBottom: '24px'
       }}>
         {loading ? (
           <div style={{ 
@@ -547,99 +725,111 @@ const GestionAulas = () => {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: 'var(--admin-hover-bg)' }}>
+                  <tr style={{ 
+                    background: 'rgba(248, 113, 113, 0.15)',
+                    borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
+                  }}>
                     <th style={{ 
-                      padding: '16px', 
+                      padding: '10px 12px', 
                       textAlign: 'left', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Código
                     </th>
                     <th style={{ 
-                      padding: '16px', 
+                      padding: '10px 12px', 
                       textAlign: 'left', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Nombre
                     </th>
                     <th style={{ 
-                      padding: '16px', 
+                      padding: '10px 12px', 
                       textAlign: 'left', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Ubicación
                     </th>
                     <th style={{ 
-                      padding: '16px', 
-                      textAlign: 'left', 
+                      padding: '10px 12px', 
+                      textAlign: 'center', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Estado
                     </th>
                     <th style={{ 
-                      padding: '16px', 
+                      padding: '10px 12px', 
                       textAlign: 'left', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Fecha Creación
                     </th>
                     <th style={{ 
-                      padding: '16px', 
+                      padding: '10px 12px', 
                       textAlign: 'center', 
                       fontWeight: '600',
-                      color: 'var(--admin-text-primary)',
-                      borderBottom: '1px solid var(--admin-border)'
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase'
                     }}>
                       Acciones
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {aulas.map((aula) => (
+                  {aulas.map((aula, index) => (
                     <tr 
                       key={aula.id_aula}
                       style={{ 
-                        borderBottom: '1px solid var(--admin-border)',
-                        transition: 'background-color 0.2s ease'
+                        borderBottom: '1px solid rgba(255,255,255,0.05)',
+                        background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                        transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--admin-hover-bg)';
+                        e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                       }}
                     >
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '12px' }}>
                         <div style={{ 
                           fontWeight: '600',
-                          color: 'var(--admin-accent)',
-                          fontSize: '0.95rem'
+                          color: '#f87171',
+                          fontSize: '0.8rem',
+                          fontFamily: 'monospace'
                         }}>
                           {aula.codigo_aula}
                         </div>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '12px' }}>
                         <div style={{ 
-                          fontWeight: '500',
-                          color: 'var(--admin-text-primary)',
-                          marginBottom: '4px'
+                          fontWeight: '600',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          marginBottom: '2px'
                         }}>
                           {aula.nombre}
                         </div>
                         {aula.descripcion && (
                           <div style={{ 
-                            fontSize: '0.85rem',
-                            color: 'var(--admin-text-muted)',
+                            fontSize: '0.7rem',
+                            color: 'rgba(255,255,255,0.5)',
                             maxWidth: '200px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -649,23 +839,25 @@ const GestionAulas = () => {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '12px' }}>
                         <div style={{ 
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
-                          color: 'var(--admin-text-secondary)'
+                          color: 'rgba(255,255,255,0.8)',
+                          fontSize: '0.8rem'
                         }}>
-                          <MapPin size={14} />
+                          <MapPin size={12} />
                           {aula.ubicacion || 'No especificada'}
                         </div>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
                         <span style={{
-                          padding: '4px 12px',
-                          borderRadius: '20px',
-                          fontSize: '0.85rem',
-                          fontWeight: '500',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
                           background: `${getEstadoColor(aula.estado)}20`,
                           color: getEstadoColor(aula.estado),
                           border: `1px solid ${getEstadoColor(aula.estado)}40`
@@ -673,43 +865,45 @@ const GestionAulas = () => {
                           {getEstadoText(aula.estado)}
                         </span>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '12px' }}>
                         <div style={{ 
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
-                          color: 'var(--admin-text-secondary)',
-                          fontSize: '0.9rem'
+                          color: 'rgba(255,255,255,0.8)',
+                          fontSize: '0.75rem'
                         }}>
-                          <Calendar size={14} />
+                          <Calendar size={12} />
                           {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
                         </div>
                       </td>
-                      <td style={{ padding: '16px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                           <button
                             onClick={() => openEditModal(aula)}
                             style={{
-                              padding: '8px',
-                              background: '#3b82f6',
-                              color: 'white',
-                              border: 'none',
+                              padding: '6px 10px',
+                              background: 'rgba(245, 158, 11, 0.2)',
+                              border: '1px solid rgba(245, 158, 11, 0.3)',
+                              color: '#fbbf24',
                               borderRadius: '6px',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
+                              gap: '4px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
                               transition: 'all 0.2s ease'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#2563eb';
-                              e.currentTarget.style.transform = 'translateY(-1px)';
+                              e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = '#3b82f6';
-                              e.currentTarget.style.transform = 'translateY(0)';
+                              e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
                             }}
                           >
-                            <Edit size={16} />
+                            <Edit size={12} />
+                            Editar
                           </button>
                         </div>
                       </td>
@@ -774,6 +968,87 @@ const GestionAulas = () => {
           </>
         )}
       </div>
+      )}
+
+      {/* Paginación */}
+      {!loading && aulasSorted.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {page} de {totalPages} • Total: {totalCount} aulas
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal Crear Aula */}
       {showCreateModal && (

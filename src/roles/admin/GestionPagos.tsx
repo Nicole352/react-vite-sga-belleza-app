@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  DollarSign, Search, Eye, Download, X, AlertCircle
+  DollarSign, Search, Eye, Download, X, AlertCircle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -140,19 +140,26 @@ const GestionPagos = () => {
     setShowComprobanteModal(true);
   };
 
-  // Filtrar pagos
-  const pagosFiltrados = pagos.filter(pago => {
-    const matchSearch = 
-      pago.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pago.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pago.estudiante_cedula.includes(searchTerm) ||
-      pago.curso_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pago.codigo_matricula.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filtrar y ordenar pagos
+  const pagosFiltrados = pagos
+    .filter(pago => {
+      const matchSearch = 
+        pago.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pago.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pago.estudiante_cedula.includes(searchTerm) ||
+        pago.curso_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pago.codigo_matricula.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchEstado = filtroEstado === 'todos' || pago.estado === filtroEstado;
+      const matchEstado = filtroEstado === 'todos' || pago.estado === filtroEstado;
 
-    return matchSearch && matchEstado;
-  });
+      return matchSearch && matchEstado;
+    })
+    .sort((a, b) => {
+      // Ordenar por fecha de vencimiento, más antiguos primero (prioridad)
+      const dateA = new Date(a.fecha_vencimiento).getTime();
+      const dateB = new Date(b.fecha_vencimiento).getTime();
+      return dateA - dateB;
+    });
 
   // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -424,52 +431,79 @@ const GestionPagos = () => {
         </div>
 
         {/* Paginación */}
-        {totalPages > 1 && (
-          <div style={{ 
-            padding: '20px', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '8px',
+        {pagosFiltrados.length > 0 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '20px 24px',
             borderTop: '1px solid var(--admin-border)'
           }}>
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: '8px 16px',
-                background: currentPage === 1 ? 'var(--admin-input-bg)' : 'var(--admin-accent)',
-                color: currentPage === 1 ? 'var(--admin-text-muted)' : '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              Anterior
-            </button>
-            <span style={{ 
-              padding: '8px 16px', 
-              color: 'var(--admin-text-primary)',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              Página {currentPage} de {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '8px 16px',
-                background: currentPage === totalPages ? 'var(--admin-input-bg)' : 'var(--admin-accent)',
-                color: currentPage === totalPages ? 'var(--admin-text-muted)' : '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              Siguiente
-            </button>
+            <div style={{ color: 'var(--admin-text-secondary)', fontSize: '0.9rem' }}>
+              Página {currentPage} de {totalPages} • Total: {pagosFiltrados.length} pagos
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  background: currentPage === 1 ? 'var(--admin-input-bg)' : 'var(--admin-hover-bg)',
+                  border: '1px solid var(--admin-border)',
+                  borderRadius: '10px',
+                  color: currentPage === 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <ChevronLeft size={16} /> Anterior
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  style={{
+                    padding: '8px 14px',
+                    background: currentPage === pageNum ? 'var(--admin-accent)' : 'var(--admin-input-bg)',
+                    border: currentPage === pageNum ? '1px solid var(--admin-accent)' : '1px solid var(--admin-border)',
+                    borderRadius: '10px',
+                    color: currentPage === pageNum ? '#fff' : 'var(--admin-text-primary)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    minWidth: '40px',
+                  }}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  background: currentPage === totalPages ? 'var(--admin-input-bg)' : 'var(--admin-hover-bg)',
+                  border: '1px solid var(--admin-border)',
+                  borderRadius: '10px',
+                  color: currentPage === totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Siguiente <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </div>

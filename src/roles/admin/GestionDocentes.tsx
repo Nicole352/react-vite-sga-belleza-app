@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Key, Lock, Info
+  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Key, Lock, Info, Grid, List, ChevronLeft, ChevronRight, IdCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -36,9 +36,10 @@ const GestionDocentes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(3); // 3 docentes por página
   const [totalCount, setTotalCount] = useState(0);
   const [previewUsername, setPreviewUsername] = useState('');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Función para obtener docentes
   const fetchDocentes = async () => {
@@ -78,10 +79,15 @@ const GestionDocentes = () => {
     fetchDocentes();
   }, [page, limit, searchTerm]);
 
-  const docentesFiltrados = docentes.filter(docente => {
-    const matchesEstado = filterEstado === 'todos' || docente.estado === filterEstado;
-    return matchesEstado;
-  });
+  const docentesFiltrados = docentes
+    .filter(docente => {
+      const matchesEstado = filterEstado === 'todos' || docente.estado === filterEstado;
+      return matchesEstado;
+    })
+    .sort((a, b) => {
+      // Ordenar por ID (más antiguos primero - los que se registraron primero)
+      return a.id_docente - b.id_docente;
+    });
 
   const handleViewDocente = (docente: Docente) => {
     setSelectedDocente(docente);
@@ -253,9 +259,9 @@ const GestionDocentes = () => {
         marginBottom: 24,
         border: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 16, alignItems: 'end' }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'end', flexWrap: 'wrap' }}>
           {/* Búsqueda */}
-          <div>
+          <div style={{ flex: '1 1 300px' }}>
             <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
               Buscar Docente
             </label>
@@ -280,7 +286,7 @@ const GestionDocentes = () => {
           </div>
 
           {/* Filtro Estado */}
-          <div>
+          <div style={{ minWidth: 180 }}>
             <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
               Estado
             </label>
@@ -294,6 +300,53 @@ const GestionDocentes = () => {
                 { value: 'inactivo', label: 'Inactivos' }
               ]}
             />
+          </div>
+
+          {/* Toggle Vista */}
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+              Vista
+            </label>
+            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', padding: '4px' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: viewMode === 'cards' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                  border: viewMode === 'cards' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'cards' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Grid size={16} /> Tarjetas
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: viewMode === 'table' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                  border: viewMode === 'table' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'table' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <List size={16} /> Tabla
+              </button>
+            </div>
           </div>
 
           {/* Botón Nuevo Docente */}
@@ -371,36 +424,180 @@ const GestionDocentes = () => {
         </div>
       )}
 
-      {/* Tabla de Docentes */}
-      <div style={{ 
-        background: 'rgba(255,255,255,0.05)', 
-        borderRadius: 16, 
-        overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Vista Cards */}
+      {viewMode === 'cards' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+          {docentesFiltrados.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>
+              {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
+            </div>
+          ) : (
+            docentesFiltrados.map((docente) => (
+              <div
+                key={docente.id_docente}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(239, 68, 68, 0.15)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.15)';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ 
+                      width: 50, 
+                      height: 50, 
+                      borderRadius: '50%', 
+                      background: 'rgba(239, 68, 68, 0.2)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center' 
+                    }}>
+                      <User size={24} color="#ef4444" />
+                    </div>
+                    <div>
+                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                        {docente.nombres} {docente.apellidos}
+                      </h3>
+                      <span style={{
+                        display: 'inline-flex',
+                        padding: '3px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                        border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                        color: docente.estado === 'activo' ? '#10b981' : '#ef4444'
+                      }}>
+                        {docente.estado}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <IdCard size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Identificación
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                      {docente.identificacion}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <User size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Usuario
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                      {docente.username || 'Sin usuario'}
+                    </div>
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <UserCheck size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Título Profesional
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                      {docente.titulo_profesional}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                      Experiencia
+                    </div>
+                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                      {docente.experiencia_anos} años
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleViewDocente(docente)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '10px',
+                    color: '#ef4444',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                  }}
+                >
+                  <Eye size={14} /> Ver Detalles
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Vista Tabla */}
+      {viewMode === 'table' && (
+        <div style={{ 
+          background: 'rgba(255,255,255,0.05)', 
+          borderRadius: 16, 
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.1)',
+          marginBottom: '24px'
+        }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.1)' }}>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
-                  Docente
+              <tr style={{ 
+                background: 'rgba(248, 113, 113, 0.15)',
+                borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
+              }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <User size={14} />
+                    Docente
+                  </div>
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Identificación
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Usuario
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Título Profesional
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Estado
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Experiencia
                 </th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                   Acciones
                 </th>
               </tr>
@@ -414,89 +611,107 @@ const GestionDocentes = () => {
                 </tr>
               ) : (
                 docentesFiltrados.map((docente, index) => (
-                  <tr key={docente.id_docente} style={{ 
-                    borderTop: index > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                    transition: 'background-color 0.2s'
-                  }}>
-                    <td style={{ padding: '16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <tr 
+                    key={docente.id_docente} 
+                    style={{ 
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                    }}
+                  >
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ 
-                          width: 40, 
-                          height: 40, 
-                          borderRadius: '50%', 
-                          background: 'rgba(239, 68, 68, 0.2)', 
+                          width: 32, 
+                          height: 32, 
+                          borderRadius: '8px', 
+                          background: 'rgba(248, 113, 113, 0.2)', 
                           display: 'flex', 
                           alignItems: 'center', 
-                          justifyContent: 'center' 
+                          justifyContent: 'center',
+                          border: '1px solid rgba(248, 113, 113, 0.3)'
                         }}>
-                          <User size={18} color="#ef4444" />
+                          <User size={14} color="#f87171" />
                         </div>
                         <div>
-                          <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.9rem' }}>
+                          <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.85rem' }}>
                             {docente.nombres} {docente.apellidos}
                           </div>
                           {docente.telefono && (
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>
+                            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
                               {docente.telefono}
                             </div>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                    <td style={{ padding: '12px', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
                       {docente.identificacion}
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       {docente.username ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <User size={14} color="#3b82f6" />
-                          <span style={{ fontFamily: 'monospace', fontWeight: '600' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <User size={12} color="#60a5fa" />
+                          <span style={{ fontFamily: 'monospace', fontWeight: '600', fontSize: '0.75rem' }}>
                             {docente.username}
                           </span>
                         </div>
                       ) : (
-                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
+                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
                           Sin usuario
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       {docente.titulo_profesional}
                     </td>
-                    <td style={{ padding: '16px' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        padding: '4px 12px',
-                        borderRadius: '9999px',
-                        fontSize: '0.8rem',
-                        fontWeight: '500',
-                        textTransform: 'capitalize',
-                        background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                        border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                        color: docente.estado === 'activo' ? '#10b981' : '#ef4444'
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                        border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(156, 163, 175, 0.3)',
+                        color: docente.estado === 'activo' ? '#10b981' : '#9ca3af'
                       }}>
                         {docente.estado}
-                      </span>
+                      </div>
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       {docente.experiencia_anos} años
                     </td>
-                    <td style={{ padding: '16px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                         <button
                           onClick={() => handleViewDocente(docente)}
                           style={{
-                            background: 'rgba(59, 130, 246, 0.15)',
+                            background: 'rgba(59, 130, 246, 0.2)',
                             border: '1px solid rgba(59, 130, 246, 0.3)',
-                            color: '#3b82f6',
+                            color: '#60a5fa',
                             padding: '6px 10px',
                             borderRadius: '6px',
                             cursor: 'pointer',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px'
+                            gap: '4px',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
                           }}
                         >
                           <Eye size={12} />
@@ -509,17 +724,24 @@ const GestionDocentes = () => {
                             setShowModal(true);
                           }}
                           style={{
-                            background: 'rgba(251, 191, 36, 0.15)',
-                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                            background: 'rgba(245, 158, 11, 0.2)',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
                             color: '#fbbf24',
                             padding: '6px 10px',
                             borderRadius: '6px',
                             cursor: 'pointer',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px'
+                            gap: '4px',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
                           }}
                         >
                           <Edit size={12} />
@@ -587,7 +809,88 @@ const GestionDocentes = () => {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
+
+      {/* Paginación */}
+      {!loading && docentesFiltrados.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '16px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {page} de {Math.ceil(totalCount / limit)} • Total: {totalCount} docentes
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: Math.ceil(totalCount / limit) }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(Math.ceil(totalCount / limit), p + 1))}
+              disabled={page === Math.ceil(totalCount / limit)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === Math.ceil(totalCount / limit) ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === Math.ceil(totalCount / limit) ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === Math.ceil(totalCount / limit) ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (

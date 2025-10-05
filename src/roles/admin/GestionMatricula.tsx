@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck
+  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -362,19 +362,29 @@ const GestionMatricula = () => {
     }
   };
 
-  const solicitudesFiltradas = solicitudes.filter((s) => {
-    const fullName = `${s.nombre_solicitante} ${s.apellido_solicitante}`.toLowerCase();
-    const haystack = [
-      fullName,
-      s.email_solicitante?.toLowerCase?.() || '',
-      s.identificacion_solicitante || '',
-      (s as any).curso_nombre?.toLowerCase?.() || '',
-      (s as any).tipo_curso_nombre?.toLowerCase?.() || ''
-    ].join(' ');
-    const matchesSearch = haystack.includes(searchTerm.toLowerCase());
-    const matchesEstado = filterEstado === 'todos' || s.estado === filterEstado;
-    return matchesSearch && matchesEstado;
-  });
+  const solicitudesFiltradas = solicitudes
+    .filter((s) => {
+      const fullName = `${s.nombre_solicitante} ${s.apellido_solicitante}`.toLowerCase();
+      const haystack = [
+        fullName,
+        s.email_solicitante?.toLowerCase?.() || '',
+        s.identificacion_solicitante || '',
+        (s as any).curso_nombre?.toLowerCase?.() || '',
+        (s as any).tipo_curso_nombre?.toLowerCase?.() || ''
+      ].join(' ');
+      const matchesSearch = haystack.includes(searchTerm.toLowerCase());
+      const matchesEstado = filterEstado === 'todos' || s.estado === filterEstado;
+      return matchesSearch && matchesEstado;
+    })
+    .sort((a, b) => {
+      // Ordenar por fecha de solicitud, más antiguos primero
+      const dateA = new Date(a.fecha_solicitud).getTime();
+      const dateB = new Date(b.fecha_solicitud).getTime();
+      return dateA - dateB;
+    });
+
+  const totalPages = Math.ceil(solicitudesFiltradas.length / limit);
+  const paginatedSolicitudes = solicitudesFiltradas.slice((page - 1) * limit, page * limit);
 
   // Los contadores ahora vienen del backend (counters)
 
@@ -503,7 +513,7 @@ const GestionMatricula = () => {
         {!loading && solicitudesFiltradas.length === 0 && (
           <div style={{ color: 'rgba(255,255,255,0.7)' }}>No hay solicitudes</div>
         )}
-{solicitudesFiltradas.map((sol) => {
+{paginatedSolicitudes.map((sol) => {
           // Formatear fecha de solicitud
           const formatearFecha = (fechaString: string) => {
             const fecha = new Date(fechaString);
@@ -771,6 +781,87 @@ const GestionMatricula = () => {
           );
         })}
       </div>
+
+      {/* Paginación */}
+      {!loading && solicitudesFiltradas.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          marginTop: '24px',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '20px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {page} de {totalPages} • Total: {solicitudesFiltradas.length} solicitudes
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setPage(pageNum)}
+                style={{
+                  padding: '8px 14px',
+                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '10px',
+                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal Detalle Solicitud */}
       {showModal && selected && (

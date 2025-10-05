@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Plus, Edit, Trash2, X, Save, BookOpen
+  Plus, Edit, Trash2, X, Save, BookOpen, Search, Grid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 
@@ -24,6 +24,12 @@ const GestionTiposCurso: React.FC = () => {
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [selected, setSelected] = useState<TipoCurso | null>(null);
 
+  // Estados para búsqueda, vista y paginación
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
   // Helper: formato de precio consistente
   const formatPrice = (v?: number | null) => {
     if (v === null || v === undefined || isNaN(Number(v))) return '-';
@@ -33,6 +39,27 @@ const GestionTiposCurso: React.FC = () => {
       minimumFractionDigits: 2,
     }).format(Number(v));
   };
+
+  // Filtrado y paginación
+  const filteredTipos = useMemo(() => {
+    if (!searchTerm.trim()) return tipos;
+    const term = searchTerm.toLowerCase();
+    return tipos.filter(t => 
+      t.nombre.toLowerCase().includes(term) ||
+      (t.descripcion && t.descripcion.toLowerCase().includes(term))
+    );
+  }, [tipos, searchTerm]);
+
+  const totalPages = Math.ceil(filteredTipos.length / itemsPerPage);
+  const paginatedTipos = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredTipos.slice(start, start + itemsPerPage);
+  }, [filteredTipos, currentPage, itemsPerPage]);
+
+  // Reset página al buscar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const fetchTipos = async () => {
     try {
@@ -153,6 +180,7 @@ const GestionTiposCurso: React.FC = () => {
         </p>
       </div>
 
+      {/* Barra de búsqueda y controles */}
       <div
         style={{
           background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
@@ -162,8 +190,79 @@ const GestionTiposCurso: React.FC = () => {
           marginBottom: '20px',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))' }}>Total: {tipos.length}</div>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
+          {/* Barra de búsqueda */}
+          <div style={{ flex: '1 1 300px', position: 'relative' }}>
+            <Search 
+              size={20} 
+              style={{ 
+                position: 'absolute', 
+                left: '14px', 
+                top: '50%', 
+                transform: 'translateY(-50%)', 
+                color: 'rgba(255,255,255,0.5)' 
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o descripción..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 12px 12px 44px',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '12px',
+                color: '#fff',
+                fontSize: '0.95rem',
+              }}
+            />
+          </div>
+
+          {/* Toggle Vista */}
+          <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px' }}>
+            <button
+              onClick={() => setViewMode('cards')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                background: viewMode === 'cards' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                border: viewMode === 'cards' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                borderRadius: '8px',
+                color: viewMode === 'cards' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Grid size={16} /> Tarjetas
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                background: viewMode === 'table' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                border: viewMode === 'table' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                borderRadius: '8px',
+                color: viewMode === 'table' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <List size={16} /> Tabla
+            </button>
+          </div>
+
+          {/* Botón Nuevo */}
           <button
             onClick={openCreate}
             style={{
@@ -182,220 +281,423 @@ const GestionTiposCurso: React.FC = () => {
             <Plus size={18} /> Nuevo Tipo
           </button>
         </div>
+
+        {/* Info de resultados */}
+        <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', fontSize: '0.9rem' }}>
+          {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
+        </div>
       </div>
 
-      <div
-        style={{
-          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-          borderRadius: 16,
-          overflow: 'hidden',
-        }}
-      >
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: 'rgba(239, 68, 68, 0.1)', borderBottom: '2px solid rgba(239, 68, 68, 0.3)' }}>
-              <th style={{ 
-                padding: '16px 20px', 
-                color: 'var(--admin-text-primary, #fff)', 
-                textAlign: 'left', 
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
-                width: '35%'
-              }}>
-                Nombre
-              </th>
-              <th style={{ 
-                padding: '16px 20px', 
-                color: 'var(--admin-text-primary, #fff)', 
-                textAlign: 'center',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
-                width: '15%'
-              }}>
-                Duración
-              </th>
-              <th style={{ 
-                padding: '16px 20px', 
-                color: 'var(--admin-text-primary, #fff)', 
-                textAlign: 'right',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
-                width: '20%'
-              }}>
-                Precio
-              </th>
-              <th style={{ 
-                padding: '16px 20px', 
-                color: 'var(--admin-text-primary, #fff)', 
-                textAlign: 'center',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
-                width: '15%'
-              }}>
-                Estado
-              </th>
-              <th style={{ 
-                padding: '16px 20px', 
-                color: 'var(--admin-text-primary, #fff)', 
-                textAlign: 'center',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
-                width: '15%'
-              }}>
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {tipos.map((t, index) => (
-              <tr
-                key={t.id_tipo_curso}
-                style={{
-                  borderBottom: index < tipos.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                  transition: 'background 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                <td style={{ 
-                  padding: '16px 20px', 
-                  color: 'var(--admin-text-primary, #fff)',
-                  fontWeight: 600,
-                  fontSize: '0.95rem'
+      {/* Vista Cards */}
+      {viewMode === 'cards' && (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+          gap: '20px',
+          marginBottom: '24px'
+        }}>
+          {paginatedTipos.map((t) => (
+            <div
+              key={t.id_tipo_curso}
+              style={{
+                background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+                border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+                borderRadius: '16px',
+                padding: '20px',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ 
+                  color: '#fff', 
+                  fontSize: '1.25rem', 
+                  fontWeight: 700, 
+                  margin: '0 0 8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}>
                   {t.nombre}
-                </td>
-                <td style={{ 
-                  padding: '16px 20px', 
-                  color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', 
-                  textAlign: 'center',
-                  fontSize: '0.9rem'
-                }}>
-                  {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
-                </td>
-                <td style={{ 
-                  padding: '16px 20px', 
-                  color: 'var(--admin-text-secondary, rgba(255,255,255,0.9))', 
-                  textAlign: 'right',
-                  fontVariantNumeric: 'tabular-nums',
-                  fontWeight: 600,
-                  fontSize: '0.95rem'
-                }}>
-                  {formatPrice(t.precio_base ?? null)}
-                </td>
-                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                   <span
                     style={{
-                      display: 'inline-block',
-                      padding: '6px 14px',
-                      borderRadius: 12,
+                      padding: '4px 10px',
+                      borderRadius: 8,
                       background: t.estado === 'activo' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
                       color: t.estado === 'activo' ? '#10b981' : '#ef4444',
                       fontWeight: 700,
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
                     }}
                   >
                     {t.estado || 'activo'}
                   </span>
-                </td>
-                <td style={{ padding: '16px 20px' }}>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-                    <button
-                      onClick={() => openEdit(t)}
-                      style={{
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                        color: '#fff',
-                        padding: '8px 12px',
-                        borderRadius: 10,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(t.id_tipo_curso)}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        color: '#ef4444',
-                        padding: '8px 12px',
-                        borderRadius: 10,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                </h3>
+                <p style={{ 
+                  color: 'rgba(255,255,255,0.6)', 
+                  fontSize: '0.9rem', 
+                  margin: 0,
+                  lineHeight: 1.5,
+                  minHeight: '40px'
+                }}>
+                  {t.descripcion || 'Sin descripción'}
+                </p>
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                gap: '16px', 
+                marginBottom: '16px',
+                paddingTop: '12px',
+                borderTop: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    Duración
                   </div>
-                </td>
+                  <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600 }}>
+                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    Precio
+                  </div>
+                  <div style={{ color: '#10b981', fontSize: '1rem', fontWeight: 700 }}>
+                    {formatPrice(t.precio_base ?? null)}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => openEdit(t)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                  }}
+                >
+                  <Edit size={14} /> Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id_tipo_curso)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '10px',
+                    color: '#ef4444',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                  }}
+                >
+                  <Trash2 size={14} /> Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Vista Tabla */}
+      {viewMode === 'table' && (
+        <div
+          style={{
+            background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+            border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+            borderRadius: 16,
+            overflow: 'hidden',
+            marginBottom: '24px'
+          }}
+        >
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ 
+                background: 'rgba(248, 113, 113, 0.15)', 
+                borderBottom: '1px solid rgba(248, 113, 113, 0.3)' 
+              }}>
+                <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'left', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '35%' }}>
+                  Nombre
+                </th>
+                <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                  Duración
+                </th>
+                <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'right', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '20%' }}>
+                  Precio
+                </th>
+                <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                  Estado
+                </th>
+                <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                  Acciones
+                </th>
               </tr>
+            </thead>
+            <tbody>
+              {paginatedTipos.map((t, index) => (
+                <tr
+                  key={t.id_tipo_curso}
+                  style={{
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                  }}
+                >
+                  <td style={{ padding: '12px', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+                    {t.nombre}
+                  </td>
+                  <td style={{ padding: '12px', color: 'rgba(255,255,255,0.8)', textAlign: 'center', fontSize: '0.8rem' }}>
+                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                  </td>
+                  <td style={{ padding: '12px', color: 'rgba(255,255,255,0.9)', textAlign: 'right', fontWeight: 600, fontSize: '0.85rem' }}>
+                    {formatPrice(t.precio_base ?? null)}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: 8,
+                        background: t.estado === 'activo' ? 'rgba(16,185,129,0.2)' : 'rgba(156,163,175,0.2)',
+                        border: t.estado === 'activo' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(156,163,175,0.3)',
+                        color: t.estado === 'activo' ? '#10b981' : '#9ca3af',
+                        fontWeight: 700,
+                        fontSize: '0.7rem',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {t.estado || 'activo'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                      <button
+                        onClick={() => openEdit(t)}
+                        style={{
+                          background: 'rgba(245, 158, 11, 0.2)',
+                          border: '1px solid rgba(245, 158, 11, 0.3)',
+                          color: '#fbbf24',
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                        }}
+                      >
+                        <Edit size={12} />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(t.id_tipo_curso)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.2)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          color: '#ef4444',
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                        }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Estados vacíos y errores */}
+      {!loading && filteredTipos.length === 0 && (
+        <div style={{ 
+          color: 'rgba(255,255,255,0.6)', 
+          padding: '60px 20px',
+          textAlign: 'center',
+          fontSize: '1rem',
+          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+          borderRadius: '16px',
+          marginBottom: '24px'
+        }}>
+          {searchTerm ? 'No se encontraron tipos de curso' : 'No hay tipos de curso registrados'}
+        </div>
+      )}
+      {loading && (
+        <div style={{ 
+          color: 'rgba(255,255,255,0.6)', 
+          padding: '60px 20px',
+          textAlign: 'center',
+          fontSize: '1rem',
+          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+          borderRadius: '16px',
+          marginBottom: '24px'
+        }}>
+          Cargando tipos de curso...
+        </div>
+      )}
+      {error && (
+        <div style={{ 
+          color: '#ef4444', 
+          padding: '20px',
+          textAlign: 'center',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '16px',
+          fontSize: '0.95rem',
+          marginBottom: '24px'
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Paginación */}
+      {!loading && filteredTipos.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 24px',
+          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+          borderRadius: '16px',
+        }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+            Página {currentPage} de {totalPages}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '10px',
+                color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                style={{
+                  padding: '8px 14px',
+                  background: currentPage === page ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(255,255,255,0.08)',
+                  border: currentPage === page ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '40px',
+                }}
+              >
+                {page}
+              </button>
             ))}
-          </tbody>
-        </table>
-        
-        {!loading && tipos.length === 0 && (
-          <div style={{ 
-            color: 'var(--admin-text-muted, rgba(255,255,255,0.6))', 
-            padding: '40px 20px',
-            textAlign: 'center',
-            fontSize: '0.95rem'
-          }}>
-            No hay tipos de curso registrados
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '10px',
+                color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
           </div>
-        )}
-        {loading && (
-          <div style={{ 
-            color: 'var(--admin-text-muted, rgba(255,255,255,0.6))', 
-            padding: '40px 20px',
-            textAlign: 'center',
-            fontSize: '0.95rem'
-          }}>
-            Cargando tipos de curso...
-          </div>
-        )}
-        {error && (
-          <div style={{ 
-            color: '#ef4444', 
-            padding: '20px',
-            textAlign: 'center',
-            background: 'rgba(239, 68, 68, 0.1)',
-            borderTop: '1px solid rgba(239, 68, 68, 0.3)',
-            fontSize: '0.9rem'
-          }}>
-            {error}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showModal && (
         <div
