@@ -92,11 +92,27 @@ const Header: React.FC = () => {
     fontFamily: "'Inter', 'Montserrat', sans-serif",
     letterSpacing: '0.5px',
     whiteSpace: 'nowrap',
-    background: isAulaVirtual ? (active ? 'var(--primary)4D' : 'var(--primary)26') : 'transparent',
+    background: isAulaVirtual 
+      ? (theme === 'dark' 
+          ? (active ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.3)')
+          : (active ? 'rgba(251, 191, 36, 0.06)' : 'rgba(251, 191, 36, 0.04)'))
+      : 'transparent',
     borderRadius: isAulaVirtual ? '12px' : '8px',
-    border: isAulaVirtual ? '1px solid var(--primary)4D' : 'none',
+    border: isAulaVirtual 
+      ? (theme === 'dark'
+          ? '1.5px solid rgba(251, 191, 36, 0.5)'
+          : '1px solid rgba(251, 191, 36, 0.15)')
+      : 'none',
     backdropFilter: isAulaVirtual ? 'blur(10px)' : 'none',
-    boxShadow: isAulaVirtual ? (active ? '0 6px 25px var(--primary)4D' : '0 4px 20px var(--primary)33') : 'none',
+    boxShadow: isAulaVirtual 
+      ? (theme === 'dark'
+          ? (active 
+              ? '0 6px 25px rgba(251, 191, 36, 0.3)' 
+              : '0 4px 15px rgba(251, 191, 36, 0.15)')
+          : (active
+              ? '0 2px 6px rgba(251, 191, 36, 0.04)'
+              : '0 1px 4px rgba(251, 191, 36, 0.03)'))
+      : 'none',
   });
   
   const linkUnderlineStyle = (active: boolean, isAulaVirtual: boolean = false): React.CSSProperties => ({
@@ -278,13 +294,47 @@ const Header: React.FC = () => {
         @media (max-width: 1024px) { .header-container { padding: 0 1rem !important; } }
         @media (max-width: 768px) { .header-container { padding: 0 1rem !important; } }
         @media (max-width: 480px) { .header-container { padding: 0 0.75rem !important; } }
-        .aula-virtual-link { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+        .aula-virtual-link { 
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .aula-virtual-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+          transition: left 0.6s ease;
+        }
+        
+        .aula-virtual-link:hover::before {
+          left: 100%;
+        }
+        
         .aula-virtual-link[data-active="false"]:hover {
           background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.2)) !important;
           transform: translateY(-3px) scale(1.05) !important;
           box-shadow: 0 8px 30px rgba(251, 191, 36, 0.4) !important;
           border-color: rgba(251, 191, 36, 0.6) !important;
         }
+        
+        .aula-virtual-link[data-active="true"] {
+          animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+          0%, 100% {
+            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.3);
+          }
+          50% {
+            box-shadow: 0 6px 35px rgba(251, 191, 36, 0.5);
+          }
+        }
+        
         .nav-link { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .nav-link[data-active="false"]:hover {
           color: #fbbf24 !important;
