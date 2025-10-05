@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Interfaces para tipado
 interface CursoInfo {
@@ -44,7 +45,7 @@ interface PaymentCardProps {
   isSelected: boolean;
   onClick: () => void;
 }
-import { 
+import {
   ArrowLeftCircle,
   CreditCard,
   QrCode,
@@ -57,7 +58,10 @@ import {
   Shield,
   Globe,
   FileText,
-  IdCard
+  IdCard,
+  Sunrise,
+  Sunset,
+  Users
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
@@ -143,40 +147,40 @@ const Pago: React.FC = () => {
       'alta-peluqueria': ['alta peluquería', 'peluquería', 'peluqueria', 'cortes', 'tintes', 'colorimetría', 'balayage', 'hair'],
       'moldin-queen': ['moldin', 'modelado', 'estilizado', 'queen', 'molding']
     };
-    
+
     // Función para calcular similitud entre strings
     const calculateSimilarity = (str1: string, str2: string): number => {
       const s1 = str1.toLowerCase().trim();
       const s2 = str2.toLowerCase().trim();
-      
+
       // Coincidencia exacta
       if (s1 === s2) return 1.0;
-      
+
       // Contiene la palabra completa
       if (s1.includes(s2) || s2.includes(s1)) return 0.8;
-      
+
       // Similitud por palabras comunes
       const words1 = s1.split(/\s+/);
       const words2 = s2.split(/\s+/);
       const commonWords = words1.filter(w => words2.some(w2 => w2.includes(w) || w.includes(w2)));
-      
+
       if (commonWords.length > 0) {
         return commonWords.length / Math.max(words1.length, words2.length) * 0.6;
       }
-      
+
       return 0;
     };
-    
+
     let bestMatch: any = null;
     let bestScore = 0;
-    
+
     // Buscar el mejor match para cada curso
     tiposCursos.forEach((tc: any) => {
       const nombreCurso = tc.nombre;
-      
+
       // Comparar con nombres base de la card
       const cardKeywords = cardNames[cursoKey] || [cursoKey];
-      
+
       cardKeywords.forEach(keyword => {
         const score = calculateSimilarity(nombreCurso, keyword);
         if (score > bestScore && score > 0.3) { // Umbral mínimo de similitud
@@ -184,7 +188,7 @@ const Pago: React.FC = () => {
           bestMatch = tc;
         }
       });
-      
+
       // También comparar directamente con el nombre de la card
       const directScore = calculateSimilarity(nombreCurso, cursoKey);
       if (directScore > bestScore && directScore > 0.3) {
@@ -192,7 +196,7 @@ const Pago: React.FC = () => {
         bestMatch = tc;
       }
     });
-    
+
     console.log(`Mejor match para card '${cursoKey}':`, bestMatch?.nombre, `(score: ${bestScore.toFixed(2)})`);
     return bestMatch;
   };
@@ -210,6 +214,13 @@ const Pago: React.FC = () => {
   const [alertAnimatingOut, setAlertAnimatingOut] = useState(false);
   const [tipoCursoBackend, setTipoCursoBackend] = useState<any | null>(null);
   const [tiposCursosDisponibles, setTiposCursosDisponibles] = useState<any[]>([]);
+  const [cuposDisponibles, setCuposDisponibles] = useState<any[]>([]);
+  const [isRefreshingCupos, setIsRefreshingCupos] = useState(false);
+  const cuposCache = useRef<{ data: any[], timestamp: number } | null>(null);
+  const CACHE_DURATION = 3000; // 3 segundos de caché (más rápido para detectar cambios)
+  const POLLING_INTERVAL = 3000; // Polling cada 3 segundos
+  const lastFetchRef = useRef<number>(0);
+  const [lastCuposCount, setLastCuposCount] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
     nombre: '',
     apellido: '',
@@ -228,11 +239,19 @@ const Pago: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
   const [showMontoAlert, setShowMontoAlert] = useState(false);
-  
+
   // Estados para datos del comprobante
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
   const [fechaTransferencia, setFechaTransferencia] = useState('');
+  
+  // Estados para pago en efectivo
+  const [numeroComprobanteEfectivo, setNumeroComprobanteEfectivo] = useState('');
+  const [recibidoPor, setRecibidoPor] = useState('');
+
+  // Estados para estudiante existente
+  const [estudianteExistente, setEstudianteExistente] = useState<any>(null);
+  const [verificandoEstudiante, setVerificandoEstudiante] = useState(false);
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -257,9 +276,75 @@ const Pago: React.FC = () => {
     return { ok: true };
   };
 
+
+  // Función para verificar si estudiante ya existe en el sistema
+  const verificarEstudianteExistente = async (identificacion: string) => {
+    if (!identificacion || identificacion.trim().length < 6) return;
+
+    setVerificandoEstudiante(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/estudiantes/verificar?identificacion=${encodeURIComponent(identificacion.trim().toUpperCase())}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.existe) {
+          // Estudiante YA existe en el sistema
+          setEstudianteExistente(data.estudiante);
+
+          // Pre-llenar campos con datos existentes
+          setFormData(prev => ({
+            ...prev,
+            nombre: data.estudiante.nombre || '',
+            apellido: data.estudiante.apellido || '',
+            email: data.estudiante.email || '',
+            telefono: data.estudiante.telefono || '',
+            fechaNacimiento: data.estudiante.fecha_nacimiento || '',
+            direccion: data.estudiante.direccion || '',
+            genero: data.estudiante.genero || ''
+          }));
+
+          // Mostrar toast informativo centrado
+          toast.success(
+            `¡Bienvenido de nuevo ${data.estudiante.nombre}! Ya estás en el sistema. Solo selecciona tu horario preferido y sube tu comprobante de pago.`,
+            {
+              duration: 6000,
+              icon: '🎓',
+              style: {
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                color: '#10b981',
+                backdropFilter: 'blur(10px)',
+                maxWidth: '600px',
+                fontSize: '0.95rem',
+                padding: '20px 24px'
+              }
+            }
+          );
+
+          // Mostrar cursos matriculados si existen
+          if (data.cursos_matriculados && data.cursos_matriculados.length > 0) {
+            console.log('📚 Cursos actuales del estudiante:', data.cursos_matriculados);
+          }
+        } else {
+          // Estudiante NO existe - formulario normal
+          setEstudianteExistente(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando estudiante:', error);
+    } finally {
+      setVerificandoEstudiante(false);
+    }
+  };
+
+
   useEffect(() => {
     setIsVisible(true);
-    
+
     // Asegurar que existe la meta tag viewport
     if (!document.querySelector('meta[name="viewport"]')) {
       const meta = document.createElement('meta');
@@ -281,14 +366,14 @@ const Pago: React.FC = () => {
         if (!resTipo.ok) return;
         const tiposCursos = await resTipo.json();
         setTiposCursosDisponibles(tiposCursos);
-        
+
         // Resolución por card_key (preferida) y fallback a similitud
         console.log('=== RESOLUCIÓN TIPO ===');
         console.log('Card (query ?curso=):', cursoKey);
         console.log('Tipos disponibles:', tiposCursos.map((tc: any) => `${tc.card_key || '-'} | ${tc.nombre}`));
 
         // 1) Intentar por card_key directa
-        const byCardKey = tiposCursos.find((tc: any) => 
+        const byCardKey = tiposCursos.find((tc: any) =>
           (tc.card_key || '').toLowerCase() === String(cursoKey).toLowerCase()
         );
 
@@ -306,12 +391,132 @@ const Pago: React.FC = () => {
           }
         }
         console.log('============================');
-      } catch {}
+      } catch { }
     };
 
     loadTiposCursos();
     return () => { cancelled = true; };
   }, [cursoKey]);
+
+  // Función para cargar cupos (reutilizable)
+  const loadCuposDisponibles = async (forceRefresh = false, showToast = true, isPolling = false) => {
+    // VERIFICAR CACHÉ PRIMERO (si no es forzado)
+    const now = Date.now();
+    if (!forceRefresh && cuposCache.current && (now - cuposCache.current.timestamp) < CACHE_DURATION) {
+      console.log('✅ Usando cupos desde caché');
+      setCuposDisponibles(cuposCache.current.data);
+      return cuposCache.current.data;
+    }
+
+    // Rate limiting: evitar llamadas muy seguidas
+    if (now - lastFetchRef.current < 2000) {
+      console.log('⏱️ Rate limit: esperando...');
+      return cuposCache.current?.data || [];
+    }
+    lastFetchRef.current = now;
+
+    // MOSTRAR TOAST DE CARGA (solo si showToast es true)
+    const loadingToast = showToast ? toast.loading('Cargando cupos disponibles...', {
+      duration: 5000,
+      style: {
+        background: '#1f2937',
+        color: '#fff',
+        borderRadius: '12px',
+        padding: '16px',
+        fontFamily: 'Montserrat, sans-serif'
+      }
+    }) : null;
+
+    try {
+      console.log('🔄 Cargando cupos desde:', `${API_BASE}/cursos/disponibles`);
+      const res = await fetch(`${API_BASE}/cursos/disponibles`);
+      
+      if (!res.ok) {
+        console.error('❌ Error en respuesta de cupos:', res.status);
+        if (loadingToast) toast.error('Error al cargar cupos disponibles', { id: loadingToast });
+        return cuposCache.current?.data || [];
+      }
+      
+      const cupos = await res.json();
+      
+      // DETECTAR CAMBIOS (nuevos cursos agregados)
+      const previousCount = lastCuposCount;
+      const newCount = cupos.length;
+      
+      if (isPolling && previousCount > 0 && newCount > previousCount) {
+        // ¡Nuevos cursos detectados!
+        const diff = newCount - previousCount;
+        toast.success(`🎉 ${diff} nuevo${diff > 1 ? 's' : ''} curso${diff > 1 ? 's' : ''} disponible${diff > 1 ? 's' : ''}!`, {
+          duration: 3000,
+          style: {
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            color: '#fff',
+            borderRadius: '12px',
+            padding: '16px',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 600
+          }
+        });
+      }
+      
+      setLastCuposCount(newCount);
+      
+      // GUARDAR EN CACHÉ
+      cuposCache.current = {
+        data: cupos,
+        timestamp: Date.now()
+      };
+      
+      setCuposDisponibles(cupos);
+      console.log('📊 Cupos disponibles cargados:', cupos);
+      console.log('📊 Total de registros:', cupos.length);
+      
+      // TOAST DE ÉXITO (solo si showToast es true)
+      if (loadingToast) {
+        toast.success(`✅ ${cupos.length} cursos cargados`, { 
+          id: loadingToast,
+          duration: 2000
+        });
+      }
+      
+      return cupos;
+    } catch (err) {
+      console.error('❌ Error cargando cupos:', err);
+      if (loadingToast) toast.error('Error de conexión con el servidor', { id: loadingToast });
+      return cuposCache.current?.data || [];
+    }
+  };
+
+  // Cargar cupos al montar + polling cada 3 segundos
+  useEffect(() => {
+    let cancelled = false;
+    let intervalId: any;
+
+    const init = async () => {
+      if (cancelled) return;
+      await loadCuposDisponibles(false, true, false); // Primera carga con toast
+      
+      // Polling silencioso cada 3 segundos para detectar cambios rápido
+      intervalId = setInterval(async () => {
+        if (!cancelled) {
+          await loadCuposDisponibles(true, false, true); // Sin toast inicial, pero detecta cambios
+        }
+      }, POLLING_INTERVAL);
+    };
+
+    init();
+    return () => { 
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []);
+
+  // Función para refrescar manualmente
+  const handleRefreshCupos = async () => {
+    setIsRefreshingCupos(true);
+    await loadCuposDisponibles(true, true, false); // Forzar con toast
+    setIsRefreshingCupos(false);
+  };
 
   // Cargar datos del tipo de curso específico y verificar disponibilidad
   useEffect(() => {
@@ -322,30 +527,30 @@ const Pago: React.FC = () => {
       if (cancelled) return;
       try {
         // Encontrar el tipo de curso en los datos ya cargados
-        const tipoCurso = tiposCursosDisponibles.find((tc: any) => 
+        const tipoCurso = tiposCursosDisponibles.find((tc: any) =>
           tc.id_tipo_curso === tipoCursoId
         );
-        
+
         if (tipoCurso) {
           // Verificar todos los cursos de este tipo (activos, planificados, cancelados)
           const resCursos = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
           if (resCursos.ok) {
             const todosCursos = await resCursos.json();
-            
+
             // Contar cursos por estado
-            const cursosActivos = todosCursos.filter((c: any) => 
+            const cursosActivos = todosCursos.filter((c: any) =>
               c.estado === 'activo' && Number(c.cupos_disponibles || 0) > 0
             );
-            const cursosPlanificados = todosCursos.filter((c: any) => 
+            const cursosPlanificados = todosCursos.filter((c: any) =>
               c.estado === 'planificado'
             );
-            const cursosCancelados = todosCursos.filter((c: any) => 
+            const cursosCancelados = todosCursos.filter((c: any) =>
               c.estado === 'cancelado'
             );
-            
+
             // Hay disponibilidad si hay cursos activos con cupos O cursos planificados
             const hayDisponibles = cursosActivos.length > 0 || cursosPlanificados.length > 0;
-            
+
             setTipoCursoBackend({
               ...tipoCurso,
               disponible: hayDisponibles,
@@ -366,7 +571,7 @@ const Pago: React.FC = () => {
             });
           }
         }
-      } catch {}
+      } catch { }
     };
 
     // Carga inicial
@@ -387,10 +592,29 @@ const Pago: React.FC = () => {
     };
   }, [tipoCursoId, tiposCursosDisponibles]);
 
+  // Verificar estudiante cuando se ingresa cédula/pasaporte completo
+  useEffect(() => {
+    const identificacion = formData.tipoDocumento === 'ecuatoriano'
+      ? formData.cedula
+      : formData.pasaporte;
+
+    if (identificacion && identificacion.trim().length >= 6) {
+      // Debounce: esperar 800ms después de que el usuario deje de escribir
+      const timer = setTimeout(() => {
+        verificarEstudianteExistente(identificacion);
+      }, 800);
+
+      return () => clearTimeout(timer);
+    } else {
+      // Limpiar si borra la identificación
+      setEstudianteExistente(null);
+    }
+  }, [formData.cedula, formData.pasaporte, formData.tipoDocumento]);
+
   // Bloqueo también si no se resolvió el tipo/curso (no existe)
   const notFoundOrNoCourse = !tipoCursoId || !tipoCursoBackend;
   const isBlocked = notFoundOrNoCourse || (!!tipoCursoBackend && (!tipoCursoBackend.disponible || tipoCursoBackend.estado !== 'activo'));
-  
+
   // Debug: mostrar estado del tipo de curso
   console.log('=== DEBUG BLOQUEO ===');
   console.log('cursoKey:', cursoKey);
@@ -437,10 +661,10 @@ const Pago: React.FC = () => {
 
   const handleFileUpload = (file: File | null) => {
     if (isBlocked) return; // bloquear interacción
-    if (!file) { 
-      setUploadedFile(null); 
+    if (!file) {
+      setUploadedFile(null);
       setNumeroComprobante('');
-      return; 
+      return;
     }
     const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     const maxBytes = 5 * 1024 * 1024; // 5MB
@@ -453,7 +677,7 @@ const Pago: React.FC = () => {
       return;
     }
     setUploadedFile(file);
-    
+
     // OCR deshabilitado - usuario ingresa manualmente el número
   };
 
@@ -533,25 +757,37 @@ const Pago: React.FC = () => {
       alert('Selecciona el horario preferido (Matutino o Vespertino).');
       return;
     }
-    if (!documentoIdentificacion) {
+
+    // VALIDAR SI HAY CUPOS DISPONIBLES PARA EL HORARIO SELECCIONADO
+    const cuposParaHorario = cuposDisponibles.find(
+      (c: any) => c.id_tipo_curso === tipoCursoId && c.horario === formData.horarioPreferido
+    );
+
+    if (!cuposParaHorario || cuposParaHorario.cupos_totales === 0) {
+      alert(`No hay cupos disponibles para el horario ${formData.horarioPreferido}. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.`);
+      return;
+    }
+    if (!estudianteExistente && !documentoIdentificacion) {
       alert(`Por favor, sube la copia de ${formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}.`);
       return;
     }
-    if (formData.tipoDocumento === 'extranjero' && !documentoEstatusLegal) {
+    if (!estudianteExistente && formData.tipoDocumento === 'extranjero' && !documentoEstatusLegal) {
       alert('Por favor, sube el documento de estatus legal (visa de estudiante o permiso de residencia).');
       return;
     }
-    // Validaciones mínimas
-    if (!formData.apellido) {
-      alert('Apellido es obligatorio');
-      return;
-    }
-    // Email formato básico
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email);
-    if (!emailOk) {
-      setErrors((prev) => ({ ...prev, email: 'Ingresa un correo válido' }));
-      alert('Correo electrónico inválido.');
-      return;
+    // Validaciones mínimas - SOLO si NO es estudiante existente
+    if (!estudianteExistente) {
+      if (!formData.apellido) {
+        alert('Apellido es obligatorio');
+        return;
+      }
+      // Email formato básico
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email);
+      if (!emailOk) {
+        setErrors((prev) => ({ ...prev, email: 'Ingresa un correo válido' }));
+        alert('Correo electrónico inválido.');
+        return;
+      }
     }
     // Documento: validar según tipo seleccionado
     const isEcuatoriano = formData.tipoDocumento === 'ecuatoriano';
@@ -599,7 +835,25 @@ const Pago: React.FC = () => {
           return;
         }
       }
-      
+
+      // Validar campos del comprobante para efectivo
+      if (selectedPayment === 'efectivo') {
+        if (!numeroComprobanteEfectivo.trim()) {
+          setSubmitAlert({
+            type: 'error',
+            text: 'Por favor, ingresa el número de comprobante/factura.'
+          });
+          return;
+        }
+        if (!recibidoPor.trim()) {
+          setSubmitAlert({
+            type: 'error',
+            text: 'Por favor, ingresa el nombre de quien recibió el pago.'
+          });
+          return;
+        }
+      }
+
       if (!uploadedFile) {
         setSubmitAlert({
           type: 'error',
@@ -644,7 +898,7 @@ const Pago: React.FC = () => {
     try {
       let response: Response;
       let debugInfo: any = {};
-      
+
       if (selectedPayment === 'transferencia' || selectedPayment === 'efectivo') {
         const body = new FormData();
         body.append('identificacion_solicitante', documento.toUpperCase());
@@ -659,13 +913,25 @@ const Pago: React.FC = () => {
         body.append('id_tipo_curso', String(tipoCursoId));
         body.append('monto_matricula', String(formData.montoMatricula));
         body.append('metodo_pago', selectedPayment);
-        // Nuevos campos del comprobante
-        if (numeroComprobante) body.append('numero_comprobante', numeroComprobante);
-        if (bancoComprobante) body.append('banco_comprobante', bancoComprobante);
-        if (fechaTransferencia) body.append('fecha_transferencia', fechaTransferencia);
+        // Nuevos campos del comprobante (transferencia)
+        if (selectedPayment === 'transferencia') {
+          if (numeroComprobante) body.append('numero_comprobante', numeroComprobante);
+          if (bancoComprobante) body.append('banco_comprobante', bancoComprobante);
+          if (fechaTransferencia) body.append('fecha_transferencia', fechaTransferencia);
+        }
+        // Nuevos campos del comprobante (efectivo)
+        if (selectedPayment === 'efectivo') {
+          if (numeroComprobanteEfectivo) body.append('numero_comprobante', numeroComprobanteEfectivo);
+          if (recibidoPor) body.append('recibido_por', recibidoPor);
+        }
         if (uploadedFile) body.append('comprobante', uploadedFile);
         if (documentoIdentificacion) body.append('documento_identificacion', documentoIdentificacion);
         if (documentoEstatusLegal) body.append('documento_estatus_legal', documentoEstatusLegal);
+
+        // Si es estudiante existente, enviar su ID
+        if (estudianteExistente) {
+          body.append('id_estudiante_existente', String(estudianteExistente.id_usuario));
+        }
 
         // Para debug - convertir FormData a objeto
         debugInfo = {
@@ -706,6 +972,11 @@ const Pago: React.FC = () => {
           monto_matricula: montoFinal,
           metodo_pago: selectedPayment
         };
+
+        // Si es estudiante existente, enviar su ID
+        if (estudianteExistente) {
+          debugInfo.id_estudiante_existente = estudianteExistente.id_usuario;
+        }
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -722,7 +993,7 @@ const Pago: React.FC = () => {
         console.error('tipoCursoId:', tipoCursoId);
         console.error('selectedPayment:', selectedPayment);
         console.error('=======================');
-        
+
         // Manejo especial para error de comprobante duplicado
         let errorObj;
         try {
@@ -730,7 +1001,7 @@ const Pago: React.FC = () => {
         } catch {
           errorObj = { error: errText };
         }
-        
+
         if (errorObj.error && errorObj.error.includes('número de comprobante ya fue utilizado')) {
           // Alerta profesional para comprobante duplicado
           setSubmitAlert({
@@ -752,7 +1023,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           });
           return;
         }
-        
+
         throw new Error(errText || 'Error al enviar la solicitud');
       }
       const data = await response.json();
@@ -775,21 +1046,21 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         padding: '24px',
         borderRadius: '20px',
         border: isSelected ? '2px solid #fbbf24' : '2px solid rgba(255, 255, 255, 0.1)',
-        background: isSelected 
-          ? 'rgba(251, 191, 36, 0.1)' 
+        background: isSelected
+          ? 'rgba(251, 191, 36, 0.1)'
           : 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(20px)',
         cursor: 'pointer',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-        boxShadow: isSelected 
-          ? '0 12px 40px rgba(251, 191, 36, 0.3)' 
+        boxShadow: isSelected
+          ? '0 12px 40px rgba(251, 191, 36, 0.3)'
           : '0 8px 32px rgba(0, 0, 0, 0.2)'
       }}
     >
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
         gap: '16px',
         marginBottom: '12px'
       }}>
@@ -797,8 +1068,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           width: '50px',
           height: '50px',
           borderRadius: '50%',
-          background: isSelected 
-            ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' 
+          background: isSelected
+            ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
             : 'rgba(255, 255, 255, 0.1)',
           display: 'flex',
           alignItems: 'center',
@@ -891,7 +1162,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             marginBottom: '32px',
             lineHeight: 1.6
           }}>
-            Hemos recibido tu solicitud de inscripción para <strong>{curso.titulo}</strong>. 
+            Hemos recibido tu solicitud de inscripción para <strong>{curso.titulo}</strong>.
             Te contactaremos pronto para confirmar tu matrícula.
           </p>
           <div style={{
@@ -916,6 +1187,40 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
   return (
     <>
+      {/* Toast Container */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#1f2937',
+            color: '#fff',
+            borderRadius: '12px',
+            padding: '16px',
+            fontFamily: 'Montserrat, sans-serif',
+            fontSize: '14px',
+            fontWeight: 500
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff'
+            }
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff'
+            }
+          },
+          loading: {
+            iconTheme: {
+              primary: '#3b82f6',
+              secondary: '#fff'
+            }
+          }
+        }}
+      />
       <style>
         {`
           @keyframes pulse {
@@ -1326,9 +1631,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           ))}
         </div>
 
-        <div className="payment-container" style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
+        <div className="payment-container" style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
           padding: '0 24px',
           position: 'relative',
           zIndex: 1
@@ -1381,16 +1686,16 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}>
               <h1 className="payment-title" style={{
-              fontSize: '3rem',
-              fontWeight: '800',
-              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              marginBottom: '24px',
-              lineHeight: 1.2
-            }}>
-              Finalizar Inscripción
-            </h1>
+                fontSize: '3rem',
+                fontWeight: '800',
+                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                marginBottom: '24px',
+                lineHeight: 1.2
+              }}>
+                Finalizar Inscripción
+              </h1>
 
               {/* Card del curso */}
               <div className="curso-card" style={{
@@ -1405,8 +1710,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                  <img 
-                    src={curso.imagen} 
+                  <img
+                    src={curso.imagen}
                     alt={curso.titulo}
                     className="curso-image"
                     style={{
@@ -1426,9 +1731,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     }}>
                       {curso.titulo}
                     </h3>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
                       gap: '16px',
                       marginBottom: '12px'
                     }}>
@@ -1463,19 +1768,130 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               Matrícula cerrada
                             </span>
                           ) : (
-                            <span style={{
-                              padding: '4px 10px',
-                              borderRadius: '9999px',
-                              background: 'rgba(16, 185, 129, 0.15)',
-                              border: '1px solid rgba(16, 185, 129, 0.3)',
-                              color: '#10b981',
-                              fontWeight: 700,
-                              fontSize: '0.8rem'
-                            }}>
-                              {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` : 
-                               tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` : 
-                               'Disponible'}
-                            </span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              {/* Mostrar cupos por horario */}
+                              {(() => {
+                                console.log('🔍 Filtrando cupos para tipoCursoId:', tipoCursoId);
+                                console.log('🔍 Cupos disponibles:', cuposDisponibles);
+                                console.log('🔍 Detalle de cada cupo:', cuposDisponibles.map((c: any) => ({
+                                  id_tipo_curso: c.id_tipo_curso,
+                                  tipo: typeof c.id_tipo_curso,
+                                  nombre: c.tipo_curso_nombre,
+                                  horario: c.horario,
+                                  cupos: c.cupos_totales
+                                })));
+                                const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
+                                console.log('🔍 Cupos filtrados:', cuposFiltrados);
+                                console.log('🔍 Comparación:', cuposDisponibles.map((c: any) => `${c.id_tipo_curso} === ${tipoCursoId} ? ${c.id_tipo_curso === tipoCursoId}`));
+                                
+                                if (cuposFiltrados.length > 0) {
+                                  return cuposFiltrados.map((c: any) => {
+                                    const tieneCupos = c.cupos_totales > 0;
+                                    const porcentajeOcupado = ((c.capacidad_total - c.cupos_totales) / c.capacidad_total) * 100;
+                                    const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
+                                    
+                                    return (
+                                      <div 
+                                        key={c.horario}
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '8px',
+                                          padding: '8px 14px',
+                                          borderRadius: '12px',
+                                          background: tieneCupos 
+                                            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1))'
+                                            : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
+                                          border: tieneCupos 
+                                            ? '1.5px solid rgba(16, 185, 129, 0.4)' 
+                                            : '1.5px solid rgba(239, 68, 68, 0.4)',
+                                          boxShadow: tieneCupos
+                                            ? '0 4px 12px rgba(16, 185, 129, 0.15)'
+                                            : '0 4px 12px rgba(239, 68, 68, 0.15)',
+                                          transition: 'all 0.3s ease',
+                                          cursor: 'default'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.transform = 'translateY(-2px)';
+                                          e.currentTarget.style.boxShadow = tieneCupos
+                                            ? '0 6px 20px rgba(16, 185, 129, 0.25)'
+                                            : '0 6px 20px rgba(239, 68, 68, 0.25)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.transform = 'translateY(0)';
+                                          e.currentTarget.style.boxShadow = tieneCupos
+                                            ? '0 4px 12px rgba(16, 185, 129, 0.15)'
+                                            : '0 4px 12px rgba(239, 68, 68, 0.15)';
+                                        }}
+                                      >
+                                        <Icon 
+                                          size={16} 
+                                          color={tieneCupos ? '#10b981' : '#ef4444'}
+                                          style={{ flexShrink: 0 }}
+                                        />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                          <span style={{
+                                            color: tieneCupos ? '#10b981' : '#ef4444',
+                                            fontWeight: 700,
+                                            fontSize: '0.75rem',
+                                            textTransform: 'capitalize',
+                                            lineHeight: 1
+                                          }}>
+                                            {c.horario}
+                                          </span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Users size={12} color={tieneCupos ? '#059669' : '#dc2626'} />
+                                            <span style={{
+                                              color: tieneCupos ? '#059669' : '#dc2626',
+                                              fontWeight: 600,
+                                              fontSize: '0.7rem',
+                                              lineHeight: 1
+                                            }}>
+                                              {c.cupos_totales}/{c.capacidad_total} cupos
+                                            </span>
+                                          </div>
+                                        </div>
+                                        {/* Barra de progreso */}
+                                        <div style={{
+                                          width: '40px',
+                                          height: '4px',
+                                          background: 'rgba(0,0,0,0.1)',
+                                          borderRadius: '2px',
+                                          overflow: 'hidden',
+                                          marginLeft: '4px'
+                                        }}>
+                                          <div style={{
+                                            width: `${porcentajeOcupado}%`,
+                                            height: '100%',
+                                            background: tieneCupos 
+                                              ? 'linear-gradient(90deg, #10b981, #059669)'
+                                              : 'linear-gradient(90deg, #ef4444, #dc2626)',
+                                            transition: 'width 0.3s ease'
+                                          }} />
+                                        </div>
+                                      </div>
+                                    );
+                                  });
+                                }
+                                
+                                // Fallback si no hay cupos cargados
+                                return (
+                                  <span style={{
+                                    padding: '4px 10px',
+                                    borderRadius: '9999px',
+                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    color: '#10b981',
+                                    fontWeight: 700,
+                                    fontSize: '0.8rem'
+                                  }}>
+                                    {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` :
+                                      tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` :
+                                        'Disponible'}
+                                  </span>
+                                );
+                              })()}
+                            </div>
                           )
                         )}
                       </div>
@@ -1501,22 +1917,22 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 padding: '24px',
                 marginBottom: '24px'
               }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: '12px',
                   marginBottom: '16px'
                 }}>
                   <Calendar size={24} color="#fbbf24" />
-                  <span style={{ 
-                    color: '#fbbf24', 
+                  <span style={{
+                    color: '#fbbf24',
                     fontWeight: '700',
                     fontSize: '1.2rem'
                   }}>
                     Modalidad de Pago
                   </span>
                 </div>
-                
+
                 {/* Información específica por curso */}
                 {cursoKey === 'unas' && (
                   <div style={{ marginBottom: '16px' }}>
@@ -1532,7 +1948,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     </ul>
                   </div>
                 )}
-                
+
                 {cursoKey === 'lashista' && (
                   <div style={{ marginBottom: '16px' }}>
                     <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
@@ -1547,7 +1963,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     </ul>
                   </div>
                 )}
-                
+
                 {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
                   <div style={{ marginBottom: '16px' }}>
                     <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
@@ -1562,7 +1978,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     </ul>
                   </div>
                 )}
-                
+
                 <div style={{
                   background: 'rgba(16, 185, 129, 0.15)',
                   borderRadius: '12px',
@@ -1589,15 +2005,15 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 padding: '20px',
                 marginBottom: '32px'
               }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: '12px',
                   marginBottom: '12px'
                 }}>
                   <Shield size={24} color="#10b981" />
-                  <span style={{ 
-                    color: '#10b981', 
+                  <span style={{
+                    color: '#10b981',
                     fontWeight: '700',
                     fontSize: '1.1rem'
                   }}>
@@ -1643,471 +2059,1066 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               )}
               <form onSubmit={handleSubmit}>
                 <fieldset disabled={isBlocked} style={{ border: 'none', padding: 0, margin: 0 }}>
-                {/* Información personal */}
-                <div className="form-section" style={{
-                  background: theme === 'dark'
-                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
-                  : 'rgba(255, 255, 255, 0.97)',
-                  borderRadius: '24px',
-                  padding: '32px',
-                  marginBottom: '32px',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(251, 191, 36, 0.2)',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-                }}>
-                  <h3 className="section-title" style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '700',
-                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    animation: 'fadeInUp 1s ease-in-out'
+                  {/* Información personal */}
+                  <div className="form-section" style={{
+                    background: theme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                      : 'rgba(255, 255, 255, 0.97)',
+                    borderRadius: '24px',
+                    padding: '32px',
+                    marginBottom: '32px',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                   }}>
-                    <User size={24} color="#fbbf24" />
-                    Información Personal
-                  </h3>
-
-                  {/* Tipo de documento - control segmentado estilizado (compacto) */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem', color: theme === 'dark' ? '#fff' : '#1f2937' }}>Tipo de documento</span>
-                    </div>
-                    <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '10px'
+                    <h3 className="section-title" style={{
+                      fontSize: '1.4rem',
+                      fontWeight: '700',
+                      color: theme === 'dark' ? '#fff' : '#1f2937',
+                      marginBottom: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      animation: 'fadeInUp 1s ease-in-out'
                     }}>
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={formData.tipoDocumento === 'ecuatoriano'}
-                        onClick={() => {
-                          setFormData({
-                            nombre: '',
-                            apellido: '',
-                            email: '',
-                            telefono: '',
-                            cedula: '',
-                            pasaporte: '',
-                            tipoDocumento: 'ecuatoriano',
-                            fechaNacimiento: '',
-                            direccion: '',
-                            genero: '',
-                            montoMatricula: curso?.precio || 0,
-                            horarioPreferido: ''
-                          });
-                          setErrors({});
-                          setDocumentoIdentificacion(null);
-                          setDocumentoEstatusLegal(null);
-                        }}
-                        className="document-tab"
-                        style={{
-                          padding: '12px 14px',
-                          borderRadius: 12,
-                          border: formData.tipoDocumento === 'ecuatoriano' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
-                          background: formData.tipoDocumento === 'ecuatoriano' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
-                          color: formData.tipoDocumento === 'ecuatoriano' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
-                          fontWeight: 700,
-                          fontSize: '0.95rem',
-                          cursor: 'pointer',
-                          boxShadow: formData.tipoDocumento === 'ecuatoriano' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
-                          transition: 'all .25s ease',
-                          backdropFilter: 'blur(10px)'
-                        }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
-                      >
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                          <User size={16} />
-                          Ecuatoriano (Cédula)
-                        </span>
-                      </button>
+                      <User size={24} color="#fbbf24" />
+                      Información Personal
+                    </h3>
 
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={formData.tipoDocumento === 'extranjero'}
-                        onClick={() => {
-                          setFormData({
-                            nombre: '',
-                            apellido: '',
-                            email: '',
-                            telefono: '',
-                            cedula: '',
-                            pasaporte: '',
-                            tipoDocumento: 'extranjero',
-                            fechaNacimiento: '',
-                            direccion: '',
-                            genero: '',
-                            montoMatricula: curso?.precio || 0,
-                            horarioPreferido: ''
-                          });
-                          setErrors({});
-                          setDocumentoIdentificacion(null);
-                          setDocumentoEstatusLegal(null);
-                        }}
-                        style={{
-                          padding: '12px 14px',
-                          borderRadius: 12,
-                          border: formData.tipoDocumento === 'extranjero' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
-                          background: formData.tipoDocumento === 'extranjero' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
-                          color: formData.tipoDocumento === 'extranjero' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
-                          fontWeight: 700,
-                          fontSize: '0.95rem',
-                          cursor: 'pointer',
-                          boxShadow: formData.tipoDocumento === 'extranjero' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
-                          transition: 'all .25s ease',
-                          backdropFilter: 'blur(10px)'
-                        }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
-                      >
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                          <Globe size={16} />
-                          Extranjero (Pasaporte)
-                        </span>
-                      </button>
-                    </div>
-                  </div>
+                    {/* ALERTA INFORMATIVA - Estudiante Existente */}
+                    {estudianteExistente && (
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                        border: '2px solid rgba(16, 185, 129, 0.4)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        marginBottom: '32px',
+                        backdropFilter: 'blur(10px)',
+                        animation: 'slideInUp 0.5s ease-out'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          marginBottom: '16px'
+                        }}>
+                          <CheckCircle size={32} color="#10b981" />
+                          <h3 style={{
+                            color: '#10b981',
+                            fontSize: '1.4rem',
+                            fontWeight: '700',
+                            margin: 0
+                          }}>
+                            ¡Bienvenido de nuevo, {estudianteExistente.nombre}!
+                          </h3>
+                        </div>
 
-                  {formData.tipoDocumento === '' && (
-                    <div style={{
-                      background: 'rgba(251, 191, 36, 0.08)',
-                      border: '1px solid rgba(251, 191, 36, 0.25)',
-                      color: '#fbbf24',
-                      borderRadius: 12,
-                      padding: '14px 16px',
-                      marginBottom: 16,
-                      fontWeight: 600
-                    }}>
-                      Selecciona el tipo de documento para continuar.
-                    </div>
-                  )}
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                          fontSize: '1.05rem',
+                          lineHeight: '1.6',
+                          margin: '0 0 16px 0'
+                        }}>
+                          Ya estás registrado en nuestro sistema con identificación <strong>{estudianteExistente.identificacion}</strong>.
+                          Para inscribirte a este nuevo curso, solo necesitas:
+                        </p>
 
-                  
+                        <ul style={{
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : '#475569',
+                          fontSize: '1rem',
+                          lineHeight: '1.8',
+                          marginTop: '12px',
+                          marginBottom: '12px',
+                          paddingLeft: '24px'
+                        }}>
+                          <li>✅ Seleccionar tu horario preferido</li>
+                          <li>✅ Elegir método de pago</li>
+                          <li>✅ Subir comprobante de pago</li>
+                        </ul>
 
-                  {formData.tipoDocumento !== '' && (
-                    <div key={formData.tipoDocumento} style={{ animation: 'fadeInUp 1s ease-in-out' }}>
-                      {/* Documento primero */}
-                      <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
-                        {formData.tipoDocumento === 'ecuatoriano' ? (
-                          <>
-                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                              Cédula *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              inputMode="numeric"
-                              pattern="^[0-9]{10}$"
-                              maxLength={10}
-                              minLength={10}
-                              title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
-                              value={formData.cedula}
-                              className="form-input"
-                              onChange={(e) => {
-                                const val = (e.target as HTMLInputElement).value;
-                                const filtered = val.replace(/\D/g, '');
-                                setFormData({ ...formData, cedula: filtered });
-                                let msg: string | undefined = undefined;
-                                if (val !== filtered) {
-                                  msg = 'Este dato es solo numérico';
-                                } else if (filtered.length === 10) {
-                                  const res = validateCedulaEC(filtered);
-                                  if (!res.ok) msg = res.reason || 'Cédula inválida';
-                                } else if (filtered.length > 0 && filtered.length < 10) {
-                                  msg = 'Debe tener 10 dígitos';
-                                }
-                                setErrors((prev) => ({ ...prev, cedula: msg }));
+                        <div style={{
+                          marginTop: '16px',
+                          padding: '12px 16px',
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(59, 130, 246, 0.3)'
+                        }}>
+                          <p style={{
+                            color: '#3b82f6',
+                            fontSize: '0.9rem',
+                            margin: 0,
+                            fontWeight: '600'
+                          }}>
+                            💡 Tip: Usarás las mismas credenciales de acceso que ya tienes
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CAMPOS PERSONALES - Solo mostrar si NO es estudiante existente */}
+                    {!estudianteExistente && (
+                      <>
+                        {/* Tipo de documento - control segmentado estilizado (compacto) */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem', color: theme === 'dark' ? '#fff' : '#1f2937' }}>Tipo de documento</span>
+                          </div>
+                          <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '10px'
+                          }}>
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={formData.tipoDocumento === 'ecuatoriano'}
+                              onClick={() => {
+                                setFormData({
+                                  nombre: '',
+                                  apellido: '',
+                                  email: '',
+                                  telefono: '',
+                                  cedula: '',
+                                  pasaporte: '',
+                                  tipoDocumento: 'ecuatoriano',
+                                  fechaNacimiento: '',
+                                  direccion: '',
+                                  genero: '',
+                                  montoMatricula: curso?.precio || 0,
+                                  horarioPreferido: ''
+                                });
+                                setErrors({});
+                                setDocumentoIdentificacion(null);
+                                setDocumentoEstatusLegal(null);
                               }}
-                              onInvalid={(e) => {
-                                (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
+                              className="document-tab"
+                              style={{
+                                padding: '12px 14px',
+                                borderRadius: 12,
+                                border: formData.tipoDocumento === 'ecuatoriano' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
+                                background: formData.tipoDocumento === 'ecuatoriano' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
+                                color: formData.tipoDocumento === 'ecuatoriano' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                cursor: 'pointer',
+                                boxShadow: formData.tipoDocumento === 'ecuatoriano' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
+                                transition: 'all .25s ease',
+                                backdropFilter: 'blur(10px)'
                               }}
-                              onInput={(e) => {
-                                (e.target as HTMLInputElement).setCustomValidity('');
+                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
+                            >
+                              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <User size={16} />
+                                Ecuatoriano (Cédula)
+                              </span>
+                            </button>
+
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={formData.tipoDocumento === 'extranjero'}
+                              onClick={() => {
+                                setFormData({
+                                  nombre: '',
+                                  apellido: '',
+                                  email: '',
+                                  telefono: '',
+                                  cedula: '',
+                                  pasaporte: '',
+                                  tipoDocumento: 'extranjero',
+                                  fechaNacimiento: '',
+                                  direccion: '',
+                                  genero: '',
+                                  montoMatricula: curso?.precio || 0,
+                                  horarioPreferido: ''
+                                });
+                                setErrors({});
+                                setDocumentoIdentificacion(null);
+                                setDocumentoEstatusLegal(null);
                               }}
                               style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                border: errors.cedula ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                borderRadius: '12px',
-                                fontSize: '1rem',
-                                transition: 'border-color 0.3s ease',
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                                padding: '12px 14px',
+                                borderRadius: 12,
+                                border: formData.tipoDocumento === 'extranjero' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
+                                background: formData.tipoDocumento === 'extranjero' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
+                                color: formData.tipoDocumento === 'extranjero' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                cursor: 'pointer',
+                                boxShadow: formData.tipoDocumento === 'extranjero' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
+                                transition: 'all .25s ease',
+                                backdropFilter: 'blur(10px)'
                               }}
-                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                            />
-                            {errors.cedula && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                <AlertCircle size={16} color="#ef4444" />
-                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.cedula}</span>
+                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
+                            >
+                              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <Globe size={16} />
+                                Extranjero (Pasaporte)
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {formData.tipoDocumento === '' && (
+                          <div style={{
+                            background: 'rgba(251, 191, 36, 0.08)',
+                            border: '1px solid rgba(251, 191, 36, 0.25)',
+                            color: '#fbbf24',
+                            borderRadius: 12,
+                            padding: '14px 16px',
+                            marginBottom: 16,
+                            fontWeight: 600
+                          }}>
+                            Selecciona el tipo de documento para continuar.
+                          </div>
+                        )}
+
+
+
+                        {!estudianteExistente && formData.tipoDocumento !== '' && (
+                          <div key={formData.tipoDocumento} style={{ animation: 'fadeInUp 1s ease-in-out' }}>
+                            {/* Documento primero */}
+                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
+                              {formData.tipoDocumento === 'ecuatoriano' ? (
+                                <>
+                                  <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                    Cédula *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    inputMode="numeric"
+                                    pattern="^[0-9]{10}$"
+                                    maxLength={10}
+                                    minLength={10}
+                                    title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
+                                    value={formData.cedula}
+                                    className="form-input"
+                                    onChange={(e) => {
+                                      const val = (e.target as HTMLInputElement).value;
+                                      const filtered = val.replace(/\D/g, '');
+                                      setFormData({ ...formData, cedula: filtered });
+                                      let msg: string | undefined = undefined;
+                                      if (val !== filtered) {
+                                        msg = 'Este dato es solo numérico';
+                                      } else if (filtered.length === 10) {
+                                        const res = validateCedulaEC(filtered);
+                                        if (!res.ok) msg = res.reason || 'Cédula inválida';
+                                      } else if (filtered.length > 0 && filtered.length < 10) {
+                                        msg = 'Debe tener 10 dígitos';
+                                      }
+                                      setErrors((prev) => ({ ...prev, cedula: msg }));
+                                    }}
+                                    onInvalid={(e) => {
+                                      (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
+                                    }}
+                                    onInput={(e) => {
+                                      (e.target as HTMLInputElement).setCustomValidity('');
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '12px 16px',
+                                      border: errors.cedula ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                      borderRadius: '12px',
+                                      fontSize: '1rem',
+                                      transition: 'border-color 0.3s ease',
+                                      background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                      color: theme === 'dark' ? '#fff' : '#1f2937'
+                                    }}
+                                    onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                    onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                  />
+                                  {errors.cedula && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                      <AlertCircle size={16} color="#ef4444" />
+                                      <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.cedula}</span>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                    Pasaporte *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    inputMode="text"
+                                    pattern="^[A-Za-z0-9]{6,20}$"
+                                    maxLength={20}
+                                    title="Pasaporte: 6 a 20 caracteres alfanuméricos"
+                                    value={formData.pasaporte || ''}
+                                    className="form-input"
+                                    onChange={(e) => {
+                                      const val = (e.target as HTMLInputElement).value;
+                                      const filtered = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                                      setFormData({ ...formData, pasaporte: filtered });
+                                      let msg: string | undefined = undefined;
+                                      if (filtered && !/^[A-Z0-9]{6,20}$/.test(filtered)) {
+                                        msg = 'Pasaporte inválido (6-20 alfanumérico)';
+                                      }
+                                      setErrors((prev) => ({ ...prev, pasaporte: msg }));
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '12px 16px',
+                                      border: errors.pasaporte ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                      borderRadius: '12px',
+                                      fontSize: '1rem',
+                                      transition: 'border-color 0.3s ease',
+                                      background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                      color: theme === 'dark' ? '#fff' : '#1f2937'
+                                    }}
+                                    onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                    onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                  />
+                                  {errors.pasaporte && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                      <AlertCircle size={16} color="#ef4444" />
+                                      <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.pasaporte}</span>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+
+                            {/* Luego Nombre y Apellido */}
+                            <div className="form-row" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '20px',
+                              marginBottom: '20px',
+                              animation: 'scaleFade 1s ease-in-out'
+                            }}>
+                              <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
+                                <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                  Nombres completos *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={formData.nombre}
+                                  className="form-input"
+                                  onChange={(e) => {
+                                    const val = (e.target as HTMLInputElement).value;
+                                    const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                                    const filtered = removedInvalid.toUpperCase();
+                                    setFormData({ ...formData, nombre: filtered });
+                                    const hadInvalid = removedInvalid.length !== val.length;
+                                    setErrors((prev) => ({ ...prev, nombre: hadInvalid ? 'Este dato es solo letras' : undefined }));
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: errors.nombre ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+                                {errors.nombre && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                    <AlertCircle size={16} color="#ef4444" />
+                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.nombre}</span>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </>
-                        ) : (
+                              <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '80ms' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                  Apellidos completos *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={formData.apellido}
+                                  onChange={(e) => {
+                                    const val = (e.target as HTMLInputElement).value;
+                                    const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                                    const filtered = removedInvalid.toUpperCase();
+                                    setFormData({ ...formData, apellido: filtered });
+                                    const hadInvalid = removedInvalid.length !== val.length;
+                                    setErrors((prev) => ({ ...prev, apellido: hadInvalid ? 'Este dato es solo letras' : undefined }));
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: errors.apellido ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+                                {errors.apellido && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                    <AlertCircle size={16} color="#ef4444" />
+                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.apellido}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Fecha de Nacimiento */}
+                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out', animationDelay: '120ms' }}>
+                              <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontWeight: '600',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}>
+                                Fecha de Nacimiento *
+                              </label>
+                              <input
+                                type="date"
+                                required
+                                value={formData.fechaNacimiento}
+                                onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
+                                onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                onBlur={(e) => {
+                                  const el = e.target as HTMLInputElement;
+                                  const val = el.value.trim();
+                                  const m1 = val.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+                                  if (m1) {
+                                    const [_, dd, mm, yyyy] = m1;
+                                    const norm = `${yyyy}-${mm}-${dd}`;
+                                    setFormData(prev => ({ ...prev, fechaNacimiento: norm }));
+                                    el.value = norm;
+                                    el.setCustomValidity('');
+                                    el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                                    return;
+                                  }
+                                  if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                                    el.setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                                  } else {
+                                    el.setCustomValidity('');
+                                  }
+                                  el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                                }}
+                                onInvalid={(e) => {
+                                  (e.target as HTMLInputElement).setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                                }}
+                                onInput={(e) => {
+                                  (e.target as HTMLInputElement).setCustomValidity('');
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  border: '2px solid rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '12px',
+                                  fontSize: '1rem',
+                                  transition: 'border-color 0.3s ease',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {formData.tipoDocumento !== '' && (
                           <>
-                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                              Pasaporte *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              inputMode="text"
-                              pattern="^[A-Za-z0-9]{6,20}$"
-                              maxLength={20}
-                              title="Pasaporte: 6 a 20 caracteres alfanuméricos"
-                              value={formData.pasaporte || ''}
-                              className="form-input"
-                              onChange={(e) => {
-                                const val = (e.target as HTMLInputElement).value;
-                                const filtered = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                                setFormData({ ...formData, pasaporte: filtered });
-                                let msg: string | undefined = undefined;
-                                if (filtered && !/^[A-Z0-9]{6,20}$/.test(filtered)) {
-                                  msg = 'Pasaporte inválido (6-20 alfanumérico)';
-                                }
-                                setErrors((prev) => ({ ...prev, pasaporte: msg }));
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                border: errors.pasaporte ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                borderRadius: '12px',
-                                fontSize: '1rem',
-                                transition: 'border-color 0.3s ease',
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1.2s ease-in-out', animationDelay: '160ms' }}>
+                              <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontWeight: '600',
                                 color: theme === 'dark' ? '#fff' : '#1f2937'
-                              }}
-                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                            />
-                            {errors.pasaporte && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                <AlertCircle size={16} color="#ef4444" />
-                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.pasaporte}</span>
+                              }}>
+                                Dirección
+                              </label>
+                              <textarea
+                                required
+                                value={formData.direccion}
+                                onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value.toUpperCase() })}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  border: '2px solid rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '12px',
+                                  fontSize: '1rem',
+                                  transition: 'border-color 0.3s ease',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  minHeight: '90px'
+                                }}
+                                onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
+                                onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                              />
+                            </div>
+
+                            <div className="form-row" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '20px',
+                              marginBottom: '20px',
+                              animation: 'scaleFade 1.2s ease-in-out',
+                              animationDelay: '200ms'
+                            }}>
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  Género *
+                                </label>
+                                <select
+                                  required
+                                  value={formData.genero}
+                                  onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                >
+                                  <option value="" disabled>Seleccionar</option>
+                                  <option value="masculino">Masculino</option>
+                                  <option value="femenino">Femenino</option>
+                                  <option value="otro">Otro</option>
+                                </select>
                               </div>
-                            )}
+                            </div>
+
+                            <div className="form-row" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '20px',
+                              animation: 'scaleFade 1.2s ease-in-out',
+                              animationDelay: '240ms'
+                            }}>
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '240ms' }}>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  Email *
+                                </label>
+                                <input
+                                  type="email"
+                                  required
+                                  inputMode="email"
+                                  pattern="[^\s@]+@[^\s@]+\.[^\s@]{2,}"
+                                  title="Ingresa un correo válido (ej: usuario@dominio.com)"
+                                  value={formData.email}
+                                  onChange={(e) => {
+                                    const raw = (e.target as HTMLInputElement).value;
+                                    const val = raw.toLowerCase();
+                                    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+                                    setFormData({ ...formData, email: val });
+                                    setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: errors.email ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+                                {errors.email && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                    <AlertCircle size={16} color="#ef4444" />
+                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.email}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  Teléfono *
+                                </label>
+                                <input
+                                  type="tel"
+                                  required
+                                  inputMode="numeric"
+                                  pattern="^09[0-9]{8}$"
+                                  maxLength={10}
+                                  minLength={10}
+                                  title="Formato Ecuador: 10 dígitos y empieza con 09"
+                                  value={formData.telefono}
+                                  onChange={(e) => {
+                                    const val = (e.target as HTMLInputElement).value;
+                                    const filtered = val.replace(/\D/g, '');
+                                    setFormData({ ...formData, telefono: filtered });
+                                    let msg: string | undefined = undefined;
+                                    if (val !== filtered) {
+                                      msg = 'Este dato es solo numérico';
+                                    } else if (filtered && !filtered.startsWith('09')) {
+                                      msg = 'El teléfono debe empezar con 09';
+                                    }
+                                    setErrors((prev) => ({ ...prev, telefono: msg }));
+                                  }}
+                                  onInvalid={(e) => {
+                                    (e.target as HTMLInputElement).setCustomValidity('Formato Ecuador: debe empezar con 09 y tener 10 dígitos');
+                                  }}
+                                  onInput={(e) => {
+                                    const el = e.target as HTMLInputElement;
+                                    const v = el.value;
+                                    if (v && !/^09/.test(v)) {
+                                      el.setCustomValidity('El teléfono debe empezar con 09');
+                                    } else {
+                                      el.setCustomValidity('');
+                                    }
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: errors.telefono ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+                                {errors.telefono && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                    <AlertCircle size={16} color="#ef4444" />
+                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Campo Monto a Pagar */}
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  Monto a pagar (USD) *
+                                </label>
+                                <input
+                                  type="number"
+                                  required
+                                  min="1"
+                                  step="0.01"
+                                  value={formData.montoMatricula}
+                                  onChange={(e) => {
+                                    const newMonto = parseFloat(e.target.value) || 0;
+                                    setFormData({ ...formData, montoMatricula: newMonto });
+
+                                    // Mostrar alerta si el monto es diferente al precio original del curso
+                                    const precioOriginal = curso?.precio || 0;
+                                    setShowMontoAlert(newMonto !== precioOriginal);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontWeight: '600'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+
+                                {/* Alerta motivacional cuando se edita el monto */}
+                                {showMontoAlert && (
+                                  <div style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 12,
+                                    marginTop: 12,
+                                    padding: '16px',
+                                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '12px',
+                                    animation: 'slideInUp 0.3s ease-out'
+                                  }}>
+                                    <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                                    <div>
+                                      <div style={{
+                                        color: '#ef4444',
+                                        fontSize: '0.95rem',
+                                        fontWeight: '700',
+                                        marginBottom: '6px'
+                                      }}>
+                                        💡 ¡Recordatorio importante!
+                                      </div>
+                                      <div style={{
+                                        color: '#fca5a5',
+                                        fontSize: '0.9rem',
+                                        lineHeight: '1.5'
+                                      }}>
+                                        Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>.
+                                        ¡No pierdas esta oportunidad de transformar tu futuro profesional!
+                                        <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+                                          ✨ Tu carrera en belleza te está esperando.
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </>
                         )}
-                      </div>
 
-                      {/* Luego Nombre y Apellido */}
-                      <div className="form-row" style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: '20px',
-                        marginBottom: '20px',
-                        animation: 'scaleFade 1s ease-in-out'
-                      }}>
-                        <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
-                          <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                            Nombres completos *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={formData.nombre}
-                            className="form-input"
-                            onChange={(e) => {
-                              const val = (e.target as HTMLInputElement).value;
-                              const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-                              const filtered = removedInvalid.toUpperCase();
-                              setFormData({ ...formData, nombre: filtered });
-                              const hadInvalid = removedInvalid.length !== val.length;
-                              setErrors((prev) => ({ ...prev, nombre: hadInvalid ? 'Este dato es solo letras' : undefined }));
-                            }}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              border: errors.nombre ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                              borderRadius: '12px',
-                              fontSize: '1rem',
-                              transition: 'border-color 0.3s ease',
-                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                              color: theme === 'dark' ? '#fff' : '#1f2937'
-                            }}
-                            onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                            onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                          />
-                          {errors.nombre && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                              <AlertCircle size={16} color="#ef4444" />
-                              <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.nombre}</span>
+                        {/* Sección de Documentos - Solo para nuevos estudiantes */}
+                        {!estudianteExistente && formData.tipoDocumento !== '' && (
+                          <div style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            borderRadius: '16px',
+                            padding: '24px',
+                            marginTop: '24px',
+                            animation: 'scaleFade 1.2s ease-in-out',
+                            animationDelay: '400ms'
+                          }}>
+                            <h4 style={{
+                              fontSize: '1.2rem',
+                              fontWeight: '700',
+                              color: theme === 'dark' ? '#fff' : '#1f2937',
+                              marginBottom: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px'
+                            }}>
+                              <FileText size={24} color="#3b82f6" />
+                              Documentos Requeridos
+                            </h4>
+
+                            {/* Documento de Identificación */}
+                            <div style={{ marginBottom: '24px' }}>
+                              <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '12px',
+                                fontWeight: '600',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}>
+                                <IdCard size={18} color="#3b82f6" />
+                                {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
+                              </label>
+
+                              <div
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (isBlocked) return;
+                                  setDragActive(false);
+                                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                    handleDocumentoIdentificacionUpload(e.dataTransfer.files[0]);
+                                  }
+                                }}
+                                style={{
+                                  border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                                  borderRadius: '12px',
+                                  padding: '20px',
+                                  textAlign: 'center',
+                                  background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                  transition: 'all 0.3s ease',
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => document.getElementById('documentoIdentificacionInput')?.click()}
+                              >
+                                <input
+                                  id="documentoIdentificacionInput"
+                                  type="file"
+                                  accept=".pdf,image/jpeg,image/png,image/webp"
+                                  onChange={(e) => handleDocumentoIdentificacionUpload(e.target.files?.[0] || null)}
+                                  style={{ display: 'none' }}
+                                />
+
+                                {documentoIdentificacion ? (
+                                  <div>
+                                    <div style={{
+                                      width: '50px',
+                                      height: '50px',
+                                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                                      borderRadius: '50%',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      margin: '0 auto 12px'
+                                    }}>
+                                      <CheckCircle size={24} color="#fff" />
+                                    </div>
+                                    <p style={{
+                                      color: '#10b981',
+                                      fontWeight: '600',
+                                      fontSize: '1rem',
+                                      marginBottom: '6px'
+                                    }}>
+                                      ¡Documento subido!
+                                    </p>
+                                    <p style={{
+                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                      fontSize: '0.85rem',
+                                      marginBottom: '12px'
+                                    }}>
+                                      {documentoIdentificacion?.name} ({((documentoIdentificacion?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDocumentoIdentificacion(null);
+                                      }}
+                                      style={{
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                                        borderRadius: '6px',
+                                        padding: '6px 12px',
+                                        color: '#dc2626',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '500'
+                                      }}
+                                    >
+                                      Cambiar
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <div style={{
+                                      width: '50px',
+                                      height: '50px',
+                                      background: 'rgba(59, 130, 246, 0.2)',
+                                      borderRadius: '50%',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      margin: '0 auto 12px'
+                                    }}>
+                                      <IdCard size={24} color="#3b82f6" />
+                                    </div>
+                                    <p style={{
+                                      color: theme === 'dark' ? '#fff' : '#1f2937',
+                                      fontWeight: '600',
+                                      fontSize: '1rem',
+                                      marginBottom: '6px'
+                                    }}>
+                                      Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
+                                    </p>
+                                    <p style={{
+                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                      fontSize: '0.85rem',
+                                      marginBottom: '12px'
+                                    }}>
+                                      Arrastra y suelta o haz clic para seleccionar
+                                    </p>
+                                    <p style={{
+                                      color: '#999',
+                                      fontSize: '0.75rem'
+                                    }}>
+                                      PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </div>
-                        <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '80ms' }}>
-                          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                            Apellidos completos *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={formData.apellido}
-                            onChange={(e) => {
-                              const val = (e.target as HTMLInputElement).value;
-                              const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-                              const filtered = removedInvalid.toUpperCase();
-                              setFormData({ ...formData, apellido: filtered });
-                              const hadInvalid = removedInvalid.length !== val.length;
-                              setErrors((prev) => ({ ...prev, apellido: hadInvalid ? 'Este dato es solo letras' : undefined }));
-                            }}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              border: errors.apellido ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                              borderRadius: '12px',
-                              fontSize: '1rem',
-                              transition: 'border-color 0.3s ease',
-                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                              color: theme === 'dark' ? '#fff' : '#1f2937'
-                            }}
-                            onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                            onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                          />
-                          {errors.apellido && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                              <AlertCircle size={16} color="#ef4444" />
-                              <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.apellido}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
 
-                      {/* Fecha de Nacimiento */}
-                      <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out', animationDelay: '120ms' }}>
-                        <label style={{
-                          display: 'block',
-                          marginBottom: '8px',
-                          fontWeight: '600',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}>
-                          Fecha de Nacimiento *
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          value={formData.fechaNacimiento}
-                          onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
-                          onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                          onBlur={(e) => {
-                            const el = e.target as HTMLInputElement;
-                            const val = el.value.trim();
-                            const m1 = val.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
-                            if (m1) {
-                              const [_, dd, mm, yyyy] = m1;
-                              const norm = `${yyyy}-${mm}-${dd}`;
-                              setFormData(prev => ({ ...prev, fechaNacimiento: norm }));
-                              el.value = norm;
-                              el.setCustomValidity('');
-                              el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                              return;
-                            }
-                            if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                              el.setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
-                            } else {
-                              el.setCustomValidity('');
-                            }
-                            el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                          }}
-                          onInvalid={(e) => {
-                            (e.target as HTMLInputElement).setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
-                          }}
-                          onInput={(e) => {
-                            (e.target as HTMLInputElement).setCustomValidity('');
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '12px 16px',
-                            border: '2px solid rgba(251, 191, 36, 0.2)',
-                            borderRadius: '12px',
-                            fontSize: '1rem',
-                            transition: 'border-color 0.3s ease',
-                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                            color: theme === 'dark' ? '#fff' : '#1f2937'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
+                            {/* Documento de Estatus Legal - Solo para extranjeros */}
+                            {formData.tipoDocumento === 'extranjero' && (
+                              <div style={{ marginBottom: '16px' }}>
+                                <label style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  marginBottom: '12px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  <FileText size={18} color="#3b82f6" />
+                                  Documento de Estatus Legal *
+                                </label>
 
-                  {formData.tipoDocumento !== '' && (
-                  <>
-                  <div style={{ marginBottom: '20px', animation: 'scaleFade 1.2s ease-in-out', animationDelay: '160ms' }}>
-                    <label style={{
-                      display: 'block',
-                      marginBottom: '8px',
-                      fontWeight: '600',
-                      color: theme === 'dark' ? '#fff' : '#1f2937'
-                    }}>
-                      Dirección
-                    </label>
-                    <textarea
-                      required
-                      value={formData.direccion}
-                      onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value.toUpperCase() })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: '2px solid rgba(251, 191, 36, 0.2)',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
-                        transition: 'border-color 0.3s ease',
-                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                        color: theme === 'dark' ? '#fff' : '#1f2937',
-                        minHeight: '90px'
-                      }}
-                      onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
-                      onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                    />
-                  </div>
+                                <div style={{
+                                  background: 'rgba(251, 191, 36, 0.1)',
+                                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                                  borderRadius: '8px',
+                                  padding: '12px',
+                                  marginBottom: '12px'
+                                }}>
+                                  <p style={{
+                                    color: '#fbbf24',
+                                    fontSize: '0.85rem',
+                                    margin: 0,
+                                    fontWeight: '600'
+                                  }}>
+                                    📋 Documentos aceptados:
+                                  </p>
+                                  <ul style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                    fontSize: '0.8rem',
+                                    margin: '8px 0 0 0',
+                                    paddingLeft: '16px'
+                                  }}>
+                                    <li>Visa de estudiante vigente</li>
+                                    <li>Permiso de residencia válido</li>
+                                  </ul>
+                                </div>
 
-                  <div className="form-row" style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '20px',
-                    marginBottom: '20px',
-                    animation: 'scaleFade 1.2s ease-in-out',
-                    animationDelay: '200ms'
-                  }}>
-                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
-                      <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: theme === 'dark' ? '#fff' : '#1f2937'
-                      }}>
-                        Género *
-                      </label>
-                      <select
-                        required
-                        value={formData.genero}
-                        onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}
-                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                      >
-                        <option value="" disabled>Seleccionar</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                        <option value="otro">Otro</option>
-                      </select>
-                    </div>
+                                <div
+                                  onDragEnter={handleDrag}
+                                  onDragLeave={handleDrag}
+                                  onDragOver={handleDrag}
+                                  onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isBlocked) return;
+                                    setDragActive(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                      handleDocumentoEstatusLegalUpload(e.dataTransfer.files[0]);
+                                    }
+                                  }}
+                                  style={{
+                                    border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                                    borderRadius: '12px',
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => document.getElementById('documentoEstatusLegalInput')?.click()}
+                                >
+                                  <input
+                                    id="documentoEstatusLegalInput"
+                                    type="file"
+                                    accept=".pdf,image/jpeg,image/png,image/webp"
+                                    onChange={(e) => handleDocumentoEstatusLegalUpload(e.target.files?.[0] || null)}
+                                    style={{ display: 'none' }}
+                                  />
 
-                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '220ms' }}>
+                                  {documentoEstatusLegal ? (
+                                    <div>
+                                      <div style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 12px'
+                                      }}>
+                                        <CheckCircle size={24} color="#fff" />
+                                      </div>
+                                      <p style={{
+                                        color: '#10b981',
+                                        fontWeight: '600',
+                                        fontSize: '1rem',
+                                        marginBottom: '6px'
+                                      }}>
+                                        ¡Documento subido!
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.85rem',
+                                        marginBottom: '12px'
+                                      }}>
+                                        {documentoEstatusLegal?.name} ({((documentoEstatusLegal?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDocumentoEstatusLegal(null);
+                                        }}
+                                        style={{
+                                          background: 'rgba(239, 68, 68, 0.1)',
+                                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                                          borderRadius: '6px',
+                                          padding: '6px 12px',
+                                          color: '#dc2626',
+                                          cursor: 'pointer',
+                                          fontSize: '0.8rem',
+                                          fontWeight: '500'
+                                        }}
+                                      >
+                                        Cambiar
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <div style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        background: 'rgba(59, 130, 246, 0.2)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 12px'
+                                      }}>
+                                        <FileText size={24} color="#3b82f6" />
+                                      </div>
+                                      <p style={{
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontWeight: '600',
+                                        fontSize: '1rem',
+                                        marginBottom: '6px'
+                                      }}>
+                                        Subir documento de estatus legal
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.85rem',
+                                        marginBottom: '12px'
+                                      }}>
+                                        Arrastra y suelta o haz clic para seleccionar
+                                      </p>
+                                      <p style={{
+                                        color: '#999',
+                                        fontSize: '0.75rem'
+                                      }}>
+                                        PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* HORARIO PREFERIDO - Siempre visible para todos */}
+                    <div style={{ marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
                       <label style={{
                         display: 'block',
                         marginBottom: '8px',
@@ -2137,1270 +3148,896 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         <option value="matutino">Matutino</option>
                         <option value="vespertino">Vespertino</option>
                       </select>
+
+                      {/* Mostrar disponibilidad de cupos por horario */}
+                      {formData.horarioPreferido && (
+                        <div style={{ marginTop: '12px' }}>
+                          {(() => {
+                            const cuposHorario = cuposDisponibles.find(
+                              (c: any) => c.id_tipo_curso === tipoCursoId && c.horario === formData.horarioPreferido
+                            );
+
+                            if (!cuposHorario || cuposHorario.cupos_totales === 0) {
+                              return (
+                                <div style={{
+                                  padding: '12px 16px',
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  borderRadius: '12px',
+                                  color: '#ef4444',
+                                  fontSize: '0.9rem',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}>
+                                  <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                  No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div style={{
+                                padding: '12px 16px',
+                                background: 'rgba(16, 185, 129, 0.1)',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                borderRadius: '12px',
+                                color: '#10b981',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}>
+                                <span style={{ fontSize: '1.2rem' }}>✅</span>
+                                Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                     </div>
+
                   </div>
 
-                  <div className="form-row" style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '20px',
-                    animation: 'scaleFade 1.2s ease-in-out',
-                    animationDelay: '240ms'
-                  }}>
-                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '240ms' }}>
-                      <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: theme === 'dark' ? '#fff' : '#1f2937'
-                      }}>
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        inputMode="email"
-                        pattern="[^\s@]+@[^\s@]+\.[^\s@]{2,}"
-                        title="Ingresa un correo válido (ej: usuario@dominio.com)"
-                        value={formData.email}
-                        onChange={(e) => {
-                          const raw = (e.target as HTMLInputElement).value;
-                          const val = raw.toLowerCase();
-                          const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
-                          setFormData({ ...formData, email: val });
-                          setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: errors.email ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}
-                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                      />
-                      {errors.email && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                          <AlertCircle size={16} color="#ef4444" />
-                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.email}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
-                      <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: theme === 'dark' ? '#fff' : '#1f2937'
-                      }}>
-                        Teléfono *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        inputMode="numeric"
-                        pattern="^09[0-9]{8}$"
-                        maxLength={10}
-                        minLength={10}
-                        title="Formato Ecuador: 10 dígitos y empieza con 09"
-                        value={formData.telefono}
-                        onChange={(e) => {
-                          const val = (e.target as HTMLInputElement).value;
-                          const filtered = val.replace(/\D/g, '');
-                          setFormData({ ...formData, telefono: filtered });
-                          let msg: string | undefined = undefined;
-                          if (val !== filtered) {
-                            msg = 'Este dato es solo numérico';
-                          } else if (filtered && !filtered.startsWith('09')) {
-                            msg = 'El teléfono debe empezar con 09';
-                          }
-                          setErrors((prev) => ({ ...prev, telefono: msg }));
-                        }}
-                        onInvalid={(e) => {
-                          (e.target as HTMLInputElement).setCustomValidity('Formato Ecuador: debe empezar con 09 y tener 10 dígitos');
-                        }}
-                        onInput={(e) => {
-                          const el = e.target as HTMLInputElement;
-                          const v = el.value;
-                          if (v && !/^09/.test(v)) {
-                            el.setCustomValidity('El teléfono debe empezar con 09');
-                          } else {
-                            el.setCustomValidity('');
-                          }
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: errors.telefono ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}
-                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                      />
-                      {errors.telefono && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                          <AlertCircle size={16} color="#ef4444" />
-                          <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Campo Monto a Pagar */}
-                    <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
-                      <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: theme === 'dark' ? '#fff' : '#1f2937'
-                      }}>
-                        Monto a pagar (USD) *
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min="1"
-                        step="0.01"
-                        value={formData.montoMatricula}
-                        onChange={(e) => {
-                          const newMonto = parseFloat(e.target.value) || 0;
-                          setFormData({ ...formData, montoMatricula: newMonto });
-                          
-                          // Mostrar alerta si el monto es diferente al precio original del curso
-                          const precioOriginal = curso?.precio || 0;
-                          setShowMontoAlert(newMonto !== precioOriginal);
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#1f2937',
-                          fontWeight: '600'
-                        }}
-                        onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                      />
-                      
-                      {/* Alerta motivacional cuando se edita el monto */}
-                      {showMontoAlert && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'flex-start', 
-                          gap: 12, 
-                          marginTop: 12,
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          borderRadius: '12px',
-                          animation: 'slideInUp 0.3s ease-out'
-                        }}>
-                          <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
-                          <div>
-                            <div style={{ 
-                              color: '#ef4444', 
-                              fontSize: '0.95rem', 
-                              fontWeight: '700',
-                              marginBottom: '6px'
-                            }}>
-                              💡 ¡Recordatorio importante!
-                            </div>
-                            <div style={{ 
-                              color: '#fca5a5', 
-                              fontSize: '0.9rem', 
-                              lineHeight: '1.5'
-                            }}>
-                              Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>. 
-                              ¡No pierdas esta oportunidad de transformar tu futuro profesional! 
-                              <span style={{ color: '#fbbf24', fontWeight: '600' }}>
-                                ✨ Tu carrera en belleza te está esperando.
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  </>
-                  )}
-
-                  {/* Sección de Documentos */}
-                  {formData.tipoDocumento !== '' && (
+                  {/* Métodos de pago */}
                     <div style={{
-                      background: 'rgba(59, 130, 246, 0.1)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '16px',
-                      padding: '24px',
-                      marginTop: '24px',
-                      animation: 'scaleFade 1.2s ease-in-out',
-                      animationDelay: '400ms'
+                      background: theme === 'dark'
+                        ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                        : 'rgba(255, 255, 255, 0.97)',
+                      borderRadius: '24px',
+                      padding: '32px',
+                      marginBottom: '32px',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(251, 191, 36, 0.2)',
+                      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                     }}>
-                      <h4 style={{
-                        fontSize: '1.2rem',
+                      <h3 className="section-title" style={{
+                        fontSize: '1.4rem',
                         fontWeight: '700',
                         color: theme === 'dark' ? '#fff' : '#1f2937',
-                        marginBottom: '20px',
+                        marginBottom: '24px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '12px'
                       }}>
-                        <FileText size={24} color="#3b82f6" />
-                        Documentos Requeridos
-                      </h4>
+                        <CreditCard size={24} color="#fbbf24" />
+                        Método de Pago
+                      </h3>
 
-                      {/* Documento de Identificación */}
-                      <div style={{ marginBottom: '24px' }}>
-                        <label style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          marginBottom: '12px',
-                          fontWeight: '600',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}>
-                          <IdCard size={18} color="#3b82f6" />
-                          {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
-                        </label>
-                        
-                        <div
-                          onDragEnter={handleDrag}
-                          onDragLeave={handleDrag}
-                          onDragOver={handleDrag}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (isBlocked) return;
-                            setDragActive(false);
-                            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                              handleDocumentoIdentificacionUpload(e.dataTransfer.files[0]);
-                            }
-                          }}
-                          style={{
-                            border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
-                            borderRadius: '12px',
-                            padding: '20px',
-                            textAlign: 'center',
-                            background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => document.getElementById('documentoIdentificacionInput')?.click()}
-                        >
-                          <input
-                            id="documentoIdentificacionInput"
-                            type="file"
-                            accept=".pdf,image/jpeg,image/png,image/webp"
-                            onChange={(e) => handleDocumentoIdentificacionUpload(e.target.files?.[0] || null)}
-                            style={{ display: 'none' }}
-                          />
-                          
-                          {documentoIdentificacion ? (
-                            <div>
-                              <div style={{
-                                width: '50px',
-                                height: '50px',
-                                background: 'linear-gradient(135deg, #10b981, #059669)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 12px'
-                              }}>
-                                <CheckCircle size={24} color="#fff" />
-                              </div>
-                              <p style={{
-                                color: '#10b981',
-                                fontWeight: '600',
-                                fontSize: '1rem',
-                                marginBottom: '6px'
-                              }}>
-                                ¡Documento subido!
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.85rem',
-                                marginBottom: '12px'
-                              }}>
-                                {documentoIdentificacion?.name} ({((documentoIdentificacion?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                              </p>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDocumentoIdentificacion(null);
-                                }}
-                                style={{
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                                  borderRadius: '6px',
-                                  padding: '6px 12px',
-                                  color: '#dc2626',
-                                  cursor: 'pointer',
-                                  fontSize: '0.8rem',
-                                  fontWeight: '500'
-                                }}
-                              >
-                                Cambiar
-                              </button>
-                            </div>
-                          ) : (
-                            <div>
-                              <div style={{
-                                width: '50px',
-                                height: '50px',
-                                background: 'rgba(59, 130, 246, 0.2)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 12px'
-                              }}>
-                                <IdCard size={24} color="#3b82f6" />
-                              </div>
-                              <p style={{
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontWeight: '600',
-                                fontSize: '1rem',
-                                marginBottom: '6px'
-                              }}>
-                                Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.85rem',
-                                marginBottom: '12px'
-                              }}>
-                                Arrastra y suelta o haz clic para seleccionar
-                              </p>
-                              <p style={{
-                                color: '#999',
-                                fontSize: '0.75rem'
-                              }}>
-                                PDF, JPG, PNG, WEBP (Máx. 5MB)
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                      <div className="payment-methods" style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr',
+                        gap: '16px',
+                        marginBottom: '24px'
+                      }}>
+                        <PaymentCard
+                          title="Transferencia Bancaria"
+                          icon={<QrCode size={24} />}
+                          description="Transfiere directamente a nuestra cuenta bancaria"
+                          isSelected={selectedPayment === 'transferencia'}
+                          onClick={() => setSelectedPayment('transferencia')}
+                        />
+
+                        <PaymentCard
+                          title="Efectivo"
+                          icon={<CreditCard size={24} />}
+                          description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
+                          isSelected={selectedPayment === 'efectivo'}
+                          onClick={() => setSelectedPayment('efectivo')}
+                        />
+
+                        <PaymentCard
+                          title="PayPhone"
+                          icon={<CreditCard size={24} />}
+                          description="Pago rápido y seguro con PayPhone (+$7 por servicio)"
+                          isSelected={selectedPayment === 'payphone'}
+                          onClick={() => setSelectedPayment('payphone')}
+                        />
                       </div>
 
-                      {/* Documento de Estatus Legal - Solo para extranjeros */}
-                      {formData.tipoDocumento === 'extranjero' && (
-                        <div style={{ marginBottom: '16px' }}>
-                          <label style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '12px',
-                            fontWeight: '600',
-                            color: theme === 'dark' ? '#fff' : '#1f2937'
+
+
+                      {/* Contenido específico según método seleccionado */}
+                      {selectedPayment === 'payphone' && (
+                        <div style={{
+                          padding: '24px',
+                          background: 'rgba(251, 191, 36, 0.1)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(251, 191, 36, 0.3)'
+                        }}>
+                          <h4 style={{
+                            color: '#b45309',
+                            fontSize: '1.2rem',
+                            fontWeight: '700',
+                            marginBottom: '16px'
                           }}>
-                            <FileText size={18} color="#3b82f6" />
-                            Documento de Estatus Legal *
-                          </label>
-                          
+                            Pagar con PayPhone
+                          </h4>
+                          <p style={{
+                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                            marginBottom: '16px',
+                            lineHeight: 1.6
+                          }}>
+                            Serás redirigido a PayPhone para completar tu pago de forma segura.
+                          </p>
                           <div style={{
-                            background: 'rgba(251, 191, 36, 0.1)',
-                            border: '1px solid rgba(251, 191, 36, 0.3)',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            marginBottom: '12px'
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            marginBottom: '16px'
                           }}>
                             <p style={{
-                              color: '#fbbf24',
-                              fontSize: '0.85rem',
-                              margin: 0,
-                              fontWeight: '600'
+                              color: '#ef4444',
+                              fontSize: '0.9rem',
+                              fontWeight: '600',
+                              margin: 0
                             }}>
-                              📋 Documentos aceptados:
+                              ⚠️ Aviso: Este método de pago aplica un recargo fijo de USD 7, correspondiente a comisiones del procesador de pagos. El monto final a cobrar incluirá dicho recargo.
                             </p>
-                            <ul style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                              fontSize: '0.8rem',
-                              margin: '8px 0 0 0',
-                              paddingLeft: '16px'
-                            }}>
-                              <li>Visa de estudiante vigente</li>
-                              <li>Permiso de residencia válido</li>
-                            </ul>
                           </div>
-                          
-                          <div
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              if (isBlocked) return;
-                              setDragActive(false);
-                              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                handleDocumentoEstatusLegalUpload(e.dataTransfer.files[0]);
-                              }
-                            }}
-                            style={{
-                              border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                          <div style={{
+                            background: '#1a365d',
+                            color: theme === 'dark' ? '#fff' : '#1f2937',
+                            padding: '16px 24px',
+                            borderRadius: '12px',
+                            textAlign: 'center',
+                            fontWeight: '700',
+                            fontSize: '1.1rem'
+                          }}>
+                            Pagar con PayPhone
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedPayment === 'transferencia' && (
+                        <div style={{
+                          padding: '24px',
+                          background: 'rgba(251, 191, 36, 0.1)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(251, 191, 36, 0.3)'
+                        }}>
+                          <h4 style={{
+                            color: '#b45309',
+                            fontSize: '1.2rem',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <QrCode size={20} />
+                            Datos para Transferencia
+                          </h4>
+
+                          {/* QR Code placeholder */}
+                          <div style={{
+                            display: 'flex',
+                            gap: '24px',
+                            marginBottom: '24px'
+                          }}>
+                            <div style={{
+                              width: '150px',
+                              height: '150px',
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
                               borderRadius: '12px',
-                              padding: '20px',
-                              textAlign: 'center',
-                              background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                              transition: 'all 0.3s ease',
-                              cursor: 'pointer'
-                            }}
-                            onClick={() => document.getElementById('documentoEstatusLegalInput')?.click()}
-                          >
-                            <input
-                              id="documentoEstatusLegalInput"
-                              type="file"
-                              accept=".pdf,image/jpeg,image/png,image/webp"
-                              onChange={(e) => handleDocumentoEstatusLegalUpload(e.target.files?.[0] || null)}
-                              style={{ display: 'none' }}
-                            />
-                            
-                            {documentoEstatusLegal ? (
-                              <div>
-                                <div style={{
-                                  width: '50px',
-                                  height: '50px',
-                                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 12px'
-                                }}>
-                                  <CheckCircle size={24} color="#fff" />
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                              flexShrink: 0
+                            }}>
+                              <QrCode size={100} color="#fff" />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                marginBottom: '12px'
+                              }}>
+                                <div style={{ marginBottom: '8px' }}>
+                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
+                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
                                 </div>
-                                <p style={{
-                                  color: '#10b981',
-                                  fontWeight: '600',
-                                  fontSize: '1rem',
-                                  marginBottom: '6px'
+                                <div style={{ marginBottom: '8px' }}>
+                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
+                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
+                                </div>
+                                <div style={{ marginBottom: '8px' }}>
+                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
+                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                                </div>
+                                <div>
+                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
+                                  <span style={{
+                                    color: '#fbbf24',
+                                    marginLeft: '8px',
+                                    fontWeight: '700',
+                                    fontSize: '1.1rem'
+                                  }}>
+                                    ${curso.precio.toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <p style={{
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                fontSize: '0.9rem',
+                                margin: 0,
+                                fontStyle: 'italic'
+                              }}>
+                                Escanea el QR o usa los datos bancarios para realizar la transferencia
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Información del comprobante */}
+                          <div style={{ marginBottom: '24px' }}>
+                            <h5 style={{
+                              color: '#b45309',
+                              fontSize: '1.1rem',
+                              fontWeight: '600',
+                              marginBottom: '16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <FileText size={18} />
+                              Datos del Comprobante *
+                            </h5>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                              {/* Banco */}
+                              <div>
+                                <label style={{
+                                  display: 'block',
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '8px',
+                                  fontWeight: '500'
                                 }}>
-                                  ¡Documento subido!
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.85rem',
-                                  marginBottom: '12px'
-                                }}>
-                                  {documentoEstatusLegal?.name} ({((documentoEstatusLegal?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDocumentoEstatusLegal(null);
-                                  }}
+                                  Banco *
+                                </label>
+                                <select
+                                  value={bancoComprobante}
+                                  onChange={(e) => setBancoComprobante(e.target.value)}
+                                  required
                                   style={{
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '6px',
-                                    padding: '6px 12px',
-                                    color: '#dc2626',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: '500'
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontSize: '1rem'
                                   }}
                                 >
-                                  Cambiar
-                                </button>
+                                  <option value="">Selecciona el banco</option>
+                                  <option value="pichincha">Banco Pichincha</option>
+                                  <option value="guayaquil">Banco de Guayaquil</option>
+                                  <option value="pacifico">Banco del Pacífico</option>
+                                  <option value="produbanco">Produbanco</option>
+                                  <option value="bolivariano">Banco Bolivariano</option>
+                                  <option value="internacional">Banco Internacional</option>
+                                  <option value="machala">Banco de Machala</option>
+                                  <option value="austro">Banco del Austro</option>
+                                  <option value="cooperativa">Cooperativa</option>
+                                  <option value="otro">Otro</option>
+                                </select>
                               </div>
-                            ) : (
+
+                              {/* Fecha de transferencia */}
                               <div>
-                                <div style={{
-                                  width: '50px',
-                                  height: '50px',
-                                  background: 'rgba(59, 130, 246, 0.2)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 12px'
+                                <label style={{
+                                  display: 'block',
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '8px',
+                                  fontWeight: '500'
                                 }}>
-                                  <FileText size={24} color="#3b82f6" />
-                                </div>
-                                <p style={{
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontWeight: '600',
-                                  fontSize: '1rem',
-                                  marginBottom: '6px'
-                                }}>
-                                  Subir documento de estatus legal
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.85rem',
-                                  marginBottom: '12px'
-                                }}>
-                                  Arrastra y suelta o haz clic para seleccionar
-                                </p>
-                                <p style={{
-                                  color: '#999',
-                                  fontSize: '0.75rem'
-                                }}>
-                                  PDF, JPG, PNG, WEBP (Máx. 5MB)
-                                </p>
+                                  Fecha de transferencia *
+                                </label>
+                                <input
+                                  type="date"
+                                  value={fechaTransferencia}
+                                  onChange={(e) => setFechaTransferencia(e.target.value)}
+                                  required
+                                  max={new Date().toISOString().split('T')[0]}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontSize: '1rem'
+                                  }}
+                                />
                               </div>
-                            )}
+                            </div>
+
+                            {/* Número de comprobante */}
+                            <div>
+                              <label style={{
+                                display: 'block',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                fontSize: '0.9rem',
+                                marginBottom: '8px',
+                                fontWeight: '500'
+                              }}>
+                                Número de comprobante *
+                                <span style={{
+                                  color: '#ef4444',
+                                  fontSize: '0.8rem',
+                                  marginLeft: '8px'
+                                }}>
+                                  (Debe ser único - no se puede repetir)
+                                </span>
+                              </label>
+                              <input
+                                type="text"
+                                value={numeroComprobante}
+                                onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
+                                placeholder="Ej: 123456789, ABC-123-XYZ"
+                                required
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  borderRadius: '12px',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontSize: '1rem',
+                                  fontFamily: 'monospace'
+                                }}
+                              />
+                              <p style={{
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                fontSize: '0.8rem',
+                                margin: '8px 0 0 0',
+                                lineHeight: 1.4
+                              }}>
+                                Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
+                                <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Subida de comprobante */}
+                          <div>
+                            <h5 style={{
+                              color: '#b45309',
+                              fontSize: '1.1rem',
+                              fontWeight: '600',
+                              marginBottom: '16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <Upload size={18} />
+                              Subir Comprobante de Pago *
+                            </h5>
+
+                            <div
+                              className="upload-area"
+                              onDragEnter={handleDrag}
+                              onDragLeave={handleDrag}
+                              onDragOver={handleDrag}
+                              onDrop={handleDrop}
+                              style={{
+                                border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                                borderRadius: '16px',
+                                padding: '32px',
+                                textAlign: 'center',
+                                background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer',
+                                position: 'relative'
+                              }}
+                              onClick={() => document.getElementById('fileInput')?.click()}
+                            >
+                              <input
+                                id="fileInput"
+                                type="file"
+                                accept=".pdf,image/jpeg,image/png,image/webp"
+                                onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
+                                style={{ display: 'none' }}
+                              />
+
+                              {uploadedFile ? (
+                                <div>
+                                  <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px'
+                                  }}>
+                                    <CheckCircle size={30} color="#fff" />
+                                  </div>
+                                  <p style={{
+                                    color: '#10b981',
+                                    fontWeight: '600',
+                                    fontSize: '1.1rem',
+                                    marginBottom: '8px'
+                                  }}>
+                                    ¡Archivo subido correctamente!
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '16px'
+                                  }}>
+                                    {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setUploadedFile(null);
+                                    }}
+                                    style={{
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      borderRadius: '8px',
+                                      padding: '8px 16px',
+                                      color: '#dc2626',
+                                      cursor: 'pointer',
+                                      fontSize: '0.9rem',
+                                      fontWeight: '500'
+                                    }}
+                                  >
+                                    Cambiar archivo
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    background: 'rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px'
+                                  }}>
+                                    <FileImage size={30} color="#fbbf24" />
+                                  </div>
+                                  <p style={{
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontWeight: '600',
+                                    fontSize: '1.1rem',
+                                    marginBottom: '8px'
+                                  }}>
+                                    Arrastra y suelta tu comprobante aquí
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '16px'
+                                  }}>
+                                    o haz clic para seleccionar archivo
+                                  </p>
+                                  <p style={{
+                                    color: '#999',
+                                    fontSize: '0.8rem'
+                                  }}>
+                                    Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{
+                              background: 'rgba(59, 130, 246, 0.1)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '12px',
+                              padding: '16px',
+                              marginTop: '16px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '8px'
+                              }}>
+                                <AlertCircle size={18} color="#3b82f6" />
+                                <span style={{
+                                  color: '#3b82f6',
+                                  fontWeight: '600',
+                                  fontSize: '0.9rem'
+                                }}>
+                                  Importante
+                                </span>
+                              </div>
+                              <p style={{
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                fontSize: '0.85rem',
+                                margin: 0,
+                                lineHeight: 1.4
+                              }}>
+                                Asegúrate de que el comprobante sea legible y muestre claramente el monto,
+                                fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedPayment === 'efectivo' && (
+                        <div style={{
+                          padding: '24px',
+                          background: 'rgba(251, 191, 36, 0.1)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(251, 191, 36, 0.3)'
+                        }}>
+                          <h4 style={{
+                            color: '#b45309',
+                            fontSize: '1.2rem',
+                            fontWeight: '700',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <Upload size={20} />
+                            Pago en Efectivo
+                          </h4>
+                          <p style={{
+                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                            marginBottom: '16px',
+                            lineHeight: 1.6
+                          }}>
+                            Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
+                            Por favor, súbelo a continuación para validar tu solicitud.
+                          </p>
+
+                          {/* Subida de comprobante (Efectivo) */}
+                          <div>
+                            <h5 style={{
+                              color: '#b45309',
+                              fontSize: '1.1rem',
+                              fontWeight: '600',
+                              marginBottom: '16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <Upload size={18} />
+                              Subir Comprobante/Factura *
+                            </h5>
+
+                            <div
+                              onDragEnter={handleDrag}
+                              onDragLeave={handleDrag}
+                              onDragOver={handleDrag}
+                              onDrop={handleDrop}
+                              style={{
+                                border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                                borderRadius: '16px',
+                                padding: '32px',
+                                textAlign: 'center',
+                                background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer',
+                                position: 'relative'
+                              }}
+                              onClick={() => document.getElementById('fileInputEfectivo')?.click()}
+                            >
+                              <input
+                                id="fileInputEfectivo"
+                                type="file"
+                                accept=".pdf,image/jpeg,image/png,image/webp"
+                                onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
+                                style={{ display: 'none' }}
+                              />
+
+                              {uploadedFile ? (
+                                <div>
+                                  <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px'
+                                  }}>
+                                    <CheckCircle size={30} color="#fff" />
+                                  </div>
+                                  <p style={{
+                                    color: '#10b981',
+                                    fontWeight: '600',
+                                    fontSize: '1.1rem',
+                                    marginBottom: '8px'
+                                  }}>
+                                    ¡Archivo subido correctamente!
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '16px'
+                                  }}>
+                                    {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setUploadedFile(null);
+                                    }}
+                                    style={{
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      borderRadius: '8px',
+                                      padding: '8px 16px',
+                                      color: '#dc2626',
+                                      cursor: 'pointer',
+                                      fontSize: '0.9rem',
+                                      fontWeight: '500'
+                                    }}
+                                  >
+                                    Cambiar archivo
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    background: 'rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px'
+                                  }}>
+                                    <FileImage size={30} color="#fbbf24" />
+                                  </div>
+                                  <p style={{
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontWeight: '600',
+                                    fontSize: '1.1rem',
+                                    marginBottom: '8px'
+                                  }}>
+                                    Arrastra y suelta tu comprobante aquí
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '16px'
+                                  }}>
+                                    o haz clic para seleccionar archivo
+                                  </p>
+                                  <p style={{
+                                    color: '#999',
+                                    fontSize: '0.8rem'
+                                  }}>
+                                    Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Campos adicionales para efectivo */}
+                          <div style={{
+                            marginTop: '32px',
+                            padding: '24px',
+                            background: 'rgba(180, 83, 9, 0.1)',
+                            borderRadius: '16px',
+                            border: '1px solid rgba(180, 83, 9, 0.3)'
+                          }}>
+                            <h5 style={{
+                              color: '#b45309',
+                              fontSize: '1.1rem',
+                              fontWeight: '700',
+                              marginBottom: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <FileText size={20} />
+                              Información del Comprobante
+                            </h5>
+                            
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '16px'
+                            }}>
+                              {/* Número de comprobante/factura */}
+                              <div>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  color: '#b45309',
+                                  fontWeight: 600,
+                                  fontSize: '0.95rem'
+                                }}>
+                                  Número de Comprobante/Factura *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={numeroComprobanteEfectivo}
+                                  onChange={(e) => setNumeroComprobanteEfectivo(e.target.value.toUpperCase())}
+                                  placeholder="Ej: 001-001-000123456"
+                                  required
+                                  style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    borderRadius: '12px',
+                                    border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                    background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontSize: '1rem',
+                                    fontFamily: 'Montserrat, sans-serif',
+                                    transition: 'all 0.3s ease',
+                                    outline: 'none'
+                                  }}
+                                  onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                                />
+                              </div>
+
+                              {/* Recibido por */}
+                              <div>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  color: '#b45309',
+                                  fontWeight: 600,
+                                  fontSize: '0.95rem'
+                                }}>
+                                  Recibido por *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={recibidoPor}
+                                  onChange={(e) => setRecibidoPor(e.target.value.toUpperCase())}
+                                  placeholder="Nombre de quien recibió el pago"
+                                  required
+                                  style={{
+                                    width: '100%',
+                                    padding: '14px 16px',
+                                    borderRadius: '12px',
+                                    border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                    background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontSize: '1rem',
+                                    fontFamily: 'Montserrat, sans-serif',
+                                    transition: 'all 0.3s ease',
+                                    outline: 'none'
+                                  }}
+                                  onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
                     </div>
-                  )}
-                  
-                </div>
 
-                {/* Métodos de pago */}
-                <div style={{
-                  background: theme === 'dark'
-                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
-                  : 'rgba(255, 255, 255, 0.97)',
-                  borderRadius: '24px',
-                  padding: '32px',
-                  marginBottom: '32px',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(251, 191, 36, 0.2)',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-                }}>
-                  <h3 className="section-title" style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '700',
-                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}>
-                    <CreditCard size={24} color="#fbbf24" />
-                    Método de Pago
-                  </h3>
-
-                  <div className="payment-methods" style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr',
-                    gap: '16px',
-                    marginBottom: '24px'
-                  }}>
-                    <PaymentCard
-                      title="Transferencia Bancaria"
-                      icon={<QrCode size={24} />}
-                      description="Transfiere directamente a nuestra cuenta bancaria"
-                      isSelected={selectedPayment === 'transferencia'}
-                      onClick={() => setSelectedPayment('transferencia')}
-                    />
-
-                    <PaymentCard
-                      title="Efectivo"
-                      icon={<CreditCard size={24} />}
-                      description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
-                      isSelected={selectedPayment === 'efectivo'}
-                      onClick={() => setSelectedPayment('efectivo')}
-                    />
-
-                    <PaymentCard
-                      title="PayPhone"
-                      icon={<CreditCard size={24} />}
-                      description="Pago rápido y seguro con PayPhone (+$7 por servicio)"
-                      isSelected={selectedPayment === 'payphone'}
-                      onClick={() => setSelectedPayment('payphone')}
-                    />
-                  </div>
-
-
-
-                  {/* Contenido específico según método seleccionado */}
-                  {selectedPayment === 'payphone' && (
-                    <div style={{
-                      padding: '24px',
-                      background: 'rgba(251, 191, 36, 0.1)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(251, 191, 36, 0.3)'
-                    }}>
-                      <h4 style={{
-                        color: '#b45309',
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
-                        marginBottom: '16px'
-                      }}>
-                        Pagar con PayPhone
-                      </h4>
-                      <p style={{
-                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                        marginBottom: '16px',
-                        lineHeight: 1.6
-                      }}>
-                        Serás redirigido a PayPhone para completar tu pago de forma segura.
-                      </p>
+                    {/* Alerta de validación al enviar */}
+                    {submitAlert && (
                       <div style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                        marginBottom: '16px'
+                        background: theme === 'dark'
+                          ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
+                          : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
+                        border:
+                          submitAlert.type === 'error' ? '1px solid rgba(239, 68, 68, 0.35)' : submitAlert.type === 'success' ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(59,130,246,0.35)',
+                        borderRadius: 12,
+                        padding: '20px 24px',
+                        marginBottom: 24,
+                        animation: alertAnimatingOut
+                          ? 'alertFadeOut 0.35s ease-in forwards'
+                          : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                        maxWidth: '100%',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                       }}>
-                        <p style={{
-                          color: '#ef4444',
-                          fontSize: '0.9rem',
-                          fontWeight: '600',
-                          margin: 0
-                        }}>
-                          ⚠️ Aviso: Este método de pago aplica un recargo fijo de USD 7, correspondiente a comisiones del procesador de pagos. El monto final a cobrar incluirá dicho recargo.
-                        </p>
-                      </div>
-                      <div style={{
-                        background: '#1a365d',
-                        color: theme === 'dark' ? '#fff' : '#1f2937',
-                        padding: '16px 24px',
-                        borderRadius: '12px',
-                        textAlign: 'center',
-                        fontWeight: '700',
-                        fontSize: '1.1rem'
-                      }}>
-                        Pagar con PayPhone
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedPayment === 'transferencia' && (
-                    <div style={{
-                      padding: '24px',
-                      background: 'rgba(251, 191, 36, 0.1)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(251, 191, 36, 0.3)'
-                    }}>
-                      <h4 style={{
-                        color: '#b45309',
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
-                        marginBottom: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <QrCode size={20} />
-                        Datos para Transferencia
-                      </h4>
-                      
-                      {/* QR Code placeholder */}
-                      <div style={{
-                        display: 'flex',
-                        gap: '24px',
-                        marginBottom: '24px'
-                      }}>
-                        <div style={{
-                          width: '150px',
-                          height: '150px',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
-                          borderRadius: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                          flexShrink: 0
-                        }}>
-                          <QrCode size={100} color="#fff" />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{
-                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
-                            padding: '16px',
-                            borderRadius: '12px',
-                            marginBottom: '12px'
-                          }}>
-                            <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
-                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
-                            </div>
-                            <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
-                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
-                            </div>
-                            <div style={{ marginBottom: '8px' }}>
-                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                              <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
-                            </div>
-                            <div>
-                              <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
-                              <span style={{ 
-                                color: '#fbbf24', 
-                                marginLeft: '8px',
-                                fontWeight: '700',
-                                fontSize: '1.1rem'
-                              }}>
-                                ${curso.precio.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                          <p style={{
-                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                            fontSize: '0.9rem',
-                            margin: 0,
-                            fontStyle: 'italic'
-                          }}>
-                            Escanea el QR o usa los datos bancarios para realizar la transferencia
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Información del comprobante */}
-                      <div style={{ marginBottom: '24px' }}>
-                        <h5 style={{
-                          color: '#b45309',
-                          fontSize: '1.1rem',
-                          fontWeight: '600',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <FileText size={18} />
-                          Datos del Comprobante *
-                        </h5>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                          {/* Banco */}
-                          <div>
-                            <label style={{
-                              display: 'block',
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                              fontSize: '0.9rem',
-                              marginBottom: '8px',
-                              fontWeight: '500'
-                            }}>
-                              Banco *
-                            </label>
-                            <select
-                              value={bancoComprobante}
-                              onChange={(e) => setBancoComprobante(e.target.value)}
-                              required
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontSize: '1rem'
-                              }}
-                            >
-                              <option value="">Selecciona el banco</option>
-                              <option value="pichincha">Banco Pichincha</option>
-                              <option value="guayaquil">Banco de Guayaquil</option>
-                              <option value="pacifico">Banco del Pacífico</option>
-                              <option value="produbanco">Produbanco</option>
-                              <option value="bolivariano">Banco Bolivariano</option>
-                              <option value="internacional">Banco Internacional</option>
-                              <option value="machala">Banco de Machala</option>
-                              <option value="austro">Banco del Austro</option>
-                              <option value="cooperativa">Cooperativa</option>
-                              <option value="otro">Otro</option>
-                            </select>
-                          </div>
-
-                          {/* Fecha de transferencia */}
-                          <div>
-                            <label style={{
-                              display: 'block',
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                              fontSize: '0.9rem',
-                              marginBottom: '8px',
-                              fontWeight: '500'
-                            }}>
-                              Fecha de transferencia *
-                            </label>
-                            <input
-                              type="date"
-                              value={fechaTransferencia}
-                              onChange={(e) => setFechaTransferencia(e.target.value)}
-                              required
-                              max={new Date().toISOString().split('T')[0]}
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontSize: '1rem'
-                              }}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                            <AlertCircle
+                              size={24}
+                              color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'}
+                              style={{ marginTop: '2px', flexShrink: 0 }}
                             />
-                          </div>
-                        </div>
-
-                        {/* Número de comprobante */}
-                        <div>
-                          <label style={{
-                            display: 'block',
-                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                            fontSize: '0.9rem',
-                            marginBottom: '8px',
-                            fontWeight: '500'
-                          }}>
-                            Número de comprobante *
-                            <span style={{ 
-                              color: '#ef4444', 
-                              fontSize: '0.8rem', 
-                              marginLeft: '8px' 
+                            <div style={{
+                              color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)',
+                              fontSize: '0.95rem',
+                              fontWeight: '500',
+                              lineHeight: 1.6,
+                              whiteSpace: 'pre-line',
+                              flex: 1
                             }}>
-                              (Debe ser único - no se puede repetir)
-                            </span>
-                          </label>
-                          <input
-                            type="text"
-                            value={numeroComprobante}
-                            onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
-                            placeholder="Ej: 123456789, ABC-123-XYZ"
-                            required
+                              {submitAlert.text}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSubmitAlert(null)}
                             style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              borderRadius: '12px',
-                              border: '1px solid rgba(255, 255, 255, 0.2)',
-                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                              color: theme === 'dark' ? '#fff' : '#1f2937',
-                              fontSize: '1rem',
-                              fontFamily: 'monospace'
+                              background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
+                              border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
+                              color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
+                              borderRadius: 8,
+                              padding: '10px 14px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              fontSize: '0.9rem',
+                              alignSelf: 'flex-start',
+                              flexShrink: 0,
+                              transition: 'all 0.2s ease'
                             }}
-                          />
-                          <p style={{
-                            color: 'rgba(255, 255, 255, 0.6)',
-                            fontSize: '0.8rem',
-                            margin: '8px 0 0 0',
-                            lineHeight: 1.4
-                          }}>
-                            Ingresa el número de referencia/transacción que aparece en tu comprobante bancario. 
-                            <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
-                          </p>
+                            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
+                            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
+                          >
+                            Entendido
+                          </button>
                         </div>
                       </div>
+                    )}
 
-                      {/* Subida de comprobante */}
-                      <div>
-                        <h5 style={{
-                          color: '#b45309',
-                          fontSize: '1.1rem',
-                          fontWeight: '600',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Upload size={18} />
-                          Subir Comprobante de Pago *
-                        </h5>
-                        
-                        <div
-                          className="upload-area"
-                          onDragEnter={handleDrag}
-                          onDragLeave={handleDrag}
-                          onDragOver={handleDrag}
-                          onDrop={handleDrop}
-                          style={{
-                            border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                            borderRadius: '16px',
-                            padding: '32px',
-                            textAlign: 'center',
-                            background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer',
-                            position: 'relative'
-                          }}
-                          onClick={() => document.getElementById('fileInput')?.click()}
-                        >
-                          <input
-                            id="fileInput"
-                            type="file"
-                            accept=".pdf,image/jpeg,image/png,image/webp"
-                            onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
-                            style={{ display: 'none' }}
-                          />
-                          
-                          {uploadedFile ? (
-                            <div>
-                              <div style={{
-                                width: '60px',
-                                height: '60px',
-                                background: 'linear-gradient(135deg, #10b981, #059669)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 16px'
-                              }}>
-                                <CheckCircle size={30} color="#fff" />
-                              </div>
-                              <p style={{
-                                color: '#10b981',
-                                fontWeight: '600',
-                                fontSize: '1.1rem',
-                                marginBottom: '8px'
-                              }}>
-                                ¡Archivo subido correctamente!
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.9rem',
-                                marginBottom: '16px'
-                              }}>
-                                {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                              </p>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUploadedFile(null);
-                                }}
-                                style={{
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                                  borderRadius: '8px',
-                                  padding: '8px 16px',
-                                  color: '#dc2626',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  fontWeight: '500'
-                                }}
-                              >
-                                Cambiar archivo
-                              </button>
-                            </div>
-                          ) : (
-                            <div>
-                              <div style={{
-                                width: '60px',
-                                height: '60px',
-                                background: 'rgba(251, 191, 36, 0.2)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 16px'
-                              }}>
-                                <FileImage size={30} color="#fbbf24" />
-                              </div>
-                              <p style={{
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontWeight: '600',
-                                fontSize: '1.1rem',
-                                marginBottom: '8px'
-                              }}>
-                                Arrastra y suelta tu comprobante aquí
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.9rem',
-                                marginBottom: '16px'
-                              }}>
-                                o haz clic para seleccionar archivo
-                              </p>
-                              <p style={{
-                                color: '#999',
-                                fontSize: '0.8rem'
-                              }}>
-                                Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div style={{
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          border: '1px solid rgba(59, 130, 246, 0.3)',
-                          borderRadius: '12px',
-                          padding: '16px',
-                          marginTop: '16px'
-                        }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '8px'
-                          }}>
-                            <AlertCircle size={18} color="#3b82f6" />
-                            <span style={{
-                              color: '#3b82f6',
-                              fontWeight: '600',
-                              fontSize: '0.9rem'
-                            }}>
-                              Importante
-                            </span>
-                          </div>
-                          <p style={{
-                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                            fontSize: '0.85rem',
-                            margin: 0,
-                            lineHeight: 1.4
-                          }}>
-                            Asegúrate de que el comprobante sea legible y muestre claramente el monto,
-                            fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    {/* Botón de envío */}
+                    <button
+                      type="submit"
+                      disabled={isBlocked}
+                      className="submit-button"
+                      style={{
+                        width: '100%',
+                        background: isBlocked ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                        color: '#000',
+                        padding: '16px 24px',
+                        borderRadius: '16px',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '1.1rem',
+                        cursor: isBlocked ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 12px 40px rgba(251, 191, 36, 0.25)'
+                      }}
+                    >
+                      Confirmar Inscripción
+                    </button>
 
-                  {selectedPayment === 'efectivo' && (
-                    <div style={{
-                      padding: '24px',
-                      background: 'rgba(251, 191, 36, 0.1)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(251, 191, 36, 0.3)'
+                    <p style={{
+                      textAlign: 'center',
+                      color: 'rgba(255, 255, 255, 0.6)',
+                      fontSize: '0.9rem',
+                      marginTop: '20px',
+                      lineHeight: 1.5
                     }}>
-                      <h4 style={{
-                        color: '#b45309',
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
-                        marginBottom: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <Upload size={20} />
-                        Pago en Efectivo
-                      </h4>
-                      <p style={{
-                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                        marginBottom: '16px',
-                        lineHeight: 1.6
-                      }}>
-                        Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
-                        Por favor, súbelo a continuación para validar tu solicitud.
-                      </p>
-
-                      {/* Subida de comprobante (Efectivo) */}
-                      <div>
-                        <h5 style={{
-                          color: '#b45309',
-                          fontSize: '1.1rem',
-                          fontWeight: '600',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Upload size={18} />
-                          Subir Comprobante/Factura *
-                        </h5>
-
-                        <div
-                          onDragEnter={handleDrag}
-                          onDragLeave={handleDrag}
-                          onDragOver={handleDrag}
-                          onDrop={handleDrop}
-                          style={{
-                            border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                            borderRadius: '16px',
-                            padding: '32px',
-                            textAlign: 'center',
-                            background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'pointer',
-                            position: 'relative'
-                          }}
-                          onClick={() => document.getElementById('fileInputEfectivo')?.click()}
-                        >
-                          <input
-                            id="fileInputEfectivo"
-                            type="file"
-                            accept=".pdf,image/jpeg,image/png,image/webp"
-                            onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
-                            style={{ display: 'none' }}
-                          />
-
-                          {uploadedFile ? (
-                            <div>
-                              <div style={{
-                                width: '60px',
-                                height: '60px',
-                                background: 'linear-gradient(135deg, #10b981, #059669)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 16px'
-                              }}>
-                                <CheckCircle size={30} color="#fff" />
-                              </div>
-                              <p style={{
-                                color: '#10b981',
-                                fontWeight: '600',
-                                fontSize: '1.1rem',
-                                marginBottom: '8px'
-                              }}>
-                                ¡Archivo subido correctamente!
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.9rem',
-                                marginBottom: '16px'
-                              }}>
-                                {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                              </p>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUploadedFile(null);
-                                }}
-                                style={{
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                                  borderRadius: '8px',
-                                  padding: '8px 16px',
-                                  color: '#dc2626',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  fontWeight: '500'
-                                }}
-                              >
-                                Cambiar archivo
-                              </button>
-                            </div>
-                          ) : (
-                            <div>
-                              <div style={{
-                                width: '60px',
-                                height: '60px',
-                                background: 'rgba(251, 191, 36, 0.2)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 16px'
-                              }}>
-                                <FileImage size={30} color="#fbbf24" />
-                              </div>
-                              <p style={{
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontWeight: '600',
-                                fontSize: '1.1rem',
-                                marginBottom: '8px'
-                              }}>
-                                Arrastra y suelta tu comprobante aquí
-                              </p>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.9rem',
-                                marginBottom: '16px'
-                              }}>
-                                o haz clic para seleccionar archivo
-                              </p>
-                              <p style={{
-                                color: '#999',
-                                fontSize: '0.8rem'
-                              }}>
-                                Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Alerta de validación al enviar */}
-                {submitAlert && (
-                  <div style={{
-                    background: theme === 'dark'
-                      ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
-                      : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
-                    border:
-                      submitAlert.type === 'error' ? '1px solid rgba(239, 68, 68, 0.35)' : submitAlert.type === 'success' ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(59,130,246,0.35)',
-                    borderRadius: 12,
-                    padding: '20px 24px',
-                    marginBottom: 24,
-                    animation: alertAnimatingOut
-                      ? 'alertFadeOut 0.35s ease-in forwards'
-                      : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                    maxWidth: '100%',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
-                        <AlertCircle 
-                          size={24} 
-                          color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'} 
-                          style={{ marginTop: '2px', flexShrink: 0 }}
-                        />
-                        <div style={{ 
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)', 
-                          fontSize: '0.95rem', 
-                          fontWeight: '500',
-                          lineHeight: 1.6,
-                          whiteSpace: 'pre-line',
-                          flex: 1
-                        }}>
-                          {submitAlert.text}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setSubmitAlert(null)}
-                        style={{
-                          background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
-                          border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
-                          borderRadius: 8,
-                          padding: '10px 14px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          alignSelf: 'flex-start',
-                          flexShrink: 0,
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
-                        onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
-                      >
-                        Entendido
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Botón de envío */}
-                <button
-                  type="submit"
-                  disabled={isBlocked}
-                  className="submit-button"
-                  style={{
-                    width: '100%',
-                    background: isBlocked ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                    color: '#000',
-                    padding: '16px 24px',
-                    borderRadius: '16px',
-                    border: 'none',
-                    fontWeight: 800,
-                    fontSize: '1.1rem',
-                    cursor: isBlocked ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 12px 40px rgba(251, 191, 36, 0.25)'
-                  }}
-                >
-                  Confirmar Inscripción
-                </button>
-
-                <p style={{
-                  textAlign: 'center',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  fontSize: '0.9rem',
-                  marginTop: '20px',
-                  lineHeight: 1.5
-                }}>
-                  Al proceder con el pago, aceptas nuestros términos y condiciones.
-                  <br />
-                  Recibirás un email de confirmación una vez procesado el pago.
-                </p>
+                      Al proceder con el pago, aceptas nuestros términos y condiciones.
+                      <br />
+                      Recibirás un email de confirmación una vez procesado el pago.
+                    </p>
                 </fieldset>
               </form>
             </div>

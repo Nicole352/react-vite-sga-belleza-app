@@ -10,11 +10,12 @@ type Course = {
   codigo_curso: string;
   id_tipo_curso: number;
   nombre: string;
+  horario: 'matutino' | 'vespertino';
   capacidad_maxima: number;
+  cupos_disponibles?: number;
   fecha_inicio: string; // YYYY-MM-DD
   fecha_fin: string; // YYYY-MM-DD
   estado: 'planificado' | 'activo' | 'finalizado' | 'cancelado';
-  cupos_disponibles?: number;
 };
 
 type EstadoFilter = 'todos' | Course['estado'];
@@ -207,6 +208,7 @@ const GestionCursos = () => {
         codigo_curso: String(row.codigo_curso ?? ''),
         id_tipo_curso: Number(row.id_tipo_curso ?? 0),
         nombre: String(row.nombre ?? ''),
+        horario: (row.horario as 'matutino' | 'vespertino') ?? 'matutino',
         capacidad_maxima: Number(row.capacidad_maxima ?? 20),
         fecha_inicio: String((row.fecha_inicio ?? '').slice ? (row.fecha_inicio as string).slice(0,10) : row.fecha_inicio ?? ''),
         fecha_fin: String((row.fecha_fin ?? '').slice ? (row.fecha_fin as string).slice(0,10) : row.fecha_fin ?? ''),
@@ -373,6 +375,7 @@ const GestionCursos = () => {
       codigo_curso: codigo,
       id_tipo_curso: Number(formData.get('id_tipo_curso')),
       nombre: nombre,
+      horario: String(formData.get('horario') || 'matutino') as 'matutino' | 'vespertino',
       capacidad_maxima: Number(formData.get('capacidad_maxima')),
       fecha_inicio: String(formData.get('fecha_inicio') || ''),
       fecha_fin: String(formData.get('fecha_fin') || ''),
@@ -1074,6 +1077,27 @@ const GestionCursos = () => {
                       color: '#fff' 
                     }} 
                   />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Horario *</label>
+                  <select 
+                    name="horario" 
+                    defaultValue={selectedCurso?.horario || 'matutino'} 
+                    required 
+                    disabled={modalType === 'view'}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      background: 'rgba(255,255,255,0.1)', 
+                      border: '1px solid rgba(255,255,255,0.2)', 
+                      borderRadius: '10px', 
+                      color: '#fff',
+                      cursor: modalType === 'view' ? 'not-allowed' : 'pointer'
+                    }} 
+                  >
+                    <option value="matutino" style={{ background: '#1a1a1a', color: '#fff' }}>Matutino</option>
+                    <option value="vespertino" style={{ background: '#1a1a1a', color: '#fff' }}>Vespertino</option>
+                  </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Fecha Inicio</label>

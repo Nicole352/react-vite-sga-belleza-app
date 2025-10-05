@@ -8,7 +8,6 @@ import 'aos/dist/aos.css';
 import { 
   Eye, 
   EyeOff, 
-  Mail,
   Shield,
   CheckCircle,
   ArrowRight,
@@ -308,9 +307,9 @@ const AulaVirtual = () => {
             position: absolute;
             top: 0;
             right: 0;
-            width: 48px; /* reducir halo para no parecer margen vacío */
+            width: 0; /* sin sombra entre imagen y login */
             height: 100%;
-            background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.95) 100%);
+            background: transparent;
             z-index: 2;
           }
           
@@ -441,7 +440,6 @@ const AulaVirtual = () => {
             display: flex;
             flex-direction: column;
           }
-          
           .form-group {
             margin-bottom: 16px; /* compactar verticalmente */
           }
@@ -450,7 +448,7 @@ const AulaVirtual = () => {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: rgba(255,255,255,0.95);
+            color: ${theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.9)'};
             font-size: 1rem;
             font-family: 'Montserrat', sans-serif;
           }
@@ -462,16 +460,16 @@ const AulaVirtual = () => {
           .form-input {
             width: 100%;
             padding: 16px 48px 16px 48px;
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border: 1.5px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(251, 191, 36, 0.5)'};
             border-radius: 14px;
             font-size: 1.05rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.08);
-            color: theme === 'dark' ? '#fff' : '#1f2937';
+            background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
+            color: ${theme === 'dark' ? '#fff' : '#1f2937'};
             font-family: 'Montserrat', sans-serif;
             font-weight: 500;
           }
-          .form-input::placeholder { color: rgba(255,255,255,0.65); }
+          .form-input::placeholder { color: ${theme === 'dark' ? 'rgba(255,255,255,0.65)' : 'rgba(107, 114, 128, 0.7)'}; }
           
           .form-input:focus {
             outline: none;
@@ -485,7 +483,7 @@ const AulaVirtual = () => {
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: rgba(255,255,255,0.7);
+            color: ${theme === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(107, 114, 128, 0.6)'};
             transition: all 0.3s ease;
             z-index: 1;
           }
@@ -504,7 +502,7 @@ const AulaVirtual = () => {
             background: none;
             border: none;
             cursor: pointer;
-            color: rgba(255,255,255,0.75);
+            color: ${theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(107, 114, 128, 0.7)'};
             transition: all 0.3s ease;
             padding: 4px;
             border-radius: 8px;
@@ -561,7 +559,7 @@ const AulaVirtual = () => {
           .features-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.95);
+            color: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(31, 41, 55, 0.9)'};
             margin-bottom: 16px;
             font-family: 'Montserrat', sans-serif;
           }
@@ -571,7 +569,7 @@ const AulaVirtual = () => {
             align-items: center;
             gap: 12px;
             margin-bottom: 12px;
-            color: rgba(255,255,255,0.75);
+            color: ${theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(75, 85, 99, 0.8)'};
             font-size: 0.9rem;
             font-family: 'Montserrat', sans-serif;
           }

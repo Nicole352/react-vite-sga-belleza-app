@@ -23,6 +23,7 @@ type Solicitud = {
   numero_comprobante?: string;
   banco_comprobante?: string;
   fecha_transferencia?: string;
+  id_estudiante_existente?: number | null;
   estado: 'pendiente' | 'aprobado' | 'rechazado' | 'observaciones';
   fecha_solicitud: string;
 };
@@ -231,30 +232,59 @@ const GestionMatricula = () => {
       
       const data = await response.json();
       
-      // Notificación de éxito con información del estudiante
-      toast.success(
-        <div style={{ lineHeight: '1.6' }}>
-          <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={20} />
-            Estudiante creado exitosamente
-          </div>
-          <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
-            <div><strong>Nombre:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
-            <div><strong>Usuario:</strong> {data.estudiante.username}</div>
-            <div><strong>Email:</strong> {data.estudiante.email}</div>
-            <div style={{ marginTop: '6px', color: '#fbbf24', fontWeight: '600' }}>
-              <strong>Contraseña:</strong> {data.estudiante.password_temporal}
+      // Notificación de éxito - diferente según si es estudiante nuevo o existente
+      if (approvalData?.id_estudiante_existente) {
+        // CASO: Estudiante existente - Solo se creó matrícula
+        toast.success(
+          <div style={{ lineHeight: '1.6' }}>
+            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckCircle2 size={20} />
+              Matrícula aprobada exitosamente
             </div>
-          </div>
-        </div>,
-        {
-          duration: 8000,
-          style: {
-            minWidth: '420px',
-          },
-          icon: <CheckCircle2 size={24} />,
-        }
-      );
+            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+              <div><strong>Estudiante:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
+              <div><strong>Usuario:</strong> {data.estudiante.username}</div>
+              <div style={{ marginTop: '6px', padding: '8px', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                <div style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '600' }}>
+                  El estudiante usará sus credenciales existentes
+                </div>
+              </div>
+            </div>
+          </div>,
+          {
+            duration: 6000,
+            style: {
+              minWidth: '420px',
+            },
+            icon: <CheckCircle2 size={24} />,
+          }
+        );
+      } else {
+        // CASO: Estudiante nuevo - Se creó usuario + matrícula
+        toast.success(
+          <div style={{ lineHeight: '1.6' }}>
+            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckCircle2 size={20} />
+              Estudiante creado exitosamente
+            </div>
+            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+              <div><strong>Nombre:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
+              <div><strong>Usuario:</strong> {data.estudiante.username}</div>
+              <div><strong>Email:</strong> {data.estudiante.email}</div>
+              <div style={{ marginTop: '6px', color: '#fbbf24', fontWeight: '600' }}>
+                <strong>Contraseña:</strong> {data.estudiante.password_temporal}
+              </div>
+            </div>
+          </div>,
+          {
+            duration: 8000,
+            style: {
+              minWidth: '420px',
+            },
+            icon: <CheckCircle2 size={24} />,
+          }
+        );
+      }
       
       // Cerrar modal y refrescar datos
       setShowApprovalModal(false);
@@ -529,7 +559,7 @@ const GestionMatricula = () => {
                 {/* Segunda fila - Número, Comprobante y Estado separados */}
                 <div style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(3, 1fr)', 
+                  gridTemplateColumns: sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', 
                   gap: '12px',
                   alignItems: 'start'
                 }}>
@@ -567,6 +597,42 @@ const GestionMatricula = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Recibido por - Solo para efectivo */}
+                  {sol.metodo_pago === 'efectivo' && (
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Recibido por</div>
+                      {(sol as any).recibido_por ? (
+                        <div style={{
+                          background: 'rgba(180, 83, 9, 0.1)',
+                          border: '1px solid rgba(180, 83, 9, 0.3)',
+                          color: '#b45309',
+                          padding: '6px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          textAlign: 'center',
+                          width: '100%'
+                        }}>
+                          {(sol as any).recibido_por}
+                        </div>
+                      ) : (
+                        <div style={{
+                          background: 'rgba(107, 114, 128, 0.1)',
+                          border: '1px solid rgba(107, 114, 128, 0.3)',
+                          color: 'rgba(255, 255, 255, 0.5)',
+                          padding: '6px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          textAlign: 'center',
+                          fontStyle: 'italic',
+                          width: '100%'
+                        }}>
+                          Sin registro
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Comprobante - Solo botón */}
                   <div>
@@ -708,8 +774,8 @@ const GestionMatricula = () => {
 
       {/* Modal Detalle Solicitud */}
       {showModal && selected && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 16, width: 'min(840px, 92vw)', padding: 24, color: '#fff' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, paddingTop: '60px', overflowY: 'auto' }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 16, width: 'min(840px, 92vw)', padding: 24, color: '#fff', marginBottom: '60px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ margin: 0 }}>Solicitud {selected.codigo_solicitud}</h3>
               <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -808,7 +874,7 @@ const GestionMatricula = () => {
                 <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selected.metodo_pago}</div>
               </div>
               
-              {/* Información del comprobante - solo para transferencia */}
+              {/* Información del comprobante - para transferencia */}
               {selected.metodo_pago === 'transferencia' && (
                 <>
                   {selected.numero_comprobante && (
@@ -854,6 +920,46 @@ const GestionMatricula = () => {
                   )}
                 </>
               )}
+
+              {/* Información del comprobante - para efectivo */}
+              {selected.metodo_pago === 'efectivo' && (
+                <>
+                  {selected.numero_comprobante && (
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
+                      <div style={{ 
+                        color: '#fbbf24', 
+                        fontWeight: '600', 
+                        fontFamily: 'monospace',
+                        fontSize: '0.95rem',
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                      }}>
+                        {selected.numero_comprobante}
+                      </div>
+                    </div>
+                  )}
+                  {(selected as any).recibido_por && (
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Recibido por</div>
+                      <div style={{ 
+                        color: '#b45309', 
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        background: 'rgba(180, 83, 9, 0.1)',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(180, 83, 9, 0.3)'
+                      }}>
+                        {(selected as any).recibido_por}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
                 <div style={{ 
@@ -1288,7 +1394,7 @@ const GestionMatricula = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={20} />
-                Crear Estudiante
+                {approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante'}
               </h3>
               <button onClick={() => setShowApprovalModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
                 <X />
@@ -1388,32 +1494,59 @@ const GestionMatricula = () => {
               </div>
             </div>
 
-            {/* Usuario Generado */}
-            <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-              <h4 style={{ margin: '0 0 12px 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <GraduationCap size={18} color="#10b981" />
-                Usuario Generado Automáticamente
-              </h4>
-              <div style={{ 
-                color: '#10b981', 
-                fontSize: '1.2rem',
-                fontFamily: 'monospace',
-                fontWeight: '700',
-                background: 'rgba(16, 185, 129, 0.1)',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                marginBottom: '8px'
-              }}>
-                {generatedUsername}
+            {/* Usuario Generado - Solo mostrar si NO es estudiante existente */}
+            {!approvalData?.id_estudiante_existente && (
+              <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <GraduationCap size={18} color="#10b981" />
+                  Usuario Generado Automáticamente
+                </h4>
+                <div style={{ 
+                  color: '#10b981', 
+                  fontSize: '1.2rem',
+                  fontFamily: 'monospace',
+                  fontWeight: '700',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  marginBottom: '8px'
+                }}>
+                  {generatedUsername}
+                </div>
+                <div style={{ 
+                  color: 'rgba(255,255,255,0.7)', 
+                  fontSize: '0.85rem'
+                }}>
+                  Generado a partir de las iniciales del nombre + primer apellido
+                </div>
               </div>
+            )}
+
+            {/* Alerta para estudiante existente */}
+            {approvalData?.id_estudiante_existente && (
               <div style={{ 
-                color: 'rgba(255,255,255,0.7)', 
-                fontSize: '0.85rem'
+                marginTop: 16, 
+                background: 'rgba(59, 130, 246, 0.1)', 
+                border: '1px solid rgba(59, 130, 246, 0.3)', 
+                borderRadius: 12, 
+                padding: 16 
               }}>
-                Generado a partir de las iniciales del nombre + primer apellido
+                <h4 style={{ margin: '0 0 8px 0', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle2 size={18} color="#3b82f6" />
+                  Estudiante Existente
+                </h4>
+                <div style={{ 
+                  color: 'rgba(255,255,255,0.8)', 
+                  fontSize: '0.9rem',
+                  lineHeight: '1.5'
+                }}>
+                  Este estudiante ya está registrado en el sistema. Solo se creará la matrícula para el nuevo curso.
+                  <br />
+                  <strong style={{ color: '#3b82f6' }}>No se generarán nuevas credenciales.</strong>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Botones de Acción */}
             <div style={{ 
@@ -1456,7 +1589,7 @@ const GestionMatricula = () => {
                 }}
               >
                 <Check size={16} />
-                {decidiendo ? 'Creando...' : 'Crear Estudiante'}
+                {decidiendo ? 'Procesando...' : (approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante')}
               </button>
             </div>
           </div>

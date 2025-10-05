@@ -509,7 +509,7 @@ const GestionPagosEstudiante = () => {
               {/* Segunda fila - Número, Comprobante y Estado */}
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
+                gridTemplateColumns: pago.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', 
                 gap: '12px',
                 alignItems: 'start'
               }}>
@@ -547,6 +547,42 @@ const GestionPagosEstudiante = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Recibido por - Solo para efectivo */}
+                {pago.metodo_pago === 'efectivo' && (
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Recibido por</div>
+                    {(pago as any).recibido_por ? (
+                      <div style={{
+                        background: 'rgba(180, 83, 9, 0.1)',
+                        border: '1px solid rgba(180, 83, 9, 0.3)',
+                        color: '#b45309',
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        width: '100%'
+                      }}>
+                        {(pago as any).recibido_por}
+                      </div>
+                    ) : (
+                      <div style={{
+                        background: 'rgba(107, 114, 128, 0.1)',
+                        border: '1px solid rgba(107, 114, 128, 0.3)',
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        textAlign: 'center',
+                        fontStyle: 'italic',
+                        width: '100%'
+                      }}>
+                        Sin registro
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Comprobante - Botón */}
                 <div>
@@ -1040,6 +1076,79 @@ const GestionPagosEstudiante = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Información de Pago - Solo para efectivo */}
+              {selectedPago.metodo_pago === 'efectivo' && (
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.03)', 
+                  borderRadius: '16px', 
+                  padding: '24px',
+                  marginBottom: '24px',
+                  border: '1px solid rgba(180, 83, 9, 0.3)'
+                }}>
+                  <div style={{ 
+                    color: 'rgba(255,255,255,0.5)', 
+                    fontSize: '0.7rem', 
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    marginBottom: '16px'
+                  }}>
+                    💰 Información del Pago en Efectivo
+                  </div>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '16px'
+                  }}>
+                    {selectedPago.numero_comprobante && (
+                      <div>
+                        <div style={{ 
+                          color: 'rgba(255,255,255,0.6)', 
+                          fontSize: '0.75rem',
+                          marginBottom: '6px'
+                        }}>
+                          Número de Comprobante
+                        </div>
+                        <div style={{ 
+                          color: '#fbbf24', 
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          fontFamily: 'monospace',
+                          background: 'rgba(251, 191, 36, 0.1)',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(251, 191, 36, 0.3)'
+                        }}>
+                          {selectedPago.numero_comprobante}
+                        </div>
+                      </div>
+                    )}
+                    {(selectedPago as any).recibido_por && (
+                      <div>
+                        <div style={{ 
+                          color: 'rgba(255,255,255,0.6)', 
+                          fontSize: '0.75rem',
+                          marginBottom: '6px'
+                        }}>
+                          Recibido por
+                        </div>
+                        <div style={{ 
+                          color: '#b45309', 
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          background: 'rgba(180, 83, 9, 0.1)',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(180, 83, 9, 0.3)'
+                        }}>
+                          {(selectedPago as any).recibido_por}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Información de Verificación */}
               {(selectedPago.estado === 'verificado' && selectedPago.fecha_verificacion) && (
