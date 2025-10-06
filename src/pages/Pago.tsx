@@ -61,7 +61,12 @@ import {
   IdCard,
   Sunrise,
   Sunset,
-  Users
+  Users,
+  X,
+  Clock,
+  Ban,
+  BookOpen,
+  Hash
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
@@ -217,8 +222,7 @@ const Pago: React.FC = () => {
   const [cuposDisponibles, setCuposDisponibles] = useState<any[]>([]);
   const [isRefreshingCupos, setIsRefreshingCupos] = useState(false);
   const cuposCache = useRef<{ data: any[], timestamp: number } | null>(null);
-  const CACHE_DURATION = 3000; // 3 segundos de caché (más rápido para detectar cambios)
-  const POLLING_INTERVAL = 3000; // Polling cada 3 segundos
+  const CACHE_DURATION = 60000; // 60 segundos de caché (más profesional)
   const lastFetchRef = useRef<number>(0);
   const [lastCuposCount, setLastCuposCount] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
@@ -244,7 +248,7 @@ const Pago: React.FC = () => {
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
   const [fechaTransferencia, setFechaTransferencia] = useState('');
-  
+
   // Estados para pago en efectivo
   const [numeroComprobanteEfectivo, setNumeroComprobanteEfectivo] = useState('');
   const [recibidoPor, setRecibidoPor] = useState('');
@@ -252,6 +256,10 @@ const Pago: React.FC = () => {
   // Estados para estudiante existente
   const [estudianteExistente, setEstudianteExistente] = useState<any>(null);
   const [verificandoEstudiante, setVerificandoEstudiante] = useState(false);
+
+  // Estados para solicitudes pendientes
+  const [solicitudPendiente, setSolicitudPendiente] = useState<any>(null);
+  const [tieneSolicitudPendiente, setTieneSolicitudPendiente] = useState(false);
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -277,6 +285,39 @@ const Pago: React.FC = () => {
   };
 
 
+  // Función para verificar solicitudes pendientes
+  const verificarSolicitudPendiente = async (identificacion: string) => {
+    if (!identificacion || identificacion.trim().length < 6) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/solicitudes?estado=pendiente&limit=100`
+      );
+
+      if (response.ok) {
+        const solicitudes = await response.json();
+
+        // Buscar si tiene solicitud pendiente con esta identificación
+        const solicitudPendienteEncontrada = solicitudes.find(
+          (sol: any) => sol.identificacion_solicitante?.toUpperCase() === identificacion.trim().toUpperCase()
+        );
+
+        if (solicitudPendienteEncontrada) {
+          setSolicitudPendiente(solicitudPendienteEncontrada);
+          setTieneSolicitudPendiente(true);
+          return true;
+        } else {
+          setSolicitudPendiente(null);
+          setTieneSolicitudPendiente(false);
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando solicitudes pendientes:', error);
+    }
+    return false;
+  };
+
   // Función para verificar si estudiante ya existe en el sistema
   const verificarEstudianteExistente = async (identificacion: string) => {
     if (!identificacion || identificacion.trim().length < 6) return;
@@ -284,6 +325,15 @@ const Pago: React.FC = () => {
     setVerificandoEstudiante(true);
 
     try {
+      // PRIMERO: Verificar si tiene solicitud pendiente
+      const tienePendiente = await verificarSolicitudPendiente(identificacion);
+
+      if (tienePendiente) {
+        setVerificandoEstudiante(false);
+        return; // Detener aquí si tiene solicitud pendiente
+      }
+
+      // SEGUNDO: Verificar si es estudiante existente
       const response = await fetch(
         `${API_BASE}/estudiantes/verificar?identificacion=${encodeURIComponent(identificacion.trim().toUpperCase())}`
       );
@@ -307,27 +357,51 @@ const Pago: React.FC = () => {
             genero: data.estudiante.genero || ''
           }));
 
-          // Mostrar toast informativo centrado
-          toast.success(
-            `¡Bienvenido de nuevo ${data.estudiante.nombre}! Ya estás en el sistema. Solo selecciona tu horario preferido y sube tu comprobante de pago.`,
-            {
-              duration: 6000,
-              icon: '🎓',
-              style: {
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                color: '#10b981',
-                backdropFilter: 'blur(10px)',
-                maxWidth: '600px',
-                fontSize: '0.95rem',
-                padding: '20px 24px'
-              }
-            }
-          );
+          // Toast eliminado - ya se muestra la alerta verde fija en el formulario
 
           // Mostrar cursos matriculados si existen
           if (data.cursos_matriculados && data.cursos_matriculados.length > 0) {
             console.log('📚 Cursos actuales del estudiante:', data.cursos_matriculados);
+
+            // VALIDAR CURSO DUPLICADO: Verificar si ya está inscrito en este curso
+            const yaInscritoEnEsteCurso = data.cursos_matriculados.some(
+              (curso: any) => curso.id_tipo_curso === tipoCursoId
+            );
+
+            if (yaInscritoEnEsteCurso) {
+              const cursoActual = data.cursos_matriculados.find(
+                (curso: any) => curso.id_tipo_curso === tipoCursoId
+              );
+
+              toast.error(
+                `⚠️ Ya estás inscrito en este curso\n\nActualmente cursas: ${cursoActual?.tipo_curso_nombre || 'este curso'}.\nNo puedes inscribirte dos veces en el mismo curso.`,
+                {
+                  duration: 7000,
+                  icon: '🚫',
+                  style: {
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                    border: '2px solid rgba(239, 68, 68, 0.4)',
+                    color: '#ef4444',
+                    backdropFilter: 'blur(10px)',
+                    maxWidth: '600px',
+                    fontSize: '0.95rem',
+                    padding: '20px 24px',
+                    whiteSpace: 'pre-line'
+                  }
+                }
+              );
+
+              // Bloquear formulario marcando como si tuviera solicitud pendiente
+              setTieneSolicitudPendiente(true);
+              setSolicitudPendiente({
+                tipo_curso_nombre: cursoActual?.tipo_curso_nombre || 'Este curso',
+                codigo_solicitud: 'YA-INSCRITO',
+                fecha_solicitud: cursoActual?.fecha_matricula || new Date(),
+                estado: 'Ya inscrito'
+              });
+
+              return; // Detener aquí
+            }
           }
         } else {
           // Estudiante NO existe - formulario normal
@@ -430,19 +504,19 @@ const Pago: React.FC = () => {
     try {
       console.log('🔄 Cargando cupos desde:', `${API_BASE}/cursos/disponibles`);
       const res = await fetch(`${API_BASE}/cursos/disponibles`);
-      
+
       if (!res.ok) {
         console.error('❌ Error en respuesta de cupos:', res.status);
         if (loadingToast) toast.error('Error al cargar cupos disponibles', { id: loadingToast });
         return cuposCache.current?.data || [];
       }
-      
+
       const cupos = await res.json();
-      
+
       // DETECTAR CAMBIOS (nuevos cursos agregados)
       const previousCount = lastCuposCount;
       const newCount = cupos.length;
-      
+
       if (isPolling && previousCount > 0 && newCount > previousCount) {
         // ¡Nuevos cursos detectados!
         const diff = newCount - previousCount;
@@ -458,27 +532,27 @@ const Pago: React.FC = () => {
           }
         });
       }
-      
+
       setLastCuposCount(newCount);
-      
+
       // GUARDAR EN CACHÉ
       cuposCache.current = {
         data: cupos,
         timestamp: Date.now()
       };
-      
+
       setCuposDisponibles(cupos);
       console.log('📊 Cupos disponibles cargados:', cupos);
       console.log('📊 Total de registros:', cupos.length);
-      
+
       // TOAST DE ÉXITO (solo si showToast es true)
       if (loadingToast) {
-        toast.success(`✅ ${cupos.length} cursos cargados`, { 
+        toast.success(`✅ ${cupos.length} cursos cargados`, {
           id: loadingToast,
           duration: 2000
         });
       }
-      
+
       return cupos;
     } catch (err) {
       console.error('❌ Error cargando cupos:', err);
@@ -487,29 +561,29 @@ const Pago: React.FC = () => {
     }
   };
 
-  // Cargar cupos al montar + polling cada 3 segundos
+  // Cargar cupos SOLO al montar (sin polling)
   useEffect(() => {
     let cancelled = false;
-    let intervalId: any;
 
     const init = async () => {
       if (cancelled) return;
-      await loadCuposDisponibles(false, true, false); // Primera carga con toast
-      
-      // Polling silencioso cada 3 segundos para detectar cambios rápido
-      intervalId = setInterval(async () => {
-        if (!cancelled) {
-          await loadCuposDisponibles(true, false, true); // Sin toast inicial, pero detecta cambios
-        }
-      }, POLLING_INTERVAL);
+      await loadCuposDisponibles(false, true, false); // Una sola carga inicial
     };
 
     init();
-    return () => { 
+    return () => {
       cancelled = true;
-      if (intervalId) clearInterval(intervalId);
     };
   }, []);
+
+  // Recargar cupos cuando el usuario interactúa con el formulario
+  const reloadCuposOnInteraction = async () => {
+    const now = Date.now();
+    // Solo recargar si han pasado más de 10 segundos desde la última carga
+    if (now - lastFetchRef.current > 10000) {
+      await loadCuposDisponibles(true, false, true);
+    }
+  };
 
   // Función para refrescar manualmente
   const handleRefreshCupos = async () => {
@@ -1188,7 +1262,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
   return (
     <>
       {/* Toast Container */}
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -1783,15 +1857,15 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
                                 console.log('🔍 Cupos filtrados:', cuposFiltrados);
                                 console.log('🔍 Comparación:', cuposDisponibles.map((c: any) => `${c.id_tipo_curso} === ${tipoCursoId} ? ${c.id_tipo_curso === tipoCursoId}`));
-                                
+
                                 if (cuposFiltrados.length > 0) {
                                   return cuposFiltrados.map((c: any) => {
                                     const tieneCupos = c.cupos_totales > 0;
                                     const porcentajeOcupado = ((c.capacidad_total - c.cupos_totales) / c.capacidad_total) * 100;
                                     const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
-                                    
+
                                     return (
-                                      <div 
+                                      <div
                                         key={c.horario}
                                         style={{
                                           display: 'inline-flex',
@@ -1799,11 +1873,11 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                           gap: '8px',
                                           padding: '8px 14px',
                                           borderRadius: '12px',
-                                          background: tieneCupos 
+                                          background: tieneCupos
                                             ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1))'
                                             : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-                                          border: tieneCupos 
-                                            ? '1.5px solid rgba(16, 185, 129, 0.4)' 
+                                          border: tieneCupos
+                                            ? '1.5px solid rgba(16, 185, 129, 0.4)'
                                             : '1.5px solid rgba(239, 68, 68, 0.4)',
                                           boxShadow: tieneCupos
                                             ? '0 4px 12px rgba(16, 185, 129, 0.15)'
@@ -1824,8 +1898,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                             : '0 4px 12px rgba(239, 68, 68, 0.15)';
                                         }}
                                       >
-                                        <Icon 
-                                          size={16} 
+                                        <Icon
+                                          size={16}
                                           color={tieneCupos ? '#10b981' : '#ef4444'}
                                           style={{ flexShrink: 0 }}
                                         />
@@ -1863,7 +1937,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                           <div style={{
                                             width: `${porcentajeOcupado}%`,
                                             height: '100%',
-                                            background: tieneCupos 
+                                            background: tieneCupos
                                               ? 'linear-gradient(90deg, #10b981, #059669)'
                                               : 'linear-gradient(90deg, #ef4444, #dc2626)',
                                             transition: 'width 0.3s ease'
@@ -1873,7 +1947,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     );
                                   });
                                 }
-                                
+
                                 // Fallback si no hay cupos cargados
                                 return (
                                   <span style={{
@@ -2085,9 +2159,127 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       Información Personal
                     </h3>
 
-                    {/* ALERTA INFORMATIVA - Estudiante Existente */}
-                    {estudianteExistente && (
+                    {/* SPINNER DE CARGA - Verificando */}
+                    {verificandoEstudiante && (
+                      <div className="flex flex-col items-center justify-center py-8 px-4 mb-6 rounded-2xl" style={{
+                        background: 'transparent',
+                        border: 'none'
+                      }}>
+                        <div className="relative">
+                          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+                          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-blue-400 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+                        </div>
+                        <p className="mt-4 text-lg font-semibold" style={{ color: theme === 'dark' ? '#60a5fa' : '#3b82f6' }}>
+                          Verificando información...
+                        </p>
+                        <p className="mt-2 text-sm" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(30,41,59,0.6)' }}>
+                          Por favor espera un momento
+                        </p>
+                      </div>
+                    )}
+
+                    {/* ALERTA DE BLOQUEO - Solicitud Pendiente o Ya Inscrito */}
+                    {!verificandoEstudiante && tieneSolicitudPendiente && solicitudPendiente && (
                       <div style={{
+                        position: 'relative',
+                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                        border: '2px solid rgba(239, 68, 68, 0.4)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        marginBottom: '32px',
+                        backdropFilter: 'blur(10px)',
+                        animation: 'slideInUp 0.5s ease-out'
+                      }}>
+                        {/* Botón X para cerrar */}
+                        <button
+                          onClick={() => {
+                            setTieneSolicitudPendiente(false);
+                            setSolicitudPendiente(null);
+                            setEstudianteExistente(null);
+                            window.location.reload();
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0,
+                            zIndex: 10
+                          }}
+                          className="transition-all duration-300 hover:scale-125 hover:rotate-90"
+                          title="Cerrar"
+                        >
+                          <span style={{ 
+                            color: '#ef4444', 
+                            fontSize: '1.5rem', 
+                            fontWeight: 'bold',
+                            display: 'block'
+                          }}>×</span>
+                        </button>
+
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          marginBottom: '16px',
+                          paddingRight: '32px'
+                        }}>
+                          {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? (
+                            <Ban size={32} color="#ef4444" />
+                          ) : (
+                            <Clock size={32} color="#ef4444" />
+                          )}
+                          <h3 style={{
+                            color: '#ef4444',
+                            fontSize: '1.4rem',
+                            fontWeight: '700',
+                            margin: 0
+                          }}>
+                            {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? 'Ya Inscrito en este Curso' : 'Solicitud en Revisión'}
+                          </h3>
+                        </div>
+
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                          fontSize: '1.05rem',
+                          lineHeight: '1.6',
+                          margin: '0 0 16px 0'
+                        }}>
+                          {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO'
+                            ? 'Ya estás cursando este programa. Para inscribirte en otro curso, selecciónalo desde la página de cursos.'
+                            : 'Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.'}
+                        </p>
+
+                        <div className="rounded-xl p-4 mb-4" style={{
+                          background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.7)',
+                          border: `1px solid ${theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)'}`
+                        }}>
+                          <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                            <strong className="text-red-400">📚 Curso:</strong> {solicitudPendiente.tipo_curso_nombre || 'N/A'}
+                          </p>
+                          {solicitudPendiente.codigo_solicitud !== 'YA-INSCRITO' && (
+                            <>
+                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                                <strong className="text-red-400">🔖 Código:</strong> {solicitudPendiente.codigo_solicitud}
+                              </p>
+                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                                <strong className="text-red-400">📅 Fecha:</strong> {new Date(solicitudPendiente.fecha_solicitud).toLocaleDateString('es-EC')}
+                              </p>
+                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                                <strong className="text-red-400">⏳ Estado:</strong> En revisión
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ALERTA INFORMATIVA - Estudiante Existente (solo si NO está inscrito en este curso) */}
+                    {estudianteExistente && !tieneSolicitudPendiente && (
+                      <div style={{
+                        position: 'relative',
                         background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
                         border: '2px solid rgba(16, 185, 129, 0.4)',
                         borderRadius: '16px',
@@ -2096,11 +2288,39 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         backdropFilter: 'blur(10px)',
                         animation: 'slideInUp 0.5s ease-out'
                       }}>
+                        {/* Botón X para cerrar */}
+                        <button
+                          onClick={() => {
+                            setEstudianteExistente(null);
+                            window.location.reload();
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0,
+                            zIndex: 10
+                          }}
+                          className="transition-all duration-300 hover:scale-125 hover:rotate-90"
+                          title="Cerrar"
+                        >
+                          <span style={{ 
+                            color: '#10b981', 
+                            fontSize: '1.5rem', 
+                            fontWeight: 'bold',
+                            display: 'block'
+                          }}>×</span>
+                        </button>
+
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '12px',
-                          marginBottom: '16px'
+                          marginBottom: '16px',
+                          paddingRight: '32px'
                         }}>
                           <CheckCircle size={32} color="#10b981" />
                           <h3 style={{
@@ -2155,8 +2375,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       </div>
                     )}
 
-                    {/* CAMPOS PERSONALES - Solo mostrar si NO es estudiante existente */}
-                    {!estudianteExistente && (
+                    {/* CAMPOS PERSONALES - Solo mostrar si NO es estudiante existente Y NO tiene solicitud pendiente */}
+                    {!estudianteExistente && !tieneSolicitudPendiente && (
                       <>
                         {/* Tipo de documento - control segmentado estilizado (compacto) */}
                         <div style={{ marginBottom: '16px' }}>
@@ -3117,16 +3337,17 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       </>
                     )}
 
-                    {/* HORARIO PREFERIDO - Siempre visible para todos */}
-                    <div style={{ marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
-                      <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: theme === 'dark' ? '#fff' : '#1f2937'
-                      }}>
-                        Horario Preferido *
-                      </label>
+                    {/* Horario Preferido - Solo mostrar si NO tiene solicitud pendiente */}
+                    {!tieneSolicitudPendiente && (
+                      <div style={{ marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
+                        <label style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          fontWeight: '600',
+                          color: theme === 'dark' ? '#fff' : '#1f2937'
+                        }}>
+                          Horario Preferido *
+                        </label>
                       <select
                         required
                         value={formData.horarioPreferido}
@@ -3197,288 +3418,224 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           })()}
                         </div>
                       )}
-                    </div>
+                      </div>
+                    )}
 
                   </div>
 
-                  {/* Métodos de pago */}
-                    <div style={{
-                      background: theme === 'dark'
-                        ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
-                        : 'rgba(255, 255, 255, 0.97)',
-                      borderRadius: '24px',
-                      padding: '32px',
-                      marginBottom: '32px',
-                      backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(251, 191, 36, 0.2)',
-                      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-                    }}>
-                      <h3 className="section-title" style={{
-                        fontSize: '1.4rem',
-                        fontWeight: '700',
-                        color: theme === 'dark' ? '#fff' : '#1f2937',
-                        marginBottom: '24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px'
-                      }}>
-                        <CreditCard size={24} color="#fbbf24" />
-                        Método de Pago
-                      </h3>
-
-                      <div className="payment-methods" style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr',
-                        gap: '16px',
-                        marginBottom: '24px'
-                      }}>
-                        <PaymentCard
-                          title="Transferencia Bancaria"
-                          icon={<QrCode size={24} />}
-                          description="Transfiere directamente a nuestra cuenta bancaria"
-                          isSelected={selectedPayment === 'transferencia'}
-                          onClick={() => setSelectedPayment('transferencia')}
-                        />
-
-                        <PaymentCard
-                          title="Efectivo"
-                          icon={<CreditCard size={24} />}
-                          description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
-                          isSelected={selectedPayment === 'efectivo'}
-                          onClick={() => setSelectedPayment('efectivo')}
-                        />
-
-                        <PaymentCard
-                          title="PayPhone"
-                          icon={<CreditCard size={24} />}
-                          description="Pago rápido y seguro con PayPhone (+$7 por servicio)"
-                          isSelected={selectedPayment === 'payphone'}
-                          onClick={() => setSelectedPayment('payphone')}
-                        />
-                      </div>
-
-
-
-                      {/* Contenido específico según método seleccionado */}
-                      {selectedPayment === 'payphone' && (
-                        <div style={{
-                          padding: '24px',
-                          background: 'rgba(251, 191, 36, 0.1)',
-                          borderRadius: '16px',
-                          border: '1px solid rgba(251, 191, 36, 0.3)'
+                  {/* Métodos de pago - Solo mostrar si NO tiene solicitud pendiente */}
+                  {!tieneSolicitudPendiente && (
+                  <div style={{
+                    background: theme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                      : 'rgba(255, 255, 255, 0.97)',
+                    borderRadius: '24px',
+                    padding: '32px',
+                    marginBottom: '32px',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
+                  }}>
+                    {/* MÉTODOS DE PAGO - Solo mostrar si NO tiene solicitud pendiente */}
+                    {!tieneSolicitudPendiente && (
+                      <>
+                        <h3 className="section-title" style={{
+                          fontSize: '1.4rem',
+                          fontWeight: '700',
+                          color: theme === 'dark' ? '#fff' : '#1f2937',
+                          marginBottom: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px'
                         }}>
-                          <h4 style={{
-                            color: '#b45309',
-                            fontSize: '1.2rem',
-                            fontWeight: '700',
-                            marginBottom: '16px'
-                          }}>
-                            Pagar con PayPhone
-                          </h4>
+                          <CreditCard size={24} color="#fbbf24" />
+                          Método de Pago
+                        </h3>
+
+                    <div className="payment-methods" style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr',
+                      gap: '16px',
+                      marginBottom: '24px'
+                    }}>
+                      <PaymentCard
+                        title="Transferencia Bancaria"
+                        icon={<QrCode size={24} />}
+                        description="Transfiere directamente a nuestra cuenta bancaria"
+                        isSelected={selectedPayment === 'transferencia'}
+                        onClick={() => setSelectedPayment('transferencia')}
+                      />
+
+                      <PaymentCard
+                        title="Efectivo"
+                        icon={<CreditCard size={24} />}
+                        description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
+                        isSelected={selectedPayment === 'efectivo'}
+                        onClick={() => setSelectedPayment('efectivo')}
+                      />
+
+                      <PaymentCard
+                        title="PayPhone"
+                        icon={<CreditCard size={24} />}
+                        description="Pago rápido y seguro con PayPhone (+$7 por servicio)"
+                        isSelected={selectedPayment === 'payphone'}
+                        onClick={() => setSelectedPayment('payphone')}
+                      />
+                    </div>
+
+
+
+                    {/* Contenido específico según método seleccionado */}
+                    {selectedPayment === 'payphone' && (
+                      <div style={{
+                        padding: '24px',
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                      }}>
+                        <h4 style={{
+                          color: '#b45309',
+                          fontSize: '1.2rem',
+                          fontWeight: '700',
+                          marginBottom: '16px'
+                        }}>
+                          Pagar con PayPhone
+                        </h4>
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                          marginBottom: '16px',
+                          lineHeight: 1.6
+                        }}>
+                          Serás redirigido a PayPhone para completar tu pago de forma segura.
+                        </p>
+                        <div style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '12px',
+                          padding: '12px 16px',
+                          marginBottom: '16px'
+                        }}>
                           <p style={{
-                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                            marginBottom: '16px',
-                            lineHeight: 1.6
+                            color: '#ef4444',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            margin: 0
                           }}>
-                            Serás redirigido a PayPhone para completar tu pago de forma segura.
+                            ⚠️ Aviso: Este método de pago aplica un recargo fijo de USD 7, correspondiente a comisiones del procesador de pagos. El monto final a cobrar incluirá dicho recargo.
                           </p>
+                        </div>
+                        <div style={{
+                          background: '#1a365d',
+                          color: theme === 'dark' ? '#fff' : '#1f2937',
+                          padding: '16px 24px',
+                          borderRadius: '12px',
+                          textAlign: 'center',
+                          fontWeight: '700',
+                          fontSize: '1.1rem'
+                        }}>
+                          Pagar con PayPhone
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedPayment === 'transferencia' && (
+                      <div style={{
+                        padding: '24px',
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                      }}>
+                        <h4 style={{
+                          color: '#b45309',
+                          fontSize: '1.2rem',
+                          fontWeight: '700',
+                          marginBottom: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <QrCode size={20} />
+                          Datos para Transferencia
+                        </h4>
+
+                        {/* QR Code placeholder */}
+                        <div style={{
+                          display: 'flex',
+                          gap: '24px',
+                          marginBottom: '24px'
+                        }}>
                           <div style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            width: '150px',
+                            height: '150px',
+                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
                             borderRadius: '12px',
-                            padding: '12px 16px',
-                            marginBottom: '16px'
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                            flexShrink: 0
                           }}>
-                            <p style={{
-                              color: '#ef4444',
-                              fontSize: '0.9rem',
-                              fontWeight: '600',
-                              margin: 0
+                            <QrCode size={100} color="#fff" />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+                              padding: '16px',
+                              borderRadius: '12px',
+                              marginBottom: '12px'
                             }}>
-                              ⚠️ Aviso: Este método de pago aplica un recargo fijo de USD 7, correspondiente a comisiones del procesador de pagos. El monto final a cobrar incluirá dicho recargo.
+                              <div style={{ marginBottom: '8px' }}>
+                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
+                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
+                              </div>
+                              <div style={{ marginBottom: '8px' }}>
+                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
+                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
+                              </div>
+                              <div style={{ marginBottom: '8px' }}>
+                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
+                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                              </div>
+                              <div>
+                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
+                                <span style={{
+                                  color: '#fbbf24',
+                                  marginLeft: '8px',
+                                  fontWeight: '700',
+                                  fontSize: '1.1rem'
+                                }}>
+                                  ${curso.precio.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                            <p style={{
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                              fontSize: '0.9rem',
+                              margin: 0,
+                              fontStyle: 'italic'
+                            }}>
+                              Escanea el QR o usa los datos bancarios para realizar la transferencia
                             </p>
                           </div>
-                          <div style={{
-                            background: '#1a365d',
-                            color: theme === 'dark' ? '#fff' : '#1f2937',
-                            padding: '16px 24px',
-                            borderRadius: '12px',
-                            textAlign: 'center',
-                            fontWeight: '700',
-                            fontSize: '1.1rem'
-                          }}>
-                            Pagar con PayPhone
-                          </div>
                         </div>
-                      )}
 
-                      {selectedPayment === 'transferencia' && (
-                        <div style={{
-                          padding: '24px',
-                          background: 'rgba(251, 191, 36, 0.1)',
-                          borderRadius: '16px',
-                          border: '1px solid rgba(251, 191, 36, 0.3)'
-                        }}>
-                          <h4 style={{
+                        {/* Información del comprobante */}
+                        <div style={{ marginBottom: '24px' }}>
+                          <h5 style={{
                             color: '#b45309',
-                            fontSize: '1.2rem',
-                            fontWeight: '700',
+                            fontSize: '1.1rem',
+                            fontWeight: '600',
                             marginBottom: '16px',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px'
                           }}>
-                            <QrCode size={20} />
-                            Datos para Transferencia
-                          </h4>
+                            <FileText size={18} />
+                            Datos del Comprobante *
+                          </h5>
 
-                          {/* QR Code placeholder */}
-                          <div style={{
-                            display: 'flex',
-                            gap: '24px',
-                            marginBottom: '24px'
-                          }}>
-                            <div style={{
-                              width: '150px',
-                              height: '150px',
-                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
-                              borderRadius: '12px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                              flexShrink: 0
-                            }}>
-                              <QrCode size={100} color="#fff" />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
-                                padding: '16px',
-                                borderRadius: '12px',
-                                marginBottom: '12px'
-                              }}>
-                                <div style={{ marginBottom: '8px' }}>
-                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
-                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
-                                </div>
-                                <div style={{ marginBottom: '8px' }}>
-                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
-                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
-                                </div>
-                                <div style={{ marginBottom: '8px' }}>
-                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                                  <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
-                                </div>
-                                <div>
-                                  <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
-                                  <span style={{
-                                    color: '#fbbf24',
-                                    marginLeft: '8px',
-                                    fontWeight: '700',
-                                    fontSize: '1.1rem'
-                                  }}>
-                                    ${curso.precio.toLocaleString()}
-                                  </span>
-                                </div>
-                              </div>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.9rem',
-                                margin: 0,
-                                fontStyle: 'italic'
-                              }}>
-                                Escanea el QR o usa los datos bancarios para realizar la transferencia
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Información del comprobante */}
-                          <div style={{ marginBottom: '24px' }}>
-                            <h5 style={{
-                              color: '#b45309',
-                              fontSize: '1.1rem',
-                              fontWeight: '600',
-                              marginBottom: '16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px'
-                            }}>
-                              <FileText size={18} />
-                              Datos del Comprobante *
-                            </h5>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                              {/* Banco */}
-                              <div>
-                                <label style={{
-                                  display: 'block',
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '8px',
-                                  fontWeight: '500'
-                                }}>
-                                  Banco *
-                                </label>
-                                <select
-                                  value={bancoComprobante}
-                                  onChange={(e) => setBancoComprobante(e.target.value)}
-                                  required
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontSize: '1rem'
-                                  }}
-                                >
-                                  <option value="">Selecciona el banco</option>
-                                  <option value="pichincha">Banco Pichincha</option>
-                                  <option value="guayaquil">Banco de Guayaquil</option>
-                                  <option value="pacifico">Banco del Pacífico</option>
-                                  <option value="produbanco">Produbanco</option>
-                                  <option value="bolivariano">Banco Bolivariano</option>
-                                  <option value="internacional">Banco Internacional</option>
-                                  <option value="machala">Banco de Machala</option>
-                                  <option value="austro">Banco del Austro</option>
-                                  <option value="cooperativa">Cooperativa</option>
-                                  <option value="otro">Otro</option>
-                                </select>
-                              </div>
-
-                              {/* Fecha de transferencia */}
-                              <div>
-                                <label style={{
-                                  display: 'block',
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '8px',
-                                  fontWeight: '500'
-                                }}>
-                                  Fecha de transferencia *
-                                </label>
-                                <input
-                                  type="date"
-                                  value={fechaTransferencia}
-                                  onChange={(e) => setFechaTransferencia(e.target.value)}
-                                  required
-                                  max={new Date().toISOString().split('T')[0]}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontSize: '1rem'
-                                  }}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Número de comprobante */}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                            {/* Banco */}
                             <div>
                               <label style={{
                                 display: 'block',
@@ -3487,20 +3644,11 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 marginBottom: '8px',
                                 fontWeight: '500'
                               }}>
-                                Número de comprobante *
-                                <span style={{
-                                  color: '#ef4444',
-                                  fontSize: '0.8rem',
-                                  marginLeft: '8px'
-                                }}>
-                                  (Debe ser único - no se puede repetir)
-                                </span>
+                                Banco *
                               </label>
-                              <input
-                                type="text"
-                                value={numeroComprobante}
-                                onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
-                                placeholder="Ej: 123456789, ABC-123-XYZ"
+                              <select
+                                value={bancoComprobante}
+                                onChange={(e) => setBancoComprobante(e.target.value)}
                                 required
                                 style={{
                                   width: '100%',
@@ -3509,535 +3657,618 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   border: '1px solid rgba(255, 255, 255, 0.2)',
                                   background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
                                   color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontSize: '1rem',
-                                  fontFamily: 'monospace'
+                                  fontSize: '1rem'
+                                }}
+                              >
+                                <option value="">Selecciona el banco</option>
+                                <option value="pichincha">Banco Pichincha</option>
+                                <option value="guayaquil">Banco de Guayaquil</option>
+                                <option value="pacifico">Banco del Pacífico</option>
+                                <option value="produbanco">Produbanco</option>
+                                <option value="bolivariano">Banco Bolivariano</option>
+                                <option value="internacional">Banco Internacional</option>
+                                <option value="machala">Banco de Machala</option>
+                                <option value="austro">Banco del Austro</option>
+                                <option value="cooperativa">Cooperativa</option>
+                                <option value="otro">Otro</option>
+                              </select>
+                            </div>
+
+                            {/* Fecha de transferencia */}
+                            <div>
+                              <label style={{
+                                display: 'block',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                fontSize: '0.9rem',
+                                marginBottom: '8px',
+                                fontWeight: '500'
+                              }}>
+                                Fecha de transferencia *
+                              </label>
+                              <input
+                                type="date"
+                                value={fechaTransferencia}
+                                onChange={(e) => setFechaTransferencia(e.target.value)}
+                                required
+                                max={new Date().toISOString().split('T')[0]}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  borderRadius: '12px',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontSize: '1rem'
                                 }}
                               />
-                              <p style={{
-                                color: 'rgba(255, 255, 255, 0.6)',
-                                fontSize: '0.8rem',
-                                margin: '8px 0 0 0',
-                                lineHeight: 1.4
-                              }}>
-                                Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
-                                <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
-                              </p>
                             </div>
                           </div>
 
-                          {/* Subida de comprobante */}
+                          {/* Número de comprobante */}
                           <div>
-                            <h5 style={{
-                              color: '#b45309',
-                              fontSize: '1.1rem',
-                              fontWeight: '600',
-                              marginBottom: '16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px'
+                            <label style={{
+                              display: 'block',
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                              fontSize: '0.9rem',
+                              marginBottom: '8px',
+                              fontWeight: '500'
                             }}>
-                              <Upload size={18} />
-                              Subir Comprobante de Pago *
-                            </h5>
-
-                            <div
-                              className="upload-area"
-                              onDragEnter={handleDrag}
-                              onDragLeave={handleDrag}
-                              onDragOver={handleDrag}
-                              onDrop={handleDrop}
+                              Número de comprobante *
+                              <span style={{
+                                color: '#ef4444',
+                                fontSize: '0.8rem',
+                                marginLeft: '8px'
+                              }}>
+                                (Debe ser único - no se puede repetir)
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              value={numeroComprobante}
+                              onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
+                              placeholder="Ej: 123456789, ABC-123-XYZ"
+                              required
                               style={{
-                                border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                                borderRadius: '16px',
-                                padding: '32px',
-                                textAlign: 'center',
-                                background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                                transition: 'all 0.3s ease',
-                                cursor: 'pointer',
-                                position: 'relative'
+                                width: '100%',
+                                padding: '12px 16px',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
+                                fontSize: '1rem',
+                                fontFamily: 'monospace'
                               }}
-                              onClick={() => document.getElementById('fileInput')?.click()}
-                            >
-                              <input
-                                id="fileInput"
-                                type="file"
-                                accept=".pdf,image/jpeg,image/png,image/webp"
-                                onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
-                                style={{ display: 'none' }}
-                              />
-
-                              {uploadedFile ? (
-                                <div>
-                                  <div style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    margin: '0 auto 16px'
-                                  }}>
-                                    <CheckCircle size={30} color="#fff" />
-                                  </div>
-                                  <p style={{
-                                    color: '#10b981',
-                                    fontWeight: '600',
-                                    fontSize: '1.1rem',
-                                    marginBottom: '8px'
-                                  }}>
-                                    ¡Archivo subido correctamente!
-                                  </p>
-                                  <p style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                    fontSize: '0.9rem',
-                                    marginBottom: '16px'
-                                  }}>
-                                    {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                  </p>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setUploadedFile(null);
-                                    }}
-                                    style={{
-                                      background: 'rgba(239, 68, 68, 0.1)',
-                                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                                      borderRadius: '8px',
-                                      padding: '8px 16px',
-                                      color: '#dc2626',
-                                      cursor: 'pointer',
-                                      fontSize: '0.9rem',
-                                      fontWeight: '500'
-                                    }}
-                                  >
-                                    Cambiar archivo
-                                  </button>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    background: 'rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    margin: '0 auto 16px'
-                                  }}>
-                                    <FileImage size={30} color="#fbbf24" />
-                                  </div>
-                                  <p style={{
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontWeight: '600',
-                                    fontSize: '1.1rem',
-                                    marginBottom: '8px'
-                                  }}>
-                                    Arrastra y suelta tu comprobante aquí
-                                  </p>
-                                  <p style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                    fontSize: '0.9rem',
-                                    marginBottom: '16px'
-                                  }}>
-                                    o haz clic para seleccionar archivo
-                                  </p>
-                                  <p style={{
-                                    color: '#999',
-                                    fontSize: '0.8rem'
-                                  }}>
-                                    Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            <div style={{
-                              background: 'rgba(59, 130, 246, 0.1)',
-                              border: '1px solid rgba(59, 130, 246, 0.3)',
-                              borderRadius: '12px',
-                              padding: '16px',
-                              marginTop: '16px'
+                            />
+                            <p style={{
+                              color: 'rgba(255, 255, 255, 0.6)',
+                              fontSize: '0.8rem',
+                              margin: '8px 0 0 0',
+                              lineHeight: 1.4
                             }}>
-                              <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                marginBottom: '8px'
-                              }}>
-                                <AlertCircle size={18} color="#3b82f6" />
-                                <span style={{
-                                  color: '#3b82f6',
-                                  fontWeight: '600',
-                                  fontSize: '0.9rem'
-                                }}>
-                                  Importante
-                                </span>
-                              </div>
-                              <p style={{
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                fontSize: '0.85rem',
-                                margin: 0,
-                                lineHeight: 1.4
-                              }}>
-                                Asegúrate de que el comprobante sea legible y muestre claramente el monto,
-                                fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
-                              </p>
-                            </div>
+                              Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
+                              <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
+                            </p>
                           </div>
                         </div>
-                      )}
 
-                      {selectedPayment === 'efectivo' && (
-                        <div style={{
-                          padding: '24px',
-                          background: 'rgba(251, 191, 36, 0.1)',
-                          borderRadius: '16px',
-                          border: '1px solid rgba(251, 191, 36, 0.3)'
-                        }}>
-                          <h4 style={{
+                        {/* Subida de comprobante */}
+                        <div>
+                          <h5 style={{
                             color: '#b45309',
-                            fontSize: '1.2rem',
-                            fontWeight: '700',
+                            fontSize: '1.1rem',
+                            fontWeight: '600',
                             marginBottom: '16px',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px'
                           }}>
-                            <Upload size={20} />
-                            Pago en Efectivo
-                          </h4>
-                          <p style={{
-                            color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                            marginBottom: '16px',
-                            lineHeight: 1.6
-                          }}>
-                            Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
-                            Por favor, súbelo a continuación para validar tu solicitud.
-                          </p>
+                            <Upload size={18} />
+                            Subir Comprobante de Pago *
+                          </h5>
 
-                          {/* Subida de comprobante (Efectivo) */}
-                          <div>
-                            <h5 style={{
-                              color: '#b45309',
-                              fontSize: '1.1rem',
-                              fontWeight: '600',
-                              marginBottom: '16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px'
-                            }}>
-                              <Upload size={18} />
-                              Subir Comprobante/Factura *
-                            </h5>
-
-                            <div
-                              onDragEnter={handleDrag}
-                              onDragLeave={handleDrag}
-                              onDragOver={handleDrag}
-                              onDrop={handleDrop}
-                              style={{
-                                border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                                borderRadius: '16px',
-                                padding: '32px',
-                                textAlign: 'center',
-                                background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                                transition: 'all 0.3s ease',
-                                cursor: 'pointer',
-                                position: 'relative'
-                              }}
-                              onClick={() => document.getElementById('fileInputEfectivo')?.click()}
-                            >
-                              <input
-                                id="fileInputEfectivo"
-                                type="file"
-                                accept=".pdf,image/jpeg,image/png,image/webp"
-                                onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
-                                style={{ display: 'none' }}
-                              />
-
-                              {uploadedFile ? (
-                                <div>
-                                  <div style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    margin: '0 auto 16px'
-                                  }}>
-                                    <CheckCircle size={30} color="#fff" />
-                                  </div>
-                                  <p style={{
-                                    color: '#10b981',
-                                    fontWeight: '600',
-                                    fontSize: '1.1rem',
-                                    marginBottom: '8px'
-                                  }}>
-                                    ¡Archivo subido correctamente!
-                                  </p>
-                                  <p style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                    fontSize: '0.9rem',
-                                    marginBottom: '16px'
-                                  }}>
-                                    {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                  </p>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setUploadedFile(null);
-                                    }}
-                                    style={{
-                                      background: 'rgba(239, 68, 68, 0.1)',
-                                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                                      borderRadius: '8px',
-                                      padding: '8px 16px',
-                                      color: '#dc2626',
-                                      cursor: 'pointer',
-                                      fontSize: '0.9rem',
-                                      fontWeight: '500'
-                                    }}
-                                  >
-                                    Cambiar archivo
-                                  </button>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    background: 'rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    margin: '0 auto 16px'
-                                  }}>
-                                    <FileImage size={30} color="#fbbf24" />
-                                  </div>
-                                  <p style={{
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontWeight: '600',
-                                    fontSize: '1.1rem',
-                                    marginBottom: '8px'
-                                  }}>
-                                    Arrastra y suelta tu comprobante aquí
-                                  </p>
-                                  <p style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                    fontSize: '0.9rem',
-                                    marginBottom: '16px'
-                                  }}>
-                                    o haz clic para seleccionar archivo
-                                  </p>
-                                  <p style={{
-                                    color: '#999',
-                                    fontSize: '0.8rem'
-                                  }}>
-                                    Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Campos adicionales para efectivo */}
-                          <div style={{
-                            marginTop: '32px',
-                            padding: '24px',
-                            background: 'rgba(180, 83, 9, 0.1)',
-                            borderRadius: '16px',
-                            border: '1px solid rgba(180, 83, 9, 0.3)'
-                          }}>
-                            <h5 style={{
-                              color: '#b45309',
-                              fontSize: '1.1rem',
-                              fontWeight: '700',
-                              marginBottom: '20px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px'
-                            }}>
-                              <FileText size={20} />
-                              Información del Comprobante
-                            </h5>
-                            
-                            <div style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '16px'
-                            }}>
-                              {/* Número de comprobante/factura */}
-                              <div>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  color: '#b45309',
-                                  fontWeight: 600,
-                                  fontSize: '0.95rem'
-                                }}>
-                                  Número de Comprobante/Factura *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={numeroComprobanteEfectivo}
-                                  onChange={(e) => setNumeroComprobanteEfectivo(e.target.value.toUpperCase())}
-                                  placeholder="Ej: 001-001-000123456"
-                                  required
-                                  style={{
-                                    width: '100%',
-                                    padding: '14px 16px',
-                                    borderRadius: '12px',
-                                    border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                                    background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontSize: '1rem',
-                                    fontFamily: 'Montserrat, sans-serif',
-                                    transition: 'all 0.3s ease',
-                                    outline: 'none'
-                                  }}
-                                  onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
-                                />
-                              </div>
-
-                              {/* Recibido por */}
-                              <div>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  color: '#b45309',
-                                  fontWeight: 600,
-                                  fontSize: '0.95rem'
-                                }}>
-                                  Recibido por *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={recibidoPor}
-                                  onChange={(e) => setRecibidoPor(e.target.value.toUpperCase())}
-                                  placeholder="Nombre de quien recibió el pago"
-                                  required
-                                  style={{
-                                    width: '100%',
-                                    padding: '14px 16px',
-                                    borderRadius: '12px',
-                                    border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                                    background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontSize: '1rem',
-                                    fontFamily: 'Montserrat, sans-serif',
-                                    transition: 'all 0.3s ease',
-                                    outline: 'none'
-                                  }}
-                                  onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Alerta de validación al enviar */}
-                    {submitAlert && (
-                      <div style={{
-                        background: theme === 'dark'
-                          ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
-                          : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
-                        border:
-                          submitAlert.type === 'error' ? '1px solid rgba(239, 68, 68, 0.35)' : submitAlert.type === 'success' ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(59,130,246,0.35)',
-                        borderRadius: 12,
-                        padding: '20px 24px',
-                        marginBottom: 24,
-                        animation: alertAnimatingOut
-                          ? 'alertFadeOut 0.35s ease-in forwards'
-                          : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                        maxWidth: '100%',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
-                            <AlertCircle
-                              size={24}
-                              color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'}
-                              style={{ marginTop: '2px', flexShrink: 0 }}
-                            />
-                            <div style={{
-                              color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)',
-                              fontSize: '0.95rem',
-                              fontWeight: '500',
-                              lineHeight: 1.6,
-                              whiteSpace: 'pre-line',
-                              flex: 1
-                            }}>
-                              {submitAlert.text}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setSubmitAlert(null)}
+                          <div
+                            className="upload-area"
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
                             style={{
-                              background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
-                              border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
-                              color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
-                              borderRadius: 8,
-                              padding: '10px 14px',
-                              fontWeight: 600,
+                              border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                              borderRadius: '16px',
+                              padding: '32px',
+                              textAlign: 'center',
+                              background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                              transition: 'all 0.3s ease',
                               cursor: 'pointer',
-                              fontSize: '0.9rem',
-                              alignSelf: 'flex-start',
-                              flexShrink: 0,
-                              transition: 'all 0.2s ease'
+                              position: 'relative'
                             }}
-                            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
-                            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
+                            onClick={() => document.getElementById('fileInput')?.click()}
                           >
-                            Entendido
-                          </button>
+                            <input
+                              id="fileInput"
+                              type="file"
+                              accept=".pdf,image/jpeg,image/png,image/webp"
+                              onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
+                              style={{ display: 'none' }}
+                            />
+
+                            {uploadedFile ? (
+                              <div>
+                                <div style={{
+                                  width: '60px',
+                                  height: '60px',
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 16px'
+                                }}>
+                                  <CheckCircle size={30} color="#fff" />
+                                </div>
+                                <p style={{
+                                  color: '#10b981',
+                                  fontWeight: '600',
+                                  fontSize: '1.1rem',
+                                  marginBottom: '8px'
+                                }}>
+                                  ¡Archivo subido correctamente!
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '16px'
+                                }}>
+                                  {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUploadedFile(null);
+                                  }}
+                                  style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '8px',
+                                    padding: '8px 16px',
+                                    color: '#dc2626',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Cambiar archivo
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{
+                                  width: '60px',
+                                  height: '60px',
+                                  background: 'rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 16px'
+                                }}>
+                                  <FileImage size={30} color="#fbbf24" />
+                                </div>
+                                <p style={{
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontWeight: '600',
+                                  fontSize: '1.1rem',
+                                  marginBottom: '8px'
+                                }}>
+                                  Arrastra y suelta tu comprobante aquí
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '16px'
+                                }}>
+                                  o haz clic para seleccionar archivo
+                                </p>
+                                <p style={{
+                                  color: '#999',
+                                  fontSize: '0.8rem'
+                                }}>
+                                  Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            marginTop: '16px'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              marginBottom: '8px'
+                            }}>
+                              <AlertCircle size={18} color="#3b82f6" />
+                              <span style={{
+                                color: '#3b82f6',
+                                fontWeight: '600',
+                                fontSize: '0.9rem'
+                              }}>
+                                Importante
+                              </span>
+                            </div>
+                            <p style={{
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                              fontSize: '0.85rem',
+                              margin: 0,
+                              lineHeight: 1.4
+                            }}>
+                              Asegúrate de que el comprobante sea legible y muestre claramente el monto,
+                              fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
+                            </p>
+                          </div>
                         </div>
                       </div>
                     )}
 
-                    {/* Botón de envío */}
-                    <button
-                      type="submit"
-                      disabled={isBlocked}
-                      className="submit-button"
-                      style={{
-                        width: '100%',
-                        background: isBlocked ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                        color: '#000',
-                        padding: '16px 24px',
+                    {selectedPayment === 'efectivo' && (
+                      <div style={{
+                        padding: '24px',
+                        background: 'rgba(251, 191, 36, 0.1)',
                         borderRadius: '16px',
-                        border: 'none',
-                        fontWeight: 800,
-                        fontSize: '1.1rem',
-                        cursor: isBlocked ? 'not-allowed' : 'pointer',
-                        boxShadow: '0 12px 40px rgba(251, 191, 36, 0.25)'
-                      }}
-                    >
-                      Confirmar Inscripción
-                    </button>
+                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                      }}>
+                        <h4 style={{
+                          color: '#b45309',
+                          fontSize: '1.2rem',
+                          fontWeight: '700',
+                          marginBottom: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <Upload size={20} />
+                          Pago en Efectivo
+                        </h4>
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                          marginBottom: '16px',
+                          lineHeight: 1.6
+                        }}>
+                          Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
+                          Por favor, súbelo a continuación para validar tu solicitud.
+                        </p>
 
-                    <p style={{
-                      textAlign: 'center',
-                      color: 'rgba(255, 255, 255, 0.6)',
-                      fontSize: '0.9rem',
-                      marginTop: '20px',
-                      lineHeight: 1.5
+                        {/* Subida de comprobante (Efectivo) */}
+                        <div>
+                          <h5 style={{
+                            color: '#b45309',
+                            fontSize: '1.1rem',
+                            fontWeight: '600',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <Upload size={18} />
+                            Subir Comprobante/Factura *
+                          </h5>
+
+                          <div
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
+                            style={{
+                              border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                              borderRadius: '16px',
+                              padding: '32px',
+                              textAlign: 'center',
+                              background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                              transition: 'all 0.3s ease',
+                              cursor: 'pointer',
+                              position: 'relative'
+                            }}
+                            onClick={() => document.getElementById('fileInputEfectivo')?.click()}
+                          >
+                            <input
+                              id="fileInputEfectivo"
+                              type="file"
+                              accept=".pdf,image/jpeg,image/png,image/webp"
+                              onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
+                              style={{ display: 'none' }}
+                            />
+
+                            {uploadedFile ? (
+                              <div>
+                                <div style={{
+                                  width: '60px',
+                                  height: '60px',
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 16px'
+                                }}>
+                                  <CheckCircle size={30} color="#fff" />
+                                </div>
+                                <p style={{
+                                  color: '#10b981',
+                                  fontWeight: '600',
+                                  fontSize: '1.1rem',
+                                  marginBottom: '8px'
+                                }}>
+                                  ¡Archivo subido correctamente!
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '16px'
+                                }}>
+                                  {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUploadedFile(null);
+                                  }}
+                                  style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '8px',
+                                    padding: '8px 16px',
+                                    color: '#dc2626',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Cambiar archivo
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{
+                                  width: '60px',
+                                  height: '60px',
+                                  background: 'rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 16px'
+                                }}>
+                                  <FileImage size={30} color="#fbbf24" />
+                                </div>
+                                <p style={{
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontWeight: '600',
+                                  fontSize: '1.1rem',
+                                  marginBottom: '8px'
+                                }}>
+                                  Arrastra y suelta tu comprobante aquí
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '16px'
+                                }}>
+                                  o haz clic para seleccionar archivo
+                                </p>
+                                <p style={{
+                                  color: '#999',
+                                  fontSize: '0.8rem'
+                                }}>
+                                  Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Campos adicionales para efectivo */}
+                        <div style={{
+                          marginTop: '32px',
+                          padding: '24px',
+                          background: 'rgba(180, 83, 9, 0.1)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(180, 83, 9, 0.3)'
+                        }}>
+                          <h5 style={{
+                            color: '#b45309',
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            marginBottom: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <FileText size={20} />
+                            Información del Comprobante
+                          </h5>
+
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '16px'
+                          }}>
+                            {/* Número de comprobante/factura */}
+                            <div>
+                              <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                color: '#b45309',
+                                fontWeight: 600,
+                                fontSize: '0.95rem'
+                              }}>
+                                Número de Comprobante/Factura *
+                              </label>
+                              <input
+                                type="text"
+                                value={numeroComprobanteEfectivo}
+                                onChange={(e) => setNumeroComprobanteEfectivo(e.target.value.toUpperCase())}
+                                placeholder="Ej: 001-001-000123456"
+                                required
+                                style={{
+                                  width: '100%',
+                                  padding: '14px 16px',
+                                  borderRadius: '12px',
+                                  border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                  background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontSize: '1rem',
+                                  fontFamily: 'Montserrat, sans-serif',
+                                  transition: 'all 0.3s ease',
+                                  outline: 'none'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                              />
+                            </div>
+
+                            {/* Recibido por */}
+                            <div>
+                              <label style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                color: '#b45309',
+                                fontWeight: 600,
+                                fontSize: '0.95rem'
+                              }}>
+                                Recibido por *
+                              </label>
+                              <input
+                                type="text"
+                                value={recibidoPor}
+                                onChange={(e) => setRecibidoPor(e.target.value.toUpperCase())}
+                                placeholder="Nombre de quien recibió el pago"
+                                required
+                                style={{
+                                  width: '100%',
+                                  padding: '14px 16px',
+                                  borderRadius: '12px',
+                                  border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                  background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontSize: '1rem',
+                                  fontFamily: 'Montserrat, sans-serif',
+                                  transition: 'all 0.3s ease',
+                                  outline: 'none'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Alerta de validación al enviar */}
+                  {submitAlert && (
+                    <div style={{
+                      background: theme === 'dark'
+                        ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
+                        : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
+                      border: '1px solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: 12,
+                      padding: '20px 24px',
+                      marginBottom: 24,
+                      animation: alertAnimatingOut
+                        ? 'alertFadeOut 0.35s ease-in forwards'
+                        : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                      maxWidth: '100%',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                     }}>
-                      Al proceder con el pago, aceptas nuestros términos y condiciones.
-                      <br />
-                      Recibirás un email de confirmación una vez procesado el pago.
-                    </p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                          <AlertCircle
+                            size={24}
+                            color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'}
+                            style={{ marginTop: '2px', flexShrink: 0 }}
+                          />
+                          <div style={{
+                            color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)',
+                            fontSize: '0.95rem',
+                            fontWeight: '500',
+                            lineHeight: 1.6,
+                            whiteSpace: 'pre-line',
+                            flex: 1
+                          }}>
+                            {submitAlert.text}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSubmitAlert(null)}
+                          style={{
+                            background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
+                            border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
+                            color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
+                            borderRadius: 8,
+                            padding: '10px 14px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            alignSelf: 'flex-start',
+                            flexShrink: 0,
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
+                          onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
+                        >
+                          Entendido
+                        </button>
+                      </div>
+                    </div>
+                  )}
+              </>
+            )}
+          </div>
+          )}
+
+                  {/* Botón de envío - Deshabilitado si tiene solicitud pendiente */}
+                  <button
+                    type="submit"
+                    disabled={isBlocked || tieneSolicitudPendiente}
+                    className="submit-button"
+                    style={{
+                      width: '100%',
+                      background: (isBlocked || tieneSolicitudPendiente) ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                      color: (isBlocked || tieneSolicitudPendiente) ? 'rgba(255,255,255,0.5)' : '#000',
+                      padding: '16px 24px',
+                      borderRadius: '16px',
+                      border: 'none',
+                      fontWeight: 800,
+                      fontSize: '1.1rem',
+                      cursor: (isBlocked || tieneSolicitudPendiente) ? 'not-allowed' : 'pointer',
+                      boxShadow: (isBlocked || tieneSolicitudPendiente) ? 'none' : '0 12px 40px rgba(251, 191, 36, 0.25)',
+                      opacity: (isBlocked || tieneSolicitudPendiente) ? 0.6 : 1,
+                      transition: 'all 0.3s ease'
+                    }}
+                    title={tieneSolicitudPendiente ? 'No puedes inscribirte mientras tengas una solicitud pendiente' : ''}
+                  >
+                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : 'Confirmar Inscripción'}
+                  </button>
+
+                  <p style={{
+                    textAlign: 'center',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: '0.9rem',
+                    marginTop: '20px',
+                    lineHeight: 1.5
+                  }}>
+                    Al proceder con el pago, aceptas nuestros términos y condiciones.
+                    <br />
+                    Recibirás un email de confirmación una vez procesado el pago.
+                  </p>
                 </fieldset>
               </form>
             </div>
