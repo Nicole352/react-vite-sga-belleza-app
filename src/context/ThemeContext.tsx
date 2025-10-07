@@ -8,8 +8,8 @@ const palettes = {
     textSecondary: '#4a5568',
     primary: '#d69e2e', // Naranja más oscuro para mejor contraste
     accent: '#f59e0b', // Amarillo/Naranja más claro
-    headerBg: 'rgba(255, 255, 255, 0.95)',
-    headerBorder: 'rgba(0, 0, 0, 0.1)',
+    headerBg: 'rgba(255, 255, 255, 0.72)', 
+    headerBorder: 'rgba(0, 0, 0, 0.08)',
     cardBg: '#ffffff',
     cardBorder: 'rgba(0, 0, 0, 0.12)',
     shadow: 'rgba(0, 0, 0, 0.1)',

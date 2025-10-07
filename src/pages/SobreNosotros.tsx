@@ -69,6 +69,7 @@ const SobreNosotros: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const [currentCertSlide, setCurrentCertSlide] = useState(0);
   // Imágenes del carrusel de instalaciones - EXACTAMENTE IGUAL que en Inicio.js
   const carouselImages: CarouselImage[] = [
@@ -108,19 +109,30 @@ const SobreNosotros: React.FC = () => {
       gradient: "linear-gradient(135deg, rgba(250, 112, 154, 0.8) 0%, rgba(254, 225, 64, 0.8) 100%)",
     }
   ];
-
   useEffect(() => {
     setIsVisible(true);
     AOS.init({ duration: 900, once: true, easing: 'ease-out-quart' });
   }, []);
 
-  // Auto-scroll del carrusel cada 4 segundos - IGUAL que en Inicio.js
+  // Auto-scroll del carrusel infinito cada 4 segundos
   useEffect(() => {
+    if (isCarouselPaused) return;
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+      setCurrentSlide((prev) => prev + 1);
     }, 4000);
     return () => clearInterval(interval);
-  }, [carouselImages.length]);
+  }, [isCarouselPaused]);
+  
+  // Reset cuando llega al final (después de mostrar la imagen duplicada)
+  useEffect(() => {
+    if (currentSlide === carouselImages.length) {
+      const timeout = setTimeout(() => {
+        setCurrentSlide(0);
+      }, 1000); // Espera a que termine la transición
+      return () => clearTimeout(timeout);
+    }
+  }, [currentSlide, carouselImages.length]);
 
   // Auto-scroll del carrusel de certificados cada 4 segundos
   useEffect(() => {
@@ -430,19 +442,35 @@ const SobreNosotros: React.FC = () => {
 
           .carousel-track {
             display: flex;
-            width: 500%;
+            width: 600%; /* Espacio para imágenes duplicadas */
             height: 100%;
             transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .carousel-track.no-transition {
+            transition: none;
           }
 
           .slide {
             width: 20%;
             height: 100%;
             position: relative;
-            overflow: hidden;
+            perspective: 1500px;
             display: flex;
             align-items: center;
             justify-content: center;
+          }
+          
+          .slide-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-style: preserve-3d;
+          }
+          
+          .slide:hover .slide-inner {
+            transform: rotateY(180deg);
           }
 
           .slide-image {
@@ -451,7 +479,8 @@ const SobreNosotros: React.FC = () => {
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 1;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
           }
 
           .slide-image img {
@@ -463,45 +492,68 @@ const SobreNosotros: React.FC = () => {
           }
 
           .slide-content {
-            text-align: center;
-            color: ${theme === 'dark' ? 'white' : '#1f2937'};
-            z-index: 3;
-            padding: 24px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            transition: transform 0.5s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: ${theme === 'dark' ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.85)'};
-            backdrop-filter: blur(8px);
-            border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(209, 160, 42, 0.3)'};
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-          }
+  text-align: center;
+  color: ${theme === 'dark' ? 'white' : '#1f2937'};
+  padding: 32px 40px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: ${theme === 'dark' 
+    ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(15, 15, 35, 0.75))' 
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(248, 250, 252, 0.1))'};
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid ${theme === 'dark' 
+    ? 'rgba(251, 191, 36, 0.4)' 
+    : 'rgba(251, 191, 36, 0.25)'};
+  box-shadow: ${theme === 'dark'
+    ? '0 30px 80px rgba(0,0,0,0.8), 0 0 80px rgba(251,191,36,0.2) inset'
+    : '0 30px 80px rgba(0,0,0,0.15), 0 0 1px rgba(255,255,255,0.8) inset'};
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 
-          .slide-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            text-shadow: 0 6px 20px rgba(0,0,0,0.5);
-            background: linear-gradient(45deg, #fff, #fbbf24);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: 'Playfair Display', 'Georgia', serif;
-          }
 
-          .slide-description {
-            font-size: 1.2rem;
-            opacity: 0.95;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.5);
-            max-width: 480px;
-            margin: 0 auto;
-            font-family: 'Inter', 'Helvetica', sans-serif;
-          }
+.slide-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-shadow: ${theme === 'dark' 
+    ? '0 6px 20px rgba(0,0,0,0.5)' 
+    : '0 2px 8px rgba(0,0,0,0.1)'};
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #eab308);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Playfair Display', 'Georgia', serif;
+  animation: shimmerText 3s ease-in-out infinite;
+}
+
+@keyframes shimmerText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.slide-description {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  text-shadow: ${theme === 'dark' 
+    ? '0 3px 10px rgba(0,0,0,0.5)' 
+    : '0 1px 4px rgba(0,0,0,0.1)'};
+  max-width: 520px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Helvetica', sans-serif;
+  line-height: 1.6;
+  color: ${theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#4b5563'};
+}
 
           .carousel-dots {
             display: flex;
@@ -1035,8 +1087,8 @@ const SobreNosotros: React.FC = () => {
                 gap={20}
                 pauseOnHover
                 className="historia-loop"
-                fadeOut
-                fadeOutColor="#161616"
+                fadeOut={theme === 'dark'}
+                fadeOutColor={theme === 'dark' ? '#161616' : undefined}
                 ariaLabel="Historia SGA Belleza"
               />
             </div>   
@@ -1214,31 +1266,36 @@ const SobreNosotros: React.FC = () => {
               </h2>
               
               <div className="carousel-container">
-                <div className="carousel-track" style={{
-                  transform: `translateX(-${currentSlide * (100 / carouselImages.length)}%)`
-                }}>
-                  {carouselImages.map((image, index) => (
+                <div 
+                  className={`carousel-track ${currentSlide === 0 && currentSlide !== carouselImages.length ? 'no-transition' : ''}`}
+                  style={{
+                    transform: `translateX(-${currentSlide * (100 / (carouselImages.length + 1))}%)`
+                  }}
+                >
+                  {[...carouselImages, carouselImages[0]].map((image, index) => (
                     <div
-                      key={image.id}
+                      key={`${image.id}-${index}`}
                       className="slide"
-                      style={{ width: `${100 / carouselImages.length}%`, flex: `0 0 ${100 / carouselImages.length}%` }}
+                      style={{ width: `${100 / (carouselImages.length + 1)}%`, flex: `0 0 ${100 / (carouselImages.length + 1)}%` }}
+                      onMouseEnter={() => setIsCarouselPaused(true)}
+                      onMouseLeave={() => setIsCarouselPaused(false)}
                     >
-                      {/* Imagen de fondo */}
-                      <div className="slide-image">
-                        <img src={image.imageUrl} alt={image.title} />
-                      </div>
-                      
-                      {/* Contenido */}
-                      <div className="slide-content">
-                        <h3 className="slide-title">{image.title}</h3>
-                        <p className="slide-description">{image.description}</p>
+                      <div className="slide-inner">
+                        {/* Imagen de fondo - Frente */}
+                        <div className="slide-image">
+                          <img src={image.imageUrl} alt={image.title} />
+                        </div>
+                        
+                        {/* Contenido - Parte trasera del flip */}
+                        <div className="slide-content">
+                          <h3 className="slide-title">{image.title}</h3>
+                          <p className="slide-description">{image.description}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Indicadores */}
               <div className="carousel-dots">
                 {carouselImages.map((_, index) => (
                   <div

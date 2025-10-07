@@ -604,16 +604,21 @@ const PaginaInicio: React.FC = () => {
         }
 
         .stat-card {
-          background-color: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.8)'};
-          backdrop-filter: blur(25px);
-          border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(209, 160, 42, 0.4)'};
+          background: ${theme === 'dark' 
+            ? 'rgba(255, 255, 255, 0.06)' 
+            : 'rgba(255, 255, 255, 0.4)'};
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid ${theme === 'dark' 
+            ? 'rgba(255, 255, 255, 0.1)' 
+            : 'rgba(255, 255, 255, 0.3)'};
           border-radius: 20px;
           padding: 28px 36px;
           transform: translateY(0);
           opacity: 1;
           transition: all 0.8s ease-out;
           box-shadow: ${theme === 'dark' 
-            ? '0 16px 50px rgba(0, 0, 0, 0.4)' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1) inset' 
             : '0 10px 30px rgba(0, 0, 0, 0.1)'};
           text-align: center;
         }
@@ -675,9 +680,11 @@ const PaginaInicio: React.FC = () => {
           letter-spacing: -0.01em;
         }
 
-        .features-section {
-          padding: 80px 0;
-          position: relative;
+        .section-title .gradient-text {
+          font-style: italic;
+          font-family: 'Playfair Display', 'Georgia', serif;
+          display: block;
+          margin-top: 8px;
         }
 
         .section-subtitle {
@@ -701,22 +708,53 @@ const PaginaInicio: React.FC = () => {
         }
 
         .feature-card {
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(251, 191, 36, 0.15);
-          border-radius: 16px;
-          padding: 28px 32px;
-          transition: all 0.3s ease;
+          background: ${theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))'};
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid ${theme === 'dark'
+            ? 'rgba(251, 191, 36, 0.15)'
+            : 'rgba(255, 255, 255, 0.5)'};
+          border-radius: 20px;
+          padding: 32px 36px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+          box-shadow: ${theme === 'dark'
+            ? '0 4px 16px rgba(0, 0, 0, 0.12)'
+            : '0 8px 32px rgba(0, 0, 0, 0.06), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
           position: relative;
           overflow: hidden;
+          /* Efecto de profundidad */
+          transform: translateZ(0);
+          will-change: transform, box-shadow;
+        }
+
+        .feature-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent, 
+            ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(255, 255, 255, 0.8)'}, 
+            transparent);
+          opacity: ${theme === 'dark' ? '1' : '0.6'};
         }
 
         .feature-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 6px 20px rgba(251, 191, 36, 0.12);
-          border-color: rgba(251, 191, 36, 0.25);
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: ${theme === 'dark'
+            ? '0 12px 40px rgba(251, 191, 36, 0.2), 0 0 80px rgba(251, 191, 36, 0.1)'
+            : '0 16px 48px rgba(0, 0, 0, 0.12), 0 0 1px rgba(255, 255, 255, 1) inset'};
+          border-color: ${theme === 'dark'
+            ? 'rgba(251, 191, 36, 0.4)'
+            : 'rgba(251, 191, 36, 0.3)'};
+          background: ${theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06))'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))'};
         }
 
         .feature-icon {
@@ -735,13 +773,13 @@ const PaginaInicio: React.FC = () => {
         .feature-title {
           font-size: 1.3rem;
           font-weight: 600;
-          color: white;
+          color: ${theme === 'dark' ? 'white' : '#1f2937'};
           margin-bottom: 12px;
           font-family: 'Montserrat', sans-serif;
         }
 
         .feature-description {
-          color: #d1d5db;
+          color: ${theme === 'dark' ? '#d1d5db' : '#4b5563'};
           line-height: 1.6;
           font-family: 'Montserrat', sans-serif;
           font-size: 0.95rem;
@@ -753,21 +791,28 @@ const PaginaInicio: React.FC = () => {
         }
 
         .cta-content {
-          background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08));
-          border: 1px solid rgba(251, 191, 36, 0.2);
-          border-radius: 20px;
-          padding: 32px 40px;
+          background: ${theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08))'
+            : 'rgba(255, 255, 255, 0.7)'};
+          border: 1px solid ${theme === 'dark' 
+            ? 'rgba(251, 191, 36, 0.2)' 
+            : 'rgba(255, 255, 255, 0.4)'};
+          border-radius: 24px;
+          padding: 40px 48px;
           max-width: 800px;
           margin: 0 auto;
           text-align: center;
-          backdrop-filter: blur(20px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          box-shadow: ${theme === 'dark'
+            ? '0 20px 40px rgba(0, 0, 0, 0.3)'
+            : '0 8px 32px rgba(0, 0, 0, 0.08), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
         }
 
         .cta-title {
           font-size: 2.8rem;
           font-weight: 700;
-          color: white;
+          color: ${theme === 'dark' ? 'white' : '#1f2937'};
           margin-bottom: 16px;
           font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
@@ -775,7 +820,7 @@ const PaginaInicio: React.FC = () => {
 
         .cta-text {
           font-size: 1.1rem;
-          color: #d1d5db;
+          color: ${theme === 'dark' ? '#d1d5db' : '#4b5563'};
           margin-bottom: 24px;
           font-family: 'Montserrat', sans-serif;
           line-height: 1.6;
@@ -886,7 +931,6 @@ const PaginaInicio: React.FC = () => {
 
         .video-text {
           padding-right: 20px;
-          display: flex;
           flex-direction: column;
           justify-content: center;
         }
@@ -895,19 +939,27 @@ const PaginaInicio: React.FC = () => {
           font-size: 2.4rem;
           font-weight: 700;
           color: white;
-          margin-bottom: 24px;
+          margin-bottom: 28px;
           font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
-          line-height: 1.2;
+          line-height: 1.3;
+        }
+
+        .video-title .gradient-text {
+          font-style: italic;
+          font-family: 'Playfair Display', 'Georgia', serif;
+          margin-left: 8px;
         }
 
         .video-description {
           font-size: 1.1rem;
           color: #d1d5db;
-          line-height: 1.7;
+          line-height: 1.8;
+          margin-bottom: 24px;
           font-family: 'Montserrat', sans-serif;
           font-weight: 400;
-          margin-bottom: 24px;
+          text-align: justify;
+          text-justify: inter-word;
         }
 
         .video-cta-button {
@@ -927,8 +979,6 @@ const PaginaInicio: React.FC = () => {
           font-family: 'Montserrat', sans-serif;
           letter-spacing: 0.3px;
           text-decoration: none;
-          width: auto;
-          max-width: max-content;
         }
 
         .video-cta-button:hover {

@@ -39,17 +39,22 @@ const Header: React.FC = () => {
 
   const isActive = (path: string): boolean => location.pathname === path;
 
-  // Estilos dinámicos basados en el tema - usando CSS variables
   const headerStyle: React.CSSProperties = {
     position: 'fixed',
     width: '100%',
     left: 0, right: 0, top: 0,
     zIndex: 1000,
-    background: scrolled ? 'var(--header-bg)' : 'transparent',
-    backdropFilter: 'blur(24px) saturate(140%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-    borderBottom: '1px solid var(--header-border)',
-    boxShadow: scrolled ? '0 8px 40px var(--shadow)' : 'none',
+    background: theme === 'dark' 
+      ? (scrolled ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.3)')
+      : (scrolled ? 'rgba(255, 255, 255, 0.72)' : 'rgba(255, 255, 255, 0.5)'),
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    borderBottom: scrolled 
+      ? `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}`
+      : `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
+    boxShadow: scrolled 
+      ? (theme === 'dark' ? '0 8px 40px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.08)')
+      : 'none',
     padding: '12px 0',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
