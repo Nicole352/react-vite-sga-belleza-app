@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Heart, 
-  Users, 
-  Award, 
+import {
+  Heart,
+  Users,
+  Award,
   Target,
   Eye,
   Clock,
@@ -117,13 +117,13 @@ const SobreNosotros: React.FC = () => {
   // Auto-scroll del carrusel infinito cada 4 segundos
   useEffect(() => {
     if (isCarouselPaused) return;
-    
+
     const interval = setInterval(() => {
       setCurrentSlide((prev) => prev + 1);
     }, 4000);
     return () => clearInterval(interval);
   }, [isCarouselPaused]);
-  
+
   // Reset cuando llega al final (después de mostrar la imagen duplicada)
   useEffect(() => {
     if (currentSlide === carouselImages.length) {
@@ -225,18 +225,18 @@ const SobreNosotros: React.FC = () => {
   ];
 
   const certificates: Certificate[] = [
-    { 
-      id: 1, 
+    {
+      id: 1,
       imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
       title: 'Certificación en Cosmetología Avanzada'
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
       title: 'Diploma en Medicina Estética'
     },
-    { 
-      id: 3, 
+    {
+      id: 3,
       imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
       title: 'Reconocimiento Ministerial'
     }
@@ -337,7 +337,7 @@ const SobreNosotros: React.FC = () => {
         data-aos="fade-up"
         data-aos-delay={`${index * 100}`}
       >
-        <SpotlightCard 
+        <SpotlightCard
           spotlightColor={`${valor.color}40`}
           className="custom-spotlight-card"
           style={{ height: '100%' }}
@@ -504,17 +504,17 @@ const SobreNosotros: React.FC = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: ${theme === 'dark' 
-    ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(15, 15, 35, 0.75))' 
-    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(248, 250, 252, 0.1))'};
+  background: ${theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(15, 15, 35, 0.75))'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(248, 250, 252, 0.1))'};
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid ${theme === 'dark' 
-    ? 'rgba(251, 191, 36, 0.4)' 
-    : 'rgba(251, 191, 36, 0.25)'};
+  border: 1px solid ${theme === 'dark'
+            ? 'rgba(251, 191, 36, 0.4)'
+            : 'rgba(251, 191, 36, 0.25)'};
   box-shadow: ${theme === 'dark'
-    ? '0 30px 80px rgba(0,0,0,0.8), 0 0 80px rgba(251,191,36,0.2) inset'
-    : '0 30px 80px rgba(0,0,0,0.15), 0 0 1px rgba(255,255,255,0.8) inset'};
+            ? '0 30px 80px rgba(0,0,0,0.8), 0 0 80px rgba(251,191,36,0.2) inset'
+            : '0 30px 80px rgba(0,0,0,0.15), 0 0 1px rgba(255,255,255,0.8) inset'};
   transform: rotateY(180deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -525,9 +525,9 @@ const SobreNosotros: React.FC = () => {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 16px;
-  text-shadow: ${theme === 'dark' 
-    ? '0 6px 20px rgba(0,0,0,0.5)' 
-    : '0 2px 8px rgba(0,0,0,0.1)'};
+  text-shadow: ${theme === 'dark'
+            ? '0 6px 20px rgba(0,0,0,0.5)'
+            : '0 2px 8px rgba(0,0,0,0.1)'};
   background: linear-gradient(135deg, #fbbf24, #f59e0b, #eab308);
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -545,9 +545,9 @@ const SobreNosotros: React.FC = () => {
 .slide-description {
   font-size: 1.2rem;
   opacity: 0.95;
-  text-shadow: ${theme === 'dark' 
-    ? '0 3px 10px rgba(0,0,0,0.5)' 
-    : '0 1px 4px rgba(0,0,0,0.1)'};
+  text-shadow: ${theme === 'dark'
+            ? '0 3px 10px rgba(0,0,0,0.5)'
+            : '0 1px 4px rgba(0,0,0,0.1)'};
   max-width: 520px;
   margin: 0 auto;
   font-family: 'Inter', 'Helvetica', sans-serif;
@@ -762,7 +762,7 @@ const SobreNosotros: React.FC = () => {
       <div
         style={{
           minHeight: '100vh',
-          background: theme === 'dark' 
+          background: theme === 'dark'
             ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
@@ -824,8 +824,8 @@ const SobreNosotros: React.FC = () => {
               }}
             >
               <Heart size={20} color="#fbbf24" />
-              <span style={{ 
-                color: '#fde68a', 
+              <span style={{
+                color: '#fde68a',
                 fontWeight: '600',
                 fontSize: '0.9rem',
                 letterSpacing: '0.5px'
@@ -846,7 +846,7 @@ const SobreNosotros: React.FC = () => {
             >
               Sobre Nosotros
             </h1>
-            
+
             <p
               style={{
                 fontSize: '1.4rem',
@@ -856,7 +856,7 @@ const SobreNosotros: React.FC = () => {
                 lineHeight: 1.6
               }}
             >
-              Transformamos vidas a través de la educación en belleza y estética, 
+              Transformamos vidas a través de la educación en belleza y estética,
               formando profesionales de excelencia con más de 15 años de experiencia
             </p>
 
@@ -890,12 +890,12 @@ const SobreNosotros: React.FC = () => {
                     transitionDelay: `${index * 100 + 300}ms`,
                     boxShadow: theme === 'dark' ? '0 16px 50px rgba(0,0,0,0.4)' : '0 10px 30px rgba(0,0,0,0.1)'
                   }}
-                  onMouseEnter={(e) => { 
+                  onMouseEnter={(e) => {
                     const target = e.currentTarget as HTMLElement;
                     target.style.transform = 'translateY(-3px)';
                     target.style.boxShadow = '0 22px 60px rgba(0,0,0,0.5)';
                   }}
-                  onMouseLeave={(e) => { 
+                  onMouseLeave={(e) => {
                     const target = e.currentTarget as HTMLElement;
                     target.style.transform = 'translateY(0)';
                     target.style.boxShadow = '0 16px 50px rgba(0,0,0,0.4)';
@@ -952,16 +952,16 @@ const SobreNosotros: React.FC = () => {
                     <div style={iconContainerStyle('#f59e0b', false)}>
                       <Target size={36} color="#fff" />
                     </div>
-                    
+
                     <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
                       Nuestra Misión
                     </h2>
-                    
+
                     <p style={paragraphStyle}>
-                      Formar profesionales en el área de la estética y belleza, 
-                      brindando educación de calidad con tecnología de vanguardia, 
-                      contribuyendo al desarrollo personal y profesional de nuestras 
-                      estudiantes para que se conviertan en líderes transformadoras de la 
+                      Formar profesionales en el área de la estética y belleza,
+                      brindando educación de calidad con tecnología de vanguardia,
+                      contribuyendo al desarrollo personal y profesional de nuestras
+                      estudiantes para que se conviertan en líderes transformadoras de la
                       industria.
                     </p>
                   </div>
@@ -985,15 +985,15 @@ const SobreNosotros: React.FC = () => {
                     <div style={iconContainerStyle('#10b981', false)}>
                       <Eye size={36} color="#fff" />
                     </div>
-                    
+
                     <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
                       Nuestra Visión
                     </h2>
-                    
+
                     <p style={paragraphStyle}>
-                      Ser la institución líder en Ecuador en formación de profesionales 
-                      en estética y belleza, reconocida por nuestra excelencia académica, 
-                      innovación tecnológica y compromiso social, expandiendo nuestro impacto 
+                      Ser la institución líder en Ecuador en formación de profesionales
+                      en estética y belleza, reconocida por nuestra excelencia académica,
+                      innovación tecnológica y compromiso social, expandiendo nuestro impacto
                       a nivel regional e internacional.
                     </p>
                   </div>
@@ -1018,7 +1018,7 @@ const SobreNosotros: React.FC = () => {
             >
               Nuestros Valores
             </h2>
-            
+
             <p
               style={{
                 textAlign: 'center',
@@ -1064,7 +1064,7 @@ const SobreNosotros: React.FC = () => {
             >
               Nuestra Historia
             </h2>
-            
+
             <p
               style={{
                 textAlign: 'center',
@@ -1091,7 +1091,7 @@ const SobreNosotros: React.FC = () => {
                 fadeOutColor={theme === 'dark' ? '#161616' : undefined}
                 ariaLabel="Historia SGA Belleza"
               />
-            </div>   
+            </div>
           </div>
 
           {/* Equipo directivo */}
@@ -1180,8 +1180,8 @@ const SobreNosotros: React.FC = () => {
                         <h3
                           style={{
                             fontSize: '2.2rem',
-                          fontWeight: '800',
-                          color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
+                            fontWeight: '800',
+                            color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                             marginBottom: '12px'
                           }}
                         >
@@ -1202,9 +1202,9 @@ const SobreNosotros: React.FC = () => {
                         <p
                           style={{
                             color: theme === 'dark' ? '#cbd5e1' : '#4b5563',
-                          fontSize: '1rem',
-                          lineHeight: 1.6,
-                          margin: 0
+                            fontSize: '1rem',
+                            lineHeight: 1.6,
+                            margin: 0
                           }}
                         >
                           {miembro.descripcion}
@@ -1222,7 +1222,7 @@ const SobreNosotros: React.FC = () => {
                         }}>
                           Certificaciones y Reconocimientos
                         </h4>
-                        
+
                         <div className="cert-carousel-container">
                           <div
                             className="cert-carousel-track"
@@ -1239,7 +1239,7 @@ const SobreNosotros: React.FC = () => {
                             ))}
                           </div>
                         </div>
-                        
+
                         <div className="cert-dots">
                           {certificates.map((_, i) => (
                             <div
@@ -1261,12 +1261,12 @@ const SobreNosotros: React.FC = () => {
           <section className="carousel-section" data-aos="fade-up" style={{ scrollMarginTop: '16px', marginBottom: '80px' }}>
             <div className="content">
               <h2 className="section-title" style={{ textAlign: 'center' }}>
-                Conoce Nuestras 
+                Conoce Nuestras
                 <span className="gradient-text"> Instalaciones</span>
               </h2>
-              
+
               <div className="carousel-container">
-                <div 
+                <div
                   className={`carousel-track ${currentSlide === 0 && currentSlide !== carouselImages.length ? 'no-transition' : ''}`}
                   style={{
                     transform: `translateX(-${currentSlide * (100 / (carouselImages.length + 1))}%)`
@@ -1285,7 +1285,7 @@ const SobreNosotros: React.FC = () => {
                         <div className="slide-image">
                           <img src={image.imageUrl} alt={image.title} />
                         </div>
-                        
+
                         {/* Contenido - Parte trasera del flip */}
                         <div className="slide-content">
                           <h3 className="slide-title">{image.title}</h3>
