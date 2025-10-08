@@ -3,6 +3,8 @@ import {
   Plus, Edit, Trash2, X, Save, BookOpen, Search, Grid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
+import GlassEffect from '../../components/GlassEffect';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 
 type TipoCurso = {
   id_tipo_curso: number;
@@ -169,27 +171,19 @@ const GestionTiposCurso: React.FC = () => {
     <div style={{ padding: '32px' }}>
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ 
-          color: 'var(--admin-text-primary, #fff)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          color: 'rgba(255,255,255,0.95)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
+          display: 'flex', alignItems: 'center', gap: '12px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={32} color="#ef4444" />
+          <BookOpen size={32} color={RedColorPalette.primary} />
           Gestión de Tipos de Curso
         </h2>
-        <p style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', margin: '8px 0 0 0' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los tipos de curso antes de crear cursos.
         </p>
       </div>
 
       {/* Barra de búsqueda y controles */}
-      <div
-        style={{
-          background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-          border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-          borderRadius: '20px',
-          padding: '24px',
-          marginBottom: '20px',
-        }}
-      >
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
           {/* Barra de búsqueda */}
           <div style={{ flex: '1 1 300px', position: 'relative' }}>
@@ -229,10 +223,10 @@ const GestionTiposCurso: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px',
                 padding: '8px 14px',
-                background: viewMode === 'cards' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                border: viewMode === 'cards' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                 borderRadius: '8px',
-                color: viewMode === 'cards' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
                 fontSize: '0.9rem',
                 fontWeight: 600,
@@ -248,10 +242,10 @@ const GestionTiposCurso: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px',
                 padding: '8px 14px',
-                background: viewMode === 'table' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                border: viewMode === 'table' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                 borderRadius: '8px',
-                color: viewMode === 'table' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
                 fontSize: '0.9rem',
                 fontWeight: 600,
@@ -263,30 +257,36 @@ const GestionTiposCurso: React.FC = () => {
           </div>
 
           {/* Botón Nuevo */}
-          <button
+          <GlassEffect
+            variant="button"
+            tint="red"
+            intensity="medium"
+            hover
+            animated
             onClick={openCreate}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               padding: '10px 18px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+              background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               color: '#fff',
               border: 'none',
               borderRadius: 12,
               fontWeight: 600,
               cursor: 'pointer',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
             }}
           >
             <Plus size={18} /> Nuevo Tipo
-          </button>
+          </GlassEffect>
         </div>
 
         {/* Info de resultados */}
-        <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.7))', fontSize: '0.9rem' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
         </div>
-      </div>
+      </GlassEffect>
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
@@ -318,24 +318,26 @@ const GestionTiposCurso: React.FC = () => {
             >
               <div style={{ marginBottom: '16px' }}>
                 <h3 style={{ 
-                  color: '#fff', 
+                  color: 'rgba(255,255,255,0.95)', 
                   fontSize: '1.25rem', 
                   fontWeight: 700, 
                   margin: '0 0 8px 0',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
                 }}>
                   {t.nombre}
                   <span
                     style={{
                       padding: '4px 10px',
                       borderRadius: 8,
-                      background: t.estado === 'activo' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-                      color: t.estado === 'activo' ? '#10b981' : '#ef4444',
+                      background: t.estado === 'activo' ? mapToRedScheme('rgba(16,185,129,0.15)') : 'rgba(239,68,68,0.15)',
+                      color: t.estado === 'activo' ? mapToRedScheme('#10b981') : RedColorPalette.primary,
                       fontWeight: 700,
                       fontSize: '0.7rem',
                       textTransform: 'uppercase',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                     }}
                   >
                     {t.estado || 'activo'}
@@ -363,7 +365,7 @@ const GestionTiposCurso: React.FC = () => {
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
                     Duración
                   </div>
-                  <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600 }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.95rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                     {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </div>
                 </div>
@@ -371,7 +373,7 @@ const GestionTiposCurso: React.FC = () => {
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
                     Precio
                   </div>
-                  <div style={{ color: '#10b981', fontSize: '1rem', fontWeight: 700 }}>
+                  <div style={{ color: mapToRedScheme('#10b981'), fontSize: '1rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                     {formatPrice(t.precio_base ?? null)}
                   </div>
                 </div>
@@ -503,9 +505,9 @@ const GestionTiposCurso: React.FC = () => {
                         display: 'inline-block',
                         padding: '4px 10px',
                         borderRadius: 8,
-                        background: t.estado === 'activo' ? 'rgba(16,185,129,0.2)' : 'rgba(156,163,175,0.2)',
-                        border: t.estado === 'activo' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(156,163,175,0.3)',
-                        color: t.estado === 'activo' ? '#10b981' : '#9ca3af',
+                        background: t.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' : 'rgba(156,163,175,0.2)',
+                        border: t.estado === 'activo' ? `1px solid ${RedColorPalette.success}` : '1px solid rgba(156,163,175,0.3)',
+                        color: t.estado === 'activo' ? RedColorPalette.success : '#9ca3af',
                         fontWeight: 700,
                         fontSize: '0.7rem',
                         textTransform: 'uppercase',
@@ -519,24 +521,30 @@ const GestionTiposCurso: React.FC = () => {
                       <button
                         onClick={() => openEdit(t)}
                         style={{
-                          background: 'rgba(245, 158, 11, 0.2)',
-                          border: '1px solid rgba(245, 158, 11, 0.3)',
-                          color: '#fbbf24',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: `1px solid ${RedColorPalette.primary}`,
+                          color: RedColorPalette.primary,
                           padding: '6px 10px',
-                          borderRadius: 6,
+                          borderRadius: 8,
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          transition: 'all 0.2s ease',
+                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                          transform: 'translateZ(0)',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
                         <Edit size={12} />
@@ -545,24 +553,30 @@ const GestionTiposCurso: React.FC = () => {
                       <button
                         onClick={() => handleDelete(t.id_tipo_curso)}
                         style={{
-                          background: 'rgba(239, 68, 68, 0.2)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          color: '#ef4444',
+                          background: 'rgba(185, 28, 28, 0.15)',
+                          border: `1px solid ${RedColorPalette.primaryDeep}`,
+                          color: RedColorPalette.primaryDeep,
                           padding: '6px 10px',
-                          borderRadius: 6,
+                          borderRadius: 8,
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          transition: 'all 0.2s ease',
+                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                          transform: 'translateZ(0)',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
+                          e.currentTarget.style.background = 'rgba(185, 28, 28, 0.25)';
+                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primaryDeep}40`;
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.background = 'rgba(185, 28, 28, 0.15)';
+                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
                         <Trash2 size={12} />
@@ -661,15 +675,31 @@ const GestionTiposCurso: React.FC = () => {
                 onClick={() => setCurrentPage(page)}
                 style={{
                   padding: '8px 14px',
-                  background: currentPage === page ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(255,255,255,0.08)',
-                  border: currentPage === page ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.15)',
+                  background: currentPage === page ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
+                  border: currentPage === page ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
                   fontSize: '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                  transform: 'translateZ(0)',
                   minWidth: '40px',
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== page) {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}30`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== page) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
                 }}
               >
                 {page}

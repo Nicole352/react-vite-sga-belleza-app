@@ -5,7 +5,7 @@ import ThemeToggleButton from './ThemeToggleButton';
 import { useTheme } from '../context/ThemeContext'; // Importar el hook del tema
 
 const Header: React.FC = () => {
-  const { colors, theme } = useTheme(); // Obtener colores y tema actual
+  const { theme } = useTheme(); // Obtener tema actual
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -45,18 +45,18 @@ const Header: React.FC = () => {
     left: 0, right: 0, top: 0,
     zIndex: 1000,
     background: theme === 'dark' 
-      ? (scrolled ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.3)')
-      : (scrolled ? 'rgba(255, 255, 255, 0.72)' : 'rgba(255, 255, 255, 0.5)'),
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      ? (scrolled ? 'rgba(0, 0, 0, 0.75)' : 'rgba(0, 0, 0, 0.4)')
+      : (scrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.65)'),
+    backdropFilter: scrolled ? 'blur(32px) saturate(200%)' : 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: scrolled ? 'blur(32px) saturate(200%)' : 'blur(24px) saturate(180%)',
     borderBottom: scrolled 
-      ? `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}`
-      : `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
+      ? `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'}`
+      : `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}`,
     boxShadow: scrolled 
-      ? (theme === 'dark' ? '0 8px 40px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.08)')
-      : 'none',
+      ? (theme === 'dark' ? '0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4)' : '0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06)')
+      : (theme === 'dark' ? '0 4px 16px rgba(0, 0, 0, 0.2)' : '0 2px 8px rgba(0, 0, 0, 0.04)'),
     padding: '12px 0',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   };
 
   const containerStyle: React.CSSProperties = { maxWidth: '100%', margin: '0', padding: '0 2rem' };
@@ -73,8 +73,8 @@ const Header: React.FC = () => {
   const logoImageStyle: React.CSSProperties = {
     height: '60px',
     width: 'auto',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-    filter: 'drop-shadow(0 4px 15px var(--primary)4D)',
+    transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    filter: 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.4))',
     borderRadius: '50%',
   };
 
@@ -87,50 +87,51 @@ const Header: React.FC = () => {
   const linkStyle = (active: boolean, isAulaVirtual: boolean = false): React.CSSProperties => ({
     fontWeight: isAulaVirtual ? '700' : '600',
     fontSize: isAulaVirtual ? '16px' : '15px',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-    color: active ? 'var(--accent)' : 'var(--text-primary)',
+    transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    color: active 
+      ? (theme === 'dark' ? 'rgba(251, 191, 36, 1)' : 'rgba(245, 158, 11, 1)')
+      : (theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.85)'),
     textDecoration: 'none',
     position: 'relative',
-    padding: isAulaVirtual ? '12px 20px' : '12px 16px',
-    textShadow: active ? '0 0 15px var(--accent)99' : 'none',
+    padding: isAulaVirtual ? '12px 20px' : '10px 16px',
+    textShadow: active ? '0 0 20px rgba(251, 191, 36, 0.6)' : 'none',
     transform: active ? 'translateY(-2px)' : 'translateY(0)',
-    fontFamily: "'Inter', 'Montserrat', sans-serif",
-    letterSpacing: '0.5px',
+    fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Inter', sans-serif",
+    letterSpacing: '0.3px',
     whiteSpace: 'nowrap',
     background: isAulaVirtual 
       ? (theme === 'dark' 
-          ? (active ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.3)')
-          : (active ? 'rgba(251, 191, 36, 0.06)' : 'rgba(251, 191, 36, 0.04)'))
+          ? (active ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.08)')
+          : (active ? 'rgba(251, 191, 36, 0.12)' : 'rgba(251, 191, 36, 0.06)'))
       : 'transparent',
-    borderRadius: isAulaVirtual ? '12px' : '8px',
+    borderRadius: isAulaVirtual ? '14px' : '10px',
     border: isAulaVirtual 
       ? (theme === 'dark'
-          ? '1.5px solid rgba(251, 191, 36, 0.5)'
-          : '1px solid rgba(251, 191, 36, 0.15)')
+          ? `1.5px solid ${active ? 'rgba(251, 191, 36, 0.6)' : 'rgba(251, 191, 36, 0.4)'}`
+          : `1px solid ${active ? 'rgba(251, 191, 36, 0.3)' : 'rgba(251, 191, 36, 0.2)'}`)
       : 'none',
-    backdropFilter: isAulaVirtual ? 'blur(10px)' : 'none',
+    backdropFilter: isAulaVirtual ? 'blur(12px) saturate(180%)' : 'none',
     boxShadow: isAulaVirtual 
       ? (theme === 'dark'
           ? (active 
-              ? '0 6px 25px rgba(251, 191, 36, 0.3)' 
-              : '0 4px 15px rgba(251, 191, 36, 0.15)')
+              ? '0 8px 32px rgba(251, 191, 36, 0.4), 0 2px 8px rgba(251, 191, 36, 0.2)' 
+              : '0 4px 16px rgba(251, 191, 36, 0.2)')
           : (active
-              ? '0 2px 6px rgba(251, 191, 36, 0.04)'
-              : '0 1px 4px rgba(251, 191, 36, 0.03)'))
+              ? '0 4px 16px rgba(251, 191, 36, 0.15), 0 2px 4px rgba(251, 191, 36, 0.1)'
+              : '0 2px 8px rgba(251, 191, 36, 0.08)'))
       : 'none',
   });
   
   const linkUnderlineStyle = (active: boolean, isAulaVirtual: boolean = false): React.CSSProperties => ({
     position: 'absolute',
-    bottom: isAulaVirtual ? '4px' : '6px',
-    left: '50%',
-    transform: 'translateX(-50%)',
+    bottom: isAulaVirtual ? '4px' : '4px',
+    left: active ? '10%' : '0%',
     width: active ? '80%' : '0%',
-    height: '2px',
-    background: 'linear-gradient(90deg, var(--accent), var(--primary), var(--accent))',
+    height: '2.5px',
+    background: 'linear-gradient(90deg, transparent, rgba(251, 191, 36, 1), rgba(245, 158, 11, 1), rgba(251, 191, 36, 1), transparent)',
     borderRadius: '2px',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-    boxShadow: active ? '0 0 15px var(--accent)CC' : 'none',
+    transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    boxShadow: active ? '0 0 20px rgba(251, 191, 36, 0.8), 0 2px 8px rgba(251, 191, 36, 0.4)' : 'none',
     display: isAulaVirtual ? 'none' : 'block',
   });
 
@@ -283,15 +284,50 @@ const Header: React.FC = () => {
       </nav>
 
       <style>{`
+        /* Animación de aparición del header */
+        @keyframes fadeSlideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
         .glass-header {
           position: sticky;
+          animation: fadeSlideDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
+        
+        /* Efecto de vidrio líquido con gradiente sutil */
         .glass-header::after {
           content: '';
           position: absolute;
           left: 0; right: 0; top: 0; bottom: 0;
           pointer-events: none;
-          background: linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0));
+          background: linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.02), transparent);
+          opacity: 0.6;
+        }
+        
+        /* Shimmer effect en el header */
+        @keyframes headerShimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+        
+        .glass-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.08), transparent);
+          animation: headerShimmer 8s ease-in-out infinite;
+          pointer-events: none;
+          z-index: 1;
         }
         @media (min-width: 1920px) { .header-container { padding: 0 4rem !important; } }
         @media (max-width: 1440px) { .header-container { padding: 0 2rem !important; } }
@@ -299,8 +335,9 @@ const Header: React.FC = () => {
         @media (max-width: 1024px) { .header-container { padding: 0 1rem !important; } }
         @media (max-width: 768px) { .header-container { padding: 0 1rem !important; } }
         @media (max-width: 480px) { .header-container { padding: 0 0.75rem !important; } }
+        /* Aula Virtual Link con efecto de brillo lateral */
         .aula-virtual-link { 
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
           position: relative;
           overflow: hidden;
         }
@@ -309,54 +346,93 @@ const Header: React.FC = () => {
           content: '';
           position: absolute;
           top: 0;
-          left: -100%;
+          left: -150%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
-          transition: left 0.6s ease;
+          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+          transition: left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transform: skewX(-20deg);
         }
         
         .aula-virtual-link:hover::before {
-          left: 100%;
+          left: 150%;
         }
         
         .aula-virtual-link[data-active="false"]:hover {
           background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.2)) !important;
-          transform: translateY(-3px) scale(1.05) !important;
-          box-shadow: 0 8px 30px rgba(251, 191, 36, 0.4) !important;
-          border-color: rgba(251, 191, 36, 0.6) !important;
+          transform: translateY(-4px) scale(1.08) !important;
+          box-shadow: 0 12px 40px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(251, 191, 36, 0.3) !important;
+          border-color: rgba(251, 191, 36, 0.7) !important;
         }
         
         .aula-virtual-link[data-active="true"] {
-          animation: pulseGlow 2s ease-in-out infinite;
+          animation: pulseGlow 2.5s ease-in-out infinite;
         }
         
         @keyframes pulseGlow {
           0%, 100% {
-            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.3);
+            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.4), 0 2px 8px rgba(251, 191, 36, 0.2);
           }
           50% {
-            box-shadow: 0 6px 35px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 12px 48px rgba(251, 191, 36, 0.6), 0 4px 16px rgba(251, 191, 36, 0.3);
           }
         }
         
-        .nav-link { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Nav Links con subrayado deslizante */
+        .nav-link { 
+          transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: 2px;
+          left: -100%;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.8), transparent);
+          transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .nav-link:hover::after {
+          left: 100%;
+        }
+        
         .nav-link[data-active="false"]:hover {
-          color: #fbbf24 !important;
+          color: rgba(251, 191, 36, 1) !important;
           transform: translateY(-3px) scale(1.05);
-          text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
-          background: rgba(251, 191, 36, 0.1);
+          text-shadow: 0 0 24px rgba(251, 191, 36, 0.8), 0 2px 8px rgba(251, 191, 36, 0.4);
+          background: rgba(251, 191, 36, 0.12) !important;
+          border-radius: 10px;
         }
+        
+        /* Logo con animación suave */
+        .logo-img {
+          transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
         .logo-img:hover {
-          transform: scale(1.05) !important;
-          filter: drop-shadow(0 6px 20px rgba(251, 191, 36, 0.5)) !important;
+          transform: scale(1.08) rotate(2deg) !important;
+          filter: drop-shadow(0 8px 28px rgba(251, 191, 36, 0.6)) !important;
         }
+        
+        /* Mobile menu button */
+        .mobile-menu-btn {
+          transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
         .mobile-menu-btn:hover {
-          background: rgba(251, 191, 36, 0.2) !important;
-          border-color: rgba(251, 191, 36, 0.5) !important;
+          background: rgba(251, 191, 36, 0.25) !important;
+          border-color: rgba(251, 191, 36, 0.6) !important;
+          transform: scale(1.05);
+          box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
         }
+        
+        /* Transiciones globales suaves */
         .nav-link, .aula-virtual-link, .mobile-menu-btn, .logo-img {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: transform;
         }
       `}</style>
     </>

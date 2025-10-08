@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 // Interfaces para tipado
 interface CursoInfo {
@@ -751,8 +751,6 @@ const Pago: React.FC = () => {
       return;
     }
     setUploadedFile(file);
-
-    // OCR deshabilitado - usuario ingresa manualmente el número
   };
 
   const handleDocumentoIdentificacionUpload = (file: File | null) => {
@@ -1261,40 +1259,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
   return (
     <>
-      {/* Toast Container */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#1f2937',
-            color: '#fff',
-            borderRadius: '12px',
-            padding: '16px',
-            fontFamily: 'Montserrat, sans-serif',
-            fontSize: '14px',
-            fontWeight: 500
-          },
-          success: {
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff'
-            }
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff'
-            }
-          },
-          loading: {
-            iconTheme: {
-              primary: '#3b82f6',
-              secondary: '#fff'
-            }
-          }
-        }}
-      />
       <style>
         {`
           @keyframes pulse {

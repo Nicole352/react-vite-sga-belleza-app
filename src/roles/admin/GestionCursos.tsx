@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
+import GlassEffect from '../../components/GlassEffect';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 
 type Course = {
   id_curso: number;
@@ -522,42 +524,33 @@ const GestionCursos = () => {
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h2 style={{ 
-          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          color: 'rgba(255,255,255,0.95)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
+          display: 'flex', alignItems: 'center', gap: '12px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={32} color="#ef4444" />
+          <BookOpen size={32} color={RedColorPalette.primary} />
           Gestión de Cursos
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los cursos disponibles en la academia
         </p>
       </div>
 
       {/* Advertencia si no hay tipos de curso */}
       {tiposCursos.length === 0 && (
-        <div style={{
-          background: 'rgba(251, 191, 36, 0.1)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          color: '#fbbf24',
-          borderRadius: '12px',
-          padding: '16px',
-          marginBottom: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <span style={{ fontWeight: 600 }}>Primero crea un "Tipo de Curso" en el módulo Tipos de Curso para poder crear cursos.</span>
+        <GlassEffect variant="card" tint="warning" intensity="light" style={{ marginBottom: '16px' }}>
+          <div style={{
+            color: mapToRedScheme('#fbbf24'),
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <span style={{ fontWeight: 600 }}>Primero crea un "Tipo de Curso" en el módulo Tipos de Curso para poder crear cursos.</span>
+            </div>
           </div>
-        </div>
+        </GlassEffect>
       )}
 
       {/* Controles */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '24px'
-      }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flex: 1 }}>
             {/* Búsqueda */}
@@ -605,10 +598,10 @@ const GestionCursos = () => {
                   alignItems: 'center',
                   gap: '6px',
                   padding: '8px 14px',
-                  background: viewMode === 'cards' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                  border: viewMode === 'cards' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                  background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '8px',
-                  color: viewMode === 'cards' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                  color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -624,10 +617,10 @@ const GestionCursos = () => {
                   alignItems: 'center',
                   gap: '6px',
                   padding: '8px 14px',
-                  background: viewMode === 'table' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                  border: viewMode === 'table' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
+                  background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '8px',
-                  color: viewMode === 'table' ? '#3b82f6' : 'rgba(255,255,255,0.6)',
+                  color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -648,10 +641,11 @@ const GestionCursos = () => {
               alignItems: 'center',
               gap: '8px',
               padding: '12px 24px',
-              background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+              background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '12px',
               color: '#fff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.9rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
@@ -664,12 +658,12 @@ const GestionCursos = () => {
         </div>
 
         {/* Info de resultados */}
-        <div style={{ marginTop: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+        <div style={{ marginTop: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           {searchTerm || filterEstado !== 'todos' 
             ? `${filteredCursos.length} de ${cursos.length} cursos` 
             : `Total: ${cursos.length} cursos`}
         </div>
-      </div>
+      </GlassEffect>
 
       {/* Vista Cards */}
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
@@ -681,32 +675,22 @@ const GestionCursos = () => {
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
-              planificado: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', icon: PlayCircle },
-              activo: { bg: 'rgba(16, 185, 129, 0.15)', color: '#10b981', icon: CheckCircle2 },
+              planificado: { bg: 'rgba(248, 113, 113, 0.15)', color: RedColorPalette.primaryLight, icon: PlayCircle },
+              activo: { bg: 'rgba(220, 38, 38, 0.15)', color: RedColorPalette.success, icon: CheckCircle2 },
               finalizado: { bg: 'rgba(107, 114, 128, 0.15)', color: '#6b7280', icon: Lock },
-              cancelado: { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', icon: Ban }
+              cancelado: { bg: 'rgba(239, 68, 68, 0.15)', color: RedColorPalette.primary, icon: Ban }
             }[curso.estado] || { bg: 'rgba(107, 114, 128, 0.15)', color: '#6b7280', icon: AlertCircle };
 
             const EstadoIcon = estadoConfig.icon;
 
             return (
-              <div
+              <GlassEffect
                 key={curso.id_curso}
-                style={{
-                  background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                  border: '1px solid rgba(239, 68, 68, 0.2)',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                variant="card"
+                tint="neutral"
+                intensity="light"
+                hover
+                animated
               >
                 <div style={{ marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
@@ -776,7 +760,7 @@ const GestionCursos = () => {
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
                       Cupos
                     </div>
-                    <div style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 700 }}>
+                    <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.95rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                       {curso.estado === 'cancelado' ? 'N/A' : `${curso.cupos_disponibles || 0} / ${curso.capacidad_maxima}`}
                     </div>
                   </div>
@@ -800,20 +784,24 @@ const GestionCursos = () => {
                       justifyContent: 'center',
                       gap: '6px',
                       padding: '10px',
-                      background: 'rgba(59, 130, 246, 0.15)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: `1px solid ${RedColorPalette.primary}`,
                       borderRadius: '10px',
-                      color: '#3b82f6',
+                      color: RedColorPalette.primary,
                       fontSize: '0.85rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(59, 130, 246, 0.25)';
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                      e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                      e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                      e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
                     <Eye size={14} /> Ver
@@ -880,7 +868,7 @@ const GestionCursos = () => {
                       background: curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                       border: curso.estado === 'cancelado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
                       borderRadius: '10px',
-                      color: curso.estado === 'cancelado' ? '#10b981' : '#ef4444',
+                      color: curso.estado === 'cancelado' ? mapToRedScheme('#10b981') : RedColorPalette.primary,
                       fontSize: '0.85rem',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -897,7 +885,7 @@ const GestionCursos = () => {
                     {curso.estado === 'cancelado' ? 'Reanudar' : 'Cerrar'}
                   </button>
                 </div>
-              </div>
+              </GlassEffect>
             );
           })}
         </div>
@@ -1071,7 +1059,7 @@ const GestionCursos = () => {
                         fontSize: '0.7rem',
                         fontWeight: 700,
                         background: (curso.cupos_disponibles || 0) > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                        color: (curso.cupos_disponibles || 0) > 0 ? '#10b981' : '#ef4444',
+                        color: (curso.cupos_disponibles || 0) > 0 ? mapToRedScheme('#10b981') : RedColorPalette.primary,
                         border: (curso.cupos_disponibles || 0) > 0 ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)'
                       }}>
                         {curso.cupos_disponibles || curso.capacidad_maxima || 0} / {curso.capacidad_maxima || 0}
@@ -1086,18 +1074,18 @@ const GestionCursos = () => {
                       fontSize: '0.7rem', 
                       fontWeight: 700,
                       textTransform: 'uppercase',
-                      background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)'
-                               : curso.estado === 'planificado' ? 'rgba(59, 130, 246, 0.2)'
+                      background: curso.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)'
+                               : curso.estado === 'planificado' ? 'rgba(248, 113, 113, 0.15)'
                                : curso.estado === 'finalizado' ? 'rgba(156, 163, 175, 0.2)'
                                : 'rgba(239, 68, 68, 0.2)',
-                      border: curso.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)'
-                            : curso.estado === 'planificado' ? '1px solid rgba(59, 130, 246, 0.3)'
+                      border: curso.estado === 'activo' ? `1px solid ${RedColorPalette.success}`
+                            : curso.estado === 'planificado' ? `1px solid ${RedColorPalette.primaryLight}`
                             : curso.estado === 'finalizado' ? '1px solid rgba(156, 163, 175, 0.3)'
-                            : '1px solid rgba(239, 68, 68, 0.3)',
-                      color: curso.estado === 'activo' ? '#10b981'
-                             : curso.estado === 'planificado' ? '#60a5fa'
+                            : `1px solid ${RedColorPalette.primary}`,
+                      color: curso.estado === 'activo' ? mapToRedScheme('#10b981')
+                             : curso.estado === 'planificado' ? RedColorPalette.primaryLight
                              : curso.estado === 'finalizado' ? '#9ca3af'
-                             : '#ef4444' 
+                             : RedColorPalette.primary 
                     }}>
                       {curso.estado}
                     </span>
@@ -1107,9 +1095,9 @@ const GestionCursos = () => {
                       <button 
                         onClick={() => handleViewCurso(curso)} 
                         style={{ 
-                          background: 'rgba(59, 130, 246, 0.2)', 
-                          border: '1px solid rgba(59, 130, 246, 0.3)', 
-                          color: '#60a5fa', 
+                          background: 'rgba(239, 68, 68, 0.1)', 
+                          border: `1px solid ${RedColorPalette.primary}`, 
+                          color: RedColorPalette.primary, 
                           padding: '6px 10px', 
                           borderRadius: '6px', 
                           cursor: 'pointer',
@@ -1118,13 +1106,19 @@ const GestionCursos = () => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                          transform: 'translateZ(0)'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
                         <Eye size={12} />
@@ -1133,9 +1127,9 @@ const GestionCursos = () => {
                       <button 
                         onClick={() => handleEditCurso(curso)} 
                         style={{ 
-                          background: 'rgba(245, 158, 11, 0.2)', 
-                          border: '1px solid rgba(245, 158, 11, 0.3)', 
-                          color: '#fbbf24', 
+                          background: 'rgba(239, 68, 68, 0.1)', 
+                          border: `1px solid ${RedColorPalette.primary}`, 
+                          color: RedColorPalette.primary, 
                           padding: '6px 10px', 
                           borderRadius: '6px', 
                           cursor: 'pointer',
@@ -1144,13 +1138,19 @@ const GestionCursos = () => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                          transform: 'translateZ(0)'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
                         <Edit size={12} />
@@ -1187,7 +1187,7 @@ const GestionCursos = () => {
                         style={{ 
                           background: curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)', 
                           border: curso.estado === 'cancelado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(156, 163, 175, 0.3)', 
-                          color: curso.estado === 'cancelado' ? '#10b981' : '#9ca3af', 
+                          color: curso.estado === 'cancelado' ? mapToRedScheme('#10b981') : '#9ca3af', 
                           padding: '6px 10px', 
                           borderRadius: '6px',
                           fontSize: '0.75rem',

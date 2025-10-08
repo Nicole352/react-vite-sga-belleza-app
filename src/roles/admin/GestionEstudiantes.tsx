@@ -3,6 +3,8 @@ import {
   Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
+import GlassEffect from '../../components/GlassEffect';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 
 // Tipos
 interface Estudiante {
@@ -114,22 +116,16 @@ const GestionEstudiantes = () => {
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <GraduationCap size={28} color="#10b981" />
-          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700' }}>Gestión de Estudiantes</h1>
+          <GraduationCap size={28} color={RedColorPalette.primary} />
+          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>Gestión de Estudiantes</h1>
         </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra y visualiza la información de todos los estudiantes registrados
         </p>
       </div>
 
       {/* Filtros y Búsqueda */}
-      <div style={{ 
-        background: 'rgba(255,255,255,0.05)', 
-        borderRadius: 16, 
-        padding: 24, 
-        marginBottom: 24,
-        border: '1px solid rgba(255,255,255,0.1)'
-      }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'end', flexWrap: 'wrap' }}>
           {/* Búsqueda */}
           <div style={{ flex: '1 1 300px' }}>
@@ -187,10 +183,10 @@ const GestionEstudiantes = () => {
                   alignItems: 'center',
                   gap: '6px',
                   padding: '8px 14px',
-                  background: viewMode === 'cards' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-                  border: viewMode === 'cards' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                  background: viewMode === 'cards' ? mapToRedScheme('rgba(16, 185, 129, 0.2)') : 'transparent',
+                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '8px',
-                  color: viewMode === 'cards' ? '#10b981' : 'rgba(255,255,255,0.6)',
+                  color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -206,10 +202,10 @@ const GestionEstudiantes = () => {
                   alignItems: 'center',
                   gap: '6px',
                   padding: '8px 14px',
-                  background: viewMode === 'table' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-                  border: viewMode === 'table' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                  background: viewMode === 'table' ? mapToRedScheme('rgba(16, 185, 129, 0.2)') : 'transparent',
+                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '8px',
-                  color: viewMode === 'table' ? '#10b981' : 'rgba(255,255,255,0.6)',
+                  color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -228,9 +224,9 @@ const GestionEstudiantes = () => {
             style={{ 
               padding: '12px 20px', 
               borderRadius: 10, 
-              border: '1px solid rgba(16, 185, 129, 0.3)', 
-              background: 'rgba(16, 185, 129, 0.15)', 
-              color: '#10b981', 
+              border: `1px solid ${RedColorPalette.primary}`, 
+              background: 'rgba(239, 68, 68, 0.15)', 
+              color: RedColorPalette.primary, 
               cursor: loading ? 'not-allowed' : 'pointer',
               fontSize: '0.9rem',
               fontWeight: '500',
@@ -240,39 +236,27 @@ const GestionEstudiantes = () => {
             {loading ? 'Cargando...' : 'Refrescar'}
           </button>
         </div>
-      </div>
+      </GlassEffect>
 
       {/* Estadísticas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-        <div style={{ 
-          background: 'rgba(16, 185, 129, 0.1)', 
-          border: '1px solid rgba(16, 185, 129, 0.3)', 
-          borderRadius: 12, 
-          padding: 20, 
-          textAlign: 'center' 
-        }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981', marginBottom: 4 }}>
+        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: 4, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {totalCount}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
             Total Estudiantes
           </div>
-        </div>
+        </GlassEffect>
         
-        <div style={{ 
-          background: 'rgba(59, 130, 246, 0.1)', 
-          border: '1px solid rgba(59, 130, 246, 0.3)', 
-          borderRadius: 12, 
-          padding: 20, 
-          textAlign: 'center' 
-        }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6', marginBottom: 4 }}>
+        <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: mapToRedScheme('#3b82f6'), marginBottom: 4, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {estudiantes.filter(e => e.estado === 'activo').length}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
             Estudiantes Activos
           </div>
-        </div>
+        </GlassEffect>
       </div>
 
       {/* Error */}
@@ -325,15 +309,15 @@ const GestionEstudiantes = () => {
                       width: 50, 
                       height: 50, 
                       borderRadius: '50%', 
-                      background: 'rgba(16, 185, 129, 0.2)', 
+                      background: 'rgba(239, 68, 68, 0.15)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center' 
                     }}>
-                      <User size={24} color="#10b981" />
+                      <User size={24} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                         {estudiante.nombre} {estudiante.apellido}
                       </h3>
                       <span style={{
@@ -343,15 +327,15 @@ const GestionEstudiantes = () => {
                         fontSize: '0.75rem',
                         fontWeight: '600',
                         textTransform: 'uppercase',
-                        background: estudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                        background: estudiante.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' :
                                    estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
-                                   'rgba(251, 191, 36, 0.15)',
-                        border: estudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                                   'rgba(248, 113, 113, 0.15)',
+                        border: estudiante.estado === 'activo' ? `1px solid ${RedColorPalette.success}` :
                                estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                               '1px solid rgba(251, 191, 36, 0.3)',
-                        color: estudiante.estado === 'activo' ? '#10b981' :
-                              estudiante.estado === 'inactivo' ? '#ef4444' :
-                              '#fbbf24'
+                               `1px solid ${RedColorPalette.primaryLight}`,
+                        color: estudiante.estado === 'activo' ? RedColorPalette.success :
+                              estudiante.estado === 'inactivo' ? RedColorPalette.primary :
+                              RedColorPalette.primaryLight
                       }}>
                         {estudiante.estado}
                       </span>
@@ -365,7 +349,7 @@ const GestionEstudiantes = () => {
                       <IdCard size={12} style={{ display: 'inline', marginRight: '4px' }} />
                       Identificación
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'SF Mono, Monaco, Consolas, monospace' }}>
                       {estudiante.identificacion}
                     </div>
                   </div>
@@ -374,7 +358,7 @@ const GestionEstudiantes = () => {
                       <User size={12} style={{ display: 'inline', marginRight: '4px' }} />
                       Usuario
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {estudiante.username || 'No asignado'}
                     </div>
                   </div>
@@ -383,7 +367,7 @@ const GestionEstudiantes = () => {
                       <Mail size={12} style={{ display: 'inline', marginRight: '4px' }} />
                       Email
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {estudiante.email}
                     </div>
                   </div>
@@ -392,7 +376,7 @@ const GestionEstudiantes = () => {
                       <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
                       Registro
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.85rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {formatDate(estudiante.fecha_registro)}
                     </div>
                   </div>
@@ -407,20 +391,24 @@ const GestionEstudiantes = () => {
                     justifyContent: 'center',
                     gap: '6px',
                     padding: '10px',
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${RedColorPalette.primary}`,
                     borderRadius: '10px',
-                    color: '#10b981',
+                    color: RedColorPalette.primary,
                     fontSize: '0.85rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   <Eye size={14} /> Ver Detalles
@@ -473,8 +461,8 @@ const GestionEstudiantes = () => {
                 onClick={() => setPage(pageNum)}
                 style={{
                   padding: '8px 14px',
-                  background: page === pageNum ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.08)',
-                  border: page === pageNum ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.15)',
+                  background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
                   fontSize: '0.9rem',
@@ -563,12 +551,12 @@ const GestionEstudiantes = () => {
                           width: 40, 
                           height: 40, 
                           borderRadius: '50%', 
-                          background: 'rgba(16, 185, 129, 0.2)', 
+                          background: 'rgba(239, 68, 68, 0.15)', 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center' 
                         }}>
-                          <User size={18} color="#10b981" />
+                          <User size={18} color={RedColorPalette.primary} />
                         </div>
                         <div>
                           <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.9rem' }}>
@@ -596,15 +584,15 @@ const GestionEstudiantes = () => {
                         fontSize: '0.8rem',
                         fontWeight: '500',
                         textTransform: 'capitalize',
-                        background: estudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                        background: estudiante.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' :
                                    estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
-                                   'rgba(251, 191, 36, 0.15)',
-                        border: estudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                                   'rgba(248, 113, 113, 0.15)',
+                        border: estudiante.estado === 'activo' ? `1px solid ${RedColorPalette.success}` :
                                estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                               '1px solid rgba(251, 191, 36, 0.3)',
-                        color: estudiante.estado === 'activo' ? '#10b981' :
-                              estudiante.estado === 'inactivo' ? '#ef4444' :
-                              '#fbbf24'
+                               `1px solid ${RedColorPalette.primaryLight}`,
+                        color: estudiante.estado === 'activo' ? RedColorPalette.success :
+                              estudiante.estado === 'inactivo' ? RedColorPalette.primary :
+                              RedColorPalette.primaryLight
                       }}>
                         {estudiante.estado}
                       </span>
@@ -801,15 +789,15 @@ const GestionEstudiantes = () => {
                   fontSize: '0.9rem',
                   fontWeight: '600',
                   textTransform: 'capitalize',
-                  background: selectedEstudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                  background: selectedEstudiante.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' :
                              selectedEstudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
-                             'rgba(251, 191, 36, 0.15)',
-                  border: selectedEstudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                         selectedEstudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                         '1px solid rgba(251, 191, 36, 0.3)',
-                  color: selectedEstudiante.estado === 'activo' ? '#10b981' :
-                        selectedEstudiante.estado === 'inactivo' ? '#ef4444' :
-                        '#fbbf24'
+                             'rgba(248, 113, 113, 0.15)',
+                  border: selectedEstudiante.estado === 'activo' ? `1px solid ${RedColorPalette.success}` :
+                         selectedEstudiante.estado === 'inactivo' ? `1px solid ${RedColorPalette.primary}` :
+                         `1px solid ${RedColorPalette.primaryLight}`,
+                  color: selectedEstudiante.estado === 'activo' ? RedColorPalette.success :
+                        selectedEstudiante.estado === 'inactivo' ? RedColorPalette.primary :
+                        RedColorPalette.primaryLight
                 }}>
                   {selectedEstudiante.estado}
                 </span>

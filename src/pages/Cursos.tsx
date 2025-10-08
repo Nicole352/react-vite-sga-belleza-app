@@ -10,8 +10,7 @@ import {
   Palette,
   Hand,
   Heart,
-  ChevronRight,
-  Calendar
+  ChevronRight
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import AOS from 'aos';
@@ -193,60 +192,86 @@ const Cursos = () => {
         <div
           className="curso-card"
           style={{
-            background: theme === 'dark' ? '#0b0b0b' : '#ffffff',
-            borderRadius: '24px',
+            background: theme === 'dark' 
+              ? 'rgba(255, 255, 255, 0.08)' 
+              : 'rgba(255, 255, 255, 0.25)',
+            backdropFilter: 'blur(25px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+            borderRadius: '32px',
             boxShadow: isHovered
-              ? `0 18px 36px rgba(0,0,0,0.35), 0 0 0 1px ${curso.color}22, 0 6px 24px rgba(251,191,36,0.12)`
-              : theme === 'dark' ? '0 12px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)' : '0 8px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(209, 160, 42, 0.15)',
+              ? '0 20px 50px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
+              : '0 10px 30px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.1)',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1)',
-            transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+            transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
+            transform: isHovered ? 'translateY(-6px) scale(1.005)' : 'translateY(0) scale(1)',
             position: 'relative',
             height: '460px',
-            border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.25)',
+            border: theme === 'dark' 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(255, 255, 255, 0.3)',
             willChange: 'transform, box-shadow'
           }}
         >
-          {/* Reflejo tipo shimmer (como en Inicio) */}
+          {/* Reflejo tipo shimmer */}
           <span className="shimmer-overlay" aria-hidden="true" />
-          {/* Badge de categoría */}
+          
+          {/* Badge de categoría con glassmorphism */}
           <div
+            className="badge-categoria"
             style={{
               position: 'absolute',
               top: 20,
               right: 20,
-              background: curso.color,
-              color: '#0b0b0b',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              fontSize: '0.8rem',
-              fontWeight: '600',
+              background: `linear-gradient(135deg, ${curso.color}ee, ${curso.color}cc)`,
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              color: '#ffffff',
+              padding: '8px 16px',
+              borderRadius: '24px',
+              fontSize: '0.82rem',
+              fontWeight: '700',
               zIndex: 3,
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
+              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              transition: 'transform 0.25s ease-out, box-shadow 0.25s ease-out',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+              letterSpacing: '0.5px',
+              transform: isHovered ? 'scale(1.05) translateY(-2px)' : 'scale(1) translateY(0)'
             }}
           >
             {curso.categoria}
           </div>
 
-          {/* Thumbnail estilo news card */}
-          <div style={{ position: 'relative', height: '280px', background: '#000', overflow: 'hidden' }}>
+          {/* Thumbnail con parallax y profundidad */}
+          <div 
+            className="thumbnail-container"
+            style={{ 
+              position: 'relative', 
+              height: '280px', 
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.65))', 
+              overflow: 'hidden',
+              borderRadius: '32px 32px 0 0'
+            }}
+          >
             <img
               src={curso.imagen}
               alt={curso.titulo}
+              className="curso-thumbnail"
               style={{
                 display: 'block',
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1)',
-                transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-                willChange: 'transform'
+                transition: 'transform 0.3s ease-out, filter 0.3s ease-out',
+                transform: isHovered ? 'scale(1.04) translateY(-2px)' : 'scale(1) translateY(0)',
+                filter: isHovered ? 'brightness(1.08) contrast(1.02)' : 'brightness(1) contrast(1)',
+                willChange: 'transform, filter'
               }}
             />
 
-            {/* Desvanecido inferior para integrar imagen con el panel (glass) */}
+            {/* Desvanecido inferior con luz difusa */}
             <div
               style={{
                 position: 'absolute',
@@ -254,47 +279,55 @@ const Cursos = () => {
                 right: 0,
                 bottom: 0,
                 height: '140px',
-                background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.65) 100%)',
+                background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.38) 45%, ${theme === 'dark' ? 'rgba(11,11,11,0.85)' : 'rgba(255,255,255,0.85)'} 100%)`,
                 opacity: isHovered ? 0.96 : 0.88,
                 transition: 'opacity 520ms ease',
                 pointerEvents: 'none'
               }}
             />
 
-            {/* Icono circular sobre la imagen */}
+            {/* Icono circular sobre la imagen con efecto líquido */}
             <div
               style={{
                 position: 'absolute',
                 bottom: 18,
                 left: 18,
-                background: curso.color,
+                background: `linear-gradient(135deg, ${curso.color}, ${curso.color}dd)`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 borderRadius: '999px',
                 width: '50px',
                 height: '50px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#0b0b0b',
-                transform: isHovered ? 'translateY(-72px)' : 'translateY(0)',
+                color: '#ffffff',
+                transform: isHovered ? 'translateY(-72px) scale(1.1)' : 'translateY(0) scale(1)',
                 opacity: isHovered ? 0 : 1,
                 transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 520ms ease',
-                boxShadow: '0 8px 18px rgba(0,0,0,0.25)'
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}
             >
               {curso.icon}
             </div>
           </div>
 
-          {/* Panel de contenido que se superpone hacia arriba sin cambiar el alto externo */}
+          {/* Panel de contenido glassmorphism */}
           <div
             style={{
               position: 'relative',
-              background: theme === 'dark' ? '#0b0b0b' : '#ffffff',
+              background: theme === 'dark' 
+                ? 'rgba(11, 11, 11, 0.75)' 
+                : 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(20px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(150%)',
               width: '100%',
               padding: '22px 24px',
               marginTop: isHovered ? -68 : -10,
-              transition: 'margin-top 520ms cubic-bezier(0.22, 1, 0.36, 1)',
-              boxShadow: '0 -1px 0 rgba(0,0,0,0.28) inset',
+              transition: 'margin-top 0.3s ease-out',
+              boxShadow: '0 -1px 0 rgba(0,0,0,0.08) inset',
+              borderTop: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`,
               willChange: 'margin-top'
             }}
           >
@@ -306,7 +339,9 @@ const Cursos = () => {
                   color: theme === 'dark' ? 'rgba(255,255,255,0.98)' : 'rgba(31, 41, 55, 0.98)',
                   margin: 0,
                   paddingBottom: 6,
-                  lineHeight: 1.25
+                  lineHeight: 1.25,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
+                  letterSpacing: '-0.5px'
                 }}
               >
                 {curso.titulo}
@@ -318,7 +353,8 @@ const Cursos = () => {
                   paddingBottom: 8,
                   color: '#fbbf24',
                   fontSize: '1rem',
-                  fontWeight: 700
+                  fontWeight: 700,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
                 }}
               >
                 {curso.categoria}
@@ -333,13 +369,14 @@ const Cursos = () => {
                   overflow: 'hidden',
                   maxHeight: isHovered ? 132 : 0,
                   opacity: isHovered ? 1 : 0,
-                  transition: 'max-height 520ms cubic-bezier(0.37, 0.75, 0.61, 1.05), opacity 480ms ease'
+                  transition: 'max-height 0.3s ease-out, opacity 0.25s ease-out',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
                 }}
               >
                 {curso.descripcion}
               </p>
 
-              {/* Métricas del curso */}
+              {/* Métricas del curso con glassmorphism */}
               <div
                 style={{
                   display: 'flex',
@@ -348,34 +385,57 @@ const Cursos = () => {
                   gap: 12,
                   marginTop: 14,
                   padding: '12px 14px',
-                  background: theme === 'dark' ? '#151515' : '#f9fafb',
-                  borderRadius: 14,
-                  border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.2)'
+                  background: theme === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(249, 250, 251, 0.6)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  borderRadius: 16,
+                  border: theme === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.08)' 
+                    : '1px solid rgba(209, 160, 42, 0.15)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Clock size={16} color="rgba(255,255,255,0.75)" />
-                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
+                  <Clock size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
+                  <span style={{ 
+                    fontSize: '0.9rem', 
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
+                    fontWeight: 500,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  }}>
                     {curso.duracion}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Users size={16} color="rgba(255,255,255,0.75)" />
-                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
+                  <Users size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
+                  <span style={{ 
+                    fontSize: '0.9rem', 
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
+                    fontWeight: 500,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  }}>
                     {curso.estudiantes}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{ fontSize: '0.9rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', fontWeight: 500 }}>
+                  <span style={{ 
+                    fontSize: '0.9rem', 
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
+                    fontWeight: 500,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  }}>
                     {curso.rating}
                   </span>
                 </div>
               </div>
 
-              {/* Botón */}
+              {/* Botón táctil iOS con glassmorphism */}
               <Link
                 to={curso.enlace}
+                className="btn-ver-curso"
                 style={{
                   marginTop: 14,
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
@@ -386,24 +446,34 @@ const Cursos = () => {
                   padding: '12px 18px',
                   fontSize: '0.98rem',
                   cursor: 'pointer',
-                  boxShadow: `0 10px 28px rgba(0,0,0,0.35)`,
+                  boxShadow: `0 10px 28px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 10,
                   textDecoration: 'none',
-                  transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms ease',
-                  transform: isHovered ? 'translateY(-1px)' : 'translateY(0)'
+                  transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
+                  transform: isHovered ? 'translateY(-1px) scale(1.02)' : 'translateY(0) scale(1)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
+                  letterSpacing: '0.3px'
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(-1px)';
-                  el.style.boxShadow = '0 12px 36px rgba(0,0,0,0.45)';
+                  el.style.transform = 'translateY(-1px) scale(1.02)';
+                  el.style.boxShadow = '0 12px 36px rgba(251, 191, 36, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(0)';
-                  el.style.boxShadow = '0 10px 28px rgba(0,0,0,0.35)';
+                  el.style.transform = 'translateY(0) scale(1)';
+                  el.style.boxShadow = '0 10px 28px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                }}
+                onMouseDown={(e) => {
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(0) scale(0.97)';
+                }}
+                onMouseUp={(e) => {
+                  const el = e.currentTarget as unknown as HTMLElement;
+                  el.style.transform = 'translateY(-1px) scale(1.02)';
                 }}
               >
                 <Sparkles size={18} />
@@ -439,8 +509,8 @@ const Cursos = () => {
           }
           
           @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% { left: -130%; }
+            100% { left: 130%; }
           }
           
           @keyframes float {
@@ -477,26 +547,38 @@ const Cursos = () => {
             background-clip: text;
           }
           
-          /* Reflejo tipo Inicio para cards de cursos */
+          /* Reflejo tipo shimmer glassmorphism */
           .shimmer-overlay {
             position: absolute;
             top: 0;
             left: -130%;
             width: 60%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.14), rgba(255,255,255,0));
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
             transform: skewX(-15deg);
-            animation: shimmer 7s ease-in-out infinite;
+            animation: shimmer 8s ease-in-out infinite;
             pointer-events: none;
             z-index: 2;
           }
           
           .curso-card:hover .shimmer-overlay {
-            animation-duration: 2.8s;
-            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+            animation-duration: 3s;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.25), rgba(255,255,255,0));
           }
           
-          /* Responsive ajustes para Próximamente */
+          /* Animación microinteracción badge */
+          .badge-categoria:hover {
+            transform: scale(1.08) translateY(-3px) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+          }
+          
+          /* Efecto de presión en botón */
+          .btn-ver-curso:active {
+            transform: translateY(0) scale(0.97) !important;
+            transition: transform 0.1s ease !important;
+          }
+          
+          /* Responsive ajustes */
           @media (max-width: 640px) {
             .proximamente-card { padding: 16px 14px !important; }
             .proximamente-title { font-size: 1.8rem !important; }
@@ -564,7 +646,9 @@ const Cursos = () => {
                 color: '#1a1a1a',
                 marginBottom: '24px',
                 lineHeight: 1.1,
-                textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
+                textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
+                letterSpacing: '-1px'
               }}
             >
               Nuestros Cursos
@@ -577,7 +661,8 @@ const Cursos = () => {
                 gap: '12px',
                 fontSize: '1.4rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                marginBottom: '16px'
+                marginBottom: '16px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
               }}
             >
               <Sparkles size={24} color="#fbbf24" />
@@ -589,7 +674,8 @@ const Cursos = () => {
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                 maxWidth: '600px',
                 margin: '0 auto 32px',
-                lineHeight: 1.6
+                lineHeight: 1.6,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
               }}
             >
               Programas diseñados por expertos de la industria con certificados profesionales
@@ -625,208 +711,6 @@ const Cursos = () => {
             {cursosData.slice(6).map((curso, index) => (
               <AnimatedCard key={curso.id} curso={curso} index={index + 6} />
             ))}
-          </div>
-
-          {/* Sección de próximos cursos */}
-          <div
-            className="proximamente-card"
-            style={{
-              background: theme === 'dark' ? '#0d0d0d' : '#ffffff',
-              borderRadius: '24px',
-              padding: '20px 18px',
-              textAlign: 'center',
-              border: theme === 'dark' ? '1px solid #222' : '1px solid rgba(209, 160, 42, 0.25)',
-              position: 'relative',
-              overflow: 'hidden',
-              transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-              opacity: isVisible ? 1 : 0,
-              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              marginTop: '40px',
-              marginBottom: '64px',
-              maxWidth: '780px',
-              marginLeft: 'auto',
-              marginRight: 'auto'
-            }}
-          >
-            {/* Efecto de brillo */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-                animationName: isVisible ? 'shimmer' : 'none',
-                animationDuration: '7s',
-                animationTimingFunction: 'ease-in-out',
-                animationIterationCount: 'infinite',
-                animationDelay: '1.2s'
-              }}
-            />
-
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  borderRadius: '50%',
-                  width: '64px',
-                  height: '64px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 16px',
-                  boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)'
-                }}
-              >
-                <Calendar size={28} color="#000" />
-              </div>
-
-              <h2
-                className="proximamente-title"
-                style={{
-                  fontSize: '2.2rem',
-                  fontWeight: '800',
-                  color: '#fbbf24',
-                  marginBottom: '12px',
-                  textShadow: '0 2px 10px rgba(251, 191, 36, 0.3)'
-                }}
-              >
-                ¡Próximamente!
-              </h2>
-
-              <h3
-                className="proximamente-subtitle"
-                style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                  marginBottom: '12px'
-                }}
-              >
-                Peluquería: Cortes y Tintes
-              </h3>
-
-              <p
-                className="proximamente-desc"
-                style={{
-                  fontSize: '1rem',
-                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                  maxWidth: '680px',
-                  margin: '0 auto 20px',
-                  lineHeight: 1.55
-                }}
-              >
-                Domina las técnicas más innovadoras en cortes de cabello, colorimetría profesional y tendencias de la alta peluquería. 
-                Un curso completo que te convertirá en el estilista que siempre soñaste ser.
-              </p>
-
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '12px',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap',
-                  marginBottom: '16px'
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '10px 14px',
-                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
-                    borderRadius: '25px',
-                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                    fontSize: '0.95rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  <Sparkles size={20} color="#fbbf24" />
-                  Técnicas Avanzadas
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '10px 14px',
-                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
-                    borderRadius: '25px',
-                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                    fontSize: '0.95rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  <Palette size={20} color="#fbbf24" />
-                  Colorimetría Profesional
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '10px 14px',
-                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
-                    borderRadius: '25px',
-                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                    fontSize: '0.95rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  <Star size={20} color="#fbbf24" />
-                  Certificado Profesional
-                </div>
-              </div>
-
-              <Link
-                to="/contacto"
-                style={{
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  color: '#000',
-                  fontWeight: '700',
-                  border: 'none',
-                  borderRadius: '40px',
-                  padding: '14px 28px',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  textDecoration: 'none',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(-2px) scale(1.03)';
-                  el.style.boxShadow = '0 14px 40px rgba(251, 191, 36, 0.45)';
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(0) scale(1)';
-                  el.style.boxShadow = '0 12px 32px rgba(251, 191, 36, 0.4)';
-                }}
-              >
-                <Calendar size={20} />
-                Notificarme Cuando Esté Disponible
-              </Link>
-
-              <p
-                style={{
-                  fontSize: '0.85rem',
-                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
-                  marginTop: '12px',
-                  fontStyle: 'italic'
-                }}
-              >
-                Sé el primero en enterarte cuando abramos las inscripciones
-              </p>
-
-            </div>
           </div>
         </div>
 
