@@ -28,6 +28,9 @@ interface Cuota {
   observaciones: string | null;
   curso_nombre: string;
   tipo_curso_nombre: string;
+  modalidad_pago?: 'mensual' | 'clases';
+  numero_clases?: number;
+  precio_por_clase?: number;
 }
 
 interface ResumenPagos {
@@ -492,11 +495,22 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                           </div>
                           <div>
                             <div style={{ fontWeight: '600', color: darkMode ? '#fff' : '#1f2937' }}>
-                              Cuota {cuota.numero_cuota} - {formatearMonto(cuota.monto)}
+                              {cuota.modalidad_pago === 'clases' 
+                                ? `Clase ${cuota.numero_cuota} - ${formatearMonto(cuota.monto)}`
+                                : `Cuota ${cuota.numero_cuota} - ${formatearMonto(cuota.monto)}`
+                              }
                             </div>
                             <div style={{ fontSize: '0.9rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
-                              Vence: {formatearFecha(cuota.fecha_vencimiento)}
+                              {cuota.modalidad_pago === 'clases' 
+                                ? `Fecha programada: ${formatearFecha(cuota.fecha_vencimiento)}`
+                                : `Vence: ${formatearFecha(cuota.fecha_vencimiento)}`
+                              }
                             </div>
+                            {cuota.modalidad_pago === 'clases' && cuota.numero_clases && (
+                              <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.6)' : '#9ca3af' }}>
+                                Clase {cuota.numero_cuota} de {cuota.numero_clases} total
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -514,7 +528,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                               cursor: 'pointer'
                             }}
                           >
-                            Pagar
+                            {cuota.modalidad_pago === 'clases' ? 'Pagar Clase' : 'Pagar'}
                           </button>
                         ) : (
                           <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
@@ -551,7 +565,11 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                       )}
 
                       {/* Alerta de pago rechazado */}
-                      {cuota.observaciones && (cuota.estado === 'pendiente' || cuota.estado === 'vencido') && (
+                      {cuota.observaciones && (cuota.estado === 'pendiente' || cuota.estado === 'vencido') && 
+                       (cuota.observaciones.toLowerCase().includes('rechazado') || 
+                        cuota.observaciones.toLowerCase().includes('incorrecto') ||
+                        cuota.observaciones.toLowerCase().includes('error') ||
+                        cuota.observaciones.toLowerCase().includes('inválido')) && (
                         <div style={{
                           marginTop: '12px',
                           padding: '12px',

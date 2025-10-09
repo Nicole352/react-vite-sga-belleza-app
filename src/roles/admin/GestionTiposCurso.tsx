@@ -12,6 +12,10 @@ type TipoCurso = {
   descripcion?: string | null;
   duracion_meses?: number | null;
   precio_base?: number | null;
+  modalidad_pago?: 'mensual' | 'clases';
+  numero_clases?: number | null;
+  precio_por_clase?: number | null;
+  matricula_incluye_primera_clase?: boolean;
   estado?: 'activo' | 'inactivo';
 };
 
@@ -123,6 +127,10 @@ const GestionTiposCurso: React.FC = () => {
       descripcion: String(fd.get('descripcion') || ''),
       duracion_meses: fd.get('duracion_meses') ? Number(fd.get('duracion_meses')) : null,
       precio_base: fd.get('precio_base') ? Number(fd.get('precio_base')) : null,
+      modalidad_pago: String(fd.get('modalidad_pago') || 'mensual'),
+      numero_clases: fd.get('numero_clases') ? Number(fd.get('numero_clases')) : null,
+      precio_por_clase: fd.get('precio_por_clase') ? Number(fd.get('precio_por_clase')) : null,
+      matricula_incluye_primera_clase: true, // Siempre true por defecto
       estado: String(fd.get('estado') || 'activo'),
     } as Record<string, any>;
 
@@ -378,6 +386,51 @@ const GestionTiposCurso: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Información de modalidad de pago */}
+              {t.modalidad_pago === 'clases' && (
+                <div style={{ 
+                  marginBottom: '16px',
+                  padding: '12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    marginBottom: '8px'
+                  }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      borderRadius: '50%', 
+                      background: '#3b82f6' 
+                    }} />
+                    <span style={{ 
+                      color: '#3b82f6', 
+                      fontSize: '0.8rem', 
+                      fontWeight: 600 
+                    }}>
+                      Modalidad por Clases
+                    </span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '16px',
+                    fontSize: '0.75rem',
+                    color: 'rgba(255,255,255,0.7)'
+                  }}>
+                    <span>
+                      <strong>{t.numero_clases || 0}</strong> clases total
+                    </span>
+                    <span>
+                      <strong>{formatPrice(t.precio_por_clase ?? null)}</strong> por clase
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -815,6 +868,80 @@ const GestionTiposCurso: React.FC = () => {
 
                 {/* Separador sutil */}
                 <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+
+                {/* Modalidad de Pago */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Modalidad de Pago</label>
+                  <StyledSelect
+                    name="modalidad_pago"
+                    defaultValue={selected?.modalidad_pago || 'mensual'}
+                    options={[
+                      { value: 'mensual', label: 'Mensual - Cuotas por meses' },
+                      { value: 'clases', label: 'Por Clases - Pago individual por clase' },
+                    ]}
+                    onChange={(e) => {
+                      // Mostrar/ocultar campos según modalidad
+                      const value = e.target.value;
+                      const isClases = value === 'clases';
+                      const numeroClasesDiv = document.querySelector('[data-field="numero_clases"]') as HTMLElement;
+                      const precioPorClaseDiv = document.querySelector('[data-field="precio_por_clase"]') as HTMLElement;
+                      
+                      if (numeroClasesDiv && precioPorClaseDiv) {
+                        numeroClasesDiv.style.display = isClases ? 'block' : 'none';
+                        precioPorClaseDiv.style.display = isClases ? 'block' : 'none';
+                      }
+                    }}
+                  />
+                  <div style={{ marginTop: 6, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.8rem' }}>
+                    <strong>Mensual:</strong> Cuotas mensuales (ej: Cosmetología). <strong>Por Clases:</strong> Pago individual por clase (ej: Técnica de Uñas).
+                  </div>
+                </div>
+
+                {/* Campos específicos para modalidad "clases" */}
+                <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Número de Clases</label>
+                  <input
+                    type="number"
+                    min={1}
+                    name="numero_clases"
+                    placeholder="Ej. 16"
+                    defaultValue={selected?.numero_clases ?? ''}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: 10,
+                      color: 'var(--admin-text-primary, #fff)',
+                    }}
+                  />
+                  <div style={{ marginTop: 4, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.75rem' }}>
+                    Total de clases del curso
+                  </div>
+                </div>
+
+                <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Precio por Clase (USD)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    name="precio_por_clase"
+                    placeholder="Ej. 15.40"
+                    defaultValue={selected?.precio_por_clase ?? ''}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: 10,
+                      color: 'var(--admin-text-primary, #fff)',
+                    }}
+                  />
+                  <div style={{ marginTop: 4, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.75rem' }}>
+                    Precio individual por cada clase (sin incluir matrícula)
+                  </div>
+                </div>
 
                 {/* Duración y Precio en la misma fila */}
                 <div>

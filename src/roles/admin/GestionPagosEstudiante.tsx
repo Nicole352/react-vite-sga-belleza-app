@@ -27,6 +27,9 @@ interface Pago {
   curso_nombre: string;
   codigo_matricula: string;
   id_curso: number;
+  modalidad_pago?: 'mensual' | 'clases';
+  numero_clases?: number;
+  precio_por_clase?: number;
 }
 
 interface EstudianteAgrupado {
@@ -44,9 +47,9 @@ interface EstudianteAgrupado {
 const GestionPagosEstudiante = () => {
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [estudiantes, setEstudiantes] = useState<EstudianteAgrupado[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true); const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
+  const [filtroPrioridad, setFiltroPrioridad] = useState<string>('pendientes_primero');
   const [selectedPago, setSelectedPago] = useState<Pago | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [procesando, setProcesando] = useState(false);
@@ -59,46 +62,71 @@ const GestionPagosEstudiante = () => {
   const [showVerificacionModal, setShowVerificacionModal] = useState(false);
   const [pagoAVerificar, setPagoAVerificar] = useState<Pago | null>(null);
   const [cuotasAVerificar, setCuotasAVerificar] = useState<number[]>([]);
-  
+
   // Estados para selectores por tarjeta
-  const [selectedCurso, setSelectedCurso] = useState<{[key: string]: number}>({});
-  const [selectedCuota, setSelectedCuota] = useState<{[key: string]: number}>({});
+  const [selectedCurso, setSelectedCurso] = useState<{ [key: string]: number }>({});
+  const [selectedCuota, setSelectedCuota] = useState<{ [key: string]: number }>({});
 
   // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   useEffect(() => {
     loadData();
   }, [filtroEstado]);
 
+  // Inicializar selectores automáticamente con pagos pendientes
+  useEffect(() => {
+    if (estudiantes.length > 0) {
+      const nuevosSelectores: { [key: string]: number } = {};
+
+      estudiantes.forEach(est => {
+        est.cursos.forEach(curso => {
+          // Buscar primero pagos en estado 'pagado' (pendientes de verificar)
+          const pagoPendiente = curso.pagos.find(p => p.estado === 'pagado');
+          if (pagoPendiente) {
+            nuevosSelectores[est.estudiante_cedula] = pagoPendiente.id_pago;
+          } else {
+            // Si no hay pagados, buscar el primero no verificado
+            const pagoNoVerificado = curso.pagos.find(p => p.estado !== 'verificado');
+            if (pagoNoVerificado) {
+              nuevosSelectores[est.estudiante_cedula] = pagoNoVerificado.id_pago;
+            }
+          }
+        });
+      });
+
+      setSelectedCuota(nuevosSelectores);
+    }
+  }, [estudiantes]);
+
   const loadData = async () => {
+
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       const params = new URLSearchParams();
       if (filtroEstado !== 'todos') {
         params.set('estado', filtroEstado);
       }
       params.set('limit', '200');
-      
+
       const res = await fetch(`${API_BASE}/api/admin/pagos?${params.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (!res.ok) throw new Error('Error cargando pagos');
-      
+
       const data = await res.json();
       setPagos(data);
-      
+
       // Agrupar por estudiante
       const agrupados = agruparPorEstudiante(data);
       setEstudiantes(agrupados);
-      
+
       // Inicializar selectores con primer curso y primera cuota
-      const initCursos: {[key: string]: number} = {};
-      const initCuotas: {[key: string]: number} = {};
+      const initCursos: { [key: string]: number } = {};
+      const initCuotas: { [key: string]: number } = {};
       agrupados.forEach(est => {
         if (est.cursos.length > 0) {
           initCursos[est.estudiante_cedula] = est.cursos[0].id_curso;
@@ -119,13 +147,13 @@ const GestionPagosEstudiante = () => {
       setLoading(false);
     }
   };
-  
+
   const agruparPorEstudiante = (pagosData: Pago[]): EstudianteAgrupado[] => {
-    const grupos: {[key: string]: EstudianteAgrupado} = {};
-    
+    const grupos: { [key: string]: EstudianteAgrupado } = {};
+
     pagosData.forEach(pago => {
       const cedula = pago.estudiante_cedula;
-      
+
       if (!grupos[cedula]) {
         grupos[cedula] = {
           estudiante_cedula: cedula,
@@ -134,7 +162,7 @@ const GestionPagosEstudiante = () => {
           cursos: []
         };
       }
-      
+
       let curso = grupos[cedula].cursos.find(c => c.id_curso === pago.id_curso);
       if (!curso) {
         curso = {
@@ -145,17 +173,17 @@ const GestionPagosEstudiante = () => {
         };
         grupos[cedula].cursos.push(curso);
       }
-      
+
       curso.pagos.push(pago);
     });
-    
+
     // Ordenar pagos por número de cuota
     Object.values(grupos).forEach(est => {
       est.cursos.forEach(curso => {
         curso.pagos.sort((a, b) => a.numero_cuota - b.numero_cuota);
       });
     });
-    
+
     return Object.values(grupos);
   };
 
@@ -193,12 +221,12 @@ const GestionPagosEstudiante = () => {
 
   const confirmarVerificacion = async () => {
     if (!pagoAVerificar || cuotasAVerificar.length === 0) return;
-    
+
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
       const id_usuario = 1; // TODO: Obtener del contexto
-      
+
       // Verificar todas las cuotas seleccionadas
       for (const id_pago of cuotasAVerificar) {
         const res = await fetch(`${API_BASE}/api/admin/pagos/${id_pago}/verificar`, {
@@ -209,20 +237,20 @@ const GestionPagosEstudiante = () => {
           },
           body: JSON.stringify({ verificado_por: id_usuario })
         });
-        
+
         if (!res.ok) throw new Error(`Error verificando pago ${id_pago}`);
       }
-      
+
       setShowVerificacionModal(false);
       setPagoAVerificar(null);
       setCuotasAVerificar([]);
       await loadData();
-      
+
       toast.success(`${cuotasAVerificar.length} cuota(s) verificada(s) exitosamente`, {
         duration: 4000,
         icon: <CheckCircle2 size={20} />,
       });
-      
+
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error verificando los pagos', {
@@ -248,12 +276,12 @@ const GestionPagosEstudiante = () => {
     }
 
     if (!pagoARechazar) return;
-    
+
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
       const id_usuario = 1; // TODO: Obtener del contexto
-      
+
       const res = await fetch(`${API_BASE}/api/admin/pagos/${pagoARechazar.id_pago}/rechazar`, {
         method: 'PUT',
         headers: {
@@ -262,18 +290,18 @@ const GestionPagosEstudiante = () => {
         },
         body: JSON.stringify({ observaciones: motivoRechazo, verificado_por: id_usuario })
       });
-      
+
       if (!res.ok) throw new Error('Error rechazando pago');
-      
+
       setShowRechazoModal(false);
       setPagoARechazar(null);
       setMotivoRechazo('');
       await loadData();
-      
+
       toast.success('Pago rechazado correctamente', {
         icon: <XCircle size={20} />,
       });
-      
+
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error rechazando el pago', {
@@ -287,7 +315,7 @@ const GestionPagosEstudiante = () => {
   // Filtrar y ordenar estudiantes
   const estudiantesFiltrados = estudiantes
     .filter(est => {
-      const matchSearch = 
+      const matchSearch =
         est.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         est.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
         est.estudiante_cedula.includes(searchTerm);
@@ -295,7 +323,21 @@ const GestionPagosEstudiante = () => {
       return matchSearch;
     })
     .sort((a, b) => {
-      // Ordenar por fecha de vencimiento más antigua primero (prioridad)
+      if (filtroPrioridad === 'pendientes_primero') {
+        // Obtener pagos pendientes de cada estudiante
+        const pagosPendientesA = a.cursos.flatMap(curso =>
+          curso.pagos.filter(pago => pago.estado === 'pagado')
+        );
+        const pagosPendientesB = b.cursos.flatMap(curso =>
+          curso.pagos.filter(pago => pago.estado === 'pagado')
+        );
+
+        // Prioridad: estudiantes con pagos pendientes primero
+        if (pagosPendientesA.length > 0 && pagosPendientesB.length === 0) return -1;
+        if (pagosPendientesB.length > 0 && pagosPendientesA.length === 0) return 1;
+      }
+
+      // Ordenamiento por defecto: fecha de vencimiento
       const pagoA = a.cursos[0]?.pagos[0];
       const pagoB = b.cursos[0]?.pagos[0];
       if (!pagoA || !pagoB) return 0;
@@ -307,14 +349,14 @@ const GestionPagosEstudiante = () => {
   // Paginación
   const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage);
   const paginatedEstudiantes = estudiantesFiltrados.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  
+
   // Obtener el pago seleccionado para un estudiante
   const getPagoSeleccionado = (cedula: string): Pago | null => {
     const idCuota = selectedCuota[cedula];
     if (!idCuota) return null;
     return pagos.find(p => p.id_pago === idCuota) || null;
   };
-  
+
   // Obtener el curso seleccionado para un estudiante
   const getCursoSeleccionado = (estudiante: EstudianteAgrupado) => {
     const idCurso = selectedCurso[estudiante.estudiante_cedula];
@@ -323,20 +365,20 @@ const GestionPagosEstudiante = () => {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: '400px',
         color: '#fff'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '50px', 
-            height: '50px', 
-            border: '4px solid rgba(239, 68, 68, 0.2)', 
-            borderTop: '4px solid #ef4444', 
-            borderRadius: '50%', 
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid rgba(239, 68, 68, 0.2)',
+            borderTop: '4px solid #ef4444',
+            borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
           }} />
@@ -350,13 +392,13 @@ const GestionPagosEstudiante = () => {
     <div style={{ padding: '32px' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ 
-          color: '#fff', 
-          fontSize: '2rem', 
-          fontWeight: '700', 
+        <h2 style={{
+          color: '#fff',
+          fontSize: '2rem',
+          fontWeight: '700',
           margin: '0 0 8px 0',
-          display: 'flex', 
-          alignItems: 'center', 
+          display: 'flex',
+          alignItems: 'center',
           gap: '12px'
         }}>
           <DollarSign size={32} color="#ef4444" />
@@ -417,52 +459,92 @@ const GestionPagosEstudiante = () => {
         {paginatedEstudiantes.map((estudiante) => {
           const cursoActual = getCursoSeleccionado(estudiante);
           const pago = getPagoSeleccionado(estudiante.estudiante_cedula);
-          
+
           if (!pago || !cursoActual) return null;
-          
+
           return (
-          <div
-            key={pago.id_pago}
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '20px',
-              padding: '24px',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
-            }}
-          >
-            {/* Información Principal */}
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 16px 0' }}>
-                {pago.estudiante_nombre} {pago.estudiante_apellido}
-              </h3>
-              
-              {/* Primera fila - Información básica con selectores */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                gap: '16px',
-                marginBottom: '12px'
-              }}>
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Identificación</div>
-                  <div style={{ color: '#fff', fontSize: '0.9rem' }}>{estudiante.estudiante_cedula}</div>
-                </div>
-                
-                {/* Selector de Curso */}
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Curso</div>
-                  {estudiante.cursos.length > 1 ? (
+            <div
+              key={pago.id_pago}
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '20px',
+                padding: '24px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              {/* Información Principal */}
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 16px 0' }}>
+                  {pago.estudiante_nombre} {pago.estudiante_apellido}
+                </h3>
+
+                {/* Primera fila - Información básica con selectores */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '16px',
+                  marginBottom: '12px'
+                }}>
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Identificación</div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{estudiante.estudiante_cedula}</div>
+                  </div>
+
+                  {/* Selector de Curso */}
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Curso</div>
+                    {estudiante.cursos.length > 1 ? (
+                      <select
+                        value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
+                        onChange={(e) => {
+                          const newIdCurso = Number(e.target.value);
+                          setSelectedCurso({ ...selectedCurso, [estudiante.estudiante_cedula]: newIdCurso });
+                          const nuevoCurso = estudiante.cursos.find(c => c.id_curso === newIdCurso);
+                          if (nuevoCurso && nuevoCurso.pagos.length > 0) {
+                            setSelectedCuota({ ...selectedCuota, [estudiante.estudiante_cedula]: nuevoCurso.pagos[0].id_pago });
+                          }
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '4px 8px',
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '6px',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {estudiante.cursos.map(curso => (
+                          <option key={curso.id_curso} value={curso.id_curso} style={{ background: '#1a1a2e' }}>
+                            {curso.curso_nombre}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div style={{ color: '#fff', fontSize: '0.9rem' }}>{cursoActual.curso_nombre}</div>
+                    )}
+                  </div>
+
+                  {/* Selector de Cuota/Clase */}
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>
+                      {pago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
+                    </div>
                     <select
-                      value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
+                      value={selectedCuota[estudiante.estudiante_cedula] || (() => {
+                        // Primero buscar cuotas en estado 'pagado' (pendientes de verificar)
+                        const cuotaPagada = cursoActual.pagos.find((p: Pago) => p.estado === 'pagado');
+                        if (cuotaPagada) return cuotaPagada.id_pago;
+
+                        // Si no hay pagadas, buscar la primera que NO esté verificada
+                        const cuotaNoVerificada = cursoActual.pagos.find((p: Pago) => p.estado !== 'verificado');
+                        return cuotaNoVerificada?.id_pago || pago.id_pago;
+                      })()}
                       onChange={(e) => {
-                        const newIdCurso = Number(e.target.value);
-                        setSelectedCurso({...selectedCurso, [estudiante.estudiante_cedula]: newIdCurso});
-                        const nuevoCurso = estudiante.cursos.find(c => c.id_curso === newIdCurso);
-                        if (nuevoCurso && nuevoCurso.pagos.length > 0) {
-                          setSelectedCuota({...selectedCuota, [estudiante.estudiante_cedula]: nuevoCurso.pagos[0].id_pago});
-                        }
+                        setSelectedCuota({ ...selectedCuota, [estudiante.estudiante_cedula]: Number(e.target.value) });
                       }}
                       style={{
                         width: '100%',
@@ -472,117 +554,48 @@ const GestionPagosEstudiante = () => {
                         borderRadius: '6px',
                         color: '#fff',
                         fontSize: '0.85rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        fontWeight: '700'
                       }}
                     >
-                      {estudiante.cursos.map(curso => (
-                        <option key={curso.id_curso} value={curso.id_curso} style={{ background: '#1a1a2e' }}>
-                          {curso.curso_nombre}
+                      {cursoActual.pagos.map(p => (
+                        <option key={p.id_pago} value={p.id_pago} style={{ background: '#1a1a2e' }}>
+                          {p.modalidad_pago === 'clases' ? `Clase ${p.numero_cuota}` : `Cuota #${p.numero_cuota}`} - {formatearMonto(p.monto)}
                         </option>
                       ))}
                     </select>
-                  ) : (
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{cursoActual.curso_nombre}</div>
-                  )}
-                </div>
-                
-                {/* Selector de Cuota */}
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Cuota</div>
-                  <select
-                    value={selectedCuota[estudiante.estudiante_cedula] || (() => {
-                      // Buscar la primera cuota que NO esté verificada (pagado, pendiente o vencido)
-                      const cuotaNoVerificada = cursoActual.pagos.find((p: Pago) => p.estado !== 'verificado');
-                      return cuotaNoVerificada?.id_pago || pago.id_pago;
-                    })()}
-                    onChange={(e) => {
-                      setSelectedCuota({...selectedCuota, [estudiante.estudiante_cedula]: Number(e.target.value)});
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '4px 8px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '6px',
-                      color: '#fff',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      fontWeight: '700'
-                    }}
-                  >
-                    {cursoActual.pagos.map(p => (
-                      <option key={p.id_pago} value={p.id_pago} style={{ background: '#1a1a2e' }}>
-                        Cuota #{p.numero_cuota} - {formatearMonto(p.monto)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Vencimiento</div>
-                  <div style={{ color: '#fff', fontSize: '0.9rem' }}>{formatearFecha(pago.fecha_vencimiento)}</div>
-                </div>
-              </div>
+                  </div>
 
-              {/* Segunda fila - Número, Comprobante y Estado */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: pago.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', 
-                gap: '12px',
-                alignItems: 'start'
-              }}>
-                {/* Número de comprobante */}
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Número Comprobante</div>
-                  {pago.numero_comprobante ? (
-                    <div style={{
-                      background: 'rgba(251, 191, 36, 0.1)',
-                      border: '1px solid rgba(251, 191, 36, 0.3)',
-                      color: '#fbbf24',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      fontFamily: 'monospace',
-                      textAlign: 'center',
-                      width: '100%'
-                    }}>
-                      {pago.numero_comprobante}
-                    </div>
-                  ) : (
-                    <div style={{
-                      background: 'rgba(107, 114, 128, 0.1)',
-                      border: '1px solid rgba(107, 114, 128, 0.3)',
-                      color: 'rgba(255, 255, 255, 0.5)',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      textAlign: 'center',
-                      fontStyle: 'italic',
-                      width: '100%'
-                    }}>
-                      Sin número
-                    </div>
-                  )}
-                </div>
-
-                {/* Recibido por - Solo para efectivo */}
-                {pago.metodo_pago === 'efectivo' && (
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Recibido por</div>
-                    {(pago as any).recibido_por ? (
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Vencimiento</div>
+                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{formatearFecha(pago.fecha_vencimiento)}</div>
+                  </div>
+                </div>
+
+                {/* Segunda fila - Número, Comprobante y Estado */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: pago.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)',
+                  gap: '12px',
+                  alignItems: 'start'
+                }}>
+                  {/* Número de comprobante */}
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Número Comprobante</div>
+                    {pago.numero_comprobante ? (
                       <div style={{
-                        background: 'rgba(180, 83, 9, 0.1)',
-                        border: '1px solid rgba(180, 83, 9, 0.3)',
-                        color: '#b45309',
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        border: '1px solid rgba(251, 191, 36, 0.3)',
+                        color: '#fbbf24',
                         padding: '6px 8px',
                         borderRadius: '6px',
                         fontSize: '0.8rem',
                         fontWeight: '600',
+                        fontFamily: 'monospace',
                         textAlign: 'center',
                         width: '100%'
                       }}>
-                        {(pago as any).recibido_por}
+                        {pago.numero_comprobante}
                       </div>
                     ) : (
                       <div style={{
@@ -596,149 +609,184 @@ const GestionPagosEstudiante = () => {
                         fontStyle: 'italic',
                         width: '100%'
                       }}>
-                        Sin registro
+                        Sin número
                       </div>
                     )}
                   </div>
-                )}
 
-                {/* Comprobante - Botón */}
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Comprobante</div>
-                  <button
-                    onClick={() => openComprobanteModal(pago)}
-                    style={{
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      color: '#10b981',
+                  {/* Recibido por - Solo para efectivo */}
+                  {pago.metodo_pago === 'efectivo' && (
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Recibido por</div>
+                      {(pago as any).recibido_por ? (
+                        <div style={{
+                          background: 'rgba(180, 83, 9, 0.1)',
+                          border: '1px solid rgba(180, 83, 9, 0.3)',
+                          color: '#b45309',
+                          padding: '6px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          textAlign: 'center',
+                          width: '100%'
+                        }}>
+                          {(pago as any).recibido_por}
+                        </div>
+                      ) : (
+                        <div style={{
+                          background: 'rgba(107, 114, 128, 0.1)',
+                          border: '1px solid rgba(107, 114, 128, 0.3)',
+                          color: 'rgba(255, 255, 255, 0.5)',
+                          padding: '6px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          textAlign: 'center',
+                          fontStyle: 'italic',
+                          width: '100%'
+                        }}>
+                          Sin registro
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Comprobante - Botón */}
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Comprobante</div>
+                    <button
+                      onClick={() => openComprobanteModal(pago)}
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        color: '#10b981',
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        whiteSpace: 'nowrap',
+                        width: '100%',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Download size={14} />
+                      Ver Comprobante
+                    </button>
+                  </div>
+
+                  {/* Estado */}
+                  <div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Estado</div>
+                    <div style={{
+                      display: 'flex',
                       padding: '6px 8px',
                       borderRadius: '6px',
-                      cursor: 'pointer',
                       fontSize: '0.8rem',
-                      fontWeight: '500',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap',
+                      fontWeight: '600',
+                      textTransform: 'capitalize',
                       width: '100%',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <Download size={14} />
-                    Ver Comprobante
-                  </button>
-                </div>
-
-                {/* Estado */}
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Estado</div>
-                  <div style={{ 
-                    display: 'flex',
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    textTransform: 'capitalize',
-                    width: '100%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
-                               pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
-                               pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
-                               'rgba(156, 163, 175, 0.15)',
-                    border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                           pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                           pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                           '1px solid rgba(156, 163, 175, 0.3)',
-                    color: pago.estado === 'verificado' ? '#10b981' :
-                          pago.estado === 'pagado' ? '#fbbf24' :
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
+                        pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
+                          pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
+                            'rgba(156, 163, 175, 0.15)',
+                      border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                        pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                          pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                            '1px solid rgba(156, 163, 175, 0.3)',
+                      color: pago.estado === 'verificado' ? '#10b981' :
+                        pago.estado === 'pagado' ? '#fbbf24' :
                           pago.estado === 'vencido' ? '#ef4444' :
-                          '#9ca3af'
-                  }}>
-                    {pago.estado}
+                            '#9ca3af'
+                    }}>
+                      {pago.estado}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Botones de Acción - Parte Inferior */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              justifyContent: 'flex-end',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              paddingTop: '16px'
-            }}>
-              <button 
-                onClick={() => {
-                  setSelectedPago(pago);
-                  setShowModal(true);
-                }}
-                style={{ 
-                  background: 'rgba(59, 130, 246, 0.15)', 
-                  border: '1px solid rgba(59, 130, 246, 0.3)', 
-                  color: '#3b82f6', 
-                  padding: '10px 16px', 
-                  borderRadius: '10px', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
-                }}
-              >
-                <Eye size={16} />
-                Ver
-              </button>
-              {pago.estado === 'pagado' && (
-                <>
-                  <button 
-                    onClick={() => handleVerificarPago(pago)}
-                    disabled={procesando}
-                    style={{ 
-                      background: 'rgba(16, 185, 129, 0.15)', 
-                      border: '1px solid rgba(16, 185, 129, 0.3)', 
-                      color: '#10b981', 
-                      padding: '10px 16px', 
-                      borderRadius: '10px', 
-                      cursor: procesando ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      opacity: procesando ? 0.6 : 1,
-                      fontSize: '0.9rem',
-                      fontWeight: '500'
-                    }}
-                  >
-                    <Check size={16} />
-                    Aprobar
-                  </button>
-                  <button 
-                    onClick={() => handleRechazarPago(pago)}
-                    disabled={procesando}
-                    style={{ 
-                      background: 'rgba(239, 68, 68, 0.15)', 
-                      border: '1px solid rgba(239, 68, 68, 0.3)', 
-                      color: '#ef4444', 
-                      padding: '10px 16px', 
-                      borderRadius: '10px', 
-                      cursor: procesando ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      opacity: procesando ? 0.6 : 1,
-                      fontSize: '0.9rem',
-                      fontWeight: '500'
-                    }}
-                  >
-                    <X size={16} />
-                    Rechazar
-                  </button>
-                </>
-              )}
+              {/* Botones de Acción - Parte Inferior */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                paddingTop: '16px'
+              }}>
+                <button
+                  onClick={() => {
+                    setSelectedPago(pago);
+                    setShowModal(true);
+                  }}
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    color: '#3b82f6',
+                    padding: '10px 16px',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '0.9rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  <Eye size={16} />
+                  Ver
+                </button>
+                {pago.estado === 'pagado' && (
+                  <>
+                    <button
+                      onClick={() => handleVerificarPago(pago)}
+                      disabled={procesando}
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        color: '#10b981',
+                        padding: '10px 16px',
+                        borderRadius: '10px',
+                        cursor: procesando ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        opacity: procesando ? 0.6 : 1,
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <Check size={16} />
+                      Aprobar
+                    </button>
+                    <button
+                      onClick={() => handleRechazarPago(pago)}
+                      disabled={procesando}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
+                        padding: '10px 16px',
+                        borderRadius: '10px',
+                        cursor: procesando ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        opacity: procesando ? 0.6 : 1,
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <X size={16} />
+                      Rechazar
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
           );
         })}
       </div>
@@ -790,29 +838,29 @@ const GestionPagosEstudiante = () => {
                       <Download size={24} color="#fff" />
                     </div>
                     <div>
-                      <h2 style={{ 
-                        color: '#fff', 
-                        margin: 0, 
+                      <h2 style={{
+                        color: '#fff',
+                        margin: 0,
                         fontSize: '1.75rem',
                         fontWeight: 800,
                         letterSpacing: '-0.5px'
                       }}>
                         Detalle del Pago
                       </h2>
-                      <p style={{ 
-                        color: '#fbbf24', 
-                        margin: '4px 0 0 0', 
+                      <p style={{
+                        color: '#fbbf24',
+                        margin: '4px 0 0 0',
                         fontSize: '1rem',
                         fontWeight: 700,
                         fontFamily: 'monospace'
                       }}>
-                        Cuota #{selectedPago.numero_cuota}
+                        {selectedPago.modalidad_pago === 'clases' ? `Clase ${selectedPago.numero_cuota}` : `Cuota #${selectedPago.numero_cuota}`}
                       </p>
                     </div>
                   </div>
-                  <p style={{ 
-                    color: 'rgba(255,255,255,0.6)', 
-                    margin: '8px 0 0 0', 
+                  <p style={{
+                    color: 'rgba(255,255,255,0.6)',
+                    margin: '8px 0 0 0',
                     fontSize: '0.9rem',
                     maxWidth: '600px'
                   }}>
@@ -849,9 +897,9 @@ const GestionPagosEstudiante = () => {
             {/* Content Premium */}
             <div style={{ padding: '32px' }}>
               {/* Stats Cards Row */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '16px',
                 marginBottom: '28px'
               }}>
@@ -873,9 +921,9 @@ const GestionPagosEstudiante = () => {
                     borderRadius: '50%',
                     filter: 'blur(20px)'
                   }} />
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.6)', 
-                    fontSize: '0.7rem', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -883,8 +931,8 @@ const GestionPagosEstudiante = () => {
                   }}>
                     <DollarSign size={16} style={{ display: 'inline', marginRight: '4px' }} /> Monto
                   </div>
-                  <div style={{ 
-                    color: '#10b981', 
+                  <div style={{
+                    color: '#10b981',
                     fontSize: '1.75rem',
                     fontWeight: 800,
                     fontFamily: 'monospace',
@@ -912,18 +960,18 @@ const GestionPagosEstudiante = () => {
                     borderRadius: '50%',
                     filter: 'blur(20px)'
                   }} />
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.6)', 
-                    fontSize: '0.7rem', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
                     marginBottom: '8px'
                   }}>
-                    <Calendar size={16} style={{ display: 'inline', marginRight: '4px' }} /> Cuota
+                    <Calendar size={16} style={{ display: 'inline', marginRight: '4px' }} /> {selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
                   </div>
-                  <div style={{ 
-                    color: '#3b82f6', 
+                  <div style={{
+                    color: '#3b82f6',
                     fontSize: '1.75rem',
                     fontWeight: 800,
                     fontFamily: 'monospace'
@@ -933,24 +981,24 @@ const GestionPagosEstudiante = () => {
                 </div>
 
                 <div style={{
-                  background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' 
+                  background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado'
                     ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)'
                     : selectedPago.estado === 'pendiente'
-                    ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)'
-                    : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+                      ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
                   borderRadius: '16px',
                   padding: '20px',
                   border: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado'
                     ? '1px solid rgba(16, 185, 129, 0.2)'
                     : selectedPago.estado === 'pendiente'
-                    ? '1px solid rgba(251, 191, 36, 0.2)'
-                    : '1px solid rgba(239, 68, 68, 0.2)',
+                      ? '1px solid rgba(251, 191, 36, 0.2)'
+                      : '1px solid rgba(239, 68, 68, 0.2)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.6)', 
-                    fontSize: '0.7rem', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -966,14 +1014,14 @@ const GestionPagosEstudiante = () => {
                     fontWeight: 800,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
-                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' : 
-                               selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 
-                               'rgba(239, 68, 68, 0.2)',
-                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : 
-                          selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444',
+                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' :
+                      selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' :
+                        'rgba(239, 68, 68, 0.2)',
+                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' :
+                      selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444',
                     boxShadow: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '0 4px 12px rgba(16, 185, 129, 0.2)' :
-                              selectedPago.estado === 'pendiente' ? '0 4px 12px rgba(251, 191, 36, 0.2)' :
-                              '0 4px 12px rgba(239, 68, 68, 0.2)'
+                      selectedPago.estado === 'pendiente' ? '0 4px 12px rgba(251, 191, 36, 0.2)' :
+                        '0 4px 12px rgba(239, 68, 68, 0.2)'
                   }}>
                     {selectedPago.estado === 'verificado' ? '✓ ' : selectedPago.estado === 'pagado' ? '✓ ' : selectedPago.estado === 'pendiente' ? '⏱ ' : '✗ '}
                     {selectedPago.estado}
@@ -982,9 +1030,9 @@ const GestionPagosEstudiante = () => {
               </div>
 
               {/* Información Detallada */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr', 
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr',
                 gap: '16px',
                 marginBottom: '24px'
               }}>
@@ -1017,9 +1065,9 @@ const GestionPagosEstudiante = () => {
                       {selectedPago.estudiante_nombre?.charAt(0)}{selectedPago.estudiante_apellido?.charAt(0)}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.5)', 
-                        fontSize: '0.7rem', 
+                      <div style={{
+                        color: 'rgba(255,255,255,0.5)',
+                        fontSize: '0.7rem',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                         letterSpacing: '1px',
@@ -1027,16 +1075,16 @@ const GestionPagosEstudiante = () => {
                       }}>
                         <User size={16} style={{ display: 'inline', marginRight: '4px' }} /> Estudiante
                       </div>
-                      <div style={{ 
-                        color: '#fff', 
+                      <div style={{
+                        color: '#fff',
                         fontSize: '1.25rem',
                         fontWeight: 700,
                         marginBottom: '4px'
                       }}>
                         {selectedPago.estudiante_nombre} {selectedPago.estudiante_apellido}
                       </div>
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.6)', 
+                      <div style={{
+                        color: 'rgba(255,255,255,0.6)',
                         fontSize: '0.9rem',
                         fontFamily: 'monospace',
                         display: 'flex',
@@ -1065,9 +1113,9 @@ const GestionPagosEstudiante = () => {
                   padding: '24px',
                   border: '1px solid rgba(255,255,255,0.1)'
                 }}>
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.5)', 
-                    fontSize: '0.7rem', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -1075,8 +1123,8 @@ const GestionPagosEstudiante = () => {
                   }}>
                     <BookOpen size={16} style={{ display: 'inline', marginRight: '4px' }} /> Curso Matriculado
                   </div>
-                  <div style={{ 
-                    color: '#fff', 
+                  <div style={{
+                    color: '#fff',
                     fontSize: '1.15rem',
                     fontWeight: 700,
                     display: 'flex',
@@ -1097,16 +1145,16 @@ const GestionPagosEstudiante = () => {
 
               {/* Información de Pago - Solo para efectivo */}
               {selectedPago.metodo_pago === 'efectivo' && (
-                <div style={{ 
-                  background: 'rgba(255,255,255,0.03)', 
-                  borderRadius: '16px', 
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '16px',
                   padding: '24px',
                   marginBottom: '24px',
                   border: '1px solid rgba(180, 83, 9, 0.3)'
                 }}>
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.5)', 
-                    fontSize: '0.7rem', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -1114,22 +1162,22 @@ const GestionPagosEstudiante = () => {
                   }}>
                     💰 Información del Pago en Efectivo
                   </div>
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr', 
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
                     gap: '16px'
                   }}>
                     {selectedPago.numero_comprobante && (
                       <div>
-                        <div style={{ 
-                          color: 'rgba(255,255,255,0.6)', 
+                        <div style={{
+                          color: 'rgba(255,255,255,0.6)',
                           fontSize: '0.75rem',
                           marginBottom: '6px'
                         }}>
                           Número de Comprobante
                         </div>
-                        <div style={{ 
-                          color: '#fbbf24', 
+                        <div style={{
+                          color: '#fbbf24',
                           fontSize: '1rem',
                           fontWeight: 700,
                           fontFamily: 'monospace',
@@ -1144,15 +1192,15 @@ const GestionPagosEstudiante = () => {
                     )}
                     {(selectedPago as any).recibido_por && (
                       <div>
-                        <div style={{ 
-                          color: 'rgba(255,255,255,0.6)', 
+                        <div style={{
+                          color: 'rgba(255,255,255,0.6)',
                           fontSize: '0.75rem',
                           marginBottom: '6px'
                         }}>
                           Recibido por
                         </div>
-                        <div style={{ 
-                          color: '#b45309', 
+                        <div style={{
+                          color: '#b45309',
                           fontSize: '1rem',
                           fontWeight: 700,
                           background: 'rgba(180, 83, 9, 0.1)',
@@ -1170,10 +1218,10 @@ const GestionPagosEstudiante = () => {
 
               {/* Información de Verificación */}
               {(selectedPago.estado === 'verificado' && selectedPago.fecha_verificacion) && (
-                <div style={{ 
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)', 
-                  border: '1px solid rgba(16, 185, 129, 0.3)', 
-                  borderRadius: '16px', 
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '16px',
                   padding: '20px',
                   marginBottom: '24px',
                   position: 'relative',
@@ -1189,9 +1237,9 @@ const GestionPagosEstudiante = () => {
                     borderRadius: '50%',
                     filter: 'blur(30px)'
                   }} />
-                  <div style={{ 
-                    color: '#10b981', 
-                    fontSize: '0.75rem', 
+                  <div style={{
+                    color: '#10b981',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -1202,7 +1250,7 @@ const GestionPagosEstudiante = () => {
                   }}>
                     ✓ Verificado por Administrador
                   </div>
-                  <div style={{ 
+                  <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
@@ -1224,30 +1272,30 @@ const GestionPagosEstudiante = () => {
                       <User size={20} />
                     </div>
                     <div>
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.95)', 
+                      <div style={{
+                        color: 'rgba(255,255,255,0.95)',
                         fontSize: '1.05rem',
                         fontWeight: 700,
                         marginBottom: '4px'
                       }}>
                         {selectedPago.admin_nombre || 'Administrador'}
                       </div>
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.7)', 
+                      <div style={{
+                        color: 'rgba(255,255,255,0.7)',
                         fontSize: '0.85rem',
                         fontFamily: 'monospace',
                         marginBottom: '6px'
                       }}>
                         ID: {selectedPago.admin_identificacion || selectedPago.verificado_por || 'N/A'}
                       </div>
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.6)', 
+                      <div style={{
+                        color: 'rgba(255,255,255,0.6)',
                         fontSize: '0.8rem',
                         fontFamily: 'monospace'
                       }}>
-                        {new Date(selectedPago.fecha_verificacion).toLocaleDateString('es-ES', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        {new Date(selectedPago.fecha_verificacion).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
@@ -1260,10 +1308,10 @@ const GestionPagosEstudiante = () => {
 
               {/* Observaciones */}
               {selectedPago.observaciones && (
-                <div style={{ 
-                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)', 
-                  border: '1px solid rgba(251, 191, 36, 0.3)', 
-                  borderRadius: '16px', 
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '16px',
                   padding: '20px',
                   marginBottom: '24px',
                   position: 'relative',
@@ -1279,9 +1327,9 @@ const GestionPagosEstudiante = () => {
                     borderRadius: '50%',
                     filter: 'blur(30px)'
                   }} />
-                  <div style={{ 
-                    color: '#fbbf24', 
-                    fontSize: '0.75rem', 
+                  <div style={{
+                    color: '#fbbf24',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
@@ -1292,8 +1340,8 @@ const GestionPagosEstudiante = () => {
                   }}>
                     <FileText size={18} style={{ display: 'inline', marginRight: '6px' }} /> Observaciones Importantes
                   </div>
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.95)', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.95)',
                     fontSize: '1rem',
                     lineHeight: 1.7,
                     fontWeight: 500
@@ -1304,9 +1352,9 @@ const GestionPagosEstudiante = () => {
               )}
 
               {/* Actions Premium */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '12px', 
+              <div style={{
+                display: 'flex',
+                gap: '12px',
                 justifyContent: 'flex-end',
                 paddingTop: '12px',
                 borderTop: '1px solid rgba(255,255,255,0.1)'
@@ -1346,27 +1394,27 @@ const GestionPagosEstudiante = () => {
 
       {/* Modal Comprobante */}
       {showComprobanteModal && (
-        <div style={{ 
-          position: 'fixed', 
+        <div style={{
+          position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0,0,0,0.8)', 
-          display: 'flex', 
-          alignItems: 'flex-start', 
-          justifyContent: 'center', 
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
           zIndex: 60,
           padding: '40px 20px',
           paddingTop: '80px'
         }}>
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
-            border: '1px solid rgba(16, 185, 129, 0.3)', 
-            borderRadius: 16, 
-            width: 'min(90vw, 800px)', 
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: 16,
+            width: 'min(90vw, 800px)',
             maxHeight: 'calc(100vh - 160px)',
-            padding: 24, 
+            padding: 24,
             color: '#fff',
             display: 'flex',
             flexDirection: 'column'
@@ -1378,9 +1426,9 @@ const GestionPagosEstudiante = () => {
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
-                  <p style={{ 
-                    margin: '4px 0 0 28px', 
-                    color: '#fbbf24', 
+                  <p style={{
+                    margin: '4px 0 0 28px',
+                    color: '#fbbf24',
                     fontSize: '0.9rem',
                     fontFamily: 'monospace',
                     fontWeight: '600'
@@ -1389,12 +1437,12 @@ const GestionPagosEstudiante = () => {
                   </p>
                 )}
               </div>
-              <button 
-                onClick={() => setShowComprobanteModal(false)} 
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  color: '#fff', 
+              <button
+                onClick={() => setShowComprobanteModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#fff',
                   cursor: 'pointer',
                   padding: '4px'
                 }}
@@ -1402,23 +1450,23 @@ const GestionPagosEstudiante = () => {
                 <X size={24} />
               </button>
             </div>
-            
-            <div style={{ 
-              flex: 1, 
-              display: 'flex', 
-              justifyContent: 'center', 
+
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: '12px',
               padding: '16px',
               overflow: 'hidden'
             }}>
-              <img 
-                src={comprobanteUrl} 
+              <img
+                src={comprobanteUrl}
                 alt="Comprobante de pago"
-                style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '100%', 
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
                   objectFit: 'contain',
                   borderRadius: '8px'
                 }}
@@ -1437,16 +1485,16 @@ const GestionPagosEstudiante = () => {
                 }}
               />
             </div>
-            
-            <div style={{ 
-              marginTop: '16px', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              gap: '12px' 
+
+            <div style={{
+              marginTop: '16px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '12px'
             }}>
-              <a 
-                href={comprobanteUrl} 
-                target="_blank" 
+              <a
+                href={comprobanteUrl}
+                target="_blank"
                 rel="noreferrer"
                 style={{
                   background: 'rgba(16, 185, 129, 0.15)',
@@ -1676,7 +1724,7 @@ const GestionPagosEstudiante = () => {
                   const cuotasDisponibles = cursoActual?.pagos
                     .filter(p => p.numero_cuota >= pagoAVerificar.numero_cuota && p.estado === 'pagado')
                     .sort((a, b) => a.numero_cuota - b.numero_cuota) || [];
-                  
+
                   if (cuotasDisponibles.length === 0) {
                     return (
                       <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.7)' }}>
@@ -1684,7 +1732,7 @@ const GestionPagosEstudiante = () => {
                       </div>
                     );
                   }
-                  
+
                   return cuotasDisponibles.map((cuota) => (
                     <label key={cuota.id_pago} style={{
                       display: 'flex',
@@ -1711,7 +1759,9 @@ const GestionPagosEstudiante = () => {
                         style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                       />
                       <div style={{ flex: 1, color: '#fff' }}>
-                        <div style={{ fontWeight: '600' }}>Cuota #{cuota.numero_cuota}</div>
+                        <div style={{ fontWeight: '600' }}>
+                          {cuota.modalidad_pago === 'clases' ? `Clase ${cuota.numero_cuota}` : `Cuota #${cuota.numero_cuota}`}
+                        </div>
                         <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
                           {formatearMonto(cuota.monto)} - {cuota.estado}
                         </div>
@@ -1838,20 +1888,20 @@ const GestionPagosEstudiante = () => {
               }}>
                 <X size={32} color="#ef4444" />
               </div>
-              <h3 style={{ 
-                color: '#fff', 
-                fontSize: '1.5rem', 
-                fontWeight: '700', 
-                margin: '0 0 8px 0' 
+              <h3 style={{
+                color: '#fff',
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 8px 0'
               }}>
                 Rechazar Pago
               </h3>
-              <p style={{ 
-                color: 'rgba(255,255,255,0.7)', 
-                fontSize: '0.9rem', 
-                margin: 0 
+              <p style={{
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: '0.9rem',
+                margin: 0
               }}>
-                Cuota #{pagoARechazar.numero_cuota} - {pagoARechazar.estudiante_nombre} {pagoARechazar.estudiante_apellido}
+                {pagoARechazar.modalidad_pago === 'clases' ? `Clase ${pagoARechazar.numero_cuota}` : `Cuota #${pagoARechazar.numero_cuota}`} - {pagoARechazar.estudiante_nombre} {pagoARechazar.estudiante_apellido}
               </p>
             </div>
 
@@ -1866,11 +1916,11 @@ const GestionPagosEstudiante = () => {
               <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <AlertCircle size={16} /> Al rechazar este pago:
               </div>
-              <ul style={{ 
-                color: 'rgba(255,255,255,0.9)', 
-                fontSize: '0.85rem', 
-                margin: 0, 
-                paddingLeft: '20px' 
+              <ul style={{
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '0.85rem',
+                margin: 0,
+                paddingLeft: '20px'
               }}>
                 <li>El estado volverá a "Pendiente"</li>
                 <li>El estudiante deberá subir un nuevo comprobante</li>
@@ -1880,12 +1930,12 @@ const GestionPagosEstudiante = () => {
 
             {/* Campo de motivo */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ 
-                display: 'block', 
-                color: '#fff', 
-                fontSize: '0.9rem', 
-                fontWeight: '600', 
-                marginBottom: '8px' 
+              <label style={{
+                display: 'block',
+                color: '#fff',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                marginBottom: '8px'
               }}>
                 Motivo del rechazo *
               </label>
@@ -1906,10 +1956,10 @@ const GestionPagosEstudiante = () => {
                   fontFamily: 'Montserrat, sans-serif'
                 }}
               />
-              <div style={{ 
-                color: 'rgba(255,255,255,0.5)', 
-                fontSize: '0.75rem', 
-                marginTop: '4px' 
+              <div style={{
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '0.75rem',
+                marginTop: '4px'
               }}>
                 Este mensaje será visible para el estudiante
               </div>
@@ -1945,8 +1995,8 @@ const GestionPagosEstudiante = () => {
                 style={{
                   flex: 1,
                   padding: '12px 24px',
-                  background: procesando || !motivoRechazo.trim() 
-                    ? 'rgba(239, 68, 68, 0.3)' 
+                  background: procesando || !motivoRechazo.trim()
+                    ? 'rgba(239, 68, 68, 0.3)'
                     : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   border: 'none',
                   borderRadius: '12px',
