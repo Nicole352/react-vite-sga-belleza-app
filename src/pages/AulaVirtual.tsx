@@ -107,7 +107,7 @@ const AulaVirtual = () => {
       <div style={{
         minHeight: '100vh',
         background: theme === 'dark'
-          ? 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)'
+          ? 'rgba(0, 0, 0, 0.95)'
           : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         display: 'flex',
         alignItems: 'center',
@@ -264,9 +264,9 @@ const AulaVirtual = () => {
           
           .login-container {
             min-height: 100vh;
-            background: theme === 'dark'
-              ? 'linear-gradient(135deg, #000 0%, #101010 50%, #000 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)';
+            background: ${theme === 'dark'
+              ? 'rgba(0, 0, 0, 0.95)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)'};
             position: relative;
             overflow: hidden;
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -332,9 +332,9 @@ const AulaVirtual = () => {
             flex-direction: column;
             justify-content: center;
             padding: 92px 48px 52px; /* ajustar para que quepa sin scroll en desktop */
-            background: theme === 'dark'
-              ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 14, 14, 0.9) 100%)'
-              : 'rgba(255, 255, 255, 0.97)';
+            background: ${theme === 'dark'
+              ? 'rgba(0, 0, 0, 0.95)'
+              : 'rgba(255, 255, 255, 0.97)'};
             position: relative;
           }
           
@@ -403,10 +403,12 @@ const AulaVirtual = () => {
           }
           
           .login-form {
-            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff';
+            background: ${theme === 'dark' 
+              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))' 
+              : '#ffffff'};
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(209, 160, 42, 0.2)';
+            border: 1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(209, 160, 42, 0.2)'};
             border-radius: 28px;
             padding: 32px; /* más compacto para doble columna */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);

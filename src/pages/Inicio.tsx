@@ -97,6 +97,14 @@ const PaginaInicio: React.FC = () => {
     };
   }, [currentHeroImage]);
 
+  // Enforce subtitle color inline to guarantee white in light mode
+  useEffect(() => {
+    if (subtitleRef.current) {
+      subtitleRef.current.style.color = theme === 'dark' ? '#f3f4f6' : '#ffffff';
+      subtitleRef.current.style.webkitTextFillColor = theme === 'dark' ? '#f3f4f6' : '#ffffff';
+    }
+  }, [theme, currentHeroImage]);
+
   // Auto-scroll del hero cada 8 segundos
   useEffect(() => {
     const heroInterval = setInterval(() => {
@@ -494,9 +502,9 @@ const PaginaInicio: React.FC = () => {
           display: inline-block;
         }
 
-        .hero-subtitle {
+        .hero-text .hero-subtitle {
           font-size: 1.2rem;
-          color: ${theme === 'dark' ? '#f3f4f6' : '#4b5563'};
+          color: ${theme === 'dark' ? '#f3f4f6' : 'white !important'};
           margin: 0 auto 32px;
           max-width: 750px;
           line-height: 1.7;
@@ -506,6 +514,11 @@ const PaginaInicio: React.FC = () => {
           font-family: 'Montserrat', sans-serif;
           font-weight: 400;
           letter-spacing: 0.3px;
+        }
+
+        /* Ensure the dynamic span inside subtitle also turns white in light mode */
+        .hero-text .hero-subtitle span {
+          color: ${theme === 'dark' ? '#f3f4f6' : 'white !important'};
         }
 
         .button-container {
@@ -606,12 +619,12 @@ const PaginaInicio: React.FC = () => {
         .stat-card {
           background: ${theme === 'dark' 
             ? 'rgba(255, 255, 255, 0.06)' 
-            : 'rgba(255, 255, 255, 0.4)'};
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.42))'};
+          backdrop-filter: ${theme === 'dark' ? 'blur(20px) saturate(170%)' : 'blur(12px) saturate(150%)'};
+          -webkit-backdrop-filter: ${theme === 'dark' ? 'blur(20px) saturate(170%)' : 'blur(12px) saturate(150%)'};
           border: 1px solid ${theme === 'dark' 
             ? 'rgba(255, 255, 255, 0.1)' 
-            : 'rgba(255, 255, 255, 0.3)'};
+            : 'rgba(255, 255, 255, 0.30)'};
           border-radius: 20px;
           padding: 28px 36px;
           transform: translateY(0);
@@ -619,22 +632,30 @@ const PaginaInicio: React.FC = () => {
           transition: all 0.8s ease-out;
           box-shadow: ${theme === 'dark' 
             ? '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1) inset' 
-            : '0 10px 30px rgba(0, 0, 0, 0.1)'};
+            : '0 14px 30px rgba(0, 0, 0, 0.14), 0 0 1px rgba(255,255,255,0.6) inset'};
           text-align: center;
+        }
+
+        .stat-card:hover {
+          ${theme === 'dark' 
+            ? ''
+            : 'transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.16), 0 0 1px rgba(255,255,255,0.8) inset; border-color: rgba(255,255,255,0.34);'}
         }
 
         .stat-number {
           font-size: 3.5rem;
           font-weight: 300;
-          color: #fbbf24;
+          color: ${theme === 'dark' ? '#fbbf24' : '#000000'};
           margin-bottom: 12px;
-          text-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
+          text-shadow: ${theme === 'dark' 
+            ? '0 6px 20px rgba(251, 191, 36, 0.5)'
+            : '0 1px 4px rgba(0, 0, 0, 0.12)'};
           font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.02em;
         }
 
         .stat-text {
-          color: ${theme === 'dark' ? '#f3f4f6' : '#1f2937'};
+          color: ${theme === 'dark' ? '#f3f4f6' : '#000000'};
           display: flex;
           align-items: center;
           justify-content: center;

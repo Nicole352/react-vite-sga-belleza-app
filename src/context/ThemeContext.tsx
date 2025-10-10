@@ -59,6 +59,51 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+
+    // Add smooth transition styles to root for theme changes
+    const style = document.createElement('style');
+    style.id = 'theme-transition-styles';
+    
+    // Remove existing style if present
+    const existingStyle = document.getElementById('theme-transition-styles');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    style.textContent = `
+      *, *::before, *::after {
+        transition: 
+          background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          background 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          border-color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          fill 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          stroke 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+
+      /* Preserve explicit transitions and animations */
+      [style*="transition"],
+      .no-theme-transition,
+      [class*="animate-"],
+      [class*="animation-"] {
+        /* These keep their own transitions */
+      }
+
+      /* Smooth backdrop-filter transitions */
+      [style*="backdrop-filter"] {
+        transition: 
+          backdrop-filter 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          -webkit-backdrop-filter 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          background 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          border-color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+    `;
+
+    document.head.appendChild(style);
   }, [theme]);
 
   const toggleTheme = () => {
