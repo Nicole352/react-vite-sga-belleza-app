@@ -5,7 +5,8 @@ import {
   Settings,
   Users,
   Sun,
-  Moon
+  Moon,
+  Shield
 } from 'lucide-react';
 import LogoutButton from '../../components/LogoutButton';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
@@ -16,6 +17,7 @@ import AdministradoresPanel from './AdministradoresPanel';
 import LogsPanel from './LogsPanel';
 import ConfiguracionPanel from './ConfiguracionPanel';
 import PanelDashboardSuperAdmin from './PanelDashboardSuperAdmin';
+import HistorialAuditoria from './HistorialAuditoria';
 
 const PanelSuperAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -69,6 +71,7 @@ const PanelSuperAdmin: React.FC = () => {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'administradores', name: 'Administradores', icon: Users },
+    { id: 'auditoria', name: 'Historial de Auditoría', icon: Shield },
     { id: 'logs', name: 'Logs del Sistema', icon: FileText },
     { id: 'config', name: 'Configuración', icon: Settings },
   ];
@@ -300,6 +303,7 @@ const PanelSuperAdmin: React.FC = () => {
               }}>
                 {activeTab === 'dashboard' && 'Resumen general del sistema y estadísticas'}
                 {activeTab === 'administradores' && 'Gestión de usuarios administradores'}
+                {activeTab === 'auditoria' && 'Registro completo de operaciones del sistema'}
                 {activeTab === 'logs' && 'Registro de actividades del sistema'}
                 {activeTab === 'config' && 'Configuración general del sistema'}
               </p>
@@ -405,14 +409,15 @@ const PanelSuperAdmin: React.FC = () => {
           minHeight: '600px',
           boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
         }}>
-          {activeTab === 'administradores' && <AdminThemeWrapper darkMode={darkMode}><AdministradoresPanel /></AdminThemeWrapper>}
-          {activeTab === 'logs' && <AdminThemeWrapper darkMode={darkMode}><LogsPanel /></AdminThemeWrapper>}
-          {activeTab === 'config' && <AdminThemeWrapper darkMode={darkMode}><ConfiguracionPanel /></AdminThemeWrapper>}
           {activeTab === 'dashboard' && (
             <AdminThemeWrapper darkMode={darkMode}>
               <PanelDashboardSuperAdmin />
             </AdminThemeWrapper>
           )}
+          {activeTab === 'administradores' && <AdminThemeWrapper darkMode={darkMode}><AdministradoresPanel /></AdminThemeWrapper>}
+          {activeTab === 'auditoria' && <AdminThemeWrapper darkMode={darkMode}><HistorialAuditoria /></AdminThemeWrapper>}
+          {activeTab === 'logs' && <AdminThemeWrapper darkMode={darkMode}><LogsPanel /></AdminThemeWrapper>}
+          {activeTab === 'config' && <AdminThemeWrapper darkMode={darkMode}><ConfiguracionPanel /></AdminThemeWrapper>}
         </div>
       </div>
       </div>

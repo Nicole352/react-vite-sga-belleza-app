@@ -17,6 +17,7 @@ import GestionAulas from './GestionAulas';
 import GestionPagosEstudiante from './GestionPagosEstudiante';
 import Reportes from './Reportes';
 import GestionTiposCurso from './GestionTiposCurso';
+import ControlUsuarios from './ControlUsuarios';
 
 const PanelAdministrativos = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -122,6 +123,7 @@ const PanelAdministrativos = () => {
     { id: 'estudiantes', name: 'Gestión Estudiantes', icon: Users },
     { id: 'pagos', name: 'Gestión de Pagos', icon: DollarSign },
     { id: 'docentes', name: 'Gestión Docentes', icon: UserCheck },
+    { id: 'control-usuarios', name: 'Control de Usuarios', icon: Users },
     { id: 'gestion-aulas', name: 'Gestión Aulas', icon: Building2 },
     { id: 'asignacion-aulas', name: 'Asignación Aula', icon: MapPin },
     { id: 'reportes', name: 'Reportes', icon: FileText }
@@ -385,6 +387,7 @@ const PanelAdministrativos = () => {
           {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
           {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
           {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
+          {activeTab === 'control-usuarios' && <AdminThemeWrapper darkMode={darkMode}><ControlUsuarios /></AdminThemeWrapper>}
           {activeTab === 'gestion-aulas' && <AdminThemeWrapper darkMode={darkMode}><GestionAulas /></AdminThemeWrapper>}
           {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
           {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
