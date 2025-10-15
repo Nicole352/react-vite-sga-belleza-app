@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Sun, Moon, Building2, DollarSign, Camera, Info, LogOut, Lock
+  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
+import ProfileMenu from '../../components/ProfileMenu';
 
 // Importar componentes modulares
 import Dashboard from './Dashboard';
@@ -26,68 +25,57 @@ const PanelAdministrativos = () => {
     const saved = localStorage.getItem('admin-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    // Cargar preferencia guardada
+    const saved = localStorage.getItem('admin-sidebar-collapsed');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
   const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const navigate = useNavigate();
 
   // Obtener datos del usuario
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = sessionStorage.getItem('auth_token');
+        console.log('🔑 Token para obtener datos:', token ? 'Existe' : 'No existe');
         if (!token) return;
 
         const response = await fetch('http://localhost:3000/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        console.log('📡 Status de /api/auth/me:', response.status);
+
         if (response.ok) {
           const data = await response.json();
+          console.log('👤 Datos del usuario recibidos:', data);
+          console.log('📝 Nombres:', data.nombres);
+          console.log('📝 Apellidos:', data.apellidos);
+          console.log('📝 Todas las propiedades:', Object.keys(data));
           setUserData(data);
+        } else {
+          console.error('❌ Error en respuesta:', response.status);
         }
       } catch (error) {
-        console.error('Error obteniendo datos del usuario:', error);
+        console.error('❌ Error obteniendo datos del usuario:', error);
       }
     };
     fetchUserData();
   }, []);
-
-  // Función para obtener iniciales del usuario
-  const getInitials = () => {
-    if (!userData?.nombres || !userData?.apellidos) return 'AD';
-    const firstInitial = userData.nombres.charAt(0).toUpperCase();
-    const lastInitial = userData.apellidos.charAt(0).toUpperCase();
-    return `${firstInitial}${lastInitial}`;
-  };
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
     localStorage.setItem('admin-dark-mode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Cerrar menú de perfil al hacer clic fuera
+  // Guardar preferencia de sidebar cuando cambie
   useEffect(() => {
-    const handleClickOutside = () => {
-      if (showProfileMenu) {
-        setShowProfileMenu(false);
-      }
-    };
+    localStorage.setItem('admin-sidebar-collapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
-    if (showProfileMenu) {
-      document.addEventListener('click', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showProfileMenu]);
-
-  // Función para cerrar sesión
-  const handleLogout = () => {
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('user_role');
-    toast.success('Sesión cerrada exitosamente');
-    navigate('/aula-virtual');
+  // Función para alternar sidebar
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   // Función para alternar modo
@@ -194,19 +182,54 @@ const PanelAdministrativos = () => {
       >
       {/* Sidebar */}
       <div style={{
-        width: '280px',
+        width: sidebarCollapsed ? '80px' : '280px',
         background: theme.sidebarBg,
         backdropFilter: 'blur(20px)',
         border: `1px solid ${theme.border}`,
         borderRadius: '0 20px 20px 0',
-        padding: '12px 24px 24px 24px',
+        padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
         position: 'fixed',
         height: '100vh',
         left: 0,
         top: 0,
         zIndex: 1000,
-        boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
+        boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden'
       }}>
+        {/* Botón hamburguesa */}
+        <button
+          onClick={toggleSidebar}
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: sidebarCollapsed ? '50%' : '16px',
+            transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: `1px solid ${theme.border}`,
+            background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+            color: theme.accent,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease',
+            zIndex: 10
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+            e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+            e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
+          }}
+        >
+          <Menu size={20} />
+        </button>
+
         {/* Header del Sidebar - Solo Logo */}
         <div style={{ 
           display: 'flex', 
@@ -215,9 +238,10 @@ const PanelAdministrativos = () => {
           marginBottom: '8px',
           paddingBottom: '4px',
           borderBottom: `1px solid ${theme.border}`,
-          paddingTop: '0px'
+          paddingTop: '0px',
+          marginTop: sidebarCollapsed ? '48px' : '0px'
         }}>
-          <SchoolLogo size={140} darkMode={darkMode} />
+          {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
         </div>
         
         {/* Navegación del Sidebar */}
@@ -228,12 +252,14 @@ const PanelAdministrativos = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                title={sidebarCollapsed ? tab.name : ''}
                 style={{
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                   gap: '10px',
-                  padding: '12px 16px',
+                  padding: sidebarCollapsed ? '12px 8px' : '12px 16px',
                   marginBottom: '6px',
                   borderRadius: '12px',
                   border: 'none',
@@ -246,7 +272,9 @@ const PanelAdministrativos = () => {
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   textAlign: 'left',
-                  boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none'
+                  boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
                   if (activeTab !== tab.id) {
@@ -261,8 +289,8 @@ const PanelAdministrativos = () => {
                   }
                 }}
               >
-                <IconComponent size={20} />
-                {tab.name}
+                <IconComponent size={20} style={{ flexShrink: 0 }} />
+                {!sidebarCollapsed && <span>{tab.name}</span>}
               </button>
             );
           })}
@@ -272,10 +300,11 @@ const PanelAdministrativos = () => {
 
       {/* Contenido Principal */}
       <div style={{
-        marginLeft: '280px',
+        marginLeft: sidebarCollapsed ? '80px' : '280px',
         flex: 1,
         padding: '24px',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        transition: 'margin-left 0.3s ease'
       }}>
         {/* Navbar */}
         <div style={{
@@ -332,249 +361,13 @@ const PanelAdministrativos = () => {
 
           {/* Iconos del lado derecho */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* Icono de Perfil de Usuario */}
-            <div style={{ position: 'relative' }}>
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowProfileMenu(!showProfileMenu);
-                }}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                  fontWeight: '700',
-                  fontSize: '0.95rem',
-                  color: '#fff',
-                  letterSpacing: '0.5px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-                }}>
-                {getInitials()}
-              </div>
-
-              {/* Menú desplegable con animaciones */}
-              {showProfileMenu && (
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    position: 'absolute',
-                    top: '50px',
-                    right: '0px',
-                    background: darkMode ? theme.contentBg : theme.contentBg,
-                    borderRadius: '12px',
-                    boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
-                    border: `1px solid ${theme.border}`,
-                    minWidth: '250px',
-                    zIndex: 1001,
-                    animation: 'slideInDown 0.3s ease-out',
-                    backdropFilter: 'blur(20px)'
-                  }}>
-                  {/* Header del menú */}
-                  <div style={{
-                    padding: '12px 16px',
-                    borderBottom: `1px solid ${theme.border}`,
-                    background: theme.navbarBg,
-                    borderRadius: '12px 12px 0 0'
-                  }}>
-                    <div style={{
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: theme.textSecondary,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      textAlign: 'center'
-                    }}>
-                      Mi Perfil
-                    </div>
-                  </div>
-
-                  {/* Opción 1: Cambiar foto */}
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowProfileMenu(false);
-                      toast('Función de cambiar foto de perfil próximamente', {
-                        icon: <Info size={20} />,
-                        duration: 3000,
-                      });
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      color: theme.textPrimary,
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      borderBottom: `1px solid ${theme.border}`,
-                      background: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}>
-                    <Camera size={18} color={theme.textSecondary} />
-                    <span>Cambiar foto de perfil</span>
-                  </div>
-
-                  {/* Opción 2: Cambiar contraseña */}
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowProfileMenu(false);
-                      toast('Función de cambiar contraseña próximamente', {
-                        icon: <Info size={20} />,
-                        duration: 3000,
-                      });
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      color: theme.textPrimary,
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      background: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}>
-                    <Lock size={18} color={theme.textSecondary} />
-                    <span>Cambiar contraseña</span>
-                  </div>
-
-                  {/* Opción 3: Cerrar Sesión */}
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowProfileMenu(false);
-                      handleLogout();
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      color: '#ef4444',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      background: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}>
-                    <LogOut size={18} color="#ef4444" />
-                    <span>Cerrar Sesión</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Estilos CSS para animaciones */}
-              <style>{`
-                @keyframes slideInDown {
-                  from {
-                    opacity: 0;
-                    transform: translateY(-10px) scale(0.95);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                  }
-                }
-              `}</style>
-            </div>
-
-            {/* Toggle Switch de modo claro/oscuro */}
-            <div
-              onClick={toggleDarkMode}
-              style={{
-                position: 'relative',
-                width: '52px',
-                height: '26px',
-                background: darkMode 
-                  ? 'rgba(55, 65, 81, 0.8)' 
-                  : 'rgba(229, 231, 235, 0.8)',
-              borderRadius: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
-              boxShadow: darkMode 
-                ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
-                : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
-              backdropFilter: 'blur(8px)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(55, 65, 81, 0.9)' 
-                : 'rgba(229, 231, 235, 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(55, 65, 81, 0.8)' 
-                : 'rgba(229, 231, 235, 0.8)';
-            }}
-          >
-            {/* Círculo deslizante más pequeño */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '2px',
-                left: darkMode ? '26px' : '2px',
-                width: '22px',
-                height: '22px',
-                background: darkMode 
-                  ? 'linear-gradient(135deg, #374151, #4b5563)' 
-                  : 'linear-gradient(135deg, #ffffff, #f9fafb)',
-                borderRadius: '50%',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: darkMode 
-                  ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
-                  : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
-                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
-              }}
-            >
-              {darkMode ? (
-                <Moon size={12} color="#d1d5db" />
-              ) : (
-                <Sun size={12} color="#f59e0b" />
-              )}
-            </div>
+            <ProfileMenu 
+              darkMode={darkMode}
+              toggleDarkMode={toggleDarkMode}
+              theme={theme}
+              userData={userData}
+            />
           </div>
-        </div>
         </div>
 
         {/* Contenido de la sección activa */}
