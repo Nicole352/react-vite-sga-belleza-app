@@ -20,11 +20,12 @@ interface ModalPagoMensualidadProps {
 }
 
 const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onClose, onSuccess, darkMode = false }) => {
-  const [metodoPago, setMetodoPago] = useState<'transferencia' | 'efectivo' | 'payphone'>('transferencia');
+  const [metodoPago, setMetodoPago] = useState<'transferencia' | 'efectivo'>('transferencia');
   const [montoPagar, setMontoPagar] = useState<string>(cuota.monto.toString());
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
   const [fechaTransferencia, setFechaTransferencia] = useState('');
+  const [recibidoPor, setRecibidoPor] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -94,6 +95,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         }
       }
 
+      if (metodoPago === 'efectivo') {
+        if (!numeroComprobante || !recibidoPor) {
+          throw new Error('Para pagos en efectivo se requiere el número de factura y el nombre de quien recibió el pago');
+        }
+      }
+
       if (!archivoComprobante) {
         throw new Error('Debe subir el comprobante de pago');
       }
@@ -103,8 +110,18 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       formData.append('metodo_pago', metodoPago);
       formData.append('monto_pagado', montoNumerico.toFixed(2));
       formData.append('numero_comprobante', numeroComprobante);
-      formData.append('banco_comprobante', bancoComprobante);
-      formData.append('fecha_transferencia', fechaTransferencia);
+      
+      // Solo agregar banco y fecha si es transferencia
+      if (metodoPago === 'transferencia') {
+        formData.append('banco_comprobante', bancoComprobante);
+        formData.append('fecha_transferencia', fechaTransferencia);
+      } else {
+        // Para efectivo, enviar valores por defecto y quien recibió
+        formData.append('banco_comprobante', 'N/A');
+        formData.append('fecha_transferencia', new Date().toISOString().split('T')[0]);
+        formData.append('recibido_por', recibidoPor);
+      }
+      
       formData.append('observaciones', observaciones);
       formData.append('comprobante', archivoComprobante);
 
@@ -331,8 +348,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {[
                 { value: 'transferencia', label: 'Transferencia Bancaria', icon: Building },
-                { value: 'efectivo', label: 'Efectivo', icon: CreditCard },
-                { value: 'payphone', label: 'PayPhone', icon: CreditCard }
+                { value: 'efectivo', label: 'Efectivo', icon: CreditCard }
               ].map((metodo) => {
                 const Icon = metodo.icon;
                 return (
@@ -461,6 +477,85 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     fontFamily: 'Montserrat, sans-serif'
                   }}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Campos específicos para efectivo */}
+          {metodoPago === 'efectivo' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
+              {/* Número de factura */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  color: theme.textPrimary,
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  marginBottom: '10px'
+                }}>
+                  Número de Factura/Comprobante *
+                </label>
+                <input
+                  type="text"
+                  value={numeroComprobante}
+                  onChange={(e) => setNumeroComprobante(e.target.value)}
+                  placeholder="Ej: FAC-001234"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '12px',
+                    color: theme.textPrimary,
+                    fontSize: '1rem',
+                    fontFamily: 'Montserrat, sans-serif'
+                  }}
+                />
+              </div>
+
+              {/* Recibido por */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  color: theme.textPrimary,
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  marginBottom: '10px'
+                }}>
+                  Recibido por *
+                </label>
+                <input
+                  type="text"
+                  value={recibidoPor}
+                  onChange={(e) => setRecibidoPor(e.target.value)}
+                  placeholder="Nombre de quien recibió el pago"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '12px',
+                    color: theme.textPrimary,
+                    fontSize: '1rem',
+                    fontFamily: 'Montserrat, sans-serif'
+                  }}
+                />
+              </div>
+
+              {/* Tip informativo */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
+                  fontSize: '0.85rem'
+                }}>
+                  <Info size={16} style={{ flexShrink: 0 }} />
+                  <span>Ingresa el número de factura y el nombre de la persona que te atendió en la academia</span>
+                </div>
               </div>
             </div>
           )}

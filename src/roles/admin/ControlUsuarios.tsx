@@ -73,6 +73,8 @@ const ControlUsuarios = () => {
   const [tabActiva, setTabActiva] = useState<'info' | 'sesiones' | 'acciones'>('info');
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
   const [acciones, setAcciones] = useState<Accion[]>([]);
+  const [pagos, setPagos] = useState<any[]>([]);
+  const [deberes, setDeberes] = useState<any[]>([]);
   const [loadingModal, setLoadingModal] = useState(false);
 
   // Modal de confirmación
@@ -270,10 +272,53 @@ const ControlUsuarios = () => {
         console.error('❌ Error en fetch de acciones:', err);
         setAcciones([]);
       }
+
+      // Cargar pagos si es estudiante
+      if (usuario.nombre_rol?.toLowerCase() === 'estudiante') {
+        try {
+          const pagosRes = await fetch(`${API_BASE}/usuarios-actividad/${usuario.id_usuario}/pagos?limite=10`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (pagosRes.ok) {
+            const pagosData = await pagosRes.json();
+            console.log('💰 Pagos recibidos:', pagosData);
+            setPagos(pagosData.pagos || []);
+          } else {
+            console.error('❌ Error al cargar pagos:', pagosRes.status);
+            setPagos([]);
+          }
+        } catch (err) {
+          console.error('❌ Error en fetch de pagos:', err);
+          setPagos([]);
+        }
+
+        // Cargar deberes si es estudiante
+        try {
+          const deberesRes = await fetch(`${API_BASE}/usuarios-actividad/${usuario.id_usuario}/deberes?limite=10`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (deberesRes.ok) {
+            const deberesData = await deberesRes.json();
+            console.log('📚 Deberes recibidos:', deberesData);
+            setDeberes(deberesData.deberes || []);
+          } else {
+            console.error('❌ Error al cargar deberes:', deberesRes.status);
+            setDeberes([]);
+          }
+        } catch (err) {
+          console.error('❌ Error en fetch de deberes:', err);
+          setDeberes([]);
+        }
+      } else {
+        setPagos([]);
+        setDeberes([]);
+      }
     } catch (err) {
       console.error('Error al cargar datos del modal:', err);
       setSesiones([]);
       setAcciones([]);
+      setPagos([]);
+      setDeberes([]);
     } finally {
       setLoadingModal(false);
     }
@@ -775,6 +820,8 @@ const ControlUsuarios = () => {
           tabActiva={tabActiva}
           sesiones={sesiones}
           acciones={acciones}
+          pagos={pagos}
+          deberes={deberes}
           loadingModal={loadingModal}
           onClose={() => setShowModal(false)}
           onChangeTab={setTabActiva}

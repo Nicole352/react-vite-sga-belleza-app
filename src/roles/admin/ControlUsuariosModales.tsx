@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, UserCircle, Clock, Activity, Shield, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus } from 'lucide-react';
+import { X, UserCircle, Clock, Activity, Shield, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus, DollarSign, FileText, CreditCard, Building2 } from 'lucide-react';
 
 interface Usuario {
   id_usuario: number;
@@ -52,12 +52,45 @@ interface Accion {
   fecha_operacion: string;
 }
 
+interface Pago {
+  id_pago: number;
+  numero_cuota: number;
+  monto: number;
+  fecha_pago: string;
+  metodo_pago: string;
+  numero_comprobante: string;
+  banco_comprobante?: string;
+  recibido_por?: string;
+  estado: string;
+  observaciones?: string;
+  curso_nombre: string;
+  curso_codigo: string;
+}
+
+interface Deber {
+  id_entrega: number;
+  fecha_entrega: string;
+  calificacion?: number;
+  comentario_docente?: string;
+  estado: string;
+  archivo_nombre: string;
+  archivo_size_kb: number;
+  deber_titulo: string;
+  deber_descripcion?: string;
+  deber_fecha_limite: string;
+  curso_nombre: string;
+  curso_codigo: string;
+  docente_nombre?: string;
+}
+
 interface ModalDetalleProps {
   show: boolean;
   usuario: Usuario | null;
   tabActiva: 'info' | 'sesiones' | 'acciones';
   sesiones: Sesion[];
   acciones: Accion[];
+  pagos: Pago[];
+  deberes: Deber[];
   loadingModal: boolean;
   onClose: () => void;
   onChangeTab: (tab: 'info' | 'sesiones' | 'acciones') => void;
@@ -73,6 +106,8 @@ export const ModalDetalle = ({
   tabActiva,
   sesiones,
   acciones,
+  pagos,
+  deberes,
   loadingModal,
   onClose,
   onChangeTab,
@@ -82,6 +117,17 @@ export const ModalDetalle = ({
   getOperacionColor
 }: ModalDetalleProps) => {
   if (!show || !usuario) return null;
+
+  // Verificar si el usuario es estudiante
+  const esEstudiante = usuario.nombre_rol?.toLowerCase() === 'estudiante';
+
+  // Debug: Log para verificar datos
+  console.log('🔍 Modal - Datos recibidos:', {
+    esEstudiante,
+    pagosLength: pagos?.length || 0,
+    deberesLength: deberes?.length || 0,
+    tabActiva
+  });
 
   return (
     <div 
@@ -592,7 +638,7 @@ export const ModalDetalle = ({
           )}
 
           {tabActiva === 'acciones' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {loadingModal ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
                   <div style={{
@@ -605,14 +651,202 @@ export const ModalDetalle = ({
                     animation: 'spin 1s linear infinite'
                   }}></div>
                 </div>
-              ) : acciones.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 0' }}>
-                  <Activity style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: '#cbd5e1' }} />
-                  <p style={{ color: '#64748b', fontSize: '0.95rem' }}>No hay acciones registradas para este usuario</p>
-                  <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '8px' }}>Las acciones aparecerán cuando el usuario realice cambios en el sistema</p>
-                </div>
               ) : (
-                acciones.map((accion) => {
+                <>
+                  {/* Sección de Pagos - Solo para estudiantes */}
+                  {esEstudiante && pagos && pagos.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <DollarSign size={20} color='#10b981' />
+                        Pagos Realizados ({pagos.length})
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {pagos.map((pago) => (
+                          <div key={pago.id_pago} style={{
+                            padding: '20px',
+                            borderRadius: '12px',
+                            border: '1px solid #10b98140',
+                            backgroundColor: '#f8fafc',
+                            transition: 'all 0.3s ease'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '10px',
+                                  backgroundColor: '#10b981',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <DollarSign size={20} color="#fff" />
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                                    Pago Cuota #{pago.numero_cuota} - ${parseFloat(pago.monto).toFixed(2)}
+                                  </div>
+                                  <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                                    {pago.curso_nombre} ({pago.curso_codigo})
+                                  </div>
+                                </div>
+                              </div>
+                              <span style={{
+                                padding: '4px 12px',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                backgroundColor: pago.estado === 'verificado' ? '#dcfce7' : '#fef3c7',
+                                color: pago.estado === 'verificado' ? '#10b981' : '#f59e0b'
+                              }}>
+                                {pago.estado === 'verificado' ? 'Verificado' : 'Pagado'}
+                              </span>
+                            </div>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.85rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                <Calendar size={16} color="#10b981" />
+                                <div>
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Fecha de Pago</div>
+                                  <div style={{ fontWeight: '600', color: '#1e293b' }}>{formatFecha(pago.fecha_pago)}</div>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                {pago.metodo_pago === 'transferencia' ? <Building2 size={16} color="#3b82f6" /> : <CreditCard size={16} color="#f59e0b" />}
+                                <div>
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Método de Pago</div>
+                                  <div style={{ fontWeight: '600', color: '#1e293b', textTransform: 'capitalize' }}>{pago.metodo_pago}</div>
+                                </div>
+                              </div>
+                              {pago.numero_comprobante && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                  <FileText size={16} color="#64748b" />
+                                  <div>
+                                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>N° Comprobante</div>
+                                    <div style={{ fontWeight: '600', color: '#1e293b' }}>{pago.numero_comprobante}</div>
+                                  </div>
+                                </div>
+                              )}
+                              {pago.recibido_por && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                  <UserCircle size={16} color="#f59e0b" />
+                                  <div>
+                                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Recibido por</div>
+                                    <div style={{ fontWeight: '600', color: '#1e293b' }}>{pago.recibido_por}</div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sección de Deberes - Solo para estudiantes */}
+                  {esEstudiante && deberes && deberes.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <BookOpen size={20} color="#3b82f6" />
+                        Deberes Entregados ({deberes.length})
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {deberes.map((deber) => (
+                          <div key={deber.id_entrega} style={{
+                            padding: '20px',
+                            borderRadius: '12px',
+                            border: '1px solid #3b82f640',
+                            backgroundColor: '#f8fafc',
+                            transition: 'all 0.3s ease'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '10px',
+                                  backgroundColor: '#3b82f6',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <BookOpen size={20} color="#fff" />
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                                    {deber.deber_titulo}
+                                  </div>
+                                  <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                                    {deber.curso_nombre} ({deber.curso_codigo})
+                                  </div>
+                                </div>
+                              </div>
+                              {deber.calificacion !== null && deber.calificacion !== undefined && (
+                                <span style={{
+                                  padding: '4px 12px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: '600',
+                                  backgroundColor: deber.calificacion >= 7 ? '#dcfce7' : '#fee2e2',
+                                  color: deber.calificacion >= 7 ? '#10b981' : '#ef4444'
+                                }}>
+                                  {deber.calificacion}/10
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.85rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                <Calendar size={16} color="#3b82f6" />
+                                <div>
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Fecha de Entrega</div>
+                                  <div style={{ fontWeight: '600', color: '#1e293b' }}>{formatFecha(deber.fecha_entrega)}</div>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                                <FileText size={16} color="#64748b" />
+                                <div>
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Archivo</div>
+                                  <div style={{ fontWeight: '600', color: '#1e293b' }}>{deber.archivo_nombre}</div>
+                                </div>
+                              </div>
+                              {deber.docente_nombre && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', gridColumn: '1 / -1' }}>
+                                  <UserCircle size={16} color="#64748b" />
+                                  <div>
+                                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Docente</div>
+                                    <div style={{ fontWeight: '600', color: '#1e293b' }}>{deber.docente_nombre}</div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            {deber.comentario_docente && (
+                              <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', backgroundColor: '#fff', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '6px' }}>Comentario del Docente:</div>
+                                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{deber.comentario_docente}</div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sección de Acciones de Auditoría */}
+                  {acciones.length === 0 && (!esEstudiante || (pagos.length === 0 && deberes.length === 0)) ? (
+                    <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                      <Activity style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: '#cbd5e1' }} />
+                      <p style={{ color: '#64748b', fontSize: '0.95rem' }}>No hay acciones registradas para este usuario</p>
+                      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '8px' }}>Las acciones aparecerán cuando el usuario realice cambios en el sistema</p>
+                    </div>
+                  ) : acciones.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Activity size={20} color="#ef4444" />
+                        Acciones del Sistema ({acciones.length})
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {acciones.map((accion) => {
                   // Determinar icono y color según operación
                   const operacionConfig = {
                     'INSERT': { icono: Plus, color: '#10b981', bg: '#dcfce7', label: 'Creación' },
@@ -673,7 +907,11 @@ export const ModalDetalle = ({
                       </div>
                     </div>
                   );
-                })
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
