@@ -7,7 +7,7 @@ interface ProfileMenuProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
   theme: any;
-  userData?: { nombres?: string; apellidos?: string } | null;
+  userData?: { nombre?: string; apellido?: string; nombres?: string; apellidos?: string } | null;
   onChangePassword?: () => void; // Opcional: callback para cambiar contraseña
   avatarColor?: string; // Opcional: color del avatar (default: rojo)
 }
@@ -18,18 +18,45 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
 
   // Función para obtener iniciales del usuario
   const getInitials = () => {
-    if (!userData?.nombres || !userData?.apellidos) return 'AD';
-    const firstInitial = userData.nombres.charAt(0).toUpperCase();
-    const lastInitial = userData.apellidos.charAt(0).toUpperCase();
+    // Priorizar nombres/apellidos (docentes) sobre nombre/apellido (admins)
+    const firstName = userData?.nombres || userData?.nombre;
+    const lastName = userData?.apellidos || userData?.apellido;
+    
+    if (!firstName || !lastName) return 'AD';
+    
+    const firstInitial = firstName.charAt(0).toUpperCase();
+    const lastInitial = lastName.charAt(0).toUpperCase();
     return `${firstInitial}${lastInitial}`;
   };
 
   // Función para cerrar sesión
-  const handleLogout = () => {
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('user_role');
-    toast.success('Sesión cerrada exitosamente');
-    navigate('/aula-virtual');
+  const handleLogout = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      
+      // Llamar al endpoint de logout
+      if (token) {
+        await fetch('http://localhost:3000/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+      
+      // Limpiar sesión local
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('user_role');
+      toast.success('Sesión cerrada exitosamente');
+      navigate('/aula-virtual');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Aunque falle el backend, cerrar sesión localmente
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('user_role');
+      navigate('/aula-virtual');
+    }
   };
 
   // Cerrar menú al hacer clic fuera

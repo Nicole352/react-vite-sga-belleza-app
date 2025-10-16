@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Download, BarChart3, Users, BookOpen, DollarSign, 
-  Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2
+  Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
+  History, Clock, User, Calendar, Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -51,6 +52,12 @@ const Reportes = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [descargando, setDescargando] = useState(false);
+  
+  // Estados para Historial
+  const [vistaActual, setVistaActual] = useState<'generar' | 'historial'>('generar');
+  const [historialReportes, setHistorialReportes] = useState<any[]>([]);
+  const [loadingHistorial, setLoadingHistorial] = useState(false);
+  const [filtroTipoHistorial, setFiltroTipoHistorial] = useState('todos');
 
   const reportesDisponibles = [
     {
@@ -220,6 +227,41 @@ const Reportes = () => {
     }
   };
 
+  // Cargar historial de reportes
+  const cargarHistorial = async () => {
+    setLoadingHistorial(true);
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        toast.error('Sesión expirada');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/reportes/historial?limite=50`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setHistorialReportes(data.data || []);
+      } else {
+        toast.error('Error al cargar historial');
+      }
+    } catch (error) {
+      console.error('Error cargando historial:', error);
+      toast.error('Error al cargar historial');
+    } finally {
+      setLoadingHistorial(false);
+    }
+  };
+
+  // Cargar historial cuando se cambia a esa vista
+  useEffect(() => {
+    if (vistaActual === 'historial') {
+      cargarHistorial();
+    }
+  }, [vistaActual]);
+
   // Filtrar cursos según el período seleccionado
   useEffect(() => {
     console.log('🔍 Filtrando cursos...');
@@ -324,7 +366,7 @@ const Reportes = () => {
       } else {
         throw new Error(data.message || 'Error al generar el reporte');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generando reporte:', error);
       setError(error.message || 'Error al generar el reporte');
     } finally {
@@ -333,7 +375,7 @@ const Reportes = () => {
   };
 
   // Descargar archivo
-  const descargarArchivo = async (formato) => {
+  const descargarArchivo = async (formato: string) => {
     setDescargando(true);
     try {
       let url = '';
@@ -341,17 +383,26 @@ const Reportes = () => {
 
       switch (tipoReporte) {
         case 'estudiantes':
-          url = `${API_BASE}/reportes/estudiantes/${formato}`;
+          // Usar ruta v2 para Excel (con historial), ruta normal para PDF
+          url = formato === 'excel' 
+            ? `${API_BASE}/reportes/estudiantes/excel-v2`
+            : `${API_BASE}/reportes/estudiantes/${formato}`;
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
           if (filtroCurso) params.append('idCurso', filtroCurso);
           break;
         case 'financiero':
-          url = `${API_BASE}/reportes/financiero/${formato}`;
+          // Usar ruta v2 para Excel (con historial), ruta normal para PDF
+          url = formato === 'excel'
+            ? `${API_BASE}/reportes/financiero/excel-v2`
+            : `${API_BASE}/reportes/financiero/${formato}`;
           if (filtroTipoPago !== 'todos') params.append('tipoPago', filtroTipoPago);
           if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
           break;
         case 'cursos':
-          url = `${API_BASE}/reportes/cursos/${formato}`;
+          // Usar ruta v2 para Excel (con historial), ruta normal para PDF
+          url = formato === 'excel'
+            ? `${API_BASE}/reportes/cursos/excel-v2`
+            : `${API_BASE}/reportes/cursos/${formato}`;
           break;
         default:
           alert(`${formato.toUpperCase()} no disponible para este tipo de reporte`);
@@ -379,9 +430,23 @@ const Reportes = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(urlBlob);
+      
+      // Mostrar mensaje de éxito con trazabilidad
+      if (formato === 'excel') {
+        toast.success('✅ Reporte descargado y guardado en historial', {
+          duration: 3000,
+          style: {
+            background: '#10b981',
+            color: '#fff',
+            fontWeight: '600'
+          }
+        });
+      }
     } catch (error) {
       console.error(`Error descargando ${formato}:`, error);
-      alert(`Error al descargar el ${formato.toUpperCase()}`);
+      toast.error(`Error al descargar el ${formato.toUpperCase()}`, {
+        duration: 3000
+      });
     } finally {
       setDescargando(false);
     }
@@ -769,7 +834,12 @@ const Reportes = () => {
                           ${parseFloat(pago.monto).toFixed(2)}
                         </td>
                         <td style={{ padding: '12px', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
-                          {new Date(pago.fecha_pago).toLocaleDateString('es-ES')}
+                          {pago.fecha_pago 
+                            ? new Date(pago.fecha_pago).toLocaleDateString('es-ES')
+                            : pago.fecha_vencimiento 
+                              ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES')
+                              : 'N/A'
+                          }
                         </td>
                         <td style={{ padding: '12px', fontSize: '0.85rem' }}>
                           <span style={{
@@ -931,6 +1001,58 @@ const Reportes = () => {
         </p>
       </div>
 
+      {/* Pestañas: Generar / Historial */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '16px', 
+        marginBottom: '24px',
+        borderBottom: '2px solid rgba(239, 68, 68, 0.2)'
+      }}>
+        <button
+          onClick={() => setVistaActual('generar')}
+          style={{
+            padding: '12px 24px',
+            background: vistaActual === 'generar' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: vistaActual === 'generar' ? '3px solid #ef4444' : '3px solid transparent',
+            color: vistaActual === 'generar' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <BarChart3 size={20} />
+          Generar Reporte
+        </button>
+        <button
+          onClick={() => setVistaActual('historial')}
+          style={{
+            padding: '12px 24px',
+            background: vistaActual === 'historial' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: vistaActual === 'historial' ? '3px solid #ef4444' : '3px solid transparent',
+            color: vistaActual === 'historial' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <History size={20} />
+          Historial
+        </button>
+      </div>
+
+      {/* Vista: Generar Reporte */}
+      {vistaActual === 'generar' && (
+        <>
       {/* Selector de Reportes */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
@@ -1099,6 +1221,146 @@ const Reportes = () => {
 
         {renderEstadisticas()}
       </div>
+        </>
+      )}
+
+      {/* Vista: Historial */}
+      {vistaActual === 'historial' && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '20px',
+          padding: '32px'
+        }}>
+          <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <History size={28} color="#ef4444" />
+                Historial de Reportes
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.9rem' }}>
+                Últimos 50 reportes generados
+              </p>
+            </div>
+            <select
+              value={filtroTipoHistorial}
+              onChange={(e) => setFiltroTipoHistorial(e.target.value)}
+              style={{
+                padding: '10px 16px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '0.9rem',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="todos" style={{ background: '#1a1a1a' }}>Todos los tipos</option>
+              <option value="1" style={{ background: '#1a1a1a' }}>Estudiantes</option>
+              <option value="2" style={{ background: '#1a1a1a' }}>Financiero</option>
+              <option value="3" style={{ background: '#1a1a1a' }}>Cursos</option>
+            </select>
+          </div>
+
+          {loadingHistorial ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <Loader2 size={48} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>Cargando historial...</p>
+            </div>
+          ) : historialReportes.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <History size={64} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 16px' }} />
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>No hay reportes generados aún</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {historialReportes
+                .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
+                .map((reporte, idx) => {
+                  const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
+                  const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
+                  
+                  return (
+                    <div key={idx} style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                      e.currentTarget.style.borderColor = tipoColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                    }}
+                    >
+                      <div style={{ display: 'flex', gap: '20px', alignItems: 'start' }}>
+                        <div style={{
+                          background: `${tipoColor}20`,
+                          border: `2px solid ${tipoColor}`,
+                          borderRadius: '12px',
+                          padding: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {React.createElement(tipoIcono, { size: 24, color: tipoColor })}
+                        </div>
+                        
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                            <div>
+                              <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', margin: '0 0 4px 0' }}>
+                                {reporte.nombre_reporte}
+                              </h4>
+                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: 0 }}>
+                                {reporte.archivo_generado}
+                              </p>
+                            </div>
+                            <span style={{
+                              padding: '4px 12px',
+                              background: `${tipoColor}20`,
+                              border: `1px solid ${tipoColor}`,
+                              borderRadius: '6px',
+                              color: tipoColor,
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              textTransform: 'uppercase'
+                            }}>
+                              {reporte.formato_generado}
+                            </span>
+                          </div>
+                          
+                          <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <User size={14} />
+                              <span>{reporte.generado_por}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Clock size={14} />
+                              <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', { 
+                                day: '2-digit', 
+                                month: 'short', 
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
 
       <style>{`
         @keyframes spin {

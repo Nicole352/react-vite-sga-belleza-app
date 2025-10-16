@@ -109,9 +109,25 @@ const ControlUsuarios = () => {
 
       const data = await response.json();
       
-      // SEGURIDAD: Filtrar SuperAdmin - no debe aparecer en Control de Usuarios
+      // Obtener ID del usuario logueado
+      let idUsuarioLogueado = null;
+      try {
+        const meResponse = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (meResponse.ok) {
+          const meData = await meResponse.json();
+          idUsuarioLogueado = meData.id_usuario;
+        }
+      } catch (err) {
+        console.error('Error obteniendo usuario logueado:', err);
+      }
+      
+      // SEGURIDAD: Filtrar SuperAdmin y el admin logueado - no deben aparecer en Control de Usuarios
       const usuariosFiltrados = (data.usuarios || []).filter(
-        (usuario: Usuario) => usuario.nombre_rol?.toLowerCase() !== 'superadmin'
+        (usuario: Usuario) => 
+          usuario.nombre_rol?.toLowerCase() !== 'superadmin' && 
+          usuario.id_usuario !== idUsuarioLogueado
       );
       
       setUsuarios(usuariosFiltrados);
@@ -194,13 +210,30 @@ const ControlUsuarios = () => {
   };
 
   const verDetalle = async (usuario: Usuario) => {
-    setUsuarioSeleccionado(usuario);
     setShowModal(true);
     setTabActiva('info');
     
     setLoadingModal(true);
     try {
       const token = sessionStorage.getItem('auth_token');
+      
+      // Cargar datos completos del usuario (incluye info académica para docentes)
+      try {
+        const usuarioRes = await fetch(`${API_BASE}/usuarios/${usuario.id_usuario}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (usuarioRes.ok) {
+          const usuarioData = await usuarioRes.json();
+          console.log('👤 Usuario completo recibido:', usuarioData);
+          setUsuarioSeleccionado(usuarioData.usuario);
+        } else {
+          console.error('❌ Error al cargar usuario:', usuarioRes.status);
+          setUsuarioSeleccionado(usuario); // Fallback al usuario de la lista
+        }
+      } catch (err) {
+        console.error('❌ Error en fetch de usuario:', err);
+        setUsuarioSeleccionado(usuario); // Fallback al usuario de la lista
+      }
       
       // Cargar sesiones desde la tabla sesiones_usuario
       try {

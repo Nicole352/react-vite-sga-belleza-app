@@ -48,6 +48,7 @@ interface Curso {
   id_curso: number;
   codigo_curso: string;
   nombre: string;
+  horario: string;
   fecha_inicio: string;
   fecha_fin: string;
   capacidad_maxima: number;
@@ -930,10 +931,13 @@ const AsignacionAula: React.FC = () => {
                     required
                     defaultValue={selectedAsignacion?.id_curso || ''}
                     placeholder="Seleccionar curso"
-                    options={cursos.filter(c => c.estado === 'activo' || c.estado === 'planificado').map(c => ({ 
-                      value: c.id_curso, 
-                      label: `${c.nombre} (${formatearFecha(c.fecha_inicio)} - ${formatearFecha(c.fecha_fin)})` 
-                    }))}
+                    options={cursos.filter(c => c.estado === 'activo' || c.estado === 'planificado').map(c => {
+                      const horario = c.horario ? ` - ${c.horario.charAt(0).toUpperCase() + c.horario.slice(1)}` : '';
+                      return {
+                        value: c.id_curso, 
+                        label: `${c.nombre}${horario} (${formatearFecha(c.fecha_inicio)} - ${formatearFecha(c.fecha_fin)})`
+                      };
+                    })}
                   />
                 </div>
               </div>

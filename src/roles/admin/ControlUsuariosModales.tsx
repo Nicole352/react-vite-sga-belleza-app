@@ -1,4 +1,5 @@
-import { X, UserCircle, Clock, Activity, Shield, BookOpen } from 'lucide-react';
+import React from 'react';
+import { X, UserCircle, Clock, Activity, Shield, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus } from 'lucide-react';
 
 interface Usuario {
   id_usuario: number;
@@ -36,6 +37,7 @@ interface Sesion {
   user_agent: string;
   fecha_inicio: string;
   fecha_expiracion: string;
+  fecha_cierre?: string;
   activa: boolean;
 }
 
@@ -44,6 +46,8 @@ interface Accion {
   tabla_afectada: string;
   operacion: 'INSERT' | 'UPDATE' | 'DELETE';
   id_registro: number;
+  descripcion?: string;
+  detalles?: string;
   ip_address: string;
   fecha_operacion: string;
 }
@@ -497,36 +501,92 @@ export const ModalDetalle = ({
                   <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '8px' }}>Las sesiones aparecerán cuando el usuario inicie sesión</p>
                 </div>
               ) : (
-                sesiones.map((sesion) => (
-                  <div key={sesion.id_sesion} style={{
-                    padding: '16px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#f8fafc'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                sesiones.map((sesion) => {
+                  // Detectar dispositivo y navegador del user agent
+                  const userAgent = sesion.user_agent || '';
+                  const esMovil = /Mobile|Android|iPhone|iPad/i.test(userAgent);
+                  const navegador = userAgent.includes('Chrome') ? 'Chrome' :
+                                   userAgent.includes('Firefox') ? 'Firefox' :
+                                   userAgent.includes('Safari') ? 'Safari' :
+                                   userAgent.includes('Edge') ? 'Edge' : 'Otro';
+                  
+                  return (
+                    <div key={sesion.id_sesion} style={{
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: sesion.activa ? '2px solid #10b981' : '1px solid #e2e8f0',
+                      backgroundColor: sesion.activa ? '#f0fdf4' : '#f8fafc',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: sesion.activa ? '#10b981' : '#94a3b8'
-                          }}></div>
-                          <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b' }}>
-                            {sesion.activa ? 'Sesión Activa' : 'Sesión Finalizada'}
-                          </span>
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '10px',
+                            backgroundColor: sesion.activa ? '#10b981' : '#94a3b8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            {sesion.activa ? <CheckCircle size={20} color="#fff" /> : <XCircle size={20} color="#fff" />}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                              {sesion.activa ? 'Sesión Activa' : 'Sesión Finalizada'}
+                            </div>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {esMovil ? <Monitor size={14} /> : <Globe size={14} />}
+                              <span>{esMovil ? 'Móvil' : 'Escritorio'} • {navegador}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <div><strong>IP:</strong> {sesion.ip_address}</div>
-                          <div><strong>Inicio:</strong> {formatFecha(sesion.fecha_inicio)}</div>
-                          <div><strong>Expira:</strong> {formatFecha(sesion.fecha_expiracion)}</div>
-                          <div style={{ fontSize: '0.75rem', marginTop: '8px', color: '#94a3b8' }}>{sesion.user_agent}</div>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          backgroundColor: sesion.activa ? '#dcfce7' : '#f1f5f9',
+                          color: sesion.activa ? '#166534' : '#64748b'
+                        }}>
+                          ID: {sesion.id_sesion.substring(0, 8)}...
+                        </span>
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                          <Calendar size={16} color="#ef4444" />
+                          <div>
+                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Inicio de Sesión</div>
+                            <div style={{ fontWeight: '600', color: '#1e293b' }}>{formatFecha(sesion.fecha_inicio)}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                          <Clock size={16} color={sesion.activa ? '#10b981' : '#ef4444'} />
+                          <div>
+                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                              {sesion.activa ? 'Expira' : 'Cerró Sesión'}
+                            </div>
+                            <div style={{ fontWeight: '600', color: '#1e293b' }}>
+                              {sesion.activa ? formatFecha(sesion.fecha_expiracion) : formatFecha(sesion.fecha_cierre || sesion.fecha_expiracion)}
+                            </div>
+                          </div>
                         </div>
                       </div>
+                      
+                      <div style={{
+                        marginTop: '12px',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        backgroundColor: '#fff',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '6px' }}>User Agent:</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', wordBreak: 'break-all' }}>{sesion.user_agent}</div>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
@@ -552,30 +612,68 @@ export const ModalDetalle = ({
                   <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '8px' }}>Las acciones aparecerán cuando el usuario realice cambios en el sistema</p>
                 </div>
               ) : (
-                acciones.map((accion) => (
-                  <div key={accion.id_auditoria} style={{
-                    padding: '16px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#f8fafc'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getOperacionColor(accion.operacion)}`}>
-                            {accion.operacion}
-                          </span>
-                          <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b' }}>{accion.tabla_afectada}</span>
+                acciones.map((accion) => {
+                  // Determinar icono y color según operación
+                  const operacionConfig = {
+                    'INSERT': { icono: Plus, color: '#10b981', bg: '#dcfce7', label: 'Creación' },
+                    'UPDATE': { icono: Edit, color: '#f59e0b', bg: '#fef3c7', label: 'Actualización' },
+                    'DELETE': { icono: Trash2, color: '#ef4444', bg: '#fee2e2', label: 'Eliminación' }
+                  }[accion.operacion] || { icono: Activity, color: '#64748b', bg: '#f1f5f9', label: accion.operacion };
+
+                  return (
+                    <div key={accion.id_auditoria} style={{
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: `1px solid ${operacionConfig.color}40`,
+                      backgroundColor: '#f8fafc',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '10px',
+                            backgroundColor: operacionConfig.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            {React.createElement(operacionConfig.icono, { size: 20, color: '#fff' })}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                              {accion.descripcion || operacionConfig.label}
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                              {accion.detalles || `Tabla: ${accion.tabla_afectada}`}
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <div><strong>Registro ID:</strong> {accion.id_registro}</div>
-                          <div><strong>IP:</strong> {accion.ip_address}</div>
-                          <div><strong>Fecha:</strong> {formatFecha(accion.fecha_operacion)}</div>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          backgroundColor: operacionConfig.bg,
+                          color: operacionConfig.color
+                        }}>
+                          {operacionConfig.label}
+                        </span>
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+                          <Calendar size={16} color="#ef4444" />
+                          <div>
+                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Fecha de Operación</div>
+                            <div style={{ fontWeight: '600', color: '#1e293b' }}>{formatFecha(accion.fecha_operacion)}</div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}

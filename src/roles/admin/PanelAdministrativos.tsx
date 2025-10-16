@@ -31,7 +31,7 @@ const PanelAdministrativos = () => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
     return saved !== null ? JSON.parse(saved) : false;
   });
-  const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
+  const [userData, setUserData] = useState<{nombre?: string; apellido?: string; nombres?: string; apellidos?: string} | null>(null);
 
   // Obtener datos del usuario
   useEffect(() => {
