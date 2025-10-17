@@ -865,12 +865,65 @@ const GestionMatricula = () => {
 
       {/* Modal Detalle Solicitud */}
       {showModal && selected && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, paddingTop: '60px', overflowY: 'auto' }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 16, width: 'min(840px, 92vw)', padding: 24, color: '#fff', marginBottom: '60px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0 }}>Solicitud {selected.codigo_solicitud}</h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                <X />
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '800px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>Solicitud {selected.codigo_solicitud}</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
               </button>
             </div>
 
@@ -1343,56 +1396,80 @@ const GestionMatricula = () => {
       {/* Modal Comprobante */}
       {showComprobanteModal && (
         <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           background: 'rgba(0,0,0,0.8)', 
           display: 'flex', 
-          alignItems: 'flex-start', 
+          alignItems: 'center', 
           justifyContent: 'center', 
-          zIndex: 60,
-          paddingTop: '80px',
-          overflowY: 'auto'
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{ 
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
             border: '1px solid rgba(16, 185, 129, 0.3)', 
-            borderRadius: 16, 
-            width: 'min(90vw, 800px)', 
+            borderRadius: '12px', 
+            width: '100%',
+            maxWidth: '800px',
             maxHeight: '90vh',
-            padding: 24, 
+            padding: '18px 28px 22px 28px', 
             color: '#fff',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
               <div>
-                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                   <Download size={20} />
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
                   <p style={{ 
-                    margin: '4px 0 0 28px', 
+                    margin: '6px 0 0 28px', 
                     color: '#fbbf24', 
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     fontFamily: 'monospace',
                     fontWeight: '600'
                   }}>
-                    Número de Comprobante: {comprobanteNumero}
+                    Número: {comprobanteNumero}
                   </p>
                 )}
               </div>
               <button 
                 onClick={() => setShowComprobanteModal(false)} 
                 style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  color: '#fff', 
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
                   cursor: 'pointer',
-                  padding: '4px'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
             
@@ -1480,15 +1557,68 @@ const GestionMatricula = () => {
 
       {/* Modal de Aprobación */}
       {showApprovalModal && approvalData && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 16, width: 'min(840px, 92vw)', padding: 24, color: '#fff' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '800px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 <Check size={20} />
                 {approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante'}
               </h3>
-              <button onClick={() => setShowApprovalModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                <X />
+              <button
+                onClick={() => setShowApprovalModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
               </button>
             </div>
 

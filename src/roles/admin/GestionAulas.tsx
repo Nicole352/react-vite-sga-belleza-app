@@ -1059,38 +1059,45 @@ const GestionAulas = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
-            background: 'var(--admin-modal-bg)',
-            borderRadius: '16px',
-            padding: '32px',
-            width: '90%',
-            maxWidth: '500px',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '600px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
             maxHeight: '90vh',
             overflowY: 'auto',
-            border: '1px solid var(--admin-border)'
           }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '24px'
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h2 style={{
                 margin: 0,
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'var(--admin-text-primary)',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                letterSpacing: '-0.02em',
+                color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px'
+                gap: '8px'
               }}>
-                <Building2 size={24} color="var(--admin-accent)" />
+                <Building2 size={20} color="#ef4444" />
                 Nueva Aula
               </h2>
               <button
@@ -1099,15 +1106,27 @@ const GestionAulas = () => {
                   setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
                 }}
                 style={{
-                  background: 'none',
-                  border: 'none',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
-                  color: 'var(--admin-text-muted)'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
 
@@ -1355,38 +1374,45 @@ const GestionAulas = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
-            background: 'var(--admin-modal-bg)',
-            borderRadius: '16px',
-            padding: '32px',
-            width: '90%',
-            maxWidth: '500px',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '600px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
             maxHeight: '90vh',
             overflowY: 'auto',
-            border: '1px solid var(--admin-border)'
           }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '24px'
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h2 style={{
                 margin: 0,
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'var(--admin-text-primary)',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                letterSpacing: '-0.02em',
+                color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px'
+                gap: '8px'
               }}>
-                <Edit size={24} color="var(--admin-accent)" />
+                <Edit size={20} color="#ef4444" />
                 Editar Aula
               </h2>
               <button
@@ -1395,25 +1421,37 @@ const GestionAulas = () => {
                   setSelectedAula(null);
                 }}
                 style={{
-                  background: 'none',
-                  border: 'none',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
-                  color: 'var(--admin-text-muted)'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
 
             {/* Información del aula */}
             <div style={{
-              background: 'var(--admin-hover-bg)',
+              background: 'rgba(239, 68, 68, 0.1)',
               padding: '16px',
               borderRadius: '8px',
-              marginBottom: '24px',
-              border: '1px solid var(--admin-border)'
+              marginBottom: '20px',
+              border: '1px solid rgba(239, 68, 68, 0.3)'
             }}>
               <div style={{
                 display: 'flex',
@@ -1421,85 +1459,100 @@ const GestionAulas = () => {
                 gap: '8px',
                 marginBottom: '8px'
               }}>
-                <Building2 size={16} color="var(--admin-accent)" />
+                <Building2 size={16} color="#ef4444" />
                 <span style={{
                   fontWeight: '600',
-                  color: 'var(--admin-text-primary)'
+                  color: '#fff'
                 }}>
                   {selectedAula.codigo_aula}
                 </span>
               </div>
               <div style={{
-                fontSize: '0.9rem',
-                color: 'var(--admin-text-secondary)'
+                fontSize: '0.85rem',
+                color: 'rgba(255,255,255,0.7)'
               }}>
                 Creada el {new Date(selectedAula.fecha_creacion).toLocaleDateString('es-ES')}
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Nombre */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '500',
-                  color: 'var(--admin-text-primary)'
-                }}>
-                  Nombre del Aula *
-                </label>
-                <input
-                  type="text"
-                  value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  placeholder="Ej: Aula de Teoría 1"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--admin-input-border)',
-                    borderRadius: '8px',
-                    background: 'var(--admin-input-bg)',
-                    color: 'var(--admin-text-primary)',
-                    fontSize: '0.95rem'
-                  }}
-                  required
-                />
+              {/* Primera fila: Nombre y Estado */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    fontSize: '0.875rem',
+                    color: 'rgba(255,255,255,0.9)'
+                  }}>
+                    Nombre del Aula *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    placeholder="Ej: Aula de Teoría 1"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.08)',
+                      color: '#fff',
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    fontSize: '0.875rem',
+                    color: 'rgba(255,255,255,0.9)'
+                  }}>
+                    Estado
+                  </label>
+                  <select
+                    value={formData.estado}
+                    onChange={(e) => setFormData({ ...formData, estado: e.target.value as 'activa' | 'inactiva' })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.08)',
+                      color: '#fff',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="activa" style={{ background: '#1a1a1a' }}>Activa</option>
+                    <option value="inactiva" style={{ background: '#1a1a1a' }}>Inactiva</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Ubicación */}
+              {/* Descripción - ancho completo */}
               <div>
                 <label style={{
                   display: 'block',
                   marginBottom: '8px',
                   fontWeight: '500',
-                  color: 'var(--admin-text-primary)'
-                }}>
-                  Ubicación
-                </label>
-                <input
-                  type="text"
-                  value={formData.ubicacion}
-                  onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
-                  placeholder="Ej: Edificio A - Piso 2"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--admin-input-border)',
-                    borderRadius: '8px',
-                    background: 'var(--admin-input-bg)',
-                    color: 'var(--admin-text-primary)',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
-
-              {/* Descripción */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '500',
-                  color: 'var(--admin-text-primary)'
+                  fontSize: '0.875rem',
+                  color: 'rgba(255,255,255,0.9)'
                 }}>
                   Descripción
                 </label>
@@ -1510,39 +1563,61 @@ const GestionAulas = () => {
                   rows={3}
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--admin-input-border)',
+                    padding: '10px 12px',
+                    border: '1px solid rgba(255,255,255,0.15)',
                     borderRadius: '8px',
-                    background: 'var(--admin-input-bg)',
-                    color: 'var(--admin-text-primary)',
-                    fontSize: '0.95rem',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: '#fff',
+                    fontSize: '0.9rem',
                     resize: 'vertical',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
                   }}
                 />
               </div>
 
-              {/* Estado */}
+              {/* Segunda fila: Ubicación */}
               <div>
                 <label style={{
                   display: 'block',
                   marginBottom: '8px',
                   fontWeight: '500',
-                  color: 'var(--admin-text-primary)'
+                  fontSize: '0.875rem',
+                  color: 'rgba(255,255,255,0.9)'
                 }}>
-                  Estado
+                  Ubicación
                 </label>
-                <StyledSelect
-                  name="estadoEdit"
-                  value={formData.estado}
-                  onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
-                  options={[
-                    { value: 'activa', label: 'Activa' },
-                    { value: 'inactiva', label: 'Inactiva' },
-                    { value: 'mantenimiento', label: 'Mantenimiento' },
-                    { value: 'reservada', label: 'Reservada' }
-                  ]}
-                  style={{ width: '100%' }}
+                <input
+                  type="text"
+                  value={formData.ubicacion}
+                  onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
+                  placeholder="Ej: Edificio A - Piso 2"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: '#fff',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                  }}
                 />
               </div>
             </div>

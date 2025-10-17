@@ -1385,27 +1385,69 @@ const GestionCursos = () => {
       {/* Modal */}
       {showModal && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 50
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '16px', width: 'min(720px, 92vw)', padding: '24px',
-            color: '#fff'
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '750px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 {modalType === 'create' ? 'Nuevo Curso' : modalType === 'edit' ? 'Editar Curso' : 'Ver Curso'}
               </h3>
-              <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                <X />
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', columnGap: '20px' }}>
                 {/* Fila 1: Código y Tipo de curso */}
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Código</label>

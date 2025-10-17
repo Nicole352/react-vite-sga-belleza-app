@@ -895,43 +895,70 @@ const GestionDocentes = () => {
 
       {/* Modal */}
       {showModal && (
-        <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
-          background: 'rgba(0,0,0,0.6)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 50 
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
         }}>
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
-            border: '1px solid rgba(239, 68, 68, 0.3)', 
-            borderRadius: 16, 
-            width: 'min(700px, 90vw)', 
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '700px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
             maxHeight: '90vh',
-            overflow: 'auto',
-            padding: 24, 
-            color: '#fff' 
+            overflowY: 'auto',
           }}>
             {/* Header del Modal */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 <UserCheck size={20} />
                 {modalMode === 'view' ? 'Información del Docente' : 
                  modalMode === 'create' ? 'Crear Nuevo Docente' : 'Editar Docente'}
               </h3>
-              <button 
-                onClick={() => setShowModal(false)} 
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  color: '#fff', 
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
                   cursor: 'pointer',
-                  padding: '4px'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 

@@ -138,61 +138,59 @@ export const ModalDetalle = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.7)',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '40px 16px',
-        overflowY: 'auto'
+        padding: '20px',
       }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
-        backgroundColor: 'white',
-        borderRadius: '16px',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+        border: '1px solid rgba(239, 68, 68, 0.3)',
+        borderRadius: '12px',
         maxWidth: '900px',
         width: '100%',
         maxHeight: '90vh',
         overflow: 'hidden',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-        animation: 'modalFadeIn 0.2s ease-out'
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
       }}>
         {/* Header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '24px 32px',
-          borderBottom: '1px solid #e2e8f0',
-          backgroundColor: '#f8fafc'
+          padding: '18px 28px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '56px',
-              height: '56px',
+              width: '48px',
+              height: '48px',
               borderRadius: '50%',
-              backgroundColor: '#fee2e2',
+              background: 'rgba(239, 68, 68, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <UserCircle style={{ width: '32px', height: '32px', color: '#ef4444' }} />
+              <UserCircle style={{ width: '28px', height: '28px', color: '#ef4444' }} />
             </div>
             <div>
               <h2 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#1e293b',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                color: '#fff',
                 margin: 0,
-                marginBottom: '4px'
+                marginBottom: '4px',
+                letterSpacing: '-0.02em'
               }}>
                 {usuario.nombre} {usuario.apellido}
               </h2>
               <p style={{
-                fontSize: '0.9rem',
-                color: '#64748b',
+                fontSize: '0.85rem',
+                color: 'rgba(255,255,255,0.6)',
                 margin: 0
               }}>
                 {usuario.username || usuario.email}
@@ -202,17 +200,27 @@ export const ModalDetalle = ({
           <button
             onClick={onClose}
             style={{
-              padding: '8px',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '8px',
-              border: 'none',
-              backgroundColor: 'transparent',
+              padding: '6px',
+              color: '#fff',
               cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            }}
           >
-            <X style={{ width: '20px', height: '20px', color: '#64748b' }} />
+            <X style={{ width: '18px', height: '18px' }} />
           </button>
         </div>
 
@@ -932,28 +940,70 @@ export const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalCo
   if (!show || !accion) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-md w-full p-6 border border-white/10">
-        <h3 className="text-xl font-bold mb-4">
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+      padding: '20px',
+    }}>
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+        border: '1px solid rgba(239, 68, 68, 0.3)',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '500px',
+        padding: '18px 28px 22px 28px',
+        color: '#fff',
+        margin: '0 auto',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+      }}>
+        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '12px' }}>
           {accion.tipo === 'activar' ? 'Activar Usuario' : 'Desactivar Usuario'}
         </h3>
-        <p className="mb-6 opacity-70">
-          ¿Estás seguro de {accion.tipo} a <strong>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
+        <p style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+          ¿Estás seguro de {accion.tipo} a <strong style={{ color: '#fff' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
         </p>
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              background: 'rgba(255,255,255,0.05)',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-              accion.tipo === 'activar'
-                ? 'bg-green-500 hover:bg-green-600'
-                : 'bg-red-500 hover:bg-red-600'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: accion.tipo === 'activar' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              transition: 'all 0.2s ease',
+            }}
           >
             {accion.tipo === 'activar' ? 'Activar' : 'Desactivar'}
           </button>
@@ -973,26 +1023,69 @@ export const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredenci
   if (!show || !credenciales) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-md w-full p-6 border border-white/10">
-        <h3 className="text-xl font-bold mb-4">🔐 Contraseña Reseteada</h3>
-        <p className="mb-4 opacity-70">Las nuevas credenciales son:</p>
-        <div className="space-y-3 mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-          <div>
-            <div className="text-sm opacity-70 mb-1">Usuario</div>
-            <div className="font-mono font-bold text-blue-400">{credenciales.username}</div>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+      padding: '20px',
+    }}>
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+        border: '1px solid rgba(59, 130, 246, 0.3)',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '500px',
+        padding: '18px 28px 22px 28px',
+        color: '#fff',
+        margin: '0 auto',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+      }}>
+        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '12px' }}>
+          🔐 Contraseña Reseteada
+        </h3>
+        <p style={{ marginBottom: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+          Las nuevas credenciales son:
+        </p>
+        <div style={{
+          marginBottom: '20px',
+          padding: '16px',
+          borderRadius: '8px',
+          background: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+        }}>
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Usuario</div>
+            <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
           </div>
           <div>
-            <div className="text-sm opacity-70 mb-1">Contraseña Temporal</div>
-            <div className="font-mono font-bold text-blue-400">{credenciales.password_temporal}</div>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Contraseña Temporal</div>
+            <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
           </div>
         </div>
-        <p className="text-sm opacity-70 mb-4">
+        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
           ⚠️ El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
         </p>
         <button
           onClick={onClose}
-          className="w-full px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition-colors"
+          style={{
+            width: '100%',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease',
+          }}
         >
           Cerrar
         </button>

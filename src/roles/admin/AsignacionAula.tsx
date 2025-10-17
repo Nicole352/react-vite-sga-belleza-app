@@ -888,25 +888,66 @@ const AsignacionAula: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', zIndex: 1000, padding: '20px'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '700px',
-            maxHeight: '90vh', overflowY: 'auto'
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '700px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff' }}>
                 {modalType === 'create' ? 'Nueva Asignación' : 'Editar Asignación'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: '4px' }}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
 

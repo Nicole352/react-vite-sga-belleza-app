@@ -603,44 +603,44 @@ const ControlUsuarios = () => {
             <div style={{ 
               overflowX: 'auto', 
               borderRadius: '12px', 
-              border: '1px solid #e2e8f0',
-              backgroundColor: 'white',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'transparent',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ 
-                  borderBottom: '2px solid #e2e8f0',
-                  backgroundColor: '#f8fafc'
+                  borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)'
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Email</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '16px', fontWeight: '600', color: '#475569', fontSize: '0.85rem' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Email</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usuarios.map((usuario) => (
                     <tr key={usuario.id_usuario} style={{ 
-                      borderBottom: '1px solid #e2e8f0',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                       transition: 'background-color 0.2s'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <td style={{ padding: '16px' }}>
-                        <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#1e293b' }}>
+                        <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#e5e5e5' }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
                       <td style={{ padding: '16px' }}>
-                        <div style={{ fontWeight: '500', color: '#1e293b', marginBottom: '4px' }}>
+                        <div style={{ fontWeight: '500', color: '#ffffff', marginBottom: '4px' }}>
                           {usuario.nombre} {usuario.apellido}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{usuario.cedula}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#a3a3a3' }}>{usuario.cedula}</div>
                       </td>
                       <td style={{ padding: '16px' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
@@ -648,7 +648,7 @@ const ControlUsuarios = () => {
                         </span>
                       </td>
                       <td style={{ padding: '16px' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#475569' }}>{usuario.email || '-'}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{usuario.email || '-'}</div>
                       </td>
                       <td style={{ padding: '16px' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
@@ -656,7 +656,7 @@ const ControlUsuarios = () => {
                         </span>
                       </td>
                       <td style={{ padding: '16px' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#475569' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
                       <td style={{ padding: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>

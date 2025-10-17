@@ -70,7 +70,7 @@ const GlassEffect: React.FC<GlassEffectProps> = ({
       background: `linear-gradient(135deg, ${colorScheme[intensity]}, ${colorScheme.light})`,
       backdropFilter: 'blur(20px) saturate(180%)',
       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      border: `1px solid ${colorScheme.border}`,
+      border: `1px solid rgba(239, 68, 68, 0.2)`,
       boxShadow: `
         0 8px 32px rgba(0, 0, 0, 0.12),
         0 2px 8px rgba(0, 0, 0, 0.08),

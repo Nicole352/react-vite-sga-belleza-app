@@ -139,9 +139,14 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           background: var(--theme-modal-bg) !important;
         }
         
-        /* Bordes */
-        .admin-theme-wrapper div[style*="border: 1px solid rgba(239, 68, 68, 0.2)"] {
-          border: 1px solid var(--theme-border) !important;
+        /* Bordes - Forzar color rojo en todos los bordes */
+        .admin-theme-wrapper [style*="border: 1px solid"],
+        .admin-theme-wrapper [style*="border:1px solid"],
+        .admin-theme-wrapper [style*="border: 2px solid"],
+        .admin-theme-wrapper [style*="border:2px solid"],
+        .admin-theme-wrapper div[style*="border"],
+        .admin-theme-wrapper .glass-effect {
+          border-color: ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'} !important;
         }
         
         /* Backgrounds específicos que aparecen en modo oscuro */

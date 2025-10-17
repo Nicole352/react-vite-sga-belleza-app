@@ -796,106 +796,72 @@ const GestionPagosEstudiante = () => {
       {showModal && selectedPago && (
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.8)',
-          backdropFilter: 'blur(12px)',
-          zIndex: 1000,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: '60px 20px 20px',
-          overflowY: 'auto'
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(15,15,15,0.98) 0%, rgba(30,30,30,0.98) 100%)',
-            borderRadius: '24px',
-            padding: '0',
-            maxWidth: '900px',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
             width: '100%',
-            border: '1px solid rgba(239, 68, 68, 0.4)',
-            overflow: 'hidden',
-            boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(239, 68, 68, 0.2)'
+            maxWidth: '800px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
           }}>
             {/* Header */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
-              borderBottom: '1px solid rgba(239, 68, 68, 0.3)',
-              padding: '28px 32px',
-              position: 'relative',
-              overflow: 'hidden'
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <div style={{
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      borderRadius: '12px',
-                      padding: '10px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <Download size={24} color="#fff" />
-                    </div>
-                    <div>
-                      <h2 style={{
-                        color: '#fff',
-                        margin: 0,
-                        fontSize: '1.75rem',
-                        fontWeight: 800,
-                        letterSpacing: '-0.5px'
-                      }}>
-                        Detalle del Pago
-                      </h2>
-                      <p style={{
-                        color: '#fbbf24',
-                        margin: '4px 0 0 0',
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        fontFamily: 'monospace'
-                      }}>
-                        {selectedPago.modalidad_pago === 'clases' ? `Clase ${selectedPago.numero_cuota}` : `Cuota #${selectedPago.numero_cuota}`}
-                      </p>
-                    </div>
-                  </div>
-                  <p style={{
-                    color: 'rgba(255,255,255,0.6)',
-                    margin: '8px 0 0 0',
-                    fontSize: '0.9rem',
-                    maxWidth: '600px'
-                  }}>
-                    Información detallada y completa de la transacción del estudiante
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowModal(false)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    padding: '10px',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
-                    e.currentTarget.style.transform = 'rotate(90deg)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                    e.currentTarget.style.transform = 'rotate(0deg)';
-                  }}
-                >
-                  <X size={22} />
-                </button>
-              </div>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Download size={20} />
+                Detalle del Pago
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            {/* Content Premium */}
-            <div style={{ padding: '32px' }}>
+            {/* Content */}
+            <div>
               {/* Stats Cards Row */}
               <div style={{
                 display: 'grid',
@@ -1402,52 +1368,73 @@ const GestionPagosEstudiante = () => {
           bottom: 0,
           background: 'rgba(0,0,0,0.8)',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 60,
-          padding: '40px 20px',
-          paddingTop: '80px'
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: 16,
-            width: 'min(90vw, 800px)',
-            maxHeight: 'calc(100vh - 160px)',
-            padding: 24,
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '800px',
+            maxHeight: '90vh',
+            padding: '18px 28px 22px 28px',
             color: '#fff',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
               <div>
-                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                   <Download size={20} />
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
                   <p style={{
-                    margin: '4px 0 0 28px',
+                    margin: '6px 0 0 28px',
                     color: '#fbbf24',
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     fontFamily: 'monospace',
                     fontWeight: '600'
                   }}>
-                    Número de Comprobante: {comprobanteNumero}
+                    Número: {comprobanteNumero}
                   </p>
                 )}
               </div>
               <button
                 onClick={() => setShowComprobanteModal(false)}
                 style={{
-                  background: 'transparent',
-                  border: 'none',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: '#fff',
                   cursor: 'pointer',
-                  padding: '4px'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={24} />
+                <X size={18} />
               </button>
             </div>
 
@@ -1622,42 +1609,67 @@ const GestionPagosEstudiante = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: '40px 20px',
-          paddingTop: '80px',
-          overflow: 'auto'
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            borderRadius: '20px',
-            padding: '32px',
-            maxWidth: '500px',
-            width: '100%',
             border: '1px solid rgba(16, 185, 129, 0.3)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '500px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
           }}>
             {/* Header */}
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                background: 'rgba(16, 185, 129, 0.15)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 16px'
-              }}>
-                <Check size={32} color="#10b981" />
-              </div>
-              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 8px 0' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, color: '#10b981', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={20} />
                 Verificar Pago
               </h3>
+              <button
+                onClick={() => setShowVerificacionModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: 0 }}>
                 {pagoAVerificar.estudiante_nombre} {pagoAVerificar.estudiante_apellido}
               </p>
@@ -1855,47 +1867,66 @@ const GestionPagosEstudiante = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: '40px 20px',
-          paddingTop: '80px',
-          overflow: 'auto'
+          zIndex: 9999,
+          padding: '20px',
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            borderRadius: '20px',
-            padding: '32px',
-            maxWidth: '500px',
-            width: '100%',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '500px',
+            padding: '18px 28px 22px 28px',
+            color: '#fff',
+            margin: '0 auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
           }}>
             {/* Header del modal */}
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                background: 'rgba(239, 68, 68, 0.15)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 16px'
-              }}>
-                <X size={32} color="#ef4444" />
-              </div>
-              <h3 style={{
-                color: '#fff',
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                margin: '0 0 8px 0'
-              }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '14px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              <h3 style={{ margin: 0, color: '#ef4444', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <X size={20} />
                 Rechazar Pago
               </h3>
+              <button
+                onClick={() => setShowRechazoModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
               <p style={{
                 color: 'rgba(255,255,255,0.7)',
                 fontSize: '0.9rem',

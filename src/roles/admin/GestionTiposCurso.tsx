@@ -788,22 +788,29 @@ const GestionTiposCurso: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.7)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 50,
+            zIndex: 9999,
+            padding: '20px',
           }}
         >
           <div
             style={{
               background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%))',
               border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.3))',
-              borderRadius: 16,
-              width: 'min(680px, 92vw)',
-              padding: 24,
+              borderRadius: 12,
+              width: '100%',
+              maxWidth: '700px',
+              padding: '18px 28px 22px 28px',
               color: 'var(--admin-text-primary, #fff)',
+              margin: '0 auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
             }}
           >
             <div
@@ -811,25 +818,46 @@ const GestionTiposCurso: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 16,
+                marginBottom: 18,
+                paddingBottom: 14,
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}
             >
-              <h3 style={{ margin: 0 }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--admin-text-primary, #fff)', cursor: 'pointer' }}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                }}
               >
-                <X />
+                <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, columnGap: 20 }}>
                 {/* Nombre - ancho completo */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Nombre del tipo</label>
+                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.875rem' }}>Nombre del tipo</label>
                   <input
                     name="nombre"
                     placeholder="Ej. Cosmetología, Maquillaje Profesional"
@@ -837,14 +865,24 @@ const GestionTiposCurso: React.FC = () => {
                     required
                     style={{
                       width: '100%',
-                      padding: 12,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
+                      padding: '9px 12px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 8,
                       color: '#fff',
+                      fontSize: '0.9rem',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
                     }}
                   />
-                  <div style={{ marginTop: 6, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.8rem' }}>
+                  <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
                     El nombre que verán los estudiantes en la web.
                   </div>
                 </div>
@@ -894,14 +932,14 @@ const GestionTiposCurso: React.FC = () => {
                       }
                     }}
                   />
-                  <div style={{ marginTop: 6, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.8rem' }}>
-                    <strong>Mensual:</strong> Cuotas mensuales (ej: Cosmetología). <strong>Por Clases:</strong> Pago individual por clase (ej: Técnica de Uñas).
+                  <div style={{ marginTop: 3, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.7rem' }}>
+                    <strong>Mensual:</strong> Cuotas mensuales. <strong>Por Clases:</strong> Pago por clase.
                   </div>
                 </div>
 
                 {/* Campos específicos para modalidad "clases" */}
                 <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Número de Clases</label>
+                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Número de Clases</label>
                   <input
                     type="number"
                     min={1}
@@ -910,20 +948,18 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.numero_clases ?? ''}
                     style={{
                       width: '100%',
-                      padding: 12,
+                      padding: 10,
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       color: 'var(--admin-text-primary, #fff)',
+                      fontSize: '0.9rem',
                     }}
                   />
-                  <div style={{ marginTop: 4, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.75rem' }}>
-                    Total de clases del curso
-                  </div>
                 </div>
 
                 <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Precio por Clase (USD)</label>
+                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Precio por Clase (USD)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -933,21 +969,19 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.precio_por_clase ?? ''}
                     style={{
                       width: '100%',
-                      padding: 12,
+                      padding: 10,
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       color: 'var(--admin-text-primary, #fff)',
+                      fontSize: '0.9rem',
                     }}
                   />
-                  <div style={{ marginTop: 4, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.75rem' }}>
-                    Precio individual por cada clase (sin incluir matrícula)
-                  </div>
                 </div>
 
                 {/* Duración y Precio en la misma fila */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Duración (meses)</label>
+                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Duración (meses)</label>
                   <input
                     type="number"
                     min={1}
@@ -956,16 +990,17 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.duracion_meses ?? ''}
                     style={{
                       width: '100%',
-                      padding: 12,
+                      padding: 10,
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       color: 'var(--admin-text-primary, #fff)',
+                      fontSize: '0.9rem',
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Precio base (USD)</label>
+                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Precio base (USD)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -975,18 +1010,19 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.precio_base ?? ''}
                     style={{
                       width: '100%',
-                      padding: 12,
+                      padding: 10,
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       color: 'var(--admin-text-primary, #fff)',
+                      fontSize: '0.9rem',
                     }}
                   />
                 </div>
 
                 {/* Estado al final a ancho completo, con StyledSelect */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Estado</label>
+                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Estado</label>
                   <StyledSelect
                     name="estado"
                     defaultValue={selected?.estado || 'activo'}
