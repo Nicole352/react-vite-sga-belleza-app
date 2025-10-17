@@ -190,6 +190,7 @@ const GestionCursos = () => {
         codigo_curso: row.codigo_curso,
         id_tipo_curso: row.id_tipo_curso ?? 0,
         nombre: row.nombre,
+        horario: (row.horario || 'matutino') as 'matutino' | 'vespertino',
         capacidad_maxima: row.capacidad_maxima ?? 20,
         fecha_inicio: row.fecha_inicio?.slice(0,10),
         fecha_fin: row.fecha_fin?.slice(0,10),
@@ -210,12 +211,14 @@ const GestionCursos = () => {
       const res = await fetch(`${API_BASE}/api/cursos/${id}`);
       if (!res.ok) return null;
       const row = await res.json();
+      console.log('📚 Curso recibido del backend:', row);
+      console.log('🕐 Horario del curso:', row.horario);
       const c: Course = {
         id_curso: Number(row.id_curso ?? id),
         codigo_curso: String(row.codigo_curso ?? ''),
         id_tipo_curso: Number(row.id_tipo_curso ?? 0),
         nombre: String(row.nombre ?? ''),
-        horario: (row.horario as 'matutino' | 'vespertino') ?? 'matutino',
+        horario: (row.horario || 'matutino') as 'matutino' | 'vespertino',
         capacidad_maxima: Number(row.capacidad_maxima ?? 20),
         fecha_inicio: String((row.fecha_inicio ?? '').slice ? (row.fecha_inicio as string).slice(0,10) : row.fecha_inicio ?? ''),
         fecha_fin: String((row.fecha_fin ?? '').slice ? (row.fecha_fin as string).slice(0,10) : row.fecha_fin ?? ''),
@@ -365,10 +368,19 @@ const GestionCursos = () => {
     setLoading(false);
   };
 
-  const handleViewCurso = (curso: Course) => {
-    setSelectedCurso(curso);
-    setModalType('view');
-    setShowModal(true);
+  const handleViewCurso = async (curso: Course) => {
+    // Cargar el curso completo desde el backend para tener todos los datos actualizados
+    const cursoCompleto = await fetchCursoById(curso.id_curso);
+    if (cursoCompleto) {
+      setSelectedCurso(cursoCompleto);
+      setModalType('view');
+      setShowModal(true);
+    } else {
+      // Fallback: usar el curso de la lista si falla la carga
+      setSelectedCurso(curso);
+      setModalType('view');
+      setShowModal(true);
+    }
   };
 
   const handleFilterEstadoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
