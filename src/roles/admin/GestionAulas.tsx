@@ -252,21 +252,21 @@ const GestionAulas = () => {
       }}>
         <div>
           <h1 style={{ 
-            fontSize: '2rem', 
+            fontSize: '1.5rem', 
             fontWeight: '700', 
             color: 'var(--admin-text-primary)', 
             margin: 0,
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '10px'
           }}>
-            <Building2 size={32} color="var(--admin-accent)" />
+            <Building2 size={26} color="var(--admin-accent)" />
             Gestión de Aulas
           </h1>
           <p style={{ 
             color: 'var(--admin-text-secondary)', 
-            margin: '8px 0 0 0',
-            fontSize: '1rem'
+            margin: '6px 0 0 0',
+            fontSize: '0.85rem'
           }}>
             Administra las aulas y espacios físicos de la institución
           </p>
@@ -282,14 +282,14 @@ const GestionAulas = () => {
             background: 'linear-gradient(135deg, var(--admin-accent), #dc2626)',
             color: 'white',
             border: 'none',
-            borderRadius: '12px',
-            padding: '12px 24px',
-            fontSize: '1rem',
+            borderRadius: '10px',
+            padding: '10px 18px',
+            fontSize: '0.85rem',
             fontWeight: '600',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             transition: 'all 0.2s ease',
             boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
           }}
@@ -302,7 +302,7 @@ const GestionAulas = () => {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
           }}
         >
-          <Plus size={20} />
+          <Plus size={16} />
           Nueva Aula
         </button>
       </div>
@@ -310,34 +310,34 @@ const GestionAulas = () => {
       {/* Estadísticas */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '20px', 
-        marginBottom: '32px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+        gap: '14px', 
+        marginBottom: '20px' 
       }}>
         <div style={{
           background: 'var(--admin-card-bg)',
           border: '1px solid var(--admin-border)',
-          borderRadius: '16px',
-          padding: '24px',
+          borderRadius: '12px',
+          padding: '16px',
           textAlign: 'center'
         }}>
           <div style={{ 
-            fontSize: '2.5rem', 
+            fontSize: '1.8rem', 
             fontWeight: '700', 
             color: 'var(--admin-accent)', 
-            marginBottom: '8px' 
+            marginBottom: '6px' 
           }}>
             {totalCount}
           </div>
           <div style={{ 
             color: 'var(--admin-text-secondary)', 
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px'
+            gap: '5px'
           }}>
-            <Building2 size={16} />
+            <Building2 size={14} />
             Total Aulas
           </div>
         </div>
@@ -345,27 +345,27 @@ const GestionAulas = () => {
         <div style={{
           background: 'var(--admin-card-bg)',
           border: '1px solid var(--admin-border)',
-          borderRadius: '16px',
-          padding: '24px',
+          borderRadius: '12px',
+          padding: '16px',
           textAlign: 'center'
         }}>
           <div style={{ 
-            fontSize: '2.5rem', 
+            fontSize: '1.8rem', 
             fontWeight: '700', 
             color: '#10b981', 
-            marginBottom: '8px' 
+            marginBottom: '6px' 
           }}>
             {aulasActivas}
           </div>
           <div style={{ 
             color: 'var(--admin-text-secondary)', 
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px'
+            gap: '5px'
           }}>
-            <Building2 size={16} />
+            <Building2 size={14} />
             Aulas Activas
           </div>
         </div>
@@ -526,8 +526,8 @@ const GestionAulas = () => {
                 style={{
                   background: 'var(--admin-card-bg)',
                   border: '1px solid var(--admin-border)',
-                  borderRadius: '16px',
-                  padding: '20px',
+                  borderRadius: '12px',
+                  padding: '14px',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 }}
@@ -542,28 +542,28 @@ const GestionAulas = () => {
                   e.currentTarget.style.borderColor = 'var(--admin-border)';
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ 
-                      width: 50, 
-                      height: 50, 
+                      width: 40, 
+                      height: 40, 
                       borderRadius: '50%', 
                       background: `${getEstadoColor(aula.estado)}20`, 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center' 
                     }}>
-                      <Building2 size={24} color={getEstadoColor(aula.estado)} />
+                      <Building2 size={20} color={getEstadoColor(aula.estado)} />
                     </div>
                     <div>
-                      <h3 style={{ color: 'var(--admin-text-primary)', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                      <h3 style={{ color: 'var(--admin-text-primary)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0' }}>
                         {aula.nombre}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '3px 10px',
+                        padding: '2px 8px',
                         borderRadius: '9999px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.65rem',
                         fontWeight: '600',
                         textTransform: 'uppercase',
                         background: `${getEstadoColor(aula.estado)}20`,
@@ -575,39 +575,39 @@ const GestionAulas = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', paddingTop: '12px', borderTop: '1px solid var(--admin-border)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px', paddingTop: '10px', borderTop: '1px solid var(--admin-border)' }}>
                   <div>
-                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.65rem', marginBottom: '3px' }}>
                       Código
                     </div>
-                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace' }}>
                       {aula.codigo_aula}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                      <Calendar size={10} style={{ display: 'inline', marginRight: '3px' }} />
                       Fecha Creación
                     </div>
-                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.7rem' }}>
                       {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
                     </div>
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <MapPin size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                      <MapPin size={10} style={{ display: 'inline', marginRight: '3px' }} />
                       Ubicación
                     </div>
-                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                    <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.7rem' }}>
                       {aula.ubicacion || 'No especificada'}
                     </div>
                   </div>
                   {aula.descripcion && (
                     <div style={{ gridColumn: '1 / -1' }}>
-                      <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.65rem', marginBottom: '3px' }}>
                         Descripción
                       </div>
-                      <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.85rem' }}>
+                      <div style={{ color: 'var(--admin-text-primary)', fontSize: '0.7rem' }}>
                         {aula.descripcion}
                       </div>
                     </div>
@@ -977,6 +977,7 @@ const GestionAulas = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
+          marginTop: '90px',
           marginBottom: '24px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',

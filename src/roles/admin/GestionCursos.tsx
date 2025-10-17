@@ -560,17 +560,17 @@ const GestionCursos = () => {
   };
 
   return (
-    <div style={{ padding: '32px' }}>
+    <div style={{ padding: '24px' }}>
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '18px' }}>
         <h2 style={{ 
-          color: 'rgba(255,255,255,0.95)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          color: 'rgba(255,255,255,0.95)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={32} color={RedColorPalette.primary} />
+          <BookOpen size={26} color={RedColorPalette.primary} />
           Gestión de Cursos
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los cursos disponibles en la academia
         </p>
       </div>
@@ -590,12 +590,12 @@ const GestionCursos = () => {
       )}
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flex: 1 }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: '300px' }}>
-              <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: '280px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
                 placeholder="Buscar cursos o instructores..."
@@ -603,12 +603,12 @@ const GestionCursos = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px 12px 12px 44px',
+                  padding: '10px 10px 10px 38px',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  borderRadius: '10px',
                   color: '#fff',
-                  fontSize: '0.9rem'
+                  fontSize: '0.8rem'
                 }}
               />
             </div>
@@ -630,20 +630,20 @@ const GestionCursos = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px' }}>
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
+                  gap: '5px',
+                  padding: '7px 12px',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '7px',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                 }}
@@ -683,22 +683,22 @@ const GestionCursos = () => {
               padding: '12px 24px',
               background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
               boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
             }}
           >
-            <Plus size={20} />
+            <Plus size={16} />
             Nuevo Curso
           </button>
         </div>
 
         {/* Info de resultados */}
-        <div style={{ marginTop: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ marginTop: '12px', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           {searchTerm || filterEstado !== 'todos' 
             ? `${filteredCursos.length} de ${cursos.length} cursos` 
             : `Total: ${cursos.length} cursos`}
@@ -709,9 +709,9 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
-          gap: '20px',
-          marginBottom: '24px'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+          gap: '14px',
+          marginBottom: '18px'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -732,15 +732,15 @@ const GestionCursos = () => {
                 hover
                 animated
               >
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
                     <span style={{ 
                       color: 'rgba(255,255,255,0.6)', 
-                      fontSize: '0.85rem', 
+                      fontSize: '0.7rem', 
                       fontFamily: 'monospace',
                       background: 'rgba(255,255,255,0.05)',
-                      padding: '4px 8px',
-                      borderRadius: '6px'
+                      padding: '3px 6px',
+                      borderRadius: '5px'
                     }}>
                       {curso.codigo_curso}
                     </span>
@@ -748,25 +748,25 @@ const GestionCursos = () => {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
-                        padding: '4px 10px',
-                        borderRadius: 8,
+                        gap: '3px',
+                        padding: '3px 8px',
+                        borderRadius: 6,
                         background: estadoConfig.bg,
                         color: estadoConfig.color,
                         fontWeight: 700,
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         textTransform: 'uppercase',
                       }}
                     >
-                      <EstadoIcon size={12} />
+                      <EstadoIcon size={10} />
                       {curso.estado}
                     </span>
                   </div>
                   <h3 style={{ 
                     color: '#fff', 
-                    fontSize: '1.15rem', 
+                    fontSize: '0.95rem', 
                     fontWeight: 700, 
-                    margin: '0 0 12px 0'
+                    margin: '0 0 8px 0'
                   }}>
                     {curso.nombre}
                   </h3>
@@ -775,46 +775,46 @@ const GestionCursos = () => {
                 <div style={{ 
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  gap: '12px', 
-                  marginBottom: '16px',
-                  paddingTop: '12px',
+                  gap: '10px', 
+                  marginBottom: '12px',
+                  paddingTop: '10px',
                   borderTop: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                       Fecha Inicio
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
                       {curso.fecha_inicio}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                       Fecha Fin
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
                       {curso.fecha_fin}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                       Cupos
                     </div>
-                    <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.95rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                    <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                       {curso.estado === 'cancelado' ? 'N/A' : `${curso.cupos_disponibles || 0} / ${curso.capacidad_maxima}`}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                       Horario
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
                       {curso.horario}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => handleViewCurso(curso)}
                     style={{
@@ -822,13 +822,13 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
-                      padding: '10px',
+                      gap: '5px',
+                      padding: '8px',
                       background: 'rgba(239, 68, 68, 0.1)',
                       border: `1px solid ${RedColorPalette.primary}`,
-                      borderRadius: '10px',
+                      borderRadius: '8px',
                       color: RedColorPalette.primary,
-                      fontSize: '0.85rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -844,7 +844,7 @@ const GestionCursos = () => {
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <Eye size={14} /> Ver
+                    <Eye size={12} /> Ver
                   </button>
                   <button
                     onClick={() => handleEditCurso(curso)}
@@ -1308,6 +1308,7 @@ const GestionCursos = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
+          marginTop: '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '16px',

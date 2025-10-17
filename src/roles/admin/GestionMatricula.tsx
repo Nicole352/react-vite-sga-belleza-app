@@ -394,16 +394,16 @@ const GestionMatricula = () => {
   }, [filterEstado, filterTipo]);
 
   return (
-    <div style={{ padding: '32px' }}>
-      <div style={{ marginBottom: '32px' }}>
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '18px' }}>
         <h2 style={{ 
-          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: '10px'
         }}>
-          <GraduationCap size={32} color="#ef4444" />
+          <GraduationCap size={26} color="#ef4444" />
           Gestión de Matrículas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
           Administra las matrículas y credenciales de acceso de los estudiantes
         </p>
       </div>
@@ -412,18 +412,18 @@ const GestionMatricula = () => {
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', padding: '24px', marginBottom: '24px'
+        borderRadius: '16px', padding: '16px', marginBottom: '16px'
       }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', minWidth: '300px' }}>
-            <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', minWidth: '280px' }}>
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
             <input
               type="text" placeholder="Buscar por nombre, email o cédula..."
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%', padding: '12px 12px 12px 44px',
+                width: '100%', padding: '10px 10px 10px 38px',
                 background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px', color: '#fff', fontSize: '0.9rem'
+                borderRadius: '10px', color: '#fff', fontSize: '0.8rem'
               }}
             />
           </div>
@@ -453,35 +453,35 @@ const GestionMatricula = () => {
                 ]}
               />
             </div>
-            <button onClick={fetchSolicitudes} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer' }}>Refrescar</button>
+            <button onClick={fetchSolicitudes} style={{ padding: '8px 14px', fontSize: '0.8rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer' }}>Refrescar</button>
           </div>
         </div>
         {/* Counters + Pagination */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginTop: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
           {/* Counters */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <span style={{
-              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
             }}>Pendiente: {counters.pendiente}</span>
             <span style={{
-              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
             }}>Aprobado: {counters.aprobado}</span>
             <span style={{
-              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
             }}>Rechazado: {counters.rechazado}</span>
             <span style={{
-              padding: '6px 10px', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 700,
+              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
             }}>Observaciones: {counters.observaciones}</span>
           </div>
           {/* Pagination */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Por página:</span>
-              <div style={{ minWidth: 120 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}>Por página:</span>
+              <div style={{ minWidth: 100 }}>
                 <StyledSelect
                   name="limit"
                   value={String(limit)}
@@ -494,9 +494,9 @@ const GestionMatricula = () => {
                 />
               </div>
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginLeft: 8 }}>Total: {totalCount}</span>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
+              padding: '7px 10px', fontSize: '0.75rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
             }}>Anterior</button>
             <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
             <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
@@ -507,11 +507,11 @@ const GestionMatricula = () => {
       </div>
 
       {/* Lista de Solicitudes */}
-      <div style={{ display: 'grid', gap: '20px' }}>
-        {loading && (<div style={{ color: 'rgba(255,255,255,0.7)' }}>Cargando...</div>)}
-        {error && (<div style={{ color: '#ef4444' }}>{error}</div>)}
+      <div style={{ display: 'grid', gap: '14px' }}>
+        {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando...</div>)}
+        {error && (<div style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</div>)}
         {!loading && solicitudesFiltradas.length === 0 && (
-          <div style={{ color: 'rgba(255,255,255,0.7)' }}>No hay solicitudes</div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay solicitudes</div>
         )}
 {paginatedSolicitudes.map((sol) => {
           // Formatear fecha de solicitud
@@ -531,37 +531,37 @@ const GestionMatricula = () => {
             <div key={sol.id_solicitud} style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
               backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '20px', padding: '24px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+              borderRadius: '16px', padding: '16px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
             }}>
               {/* Información Principal */}
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 16px 0' }}>
+              <div style={{ marginBottom: '14px' }}>
+                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0' }}>
                   {sol.nombre_solicitante} {sol.apellido_solicitante}
                 </h3>
                 
                 {/* Primera fila - Información básica */}
                 <div style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                  gap: '16px',
-                  marginBottom: '12px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+                  gap: '12px',
+                  marginBottom: '10px'
                 }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Identificación</div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{sol.identificacion_solicitante || '-'}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Identificación</div>
+                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Email</div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{sol.email_solicitante}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Email</div>
+                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.email_solicitante}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Fecha de Solicitud</div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Fecha de Solicitud</div>
+                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{formatearFecha(sol.fecha_solicitud)}</div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Tipo de Curso</div>
-                      <div style={{ color: '#fff', fontSize: '0.9rem' }}>{(sol as any).tipo_curso_nombre}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Tipo de Curso</div>
+                      <div style={{ color: '#fff', fontSize: '0.8rem' }}>{(sol as any).tipo_curso_nombre}</div>
                     </div>
                   )}
                 </div>
@@ -570,20 +570,20 @@ const GestionMatricula = () => {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', 
-                  gap: '12px',
+                  gap: '10px',
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante - Campo separado */}
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Número Comprobante</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Número Comprobante</div>
                     {sol.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(251, 191, 36, 0.1)',
                         border: '1px solid rgba(251, 191, 36, 0.3)',
                         color: '#fbbf24',
-                        padding: '6px 8px',
-                        borderRadius: '6px',
-                        fontSize: '0.8rem',
+                        padding: '5px 6px',
+                        borderRadius: '5px',
+                        fontSize: '0.7rem',
                         fontWeight: '600',
                         fontFamily: 'monospace',
                         textAlign: 'center',
@@ -596,9 +596,9 @@ const GestionMatricula = () => {
                         background: 'rgba(107, 114, 128, 0.1)',
                         border: '1px solid rgba(107, 114, 128, 0.3)',
                         color: 'rgba(255, 255, 255, 0.5)',
-                        padding: '6px 8px',
-                        borderRadius: '6px',
-                        fontSize: '0.8rem',
+                        padding: '5px 6px',
+                        borderRadius: '5px',
+                        fontSize: '0.7rem',
                         textAlign: 'center',
                         fontStyle: 'italic',
                         width: '100%'
@@ -739,18 +739,18 @@ const GestionMatricula = () => {
                         background: 'rgba(16, 185, 129, 0.15)', 
                         border: '1px solid rgba(16, 185, 129, 0.3)', 
                         color: '#10b981', 
-                        padding: '10px 16px', 
-                        borderRadius: '10px', 
+                        padding: '8px 12px', 
+                        borderRadius: '8px', 
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
+                        gap: '6px',
                         opacity: decidiendo ? 0.6 : 1,
-                        fontSize: '0.9rem',
+                        fontSize: '0.75rem',
                         fontWeight: '500'
                       }}
                     >
-                      <Check size={16} />
+                      <Check size={14} />
                       Aprobar
                     </button>
                     <button 
@@ -760,18 +760,18 @@ const GestionMatricula = () => {
                         background: 'rgba(239, 68, 68, 0.15)', 
                         border: '1px solid rgba(239, 68, 68, 0.3)', 
                         color: '#ef4444', 
-                        padding: '10px 16px', 
-                        borderRadius: '10px', 
+                        padding: '8px 12px', 
+                        borderRadius: '8px', 
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
+                        gap: '6px',
                         opacity: decidiendo ? 0.6 : 1,
-                        fontSize: '0.9rem',
+                        fontSize: '0.75rem',
                         fontWeight: '500'
                       }}
                     >
-                      <XCircle size={16} />
+                      <XCircle size={14} />
                       Rechazar
                     </button>
                   </>

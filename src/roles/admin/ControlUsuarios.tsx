@@ -393,16 +393,16 @@ const ControlUsuarios = () => {
             fontWeight: '700', 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '12px',
+            gap: '10px',
             color: '#1e293b',
             margin: 0,
-            marginBottom: '8px'
+            marginBottom: '6px'
           }}>
-            <Users style={{ width: '32px', height: '32px', color: '#ef4444' }} />
+            <Users style={{ width: '26px', height: '26px', color: '#ef4444' }} />
             Control de Usuarios
           </h1>
           <p style={{ 
-            fontSize: '0.9rem', 
+            fontSize: '0.85rem', 
             color: '#64748b',
             margin: 0
           }}>
@@ -411,18 +411,18 @@ const ControlUsuarios = () => {
         </div>
 
         {/* Estadísticas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           {/* Total Usuarios */}
           <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Total Usuarios</h3>
-                <p style={{ color: RedColorPalette.primary, fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Total Usuarios</h3>
+                <p style={{ color: RedColorPalette.primary, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.totalUsuarios}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '10px' }}>
-                <Users size={24} color={RedColorPalette.primary} />
+              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '8px' }}>
+                <Users size={20} color={RedColorPalette.primary} />
               </GlassEffect>
             </div>
           </GlassEffect>
@@ -431,13 +431,13 @@ const ControlUsuarios = () => {
           <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Activos</h3>
-                <p style={{ color: mapToRedScheme('#10b981'), fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Activos</h3>
+                <p style={{ color: mapToRedScheme('#10b981'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.usuariosActivos}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '10px' }}>
-                <Users size={24} color={mapToRedScheme('#10b981')} />
+              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '8px' }}>
+                <Users size={20} color={mapToRedScheme('#10b981')} />
               </GlassEffect>
             </div>
           </GlassEffect>
@@ -446,13 +446,13 @@ const ControlUsuarios = () => {
           <GlassEffect variant="card" tint="error" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Inactivos</h3>
-                <p style={{ color: RedColorPalette.primaryLight, fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Inactivos</h3>
+                <p style={{ color: RedColorPalette.primaryLight, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.usuariosInactivos}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="error" intensity="light" style={{ padding: '10px' }}>
-                <Users size={24} color={RedColorPalette.primaryLight} />
+              <GlassEffect variant="button" tint="error" intensity="light" style={{ padding: '8px' }}>
+                <Users size={20} color={RedColorPalette.primaryLight} />
               </GlassEffect>
             </div>
           </GlassEffect>
@@ -461,13 +461,13 @@ const ControlUsuarios = () => {
           <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Admins</h3>
-                <p style={{ color: RedColorPalette.primary, fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Admins</h3>
+                <p style={{ color: RedColorPalette.primary, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.totalAdministradores}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '10px' }}>
-                <Shield size={24} color={RedColorPalette.primary} />
+              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '8px' }}>
+                <Shield size={20} color={RedColorPalette.primary} />
               </GlassEffect>
             </div>
           </GlassEffect>
@@ -476,13 +476,13 @@ const ControlUsuarios = () => {
           <GlassEffect variant="card" tint="neutral" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Docentes</h3>
-                <p style={{ color: mapToRedScheme('#3b82f6'), fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Docentes</h3>
+                <p style={{ color: mapToRedScheme('#3b82f6'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.totalDocentes}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="neutral" intensity="light" style={{ padding: '10px' }}>
-                <UserCheck size={24} color={mapToRedScheme('#3b82f6')} />
+              <GlassEffect variant="button" tint="neutral" intensity="light" style={{ padding: '8px' }}>
+                <UserCheck size={20} color={mapToRedScheme('#3b82f6')} />
               </GlassEffect>
             </div>
           </GlassEffect>
@@ -491,13 +491,13 @@ const ControlUsuarios = () => {
           <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '500', margin: '0 0 8px 0' }}>Estudiantes</h3>
-                <p style={{ color: mapToRedScheme('#22c55e'), fontSize: '2rem', fontWeight: '700', margin: 0 }}>
+                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Estudiantes</h3>
+                <p style={{ color: mapToRedScheme('#22c55e'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
                   {loading ? '...' : stats.totalEstudiantes}
                 </p>
               </div>
-              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '10px' }}>
-                <GraduationCap size={24} color={mapToRedScheme('#22c55e')} />
+              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '8px' }}>
+                <GraduationCap size={20} color={mapToRedScheme('#22c55e')} />
               </GlassEffect>
             </div>
           </GlassEffect>

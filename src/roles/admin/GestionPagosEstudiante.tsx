@@ -394,17 +394,17 @@ const GestionPagosEstudiante = () => {
       <div style={{ marginBottom: '32px' }}>
         <h2 style={{
           color: '#fff',
-          fontSize: '2rem',
+          fontSize: '1.5rem',
           fontWeight: '700',
-          margin: '0 0 8px 0',
+          margin: '0 0 6px 0',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '10px'
         }}>
-          <DollarSign size={32} color="#ef4444" />
+          <DollarSign size={26} color="#ef4444" />
           Gestión de Pagos Mensuales
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
           Verifica y administra los pagos mensuales de los estudiantes
         </p>
       </div>
@@ -414,13 +414,13 @@ const GestionPagosEstudiante = () => {
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '24px'
+        borderRadius: '16px',
+        padding: '16px',
+        marginBottom: '16px'
       }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-            <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: '280px' }}>
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
             <input
               type="text"
               placeholder="Buscar por estudiante, cédula, curso..."
@@ -428,12 +428,12 @@ const GestionPagosEstudiante = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 12px 12px 44px',
+                padding: '10px 10px 10px 38px',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: '#fff',
-                fontSize: '0.9rem'
+                fontSize: '0.8rem'
               }}
             />
           </div>
@@ -455,7 +455,7 @@ const GestionPagosEstudiante = () => {
       </div>
 
       {/* Lista de estudiantes - UNA TARJETA POR ESTUDIANTE */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {paginatedEstudiantes.map((estudiante) => {
           const cursoActual = getCursoSeleccionado(estudiante);
           const pago = getPagoSeleccionado(estudiante.estudiante_cedula);
@@ -469,27 +469,27 @@ const GestionPagosEstudiante = () => {
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '20px',
-                padding: '24px',
+                borderRadius: '16px',
+                padding: '16px',
                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
               }}
             >
               {/* Información Principal */}
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', margin: '0 0 16px 0' }}>
+              <div style={{ marginBottom: '14px' }}>
+                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0' }}>
                   {pago.estudiante_nombre} {pago.estudiante_apellido}
                 </h3>
 
                 {/* Primera fila - Información básica con selectores */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '16px',
-                  marginBottom: '12px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: '12px',
+                  marginBottom: '10px'
                 }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Identificación</div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem' }}>{estudiante.estudiante_cedula}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Identificación</div>
+                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{estudiante.estudiante_cedula}</div>
                   </div>
 
                   {/* Selector de Curso */}
@@ -662,29 +662,29 @@ const GestionPagosEstudiante = () => {
                         padding: '6px 8px',
                         borderRadius: '6px',
                         cursor: 'pointer',
-                        fontSize: '0.8rem',
+                        fontSize: '0.7rem',
                         fontWeight: '500',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
+                        gap: '3px',
                         whiteSpace: 'nowrap',
                         width: '100%',
                         justifyContent: 'center'
                       }}
                     >
-                      <Download size={14} />
+                      <Download size={12} />
                       Ver Comprobante
                     </button>
                   </div>
 
                   {/* Estado */}
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Estado</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Estado</div>
                     <div style={{
                       display: 'flex',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
+                      padding: '5px 6px',
+                      borderRadius: '5px',
+                      fontSize: '0.7rem',
                       fontWeight: '600',
                       textTransform: 'capitalize',
                       width: '100%',
@@ -712,10 +712,10 @@ const GestionPagosEstudiante = () => {
               {/* Botones de Acción - Parte Inferior */}
               <div style={{
                 display: 'flex',
-                gap: '12px',
+                gap: '10px',
                 justifyContent: 'flex-end',
                 borderTop: '1px solid rgba(255,255,255,0.1)',
-                paddingTop: '16px'
+                paddingTop: '12px'
               }}>
                 <button
                   onClick={() => {
@@ -1540,7 +1540,7 @@ const GestionPagosEstudiante = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
-          marginTop: '24px',
+          marginTop: '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(239, 68, 68, 0.2)',

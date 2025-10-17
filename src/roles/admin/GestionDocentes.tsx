@@ -237,16 +237,16 @@ const GestionDocentes = () => {
     <div style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
-      padding: 32, 
+      padding: 24, 
       color: '#fff' 
     }}>
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <UserCheck size={28} color="#ef4444" />
-          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700' }}>Gestión de Docentes</h1>
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <UserCheck size={24} color="#ef4444" />
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>Gestión de Docentes</h1>
         </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
           Administra y visualiza la información de todos los docentes registrados
         </p>
       </div>
@@ -254,19 +254,19 @@ const GestionDocentes = () => {
       {/* Filtros y Búsqueda */}
       <div style={{ 
         background: 'rgba(255,255,255,0.05)', 
-        borderRadius: 16, 
-        padding: 24, 
-        marginBottom: 24,
+        borderRadius: 12, 
+        padding: 16, 
+        marginBottom: 16,
         border: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'end', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'end', flexWrap: 'wrap' }}>
           {/* Búsqueda */}
-          <div style={{ flex: '1 1 300px' }}>
-            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+          <div style={{ flex: '1 1 280px' }}>
+            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
               Buscar Docente
             </label>
             <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
                 placeholder="Buscar por nombre, apellido, identificación..."
@@ -274,20 +274,20 @@ const GestionDocentes = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px 12px 12px 40px',
-                  borderRadius: 10,
+                  padding: '10px 10px 10px 38px',
+                  borderRadius: 8,
                   border: '1px solid rgba(255,255,255,0.2)',
                   background: 'rgba(255,255,255,0.1)',
                   color: '#fff',
-                  fontSize: '0.9rem'
+                  fontSize: '0.8rem'
                 }}
               />
             </div>
           </div>
 
           {/* Filtro Estado */}
-          <div style={{ minWidth: 180 }}>
-            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+          <div style={{ minWidth: 160 }}>
+            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
               Estado
             </label>
             <StyledSelect
@@ -304,47 +304,47 @@ const GestionDocentes = () => {
 
           {/* Toggle Vista */}
           <div>
-            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
               Vista
             </label>
-            <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', padding: '4px' }}>
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '3px' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
+                  gap: '5px',
+                  padding: '7px 12px',
                   background: viewMode === 'cards' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
                   border: viewMode === 'cards' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '7px',
                   color: viewMode === 'cards' ? '#ef4444' : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                 }}
               >
-                <Grid size={16} /> Tarjetas
+                <Grid size={14} /> Tarjetas
               </button>
               <button
                 onClick={() => setViewMode('table')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
+                  gap: '5px',
+                  padding: '7px 12px',
                   background: viewMode === 'table' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
                   border: viewMode === 'table' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '7px',
                   color: viewMode === 'table' ? '#ef4444' : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                 }}
               >
-                <List size={16} /> Tabla
+                <List size={14} /> Tabla
               </button>
             </div>
           </div>
@@ -378,18 +378,18 @@ const GestionDocentes = () => {
       </div>
 
       {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div style={{ 
           background: 'rgba(239, 68, 68, 0.1)', 
           border: '1px solid rgba(239, 68, 68, 0.3)', 
-          borderRadius: 12, 
-          padding: 20, 
+          borderRadius: 10, 
+          padding: 14, 
           textAlign: 'center' 
         }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#ef4444', marginBottom: 4 }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: '#ef4444', marginBottom: 3 }}>
             {totalCount}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
             Total Docentes
           </div>
         </div>
@@ -397,14 +397,14 @@ const GestionDocentes = () => {
         <div style={{ 
           background: 'rgba(16, 185, 129, 0.1)', 
           border: '1px solid rgba(16, 185, 129, 0.3)', 
-          borderRadius: 12, 
-          padding: 20, 
+          borderRadius: 10, 
+          padding: 14, 
           textAlign: 'center' 
         }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981', marginBottom: 4 }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: '#10b981', marginBottom: 3 }}>
             {docentes.filter(d => d.estado === 'activo').length}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
             Docentes Activos
           </div>
         </div>
@@ -426,9 +426,9 @@ const GestionDocentes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>
           {docentesFiltrados.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
             </div>
           ) : (
@@ -438,8 +438,8 @@ const GestionDocentes = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(239, 68, 68, 0.15)',
-                  borderRadius: '16px',
-                  padding: '20px',
+                  borderRadius: '12px',
+                  padding: '14px',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 }}
@@ -454,28 +454,28 @@ const GestionDocentes = () => {
                   e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.15)';
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ 
-                      width: 50, 
-                      height: 50, 
+                      width: 40, 
+                      height: 40, 
                       borderRadius: '50%', 
                       background: 'rgba(239, 68, 68, 0.2)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center' 
                     }}>
-                      <User size={24} color="#ef4444" />
+                      <User size={20} color="#ef4444" />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+                      <h3 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0' }}>
                         {docente.nombres} {docente.apellidos}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '3px 10px',
+                        padding: '2px 8px',
                         borderRadius: '9999px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.65rem',
                         fontWeight: '600',
                         textTransform: 'uppercase',
                         background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
@@ -488,13 +488,13 @@ const GestionDocentes = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <IdCard size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                      <IdCard size={10} style={{ display: 'inline', marginRight: '3px' }} />
                       Identificación
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace' }}>
                       {docente.identificacion}
                     </div>
                   </div>
@@ -819,6 +819,7 @@ const GestionDocentes = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
+          marginTop: '90px',
           marginBottom: '24px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',

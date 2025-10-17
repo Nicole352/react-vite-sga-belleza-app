@@ -270,16 +270,16 @@ const AsignacionAula: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '32px' }}>
-      <div style={{ marginBottom: '32px' }}>
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '18px' }}>
         <h2 style={{ 
-          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: '10px'
         }}>
-          <MapPin size={32} color="#ef4444" />
+          <MapPin size={26} color="#ef4444" />
           Asignación de Aulas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
           Gestiona la asignación de aulas, horarios y profesores
         </p>
       </div>
@@ -288,19 +288,19 @@ const AsignacionAula: React.FC = () => {
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', padding: '24px', marginBottom: '24px'
+        borderRadius: '16px', padding: '16px', marginBottom: '16px'
       }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flex: 1 }}>
-            <div style={{ position: 'relative', minWidth: '300px' }}>
-              <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
+            <div style={{ position: 'relative', minWidth: '280px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text" placeholder="Buscar por aula, curso o profesor..."
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  width: '100%', padding: '12px 12px 12px 44px',
+                  width: '100%', padding: '10px 10px 10px 38px',
                   background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px', color: '#fff', fontSize: '0.9rem'
+                  borderRadius: '10px', color: '#fff', fontSize: '0.8rem'
                 }}
               />
             </div>
@@ -323,52 +323,52 @@ const AsignacionAula: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 20px',
+                  gap: '5px',
+                  padding: '8px 16px',
                   background: viewMode === 'cards' ? '#f87171' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '8px 0 0 8px',
+                  borderRadius: '7px 0 0 7px',
                   color: '#fff',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                 }}
               >
-                <Grid size={16} /> Tarjetas
+                <Grid size={14} /> Tarjetas
               </button>
               <button
                 onClick={() => setViewMode('table')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 20px',
+                  gap: '5px',
+                  padding: '8px 16px',
                   background: viewMode === 'table' ? '#f87171' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
                   borderLeft: 'none',
-                  borderRadius: '0 8px 8px 0',
+                  borderRadius: '0 7px 7px 0',
                   color: '#fff',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                 }}
               >
-                <List size={16} /> Tabla
+                <List size={14} /> Tabla
               </button>
             </div>
           </div>
           <button
             onClick={handleCreateAsignacion}
             style={{
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px',
+              display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px',
               background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none',
-              borderRadius: '12px', color: '#fff', fontSize: '0.9rem', fontWeight: '600',
+              borderRadius: '10px', color: '#fff', fontSize: '0.8rem', fontWeight: '600',
               cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
             }}
           >
-            <Plus size={20} />
+            <Plus size={16} />
             Nueva Asignación
           </button>
         </div>
@@ -394,11 +394,11 @@ const AsignacionAula: React.FC = () => {
 
       {/* Vista Cards - Tarjetas Compactas */}
       {!loading && !error && viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>
           {asignacionesPaginadas.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.7)' }}>
-              <MapPin size={40} style={{ marginBottom: '12px', opacity: 0.5 }} />
-              <div style={{ fontSize: '1rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '30px 20px', color: 'rgba(255,255,255,0.7)' }}>
+              <MapPin size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
+              <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
             </div>
           ) : (
             asignacionesPaginadas.map(asignacion => (
@@ -406,7 +406,7 @@ const AsignacionAula: React.FC = () => {
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(248, 113, 113, 0.2)',
-                borderRadius: '16px',
+                borderRadius: '12px',
                 overflow: 'hidden',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease',
@@ -425,28 +425,28 @@ const AsignacionAula: React.FC = () => {
                 {/* Header */}
                 <div style={{
                   background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
-                  padding: '16px 20px',
+                  padding: '12px 14px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '8px',
+                      width: 30,
+                      height: 30,
+                      borderRadius: '6px',
                       background: 'rgba(255,255,255,0.2)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <MapPin size={18} color="#fff" />
+                      <MapPin size={16} color="#fff" />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', margin: 0 }}>
+                      <h3 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700', margin: 0 }}>
                         {asignacion.aula_nombre}
                       </h3>
-                      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem' }}>
                         {asignacion.codigo_aula}
                       </div>
                     </div>
@@ -454,9 +454,9 @@ const AsignacionAula: React.FC = () => {
                   <div style={{
                     background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(156, 163, 175, 0.3)',
                     color: '#fff',
-                    padding: '4px 10px',
-                    borderRadius: '12px',
-                    fontSize: '0.7rem',
+                    padding: '3px 8px',
+                    borderRadius: '10px',
+                    fontSize: '0.65rem',
                     fontWeight: '700',
                     textTransform: 'uppercase'
                   }}>
@@ -465,36 +465,36 @@ const AsignacionAula: React.FC = () => {
                 </div>
 
                 {/* Contenido */}
-                <div style={{ padding: '16px 20px' }}>
+                <div style={{ padding: '12px 14px' }}>
                   {/* Curso y Docente */}
-                  <div style={{ marginBottom: '14px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={12} />
+                  <div style={{ marginBottom: '10px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Calendar size={10} />
                       CURSO
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '600' }}>
+                    <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '600' }}>
                       {asignacion.curso_nombre}
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '14px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Users size={12} />
+                  <div style={{ marginBottom: '10px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Users size={10} />
                       DOCENTE
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem' }}>
                       {asignacion.docente_nombres} {asignacion.docente_apellidos}
                     </div>
                   </div>
 
                   {/* Horario y Período */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Clock size={12} />
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Clock size={10} />
                         HORARIO
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: '600' }}>
+                      <div style={{ color: '#fff', fontSize: '0.7rem', fontWeight: '600' }}>
                         {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
                       </div>
                     </div>
@@ -811,6 +811,7 @@ const AsignacionAula: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
+          marginTop: '90px',
           marginBottom: '24px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',

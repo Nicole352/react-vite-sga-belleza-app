@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Download, BarChart3, Users, BookOpen, DollarSign, 
+import {
+  Download, BarChart3, Users, BookOpen, DollarSign,
   Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
   History, Clock, User, Calendar, Filter
 } from 'lucide-react';
@@ -35,24 +35,24 @@ const Reportes = () => {
   const [periodosDisponibles, setPeriodosDisponibles] = useState<Periodo[]>([]);
   const [fechaInicio, setFechaInicio] = useState('2025-01-01');
   const [fechaFin, setFechaFin] = useState('2025-12-31');
-  
+
   // Filtros específicos por tipo de reporte
   const [filtroEstadoEstudiante, setFiltroEstadoEstudiante] = useState('todos');
   const [filtroCurso, setFiltroCurso] = useState('');
   const [filtroTipoPago, setFiltroTipoPago] = useState('todos');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('todos');
-  
+
   // Estados de datos
   const [datosReporte, setDatosReporte] = useState<DatosReporte | null>(null);
   const [estadisticas, setEstadisticas] = useState<Estadisticas | null>(null);
   const [cursosDisponibles, setCursosDisponibles] = useState<Curso[]>([]);
   const [cursosFiltrados, setCursosFiltrados] = useState<Curso[]>([]);
-  
+
   // Estados de UI
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [descargando, setDescargando] = useState(false);
-  
+
   // Estados para Historial
   const [vistaActual, setVistaActual] = useState<'generar' | 'historial'>('generar');
   const [historialReportes, setHistorialReportes] = useState<any[]>([]);
@@ -119,8 +119,8 @@ const Reportes = () => {
 
       console.log('🌐 Llamando a:', `${API_BASE}/reportes/cursos-filtro`);
       const response = await fetch(`${API_BASE}/reportes/cursos-filtro`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -134,7 +134,7 @@ const Reportes = () => {
       const data = await response.json();
       console.log('✅ Cursos recibidos para períodos:', data);
       console.log('📊 Cantidad de cursos:', data.data?.length || 0);
-      
+
       if (data.success && data.data.length > 0) {
         // Extraer períodos únicos de los cursos
         const periodosUnicos = new Set<string>();
@@ -145,9 +145,9 @@ const Reportes = () => {
             periodosUnicos.add(`${inicio}|${fin}`);
           }
         });
-        
+
         console.log('Períodos únicos encontrados:', Array.from(periodosUnicos));
-        
+
         // Convertir a array y ordenar por fecha más reciente
         const periodosArray: Periodo[] = Array.from(periodosUnicos)
           .map((periodo) => {
@@ -155,16 +155,16 @@ const Reportes = () => {
             return { inicio, fin, key: periodo };
           })
           .sort((a, b) => new Date(b.inicio).getTime() - new Date(a.inicio).getTime());
-        
+
         setPeriodosDisponibles(periodosArray);
-        
+
         // Establecer período por defecto (el más reciente o año actual)
         const hoy = new Date();
         const añoActual = hoy.getFullYear();
-        const periodoActual = periodosArray.find(p => 
+        const periodoActual = periodosArray.find(p =>
           p.inicio.startsWith(añoActual.toString())
         );
-        
+
         if (periodoActual) {
           setPeriodoSeleccionado(periodoActual.key);
         } else if (periodosArray.length > 0) {
@@ -202,8 +202,8 @@ const Reportes = () => {
       }
 
       const response = await fetch(`${API_BASE}/reportes/cursos-filtro`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -214,7 +214,7 @@ const Reportes = () => {
 
       const data = await response.json();
       console.log('Cursos recibidos para filtro:', data);
-      
+
       if (data.success) {
         console.log('Cursos disponibles:', data.data);
         setCursosDisponibles(data.data);
@@ -267,14 +267,14 @@ const Reportes = () => {
     console.log('🔍 Filtrando cursos...');
     console.log('Período seleccionado:', periodoSeleccionado);
     console.log('Cursos disponibles:', cursosDisponibles.length);
-    
+
     if (periodoSeleccionado === 'todos') {
       console.log('✅ Mostrando todos los cursos');
       setCursosFiltrados(cursosDisponibles);
     } else {
       const periodo = periodosDisponibles.find(p => p.key === periodoSeleccionado);
       console.log('Período encontrado:', periodo);
-      
+
       if (periodo) {
         const cursosFiltradosPorPeriodo = cursosDisponibles.filter(curso => {
           // Normalizar fechas para comparar solo YYYY-MM-DD
@@ -282,7 +282,7 @@ const Reportes = () => {
           const cursoFin = curso.fecha_fin?.split('T')[0] || curso.fecha_fin;
           const periodoInicio = periodo.inicio?.split('T')[0] || periodo.inicio;
           const periodoFin = periodo.fin?.split('T')[0] || periodo.fin;
-          
+
           const coincide = cursoInicio === periodoInicio && cursoFin === periodoFin;
           console.log(`Curso ${curso.nombre}: inicio=${cursoInicio} vs ${periodoInicio}, fin=${cursoFin} vs ${periodoFin} → ${coincide ? '✅' : '❌'}`);
           return coincide;
@@ -299,7 +299,7 @@ const Reportes = () => {
   const generarReporte = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       // Validar que las fechas estén disponibles
       if (!fechaInicio || !fechaFin) {
@@ -338,8 +338,8 @@ const Reportes = () => {
       console.log('URL completa:', `${url}?${params}`);
 
       const response = await fetch(`${url}?${params}`, {
-        headers: { 
-          Authorization: `Bearer ${sessionStorage.getItem('auth_token') || ''}` 
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('auth_token') || ''}`
         }
       });
 
@@ -347,7 +347,7 @@ const Reportes = () => {
 
       const data = await response.json();
       console.log('Datos recibidos:', data);
-      
+
       if (response.status === 401) {
         setError('Sesión expirada. Por favor, vuelve a iniciar sesión.');
         setTimeout(() => {
@@ -357,7 +357,7 @@ const Reportes = () => {
         }, 2000);
         return;
       }
-      
+
       if (data.success) {
         console.log('Datos del reporte:', data.data.datos);
         console.log('Estadísticas:', data.data.estadisticas);
@@ -384,7 +384,7 @@ const Reportes = () => {
       switch (tipoReporte) {
         case 'estudiantes':
           // Usar ruta v2 para Excel (con historial), ruta normal para PDF
-          url = formato === 'excel' 
+          url = formato === 'excel'
             ? `${API_BASE}/reportes/estudiantes/excel-v2`
             : `${API_BASE}/reportes/estudiantes/${formato}`;
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
@@ -416,8 +416,8 @@ const Reportes = () => {
       }
 
       const response = await fetch(`${url}?${params}`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -430,7 +430,7 @@ const Reportes = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(urlBlob);
-      
+
       // Mostrar mensaje de éxito con trazabilidad
       if (formato === 'excel') {
         toast.success('✅ Reporte descargado y guardado en historial', {
@@ -479,14 +479,14 @@ const Reportes = () => {
                   const mesNombre = meses[parseInt(mes) - 1];
                   return `${parseInt(dia)} ${mesNombre} ${año}`;
                 };
-                
+
                 const fechaInicio = formatearFecha(curso.fecha_inicio);
                 const fechaFin = formatearFecha(curso.fecha_fin);
                 const periodo = fechaInicio && fechaFin ? ` (${fechaInicio} - ${fechaFin})` : '';
-                
+
                 // Agregar horario al nombre si existe
                 const horario = curso.horario ? ` - ${curso.horario.charAt(0).toUpperCase() + curso.horario.slice(1)}` : '';
-                
+
                 return (
                   <option key={curso.id_curso} value={curso.id_curso}>
                     {curso.nombre}{horario}{periodo}
@@ -589,7 +589,7 @@ const Reportes = () => {
       return (
         <div style={{ display: 'grid', gap: '24px' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
             {[
               { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes || 0, color: '#3b82f6', icono: Users },
               { titulo: 'Activos', valor: estadisticas.activos || 0, color: '#10b981', icono: CheckCircle2 },
@@ -599,27 +599,27 @@ const Reportes = () => {
               <div key={idx} style={{
                 background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                 border: `2px solid ${metrica.color}40`,
-                borderRadius: '16px', 
-                padding: '24px', 
+                borderRadius: '12px',
+                padding: '14px',
                 textAlign: 'center',
                 transition: 'all 0.3s ease',
                 cursor: 'default',
                 boxShadow: `0 4px 20px ${metrica.color}20`
               }}>
-                <metrica.icono size={40} color={metrica.color} style={{ marginBottom: '16px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                <div style={{ 
-                  color: '#fff', 
-                  fontSize: '3rem', 
-                  fontWeight: '800', 
-                  marginBottom: '8px',
+                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <div style={{
+                  color: '#fff',
+                  fontSize: '2rem',
+                  fontWeight: '800',
+                  marginBottom: '6px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
                   {metrica.valor}
                 </div>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.9)', 
-                  fontSize: '1rem',
+                <div style={{
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase'
@@ -634,16 +634,16 @@ const Reportes = () => {
           {datosReporte.length > 0 && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(59, 130, 246, 0.3)', 
-              borderRadius: '16px', 
+              border: '2px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '16px',
               padding: '24px',
               boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)'
             }}>
-              <h4 style={{ 
-                color: '#fff', 
-                fontSize: '1.25rem', 
-                fontWeight: '700', 
-                marginBottom: '20px',
+              <h4 style={{
+                color: '#fff',
+                fontSize: '0.95rem',
+                fontWeight: '700',
+                marginBottom: '12px',
                 textShadow: '0 2px 4px rgba(0,0,0,0.5)'
               }}>
                 Estudiantes Matriculados ({datosReporte.length})
@@ -651,42 +651,42 @@ const Reportes = () => {
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ 
+                    <tr style={{
                       borderBottom: '2px solid rgba(59, 130, 246, 0.3)',
                       background: 'rgba(59, 130, 246, 0.1)'
                     }}>
-                      <th style={{ 
-                        padding: '16px 12px', 
-                        textAlign: 'left', 
-                        color: '#60a5fa', 
-                        fontSize: '0.95rem',
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#60a5fa',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>Nombre</th>
-                      <th style={{ 
-                        padding: '16px 12px', 
-                        textAlign: 'left', 
-                        color: '#60a5fa', 
-                        fontSize: '0.95rem',
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#60a5fa',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>Curso</th>
-                      <th style={{ 
-                        padding: '16px 12px', 
-                        textAlign: 'left', 
-                        color: '#60a5fa', 
-                        fontSize: '0.95rem',
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#60a5fa',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>Estado</th>
-                      <th style={{ 
-                        padding: '16px 12px', 
-                        textAlign: 'left', 
-                        color: '#60a5fa', 
-                        fontSize: '0.95rem',
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#60a5fa',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -695,21 +695,21 @@ const Reportes = () => {
                   </thead>
                   <tbody>
                     {datosReporte.slice(0, 10).map((estudiante, idx) => (
-                      <tr key={idx} style={{ 
+                      <tr key={idx} style={{
                         borderBottom: '1px solid rgba(255,255,255,0.1)',
                         transition: 'background 0.2s ease'
                       }}>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          color: '#fff', 
+                        <td style={{
+                          padding: '16px 12px',
+                          color: '#fff',
                           fontSize: '0.95rem',
                           fontWeight: '500'
                         }}>
                           {estudiante.nombre} {estudiante.apellido}
                         </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          color: 'rgba(255,255,255,0.85)', 
+                        <td style={{
+                          padding: '16px 12px',
+                          color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.9rem'
                         }}>
                           {estudiante.nombre_curso}
@@ -721,18 +721,18 @@ const Reportes = () => {
                             fontSize: '0.75rem',
                             fontWeight: '600',
                             background: estudiante.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.2)' :
-                                       estudiante.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.2)' :
-                                       'rgba(59, 130, 246, 0.2)',
+                              estudiante.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.2)' :
+                                'rgba(59, 130, 246, 0.2)',
                             color: estudiante.estado_academico === 'aprobado' ? '#10b981' :
-                                  estudiante.estado_academico === 'reprobado' ? '#ef4444' :
-                                  '#3b82f6'
+                              estudiante.estado_academico === 'reprobado' ? '#ef4444' :
+                                '#3b82f6'
                           }}>
                             {estudiante.estado_academico?.toUpperCase()}
                           </span>
                         </td>
-                        <td style={{ 
-                          padding: '16px 12px', 
-                          color: 'rgba(255,255,255,0.85)', 
+                        <td style={{
+                          padding: '16px 12px',
+                          color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.9rem'
                         }}>
                           {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES')}
@@ -755,9 +755,9 @@ const Reportes = () => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ display: 'grid', gap: '24px' }}>
+        <div style={{ display: 'grid', gap: '16px' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
             {[
               { titulo: 'Ingresos Totales', valor: `$${parseFloat(estadisticas.ingresos_totales || 0).toLocaleString()}`, color: '#10b981', icono: DollarSign },
               { titulo: 'Pagos Verificados', valor: estadisticas.pagos_verificados || 0, color: '#3b82f6', icono: CheckCircle2 },
@@ -767,27 +767,27 @@ const Reportes = () => {
               <div key={idx} style={{
                 background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                 border: `2px solid ${metrica.color}40`,
-                borderRadius: '16px', 
-                padding: '24px', 
+                borderRadius: '12px',
+                padding: '14px',
                 textAlign: 'center',
                 transition: 'all 0.3s ease',
                 cursor: 'default',
                 boxShadow: `0 4px 20px ${metrica.color}20`
               }}>
-                <metrica.icono size={40} color={metrica.color} style={{ marginBottom: '16px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                <div style={{ 
-                  color: '#fff', 
-                  fontSize: '2.5rem', 
-                  fontWeight: '800', 
-                  marginBottom: '8px',
+                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <div style={{
+                  color: '#fff',
+                  fontSize: '1.6rem',
+                  fontWeight: '800',
+                  marginBottom: '6px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
                   {metrica.valor}
                 </div>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.9)', 
-                  fontSize: '1rem',
+                <div style={{
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase'
@@ -802,57 +802,121 @@ const Reportes = () => {
           {datosReporte.length > 0 && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(16, 185, 129, 0.3)', 
-              borderRadius: '16px', 
-              padding: '24px',
+              border: '2px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
               boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', marginBottom: '20px' }}>
+              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
                 Detalle de Pagos ({datosReporte.length})
               </h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#10b981', fontSize: '0.9rem' }}>Estudiante</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#10b981', fontSize: '0.9rem' }}>Curso</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#10b981', fontSize: '0.9rem' }}>Monto</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#10b981', fontSize: '0.9rem' }}>Fecha</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#10b981', fontSize: '0.9rem' }}>Estado</th>
+                    <tr style={{
+                      borderBottom: '2px solid rgba(16, 185, 129, 0.3)',
+                      background: 'rgba(16, 185, 129, 0.1)'
+                    }}>
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#10b981',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Estudiante</th>
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#10b981',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Curso</th>
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#10b981',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Monto</th>
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#10b981',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Fecha</th>
+                      <th style={{
+                        padding: '10px 8px',
+                        textAlign: 'left',
+                        color: '#10b981',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {datosReporte.slice(0, 10).map((pago, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '12px', color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
+                      <tr key={idx} style={{
+                        borderBottom: '1px solid rgba(255,255,255,0.1)',
+                        transition: 'background 0.2s ease'
+                      }}>
+                        <td style={{
+                          padding: '10px 8px',
+                          color: '#fff',
+                          fontSize: '0.8rem',
+                          fontWeight: '500'
+                        }}>
                           {pago.nombre_estudiante} {pago.apellido_estudiante}
                         </td>
-                        <td style={{ padding: '12px', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+                        <td style={{
+                          padding: '10px 8px',
+                          color: 'rgba(255,255,255,0.85)',
+                          fontSize: '0.75rem'
+                        }}>
                           {pago.nombre_curso}
                         </td>
-                        <td style={{ padding: '12px', color: '#10b981', fontSize: '0.85rem', fontWeight: '600' }}>
+                        <td style={{
+                          padding: '10px 8px',
+                          color: '#10b981',
+                          fontSize: '0.8rem',
+                          fontWeight: '600'
+                        }}>
                           ${parseFloat(pago.monto).toFixed(2)}
                         </td>
-                        <td style={{ padding: '12px', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
-                          {pago.fecha_pago 
+                        <td style={{
+                          padding: '10px 8px',
+                          color: 'rgba(255,255,255,0.85)',
+                          fontSize: '0.75rem'
+                        }}>
+                          {pago.fecha_pago
                             ? new Date(pago.fecha_pago).toLocaleDateString('es-ES')
-                            : pago.fecha_vencimiento 
+                            : pago.fecha_vencimiento
                               ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES')
                               : 'N/A'
                           }
                         </td>
-                        <td style={{ padding: '12px', fontSize: '0.85rem' }}>
+                        <td style={{ padding: '10px 8px', fontSize: '0.75rem' }}>
                           <span style={{
                             padding: '4px 8px',
                             borderRadius: '4px',
-                            fontSize: '0.75rem',
+                            fontSize: '0.7rem',
                             fontWeight: '600',
                             background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
-                                       pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
-                                       'rgba(239, 68, 68, 0.2)',
+                              pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
+                                'rgba(239, 68, 68, 0.2)',
                             color: pago.estado_pago === 'verificado' ? '#10b981' :
-                                  pago.estado_pago === 'pagado' ? '#3b82f6' :
-                                  '#ef4444'
+                              pago.estado_pago === 'pagado' ? '#3b82f6' :
+                                '#ef4444'
                           }}>
                             {pago.estado_pago?.toUpperCase()}
                           </span>
@@ -863,7 +927,7 @@ const Reportes = () => {
                 </table>
               </div>
               {datosReporte.length > 10 && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '16px', textAlign: 'center' }}>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '12px', textAlign: 'center' }}>
                   Mostrando 10 de {datosReporte.length} pagos. Descarga el reporte completo en PDF o Excel.
                 </p>
               )}
@@ -875,9 +939,9 @@ const Reportes = () => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ display: 'grid', gap: '24px' }}>
+        <div style={{ display: 'grid', gap: '16px' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
             {[
               { titulo: 'Total Cursos', valor: estadisticas.total_cursos || 0, color: '#10b981', icono: BookOpen },
               { titulo: 'Cursos Activos', valor: estadisticas.cursos_activos || 0, color: '#3b82f6', icono: CheckCircle2 },
@@ -886,27 +950,27 @@ const Reportes = () => {
               <div key={idx} style={{
                 background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                 border: `2px solid ${metrica.color}40`,
-                borderRadius: '16px', 
-                padding: '24px', 
+                borderRadius: '12px',
+                padding: '14px',
                 textAlign: 'center',
                 transition: 'all 0.3s ease',
                 cursor: 'default',
                 boxShadow: `0 4px 20px ${metrica.color}20`
               }}>
-                <metrica.icono size={40} color={metrica.color} style={{ marginBottom: '16px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                <div style={{ 
-                  color: '#fff', 
-                  fontSize: '3rem', 
-                  fontWeight: '800', 
-                  marginBottom: '8px',
+                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <div style={{
+                  color: '#fff',
+                  fontSize: '2rem',
+                  fontWeight: '800',
+                  marginBottom: '6px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
                   {metrica.valor}
                 </div>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.9)', 
-                  fontSize: '1rem',
+                <div style={{
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase'
@@ -921,27 +985,27 @@ const Reportes = () => {
           {datosReporte.length > 0 && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(16, 185, 129, 0.3)', 
-              borderRadius: '16px', 
-              padding: '24px',
+              border: '2px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
               boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '700', marginBottom: '20px' }}>
+              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
                 Cursos Disponibles ({datosReporte.length})
               </h4>
-              <div style={{ display: 'grid', gap: '16px' }}>
+              <div style={{ display: 'grid', gap: '12px' }}>
                 {datosReporte.slice(0, 5).map((curso, idx) => (
                   <div key={idx} style={{
                     background: 'rgba(16, 185, 129, 0.1)',
                     border: '1px solid rgba(16, 185, 129, 0.2)',
-                    borderRadius: '12px',
-                    padding: '16px'
+                    borderRadius: '10px',
+                    padding: '12px'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ color: '#fff', fontSize: '1rem', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: '600' }}>
                         {curso.nombre_curso}
                       </div>
-                      <div style={{ color: '#10b981', fontSize: '1rem', fontWeight: '700' }}>
+                      <div style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: '700' }}>
                         {curso.porcentaje_ocupacion}% ocupación
                       </div>
                     </div>
@@ -987,65 +1051,65 @@ const Reportes = () => {
   };
 
   return (
-    <div style={{ padding: '32px' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ 
-          color: '#fff', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px'
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '14px' }}>
+        <h2 style={{
+          color: '#fff', fontSize: '1.2rem', fontWeight: '700', margin: '0 0 4px 0',
+          display: 'flex', alignItems: 'center', gap: '8px'
         }}>
-          <BarChart3 size={32} color="#ef4444" />
+          <BarChart3 size={22} color="#ef4444" />
           Reportes y Estadísticas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
           Análisis detallado del rendimiento académico y financiero
         </p>
       </div>
 
       {/* Pestañas: Generar / Historial */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '16px', 
-        marginBottom: '24px',
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '12px',
         borderBottom: '2px solid rgba(239, 68, 68, 0.2)'
       }}>
         <button
           onClick={() => setVistaActual('generar')}
           style={{
-            padding: '12px 24px',
+            padding: '8px 14px',
             background: vistaActual === 'generar' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
             border: 'none',
-            borderBottom: vistaActual === 'generar' ? '3px solid #ef4444' : '3px solid transparent',
+            borderBottom: vistaActual === 'generar' ? '2px solid #ef4444' : '2px solid transparent',
             color: vistaActual === 'generar' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-            fontSize: '1rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '5px'
           }}
         >
-          <BarChart3 size={20} />
+          <BarChart3 size={14} />
           Generar Reporte
         </button>
         <button
           onClick={() => setVistaActual('historial')}
           style={{
-            padding: '12px 24px',
+            padding: '8px 14px',
             background: vistaActual === 'historial' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
             border: 'none',
-            borderBottom: vistaActual === 'historial' ? '3px solid #ef4444' : '3px solid transparent',
+            borderBottom: vistaActual === 'historial' ? '2px solid #ef4444' : '2px solid transparent',
             color: vistaActual === 'historial' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-            fontSize: '1rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '5px'
           }}
         >
-          <History size={20} />
+          <History size={14} />
           Historial
         </button>
       </div>
@@ -1053,174 +1117,174 @@ const Reportes = () => {
       {/* Vista: Generar Reporte */}
       {vistaActual === 'generar' && (
         <>
-      {/* Selector de Reportes */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', padding: '24px', marginBottom: '24px'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-          {reportesDisponibles.map(reporte => (
-            <button
-              key={reporte.id}
-              onClick={() => {
-                setTipoReporte(reporte.id);
-                setDatosReporte(null);
-                setEstadisticas(null);
-              }}
-              style={{
-                background: tipoReporte === reporte.id 
-                  ? `linear-gradient(135deg, ${reporte.color}, ${reporte.color}dd)` 
-                  : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${tipoReporte === reporte.id ? reporte.color : 'rgba(255,255,255,0.1)'}`,
-                borderRadius: '12px', padding: '16px', cursor: 'pointer',
-                textAlign: 'left', transition: 'all 0.3s ease'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <reporte.icono size={24} color={tipoReporte === reporte.id ? '#fff' : reporte.color} />
-                <div style={{ 
-                  color: tipoReporte === reporte.id ? '#fff' : 'rgba(255,255,255,0.9)', 
-                  fontSize: '1rem', fontWeight: '600' 
-                }}>
-                  {reporte.titulo}
-                </div>
-              </div>
-              <div style={{ 
-                color: tipoReporte === reporte.id ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)', 
-                fontSize: '0.8rem' 
-              }}>
-                {reporte.descripcion}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Controles de Filtro */}
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {/* Selector de Período Único */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Período:</label>
-            <select
-              value={periodoSeleccionado}
-              onChange={(e) => setPeriodoSeleccionado(e.target.value)}
-              style={{
-                padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                color: '#fff', fontSize: '0.9rem', minWidth: '250px'
-              }}
-            >
-              <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
-              {periodosDisponibles.map((periodo, idx) => {
-                // Formatear fechas: 13 Oct 2025 - 13 Dic 2025
-                const formatearFecha = (fecha: string): string => {
-                  if (!fecha) return '';
-                  // Extraer año, mes, día directamente del string YYYY-MM-DD
-                  const [año, mes, dia] = fecha.split('T')[0].split('-');
-                  const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                  const mesNombre = meses[parseInt(mes) - 1];
-                  return `${parseInt(dia)} ${mesNombre} ${año}`;
-                };
-                
-                const fechaInicio = formatearFecha(periodo.inicio);
-                const fechaFin = formatearFecha(periodo.fin);
-                
-                return (
-                  <option key={idx} value={periodo.key} style={{ background: '#1a1a1a' }}>
-                    {fechaInicio} - {fechaFin}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-          
-          {/* Filtros específicos */}
-          {renderFiltrosEspecificos()}
-          
-          <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-            <button
-              onClick={generarReporte}
-              disabled={loading || descargando}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                background: loading ? 'rgba(239, 68, 68, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                border: 'none',
-                borderRadius: '8px', color: '#fff', fontSize: '0.9rem', fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1
-              }}
-            >
-              {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={16} />}
-              {loading ? 'Generando...' : 'Ver Reporte'}
-            </button>
-            <button
-              onClick={() => descargarArchivo('pdf')}
-              disabled={!datosReporte || descargando || loading}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '8px', color: '#f59e0b', fontSize: '0.9rem', fontWeight: '600',
-                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
-              }}
-            >
-              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
-              Exportar PDF
-            </button>
-            <button
-              onClick={() => descargarArchivo('excel')}
-              disabled={!datosReporte || descargando || loading}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '8px', color: '#10b981', fontSize: '0.9rem', fontWeight: '600',
-                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
-              }}
-            >
-              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSpreadsheet size={16} />}
-              Exportar Excel
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Contenido del Reporte */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', padding: '32px'
-      }}>
-        <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 8px 0' }}>
-            {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
-          </h3>
-          <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.9rem' }}>
-            Período: {fechaInicio} - {fechaFin}
-          </p>
-        </div>
-
-        {error && (
+          {/* Selector de Reportes */}
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            color: '#ef4444'
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+            backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '16px', padding: '16px', marginBottom: '16px'
           }}>
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+              {reportesDisponibles.map(reporte => (
+                <button
+                  key={reporte.id}
+                  onClick={() => {
+                    setTipoReporte(reporte.id);
+                    setDatosReporte(null);
+                    setEstadisticas(null);
+                  }}
+                  style={{
+                    background: tipoReporte === reporte.id
+                      ? `linear-gradient(135deg, ${reporte.color}, ${reporte.color}dd)`
+                      : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${tipoReporte === reporte.id ? reporte.color : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '12px', padding: '16px', cursor: 'pointer',
+                    textAlign: 'left', transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <reporte.icono size={24} color={tipoReporte === reporte.id ? '#fff' : reporte.color} />
+                    <div style={{
+                      color: tipoReporte === reporte.id ? '#fff' : 'rgba(255,255,255,0.9)',
+                      fontSize: '1rem', fontWeight: '600'
+                    }}>
+                      {reporte.titulo}
+                    </div>
+                  </div>
+                  <div style={{
+                    color: tipoReporte === reporte.id ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)',
+                    fontSize: '0.8rem'
+                  }}>
+                    {reporte.descripcion}
+                  </div>
+                </button>
+              ))}
+            </div>
 
-        {renderEstadisticas()}
-      </div>
+            {/* Controles de Filtro */}
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Selector de Período Único */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Período:</label>
+                <select
+                  value={periodoSeleccionado}
+                  onChange={(e) => setPeriodoSeleccionado(e.target.value)}
+                  style={{
+                    padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                    color: '#fff', fontSize: '0.9rem', minWidth: '250px'
+                  }}
+                >
+                  <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
+                  {periodosDisponibles.map((periodo, idx) => {
+                    // Formatear fechas: 13 Oct 2025 - 13 Dic 2025
+                    const formatearFecha = (fecha: string): string => {
+                      if (!fecha) return '';
+                      // Extraer año, mes, día directamente del string YYYY-MM-DD
+                      const [año, mes, dia] = fecha.split('T')[0].split('-');
+                      const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                      const mesNombre = meses[parseInt(mes) - 1];
+                      return `${parseInt(dia)} ${mesNombre} ${año}`;
+                    };
+
+                    const fechaInicio = formatearFecha(periodo.inicio);
+                    const fechaFin = formatearFecha(periodo.fin);
+
+                    return (
+                      <option key={idx} value={periodo.key} style={{ background: '#1a1a1a' }}>
+                        {fechaInicio} - {fechaFin}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Filtros específicos */}
+              {renderFiltrosEspecificos()}
+
+              <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+                <button
+                  onClick={generarReporte}
+                  disabled={loading || descargando}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+                    background: loading ? 'rgba(239, 68, 68, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    border: 'none',
+                    borderRadius: '8px', color: '#fff', fontSize: '0.9rem', fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1
+                  }}
+                >
+                  {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={16} />}
+                  {loading ? 'Generando...' : 'Ver Reporte'}
+                </button>
+                <button
+                  onClick={() => descargarArchivo('pdf')}
+                  disabled={!datosReporte || descargando || loading}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+                    background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '8px', color: '#f59e0b', fontSize: '0.9rem', fontWeight: '600',
+                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                    opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
+                  }}
+                >
+                  {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
+                  Exportar PDF
+                </button>
+                <button
+                  onClick={() => descargarArchivo('excel')}
+                  disabled={!datosReporte || descargando || loading}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+                    background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '8px', color: '#10b981', fontSize: '0.9rem', fontWeight: '600',
+                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                    opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
+                  }}
+                >
+                  {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSpreadsheet size={16} />}
+                  Exportar Excel
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Contenido del Reporte */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+            backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '20px', padding: '32px'
+          }}>
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', margin: '0 0 6px 0' }}>
+                {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
+                Período: {fechaInicio} - {fechaFin}
+              </p>
+            </div>
+
+            {error && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                color: '#ef4444'
+              }}>
+                <AlertCircle size={20} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {renderEstadisticas()}
+          </div>
         </>
       )}
 
@@ -1230,16 +1294,16 @@ const Reportes = () => {
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '20px',
-          padding: '32px'
+          borderRadius: '12px',
+          padding: '16px'
         }}>
-          <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <History size={28} color="#ef4444" />
+              <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <History size={22} color="#ef4444" />
                 Historial de Reportes
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.9rem' }}>
+              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
                 Últimos 50 reportes generados
               </p>
             </div>
@@ -1247,12 +1311,12 @@ const Reportes = () => {
               value={filtroTipoHistorial}
               onChange={(e) => setFiltroTipoHistorial(e.target.value)}
               style={{
-                padding: '10px 16px',
+                padding: '8px 12px',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '8px',
                 color: '#fff',
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer'
               }}
             >
@@ -1264,88 +1328,88 @@ const Reportes = () => {
           </div>
 
           {loadingHistorial ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-              <Loader2 size={48} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>Cargando historial...</p>
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando historial...</p>
             </div>
           ) : historialReportes.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-              <History size={64} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 16px' }} />
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>No hay reportes generados aún</p>
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <History size={48} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 12px' }} />
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay reportes generados aún</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ display: 'grid', gap: '12px' }}>
               {historialReportes
                 .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
                 .map((reporte, idx) => {
                   const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
                   const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
-                  
+
                   return (
                     <div key={idx} style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px',
-                      padding: '20px',
+                      borderRadius: '10px',
+                      padding: '14px',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                      e.currentTarget.style.borderColor = tipoColor;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-                    }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.borderColor = tipoColor;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                      }}
                     >
-                      <div style={{ display: 'flex', gap: '20px', alignItems: 'start' }}>
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'start' }}>
                         <div style={{
                           background: `${tipoColor}20`,
                           border: `2px solid ${tipoColor}`,
-                          borderRadius: '12px',
-                          padding: '12px',
+                          borderRadius: '10px',
+                          padding: '10px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center'
                         }}>
-                          {React.createElement(tipoIcono, { size: 24, color: tipoColor })}
+                          {React.createElement(tipoIcono, { size: 20, color: tipoColor })}
                         </div>
-                        
+
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                             <div>
-                              <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', margin: '0 0 4px 0' }}>
+                              <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 3px 0' }}>
                                 {reporte.nombre_reporte}
                               </h4>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: 0 }}>
+                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', margin: 0 }}>
                                 {reporte.archivo_generado}
                               </p>
                             </div>
                             <span style={{
-                              padding: '4px 12px',
+                              padding: '3px 10px',
                               background: `${tipoColor}20`,
                               border: `1px solid ${tipoColor}`,
-                              borderRadius: '6px',
+                              borderRadius: '5px',
                               color: tipoColor,
-                              fontSize: '0.75rem',
+                              fontSize: '0.7rem',
                               fontWeight: '600',
                               textTransform: 'uppercase'
                             }}>
                               {reporte.formato_generado}
                             </span>
                           </div>
-                          
-                          <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <User size={14} />
+
+                          <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <User size={12} />
                               <span>{reporte.generado_por}</span>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <Clock size={14} />
-                              <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', { 
-                                day: '2-digit', 
-                                month: 'short', 
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <Clock size={12} />
+                              <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
+                                day: '2-digit',
+                                month: 'short',
                                 year: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'

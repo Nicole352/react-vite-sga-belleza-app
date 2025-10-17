@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
+import {
   Plus, Edit, Trash2, X, Save, BookOpen, Search, Grid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -50,7 +50,7 @@ const GestionTiposCurso: React.FC = () => {
   const filteredTipos = useMemo(() => {
     if (!searchTerm.trim()) return tipos;
     const term = searchTerm.toLowerCase();
-    return tipos.filter(t => 
+    return tipos.filter(t =>
       t.nombre.toLowerCase().includes(term) ||
       (t.descripcion && t.descripcion.toLowerCase().includes(term))
     );
@@ -77,10 +77,10 @@ const GestionTiposCurso: React.FC = () => {
       const list = Array.isArray(data)
         ? data
         : Array.isArray((data as any)?.data)
-        ? (data as any).data
-        : Array.isArray((data as any)?.rows)
-        ? (data as any).rows
-        : [];
+          ? (data as any).data
+          : Array.isArray((data as any)?.rows)
+            ? (data as any).rows
+            : [];
       setTipos(list);
     } catch (e: any) {
       setError(e.message || 'Error cargando tipos de curso');
@@ -161,8 +161,8 @@ const GestionTiposCurso: React.FC = () => {
         if (!res.ok) throw new Error('No se pudo actualizar el tipo de curso');
         const updatedTipo = await res.json();
         // Actualizar el tipo en la lista inmediatamente
-        setTipos(prev => prev.map(t => 
-          t.id_tipo_curso === selected.id_tipo_curso 
+        setTipos(prev => prev.map(t =>
+          t.id_tipo_curso === selected.id_tipo_curso
             ? { ...t, ...updatedTipo }
             : t
         ));
@@ -176,34 +176,34 @@ const GestionTiposCurso: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '32px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ 
-          color: 'rgba(255,255,255,0.95)', fontSize: '2rem', fontWeight: '700', margin: '0 0 8px 0',
-          display: 'flex', alignItems: 'center', gap: '12px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '18px' }}>
+        <h2 style={{
+          color: 'rgba(255,255,255,0.95)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={32} color={RedColorPalette.primary} />
+          <BookOpen size={26} color={RedColorPalette.primary} />
           Gestión de Tipos de Curso
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: '6px 0 0 0', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los tipos de curso antes de crear cursos.
         </p>
       </div>
 
       {/* Barra de búsqueda y controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px' }}>
           {/* Barra de búsqueda */}
-          <div style={{ flex: '1 1 300px', position: 'relative' }}>
-            <Search 
-              size={20} 
-              style={{ 
-                position: 'absolute', 
-                left: '14px', 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                color: 'rgba(255,255,255,0.5)' 
-              }} 
+          <div style={{ flex: '1 1 280px', position: 'relative' }}>
+            <Search
+              size={16}
+              style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'rgba(255,255,255,0.5)'
+              }}
             />
             <input
               type="text"
@@ -212,55 +212,55 @@ const GestionTiposCurso: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 12px 12px 44px',
+                padding: '10px 10px 10px 38px',
                 background: 'rgba(255,255,255,0.08)',
                 border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: '#fff',
-                fontSize: '0.95rem',
+                fontSize: '0.8rem',
               }}
             />
           </div>
 
           {/* Toggle Vista */}
-          <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px' }}>
+          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px' }}>
             <button
               onClick={() => setViewMode('cards')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
+                gap: '5px',
+                padding: '7px 12px',
                 background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                 border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                borderRadius: '8px',
+                borderRadius: '7px',
                 color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
                 transition: 'all 0.2s ease',
               }}
             >
-              <Grid size={16} /> Tarjetas
+              <Grid size={14} /> Tarjetas
             </button>
             <button
               onClick={() => setViewMode('table')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
+                gap: '5px',
+                padding: '7px 12px',
                 background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                 border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                borderRadius: '8px',
+                borderRadius: '7px',
                 color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
                 transition: 'all 0.2s ease',
               }}
             >
-              <List size={16} /> Tabla
+              <List size={14} /> Tabla
             </button>
           </div>
 
@@ -275,34 +275,35 @@ const GestionTiposCurso: React.FC = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
-              padding: '10px 18px',
+              gap: 6,
+              padding: '8px 14px',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               color: '#fff',
               border: 'none',
-              borderRadius: 12,
+              borderRadius: 10,
               fontWeight: 600,
+              fontSize: '0.8rem',
               cursor: 'pointer',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
             }}
           >
-            <Plus size={18} /> Nuevo Tipo
+            <Plus size={16} /> Nuevo Tipo
           </GlassEffect>
         </div>
 
         {/* Info de resultados */}
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
         </div>
       </GlassEffect>
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-          gap: '20px',
-          marginBottom: '24px'
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gap: '14px',
+          marginBottom: '18px'
         }}>
           {paginatedTipos.map((t) => (
             <div
@@ -310,8 +311,8 @@ const GestionTiposCurso: React.FC = () => {
               style={{
                 background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
                 border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-                borderRadius: '16px',
-                padding: '20px',
+                borderRadius: '12px',
+                padding: '14px',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
               }}
@@ -324,12 +325,12 @@ const GestionTiposCurso: React.FC = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <div style={{ marginBottom: '16px' }}>
-                <h3 style={{ 
-                  color: 'rgba(255,255,255,0.95)', 
-                  fontSize: '1.25rem', 
-                  fontWeight: 700, 
-                  margin: '0 0 8px 0',
+              <div style={{ marginBottom: '12px' }}>
+                <h3 style={{
+                  color: 'rgba(255,255,255,0.95)',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  margin: '0 0 6px 0',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -338,12 +339,12 @@ const GestionTiposCurso: React.FC = () => {
                   {t.nombre}
                   <span
                     style={{
-                      padding: '4px 10px',
-                      borderRadius: 8,
+                      padding: '3px 8px',
+                      borderRadius: 6,
                       background: t.estado === 'activo' ? mapToRedScheme('rgba(16,185,129,0.15)') : 'rgba(239,68,68,0.15)',
                       color: t.estado === 'activo' ? mapToRedScheme('#10b981') : RedColorPalette.primary,
                       fontWeight: 700,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       textTransform: 'uppercase',
                       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                     }}
@@ -351,37 +352,37 @@ const GestionTiposCurso: React.FC = () => {
                     {t.estado || 'activo'}
                   </span>
                 </h3>
-                <p style={{ 
-                  color: 'rgba(255,255,255,0.6)', 
-                  fontSize: '0.9rem', 
+                <p style={{
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '0.75rem',
                   margin: 0,
-                  lineHeight: 1.5,
-                  minHeight: '40px'
+                  lineHeight: 1.4,
+                  minHeight: '32px'
                 }}>
                   {t.descripcion || 'Sin descripción'}
                 </p>
               </div>
 
-              <div style={{ 
-                display: 'flex', 
-                gap: '16px', 
-                marginBottom: '16px',
-                paddingTop: '12px',
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                marginBottom: '12px',
+                paddingTop: '10px',
                 borderTop: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                     Duración
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.95rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.8rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                     {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
                     Precio
                   </div>
-                  <div style={{ color: mapToRedScheme('#10b981'), fontSize: '1rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                  <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.85rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                     {formatPrice(t.precio_base ?? null)}
                   </div>
                 </div>
@@ -389,37 +390,37 @@ const GestionTiposCurso: React.FC = () => {
 
               {/* Información de modalidad de pago */}
               {t.modalidad_pago === 'clases' && (
-                <div style={{ 
-                  marginBottom: '16px',
-                  padding: '12px',
+                <div style={{
+                  marginBottom: '12px',
+                  padding: '10px',
                   background: 'rgba(59, 130, 246, 0.1)',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
-                  borderRadius: '8px'
+                  borderRadius: '7px'
                 }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px',
-                    marginBottom: '8px'
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    marginBottom: '6px'
                   }}>
-                    <div style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      borderRadius: '50%', 
-                      background: '#3b82f6' 
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#3b82f6'
                     }} />
-                    <span style={{ 
-                      color: '#3b82f6', 
-                      fontSize: '0.8rem', 
-                      fontWeight: 600 
+                    <span style={{
+                      color: '#3b82f6',
+                      fontSize: '0.7rem',
+                      fontWeight: 600
                     }}>
                       Modalidad por Clases
                     </span>
                   </div>
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '16px',
-                    fontSize: '0.75rem',
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    fontSize: '0.65rem',
                     color: 'rgba(255,255,255,0.7)'
                   }}>
                     <span>
@@ -432,7 +433,7 @@ const GestionTiposCurso: React.FC = () => {
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   onClick={() => openEdit(t)}
                   style={{
@@ -440,13 +441,13 @@ const GestionTiposCurso: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px',
-                    padding: '10px',
+                    gap: '5px',
+                    padding: '8px',
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     color: '#fff',
-                    fontSize: '0.85rem',
+                    fontSize: '0.7rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -458,7 +459,7 @@ const GestionTiposCurso: React.FC = () => {
                     e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
                   }}
                 >
-                  <Edit size={14} /> Editar
+                  <Edit size={12} /> Editar
                 </button>
                 <button
                   onClick={() => handleDelete(t.id_tipo_curso)}
@@ -467,13 +468,13 @@ const GestionTiposCurso: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px',
-                    padding: '10px',
+                    gap: '5px',
+                    padding: '8px',
                     background: 'rgba(239, 68, 68, 0.15)',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     color: '#ef4444',
-                    fontSize: '0.85rem',
+                    fontSize: '0.7rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -485,7 +486,7 @@ const GestionTiposCurso: React.FC = () => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
                   }}
                 >
-                  <Trash2 size={14} /> Eliminar
+                  <Trash2 size={12} /> Eliminar
                 </button>
               </div>
             </div>
@@ -506,9 +507,9 @@ const GestionTiposCurso: React.FC = () => {
         >
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ 
-                background: 'rgba(248, 113, 113, 0.15)', 
-                borderBottom: '1px solid rgba(248, 113, 113, 0.3)' 
+              <tr style={{
+                background: 'rgba(248, 113, 113, 0.15)',
+                borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
               }}>
                 <th style={{ padding: '10px 12px', color: '#fff', textAlign: 'left', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '35%' }}>
                   Nombre
@@ -645,8 +646,8 @@ const GestionTiposCurso: React.FC = () => {
 
       {/* Estados vacíos y errores */}
       {!loading && filteredTipos.length === 0 && (
-        <div style={{ 
-          color: 'rgba(255,255,255,0.6)', 
+        <div style={{
+          color: 'rgba(255,255,255,0.6)',
           padding: '60px 20px',
           textAlign: 'center',
           fontSize: '1rem',
@@ -659,8 +660,8 @@ const GestionTiposCurso: React.FC = () => {
         </div>
       )}
       {loading && (
-        <div style={{ 
-          color: 'rgba(255,255,255,0.6)', 
+        <div style={{
+          color: 'rgba(255,255,255,0.6)',
           padding: '60px 20px',
           textAlign: 'center',
           fontSize: '1rem',
@@ -673,8 +674,8 @@ const GestionTiposCurso: React.FC = () => {
         </div>
       )}
       {error && (
-        <div style={{ 
-          color: '#ef4444', 
+        <div style={{
+          color: '#ef4444',
           padding: '20px',
           textAlign: 'center',
           background: 'rgba(239, 68, 68, 0.1)',
@@ -694,6 +695,7 @@ const GestionTiposCurso: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '20px 24px',
+          marginTop: '90px',
           background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
           border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
           borderRadius: '16px',
@@ -885,7 +887,7 @@ const GestionTiposCurso: React.FC = () => {
                       const isClases = value === 'clases';
                       const numeroClasesDiv = document.querySelector('[data-field="numero_clases"]') as HTMLElement;
                       const precioPorClaseDiv = document.querySelector('[data-field="precio_por_clase"]') as HTMLElement;
-                      
+
                       if (numeroClasesDiv && precioPorClaseDiv) {
                         numeroClasesDiv.style.display = isClases ? 'block' : 'none';
                         precioPorClaseDiv.style.display = isClases ? 'block' : 'none';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
+import {
   Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu
 } from 'lucide-react';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
@@ -31,7 +31,7 @@ const PanelAdministrativos = () => {
     const saved = localStorage.getItem('admin-sidebar-collapsed');
     return saved !== null ? JSON.parse(saved) : false;
   });
-  const [userData, setUserData] = useState<{nombre?: string; apellido?: string; nombres?: string; apellidos?: string} | null>(null);
+  const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string } | null>(null);
 
   // Obtener datos del usuario
   useEffect(() => {
@@ -88,14 +88,14 @@ const PanelAdministrativos = () => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
-        textPrimary: '#fff',
-        textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(239, 68, 68, 0.2)',
+        background: '#0a0a0a',
+        sidebarBg: '#171717',
+        navbarBg: '#262626',
+        contentBg: '#171717',
+        textPrimary: '#ffffff',
+        textSecondary: '#e5e5e5',
+        textMuted: '#a3a3a3',
+        border: 'rgba(255, 255, 255, 0.1)',
         accent: '#ef4444'
       };
     } else {
@@ -141,11 +141,11 @@ const PanelAdministrativos = () => {
           --admin-text-muted: ${theme.textMuted};
           --admin-border: ${theme.border};
           --admin-accent: ${theme.accent};
-          --admin-input-bg: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'};
-          --admin-input-border: ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
-          --admin-hover-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
-          --admin-modal-bg: ${darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)'};
-          --admin-card-bg: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'};
+          --admin-input-bg: ${darkMode ? '#262626' : 'rgba(0,0,0,0.05)'};
+          --admin-input-border: ${darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0,0,0,0.15)'};
+          --admin-hover-bg: ${darkMode ? 'rgba(239, 68, 68, 0.08)' : 'rgba(0,0,0,0.05)'};
+          --admin-modal-bg: ${darkMode ? 'rgba(10, 10, 10, 0.95)' : 'rgba(0,0,0,0.4)'};
+          --admin-card-bg: ${darkMode ? '#171717' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'};
         }
         
         /* Estilos globales para componentes hijos */
@@ -172,8 +172,8 @@ const PanelAdministrativos = () => {
           color: var(--admin-text-muted) !important;
         }
       `}</style>
-      
-      <div 
+
+      <div
         className="admin-panel"
         style={{
           minHeight: '100vh',
@@ -182,218 +182,215 @@ const PanelAdministrativos = () => {
           display: 'flex'
         }}
       >
-      {/* Sidebar */}
-      <div style={{
-        width: sidebarCollapsed ? '80px' : '280px',
-        background: theme.sidebarBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${theme.border}`,
-        borderRadius: '0 20px 20px 0',
-        padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
-        position: 'fixed',
-        height: '100vh',
-        left: 0,
-        top: 0,
-        zIndex: 1000,
-        boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden'
-      }}>
-        {/* Botón hamburguesa */}
-        <button
-          onClick={toggleSidebar}
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: sidebarCollapsed ? '50%' : '16px',
-            transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-            width: '36px',
-            height: '36px',
-            borderRadius: '8px',
-            border: `1px solid ${theme.border}`,
-            background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
-            color: theme.accent,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.3s ease',
-            zIndex: 10
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-            e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
-            e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
-          }}
-        >
-          <Menu size={20} />
-        </button>
-
-        {/* Header del Sidebar - Solo Logo */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginBottom: '8px',
-          paddingBottom: '4px',
-          borderBottom: `1px solid ${theme.border}`,
-          paddingTop: '0px',
-          marginTop: sidebarCollapsed ? '48px' : '0px'
-        }}>
-          {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
-        </div>
-        
-        {/* Navegación del Sidebar */}
-        <nav style={{ marginBottom: '32px' }}>
-          {tabs.map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                title={sidebarCollapsed ? tab.name : ''}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                  gap: '10px',
-                  padding: sidebarCollapsed ? '12px 8px' : '12px 16px',
-                  marginBottom: '6px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: activeTab === tab.id ? 
-                    'linear-gradient(135deg, #ef4444, #dc2626)' : 
-                    'transparent',
-                  color: activeTab === tab.id ? '#fff' : theme.textMuted,
-                  fontSize: '0.85rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'left',
-                  boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== tab.id) {
-                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                    e.currentTarget.style.color = theme.textSecondary;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== tab.id) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = theme.textMuted;
-                  }
-                }}
-              >
-                <IconComponent size={20} style={{ flexShrink: 0 }} />
-                {!sidebarCollapsed && <span>{tab.name}</span>}
-              </button>
-            );
-          })}
-        </nav>
-
-      </div>
-
-      {/* Contenido Principal */}
-      <div style={{
-        marginLeft: sidebarCollapsed ? '80px' : '280px',
-        flex: 1,
-        padding: '24px',
-        minHeight: '100vh',
-        transition: 'margin-left 0.3s ease'
-      }}>
-        {/* Navbar */}
+        {/* Sidebar */}
         <div style={{
-          background: theme.navbarBg,
+          width: sidebarCollapsed ? '70px' : '280px',
+          background: theme.sidebarBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '20px 32px',
-          marginBottom: '24px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'relative',
-          zIndex: 1000
+          borderRadius: '0 16px 16px 0',
+          padding: sidebarCollapsed ? '10px 6px 20px 6px' : '10px 16px 20px 16px',
+          position: 'fixed',
+          height: '100vh',
+          left: 0,
+          top: 0,
+          zIndex: 1000,
+          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease',
+          overflow: 'hidden'
         }}>
-          {/* Información del módulo activo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '50%',
+          {/* Botón hamburguesa */}
+          <button
+            onClick={toggleSidebar}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: sidebarCollapsed ? '50%' : '16px',
+              transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
+              border: `1px solid ${theme.border}`,
+              background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+              color: theme.accent,
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
-            }}>
-              {(() => {
-                const activeTabData = tabs.find(t => t.id === activeTab);
-                const IconComponent = activeTabData?.icon || BarChart3;
-                return <IconComponent size={28} color="#fff" />;
-              })()}
-            </div>
-            <div>
-              <h1 style={{ 
-                fontSize: '1.8rem', 
-                fontWeight: '800', 
-                color: theme.textPrimary,
-                margin: 0
-              }}>
-                Panel Administrativos
-              </h1>
-              <p style={{ 
-                color: theme.textSecondary, 
-                margin: 0, 
-                fontSize: '1rem',
-                marginTop: '4px'
-              }}>
-                Sistema de gestión académica
-              </p>
-            </div>
+              transition: 'all 0.3s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
+            }}
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Header del Sidebar - Solo Logo */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '8px',
+            paddingBottom: '4px',
+            borderBottom: `1px solid ${theme.border}`,
+            paddingTop: '0px',
+            marginTop: sidebarCollapsed ? '48px' : '0px'
+          }}>
+            {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
-          {/* Iconos del lado derecho */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ProfileMenu 
-              darkMode={darkMode}
-              toggleDarkMode={toggleDarkMode}
-              theme={theme}
-              userData={userData}
-            />
-          </div>
+          {/* Navegación del Sidebar */}
+          <nav style={{ marginBottom: '32px' }}>
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  title={sidebarCollapsed ? tab.name : ''}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                    gap: '10px',
+                    padding: sidebarCollapsed ? '12px 8px' : '12px 16px',
+                    marginBottom: '6px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: activeTab === tab.id ?
+                      'linear-gradient(135deg, #ef4444, #dc2626)' :
+                      'transparent',
+                    color: activeTab === tab.id ? '#fff' : theme.textMuted,
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'left',
+                    boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.color = theme.textSecondary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = theme.textMuted;
+                    }
+                  }}
+                >
+                  <IconComponent size={18} style={{ flexShrink: 0 }} />
+                  {!sidebarCollapsed && <span>{tab.name}</span>}
+                </button>
+              );
+            })}
+          </nav>
+
         </div>
 
-        {/* Contenido de la sección activa */}
+        {/* Contenido Principal */}
         <div style={{
-          background: theme.contentBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          minHeight: '600px',
-          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
+          marginLeft: sidebarCollapsed ? '70px' : '280px',
+          flex: 1,
+          padding: '24px',
+          minHeight: '100vh',
+          transition: 'margin-left 0.3s ease'
         }}>
-          {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}
-          {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}
-          {activeTab === 'estudiantes' && <AdminThemeWrapper darkMode={darkMode}><GestionEstudiantes /></AdminThemeWrapper>}
-          {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
-          {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
-          {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
-          {activeTab === 'control-usuarios' && <AdminThemeWrapper darkMode={darkMode}><ControlUsuarios /></AdminThemeWrapper>}
-          {activeTab === 'gestion-aulas' && <AdminThemeWrapper darkMode={darkMode}><GestionAulas /></AdminThemeWrapper>}
-          {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
-          {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
-          {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
+          {/* Navbar */}
+          <div style={{
+            background: theme.navbarBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            padding: '16px 32px',
+            marginBottom: '16px',
+            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'relative',
+            zIndex: 1000
+          }}>
+            {/* Información del módulo activo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
+              }}>
+                {(() => {
+                  const activeTabData = tabs.find(t => t.id === activeTab);
+                  const IconComponent = activeTabData?.icon || BarChart3;
+                  return <IconComponent size={24} color="#fff" />;
+                })()}
+              </div>
+              <div>
+                <h1 style={{
+                  fontSize: '1.4rem',
+                  fontWeight: '800',
+                  color: theme.textPrimary,
+                  margin: 0
+                }}>
+                  Panel Administrativos
+                </h1>
+                <p style={{
+                  color: theme.textSecondary,
+                  margin: 0,
+                  fontSize: '0.8rem',
+                  marginTop: '4px'
+                }}>
+                  Sistema de gestión académica
+                </p>
+              </div>
+            </div>
+
+            {/* Iconos del lado derecho */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ProfileMenu
+                darkMode={darkMode}
+                toggleDarkMode={toggleDarkMode}
+                theme={theme}
+                userData={userData}
+              />
+            </div>
+          </div>
+
+          {/* Contenido de la sección activa */}
+          <div style={{
+            background: theme.contentBg,
+            border: `1px solid ${theme.border}`,
+            borderRadius: '20px',
+            minHeight: '600px',
+            boxShadow: darkMode ? '0 2px 10px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
+          }}>
+            {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}
+            {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}
+            {activeTab === 'estudiantes' && <AdminThemeWrapper darkMode={darkMode}><GestionEstudiantes /></AdminThemeWrapper>}
+            {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
+            {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
+            {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
+            {activeTab === 'control-usuarios' && <AdminThemeWrapper darkMode={darkMode}><ControlUsuarios /></AdminThemeWrapper>}
+            {activeTab === 'gestion-aulas' && <AdminThemeWrapper darkMode={darkMode}><GestionAulas /></AdminThemeWrapper>}
+            {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
+            {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
+            {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
+          </div>
         </div>
-      </div>
       </div>
     </>
   );
