@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Mail, Phone, BookOpen, TrendingUp, Award, Star, Eye, MessageCircle, Calendar, GraduationCap } from 'lucide-react';
+import { Users, Search, Mail, Phone, Award, Star } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -23,6 +23,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [cursoFiltro, setCursoFiltro] = useState<string>('');
 
   useEffect(() => {
     fetchEstudiantes();
@@ -82,12 +83,18 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
   const theme = getThemeColors();
 
-  const estudiantesFiltrados = estudiantes.filter(est =>
-    est.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    est.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    est.cedula.includes(searchTerm) ||
-    est.curso_nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const cursosUnicos = Array.from(new Set(estudiantes.map(e => `${e.codigo_curso}||${e.curso_nombre}`)))
+    .map(k => ({ codigo: k.split('||')[0], nombre: k.split('||')[1] }));
+
+  const estudiantesFiltrados = estudiantes.filter(est => {
+    const matchTexto = 
+      est.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      est.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      est.cedula.includes(searchTerm) ||
+      est.curso_nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCurso = !cursoFiltro || est.codigo_curso === cursoFiltro;
+    return matchTexto && matchCurso;
+  });
 
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '60px', color: theme.textSecondary }}>Cargando estudiantes...</div>;
@@ -104,8 +111,80 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
         </p>
       </div>
 
-      {/* Barra de búsqueda */}
-      <div style={{ marginBottom: '24px' }}>
+      {/* Estadísticas compactas (una sola línea) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(140px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+        <div style={{
+          background: `linear-gradient(135deg, #3b82f6, #2563eb)`,
+          borderRadius: '10px',
+          padding: '10px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-20px',
+            right: '-20px',
+            width: '60px',
+            height: '60px',
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '50%'
+          }} />
+          <Users size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
+          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
+            {estudiantesFiltrados.length}
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Total Estudiantes</div>
+        </div>
+
+        <div style={{
+          background: `linear-gradient(135deg, #10b981, #059669)`,
+          borderRadius: '10px',
+          padding: '10px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-20px',
+            right: '-20px',
+            width: '60px',
+            height: '60px',
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '50%'
+          }} />
+          <Award size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
+          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
+            {estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Destacados (≥8.0)</div>
+        </div>
+
+        <div style={{
+          background: `linear-gradient(135deg, #f59e0b, #d97706)`,
+          borderRadius: '10px',
+          padding: '10px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-20px',
+            right: '-20px',
+            width: '60px',
+            height: '60px',
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '50%'
+          }} />
+          <Star size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
+          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
+            {estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Promedio General</div>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div style={{ marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 240px', gap: '10px' }}>
         <div style={{ position: 'relative' }}>
           <Search 
             size={20} 
@@ -119,86 +198,35 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '14px 14px 14px 48px',
+              padding: '10px 12px 10px 44px',
               background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
               border: `1px solid ${theme.border}`,
-              borderRadius: '12px',
+              borderRadius: '10px',
               color: theme.textPrimary,
-              fontSize: '0.95rem'
+              fontSize: '0.9rem'
             }}
           />
         </div>
+        <select
+          value={cursoFiltro}
+          onChange={(e) => setCursoFiltro(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '10px',
+            color: theme.textPrimary,
+            fontSize: '0.9rem'
+          }}
+        >
+          <option value="">Todos los cursos</option>
+          {cursosUnicos.map(c => (
+            <option key={c.codigo} value={c.codigo}>{c.codigo} - {c.nombre}</option>
+          ))}
+        </select>
       </div>
 
-      {/* Estadísticas Mejoradas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <div style={{
-          background: `linear-gradient(135deg, #3b82f6, #2563eb)`,
-          borderRadius: '16px',
-          padding: '24px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '100px',
-            height: '100px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Users size={32} color="#fff" style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>{estudiantes.length}</div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', position: 'relative', zIndex: 1 }}>Total Estudiantes</div>
-        </div>
-
-        <div style={{
-          background: `linear-gradient(135deg, #10b981, #059669)`,
-          borderRadius: '16px',
-          padding: '24px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '100px',
-            height: '100px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Award size={32} color="#fff" style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
-            {estudiantes.filter(e => e.promedio && e.promedio >= 8).length}
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', position: 'relative', zIndex: 1 }}>Destacados (≥8.0)</div>
-        </div>
-
-        <div style={{
-          background: `linear-gradient(135deg, #f59e0b, #d97706)`,
-          borderRadius: '16px',
-          padding: '24px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '100px',
-            height: '100px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Star size={32} color="#fff" style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
-            {estudiantes.length > 0 ? (estudiantes.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantes.length).toFixed(1) : '0.0'}
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', position: 'relative', zIndex: 1 }}>Promedio General</div>
-        </div>
-      </div>
 
       {/* Tabla Educativa de Estudiantes */}
       <div style={{
@@ -227,14 +255,14 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             {/* Header de la tabla */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '2fr 1.5fr 1fr 1fr 120px',
+              gridTemplateColumns: '2fr 1.5fr 1fr 1fr',
               gap: '16px',
-              padding: '16px 20px',
+              padding: '10px 12px',
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '12px',
+              borderRadius: '10px',
               marginBottom: '12px',
               fontWeight: '700',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               color: theme.accent,
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
@@ -243,7 +271,6 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
               <div>Curso</div>
               <div>Contacto</div>
               <div style={{ textAlign: 'center' }}>Promedio</div>
-              <div style={{ textAlign: 'center' }}>Acciones</div>
             </div>
 
             {/* Filas de estudiantes */}
@@ -270,11 +297,11 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     key={estudiante.id_usuario}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '2fr 1.5fr 1fr 1fr 120px',
-                      gap: '16px',
-                      padding: '20px',
+                      gridTemplateColumns: '2fr 1.5fr 1fr 1fr',
+                      gap: '12px',
+                      padding: '12px',
                       background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      borderRadius: '12px',
+                      borderRadius: '10px',
                       border: `1px solid ${theme.border}`,
                       alignItems: 'center',
                       transition: 'all 0.3s ease',
@@ -292,15 +319,15 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     {/* Columna: Estudiante */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{
-                        width: '48px',
-                        height: '48px',
+                        width: '36px',
+                        height: '36px',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
-                        fontSize: '1.1rem',
+                        fontSize: '0.9rem',
                         fontWeight: '800',
                         flexShrink: 0
                       }}>
@@ -309,7 +336,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       <div style={{ overflow: 'hidden' }}>
                         <div style={{ 
                           color: theme.textPrimary, 
-                          fontSize: '1rem', 
+                          fontSize: '0.9rem', 
                           fontWeight: '700',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -338,7 +365,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                         color: theme.accent,
                         padding: '4px 10px',
                         borderRadius: '12px',
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         display: 'inline-block',
                         marginBottom: '4px'
@@ -347,7 +374,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       </div>
                       <div style={{ 
                         color: theme.textPrimary, 
-                        fontSize: '0.9rem',
+                        fontSize: '0.85rem',
                         fontWeight: '600',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -366,10 +393,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                           gap: '6px',
                           marginBottom: '4px'
                         }}>
-                          <Mail size={14} color={theme.textMuted} />
+                          <Mail size={12} color={theme.textMuted} />
                           <span style={{ 
                             color: theme.textSecondary, 
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
@@ -380,8 +407,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       )}
                       {estudiante.telefono && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Phone size={14} color={theme.textMuted} />
-                          <span style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>
+                          <Phone size={12} color={theme.textMuted} />
+                          <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
                             {estudiante.telefono}
                           </span>
                         </div>
@@ -393,16 +420,16 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       {estudiante.promedio !== undefined ? (
                         <div>
                           <div style={{
-                            fontSize: '1.8rem',
+                            fontSize: '1.2rem',
                             fontWeight: '800',
                             color: getPromedioColor(estudiante.promedio),
                             lineHeight: 1,
-                            marginBottom: '4px'
+                            marginBottom: '2px'
                           }}>
                             {estudiante.promedio.toFixed(1)}
                           </div>
                           <div style={{
-                            fontSize: '0.7rem',
+                            fontSize: '0.6rem',
                             fontWeight: '600',
                             color: getPromedioColor(estudiante.promedio),
                             textTransform: 'uppercase',
@@ -412,38 +439,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                           </div>
                         </div>
                       ) : (
-                        <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>
+                        <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
                           Sin calificar
                         </div>
                       )}
-                    </div>
-
-                    {/* Columna: Acciones */}
-                    <div style={{ textAlign: 'center' }}>
-                      <button style={{
-                        padding: '10px 16px',
-                        background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
-                        border: 'none',
-                        borderRadius: '8px',
-                        color: '#fff',
-                        fontSize: '0.8rem',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        transition: 'all 0.3s ease',
-                        margin: '0 auto'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}>
-                        <Eye size={16} />
-                        Ver
-                      </button>
                     </div>
                   </div>
                 );
