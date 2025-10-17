@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Calendar, Award, FileText, Clock } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -254,8 +254,8 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           </div>
 
           {/* Descripción */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
+          <div>
+            <label style={labelStyle}>
               Descripción Breve (opcional)
             </label>
             <textarea
@@ -264,22 +264,23 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               onChange={handleChange}
               placeholder="Describe brevemente la tarea..."
               style={{
-                width: '100%',
+                ...inputStyle,
                 minHeight: '60px',
-                padding: '12px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '0.95rem',
-                resize: 'vertical'
+                resize: 'vertical' as const,
+                fontFamily: 'inherit'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
               }}
             />
           </div>
 
           {/* Instrucciones */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
+          <div>
+            <label style={labelStyle}>
               Instrucciones Detalladas (opcional)
             </label>
             <textarea
@@ -288,118 +289,103 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               onChange={handleChange}
               placeholder="Instrucciones paso a paso para completar la tarea..."
               style={{
-                width: '100%',
+                ...inputStyle,
                 minHeight: '100px',
-                padding: '12px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '0.95rem',
-                resize: 'vertical'
+                resize: 'vertical' as const,
+                fontFamily: 'inherit'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
               }}
             />
           </div>
 
           {/* Calificación */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
+              <label style={labelStyle}>
                 Nota Máxima *
               </label>
-              <div style={{ position: 'relative' }}>
-                <Award size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ef4444' }} />
-                <input
-                  type="number"
-                  name="nota_maxima"
-                  value={formData.nota_maxima}
-                  onChange={handleChange}
-                  min="1"
-                  max="100"
-                  step="0.01"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 40px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
+              <input
+                type="number"
+                name="nota_maxima"
+                value={formData.nota_maxima}
+                onChange={handleChange}
+                min="1"
+                max="100"
+                step="0.01"
+                required
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                }}
+              />
             </div>
 
             <div>
-              <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
+              <label style={labelStyle}>
                 Nota Mínima Aprobación *
               </label>
-              <div style={{ position: 'relative' }}>
-                <Award size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ef4444' }} />
-                <input
-                  type="number"
-                  name="nota_minima_aprobacion"
-                  value={formData.nota_minima_aprobacion}
-                  onChange={handleChange}
-                  min="1"
-                  max="100"
-                  step="0.01"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 40px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '0.95rem'
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Fecha Límite */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
-              Fecha Límite de Entrega *
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Calendar size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#ef4444' }} />
               <input
-                type="date"
-                name="fecha_limite"
-                value={formData.fecha_limite}
+                type="number"
+                name="nota_minima_aprobacion"
+                value={formData.nota_minima_aprobacion}
                 onChange={handleChange}
+                min="1"
+                max="100"
+                step="0.01"
                 required
-                style={{
-                  width: '100%',
-                  padding: '12px 12px 12px 40px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  fontSize: '0.95rem'
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
                 }}
               />
             </div>
           </div>
 
+          {/* Fecha Límite */}
+          <div>
+            <label style={labelStyle}>
+              Fecha Límite de Entrega *
+            </label>
+            <input
+              type="date"
+              name="fecha_limite"
+              value={formData.fecha_limite}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+              }}
+            />
+          </div>
+
           {/* Configuración de Archivos */}
           <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
+            background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+            border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
             borderRadius: '12px',
-            padding: '15px',
-            marginBottom: '20px'
+            padding: '15px'
           }}>
             <h4 style={{ color: '#3b82f6', fontSize: '0.95rem', fontWeight: '600', marginBottom: '15px' }}>
               📎 Configuración de Archivos
             </h4>
 
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <label style={{ color: darkMode ? '#fff' : '#374151', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   name="permite_archivo"
@@ -414,7 +400,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
             {formData.permite_archivo && (
               <>
                 <div style={{ marginBottom: '15px' }}>
-                  <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>
+                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>
                     Tamaño Máximo (MB)
                   </label>
                   <input
@@ -424,20 +410,12 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                     onChange={handleChange}
                     min="1"
                     max="50"
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '10px',
-                      color: '#fff',
-                      fontSize: '0.9rem'
-                    }}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>
+                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '8px', fontSize: '0.85rem' }}>
                     Formatos Permitidos
                   </label>
                   <input
@@ -446,17 +424,9 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                     value={formData.formatos_permitidos}
                     onChange={handleChange}
                     placeholder="pdf,jpg,jpeg,png,webp"
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '10px',
-                      color: '#fff',
-                      fontSize: '0.9rem'
-                    }}
+                    style={inputStyle}
                   />
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '5px' }}>
+                  <p style={{ color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(107,114,128,0.8)', fontSize: '0.75rem', marginTop: '5px' }}>
                     Separar por comas. Ej: pdf,jpg,png
                   </p>
                 </div>
@@ -465,8 +435,8 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           </div>
 
           {/* Estado */}
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{ color: '#fff', display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.9rem' }}>
+          <div>
+            <label style={labelStyle}>
               Estado
             </label>
             <select
@@ -474,37 +444,46 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               value={formData.estado}
               onChange={handleChange}
               style={{
-                width: '100%',
-                padding: '12px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '0.95rem',
+                ...inputStyle,
                 cursor: 'pointer'
               }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+              }}
             >
-              <option value="activo" style={{ background: '#1a1a2e' }}>Activo</option>
-              <option value="inactivo" style={{ background: '#1a1a2e' }}>Inactivo</option>
-              <option value="finalizado" style={{ background: '#1a1a2e' }}>Finalizado</option>
+              <option value="activo" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Activo</option>
+              <option value="inactivo" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Inactivo</option>
+              <option value="finalizado" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Finalizado</option>
             </select>
           </div>
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '2px solid #e5e7eb',
                 borderRadius: '12px',
                 padding: '12px 24px',
-                color: '#fff',
+                color: darkMode ? '#fff' : '#64748b',
                 fontWeight: '600',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.5 : 1
+                opacity: loading ? 0.5 : 1,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
               }}
             >
               Cancelar

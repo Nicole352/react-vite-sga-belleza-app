@@ -208,7 +208,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
           {/* Número de Orden */}
           <div style={{ marginBottom: '22px' }}>
-            <label style={{ color: '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
               Número de Orden *
             </label>
             <div style={{ position: 'relative' }}>
@@ -249,7 +249,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
           {/* Descripción */}
           <div style={{ marginBottom: '22px' }}>
-            <label style={{ color: '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
               Descripción (opcional)
             </label>
             <textarea
@@ -285,7 +285,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           {/* Fechas */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '22px' }}>
             <div>
-              <label style={{ color: '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
                 Fecha Inicio (opcional)
               </label>
               <div style={{ position: 'relative' }}>
@@ -319,7 +319,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             </div>
 
             <div>
-              <label style={{ color: '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
                 Fecha Fin (opcional)
               </label>
               <div style={{ position: 'relative' }}>
@@ -355,7 +355,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
           {/* Estado */}
           <div style={{ marginBottom: '28px' }}>
-            <label style={{ color: '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
               Estado
             </label>
             <select
