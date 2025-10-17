@@ -160,16 +160,9 @@ const GlassEffect: React.FC<GlassEffectProps> = ({
     ...style,
   };
 
-  // Efecto de brillo iOS 26
+  // Efecto de brillo deshabilitado - Sin olita
   const shimmerEffect: CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: '-100%',
-    width: '100%',
-    height: '100%',
-    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
-    animation: animated ? 'shimmer 3s infinite' : 'none',
-    pointerEvents: 'none',
+    display: 'none',
   };
 
   return (
@@ -196,14 +189,8 @@ const GlassEffect: React.FC<GlassEffectProps> = ({
         {children}
       </div>
       
-      {/* CSS Animations */}
+      {/* CSS Animations - Sin shimmer */}
       <style>{`
-        @keyframes shimmer {
-          0% { left: -100%; }
-          50% { left: 100%; }
-          100% { left: 100%; }
-        }
-        
         .glass-effect::before {
           content: '';
           position: absolute;
