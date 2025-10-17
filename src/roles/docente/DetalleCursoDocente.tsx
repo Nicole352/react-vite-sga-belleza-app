@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Plus, BookOpen, Users, Calendar, 
-  ChevronDown, ChevronUp, Edit, Trash2, FileText,
+  ArrowLeft, Plus, BookOpen, Calendar, 
+  ChevronDown, ChevronUp, Trash2, FileText,
   CheckCircle, Clock, AlertCircle, Hash
 } from 'lucide-react';
 import axios from 'axios';
@@ -549,23 +549,30 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                 {modulosExpandidos[modulo.id_modulo] && (
                   <div style={{ padding: '20px 30px' }}>
                     {!tareasPorModulo[modulo.id_modulo] ? (
-                      <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.6)' }}>
+                      <div style={{ textAlign: 'center', padding: '20px', color: theme.textMuted }}>
                         Cargando tareas...
                       </div>
                     ) : tareasPorModulo[modulo.id_modulo].length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.6)' }}>
-                        <FileText size={48} style={{ margin: '0 auto 15px', opacity: 0.3 }} />
+                      <div style={{ textAlign: 'center', padding: '40px', color: theme.textMuted }}>
+                        <FileText size={48} style={{ margin: '0 auto 15px', opacity: 0.3, color: theme.textMuted }} />
                         <p>No hay tareas en este módulo</p>
                         <button
                           onClick={() => handleCrearTarea(modulo.id_modulo)}
                           style={{
-                            background: 'rgba(16, 185, 129, 0.1)',
-                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
+                            border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
                             borderRadius: '10px',
                             padding: '10px 20px',
                             color: '#10b981',
                             marginTop: '15px',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)';
                           }}
                         >
                           <Plus size={18} style={{ display: 'inline', marginRight: '8px' }} />
@@ -578,35 +585,38 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                           <div
                             key={tarea.id_tarea}
                             style={{
-                              background: 'rgba(255,255,255,0.03)',
-                              border: '1px solid rgba(255,255,255,0.1)',
+                              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
+                              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
                               borderRadius: '12px',
                               padding: '20px',
                               cursor: 'pointer',
-                              transition: 'all 0.3s ease'
+                              transition: 'all 0.3s ease',
+                              boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.05)'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(59, 130, 246, 0.05)';
+                              e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(59, 130, 246, 0.3)';
+                              if (!darkMode) e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)';
+                              e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                              if (!darkMode) e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
                             }}
                             onClick={() => navigate(`/panel/docente/tarea/${tarea.id_tarea}`)}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '15px' }}>
                               <div style={{ flex: 1 }}>
-                                <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px' }}>
+                                <h4 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px' }}>
                                   {tarea.titulo}
                                 </h4>
                                 {tarea.descripcion && (
-                                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '12px' }}>
+                                  <p style={{ color: theme.textMuted, fontSize: '0.9rem', marginBottom: '12px' }}>
                                     {tarea.descripcion}
                                   </p>
                                 )}
-                                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem' }}>
-                                  <span style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', flexWrap: 'wrap' }}>
+                                  <span style={{ color: theme.textMuted, display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     <Clock size={14} />
                                     Límite: {new Date(tarea.fecha_limite).toLocaleDateString()}
                                   </span>
