@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Users, Calendar, Clock, MapPin, TrendingUp, AlertCircle, BarChart3, Eye, Edit, ChevronRight, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, Users, Calendar, Clock, MapPin, AlertCircle, BarChart3, Eye, ChevronRight } from 'lucide-react';
+import ModalCalificaciones from './ModalCalificaciones';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -24,9 +26,15 @@ interface Curso {
 }
 
 const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
+  const navigate = useNavigate();
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalCalificaciones, setModalCalificaciones] = useState<{ isOpen: boolean; cursoId: number; cursoNombre: string }>({ 
+    isOpen: false, 
+    cursoId: 0, 
+    cursoNombre: '' 
+  });
 
   useEffect(() => {
     fetchMisCursos();
@@ -128,16 +136,16 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <h2 style={{ 
-          fontSize: '2rem', 
+          fontSize: '1.25rem', 
           fontWeight: '800', 
           color: theme.textPrimary, 
-          margin: '0 0 8px 0' 
+          margin: '0 0 4px 0' 
         }}>
           Mis Cursos Asignados
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '1rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
           Gestiona tus cursos y estudiantes
         </p>
       </div>
@@ -145,22 +153,22 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
       {/* Estadísticas */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '20px',
-        marginBottom: '32px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '12px',
+        marginBottom: '20px'
       }}>
         <div style={{
           background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
           border: `1px solid ${theme.accent}30`,
-          borderRadius: '16px',
-          padding: '24px',
+          borderRadius: '12px',
+          padding: '16px',
           textAlign: 'center'
         }}>
-          <BookOpen size={32} color={theme.accent} style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: theme.accent, marginBottom: '4px' }}>
+          <BookOpen size={24} color={theme.accent} style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.accent, marginBottom: '2px' }}>
             {cursos.length}
           </div>
-          <div style={{ color: theme.textMuted, fontSize: '0.9rem', fontWeight: '600' }}>
+          <div style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600' }}>
             Cursos Activos
           </div>
         </div>
@@ -168,15 +176,15 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         <div style={{
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
           border: `1px solid ${theme.success}30`,
-          borderRadius: '16px',
-          padding: '24px',
+          borderRadius: '12px',
+          padding: '16px',
           textAlign: 'center'
         }}>
-          <Users size={32} color={theme.success} style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: theme.success, marginBottom: '4px' }}>
+          <Users size={24} color={theme.success} style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.success, marginBottom: '2px' }}>
             {cursos.reduce((acc, curso) => acc + curso.total_estudiantes, 0)}
           </div>
-          <div style={{ color: theme.textMuted, fontSize: '0.9rem', fontWeight: '600' }}>
+          <div style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600' }}>
             Total Estudiantes
           </div>
         </div>
@@ -185,8 +193,8 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
       {/* Grid de Cursos Tipo Pinterest */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
-        gap: '24px' 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+        gap: '16px' 
       }}>
         {cursos.length === 0 ? (
           <div style={{
@@ -223,7 +231,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 style={{
                   background: theme.cardBg,
                   border: `1px solid ${theme.border}`,
-                  borderRadius: '20px',
+                  borderRadius: '16px',
                   overflow: 'hidden',
                   transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                   cursor: 'pointer',
@@ -243,7 +251,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 {/* Header con gradiente */}
                 <div style={{
                   background: `linear-gradient(135deg, ${color1}, ${color2})`,
-                  padding: '24px',
+                  padding: '16px',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
@@ -252,21 +260,21 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     position: 'absolute',
                     top: 0,
                     right: 0,
-                    width: '150px',
-                    height: '150px',
+                    width: '100px',
+                    height: '100px',
                     background: 'rgba(255,255,255,0.1)',
                     borderRadius: '50%',
                     transform: 'translate(30%, -30%)'
                   }} />
                   
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
                       <div style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(10px)',
-                        padding: '6px 14px',
-                        borderRadius: '20px',
-                        fontSize: '0.85rem',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '0.65rem',
                         fontWeight: '700',
                         color: '#fff'
                       }}>
@@ -275,9 +283,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       <div style={{
                         background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)',
                         backdropFilter: 'blur(10px)',
-                        padding: '6px 14px',
-                        borderRadius: '20px',
-                        fontSize: '0.75rem',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '0.65rem',
                         fontWeight: '700',
                         color: '#fff',
                         textTransform: 'uppercase'
@@ -287,58 +295,58 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     </div>
                     
                     <h3 style={{ 
-                      fontSize: '1.4rem', 
+                      fontSize: '0.95rem', 
                       fontWeight: '800', 
                       color: '#fff', 
-                      margin: '0 0 12px 0',
+                      margin: '0 0 8px 0',
                       lineHeight: 1.3
                     }}>
                       {curso.nombre}
                     </h3>
 
                     {/* Estadística destacada */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(10px)',
-                        padding: '12px 16px',
-                        borderRadius: '12px',
+                        padding: '8px 12px',
+                        borderRadius: '10px',
                         flex: 1
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                          <Users size={16} color="#fff" />
-                          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                          <Users size={14} color="#fff" />
+                          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '600' }}>
                             Estudiantes
                           </span>
                         </div>
-                        <div style={{ color: '#fff', fontSize: '1.8rem', fontWeight: '800', lineHeight: 1 }}>
+                        <div style={{ color: '#fff', fontSize: '1.3rem', fontWeight: '800', lineHeight: 1 }}>
                           {curso.total_estudiantes}
                         </div>
-                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', marginTop: '2px' }}>
+                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem', marginTop: '2px' }}>
                           de {curso.capacidad_maxima}
                         </div>
                       </div>
 
                       {/* Circular progress */}
-                      <div style={{ position: 'relative', width: '70px', height: '70px' }}>
-                        <svg width="70" height="70" style={{ transform: 'rotate(-90deg)' }}>
+                      <div style={{ position: 'relative', width: '55px', height: '55px' }}>
+                        <svg width="55" height="55" style={{ transform: 'rotate(-90deg)' }}>
                           <circle
-                            cx="35"
-                            cy="35"
-                            r="30"
+                            cx="27.5"
+                            cy="27.5"
+                            r="23"
                             fill="none"
                             stroke="rgba(255,255,255,0.2)"
-                            strokeWidth="6"
+                            strokeWidth="5"
                           />
                           <circle
-                            cx="35"
-                            cy="35"
-                            r="30"
+                            cx="27.5"
+                            cy="27.5"
+                            r="23"
                             fill="none"
                             stroke="#fff"
-                            strokeWidth="6"
-                            strokeDasharray={`${2 * Math.PI * 30}`}
-                            strokeDashoffset={`${2 * Math.PI * 30 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
+                            strokeWidth="5"
+                            strokeDasharray={`${2 * Math.PI * 23}`}
+                            strokeDashoffset={`${2 * Math.PI * 23 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -348,7 +356,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                           left: '50%',
                           transform: 'translate(-50%, -50%)',
                           color: '#fff',
-                          fontSize: '0.9rem',
+                          fontSize: '0.7rem',
                           fontWeight: '800'
                         }}>
                           {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}%
@@ -359,33 +367,33 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 </div>
 
                 {/* Contenido */}
-                <div style={{ padding: '24px' }}>
+                <div style={{ padding: '16px' }}>
                   {/* Información en grid */}
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '16px',
-                    marginBottom: '20px'
+                    gap: '10px',
+                    marginBottom: '12px'
                   }}>
                     {/* Aula */}
                     {curso.aula_nombre && (
                       <div style={{
                         background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                        padding: '12px',
-                        borderRadius: '12px',
+                        padding: '10px',
+                        borderRadius: '10px',
                         border: `1px solid ${theme.border}`
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                          <MapPin size={14} color={theme.success} />
-                          <span style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                          <MapPin size={12} color={theme.success} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
                             Aula
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '700' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
                           {curso.aula_nombre}
                         </div>
                         {curso.aula_ubicacion && (
-                          <div style={{ color: theme.textMuted, fontSize: '0.75rem', marginTop: '2px' }}>
+                          <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginTop: '2px' }}>
                             {curso.aula_ubicacion}
                           </div>
                         )}
@@ -396,21 +404,21 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     {curso.hora_inicio && (
                       <div style={{
                         background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                        padding: '12px',
-                        borderRadius: '12px',
+                        padding: '10px',
+                        borderRadius: '10px',
                         border: `1px solid ${theme.border}`
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                          <Clock size={14} color={color1} />
-                          <span style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                          <Clock size={12} color={color1} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
                             Horario
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '700' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
                           {curso.hora_inicio?.substring(0, 5)} - {curso.hora_fin?.substring(0, 5)}
                         </div>
                         {curso.dias && (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '4px' }}>
                             {curso.dias.split(',').slice(0, 3).map((dia, idx) => (
                               <span key={idx} style={{
                                 padding: '2px 6px',
@@ -429,40 +437,40 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     )}
                   </div>
 
-                  {/* Período */}
+                                  {/* Período */}
                   <div style={{
                     background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                    padding: '12px',
-                    borderRadius: '12px',
+                    padding: '10px',
+                    borderRadius: '10px',
                     border: `1px solid ${theme.border}`,
-                    marginBottom: '20px'
+                    marginBottom: '12px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                      <Calendar size={14} color={theme.warning} />
-                      <span style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                      <Calendar size={12} color={theme.warning} />
+                      <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
                         Período Académico
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600' }}>
                         {new Date(curso.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                       </div>
                       <ChevronRight size={14} color={theme.textMuted} />
-                      <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600' }}>
                         {new Date(curso.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
                   </div>
 
                   {/* Acciones */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <button style={{
-                      padding: '12px',
+                      padding: '10px',
                       background: `linear-gradient(135deg, ${color1}, ${color2})`,
                       border: 'none',
                       borderRadius: '12px',
                       color: '#fff',
-                      fontSize: '0.85rem',
+                      fontSize: '0.75rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
@@ -471,23 +479,24 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       gap: '6px',
                       transition: 'all 0.3s ease'
                     }}
+                    onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
                     }}>
-                      <Eye size={16} />
+                      <Eye size={14} />
                       Ver Detalles
                     </button>
                     
                     <button style={{
-                      padding: '12px',
+                      padding: '10px',
                       background: 'transparent',
                       border: `2px solid ${color1}`,
                       borderRadius: '12px',
                       color: color1,
-                      fontSize: '0.85rem',
+                      fontSize: '0.75rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
@@ -495,6 +504,14 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       justifyContent: 'center',
                       gap: '6px',
                       transition: 'all 0.3s ease'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalCalificaciones({
+                        isOpen: true,
+                        cursoId: curso.id_curso,
+                        cursoNombre: curso.nombre
+                      });
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = color1;
@@ -504,7 +521,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = color1;
                     }}>
-                      <BarChart3 size={16} />
+                      <BarChart3 size={14} />
                       Calificaciones
                     </button>
                   </div>
@@ -514,6 +531,15 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
           })
         )}
       </div>
+
+      {/* Modal de Calificaciones */}
+      <ModalCalificaciones
+        isOpen={modalCalificaciones.isOpen}
+        onClose={() => setModalCalificaciones({ isOpen: false, cursoId: 0, cursoNombre: '' })}
+        cursoId={modalCalificaciones.cursoId}
+        cursoNombre={modalCalificaciones.cursoNombre}
+        darkMode={darkMode}
+      />
     </div>
   );
 };
