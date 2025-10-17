@@ -245,9 +245,13 @@ const GestionCursos = () => {
     try {
       setLoading(true);
       setError(null);
+      const token = sessionStorage.getItem('auth_token');
       const res = await fetch(`${API_BASE}/api/cursos/${curso.id_curso}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ estado: target })
       });
       if (!res.ok) {
@@ -378,7 +382,13 @@ const GestionCursos = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${API_BASE}/api/cursos/${id}`, { method: 'DELETE' });
+      const token = sessionStorage.getItem('auth_token');
+      const res = await fetch(`${API_BASE}/api/cursos/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!res.ok) throw new Error('No se pudo eliminar el curso');
       // Actualizar lista local inmediatamente sin recargar
       setCursos(prev => prev.filter(c => c.id_curso !== id));
@@ -479,23 +489,41 @@ const GestionCursos = () => {
       setLoading(true);
       setError(null);
       if (modalType === 'create') {
+        const token = sessionStorage.getItem('auth_token');
+        console.log('🔑 Token obtenido:', token ? 'Existe' : 'NO EXISTE');
+        console.log('📦 Payload a enviar:', payload);
+        
         const res = await fetch(`${API_BASE}/api/cursos`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(payload)
         });
+        
+        console.log('📡 Status de respuesta:', res.status);
+        
         if (!res.ok) {
           let msg = 'No se pudo crear el curso';
-          try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+          try { 
+            const j = await res.json(); 
+            console.log('❌ Error del servidor:', j);
+            if (j?.error) msg = j.error; 
+          } catch {}
           throw new Error(msg);
         }
         const newCurso = await res.json();
         // Agregar el nuevo curso a la lista inmediatamente
         setCursos(prev => [newCurso, ...prev]);
       } else if (modalType === 'edit' && selectedCurso) {
+        const token = sessionStorage.getItem('auth_token');
         const res = await fetch(`${API_BASE}/api/cursos/${selectedCurso.id_curso}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(payload)
         });
         if (!res.ok) {
