@@ -86,8 +86,8 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
 
   const diasAbreviados = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   
-  // Generar horas del día (6 AM - 10 PM)
-  const horasDelDia = Array.from({ length: 17 }, (_, i) => i + 6); // 6 a 22
+  // Generar horas del día (7 AM - 7 PM)
+  const horasDelDia = Array.from({ length: 13 }, (_, i) => i + 7); // 7 a 19
 
   // Organizar horarios por día
   const horariosPorDia = diasSemana.map((dia, index) => ({
@@ -103,10 +103,10 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
     
     const inicioEnMinutos = (horaI * 60) + minI;
     const finEnMinutos = (horaF * 60) + minF;
-    const baseMinutos = 6 * 60; // 6 AM
+    const baseMinutos = 7 * 60; // 7 AM
     
-    const top = ((inicioEnMinutos - baseMinutos) / 60) * 80; // 80px por hora
-    const height = ((finEnMinutos - inicioEnMinutos) / 60) * 80;
+    const top = ((inicioEnMinutos - baseMinutos) / 60) * 30; // 50px por hora
+    const height = ((finEnMinutos - inicioEnMinutos) / 60) * 30;
     
     return { top, height };
   };
@@ -121,11 +121,11 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+      <div style={{ marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '1rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
           Visualiza tu calendario de clases
         </p>
       </div>
@@ -134,10 +134,10 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '24px',
+        borderRadius: '16px',
+        padding: '16px',
         backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)',
+        boxShadow: darkMode ? '0 10px 30px rgba(0, 0, 0, 0.3)' : '0 10px 30px rgba(0, 0, 0, 0.1)',
         overflowX: 'auto'
       }}>
         <div style={{ minWidth: '900px' }}>
@@ -153,9 +153,9 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
               <div
                 key={dia}
                 style={{
-                  padding: '16px 8px',
+                  padding: '10px 6px',
                   background: `linear-gradient(135deg, ${theme.accent}15, ${theme.accent}08)`,
-                  borderRadius: '12px 12px 0 0',
+                  borderRadius: '10px 10px 0 0',
                   textAlign: 'center',
                   border: `1px solid ${theme.border}`,
                   borderBottom: 'none'
@@ -163,15 +163,15 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
               >
                 <div style={{ 
                   color: theme.accent, 
-                  fontSize: '0.75rem', 
+                  fontSize: '0.7rem', 
                   fontWeight: '600',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  marginBottom: '2px'
                 }}>
                   {diaAbreviado}
                 </div>
-                <div style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '700' }}>
+                <div style={{ color: theme.textPrimary, fontSize: '0.95rem', fontWeight: '700' }}>
                   {dia}
                 </div>
               </div>
@@ -191,13 +191,13 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                 <div
                   key={hora}
                   style={{
-                    height: '80px',
-                    padding: '8px',
+                    height: '30px',
+                    padding: '4px',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
                     color: theme.textMuted,
-                    fontSize: '0.85rem',
+                    fontSize: '0.75rem',
                     fontWeight: '600'
                   }}
                 >
@@ -223,10 +223,10 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                     key={hora}
                     style={{
                       position: 'absolute',
-                      top: `${index * 80}px`,
+                      top: `${index * 30}px`,
                       left: 0,
                       right: 0,
-                      height: '80px',
+                      height: '30px',
                       borderBottom: `1px dashed ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`
                     }}
                   />
@@ -247,8 +247,8 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                         right: '4px',
                         height: `${height - 8}px`,
                         background: `linear-gradient(135deg, ${color}dd, ${color}bb)`,
-                        borderRadius: '8px',
-                        padding: '8px',
+                        borderRadius: '6px',
+                        padding: '6px',
                         overflow: 'hidden',
                         boxShadow: `0 4px 12px ${color}40`,
                         border: `1px solid ${color}`,
@@ -264,22 +264,22 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                         e.currentTarget.style.zIndex = '1';
                       }}
                     >
-                      <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px' }}>
+                      <div style={{ color: '#fff', fontSize: '0.65rem', fontWeight: '700', marginBottom: '2px' }}>
                         {clase.hora_inicio.substring(0, 5)} - {clase.hora_fin.substring(0, 5)}
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700', lineHeight: 1.2, marginBottom: '4px' }}>
+                      <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', lineHeight: 1.1, marginBottom: '2px' }}>
                         {clase.curso_nombre}
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <MapPin size={12} />
+                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <MapPin size={10} />
                         {clase.aula_nombre}
                       </div>
                       <div style={{
-                        marginTop: '4px',
-                        padding: '2px 6px',
+                        marginTop: '2px',
+                        padding: '2px 4px',
                         background: 'rgba(255,255,255,0.2)',
-                        borderRadius: '4px',
-                        fontSize: '0.7rem',
+                        borderRadius: '3px',
+                        fontSize: '0.6rem',
                         fontWeight: '600',
                         color: '#fff',
                         display: 'inline-block'
