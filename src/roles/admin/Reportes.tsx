@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Download, BarChart3, Users, BookOpen, DollarSign,
   Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
-  History, Clock, User, Calendar, Filter
+  History, Clock, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassEffect from '../../components/GlassEffect';
@@ -33,6 +33,36 @@ type Estadisticas = any;
 
 const Reportes = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
+  
+  // Estilos para scrollbar horizontal
+  const scrollbarStyles = `
+    .metricas-scroll {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(239, 68, 68, 0.5) rgba(255, 255, 255, 0.05);
+    }
+    
+    .metricas-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .metricas-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    .metricas-scroll::-webkit-scrollbar-thumb {
+      background: rgba(239, 68, 68, 0.5);
+      border-radius: 10px;
+    }
+    .metricas-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(239, 68, 68, 0.7);
+    }
+    
+    /* Forzar que las tarjetas no se envuelvan */
+    .metricas-scroll > div {
+      flex-shrink: 0 !important;
+      min-width: 150px !important;
+    }
+  `;
   
   // Estados principales
   const [tipoReporte, setTipoReporte] = useState('estudiantes');
@@ -619,14 +649,22 @@ const Reportes = () => {
       }
 
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '16px' : '24px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '16px' : '24px', width: '100%' }}>
           {/* Métricas principales */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+          <div className="metricas-scroll" style={{ 
+            display: isMobile ? 'flex' : 'grid',
+            flexWrap: isMobile ? 'nowrap' : undefined,
+            gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
             gap: isMobile ? '10px' : '12px',
-            width: '100%',
-            maxWidth: '100%'
+            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            overflowX: isMobile ? 'scroll' : 'visible',
+            overflowY: 'hidden',
+            paddingBottom: isMobile ? '8px' : '0',
+            WebkitOverflowScrolling: 'touch',
+            marginLeft: isMobile ? '-16px' : '0',
+            marginRight: isMobile ? '-16px' : '0',
+            paddingLeft: isMobile ? '16px' : '0',
+            paddingRight: isMobile ? '16px' : '0'
           }}>
             {[
               { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes || 0, color: '#3b82f6', icono: Users },
@@ -648,8 +686,10 @@ const Reportes = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   minHeight: isMobile ? '90px' : '120px',
-                  maxWidth: '100%',
-                  boxSizing: 'border-box'
+                  width: isMobile ? '140px' : 'auto',
+                  minWidth: isMobile ? '140px' : 'auto',
+                  boxSizing: 'border-box',
+                  flexShrink: 0
                 }}
               >
                 <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
@@ -841,14 +881,22 @@ const Reportes = () => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%' }}>
           {/* Métricas principales */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+          <div className="metricas-scroll" style={{ 
+            display: isMobile ? 'flex' : 'grid',
+            flexWrap: isMobile ? 'nowrap' : undefined,
+            gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
             gap: isMobile ? '10px' : '12px',
-            width: '100%',
-            maxWidth: '100%'
+            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            overflowX: isMobile ? 'scroll' : 'visible',
+            overflowY: 'hidden',
+            paddingBottom: isMobile ? '8px' : '0',
+            WebkitOverflowScrolling: 'touch',
+            marginLeft: isMobile ? '-16px' : '0',
+            marginRight: isMobile ? '-16px' : '0',
+            paddingLeft: isMobile ? '16px' : '0',
+            paddingRight: isMobile ? '16px' : '0'
           }}>
             {[
               { titulo: 'Ingresos Totales', valor: `$${parseFloat(estadisticas.ingresos_totales || 0).toLocaleString()}`, color: '#10b981', icono: DollarSign },
@@ -870,8 +918,10 @@ const Reportes = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   minHeight: isMobile ? '90px' : '120px',
-                  maxWidth: '100%',
-                  boxSizing: 'border-box'
+                  width: isMobile ? '140px' : 'auto',
+                  minWidth: isMobile ? '140px' : 'auto',
+                  boxSizing: 'border-box',
+                  flexShrink: 0
                 }}
               >
                 <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
@@ -1085,14 +1135,22 @@ const Reportes = () => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%' }}>
           {/* Métricas principales */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+          <div className="metricas-scroll" style={{ 
+            display: isMobile ? 'flex' : 'grid',
+            flexWrap: isMobile ? 'nowrap' : undefined,
+            gridTemplateColumns: isMobile ? 'none' : 'repeat(3, 1fr)',
             gap: isMobile ? '10px' : '12px',
-            width: '100%',
-            maxWidth: '100%'
+            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            overflowX: isMobile ? 'scroll' : 'visible',
+            overflowY: 'hidden',
+            paddingBottom: isMobile ? '8px' : '0',
+            WebkitOverflowScrolling: 'touch',
+            marginLeft: isMobile ? '-16px' : '0',
+            marginRight: isMobile ? '-16px' : '0',
+            paddingLeft: isMobile ? '16px' : '0',
+            paddingRight: isMobile ? '16px' : '0'
           }}>
             {[
               { titulo: 'Total Cursos', valor: estadisticas.total_cursos || 0, color: '#10b981', icono: BookOpen },
@@ -1109,7 +1167,10 @@ const Reportes = () => {
                   border: `2px solid ${metrica.color}40`,
                   borderRadius: '10px', padding: isMobile ? '10px 8px' : '12px',
                   textAlign: 'center',
-                  boxShadow: `0 4px 20px ${metrica.color}20`
+                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  width: isMobile ? '140px' : 'auto',
+                  minWidth: isMobile ? '140px' : 'auto',
+                  flexShrink: 0
                 }}
               >
                 <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
@@ -1215,8 +1276,10 @@ const Reportes = () => {
   };
 
   return (
-    <div style={{ padding: isMobile ? '16px' : '24px' }}>
-      <div style={{ marginBottom: '14px' }}>
+    <>
+      <style>{scrollbarStyles}</style>
+      <div style={{ padding: isMobile ? '16px' : '24px' }}>
+        <div style={{ marginBottom: '14px' }}>
         <h2 style={{
           color: '#fff', 
           fontSize: isMobile ? '1rem' : '1.2rem', 
@@ -1507,7 +1570,9 @@ const Reportes = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
             backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
             borderRadius: isMobile ? '12px' : '20px', 
-            padding: isMobile ? '16px' : '32px'
+            padding: isMobile ? '16px' : '32px',
+            overflowX: 'hidden',
+            overflowY: 'auto'
           }}>
             <div style={{ marginBottom: '16px' }}>
               <h3 style={{ 
@@ -1724,7 +1789,8 @@ const Reportes = () => {
           to { transform: rotate(360deg); }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 };
 

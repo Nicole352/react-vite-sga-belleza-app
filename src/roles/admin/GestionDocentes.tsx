@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Key, Lock, Info, Grid, List, ChevronLeft, ChevronRight, IdCard
+  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Lock, Info, Grid, List, ChevronLeft, ChevronRight, IdCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -227,7 +227,7 @@ const GestionDocentes = () => {
     }
   };
 
-  const totalPages = Math.ceil(totalCount / limit);
+  // const totalPages = Math.ceil(totalCount / limit); // Para uso futuro en paginación
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'No especificado';
@@ -900,14 +900,12 @@ const GestionDocentes = () => {
             borderRadius: isMobile ? '20px 20px 0 0' : '12px',
             width: isMobile ? '100vw' : '100%',
             maxWidth: isMobile ? '100vw' : '700px',
-            maxHeight: isMobile ? '90vh' : '85vh',
+            maxHeight: '90vh',
             overflowY: 'auto',
             padding: '18px 28px 22px 28px',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: '90vh',
-            overflowY: 'auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)'
           }}>
             {/* Header del Modal */}
             <div style={{

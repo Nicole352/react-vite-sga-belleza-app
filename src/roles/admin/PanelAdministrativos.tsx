@@ -214,7 +214,9 @@ const PanelAdministrativos = () => {
           zIndex: 1000,
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)',
           transition: 'all 0.3s ease',
-          overflow: 'auto'
+          overflowY: isSmallScreen ? 'auto' : 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* Botón hamburguesa - Desktop */}
           {!isSmallScreen && (
@@ -292,7 +294,10 @@ const PanelAdministrativos = () => {
           </div>
 
           {/* Navegación del Sidebar */}
-          <nav style={{ marginBottom: '32px' }}>
+          <nav style={{ 
+            marginBottom: '32px',
+            flex: 1
+          }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
               return (
