@@ -510,20 +510,21 @@ const GestionPagos = () => {
 
       {/* Modal de detalle (placeholder) */}
       {showModal && selectedPago && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'var(--admin-modal-bg)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
-        }}>
+        <div 
+          data-modal-overlay="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
           <div style={{
             background: 'var(--admin-bg-secondary)',
             borderRadius: '16px',
@@ -593,15 +594,17 @@ const GestionPagos = () => {
 
       {/* Modal Comprobante */}
       {showComprobanteModal && (
-        <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
-          background: 'rgba(0,0,0,0.8)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 60 
-        }}>
+        <div 
+          data-modal-overlay="true"
+          style={{ 
+            position: 'fixed', 
+            inset: 0, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 60 
+          }}
+        >
           <div style={{ 
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
             border: '1px solid rgba(16, 185, 129, 0.3)', 

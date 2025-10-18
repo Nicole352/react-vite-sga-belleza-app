@@ -6,8 +6,11 @@ import {
 } from 'lucide-react';
 import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const Dashboard = () => {
+  const { isMobile, isTablet, isSmallScreen } = useBreakpoints();
   const [stats, setStats] = useState({
     totalAdministradores: 0,
     totalEstudiantes: 0,
@@ -69,9 +72,14 @@ const Dashboard = () => {
   }, []); // Array de dependencias vacío para que solo se ejecute una vez
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="responsive-padding">
       {/* Tarjetas principales */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+        gap: isMobile ? '12px' : '16px',
+        marginBottom: isMobile ? '16px' : '24px'
+      }}>
         {/* Total Administradores */}
         <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>

@@ -5,6 +5,8 @@ import {
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 // Tipos
 interface Estudiante {
@@ -26,6 +28,8 @@ interface Estudiante {
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 const GestionEstudiantes = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
+  
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,83 +111,72 @@ const GestionEstudiantes = () => {
   };
 
   return (
-    <div style={{ 
+    <div className="responsive-padding" style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
-      padding: 24, 
       color: '#fff' 
     }}>
       {/* Header */}
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <GraduationCap size={24} color={RedColorPalette.primary} />
-          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>Gestión de Estudiantes</h1>
+      <div style={{ marginBottom: isMobile ? 12 : 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, marginBottom: 6 }}>
+          <GraduationCap size={isMobile ? 20 : 24} color={RedColorPalette.primary} />
+          <h1 className="responsive-title" style={{ margin: 0, fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>Gestión de Estudiantes</h1>
         </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: isMobile ? '0.75rem' : '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra y visualiza la información de todos los estudiantes registrados
         </p>
       </div>
 
-      {/* Filtros y Búsqueda */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'end', flexWrap: 'wrap' }}>
-          {/* Búsqueda */}
-          <div style={{ flex: '1 1 280px' }}>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Buscar Estudiante
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+      {/* Controles */}
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? 12 : 16 }}>
+        <div className="responsive-filters">
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+            {/* Búsqueda */}
+            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
-                placeholder="Buscar por nombre, apellido, cédula o email..."
+                placeholder={isMobile ? "Buscar estudiantes..." : "Buscar por nombre, apellido, cédula o email..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px 10px 10px 38px',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.2)',
                   background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
               />
             </div>
-          </div>
 
-          {/* Filtro Estado */}
-          <div style={{ minWidth: 160 }}>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Estado
-            </label>
-            <StyledSelect
-              name="filterEstado"
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              options={[
-                { value: 'todos', label: 'Todos los estados' },
-                { value: 'activo', label: 'Activos' },
-                { value: 'inactivo', label: 'Inactivos' },
-                { value: 'pendiente', label: 'Pendientes' }
-              ]}
-            />
-          </div>
+            {/* Filtros */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 200, width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterEstado"
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los estados' },
+                  { value: 'activo', label: 'Activos' },
+                  { value: 'inactivo', label: 'Inactivos' },
+                  { value: 'pendiente', label: 'Pendientes' }
+                ]}
+              />
+            </div>
 
-          {/* Toggle Vista */}
-          <div>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Vista
-            </label>
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '3px' }}>
+            {/* Toggle Vista */}
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px', width: isSmallScreen ? '100%' : 'auto' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '5px',
-                  padding: '7px 12px',
-                  background: viewMode === 'cards' ? mapToRedScheme('rgba(16, 185, 129, 0.2)') : 'transparent',
+                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '7px',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
@@ -191,28 +184,31 @@ const GestionEstudiantes = () => {
                   fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={14} /> Tarjetas
+                <Grid size={16} /> {!isMobile && 'Tarjetas'}
               </button>
               <button
                 onClick={() => setViewMode('table')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
-                  padding: '7px 12px',
-                  background: viewMode === 'table' ? mapToRedScheme('rgba(16, 185, 129, 0.2)') : 'transparent',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '7px',
+                  borderRadius: '8px',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.75rem',
+                  fontSize: isMobile ? '0.75rem' : '0.9rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={14} /> Tabla
+                <List size={16} /> {!isMobile && 'Tabla'}
               </button>
             </div>
           </div>
@@ -222,15 +218,21 @@ const GestionEstudiantes = () => {
             onClick={fetchEstudiantes}
             disabled={loading}
             style={{ 
-              padding: '12px 20px', 
-              borderRadius: 10, 
-              border: `1px solid ${RedColorPalette.primary}`, 
-              background: 'rgba(239, 68, 68, 0.15)', 
-              color: RedColorPalette.primary, 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: isMobile ? '10px 16px' : '12px 24px',
+              background: loading ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+              border: 'none',
+              borderRadius: '10px',
+              color: '#fff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: '600',
               cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              opacity: loading ? 0.7 : 1
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              width: isSmallScreen ? '100%' : 'auto'
             }}
           >
             {loading ? 'Cargando...' : 'Refrescar'}
@@ -275,7 +277,7 @@ const GestionEstudiantes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '18px' }}>
           {estudiantesFiltrados.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
@@ -413,54 +415,68 @@ const GestionEstudiantes = () => {
       {viewMode === 'cards' && !loading && estudiantesFiltrados.length > 0 && (
         <div style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '20px 24px',
-          marginTop: '90px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '12px' : '0',
+          padding: isMobile ? '16px' : '20px 24px',
+          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '16px',
           marginBottom: '24px'
         }}>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+          <div style={{ 
+            color: 'rgba(255,255,255,0.7)', 
+            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            textAlign: isMobile ? 'center' : 'left'
+          }}>
             Página {page} de {totalPages} • Total: {totalCount} estudiantes
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px',
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            flexWrap: 'wrap'
+          }}>
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={16} /> Anterior
+              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
               <button
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: '8px 14px',
+                  padding: isMobile ? '8px 10px' : '8px 14px',
                   background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: '40px',
+                  minWidth: isMobile ? '36px' : '40px',
                 }}
               >
                 {pageNum}
@@ -472,19 +488,22 @@ const GestionEstudiantes = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              Siguiente <ChevronRight size={16} />
+              {!isMobile && 'Siguiente'} 
+              <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
         </div>
@@ -492,14 +511,36 @@ const GestionEstudiantes = () => {
 
       {/* Vista Tabla */}
       {viewMode === 'table' && (
+        <>
         <div style={{ 
           background: 'rgba(255,255,255,0.05)', 
           borderRadius: 16, 
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.1)',
-          marginBottom: '24px'
+          border: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <div style={{ overflowX: 'auto' }}>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              margin: '12px',
+              color: '#ef4444',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}>
+              <span>👉</span>
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <span>👈</span>
+            </div>
+          )}
+          
+          <div className="responsive-table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.1)' }}>
@@ -619,89 +660,136 @@ const GestionEstudiantes = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Paginación */}
-        {totalPages > 1 && (
+        </div>
+        
+        {/* Paginación fuera del contenedor con overflow */}
+        {totalCount > 0 && (
           <div style={{ 
-            padding: '16px 24px', 
-            borderTop: '1px solid rgba(255,255,255,0.1)', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center' 
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '12px' : '0',
+            padding: isMobile ? '16px' : '20px 24px',
+            marginTop: '12px',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '16px',
+            marginBottom: '24px'
           }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Mostrando {((page - 1) * limit) + 1} - {Math.min(page * limit, totalCount)} de {totalCount} estudiantes
+            <div style={{ 
+              color: 'rgba(255,255,255,0.7)', 
+              fontSize: isMobile ? '0.8rem' : '0.9rem',
+              textAlign: isMobile ? 'center' : 'left'
+            }}>
+              Página {page} de {totalPages} • Total: {totalCount} estudiantes
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px',
+              justifyContent: isMobile ? 'center' : 'flex-start',
+              flexWrap: 'wrap'
+            }}>
               <button
-                onClick={() => setPage(Math.max(1, page - 1))}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: isMobile ? '4px' : '6px',
+                  padding: isMobile ? '8px 12px' : '8px 16px',
                   background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  color: page === 1 ? 'rgba(255,255,255,0.4)' : '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
+                  color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontWeight: 600,
                   cursor: page === 1 ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem'
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? '1' : 'initial'
                 }}
               >
-                Anterior
+                <ChevronLeft size={isMobile ? 14 : 16} /> 
+                {!isMobile && 'Anterior'}
               </button>
-              <span style={{ 
-                padding: '8px 12px', 
-                color: 'rgba(255,255,255,0.8)', 
-                fontSize: '0.8rem' 
-              }}>
-                {page} de {totalPages}
-              </span>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  style={{
+                    padding: isMobile ? '8px 10px' : '8px 14px',
+                    background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
+                    border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    minWidth: isMobile ? '36px' : '40px',
+                  }}
+                >
+                  {pageNum}
+                </button>
+              ))}
               <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: isMobile ? '4px' : '6px',
+                  padding: isMobile ? '8px 12px' : '8px 16px',
                   background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  color: page === totalPages ? 'rgba(255,255,255,0.4)' : '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
+                  color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontWeight: 600,
                   cursor: page === totalPages ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem'
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? '1' : 'initial'
                 }}
               >
-                Siguiente
+                {!isMobile && 'Siguiente'} 
+                <ChevronRight size={isMobile ? 14 : 16} />
               </button>
             </div>
           </div>
         )}
-        </div>
+        </>
       )}
 
       {/* Modal de Detalle */}
       {showModal && selectedEstudiante && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '20px',
-        }}>
-          <div style={{
+        <div 
+          data-modal-overlay="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: isMobile ? 'flex-end' : 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: isMobile ? '0' : '20px',
+          }}
+        >
+          <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
-            width: '100%',
-            maxWidth: '700px',
-            padding: '18px 28px 22px 28px',
+            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            width: isMobile ? '100vw' : '100%',
+            maxWidth: isMobile ? '100vw' : '700px',
+            padding: isMobile ? '16px' : '18px 28px 22px 28px',
             color: '#fff',
             margin: '0 auto',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: '90vh',
+            maxHeight: isMobile ? '90vh' : '85vh',
             overflowY: 'auto',
           }}>
             {/* Header del Modal */}
@@ -745,7 +833,11 @@ const GestionEstudiantes = () => {
             </div>
 
             {/* Información del Estudiante */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+              gap: isMobile ? 12 : 16 
+            }}>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
                 <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.nombre}</div>
@@ -827,7 +919,7 @@ const GestionEstudiantes = () => {
             </div>
 
             {/* Botón Cerrar */}
-            <div style={{ marginTop: 24, textAlign: 'right' }}>
+            <div style={{ marginTop: isMobile ? 20 : 24, textAlign: isMobile ? 'center' : 'right' }}>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
@@ -836,6 +928,7 @@ const GestionEstudiantes = () => {
                   color: '#9ca3af',
                   padding: '10px 20px',
                   borderRadius: '8px',
+                  width: isMobile ? '100%' : 'auto',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500'

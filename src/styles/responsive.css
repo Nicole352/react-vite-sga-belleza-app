@@ -1,0 +1,380 @@
+/* ============================================
+   RESPONSIVE STYLES FOR ADMIN PANEL
+   ============================================ */
+
+/* Breakpoints:
+   - Mobile: 0-640px
+   - Tablet: 641-1024px
+   - Desktop: 1025px+
+*/
+
+/* ============================================
+   GRID RESPONSIVE
+   ============================================ */
+
+/* Grid de 4 columnas -> 2 en tablet -> 1 en móvil */
+.responsive-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .responsive-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid de 3 columnas -> 2 en tablet -> 1 en móvil */
+.responsive-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid de 2 columnas -> 1 en móvil */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid auto-fit (se adapta automáticamente) */
+.responsive-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-auto {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   FLEX RESPONSIVE
+   ============================================ */
+
+.responsive-flex {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.responsive-flex-column-mobile {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .responsive-flex-column-mobile {
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   SPACING RESPONSIVE
+   ============================================ */
+
+.responsive-padding {
+  padding: 32px;
+}
+
+@media (max-width: 1024px) {
+  .responsive-padding {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-padding {
+    padding: 16px;
+  }
+}
+
+/* ============================================
+   TYPOGRAPHY RESPONSIVE
+   ============================================ */
+
+.responsive-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .responsive-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-title {
+    font-size: 1.5rem;
+  }
+}
+
+.responsive-subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .responsive-subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+/* ============================================
+   TABLE RESPONSIVE
+   ============================================ */
+
+.responsive-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* Scrollbar personalizado para tablas */
+.responsive-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.responsive-table-container::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+.responsive-table-container::-webkit-scrollbar-thumb {
+  background: rgba(239, 68, 68, 0.4);
+  border-radius: 4px;
+}
+
+.responsive-table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 68, 68, 0.6);
+}
+
+/* Scrollbar más visible en tablet/móvil */
+@media (max-width: 1024px) {
+  .responsive-table-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .responsive-table-container::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.6);
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-table-container table {
+    font-size: 0.8rem;
+  }
+  
+  .responsive-table-container th,
+  .responsive-table-container td {
+    padding: 8px 6px !important;
+    white-space: nowrap;
+  }
+  
+  /* Hacer los botones más pequeños en móvil */
+  .responsive-table-container button {
+    padding: 6px 8px !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* ============================================
+   BUTTONS RESPONSIVE
+   ============================================ */
+
+.responsive-button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .responsive-button-group {
+    flex-direction: column;
+  }
+  
+  .responsive-button-group button {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   FILTERS RESPONSIVE
+   ============================================ */
+
+.responsive-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .responsive-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .responsive-filters > * {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   CARDS RESPONSIVE
+   ============================================ */
+
+.responsive-card {
+  border-radius: 12px;
+  padding: 16px;
+}
+
+@media (max-width: 640px) {
+  .responsive-card {
+    border-radius: 10px;
+    padding: 12px;
+  }
+}
+
+/* ============================================
+   MODALS RESPONSIVE
+   ============================================ */
+
+/* Modal en móvil - Ocupa toda la pantalla desde abajo */
+@media (max-width: 640px) {
+  .responsive-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    max-height: 90vh !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+  
+  /* Aplicar también a modales existentes con position fixed */
+  div[style*="position: fixed"][style*="zIndex: 9999"] > div {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Formularios dentro de modales */
+  .responsive-modal form,
+  div[style*="position: fixed"] form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Grid de 2 columnas a 1 columna en móvil */
+  .responsive-modal form > div[style*="gridTemplateColumns"],
+  div[style*="position: fixed"] form > div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .responsive-modal input,
+  .responsive-modal select,
+  .responsive-modal textarea,
+  div[style*="position: fixed"] input,
+  div[style*="position: fixed"] select,
+  div[style*="position: fixed"] textarea {
+    font-size: 16px !important; /* Evita zoom en iOS */
+  }
+  
+  /* Botones en modales móviles */
+  .responsive-modal button[type="submit"],
+  .responsive-modal button[type="button"],
+  div[style*="position: fixed"] button[type="submit"],
+  div[style*="position: fixed"] button[type="button"] {
+    width: 100%;
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+  }
+  
+  /* Padding reducido en modales móviles */
+  div[style*="position: fixed"] > div {
+    padding: 16px !important;
+  }
+}
+
+/* Modal en tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .responsive-modal {
+    width: 90vw !important;
+    max-width: 600px !important;
+    max-height: 85vh !important;
+  }
+}
+
+/* ============================================
+   HIDE/SHOW ELEMENTS
+   ============================================ */
+
+.hide-mobile {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+.hide-tablet {
+  display: block;
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  display: block;
+}
+
+@media (min-width: 1025px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}

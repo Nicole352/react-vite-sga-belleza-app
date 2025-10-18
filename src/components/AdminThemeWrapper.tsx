@@ -16,7 +16,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
     inputBg: 'rgba(255,255,255,0.1)',
     inputBorder: 'rgba(255,255,255,0.2)',
     hoverBg: 'rgba(255,255,255,0.05)',
-    modalBg: 'rgba(0,0,0,0.6)'
+    modalBg: 'rgba(0,0,0,0.7)'
   } : {
     textPrimary: '#1e293b',
     textSecondary: 'rgba(30,41,59,0.8)',
@@ -27,7 +27,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
     inputBg: 'rgba(0,0,0,0.05)',
     inputBorder: 'rgba(0,0,0,0.15)',
     hoverBg: 'rgba(0,0,0,0.05)',
-    modalBg: 'rgba(0,0,0,0.4)'
+    modalBg: 'rgba(240,240,240,0.75)'
   };
 
   return (
@@ -134,8 +134,14 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           background: var(--theme-bg-content) !important;
         }
         
-        /* Modales */
-        .admin-theme-wrapper div[style*="position: fixed"] {
+        /* Modales - Control total del fondo */
+        .admin-theme-wrapper div[data-modal-overlay="true"] {
+          background: var(--theme-modal-bg) !important;
+        }
+        
+        /* Aplicar también a modales con position fixed */
+        .admin-theme-wrapper div[style*="position: fixed"][style*="zIndex: 9999"],
+        .admin-theme-wrapper div[style*="position: fixed"][style*="z-index: 9999"] {
           background: var(--theme-modal-bg) !important;
         }
         
@@ -220,12 +226,18 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         }
         
         /* Backgrounds oscuros específicos */
-        .admin-theme-wrapper [style*="background: linear-gradient(135deg, rgba(0,0,0"] {
+        .admin-theme-wrapper [style*="background: linear-gradient(135deg, rgba(0,0,0"]:not(.reporte-card-selected) {
           background: var(--theme-bg-content) !important;
         }
         
-        .admin-theme-wrapper [style*="background: rgba(0,0,0"] {
+        .admin-theme-wrapper [style*="background: rgba(0,0,0"]:not(.reporte-card-selected) {
           background: var(--theme-bg-content) !important;
+        }
+        
+        /* Excepción para cards de reportes seleccionadas - FORZAR ROJO */
+        .admin-theme-wrapper .reporte-card-selected {
+          background: #ef4444 !important;
+          background-image: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
         }
         
         /* REGLAS ULTRA-AGRESIVAS PARA SUPERADMIN */
@@ -266,7 +278,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           color: #ef4444 !important;
         }
       `}</style>
-      
+
       <div className="admin-theme-wrapper">
         {children}
       </div>

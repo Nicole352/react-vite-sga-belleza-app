@@ -4,6 +4,10 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
+import GlassEffect from '../../components/GlassEffect';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 // Tipos
 interface Docente {
@@ -26,6 +30,8 @@ interface Docente {
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 const GestionDocentes = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
+  
   const [docentes, setDocentes] = useState<Docente[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -243,171 +249,170 @@ const GestionDocentes = () => {
       {/* Header */}
       <div style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <UserCheck size={24} color="#ef4444" />
-          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>Gestión de Docentes</h1>
+          <UserCheck size={24} color={RedColorPalette.primary} />
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>Gestión de Docentes</h1>
         </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra y visualiza la información de todos los docentes registrados
         </p>
       </div>
 
-      {/* Filtros y Búsqueda */}
-      <div style={{ 
-        background: 'rgba(255,255,255,0.05)', 
-        borderRadius: 12, 
-        padding: 16, 
-        marginBottom: 16,
-        border: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'end', flexWrap: 'wrap' }}>
-          {/* Búsqueda */}
-          <div style={{ flex: '1 1 280px' }}>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Buscar Docente
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+      {/* Controles */}
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap', 
+          gap: '12px', 
+          alignItems: isMobile ? 'stretch' : 'center', 
+          justifyContent: 'space-between' 
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '12px', 
+            alignItems: isMobile ? 'stretch' : 'center', 
+            flex: 1 
+          }}>
+            {/* Búsqueda */}
+            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '280px', flex: isMobile ? '1' : 'initial' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
-                placeholder="Buscar por nombre, apellido, identificación..."
+                placeholder={isMobile ? "Buscar..." : "Buscar por nombre, apellido, identificación..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px 10px 10px 38px',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.2)',
                   background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
               />
             </div>
-          </div>
 
-          {/* Filtro Estado */}
-          <div style={{ minWidth: 160 }}>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Estado
-            </label>
-            <StyledSelect
-              name="filterEstado"
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              options={[
-                { value: 'todos', label: 'Todos los estados' },
-                { value: 'activo', label: 'Activos' },
-                { value: 'inactivo', label: 'Inactivos' }
-              ]}
-            />
-          </div>
+            {/* Filtros */}
+            <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+              <StyledSelect
+                name="filterEstado"
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los estados' },
+                  { value: 'activo', label: 'Activos' },
+                  { value: 'inactivo', label: 'Inactivos' }
+                ]}
+              />
+            </div>
 
-          {/* Toggle Vista */}
-          <div>
-            <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              Vista
-            </label>
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '3px' }}>
+            {/* Toggle Vista */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '6px', 
+              background: 'rgba(255,255,255,0.05)', 
+              borderRadius: '10px', 
+              padding: '3px',
+              width: isSmallScreen ? '100%' : 'auto'
+            }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '5px',
-                  padding: '7px 12px',
-                  background: viewMode === 'cards' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-                  border: viewMode === 'cards' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
+                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '7px',
-                  color: viewMode === 'cards' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+                  color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.75rem',
+                  fontSize: isMobile ? '0.75rem' : '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={14} /> Tarjetas
+                <Grid size={16} /> {!isMobile && 'Tarjetas'}
               </button>
               <button
                 onClick={() => setViewMode('table')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
-                  padding: '7px 12px',
-                  background: viewMode === 'table' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-                  border: viewMode === 'table' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
-                  borderRadius: '7px',
-                  color: viewMode === 'table' ? '#ef4444' : 'rgba(255,255,255,0.6)',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.75rem',
+                  fontSize: isMobile ? '0.75rem' : '0.9rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={14} /> Tabla
+                <List size={16} /> {!isMobile && 'Tabla'}
               </button>
             </div>
           </div>
 
-          {/* Botón Nuevo Docente */}
-          <button 
+          {/* Botón Crear */}
+          <button
             onClick={() => {
               setSelectedDocente(null);
               setModalMode('create');
               setPreviewUsername('');
               setShowModal(true);
             }}
-            style={{ 
-              padding: '12px 20px', 
-              borderRadius: 10, 
-              border: '1px solid rgba(239, 68, 68, 0.3)', 
-              background: 'rgba(239, 68, 68, 0.15)', 
-              color: '#ef4444', 
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
+            style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              justifyContent: 'center',
+              gap: '8px',
+              padding: isMobile ? '10px 16px' : '12px 24px',
+              background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+              border: 'none',
+              borderRadius: '10px',
+              color: '#fff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              width: isSmallScreen ? '100%' : 'auto'
             }}
           >
             <Plus size={16} />
             Nuevo Docente
           </button>
         </div>
-      </div>
+      </GlassEffect>
 
       {/* Estadísticas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <div style={{ 
-          background: 'rgba(239, 68, 68, 0.1)', 
-          border: '1px solid rgba(239, 68, 68, 0.3)', 
-          borderRadius: 10, 
-          padding: 14, 
-          textAlign: 'center' 
-        }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: '#ef4444', marginBottom: 3 }}>
+        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {totalCount}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
             Total Docentes
           </div>
-        </div>
+        </GlassEffect>
         
-        <div style={{ 
-          background: 'rgba(16, 185, 129, 0.1)', 
-          border: '1px solid rgba(16, 185, 129, 0.3)', 
-          borderRadius: 10, 
-          padding: 14, 
-          textAlign: 'center' 
-        }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: '#10b981', marginBottom: 3 }}>
+        <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {docentes.filter(d => d.estado === 'activo').length}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
             Docentes Activos
           </div>
-        </div>
+        </GlassEffect>
       </div>
 
       {/* Error */}
@@ -426,32 +431,22 @@ const GestionDocentes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '18px' }}>
           {docentesFiltrados.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
             </div>
           ) : (
             docentesFiltrados.map((docente) => (
-              <div
+              <GlassEffect
                 key={docente.id_docente}
+                variant="card"
+                tint="red"
+                intensity="light"
+                hover
+                animated
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(239, 68, 68, 0.15)',
-                  borderRadius: '12px',
                   padding: '14px',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.15)';
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
@@ -460,15 +455,15 @@ const GestionDocentes = () => {
                       width: 40, 
                       height: 40, 
                       borderRadius: '50%', 
-                      background: 'rgba(239, 68, 68, 0.2)', 
+                      background: 'rgba(239, 68, 68, 0.15)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center' 
                     }}>
-                      <User size={20} color="#ef4444" />
+                      <User size={20} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0' }}>
+                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                         {docente.nombres} {docente.apellidos}
                       </h3>
                       <span style={{
@@ -478,9 +473,9 @@ const GestionDocentes = () => {
                         fontSize: '0.65rem',
                         fontWeight: '600',
                         textTransform: 'uppercase',
-                        background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                        border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                        color: docente.estado === 'activo' ? '#10b981' : '#ef4444'
+                        background: docente.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                        border: docente.estado === 'activo' ? `1px solid ${RedColorPalette.success}` : `1px solid ${RedColorPalette.primary}`,
+                        color: docente.estado === 'activo' ? RedColorPalette.success : RedColorPalette.primary
                       }}>
                         {docente.estado}
                       </span>
@@ -536,25 +531,29 @@ const GestionDocentes = () => {
                     justifyContent: 'center',
                     gap: '6px',
                     padding: '10px',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${RedColorPalette.primary}`,
                     borderRadius: '10px',
-                    color: '#ef4444',
+                    color: RedColorPalette.primary,
                     fontSize: '0.85rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   <Eye size={14} /> Ver Detalles
                 </button>
-              </div>
+              </GlassEffect>
             ))
           )}
         </div>
@@ -569,7 +568,29 @@ const GestionDocentes = () => {
           border: '1px solid rgba(255,255,255,0.1)',
           marginBottom: '24px'
         }}>
-          <div style={{ overflowX: 'auto' }}>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              margin: '12px',
+              color: '#ef4444',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}>
+              <span>👉</span>
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <span>👈</span>
+            </div>
+          )}
+          
+          <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ 
@@ -755,60 +776,6 @@ const GestionDocentes = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Paginación */}
-        {totalPages > 1 && (
-          <div style={{ 
-            padding: '16px 24px', 
-            borderTop: '1px solid rgba(255,255,255,0.1)', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center' 
-          }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Mostrando {((page - 1) * limit) + 1} - {Math.min(page * limit, totalCount)} de {totalCount} docentes
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  color: page === 1 ? 'rgba(255,255,255,0.4)' : '#fff',
-                  cursor: page === 1 ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem'
-                }}
-              >
-                Anterior
-              </button>
-              <span style={{ 
-                padding: '8px 12px', 
-                color: 'rgba(255,255,255,0.8)', 
-                fontSize: '0.8rem' 
-              }}>
-                {page} de {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  color: page === totalPages ? 'rgba(255,255,255,0.4)' : '#fff',
-                  cursor: page === totalPages ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem'
-                }}
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
-        )}
         </div>
       )}
 
@@ -816,54 +783,68 @@ const GestionDocentes = () => {
       {!loading && docentesFiltrados.length > 0 && (
         <div style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '20px 24px',
-          marginTop: '90px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '12px' : '0',
+          padding: isMobile ? '16px' : '20px 24px',
+          marginTop: isMobile ? '16px' : '90px',
           marginBottom: '24px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '16px',
         }}>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+          <div style={{ 
+            color: 'rgba(255,255,255,0.7)', 
+            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            textAlign: isMobile ? 'center' : 'left'
+          }}>
             Página {page} de {Math.ceil(totalCount / limit)} • Total: {totalCount} docentes
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            flexWrap: 'wrap',
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }}>
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={16} /> Anterior
+              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: Math.ceil(totalCount / limit) }, (_, i) => i + 1).map(pageNum => (
               <button
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: '8px 14px',
-                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
-                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: '40px',
+                  minWidth: isMobile ? '36px' : '40px',
                 }}
               >
                 {pageNum}
@@ -875,19 +856,22 @@ const GestionDocentes = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: page === Math.ceil(totalCount / limit) ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: page === Math.ceil(totalCount / limit) ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === Math.ceil(totalCount / limit) ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              Siguiente <ChevronRight size={16} />
+              {!isMobile && 'Siguiente'} 
+              <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
         </div>
@@ -895,25 +879,29 @@ const GestionDocentes = () => {
 
       {/* Modal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '20px',
-        }}>
-          <div style={{
+        <div 
+          data-modal-overlay="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: isMobile ? 'flex-end' : 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: isMobile ? '0' : '20px',
+          }}
+        >
+          <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
-            width: '100%',
-            maxWidth: '700px',
+            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            width: isMobile ? '100vw' : '100%',
+            maxWidth: isMobile ? '100vw' : '700px',
+            maxHeight: isMobile ? '90vh' : '85vh',
+            overflowY: 'auto',
             padding: '18px 28px 22px 28px',
             color: '#fff',
             margin: '0 auto',
@@ -977,7 +965,11 @@ const GestionDocentes = () => {
                     <h4 style={{ margin: '0 0 12px 0', color: '#3b82f6', fontSize: '1rem', fontWeight: '600' }}>
                       <Lock size={18} style={{ display: 'inline', marginRight: '6px' }} /> Credenciales de Acceso
                     </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                      gap: isMobile ? 10 : 12 
+                    }}>
                       {selectedDocente.username && (
                         <div>
                           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>
@@ -995,7 +987,11 @@ const GestionDocentes = () => {
                 )}
                 
                 {/* Información Personal */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                  gap: isMobile ? 12 : 16 
+                }}>
                 <div>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
                   <div style={{ color: '#fff', fontWeight: '600' }}>{selectedDocente.nombres}</div>
@@ -1089,7 +1085,12 @@ const GestionDocentes = () => {
                     <Info size={16} style={{ display: 'inline', marginRight: '6px' }} /> <strong>Credenciales automáticas:</strong> El sistema generará automáticamente un username único (iniciales + apellido) y usará la identificación como contraseña temporal.
                   </div>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                  gap: isMobile ? 12 : 16, 
+                  marginBottom: isMobile ? 16 : 20 
+                }}>
                   {/* Identificación */}
                   <div>
                     <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
@@ -1423,7 +1424,12 @@ const GestionDocentes = () => {
                 )}
 
                 {/* Botones */}
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: isMobile ? 'column-reverse' : 'row',
+                  gap: 12, 
+                  justifyContent: 'flex-end' 
+                }}>
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
@@ -1435,7 +1441,8 @@ const GestionDocentes = () => {
                       borderRadius: '8px',
                       cursor: 'pointer',
                       fontSize: '0.9rem',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      width: isMobile ? '100%' : 'auto'
                     }}
                   >
                     Cancelar
@@ -1454,7 +1461,9 @@ const GestionDocentes = () => {
                       fontWeight: '500',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px'
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: isMobile ? '100%' : 'auto'
                     }}
                   >
                     {submitting ? 'Guardando...' : (modalMode === 'create' ? 'Crear Docente' : 'Actualizar')}
@@ -1465,10 +1474,11 @@ const GestionDocentes = () => {
 
             {/* Botón Cerrar solo para vista */}
             {modalMode === 'view' && (
-              <div style={{ marginTop: 24, textAlign: 'right' }}>
+              <div style={{ marginTop: isMobile ? 20 : 24, textAlign: isMobile ? 'center' : 'right' }}>
                 <button
                   onClick={() => setShowModal(false)}
                   style={{
+                    width: isMobile ? '100%' : 'auto',
                     background: 'rgba(156, 163, 175, 0.15)',
                     border: '1px solid rgba(156, 163, 175, 0.3)',
                     color: '#9ca3af',

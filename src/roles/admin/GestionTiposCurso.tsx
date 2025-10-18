@@ -5,6 +5,8 @@ import {
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 type TipoCurso = {
   id_tipo_curso: number;
@@ -22,6 +24,7 @@ type TipoCurso = {
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 const GestionTiposCurso: React.FC = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [tipos, setTipos] = useState<TipoCurso[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -176,123 +179,120 @@ const GestionTiposCurso: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '18px' }}>
-        <h2 style={{
-          color: 'rgba(255,255,255,0.95)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
-          display: 'flex', alignItems: 'center', gap: '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+    <div className="responsive-padding">
+      {/* Header */}
+      <div style={{ marginBottom: isMobile ? '12px' : '18px' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={26} color={RedColorPalette.primary} />
+          <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Tipos de Curso
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: '6px 0 0 0', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.75rem' : '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los tipos de curso antes de crear cursos.
         </p>
       </div>
 
-      {/* Barra de búsqueda y controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px' }}>
-          {/* Barra de búsqueda */}
-          <div style={{ flex: '1 1 280px', position: 'relative' }}>
-            <Search
-              size={16}
-              style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'rgba(255,255,255,0.5)'
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Buscar por nombre o descripción..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 10px 10px 38px',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '10px',
-                color: '#fff',
-                fontSize: '0.8rem',
-              }}
-            />
+      {/* Controles */}
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+        <div className="responsive-filters">
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+            {/* Búsqueda */}
+            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+              <input
+                type="text"
+                placeholder="Buscar por nombre o descripción..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 10px 10px 38px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '0.8rem'
+                }}
+              />
+            </div>
+
+            {/* Toggle Vista */}
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px', width: isSmallScreen ? '100%' : 'auto' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
+                  borderRadius: '7px',
+                  color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
+                }}
+              >
+                <Grid size={16} /> {!isMobile && 'Tarjetas'}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
+                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
+                  borderRadius: '8px',
+                  color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  fontSize: isMobile ? '0.75rem' : '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
+                }}
+              >
+                <List size={16} /> {!isMobile && 'Tabla'}
+              </button>
+            </div>
           </div>
 
-          {/* Toggle Vista */}
-          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px' }}>
-            <button
-              onClick={() => setViewMode('cards')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                padding: '7px 12px',
-                background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                borderRadius: '7px',
-                color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
-                cursor: 'pointer',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <Grid size={14} /> Tarjetas
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                padding: '7px 12px',
-                background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                borderRadius: '7px',
-                color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
-                cursor: 'pointer',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <List size={14} /> Tabla
-            </button>
-          </div>
-
-          {/* Botón Nuevo */}
-          <GlassEffect
-            variant="button"
-            tint="red"
-            intensity="medium"
-            hover
-            animated
+          {/* Botón Crear */}
+          <button
             onClick={openCreate}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
-              padding: '8px 14px',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: isMobile ? '10px 16px' : '12px 24px',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
-              color: '#fff',
               border: 'none',
-              borderRadius: 10,
-              fontWeight: 600,
-              fontSize: '0.8rem',
-              cursor: 'pointer',
+              borderRadius: '10px',
+              color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              width: isSmallScreen ? '100%' : 'auto'
             }}
           >
-            <Plus size={16} /> Nuevo Tipo
-          </GlassEffect>
+            <Plus size={16} />
+            Nuevo Tipo
+          </button>
         </div>
 
         {/* Info de resultados */}
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', marginTop: '12px' }}>
           {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
         </div>
       </GlassEffect>
@@ -301,9 +301,9 @@ const GestionTiposCurso: React.FC = () => {
       {viewMode === 'cards' && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: '14px',
-          marginBottom: '18px'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: isMobile ? '12px' : '16px',
+          marginBottom: isMobile ? '12px' : '18px'
         }}>
           {paginatedTipos.map((t) => (
             <div
@@ -496,16 +496,46 @@ const GestionTiposCurso: React.FC = () => {
 
       {/* Vista Tabla */}
       {viewMode === 'table' && (
-        <div
-          style={{
-            background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-            border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-            borderRadius: 16,
-            overflow: 'hidden',
-            marginBottom: '24px'
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              marginBottom: '12px',
+              color: '#ef4444',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}>
+              <span>👉</span>
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <span>👈</span>
+            </div>
+          )}
+          
+          <div
+            className="responsive-table-container"
+            style={{
+              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+              borderRadius: isMobile ? 12 : 16,
+              overflow: 'auto',
+              marginBottom: isMobile ? '12px' : '24px',
+              WebkitOverflowScrolling: 'touch',
+              position: 'relative'
+            }}
+          >
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              minWidth: isSmallScreen ? '700px' : 'auto'
+            }}>
             <thead>
               <tr style={{
                 background: 'rgba(248, 113, 113, 0.15)',
@@ -642,6 +672,7 @@ const GestionTiposCurso: React.FC = () => {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {/* Estados vacíos y errores */}
@@ -692,69 +723,62 @@ const GestionTiposCurso: React.FC = () => {
       {!loading && filteredTipos.length > 0 && (
         <div style={{
           display: 'flex',
+          flexDirection: isSmallScreen ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '20px 24px',
-          marginTop: '90px',
+          gap: isSmallScreen ? '12px' : '0',
+          padding: isMobile ? '16px' : '20px 24px',
+          marginTop: isMobile ? '40px' : '90px',
           background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
           border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-          borderRadius: '16px',
+          borderRadius: isMobile ? '12px' : '16px',
         }}>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-            Página {currentPage} de {totalPages}
+          <div style={{ 
+            color: 'rgba(255,255,255,0.7)', 
+            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            textAlign: isSmallScreen ? 'center' : 'left'
+          }}>
+            Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos de curso
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={16} /> Anterior
+              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 style={{
-                  padding: '8px 14px',
+                  padding: isMobile ? '8px 10px' : '8px 14px',
                   background: currentPage === page ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                   border: currentPage === page ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-                  transform: 'translateZ(0)',
-                  minWidth: '40px',
-                }}
-                onMouseEnter={(e) => {
-                  if (currentPage !== page) {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}30`;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (currentPage !== page) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }
+                  transition: 'all 0.2s ease',
+                  minWidth: isMobile ? '36px' : '40px',
                 }}
               >
                 {page}
@@ -766,19 +790,22 @@ const GestionTiposCurso: React.FC = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              Siguiente <ChevronRight size={16} />
+              {!isMobile && 'Siguiente'} 
+              <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
         </div>
@@ -786,31 +813,36 @@ const GestionTiposCurso: React.FC = () => {
 
       {showModal && (
         <div
+          data-modal-overlay="true"
+          onClick={() => setShowModal(false)}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.7)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: isSmallScreen ? 'flex-end' : 'center',
             justifyContent: 'center',
-            zIndex: 9999,
-            padding: '20px',
+            zIndex: 99999,
+            padding: isSmallScreen ? '0' : '20px',
           }}
         >
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
               background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%))',
               border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.3))',
-              borderRadius: 12,
-              width: '100%',
-              maxWidth: '700px',
-              padding: '18px 28px 22px 28px',
+              borderRadius: isSmallScreen ? '20px 20px 0 0' : '12px',
+              width: isSmallScreen ? '100%' : '100%',
+              maxWidth: isSmallScreen ? '100%' : '700px',
+              maxHeight: isSmallScreen ? '90vh' : '85vh',
+              padding: isMobile ? '16px 20px 20px 20px' : '18px 28px 22px 28px',
               color: 'var(--admin-text-primary, #fff)',
               margin: '0 auto',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+              overflowY: 'auto',
+              animation: isSmallScreen ? 'slideUp 0.3s ease-out' : 'scaleIn 0.3s ease-out'
             }}
           >
             <div
@@ -818,12 +850,12 @@ const GestionTiposCurso: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 18,
-                paddingBottom: 14,
+                marginBottom: isMobile ? 14 : 18,
+                paddingBottom: isMobile ? 10 : 14,
                 borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
               </h3>
               <button
@@ -854,7 +886,7 @@ const GestionTiposCurso: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, columnGap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 16, columnGap: isSmallScreen ? 0 : 20 }}>
                 {/* Nombre - ancho completo */}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.875rem' }}>Nombre del tipo</label>
@@ -1034,17 +1066,19 @@ const GestionTiposCurso: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 24, justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? 10 : 12, marginTop: isMobile ? 16 : 24, justifyContent: 'flex-end' }}>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   style={{
-                    padding: '12px 24px',
+                    padding: isMobile ? '10px 16px' : '12px 24px',
                     background: 'rgba(255,255,255,0.1)',
                     border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: 12,
+                    borderRadius: isMobile ? 10 : 12,
                     color: 'var(--admin-text-muted, rgba(255,255,255,0.7))',
                     cursor: 'pointer',
+                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    width: isSmallScreen ? '100%' : 'auto'
                   }}
                 >
                   Cancelar
@@ -1054,14 +1088,17 @@ const GestionTiposCurso: React.FC = () => {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: 8,
-                    padding: '12px 24px',
+                    padding: isMobile ? '10px 16px' : '12px 24px',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                     border: 'none',
-                    borderRadius: 12,
+                    borderRadius: isMobile ? 10 : 12,
                     color: '#fff',
                     fontWeight: 600,
                     cursor: 'pointer',
+                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    width: isSmallScreen ? '100%' : 'auto'
                   }}
                 >
                   <Save size={16} />
@@ -1070,6 +1107,31 @@ const GestionTiposCurso: React.FC = () => {
               </div>
             </form>
           </div>
+
+          {/* Animaciones CSS */}
+          <style>{`
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(100%);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+          `}</style>
         </div>
       )}
     </div>

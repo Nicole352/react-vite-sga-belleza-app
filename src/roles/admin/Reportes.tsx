@@ -5,6 +5,9 @@ import {
   History, Clock, User, Calendar, Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GlassEffect from '../../components/GlassEffect';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -29,6 +32,8 @@ type DatosReporte = any[];
 type Estadisticas = any;
 
 const Reportes = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
+  
   // Estados principales
   const [tipoReporte, setTipoReporte] = useState('estudiantes');
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos');
@@ -65,21 +70,21 @@ const Reportes = () => {
       titulo: 'Reporte de Estudiantes',
       descripcion: 'Estadísticas de inscripciones y rendimiento académico',
       icono: Users,
-      color: '#3b82f6'
+      color: '#ef4444'
     },
     {
       id: 'cursos',
       titulo: 'Reporte de Cursos',
       descripcion: 'Análisis de popularidad y ocupación de cursos',
       icono: BookOpen,
-      color: '#10b981'
+      color: '#ef4444'
     },
     {
       id: 'financiero',
       titulo: 'Reporte Financiero',
       descripcion: 'Ingresos, pagos y estado financiero',
       icono: DollarSign,
-      color: '#f59e0b'
+      color: '#ef4444'
     }
   ];
 
@@ -457,7 +462,13 @@ const Reportes = () => {
     if (tipoReporte === 'estudiantes') {
       return (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '8px',
+            flex: isMobile ? '1' : 'initial'
+          }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Curso:</label>
             <select
               value={filtroCurso}
@@ -465,7 +476,8 @@ const Reportes = () => {
               style={{
                 padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                color: '#fff', fontSize: '0.9rem', minWidth: '300px'
+                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '300px',
+                width: isMobile ? '100%' : 'auto'
               }}
             >
               <option value="">Todos los cursos</option>
@@ -495,7 +507,13 @@ const Reportes = () => {
               })}
             </select>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '8px',
+            flex: isMobile ? '1' : 'initial'
+          }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
             <select
               value={filtroEstadoEstudiante}
@@ -503,7 +521,8 @@ const Reportes = () => {
               style={{
                 padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                color: '#fff', fontSize: '0.9rem'
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
               }}
             >
               <option value="todos">Todos</option>
@@ -519,7 +538,13 @@ const Reportes = () => {
     if (tipoReporte === 'financiero') {
       return (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '8px',
+            flex: isMobile ? '1' : 'initial'
+          }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Tipo Pago:</label>
             <select
               value={filtroTipoPago}
@@ -536,13 +561,20 @@ const Reportes = () => {
               <option value="tarjeta">Tarjeta</option>
             </select>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '8px',
+            flex: isMobile ? '1' : 'initial'
+          }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
             <select
               value={filtroEstadoPago}
               onChange={(e) => setFiltroEstadoPago(e.target.value)}
               style={{
                 padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
+                width: isMobile ? '100%' : 'auto',
                 border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
                 color: '#fff', fontSize: '0.9rem'
               }}
@@ -587,42 +619,62 @@ const Reportes = () => {
       }
 
       return (
-        <div style={{ display: 'grid', gap: '24px' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '16px' : '24px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: isMobile ? '10px' : '12px',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
             {[
               { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes || 0, color: '#3b82f6', icono: Users },
               { titulo: 'Activos', valor: estadisticas.activos || 0, color: '#10b981', icono: CheckCircle2 },
               { titulo: 'Aprobados', valor: estadisticas.aprobados || 0, color: '#8b5cf6', icono: TrendingUp },
               { titulo: 'Retirados', valor: estadisticas.retirados || 0, color: '#ef4444', icono: AlertCircle }
             ].map((metrica, idx) => (
-              <div key={idx} style={{
-                background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                border: `2px solid ${metrica.color}40`,
-                borderRadius: '12px',
-                padding: '14px',
-                textAlign: 'center',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                boxShadow: `0 4px 20px ${metrica.color}20`
-              }}>
-                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+              <div
+                key={idx}
+                style={{
+                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
+                  border: `2px solid ${metrica.color}40`,
+                  borderRadius: '10px', 
+                  padding: isMobile ? '14px 10px' : '20px 16px',
+                  textAlign: 'center',
+                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: isMobile ? '90px' : '120px',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
                 <div style={{
                   color: '#fff',
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  marginBottom: '6px',
+                  fontSize: isMobile ? '1.4rem' : '1.8rem', 
+                  fontWeight: '800', 
+                  marginBottom: '4px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Montserrat, sans-serif',
+                  lineHeight: '1'
                 }}>
                   {metrica.valor}
                 </div>
                 <div style={{
                   color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase'
+                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
+                  fontWeight: '600', 
+                  letterSpacing: '0.3px',
+                  textTransform: 'uppercase',
+                  lineHeight: '1.2',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: isMobile ? 'normal' : 'nowrap'
                 }}>
                   {metrica.titulo}
                 </div>
@@ -632,13 +684,7 @@ const Reportes = () => {
 
           {/* Lista de estudiantes */}
           {datosReporte.length > 0 && (
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '16px',
-              padding: '24px',
-              boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)'
-            }}>
+            <div>
               <h4 style={{
                 color: '#fff',
                 fontSize: '0.95rem',
@@ -648,8 +694,46 @@ const Reportes = () => {
               }}>
                 Estudiantes Matriculados ({datosReporte.length})
               </h4>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              
+              {/* Indicador de scroll en móvil */}
+              {isSmallScreen && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  marginBottom: '12px',
+                  color: '#ef4444',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}>
+                  <span>👉</span>
+                  <span>Desliza horizontalmente para ver toda la tabla</span>
+                  <span>👈</span>
+                </div>
+              )}
+              
+              <div 
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                  border: '2px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: isMobile ? 12 : 16,
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
+                  overflow: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  maxWidth: '100%'
+                }}
+              >
+                <table style={{ 
+                  width: '100%', 
+                  borderCollapse: 'collapse', 
+                  minWidth: isMobile ? '700px' : '100%',
+                  tableLayout: 'auto'
+                }}>
                   <thead>
                     <tr style={{
                       borderBottom: '2px solid rgba(59, 130, 246, 0.3)',
@@ -741,12 +825,14 @@ const Reportes = () => {
                     ))}
                   </tbody>
                 </table>
+                {datosReporte.length > 10 && (
+                  <div style={{ padding: isMobile ? '12px' : '16px' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0, textAlign: 'center' }}>
+                      Mostrando 10 de {datosReporte.length} estudiantes. Descarga el reporte completo en PDF o Excel.
+                    </p>
+                  </div>
+                )}
               </div>
-              {datosReporte.length > 10 && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '16px', textAlign: 'center' }}>
-                  Mostrando 10 de {datosReporte.length} estudiantes. Descarga el reporte completo en PDF o Excel.
-                </p>
-              )}
             </div>
           )}
         </div>
@@ -755,42 +841,62 @@ const Reportes = () => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ display: 'grid', gap: '16px' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: isMobile ? '10px' : '12px',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
             {[
               { titulo: 'Ingresos Totales', valor: `$${parseFloat(estadisticas.ingresos_totales || 0).toLocaleString()}`, color: '#10b981', icono: DollarSign },
               { titulo: 'Pagos Verificados', valor: estadisticas.pagos_verificados || 0, color: '#3b82f6', icono: CheckCircle2 },
               { titulo: 'Pagos Pendientes', valor: estadisticas.pagos_pendientes || 0, color: '#f59e0b', icono: AlertCircle },
               { titulo: 'Total Pagos', valor: estadisticas.total_pagos || 0, color: '#8b5cf6', icono: TrendingUp }
             ].map((metrica, idx) => (
-              <div key={idx} style={{
-                background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                border: `2px solid ${metrica.color}40`,
-                borderRadius: '12px',
-                padding: '14px',
-                textAlign: 'center',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                boxShadow: `0 4px 20px ${metrica.color}20`
-              }}>
-                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+              <div
+                key={idx}
+                style={{
+                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
+                  border: `2px solid ${metrica.color}40`,
+                  borderRadius: '10px', 
+                  padding: isMobile ? '14px 10px' : '20px 16px',
+                  textAlign: 'center',
+                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: isMobile ? '90px' : '120px',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
                 <div style={{
                   color: '#fff',
-                  fontSize: '1.6rem',
-                  fontWeight: '800',
-                  marginBottom: '6px',
+                  fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                  fontWeight: '800', 
+                  marginBottom: '4px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Montserrat, sans-serif',
+                  lineHeight: '1'
                 }}>
                   {metrica.valor}
                 </div>
                 <div style={{
                   color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase'
+                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
+                  fontWeight: '600', 
+                  letterSpacing: '0.3px',
+                  textTransform: 'uppercase',
+                  lineHeight: '1.2',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: isMobile ? 'normal' : 'nowrap'
                 }}>
                   {metrica.titulo}
                 </div>
@@ -803,15 +909,53 @@ const Reportes = () => {
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '12px' : '16px',
               boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
             }}>
               <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
                 Detalle de Pagos ({datosReporte.length})
               </h4>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              
+              {/* Indicador de scroll en móvil */}
+              {isSmallScreen && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  marginBottom: '12px',
+                  color: '#ef4444',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}>
+                  <span>👉</span>
+                  <span>Desliza horizontalmente para ver toda la tabla</span>
+                  <span>👈</span>
+                </div>
+              )}
+              
+              <div 
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                  border: '2px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: isMobile ? 10 : 12,
+                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)',
+                  overflow: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  maxWidth: '100%'
+                }}
+              >
+                <table style={{ 
+                  width: '100%', 
+                  borderCollapse: 'collapse', 
+                  minWidth: isMobile ? '800px' : '100%',
+                  tableLayout: 'auto'
+                }}>
                   <thead>
                     <tr style={{
                       borderBottom: '2px solid rgba(16, 185, 129, 0.3)',
@@ -925,12 +1069,14 @@ const Reportes = () => {
                     ))}
                   </tbody>
                 </table>
+                {datosReporte.length > 10 && (
+                  <div style={{ padding: isMobile ? '12px' : '16px' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', margin: 0, textAlign: 'center' }}>
+                      Mostrando 10 de {datosReporte.length} pagos. Descarga el reporte completo en PDF o Excel.
+                    </p>
+                  </div>
+                )}
               </div>
-              {datosReporte.length > 10 && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '12px', textAlign: 'center' }}>
-                  Mostrando 10 de {datosReporte.length} pagos. Descarga el reporte completo en PDF o Excel.
-                </p>
-              )}
             </div>
           )}
         </div>
@@ -939,30 +1085,37 @@ const Reportes = () => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ display: 'grid', gap: '16px' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           {/* Métricas principales */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: isMobile ? '10px' : '12px',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
             {[
               { titulo: 'Total Cursos', valor: estadisticas.total_cursos || 0, color: '#10b981', icono: BookOpen },
               { titulo: 'Cursos Activos', valor: estadisticas.cursos_activos || 0, color: '#3b82f6', icono: CheckCircle2 },
               { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes_inscritos || 0, color: '#f59e0b', icono: Users }
             ].map((metrica, idx) => (
-              <div key={idx} style={{
-                background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                border: `2px solid ${metrica.color}40`,
-                borderRadius: '12px',
-                padding: '14px',
-                textAlign: 'center',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                boxShadow: `0 4px 20px ${metrica.color}20`
-              }}>
-                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '10px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+              <GlassEffect
+                key={idx}
+                variant="card"
+                tint="neutral"
+                intensity="light"
+                                style={{
+                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
+                  border: `2px solid ${metrica.color}40`,
+                  borderRadius: '10px', padding: isMobile ? '10px 8px' : '12px',
+                  textAlign: 'center',
+                  boxShadow: `0 4px 20px ${metrica.color}20`
+                }}
+              >
+                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
                 <div style={{
                   color: '#fff',
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  marginBottom: '6px',
+                  fontSize: '1.5rem', fontWeight: '800', marginBottom: '4px',
                   textShadow: '0 2px 10px rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
@@ -970,14 +1123,12 @@ const Reportes = () => {
                 </div>
                 <div style={{
                   color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  letterSpacing: '0.5px',
+                  fontSize: '0.7rem', fontWeight: '600', letterSpacing: '0.5px',
                   textTransform: 'uppercase'
                 }}>
                   {metrica.titulo}
                 </div>
-              </div>
+              </GlassEffect>
             ))}
           </div>
 
@@ -986,8 +1137,8 @@ const Reportes = () => {
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '12px' : '16px',
               boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
             }}>
               <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
@@ -1001,11 +1152,18 @@ const Reportes = () => {
                     borderRadius: '10px',
                     padding: '12px'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: '600' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'space-between', 
+                      alignItems: isMobile ? 'flex-start' : 'center', 
+                      marginBottom: '6px',
+                      gap: isMobile ? '4px' : '0'
+                    }}>
+                      <div style={{ color: '#fff', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '600' }}>
                         {curso.nombre_curso}
                       </div>
-                      <div style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <div style={{ color: '#10b981', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '700' }}>
                         {curso.porcentaje_ocupacion}% ocupación
                       </div>
                     </div>
@@ -1022,7 +1180,13 @@ const Reportes = () => {
                         {curso.total_estudiantes}/{curso.capacidad_maxima}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'column' : 'row',
+                      gap: isMobile ? '4px' : '16px', 
+                      fontSize: isMobile ? '0.75rem' : '0.85rem', 
+                      color: 'rgba(255,255,255,0.6)' 
+                    }}>
                       <span>Horario: {curso.horario}</span>
                       <span>Docente: {curso.docente_nombres} {curso.docente_apellidos}</span>
                     </div>
@@ -1051,16 +1215,21 @@ const Reportes = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: isMobile ? '16px' : '24px' }}>
       <div style={{ marginBottom: '14px' }}>
         <h2 style={{
-          color: '#fff', fontSize: '1.2rem', fontWeight: '700', margin: '0 0 4px 0',
-          display: 'flex', alignItems: 'center', gap: '8px'
+          color: '#fff', 
+          fontSize: isMobile ? '1rem' : '1.2rem', 
+          fontWeight: '700', 
+          margin: '0 0 4px 0',
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px'
         }}>
-          <BarChart3 size={22} color="#ef4444" />
+          <BarChart3 size={isMobile ? 18 : 22} color="#ef4444" />
           Reportes y Estadísticas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.7rem' : '0.75rem' }}>
           Análisis detallado del rendimiento académico y financiero
         </p>
       </div>
@@ -1117,151 +1286,244 @@ const Reportes = () => {
       {/* Vista: Generar Reporte */}
       {vistaActual === 'generar' && (
         <>
-          {/* Selector de Reportes */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '16px', padding: '16px', marginBottom: '16px'
+          {/* Selector de Tipo de Reporte */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', 
+            gap: '12px', 
+            marginBottom: '16px' 
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-              {reportesDisponibles.map(reporte => (
-                <button
-                  key={reporte.id}
-                  onClick={() => {
-                    setTipoReporte(reporte.id);
-                    setDatosReporte(null);
-                    setEstadisticas(null);
-                  }}
-                  style={{
-                    background: tipoReporte === reporte.id
-                      ? `linear-gradient(135deg, ${reporte.color}, ${reporte.color}dd)`
-                      : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${tipoReporte === reporte.id ? reporte.color : 'rgba(255,255,255,0.1)'}`,
-                    borderRadius: '12px', padding: '16px', cursor: 'pointer',
-                    textAlign: 'left', transition: 'all 0.3s ease'
-                  }}
-                >
+            {reportesDisponibles.map(reporte => {
+              const isSelected = tipoReporte === reporte.id;
+              
+              const cardContent = (
+                <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <reporte.icono size={24} color={tipoReporte === reporte.id ? '#fff' : reporte.color} />
+                    <reporte.icono size={24} color={isSelected ? '#fff' : '#ef4444'} />
                     <div style={{
-                      color: tipoReporte === reporte.id ? '#fff' : 'rgba(255,255,255,0.9)',
-                      fontSize: '1rem', fontWeight: '600'
+                      color: '#fff',
+                      fontSize: '1rem',
+                      fontWeight: '600'
                     }}>
                       {reporte.titulo}
                     </div>
                   </div>
                   <div style={{
-                    color: tipoReporte === reporte.id ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)',
+                    color: isSelected ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.7)',
                     fontSize: '0.8rem'
                   }}>
                     {reporte.descripcion}
                   </div>
-                </button>
-              ))}
-            </div>
+                </>
+              );
 
-            {/* Controles de Filtro */}
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-              {/* Selector de Período Único */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Período:</label>
-                <select
-                  value={periodoSeleccionado}
-                  onChange={(e) => setPeriodoSeleccionado(e.target.value)}
+              if (isSelected) {
+                return (
+                  <div
+                    key={reporte.id}
+                    className="reporte-card-selected"
+                    onClick={() => {
+                      setTipoReporte(reporte.id);
+                      setDatosReporte(null);
+                      setEstadisticas(null);
+                    }}
+                    style={{
+                      background: '#ef4444',
+                      backgroundColor: '#ef4444',
+                      backgroundImage: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      border: '2px solid #ef4444',
+                      borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '12px' : '16px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 8px 24px rgba(239, 68, 68, 0.5)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {cardContent}
+                  </div>
+                );
+              }
+
+              return (
+                <GlassEffect
+                  key={reporte.id}
+                  variant="card"
+                  tint="neutral"
+                  intensity="light"
+                                    onClick={() => {
+                    setTipoReporte(reporte.id);
+                    setDatosReporte(null);
+                    setEstadisticas(null);
+                  }}
                   style={{
-                    padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                    color: '#fff', fontSize: '0.9rem', minWidth: '250px'
+                    padding: '16px',
+                    cursor: 'pointer',
+                    textAlign: 'left'
                   }}
                 >
-                  <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
-                  {periodosDisponibles.map((periodo, idx) => {
-                    // Formatear fechas: 13 Oct 2025 - 13 Dic 2025
-                    const formatearFecha = (fecha: string): string => {
-                      if (!fecha) return '';
-                      // Extraer año, mes, día directamente del string YYYY-MM-DD
-                      const [año, mes, dia] = fecha.split('T')[0].split('-');
-                      const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                      const mesNombre = meses[parseInt(mes) - 1];
-                      return `${parseInt(dia)} ${mesNombre} ${año}`;
-                    };
+                  {cardContent}
+                </GlassEffect>
+              );
+            })}
+          </div>
 
-                    const fechaInicio = formatearFecha(periodo.inicio);
-                    const fechaFin = formatearFecha(periodo.fin);
+          {/* Controles de Filtro */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+            backdropFilter: 'blur(20px)', 
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: isMobile ? '12px' : '16px', 
+            padding: isMobile ? '12px' : '16px', 
+            marginBottom: '16px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isMobile ? 'column' : 'row',
+              flexWrap: 'wrap', 
+              gap: '12px', 
+              alignItems: isMobile ? 'stretch' : 'center', 
+              justifyContent: 'space-between' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: '12px', 
+                alignItems: isMobile ? 'stretch' : 'center', 
+                flex: 1, 
+                flexWrap: 'wrap' 
+              }}>
+                {/* Selector de Período */}
+                <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+                  <select
+                    value={periodoSeleccionado}
+                    onChange={(e) => setPeriodoSeleccionado(e.target.value)}
+                    style={{
+                      padding: '10px 12px', background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px',
+                      color: '#fff', fontSize: '0.8rem', minWidth: '250px'
+                    }}
+                  >
+                    <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
+                    {periodosDisponibles.map((periodo, idx) => {
+                      const formatearFecha = (fecha: string): string => {
+                        if (!fecha) return '';
+                        const [año, mes, dia] = fecha.split('T')[0].split('-');
+                        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                        const mesNombre = meses[parseInt(mes) - 1];
+                        return `${parseInt(dia)} ${mesNombre} ${año}`;
+                      };
 
-                    return (
-                      <option key={idx} value={periodo.key} style={{ background: '#1a1a1a' }}>
-                        {fechaInicio} - {fechaFin}
-                      </option>
-                    );
-                  })}
-                </select>
+                      const fechaInicio = formatearFecha(periodo.inicio);
+                      const fechaFin = formatearFecha(periodo.fin);
+
+                      return (
+                        <option key={idx} value={periodo.key} style={{ background: '#1a1a1a' }}>
+                          {fechaInicio} - {fechaFin}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Filtros específicos */}
+                {renderFiltrosEspecificos()}
               </div>
 
-              {/* Filtros específicos */}
-              {renderFiltrosEspecificos()}
-
-              <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-                <button
-                  onClick={generarReporte}
-                  disabled={loading || descargando}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                    background: loading ? 'rgba(239, 68, 68, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    border: 'none',
-                    borderRadius: '8px', color: '#fff', fontSize: '0.9rem', fontWeight: '600',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.7 : 1
-                  }}
-                >
-                  {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={16} />}
-                  {loading ? 'Generando...' : 'Ver Reporte'}
-                </button>
-                <button
-                  onClick={() => descargarArchivo('pdf')}
-                  disabled={!datosReporte || descargando || loading}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                    background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
-                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                    borderRadius: '8px', color: '#f59e0b', fontSize: '0.9rem', fontWeight: '600',
-                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                    opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
-                  }}
-                >
-                  {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
-                  Exportar PDF
-                </button>
-                <button
-                  onClick={() => descargarArchivo('excel')}
-                  disabled={!datosReporte || descargando || loading}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                    background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    borderRadius: '8px', color: '#10b981', fontSize: '0.9rem', fontWeight: '600',
-                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                    opacity: (!datosReporte || descargando || loading) ? 0.5 : 1
-                  }}
-                >
-                  {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSpreadsheet size={16} />}
-                  Exportar Excel
-                </button>
-              </div>
+              {/* Botón Ver Reporte */}
+              <button
+                onClick={generarReporte}
+                disabled={loading || descargando}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: isMobile ? '10px 16px' : '12px 24px',
+                  background: loading ? 'rgba(239, 68, 68, 0.3)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                  fontSize: '0.8rem',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  width: isSmallScreen ? '100%' : 'auto'
+                }}
+              >
+                {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={16} />}
+                {loading ? 'Generando...' : 'Ver Reporte'}
+              </button>
             </div>
+          </div>
+
+          {/* Botones de Exportación */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '12px', 
+            marginBottom: '16px', 
+            justifyContent: isMobile ? 'stretch' : 'flex-end' 
+          }}>
+            <button
+              onClick={() => descargarArchivo('pdf')}
+              disabled={!datosReporte || descargando || loading}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px',
+                background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                borderRadius: '8px', color: '#f59e0b', fontSize: '0.8rem', fontWeight: '600',
+                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
+              Exportar PDF
+            </button>
+            <button
+              onClick={() => descargarArchivo('excel')}
+              disabled={!datosReporte || descargando || loading}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px',
+                background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px', color: '#10b981', fontSize: '0.8rem', fontWeight: '600',
+                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSpreadsheet size={16} />}
+              Exportar Excel
+            </button>
           </div>
 
           {/* Contenido del Reporte */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
             backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '20px', padding: '32px'
+            borderRadius: isMobile ? '12px' : '20px', 
+            padding: isMobile ? '16px' : '32px'
           }}>
             <div style={{ marginBottom: '16px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', margin: '0 0 6px 0' }}>
+              <h3 style={{ 
+                color: '#fff', 
+                fontSize: isMobile ? '0.95rem' : '1.1rem', 
+                fontWeight: '700', 
+                margin: '0 0 6px 0' 
+              }}>
                 {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.7)', 
+                margin: 0, 
+                fontSize: isMobile ? '0.7rem' : '0.75rem',
+                wordBreak: 'break-word'
+              }}>
                 Período: {fechaInicio} - {fechaFin}
               </p>
             </div>
@@ -1270,8 +1532,8 @@ const Reportes = () => {
               <div style={{
                 background: 'rgba(239, 68, 68, 0.1)',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '12px',
-                padding: '16px',
+                borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '12px' : '16px',
                 marginBottom: '24px',
                 display: 'flex',
                 alignItems: 'center',
@@ -1350,7 +1612,7 @@ const Reportes = () => {
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '10px',
-                      padding: '14px',
+                      padding: isMobile ? '10px' : '12px',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
@@ -1363,26 +1625,50 @@ const Reportes = () => {
                         e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                       }}
                     >
-                      <div style={{ display: 'flex', gap: '14px', alignItems: 'start' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row',
+                        gap: isMobile ? '10px' : '14px', 
+                        alignItems: isMobile ? 'stretch' : 'start' 
+                      }}>
                         <div style={{
                           background: `${tipoColor}20`,
                           border: `2px solid ${tipoColor}`,
                           borderRadius: '10px',
-                          padding: '10px',
+                          padding: isMobile ? '8px' : '10px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          alignSelf: isMobile ? 'center' : 'flex-start'
                         }}>
-                          {React.createElement(tipoIcono, { size: 20, color: tipoColor })}
+                          {React.createElement(tipoIcono, { size: isMobile ? 18 : 20, color: tipoColor })}
                         </div>
 
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                          <div style={{ 
+                            display: 'flex', 
+                            flexDirection: isMobile ? 'column' : 'row',
+                            justifyContent: 'space-between', 
+                            alignItems: isMobile ? 'flex-start' : 'start', 
+                            marginBottom: '8px',
+                            gap: isMobile ? '6px' : '0'
+                          }}>
                             <div>
-                              <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600', margin: '0 0 3px 0' }}>
+                              <h4 style={{ 
+                                color: '#fff', 
+                                fontSize: isMobile ? '0.85rem' : '0.9rem', 
+                                fontWeight: '600', 
+                                margin: '0 0 3px 0',
+                                wordBreak: 'break-word'
+                              }}>
                                 {reporte.nombre_reporte}
                               </h4>
-                              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', margin: 0 }}>
+                              <p style={{ 
+                                color: 'rgba(255,255,255,0.6)', 
+                                fontSize: isMobile ? '0.7rem' : '0.75rem', 
+                                margin: 0,
+                                wordBreak: 'break-all'
+                              }}>
                                 {reporte.archivo_generado}
                               </p>
                             </div>
@@ -1400,13 +1686,19 @@ const Reportes = () => {
                             </span>
                           </div>
 
-                          <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
+                          <div style={{ 
+                            display: 'flex', 
+                            flexDirection: isMobile ? 'column' : 'row',
+                            gap: isMobile ? '4px' : '16px', 
+                            fontSize: isMobile ? '0.7rem' : '0.75rem', 
+                            color: 'rgba(255,255,255,0.7)' 
+                          }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <User size={12} />
+                              <User size={isMobile ? 10 : 12} />
                               <span>{reporte.generado_por}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <Clock size={12} />
+                              <Clock size={isMobile ? 10 : 12} />
                               <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
                                 day: '2-digit',
                                 month: 'short',
@@ -1437,3 +1729,5 @@ const Reportes = () => {
 };
 
 export default Reportes;
+
+

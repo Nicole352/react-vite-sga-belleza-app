@@ -17,6 +17,7 @@ import PanelEstudiantes from './roles/estudiante/PanelEstudiantes';
 import PanelDocentes from './roles/docente/PanelDocentes';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
+import './styles/responsive.css';
 
 const ToasterWithTheme = () => {
   const { theme } = useTheme();

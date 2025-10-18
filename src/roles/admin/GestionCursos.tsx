@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 type Course = {
   id_curso: number;
@@ -34,6 +36,7 @@ type TipoCursoOption = {
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 const GestionCursos = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [cursos, setCursos] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCurso, setSelectedCurso] = useState<Course | null>(null);
@@ -560,17 +563,17 @@ const GestionCursos = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="responsive-padding">
       {/* Header */}
-      <div style={{ marginBottom: '18px' }}>
-        <h2 style={{ 
-          color: 'rgba(255,255,255,0.95)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 6px 0',
-          display: 'flex', alignItems: 'center', gap: '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+      <div style={{ marginBottom: isMobile ? '12px' : '18px' }}>
+        <h2 className="responsive-title" style={{ 
+          color: 'rgba(255,255,255,0.95)', margin: '0 0 6px 0',
+          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BookOpen size={26} color={RedColorPalette.primary} />
+          <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Cursos
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.75rem' : '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Administra los cursos disponibles en la academia
         </p>
       </div>
@@ -590,11 +593,11 @@ const GestionCursos = () => {
       )}
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+        <div className="responsive-filters">
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: '280px' }}>
+            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
               <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
@@ -614,7 +617,7 @@ const GestionCursos = () => {
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: 200 }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 200, width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -630,14 +633,15 @@ const GestionCursos = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px' }}>
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px', width: isSmallScreen ? '100%' : 'auto' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '5px',
-                  padding: '7px 12px',
+                  padding: isMobile ? '7px 10px' : '7px 12px',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '7px',
@@ -646,28 +650,31 @@ const GestionCursos = () => {
                   fontSize: '0.75rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={16} /> Tarjetas
+                <Grid size={16} /> {!isMobile && 'Tarjetas'}
               </button>
               <button
                 onClick={() => setViewMode('table')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '6px',
-                  padding: '8px 14px',
+                  padding: isMobile ? '7px 10px' : '8px 14px',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
                   borderRadius: '8px',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: isMobile ? '0.75rem' : '0.9rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={16} /> Tabla
+                <List size={16} /> {!isMobile && 'Tabla'}
               </button>
             </div>
           </div>
@@ -679,8 +686,9 @@ const GestionCursos = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              padding: '12px 24px',
+              padding: isMobile ? '10px 16px' : '12px 24px',
               background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '10px',
@@ -689,7 +697,8 @@ const GestionCursos = () => {
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              width: isSmallScreen ? '100%' : 'auto'
             }}
           >
             <Plus size={16} />
@@ -709,9 +718,9 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-          gap: '14px',
-          marginBottom: '18px'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: isMobile ? '12px' : '16px',
+          marginBottom: isMobile ? '12px' : '18px'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -933,16 +942,41 @@ const GestionCursos = () => {
 
       {/* Vista Tabla */}
       {viewMode === 'table' && paginatedCursos.length > 0 && (
-        <div
-          style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            marginBottom: '24px'
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              marginBottom: '12px',
+              color: '#ef4444',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}>
+              <span>👉</span>
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <span>👈</span>
+            </div>
+          )}
+          
+          <div
+            className="responsive-table-container"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: isMobile ? '12px' : '16px',
+              overflow: 'auto',
+              marginBottom: isMobile ? '12px' : '24px',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? '900px' : 'auto' }}>
             <thead>
               <tr style={{ 
                 background: 'rgba(248, 113, 113, 0.15)', 
@@ -1254,7 +1288,8 @@ const GestionCursos = () => {
               ))}
           </tbody>
         </table>
-        </div>
+          </div>
+        </>
       )}
 
       {/* Estados vacíos y errores */}
@@ -1305,54 +1340,68 @@ const GestionCursos = () => {
       {!loading && filteredCursos.length > 0 && (
         <div style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '20px 24px',
-          marginTop: '90px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '12px' : '0',
+          padding: isMobile ? '16px' : '20px 24px',
+          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '16px',
           marginBottom: '24px'
         }}>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-            Página {currentPage} de {totalPages}
+          <div style={{ 
+            color: 'rgba(255,255,255,0.7)', 
+            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            textAlign: isMobile ? 'center' : 'left'
+          }}>
+            Página {currentPage} de {totalPages} • Total: {filteredCursos.length} cursos
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            flexWrap: 'wrap',
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }}>
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={16} /> Anterior
+              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 style={{
-                  padding: '8px 14px',
+                  padding: isMobile ? '8px 10px' : '8px 14px',
                   background: currentPage === page ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
                   border: currentPage === page ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '10px',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: '40px',
+                  minWidth: isMobile ? '36px' : '40px',
                 }}
               >
                 {page}
@@ -1364,19 +1413,22 @@ const GestionCursos = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '6px',
+                padding: isMobile ? '8px 12px' : '8px 16px',
                 background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '10px',
                 color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial'
               }}
             >
-              Siguiente <ChevronRight size={16} />
+              {!isMobile && 'Siguiente'} 
+              <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
         </div>
@@ -1384,39 +1436,47 @@ const GestionCursos = () => {
 
       {/* Modal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '20px',
-        }}>
-          <div style={{
+        <div 
+          data-modal-overlay="true"
+          onClick={() => setShowModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: isSmallScreen ? 'flex-end' : 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isSmallScreen ? '0' : '20px',
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
-            width: '100%',
-            maxWidth: '750px',
-            padding: '18px 28px 22px 28px',
+            borderRadius: isSmallScreen ? '20px 20px 0 0' : '12px',
+            width: isSmallScreen ? '100%' : '100%',
+            maxWidth: isSmallScreen ? '100%' : '750px',
+            maxHeight: isSmallScreen ? '90vh' : '85vh',
+            padding: isMobile ? '16px 20px 20px 20px' : '18px 28px 22px 28px',
             color: '#fff',
             margin: '0 auto',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            overflowY: 'auto',
+            animation: isSmallScreen ? 'slideUp 0.3s ease-out' : 'scaleIn 0.3s ease-out'
           }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: isMobile ? '14px' : '18px',
+              paddingBottom: isMobile ? '10px' : '14px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 {modalType === 'create' ? 'Nuevo Curso' : modalType === 'edit' ? 'Editar Curso' : 'Ver Curso'}
               </h3>
               <button
@@ -1447,7 +1507,7 @@ const GestionCursos = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', columnGap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '16px', columnGap: isSmallScreen ? 0 : '20px' }}>
                 {/* Fila 1: Código y Tipo de curso */}
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Código</label>
@@ -1648,17 +1708,19 @@ const GestionCursos = () => {
               </div>
 
               {modalType !== 'view' && (
-                <div style={{ display: 'flex', gap: '12px', marginTop: '32px', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? '10px' : '12px', marginTop: isMobile ? '16px' : '32px', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
                     style={{
-                      padding: '12px 24px',
+                      padding: isMobile ? '10px 16px' : '12px 24px',
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
+                      borderRadius: isMobile ? 10 : 12,
                       color: 'rgba(255,255,255,0.7)',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      width: isSmallScreen ? '100%' : 'auto'
                     }}
                   >
                     Cancelar
@@ -1668,14 +1730,17 @@ const GestionCursos = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '8px',
-                      padding: '12px 24px',
+                      padding: isMobile ? '10px 16px' : '12px 24px',
                       background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                       border: 'none',
-                      borderRadius: '12px',
+                      borderRadius: isMobile ? 10 : 12,
                       color: '#fff',
                       fontWeight: '600',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      width: isSmallScreen ? '100%' : 'auto'
                     }}
                   >
                     <Save size={16} />
@@ -1685,6 +1750,31 @@ const GestionCursos = () => {
               )}
             </form>
           </div>
+
+          {/* Animaciones CSS */}
+          <style>{`
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(100%);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+          `}</style>
         </div>
       )}
     </div>
