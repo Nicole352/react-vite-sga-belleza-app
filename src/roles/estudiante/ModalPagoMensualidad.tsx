@@ -185,41 +185,41 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       right: 0,
       bottom: 0,
       backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(8px)',
+      backdropFilter: 'blur(6px)',
       zIndex: 2000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px',
+      padding: '12px',
       overflow: 'auto'
     }}>
       <div style={{
         background: theme.modalBg,
-        borderRadius: '24px',
+        borderRadius: '12px',
         width: '100%',
-        maxWidth: '900px',
-        maxHeight: '90vh',
+        maxWidth: '760px',
+        maxHeight: '85vh',
         overflow: 'auto',
-        padding: '40px',
+        padding: '12px',
         fontFamily: 'Montserrat, sans-serif',
         position: 'relative',
         border: `1px solid ${theme.border}`,
         boxShadow: darkMode 
-          ? '0 25px 50px rgba(0, 0, 0, 0.5)' 
-          : '0 25px 50px rgba(0, 0, 0, 0.15)'
+          ? '0 16px 36px rgba(0, 0, 0, 0.45)' 
+          : '0 16px 36px rgba(0, 0, 0, 0.15)'
       }}>
         {/* Botón cerrar */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '24px',
-            right: '24px',
+            top: '12px',
+            right: '12px',
             background: theme.hoverBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '12px',
+            borderRadius: '8px',
             color: theme.textPrimary,
-            padding: '10px',
+            padding: '8px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -229,34 +229,34 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           onMouseEnter={(e) => e.currentTarget.style.background = theme.inputBg}
           onMouseLeave={(e) => e.currentTarget.style.background = theme.hoverBg}
         >
-          <X size={20} />
+          <X size={12} />
         </button>
 
         {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
+        <div style={{ marginBottom: '8px' }}>
           <h2 style={{ 
             color: theme.textPrimary, 
-            fontSize: '1.8rem', 
-            fontWeight: '700', 
-            margin: '0 0 12px 0',
+            fontSize: '1.05rem', 
+            fontWeight: '800', 
+            margin: '0 0 4px 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '8px'
           }}>
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '30px',
+              height: '30px',
               background: 'linear-gradient(135deg, #10b981, #059669)',
-              borderRadius: '12px',
+              borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <CreditCard size={24} color="#fff" />
+              <CreditCard size={16} color="#fff" />
             </div>
             Pagar Mensualidad
           </h2>
-          <div style={{ color: theme.textMuted, fontSize: '1rem', marginLeft: '60px' }}>
+          <div style={{ color: theme.textMuted, fontSize: '0.8rem', marginLeft: '38px' }}>
             {cuota.curso_nombre} • Cuota {cuota.numero_cuota}
           </div>
         </div>
@@ -265,24 +265,24 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         <div style={{
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
           border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '32px'
+          borderRadius: '10px',
+          padding: '8px',
+          marginBottom: '8px'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '6px' }}>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.85rem', marginBottom: '6px', fontWeight: '500' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.78rem', marginBottom: '2px', fontWeight: '700' }}>
                 Monto de la Cuota
               </div>
-              <div style={{ color: '#10b981', fontSize: '1.5rem', fontWeight: '700' }}>
+              <div style={{ color: '#10b981', fontSize: '1rem', fontWeight: '800' }}>
                 {formatearMonto(cuota.monto)}
               </div>
             </div>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.85rem', marginBottom: '6px', fontWeight: '500' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.78rem', marginBottom: '2px', fontWeight: '700' }}>
                 Fecha de Vencimiento
               </div>
-              <div style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '600' }}>
+              <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '700' }}>
                 {formatearFecha(cuota.fecha_vencimiento)}
               </div>
             </div>
@@ -293,9 +293,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              marginBottom: '8px'
+              fontSize: '0.82rem',
+              fontWeight: '800',
+              marginBottom: '4px'
             }}>
               Monto a Pagar *
             </label>
@@ -308,25 +308,25 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               required
               style={{
                 width: '100%',
-                padding: '14px 16px',
+                padding: '6px 8px',
                 background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
-                border: `2px solid ${darkMode ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.3)'}`,
-                borderRadius: '12px',
+                border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                borderRadius: '8px',
                 color: theme.textPrimary,
-                fontSize: '1.2rem',
-                fontWeight: '600',
+                fontSize: '0.95rem',
+                fontWeight: '800',
                 fontFamily: 'Montserrat, sans-serif'
               }}
             />
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '8px', 
-              marginTop: '8px',
+              gap: '6px',
               color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
-              fontSize: '0.85rem'
+              fontSize: '0.78rem',
+              marginTop: '4px'
             }}>
-              <Info size={18} style={{ flexShrink: 0 }} />
+              <Info size={12} style={{ flexShrink: 0 }} />
               <span>Puedes pagar más del monto de la cuota para adelantar pagos</span>
             </div>
           </div>
@@ -335,17 +335,17 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
           {/* Método de pago */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '8px' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.95rem',
-              fontWeight: '600',
-              marginBottom: '12px'
+              fontSize: '0.82rem',
+              fontWeight: '800',
+              marginBottom: '6px'
             }}>
               Método de Pago *
             </label>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {[
                 { value: 'transferencia', label: 'Transferencia Bancaria', icon: Building },
                 { value: 'efectivo', label: 'Efectivo', icon: CreditCard }
@@ -357,24 +357,24 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     type="button"
                     onClick={() => setMetodoPago(metodo.value as any)}
                     style={{
-                      padding: '14px 20px',
+                      padding: '4px 8px',
                       background: metodoPago === metodo.value 
                         ? 'linear-gradient(135deg, #10b981, #059669)' 
                         : theme.inputBg,
                       color: metodoPago === metodo.value ? '#fff' : theme.textPrimary,
                       border: `1px solid ${metodoPago === metodo.value ? '#10b981' : theme.inputBorder}`,
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       cursor: 'pointer',
-                      fontSize: '0.95rem',
-                      fontWeight: '600',
+                      fontSize: '0.8rem',
+                      fontWeight: '800',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
+                      gap: '6px',
                       fontFamily: 'Montserrat, sans-serif',
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <Icon size={16} />
+                    <Icon size={10} />
                     {metodo.label}
                   </button>
                 );
@@ -384,15 +384,15 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
           {/* Campos específicos para transferencia */}
           {metodoPago === 'transferencia' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '8px' }}>
               {/* Banco */}
               <div>
                 <label style={{
                   display: 'block',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '10px'
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  marginBottom: '4px'
                 }}>
                   Banco *
                 </label>
@@ -402,12 +402,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                   required
                   style={{
                     width: '100%',
-                    padding: '14px 16px',
+                    padding: '6px 8px',
                     background: theme.inputBg,
                     border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '1rem',
+                    fontSize: '0.85rem',
                     fontFamily: 'Montserrat, sans-serif'
                   }}
                 >
@@ -425,9 +425,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 <label style={{
                   display: 'block',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '10px'
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  marginBottom: '4px'
                 }}>
                   Número de Comprobante *
                 </label>
@@ -439,12 +439,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                   required
                   style={{
                     width: '100%',
-                    padding: '14px 16px',
+                    padding: '6px 8px',
                     background: theme.inputBg,
                     border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '1rem',
+                    fontSize: '0.82rem',
                     fontFamily: 'Montserrat, sans-serif'
                   }}
                 />
@@ -455,9 +455,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 <label style={{
                   display: 'block',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '10px'
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  marginBottom: '4px'
                 }}>
                   Fecha de Transferencia *
                 </label>
@@ -468,47 +468,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                   required
                   style={{
                     width: '100%',
-                    padding: '14px 16px',
+                    padding: '6px 10px',
                     background: theme.inputBg,
                     border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '1rem',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Campos específicos para efectivo */}
-          {metodoPago === 'efectivo' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
-              {/* Número de factura */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  color: theme.textPrimary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '10px'
-                }}>
-                  Número de Factura/Comprobante *
-                </label>
-                <input
-                  type="text"
-                  value={numeroComprobante}
-                  onChange={(e) => setNumeroComprobante(e.target.value)}
-                  placeholder="Ej: FAC-001234"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: theme.inputBg,
-                    border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '12px',
-                    color: theme.textPrimary,
-                    fontSize: '1rem',
+                    fontSize: '0.85rem',
                     fontFamily: 'Montserrat, sans-serif'
                   }}
                 />
@@ -519,9 +484,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 <label style={{
                   display: 'block',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '10px'
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  marginBottom: '4px'
                 }}>
                   Recibido por *
                 </label>
@@ -533,27 +498,24 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                   required
                   style={{
                     width: '100%',
-                    padding: '14px 16px',
+                    padding: '6px 10px',
                     background: theme.inputBg,
                     border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '1rem',
+                    fontSize: '0.85rem',
                     fontFamily: 'Montserrat, sans-serif'
                   }}
                 />
-              </div>
-
-              {/* Tip informativo */}
-              <div style={{ gridColumn: '1 / -1' }}>
                 <div style={{ 
-                  display: 'flex', 
+                  display: 'flex',
                   alignItems: 'center', 
-                  gap: '8px',
+                  gap: '6px',
                   color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
-                  fontSize: '0.85rem'
+                  fontSize: '0.78rem',
+                  marginTop: '4px'
                 }}>
-                  <Info size={16} style={{ flexShrink: 0 }} />
+                  <Info size={12} style={{ flexShrink: 0 }} />
                   <span>Ingresa el número de factura y el nombre de la persona que te atendió en la academia</span>
                 </div>
               </div>
@@ -561,20 +523,20 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           )}
 
           {/* Subir comprobante */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '10px' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.95rem',
-              fontWeight: '600',
-              marginBottom: '12px'
+              fontSize: '0.82rem',
+              fontWeight: '800',
+              marginBottom: '6px'
             }}>
               Comprobante de Pago *
             </label>
             <div style={{
               border: `2px dashed ${archivoComprobante ? '#10b981' : theme.border}`,
-              borderRadius: '16px',
-              padding: '32px',
+              borderRadius: '10px',
+              padding: '12px',
               textAlign: 'center',
               cursor: 'pointer',
               background: archivoComprobante 
@@ -591,16 +553,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 required
               />
               <label htmlFor="comprobante-upload" style={{ cursor: 'pointer', display: 'block' }}>
-                <Upload size={40} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '12px' }} />
+                <Upload size={20} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '6px' }} />
                 <div style={{ 
                   color: archivoComprobante ? '#10b981' : theme.textPrimary, 
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  marginBottom: '8px'
+                  fontSize: '0.85rem',
+                  fontWeight: '800',
+                  marginBottom: '4px'
                 }}>
                   {archivoComprobante ? archivoComprobante.name : 'Subir comprobante (JPG, PNG, PDF)'}
                 </div>
-                <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>
+                <div style={{ color: theme.textMuted, fontSize: '0.78rem' }}>
                   Máximo 5MB
                 </div>
               </label>
@@ -608,13 +570,13 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           </div>
 
           {/* Observaciones */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '10px' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.95rem',
-              fontWeight: '600',
-              marginBottom: '12px'
+              fontSize: '0.82rem',
+              fontWeight: '800',
+              marginBottom: '6px'
             }}>
               Observaciones (Opcional)
             </label>
@@ -625,12 +587,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               rows={3}
               style={{
                 width: '100%',
-                padding: '14px 16px',
+                padding: '8px 10px',
                 background: theme.inputBg,
                 border: `1px solid ${theme.inputBorder}`,
-                borderRadius: '12px',
+                borderRadius: '8px',
                 color: theme.textPrimary,
-                fontSize: '1rem',
+                fontSize: '0.85rem',
                 fontFamily: 'Montserrat, sans-serif',
                 resize: 'vertical'
               }}
@@ -643,35 +605,35 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
               border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.3)'}`,
               color: darkMode ? '#fecaca' : '#dc2626',
-              padding: '16px',
-              borderRadius: '12px',
-              marginBottom: '24px',
-              fontSize: '0.95rem',
+              padding: '8px',
+              borderRadius: '8px',
+              marginBottom: '10px',
+              fontSize: '0.82rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              fontWeight: '500'
+              gap: '8px',
+              fontWeight: '600'
             }}>
-              <AlertCircle size={20} />
+              <AlertCircle size={14} />
               {error}
             </div>
           )}
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '32px' }}>
+          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', marginTop: '10px' }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
-                padding: '14px 32px',
+                padding: '6px 12px',
                 background: theme.inputBg,
                 color: theme.textPrimary,
                 border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
+                borderRadius: '8px',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
+                fontSize: '0.85rem',
+                fontWeight: '800',
                 fontFamily: 'Montserrat, sans-serif',
                 transition: 'all 0.2s ease'
               }}
@@ -684,18 +646,18 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               type="submit"
               disabled={loading}
               style={{
-                padding: '14px 32px',
+                padding: '6px 12px',
                 background: loading ? 'rgba(16, 185, 129, 0.5)' : 'linear-gradient(135deg, #10b981, #059669)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '8px',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '1rem',
-                fontWeight: '700',
+                fontSize: '0.85rem',
+                fontWeight: '800',
                 fontFamily: 'Montserrat, sans-serif',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '8px',
                 boxShadow: loading ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
                 transition: 'all 0.2s ease'
               }}
@@ -703,8 +665,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               {loading ? (
                 <>
                   <div style={{
-                    width: '16px',
-                    height: '16px',
+                    width: '12px',
+                    height: '12px',
                     border: '2px solid rgba(255,255,255,0.3)',
                     borderTop: '2px solid #fff',
                     borderRadius: '50%',
@@ -714,7 +676,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 </>
               ) : (
                 <>
-                  <CheckCircle size={16} />
+                  <CheckCircle size={12} />
                   Procesar Pago
                 </>
               )}
