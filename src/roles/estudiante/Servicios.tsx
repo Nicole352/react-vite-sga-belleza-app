@@ -91,30 +91,30 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
 
   return (
     <div style={{
-      transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
+      transform: isVisible ? 'translateY(0)' : 'translateY(-1.875rem)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
       {/* Header */}
       <div style={{
         background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '12px',
-        padding: '12px',
-        marginBottom: '12px',
-        backdropFilter: 'blur(10px)',
-        boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
+        border: `0.0625rem solid ${theme.border}`,
+        borderRadius: '0.75em',
+        padding: '0.75em',
+        marginBottom: '0.75em',
+        backdropFilter: 'blur(0.625rem)',
+        boxShadow: darkMode ? '0 0.75rem 1.5rem rgba(0, 0, 0, 0.25)' : '0 0.75rem 1.5rem rgba(0, 0, 0, 0.08)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.625em' }}>
           <div style={{
-            width: '40px',
-            height: '40px',
+            width: '2.5em',
+            height: '2.5em',
             background: `linear-gradient(135deg, ${theme.success}, #059669)`,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: `0 4px 12px ${theme.success}30`
+            boxShadow: `0 0.25rem 0.75rem ${theme.success}30`
           }}>
             <CreditCard size={18} color={darkMode ? '#000' : '#fff'} />
           </div>
@@ -123,9 +123,9 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               fontSize: '1.1rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 4px 0' 
+              margin: '0 0 0.25em 0' 
             }}>
-              <CreditCard size={16} style={{ display: 'inline', marginRight: '6px' }} /> Gestión de Pagos
+              <CreditCard size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> Gestión de Pagos
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
@@ -138,10 +138,10 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         </div>
 
         {/* Búsqueda */}
-        <div style={{ position: 'relative', maxWidth: '360px' }}>
+        <div style={{ position: 'relative', maxWidth: '22.5rem' }}>
           <Search size={14} style={{
             position: 'absolute',
-            left: '10px',
+            left: '0.625em',
             top: '50%',
             transform: 'translateY(-50%)',
             color: theme.textMuted
@@ -153,10 +153,10 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '8px 10px 8px 34px',
+              padding: '0.5em 0.625em 0.5em 2.125em',
               background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '8px',
+              border: `0.0625rem solid ${theme.border}`,
+              borderRadius: '0.5em',
               color: theme.textPrimary,
               fontSize: '0.85rem',
               fontFamily: 'Montserrat, sans-serif'
@@ -166,7 +166,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       </div>
 
       {/* Servicios */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(18.75rem, 90vw), 1fr))', gap: '0.75em' }}>
         {filteredServices.map((service) => {
           const Icon = service.icon;
           const statusColor = getStatusColor(service.status);
@@ -176,34 +176,34 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               key={service.id}
               style={{
                 background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                padding: '16px',
-                backdropFilter: 'blur(10px)',
-                boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.75em',
+                padding: '1em',
+                backdropFilter: 'blur(0.625rem)',
+                boxShadow: darkMode ? '0 0.75rem 1.5rem rgba(0, 0, 0, 0.25)' : '0 0.75rem 1.5rem rgba(0, 0, 0, 0.08)',
                 transition: 'all 0.2s ease',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.transform = 'translateY(-0.125rem)';
                 e.currentTarget.style.boxShadow = darkMode 
-                  ? '0 16px 32px rgba(0, 0, 0, 0.35)' 
-                  : '0 16px 32px rgba(0, 0, 0, 0.12)';
+                  ? '0 1rem 2rem rgba(0, 0, 0, 0.35)' 
+                  : '0 1rem 2rem rgba(0, 0, 0, 0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = darkMode 
-                  ? '0 12px 24px rgba(0, 0, 0, 0.25)' 
-                  : '0 12px 24px rgba(0, 0, 0, 0.08)';
+                  ? '0 0.75rem 1.5rem rgba(0, 0, 0, 0.25)' 
+                  : '0 0.75rem 1.5rem rgba(0, 0, 0, 0.08)';
               }}
             >
               {/* Header del servicio */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.75em' }}>
                 <div style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '2.25em',
+                  height: '2.25em',
                   background: `${theme.accent}20`,
-                  borderRadius: '10px',
+                  borderRadius: '0.625em',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -215,14 +215,14 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                     fontSize: '1rem',
                     fontWeight: '800',
                     color: theme.textPrimary,
-                    margin: '0 0 4px 0'
+                    margin: '0 0 0.25em 0'
                   }}>
                     {service.title}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
+                      width: '0.5em',
+                      height: '0.5em',
                       borderRadius: '50%',
                       background: statusColor
                     }} />
@@ -241,25 +241,25 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               <p style={{
                 color: theme.textSecondary,
                 fontSize: '0.9rem',
-                margin: '0 0 10px 0',
+                margin: '0 0 0.625em 0',
                 lineHeight: 1.4
               }}>
                 {service.description}
               </p>
 
               {/* Características */}
-              <div style={{ marginBottom: '12px' }}>
+              <div style={{ marginBottom: '0.75em' }}>
                 <h4 style={{
                   fontSize: '0.85rem',
                   fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: '0 0 8px 0'
+                  margin: '0 0 0.5em 0'
                 }}>
                   Características:
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375em' }}>
                   {service.features.map((feature, index) => (
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
                       <CheckCircle size={12} color={theme.success} />
                       <span style={{
                         color: theme.textSecondary,
@@ -275,17 +275,17 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               {/* Información de contacto */}
               <div style={{
                 background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                borderRadius: '8px',
-                padding: '10px',
-                marginBottom: '12px'
+                borderRadius: '0.5em',
+                padding: '0.625em',
+                marginBottom: '0.75em'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.375em' }}>
                   <Clock size={12} color={theme.textMuted} />
                   <span style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>
                     {service.schedule}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
                   <Mail size={12} color={theme.textMuted} />
                   <span style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>
                     {service.contact}
@@ -307,8 +307,8 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                   : `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
                 color: darkMode ? '#000' : '#fff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 12px',
+                borderRadius: '0.625em',
+                padding: '0.625em 0.75em',
                 fontSize: '0.85rem',
                 fontWeight: '800',
                 cursor: 'pointer',
@@ -316,7 +316,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px'
+                gap: '0.375em'
               }}>
                 <CreditCard size={14} />
                 {service.action}
@@ -330,19 +330,19 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       {filteredServices.length === 0 && (
         <div style={{
           background: theme.cardBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '12px',
-          padding: '32px 16px',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '0.75em',
+          padding: '2em 1em',
           textAlign: 'center',
-          backdropFilter: 'blur(10px)',
-          boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
+          backdropFilter: 'blur(0.625rem)',
+          boxShadow: darkMode ? '0 0.75rem 1.5rem rgba(0, 0, 0, 0.25)' : '0 0.75rem 1.5rem rgba(0, 0, 0, 0.08)'
         }}>
-          <Search size={24} color={theme.textMuted} style={{ marginBottom: '10px' }} />
+          <Search size={24} color={theme.textMuted} style={{ marginBottom: '0.625em' }} />
           <h3 style={{
             fontSize: '1.1rem',
             fontWeight: '800',
             color: theme.textPrimary,
-            margin: '0 0 6px 0'
+            margin: '0 0 0.375em 0'
           }}>
             No se encontraron servicios
           </h3>
@@ -366,27 +366,28 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.95)',
         zIndex: 2000,
-        overflow: 'hidden'
+        overflowY: 'auto',
+        overflowX: 'hidden'
       }}>
         {/* Botón de cerrar flotante */}
         <button
           onClick={() => setShowPagosMenuales(false)}
           style={{
             position: 'fixed',
-            top: '12px',
-            right: '12px',
+            top: '0.75em',
+            right: '0.75em',
             background: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
+            border: '0.0625rem solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '0.5em',
             color: '#fff',
-            padding: '8px 12px',
+            padding: '0.5em 0.75em',
             cursor: 'pointer',
             fontSize: '0.85rem',
             fontFamily: 'Montserrat, sans-serif',
             zIndex: 2001,
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
+            gap: '0.375em',
             fontWeight: '800'
           }}
         >
@@ -394,7 +395,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         </button>
         
         {/* Componente de Pagos Mensuales a pantalla completa */}
-        <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+        <div style={{ width: '100%', minHeight: '100%' }}>
           <PagosMenuales darkMode={darkMode} />
         </div>
       </div>

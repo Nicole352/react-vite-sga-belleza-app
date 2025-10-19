@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { 
-  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight
+import {
+  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -63,12 +63,12 @@ const GestionMatricula = () => {
       if (!res.ok) return;
       const data = await res.json();
       const cursosList = Array.isArray(data) ? data : [];
-      setCursos(cursosList.map((c: any) => ({ 
-        id_curso: c.id_curso, 
-        nombre: c.nombre, 
-        estado: c.estado 
+      setCursos(cursosList.map((c: any) => ({
+        id_curso: c.id_curso,
+        nombre: c.nombre,
+        estado: c.estado
       })));
-    } catch {}
+    } catch { }
   };
 
   // Contadores agregados independientes del filtro de estado
@@ -89,7 +89,7 @@ const GestionMatricula = () => {
         rechazado: Number(data?.rechazado || 0),
         observaciones: Number(data?.observaciones || 0),
       });
-    } catch {}
+    } catch { }
   };
 
   const fetchSolicitudes = async () => {
@@ -119,8 +119,8 @@ const GestionMatricula = () => {
     }
   };
 
-  useEffect(() => { 
-    fetchSolicitudes(); 
+  useEffect(() => {
+    fetchSolicitudes();
     fetchCursos();
   }, [filterEstado, filterTipo, page, limit]);
 
@@ -136,7 +136,7 @@ const GestionMatricula = () => {
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setTipos(list.map((t: any) => ({ id_tipo_curso: t.id_tipo_curso, nombre: t.nombre, codigo: t.codigo })));
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => { fetchTipos(); }, []);
@@ -169,14 +169,14 @@ const GestionMatricula = () => {
       // Extraer iniciales del nombre (todas las palabras)
       const nombreParts = nombre.trim().split(' ').filter(part => part.length > 0);
       const inicialesNombre = nombreParts.map(part => part.charAt(0).toLowerCase()).join('');
-      
+
       // Extraer primer apellido
       const apellidoParts = apellido.trim().split(' ').filter(part => part.length > 0);
       const primerApellido = apellidoParts[0]?.toLowerCase() || '';
-      
+
       // Crear username base
       const baseUsername = inicialesNombre + primerApellido;
-      
+
       // Por ahora devolver el username base (luego implementaremos la validación en backend)
       return baseUsername;
     } catch (error) {
@@ -201,23 +201,23 @@ const GestionMatricula = () => {
       horario: solicitud.horario_preferido,
       tipo_curso: (solicitud as any).tipo_curso_nombre
     });
-    
+
     setApprovalData(solicitud);
-    
+
     // Generar username automáticamente
     const username = generateUsername(solicitud.nombre_solicitante, solicitud.apellido_solicitante);
     setGeneratedUsername(username);
-    
+
     setShowApprovalModal(true);
   };
 
   // Función para crear estudiante desde solicitud aprobada
   const handleCreateStudent = async () => {
     if (!approvalData) return;
-    
+
     try {
       setDecidiendo(true);
-      
+
       const response = await fetch(`${API_BASE}/api/estudiantes/crear-desde-solicitud`, {
         method: 'POST',
         headers: {
@@ -228,14 +228,14 @@ const GestionMatricula = () => {
           aprobado_por: 1 // TODO: Obtener del contexto de usuario logueado
         })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error creando estudiante');
       }
-      
+
       const data = await response.json();
-      
+
       // Notificación de éxito - diferente según si es estudiante nuevo o existente
       if (approvalData?.id_estudiante_existente) {
         // CASO: Estudiante existente - Solo se creó matrícula
@@ -248,7 +248,7 @@ const GestionMatricula = () => {
             <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
               <div><strong>Estudiante:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
               <div><strong>Usuario:</strong> {data.estudiante.username}</div>
-              <div style={{ marginTop: '0.375rem', padding: '0.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '0.375rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+              <div style={{ marginTop: '0.375rem', padding: '0.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '0.375rem', border: '0.0625rem solid rgba(59, 130, 246, 0.3)' }}>
                 <div style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '600' }}>
                   El estudiante usará sus credenciales existentes
                 </div>
@@ -258,7 +258,7 @@ const GestionMatricula = () => {
           {
             duration: 6000,
             style: {
-              minWidth: '420px',
+              minWidth: '26.25rem',
             },
             icon: <CheckCircle2 size={24} />,
           }
@@ -283,22 +283,22 @@ const GestionMatricula = () => {
           {
             duration: 8000,
             style: {
-              minWidth: '420px',
+              minWidth: '26.25rem',
             },
             icon: <CheckCircle2 size={24} />,
           }
         );
       }
-      
+
       // Cerrar modal y refrescar datos
       setShowApprovalModal(false);
       setApprovalData(null);
       setGeneratedUsername('');
-      
+
       // Refrescar lista de solicitudes
       await fetchSolicitudes();
       await fetchCounters();
-      
+
     } catch (error: any) {
       console.error('Error creando estudiante:', error);
       toast.error(`Error: ${error.message}`, {
@@ -313,7 +313,7 @@ const GestionMatricula = () => {
   const handleDecision = async (estado: 'aprobado' | 'rechazado' | 'observaciones', observaciones?: string, solicitudId?: number) => {
     const targetId = solicitudId || selected?.id_solicitud;
     if (!targetId) return;
-    
+
     try {
       setDecidiendo(true);
       setError(null);
@@ -326,16 +326,16 @@ const GestionMatricula = () => {
         const msg = await res.text();
         throw new Error(msg || 'No se pudo actualizar la solicitud');
       }
-      
+
       // Solo cerrar modal si se actualizó desde el modal
       if (!solicitudId) {
         setShowModal(false);
         setSelected(null);
       }
-      
+
       await fetchSolicitudes();
       await fetchCounters();
-      
+
       // Notificación según el estado
       if (estado === 'aprobado') {
         toast.success('Solicitud aprobada correctamente', {
@@ -350,7 +350,7 @@ const GestionMatricula = () => {
           icon: <FileCheck size={20} />,
           style: {
             background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
-            border: '1px solid rgba(251, 191, 36, 0.4)',
+            border: '0.0625rem solid rgba(251, 191, 36, 0.4)',
             color: '#fbbf24',
             backdropFilter: 'blur(0.625rem)',
           },
@@ -401,21 +401,21 @@ const GestionMatricula = () => {
     <div className="responsive-padding">
       <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)', 
+          color: 'rgba(255,255,255,0.95)',
           margin: '0 0 0.375rem 0',
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: isMobile ? '6px' : '0.625rem', 
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? '6px' : '0.625rem',
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <GraduationCap size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Matrículas
         </h2>
-        <p style={{ 
-          color: 'rgba(255,255,255,0.7)', 
-          margin: 0, 
-          fontSize: isMobile ? '0.75rem' : '0.85rem', 
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        <p style={{
+          color: 'rgba(255,255,255,0.7)',
+          margin: 0,
+          fontSize: isMobile ? '0.75rem' : '0.85rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
         }}>
           Administra las matrículas y credenciales de acceso de los estudiantes
         </p>
@@ -424,8 +424,8 @@ const GestionMatricula = () => {
       {/* Controles */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: isMobile ? '12px' : '1rem', padding: isMobile ? '12px' : '1rem', marginBottom: isMobile ? '12px' : '1rem'
+        backdropFilter: 'blur(1.25rem)', border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+        borderRadius: isMobile ? '0.75em' : '1rem', padding: isMobile ? '0.75em' : '1rem', marginBottom: isMobile ? '0.75em' : '1rem'
       }}>
         <div className="responsive-filters">
           <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
@@ -434,8 +434,8 @@ const GestionMatricula = () => {
               type="text" placeholder="Buscar por nombre, email o cédula..."
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%', padding: '10px 0.625rem 0.625rem 2.375rem',
-                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                width: '100%', padding: '0.625em 0.625rem 0.625rem 2.375rem',
+                background: 'rgba(255,255,255,0.1)', border: '0.0625rem solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem', color: '#fff', fontSize: '0.8rem'
               }}
             />
@@ -466,7 +466,7 @@ const GestionMatricula = () => {
                 ]}
               />
             </div>
-            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto' }}>Refrescar</button>
+            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.875rem', fontSize: '0.8rem', borderRadius: '0.5em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto' }}>Refrescar</button>
           </div>
         </div>
         {/* Counters + Pagination */}
@@ -474,20 +474,20 @@ const GestionMatricula = () => {
           {/* Counters */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <span style={{
-              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
+              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(156, 163, 175, 0.15)', border: '0.0625rem solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
             }}>Pendiente: {counters.pendiente}</span>
             <span style={{
-              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
+              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(16, 185, 129, 0.15)', border: '0.0625rem solid rgba(16, 185, 129, 0.3)', color: '#10b981'
             }}>Aprobado: {counters.aprobado}</span>
             <span style={{
-              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
+              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(239, 68, 68, 0.15)', border: '0.0625rem solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
             }}>Rechazado: {counters.rechazado}</span>
             <span style={{
-              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
+              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(251, 191, 36, 0.15)', border: '0.0625rem solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
             }}>Observaciones: {counters.observaciones}</span>
           </div>
           {/* Pagination */}
@@ -509,24 +509,24 @@ const GestionMatricula = () => {
             </div>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: '7px 0.625rem', fontSize: '0.75rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
+              padding: '0.4375em 0.625rem', fontSize: '0.75rem', borderRadius: '0.5em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
             }}>Anterior</button>
             <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
             <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
-              padding: '8px 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
+              padding: '0.5em 0.75rem', borderRadius: '0.625em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
             }}>Siguiente</button>
           </div>
         </div>
       </div>
 
       {/* Lista de Solicitudes */}
-      <div style={{ display: 'grid', gap: isMobile ? '12px' : '0.875rem' }}>
+      <div style={{ display: 'grid', gap: isMobile ? '0.75em' : '0.875rem' }}>
         {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando...</div>)}
         {error && (<div style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</div>)}
         {!loading && solicitudesFiltradas.length === 0 && (
           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay solicitudes</div>
         )}
-{paginatedSolicitudes.map((sol) => {
+        {paginatedSolicitudes.map((sol) => {
           // Formatear fecha de solicitud
           const formatearFecha = (fechaString: string) => {
             const fecha = new Date(fechaString);
@@ -543,20 +543,20 @@ const GestionMatricula = () => {
           return (
             <div key={sol.id_solicitud} style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: isMobile ? '12px' : '1rem', padding: isMobile ? '12px' : '1rem', boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
+              backdropFilter: 'blur(1.25rem)', border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+              borderRadius: isMobile ? '0.75em' : '1rem', padding: isMobile ? '0.75em' : '1rem', boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
             }}>
               {/* Información Principal */}
               <div style={{ marginBottom: '0.875rem' }}>
                 <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.75rem 0' }}>
                   {sol.nombre_solicitante} {sol.apellido_solicitante}
                 </h3>
-                
+
                 {/* Primera fila - Información básica */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))', 
-                  gap: isMobile ? '10px' : '0.75rem',
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(11.25rem, 90vw), 1fr))',
+                  gap: isMobile ? '0.625em' : '0.75rem',
                   marginBottom: '0.625rem'
                 }}>
                   <div>
@@ -580,12 +580,12 @@ const GestionMatricula = () => {
                 </div>
 
                 {/* Segunda fila - Número, Comprobante y Estado separados */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: isMobile 
-                    ? '1fr' 
-                    : (sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)'), 
-                  gap: isMobile ? '8px' : '0.625rem',
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile
+                    ? '1fr'
+                    : (sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)'),
+                  gap: isMobile ? '0.5em' : '0.625rem',
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante - Campo separado */}
@@ -594,9 +594,9 @@ const GestionMatricula = () => {
                     {sol.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(251, 191, 36, 0.1)',
-                        border: '1px solid rgba(251, 191, 36, 0.3)',
+                        border: '0.0625rem solid rgba(251, 191, 36, 0.3)',
                         color: '#fbbf24',
-                        padding: '5px 0.375rem',
+                        padding: '0.3125em 0.375rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         fontWeight: '600',
@@ -609,9 +609,9 @@ const GestionMatricula = () => {
                     ) : (
                       <div style={{
                         background: 'rgba(107, 114, 128, 0.1)',
-                        border: '1px solid rgba(107, 114, 128, 0.3)',
+                        border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
                         color: 'rgba(255, 255, 255, 0.5)',
-                        padding: '5px 0.375rem',
+                        padding: '0.3125em 0.375rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         textAlign: 'center',
@@ -630,9 +630,9 @@ const GestionMatricula = () => {
                       {(sol as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
-                          border: '1px solid rgba(180, 83, 9, 0.3)',
+                          border: '0.0625rem solid rgba(180, 83, 9, 0.3)',
                           color: '#b45309',
-                          padding: '6px 0.5rem',
+                          padding: '0.375em 0.5rem',
                           borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           fontWeight: '600',
@@ -644,9 +644,9 @@ const GestionMatricula = () => {
                       ) : (
                         <div style={{
                           background: 'rgba(107, 114, 128, 0.1)',
-                          border: '1px solid rgba(107, 114, 128, 0.3)',
+                          border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
                           color: 'rgba(255, 255, 255, 0.5)',
-                          padding: '6px 0.5rem',
+                          padding: '0.375em 0.5rem',
                           borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           textAlign: 'center',
@@ -666,9 +666,9 @@ const GestionMatricula = () => {
                       onClick={() => openComprobanteModal(sol.id_solicitud, sol.numero_comprobante)}
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
                         color: '#10b981',
-                        padding: '6px 0.5rem',
+                        padding: '0.375em 0.5rem',
                         borderRadius: '0.375rem',
                         cursor: 'pointer',
                         fontSize: '0.8rem',
@@ -689,9 +689,9 @@ const GestionMatricula = () => {
                   {/* Estado - Campo separado */}
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Estado</div>
-                    <div style={{ 
+                    <div style={{
                       display: 'flex',
-                      padding: '6px 0.5rem',
+                      padding: '0.375em 0.5rem',
                       borderRadius: '0.375rem',
                       fontSize: '0.8rem',
                       fontWeight: '600',
@@ -700,16 +700,16 @@ const GestionMatricula = () => {
                       justifyContent: 'center',
                       alignItems: 'center',
                       background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                                 sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                                 sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
-                                 'rgba(156, 163, 175, 0.15)',
-                      border: sol.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                             sol.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                             sol.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                             '1px solid rgba(156, 163, 175, 0.3)',
+                        sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
+                          sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                            'rgba(156, 163, 175, 0.15)',
+                      border: sol.estado === 'aprobado' ? '0.0625rem solid rgba(16, 185, 129, 0.3)' :
+                        sol.estado === 'rechazado' ? '0.0625rem solid rgba(239, 68, 68, 0.3)' :
+                          sol.estado === 'observaciones' ? '0.0625rem solid rgba(251, 191, 36, 0.3)' :
+                            '0.0625rem solid rgba(156, 163, 175, 0.3)',
                       color: sol.estado === 'aprobado' ? '#10b981' :
-                            sol.estado === 'rechazado' ? '#ef4444' :
-                            sol.estado === 'observaciones' ? '#fbbf24' :
+                        sol.estado === 'rechazado' ? '#ef4444' :
+                          sol.estado === 'observaciones' ? '#fbbf24' :
                             '#9ca3af'
                     }}>
                       {sol.estado}
@@ -719,22 +719,22 @@ const GestionMatricula = () => {
               </div>
 
               {/* Botones de Acción - Parte Inferior */}
-              <div style={{ 
-                display: 'flex', 
+              <div style={{
+                display: 'flex',
                 flexDirection: isSmallScreen ? 'column' : 'row',
-                gap: isMobile ? '8px' : '0.75rem', 
+                gap: isMobile ? '0.5em' : '0.75rem',
                 justifyContent: isSmallScreen ? 'stretch' : 'flex-end',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                paddingTop: isMobile ? '12px' : '1rem'
+                borderTop: '0.0625rem solid rgba(255,255,255,0.1)',
+                paddingTop: isMobile ? '0.75em' : '1rem'
               }}>
-                <button 
-                  onClick={() => openModal(sol.id_solicitud)} 
-                  style={{ 
-                    background: 'rgba(59, 130, 246, 0.15)', 
-                    border: '1px solid rgba(59, 130, 246, 0.3)', 
-                    color: '#3b82f6', 
-                    padding: isMobile ? '10px 0.875rem' : '10px 1rem', 
-                    borderRadius: isMobile ? '8px' : '0.625rem', 
+                <button
+                  onClick={() => openModal(sol.id_solicitud)}
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                    color: '#3b82f6',
+                    padding: isMobile ? '0.625em 0.875rem' : '0.625em 1rem',
+                    borderRadius: isMobile ? '0.5em' : '0.625rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -750,15 +750,15 @@ const GestionMatricula = () => {
                 </button>
                 {sol.estado === 'pendiente' && (
                   <>
-                    <button 
-                      onClick={() => openApprovalModal(sol)} 
+                    <button
+                      onClick={() => openApprovalModal(sol)}
                       disabled={decidiendo}
-                      style={{ 
-                        background: 'rgba(16, 185, 129, 0.15)', 
-                        border: '1px solid rgba(16, 185, 129, 0.3)', 
-                        color: '#10b981', 
-                        padding: isMobile ? '10px 0.875rem' : '8px 0.75rem', 
-                        borderRadius: '0.5rem', 
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
+                        color: '#10b981',
+                        padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.75rem',
+                        borderRadius: '0.5rem',
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -773,15 +773,15 @@ const GestionMatricula = () => {
                       <Check size={14} />
                       Aprobar
                     </button>
-                    <button 
-                      onClick={() => handleDecision('rechazado', undefined, sol.id_solicitud)} 
+                    <button
+                      onClick={() => handleDecision('rechazado', undefined, sol.id_solicitud)}
                       disabled={decidiendo}
-                      style={{ 
-                        background: 'rgba(239, 68, 68, 0.15)', 
-                        border: '1px solid rgba(239, 68, 68, 0.3)', 
-                        color: '#ef4444', 
-                        padding: isMobile ? '10px 0.875rem' : '8px 0.75rem', 
-                        borderRadius: '0.5rem', 
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
+                        padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.75rem',
+                        borderRadius: '0.5rem',
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -811,25 +811,25 @@ const GestionMatricula = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '1.5rem',
+          gap: isMobile ? '0.75em' : '0',
+          padding: isMobile ? '1em' : '1.25em 1.5rem',
+          marginTop: isMobile ? '1em' : '1.5rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           backdropFilter: 'blur(1.25rem)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: isMobile ? '12px' : '1.25rem',
+          border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+          borderRadius: isMobile ? '0.75em' : '1.25rem',
         }}>
-          <div style={{ 
-            color: 'rgba(255,255,255,0.7)', 
-            fontSize: isMobile ? '0.8rem' : '0.9rem', 
-            textAlign: isMobile ? 'center' : 'left' 
+          <div style={{
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {page} de {totalPages} • Total: {solicitudesFiltradas.length} solicitudes
           </div>
-          <div style={{ 
-            display: 'flex', 
-            gap: '0.5rem', 
-            flexWrap: 'wrap', 
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
             <button
@@ -839,10 +839,10 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '0.25em' : '0.375rem',
+                padding: isMobile ? '0.5em 0.75rem' : '0.5em 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '0.0625rem solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
@@ -852,7 +852,7 @@ const GestionMatricula = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              <ChevronLeft size={isMobile ? 14 : 16} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -882,10 +882,10 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '0.25em' : '0.375rem',
+                padding: isMobile ? '0.5em 0.75rem' : '0.5em 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '0.0625rem solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
@@ -895,7 +895,7 @@ const GestionMatricula = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              {!isMobile && 'Siguiente'} 
+              {!isMobile && 'Siguiente'}
               <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
@@ -904,7 +904,7 @@ const GestionMatricula = () => {
 
       {/* Modal Detalle Solicitud */}
       {showModal && selected && (
-        <div 
+        <div
           data-modal-overlay="true"
           style={{
             position: 'fixed',
@@ -968,10 +968,10 @@ const GestionMatricula = () => {
               </button>
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-              gap: isMobile ? 12 : 16 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: isMobile ? 12 : 16
             }}>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombre Completo</div>
@@ -1042,10 +1042,10 @@ const GestionMatricula = () => {
               {selected.horario_preferido && (
                 <div>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Horario Preferido</div>
-                  <div style={{ 
-                    color: '#fff', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <div style={{
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
                     gap: '0.5rem',
                     textTransform: 'capitalize'
                   }}>
@@ -1062,16 +1062,16 @@ const GestionMatricula = () => {
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Método de Pago</div>
                 <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selected.metodo_pago}</div>
               </div>
-              
+
               {/* Información del comprobante - para transferencia */}
               {selected.metodo_pago === 'transferencia' && (
                 <>
                   {selected.numero_comprobante && (
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
-                      <div style={{ 
-                        color: '#fbbf24', 
-                        fontWeight: '600', 
+                      <div style={{
+                        color: '#fbbf24',
+                        fontWeight: '600',
                         fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
@@ -1116,9 +1116,9 @@ const GestionMatricula = () => {
                   {selected.numero_comprobante && (
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
-                      <div style={{ 
-                        color: '#fbbf24', 
-                        fontWeight: '600', 
+                      <div style={{
+                        color: '#fbbf24',
+                        fontWeight: '600',
                         fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
@@ -1133,8 +1133,8 @@ const GestionMatricula = () => {
                   {(selected as any).recibido_por && (
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Recibido por</div>
-                      <div style={{ 
-                        color: '#b45309', 
+                      <div style={{
+                        color: '#b45309',
                         fontWeight: '600',
                         fontSize: '0.95rem',
                         background: 'rgba(180, 83, 9, 0.1)',
@@ -1151,7 +1151,7 @@ const GestionMatricula = () => {
 
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
-                <div style={{ 
+                <div style={{
                   display: 'inline-flex',
                   padding: '6px 0.75rem',
                   borderRadius: '9999px',
@@ -1159,16 +1159,16 @@ const GestionMatricula = () => {
                   fontWeight: '600',
                   textTransform: 'capitalize',
                   background: selected.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                             selected.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                             selected.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
-                             'rgba(156, 163, 175, 0.15)',
+                    selected.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
+                      selected.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                        'rgba(156, 163, 175, 0.15)',
                   border: selected.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                         selected.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                         selected.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                         '1px solid rgba(156, 163, 175, 0.3)',
+                    selected.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                      selected.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                        '1px solid rgba(156, 163, 175, 0.3)',
                   color: selected.estado === 'aprobado' ? '#10b981' :
-                        selected.estado === 'rechazado' ? '#ef4444' :
-                        selected.estado === 'observaciones' ? '#fbbf24' :
+                    selected.estado === 'rechazado' ? '#ef4444' :
+                      selected.estado === 'observaciones' ? '#fbbf24' :
                         '#9ca3af'
                 }}>
                   {selected.estado}
@@ -1183,19 +1183,19 @@ const GestionMatricula = () => {
                 Comprobante de Pago
               </h4>
               <div style={{ marginBottom: '0.75rem' }}>
-                <a 
-                  href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/comprobante`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: 8, 
-                    padding: '10px 1rem', 
-                    borderRadius: 8, 
-                    border: '1px solid rgba(16, 185, 129, 0.3)', 
+                <a
+                  href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/comprobante`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 1rem',
+                    borderRadius: 8,
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
                     background: 'rgba(16, 185, 129, 0.1)',
-                    color: '#10b981', 
+                    color: '#10b981',
                     textDecoration: 'none',
                     fontSize: '0.9rem',
                     fontWeight: '600'
@@ -1215,11 +1215,11 @@ const GestionMatricula = () => {
                 <FileText size={18} color="#3b82f6" />
                 Documentos
               </h4>
-              
+
               {(() => {
                 // Determinar si es extranjero basado en la cédula (si no tiene formato ecuatoriano, es extranjero)
                 const esEcuatoriano = selected.identificacion_solicitante && /^\d{10}$/.test(selected.identificacion_solicitante);
-                
+
                 if (esEcuatoriano) {
                   // Solo mostrar documento de identificación para ecuatorianos
                   return (
@@ -1228,19 +1228,19 @@ const GestionMatricula = () => {
                         <IdCard size={14} color="#3b82f6" />
                         Documento de Identificación
                       </div>
-                      <a 
-                        href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: 8, 
-                          padding: '8px 0.75rem', 
-                          borderRadius: 8, 
-                          border: '1px solid rgba(59, 130, 246, 0.3)', 
+                      <a
+                        href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '8px 0.75rem',
+                          borderRadius: 8,
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
                           background: 'rgba(59, 130, 246, 0.1)',
-                          color: '#3b82f6', 
+                          color: '#3b82f6',
                           textDecoration: 'none',
                           fontSize: '0.85rem',
                           fontWeight: '500'
@@ -1253,29 +1253,29 @@ const GestionMatricula = () => {
                 } else {
                   // Mostrar ambos documentos para extranjeros
                   return (
-                    <div style={{ 
-                      display: 'grid', 
-                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                      gap: isMobile ? '10px' : '0.75rem' 
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                      gap: isMobile ? '10px' : '0.75rem'
                     }}>
                       <div>
                         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                           <IdCard size={14} color="#3b82f6" />
                           Copia de Pasaporte
                         </div>
-                        <a 
-                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          style={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: 8, 
-                            padding: '8px 0.75rem', 
-                            borderRadius: 8, 
-                            border: '1px solid rgba(59, 130, 246, 0.3)', 
+                        <a
+                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '8px 0.75rem',
+                            borderRadius: 8,
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
                             background: 'rgba(59, 130, 246, 0.1)',
-                            color: '#3b82f6', 
+                            color: '#3b82f6',
                             textDecoration: 'none',
                             fontSize: '0.85rem',
                             fontWeight: '500'
@@ -1289,19 +1289,19 @@ const GestionMatricula = () => {
                           <FileText size={14} color="#3b82f6" />
                           Documento de Estatus Legal
                         </div>
-                        <a 
-                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-estatus-legal`} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          style={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: 8, 
-                            padding: '8px 0.75rem', 
-                            borderRadius: 8, 
-                            border: '1px solid rgba(59, 130, 246, 0.3)', 
+                        <a
+                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-estatus-legal`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '8px 0.75rem',
+                            borderRadius: 8,
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
                             background: 'rgba(59, 130, 246, 0.1)',
-                            color: '#3b82f6', 
+                            color: '#3b82f6',
                             textDecoration: 'none',
                             fontSize: '0.85rem',
                             fontWeight: '500'
@@ -1314,7 +1314,7 @@ const GestionMatricula = () => {
                   );
                 }
               })()}
-              
+
               <p style={{ color: 'rgba(255,255,255,0.5)', margin: '12px 0 0 0', fontSize: '0.8rem' }}>
                 Haz clic en los enlaces para abrir los documentos en una nueva pestaña.
               </p>
@@ -1323,7 +1323,7 @@ const GestionMatricula = () => {
             {(() => {
               const curso = cursos.find(c => c.id_curso === selected.id_curso);
               const cursoBlocked = curso?.estado === 'cancelado';
-              
+
               if (cursoBlocked) {
                 return (
                   <div style={{ marginTop: 24 }}>
@@ -1370,21 +1370,21 @@ const GestionMatricula = () => {
                           {selected.estado === 'aprobado' ? <CheckCircle2 size={28} color="#10b981" /> : selected.estado === 'rechazado' ? <XCircle size={28} color="#ef4444" /> : <AlertCircle size={28} color="#f59e0b" />}
                         </span>
                         <div style={{ textAlign: 'left' }}>
-                          <h4 style={{ 
-                            color: selected.estado === 'aprobado' ? '#10b981' : '#ef4444', 
-                            margin: '0 0 0.25rem 0', 
-                            fontSize: '1rem', 
+                          <h4 style={{
+                            color: selected.estado === 'aprobado' ? '#10b981' : '#ef4444',
+                            margin: '0 0 0.25rem 0',
+                            fontSize: '1rem',
                             fontWeight: '600',
                             textTransform: 'capitalize'
                           }}>
                             Solicitud {selected.estado}
                           </h4>
                           <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
-                            {selected.estado === 'aprobado' 
+                            {selected.estado === 'aprobado'
                               ? 'Esta solicitud ya fue aprobada y el estudiante fue creado exitosamente.'
                               : selected.estado === 'rechazado'
-                              ? 'Esta solicitud fue rechazada anteriormente.'
-                              : 'Esta solicitud tiene observaciones pendientes.'}
+                                ? 'Esta solicitud fue rechazada anteriormente.'
+                                : 'Esta solicitud tiene observaciones pendientes.'}
                           </p>
                         </div>
                       </div>
@@ -1394,25 +1394,25 @@ const GestionMatricula = () => {
               }
 
               return (
-                <div style={{ 
-                  display: 'flex', 
+                <div style={{
+                  display: 'flex',
                   flexDirection: isMobile ? 'column-reverse' : 'row',
-                  gap: 12, 
-                  justifyContent: 'flex-end', 
-                  marginTop: isMobile ? 20 : 24 
+                  gap: 12,
+                  justifyContent: 'flex-end',
+                  marginTop: isMobile ? 20 : 24
                 }}>
-                  <button 
-                    onClick={() => handleDecision('rechazado')} 
-                    disabled={decidiendo} 
-                    style={{ 
-                      background: 'rgba(239, 68, 68, 0.15)', 
-                      border: '1px solid rgba(239, 68, 68, 0.3)', 
-                      color: '#ef4444', 
-                      padding: '12px 1.25rem', 
-                      borderRadius: 12, 
-                      cursor: decidiendo ? 'not-allowed' : 'pointer', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
+                  <button
+                    onClick={() => handleDecision('rechazado')}
+                    disabled={decidiendo}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      padding: '12px 1.25rem',
+                      borderRadius: 12,
+                      cursor: decidiendo ? 'not-allowed' : 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
                       opacity: decidiendo ? 0.6 : 1,
@@ -1423,18 +1423,18 @@ const GestionMatricula = () => {
                   >
                     <XCircle size={16} /> Rechazar
                   </button>
-                  <button 
-                    onClick={() => handleDecision('aprobado')} 
-                    disabled={decidiendo} 
-                    style={{ 
-                      background: 'linear-gradient(135deg, #10b981, #059669)', 
-                      border: 'none', 
-                      color: '#fff', 
-                      padding: '12px 1.25rem', 
-                      borderRadius: 12, 
-                      cursor: decidiendo ? 'not-allowed' : 'pointer', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
+                  <button
+                    onClick={() => handleDecision('aprobado')}
+                    disabled={decidiendo}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      border: 'none',
+                      color: '#fff',
+                      padding: '12px 1.25rem',
+                      borderRadius: 12,
+                      cursor: decidiendo ? 'not-allowed' : 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
                       opacity: decidiendo ? 0.6 : 1,
@@ -1454,38 +1454,38 @@ const GestionMatricula = () => {
 
       {/* Modal Comprobante */}
       {showComprobanteModal && (
-        <div 
+        <div
           data-modal-overlay="true"
-          style={{ 
+          style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            display: 'flex', 
-            alignItems: isMobile ? 'flex-end' : 'center', 
-            justifyContent: 'center', 
+            display: 'flex',
+            alignItems: isMobile ? 'flex-end' : 'center',
+            justifyContent: 'center',
             zIndex: 9999,
             padding: isMobile ? '0' : '1.25rem',
           }}
         >
-          <div className="responsive-modal" style={{ 
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
-            border: '1px solid rgba(16, 185, 129, 0.3)', 
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem', 
+          <div className="responsive-modal" style={{
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             width: isMobile ? '100vw' : '100%',
             maxWidth: isMobile ? '100vw' : '50rem',
             maxHeight: isMobile ? '90vh' : '85vh',
-            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem', 
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             display: 'flex',
             flexDirection: 'column',
             boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
           }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               marginBottom: '1.125rem',
               paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -1496,9 +1496,9 @@ const GestionMatricula = () => {
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
-                  <p style={{ 
-                    margin: '6px 0 0 1.75rem', 
-                    color: '#fbbf24', 
+                  <p style={{
+                    margin: '6px 0 0 1.75rem',
+                    color: '#fbbf24',
                     fontSize: '0.85rem',
                     fontFamily: 'monospace',
                     fontWeight: '600'
@@ -1507,9 +1507,9 @@ const GestionMatricula = () => {
                   </p>
                 )}
               </div>
-              <button 
-                onClick={() => setShowComprobanteModal(false)} 
-                style={{ 
+              <button
+                onClick={() => setShowComprobanteModal(false)}
+                style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '0.5rem',
@@ -1533,23 +1533,23 @@ const GestionMatricula = () => {
                 <X size={18} />
               </button>
             </div>
-            
-            <div style={{ 
-              flex: 1, 
-              display: 'flex', 
-              justifyContent: 'center', 
+
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: '0.75rem',
               padding: '1rem',
               overflow: 'hidden'
             }}>
-              <img 
-                src={comprobanteUrl} 
+              <img
+                src={comprobanteUrl}
                 alt="Comprobante de pago"
-                style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '100%', 
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
                   objectFit: 'contain',
                   borderRadius: '0.5rem'
                 }}
@@ -1568,16 +1568,16 @@ const GestionMatricula = () => {
                 }}
               />
             </div>
-            
-            <div style={{ 
-              marginTop: '1rem', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              gap: '0.75rem' 
+
+            <div style={{
+              marginTop: '1rem',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '0.75rem'
             }}>
-              <a 
-                href={comprobanteUrl} 
-                target="_blank" 
+              <a
+                href={comprobanteUrl}
+                target="_blank"
                 rel="noreferrer"
                 style={{
                   background: 'rgba(16, 185, 129, 0.15)',
@@ -1618,7 +1618,7 @@ const GestionMatricula = () => {
 
       {/* Modal de Aprobación */}
       {showApprovalModal && approvalData && (
-        <div 
+        <div
           data-modal-overlay="true"
           style={{
             position: 'fixed',
@@ -1685,10 +1685,10 @@ const GestionMatricula = () => {
               </button>
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-              gap: isMobile ? 12 : 16 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: isMobile ? 12 : 16
             }}>
               {/* Nombres - Siempre visible */}
               <div>
@@ -1697,7 +1697,7 @@ const GestionMatricula = () => {
                   {(approvalData?.nombre_solicitante && approvalData.nombre_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Apellidos - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Apellidos</div>
@@ -1705,7 +1705,7 @@ const GestionMatricula = () => {
                   {(approvalData?.apellido_solicitante && approvalData.apellido_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Identificación - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
@@ -1713,7 +1713,7 @@ const GestionMatricula = () => {
                   {(approvalData?.identificacion_solicitante && approvalData.identificacion_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Email - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Email</div>
@@ -1721,7 +1721,7 @@ const GestionMatricula = () => {
                   {(approvalData?.email_solicitante && approvalData.email_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Teléfono - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
@@ -1729,7 +1729,7 @@ const GestionMatricula = () => {
                   {(approvalData?.telefono_solicitante && approvalData.telefono_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Fecha de Nacimiento - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
@@ -1757,7 +1757,7 @@ const GestionMatricula = () => {
                   })()}
                 </div>
               </div>
-              
+
               {/* Tipo de Curso - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Tipo de Curso</div>
@@ -1765,14 +1765,14 @@ const GestionMatricula = () => {
                   {((approvalData as any)?.tipo_curso_nombre && (approvalData as any).tipo_curso_nombre.trim()) || 'No especificado'}
                 </div>
               </div>
-              
+
               {/* Horario Preferido - Siempre visible */}
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Horario Preferido</div>
-                <div style={{ 
-                  color: '#fff', 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: '0.5rem',
                   textTransform: 'capitalize'
                 }}>
@@ -1789,8 +1789,8 @@ const GestionMatricula = () => {
                   <GraduationCap size={18} color="#10b981" />
                   Usuario Generado Automáticamente
                 </h4>
-                <div style={{ 
-                  color: '#10b981', 
+                <div style={{
+                  color: '#10b981',
                   fontSize: '1.2rem',
                   fontFamily: 'monospace',
                   fontWeight: '700',
@@ -1802,8 +1802,8 @@ const GestionMatricula = () => {
                 }}>
                   {generatedUsername}
                 </div>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.7)', 
+                <div style={{
+                  color: 'rgba(255,255,255,0.7)',
                   fontSize: '0.85rem'
                 }}>
                   Generado a partir de las iniciales del nombre + primer apellido
@@ -1813,19 +1813,19 @@ const GestionMatricula = () => {
 
             {/* Alerta para estudiante existente */}
             {approvalData?.id_estudiante_existente && (
-              <div style={{ 
-                marginTop: 16, 
-                background: 'rgba(59, 130, 246, 0.1)', 
-                border: '1px solid rgba(59, 130, 246, 0.3)', 
-                borderRadius: 12, 
-                padding: 16 
+              <div style={{
+                marginTop: 16,
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: 12,
+                padding: 16
               }}>
                 <h4 style={{ margin: '0 0 0.5rem 0', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={18} color="#3b82f6" />
                   Estudiante Existente
                 </h4>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.8)', 
+                <div style={{
+                  color: 'rgba(255,255,255,0.8)',
                   fontSize: '0.9rem',
                   lineHeight: '1.5'
                 }}>
@@ -1837,10 +1837,10 @@ const GestionMatricula = () => {
             )}
 
             {/* Botones de Acción */}
-            <div style={{ 
-              display: 'flex', 
+            <div style={{
+              display: 'flex',
               flexDirection: isMobile ? 'column-reverse' : 'row',
-              gap: '0.75rem', 
+              gap: '0.75rem',
               justifyContent: 'flex-end',
               marginTop: isMobile ? '16px' : '1.25rem'
             }}>

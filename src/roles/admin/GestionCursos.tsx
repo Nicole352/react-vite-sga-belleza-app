@@ -568,7 +568,7 @@ const GestionCursos = () => {
       <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
         <h2 className="responsive-title" style={{ 
           color: 'rgba(255,255,255,0.95)', margin: '0 0 0.375rem 0',
-          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          display: 'flex', alignItems: 'center', gap: isMobile ? '0.375rem' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Cursos
@@ -606,18 +606,18 @@ const GestionCursos = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 0.625rem 0.625rem 2.375rem',
+                  padding: '0.625em 0.625em 0.625em 2.375em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625rem',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '0.8rem'
+                  fontSize: '0.875rem'
                 }}
               />
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isSmallScreen ? 'auto' : 200, width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -640,14 +640,14 @@ const GestionCursos = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3125rem',
-                  padding: isMobile ? '7px 0.625rem' : '7px 0.75rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.4375em 0.625em' : '0.4375em 0.75em',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '0.4375rem',
+                  border: viewMode === 'cards' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
+                  borderRadius: '0.4em',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.75rem',
+                  fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -661,14 +661,14 @@ const GestionCursos = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: isMobile ? '7px 0.625rem' : '8px 0.875rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.4375em 0.625em' : '0.5em 0.875em',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '0.5rem',
+                  border: viewMode === 'table' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
+                  borderRadius: '0.5em',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.75rem' : '0.9rem',
+                  fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -687,17 +687,17 @@ const GestionCursos = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
-              padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
+              gap: '0.5em',
+              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
               background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '0.625rem',
+              borderRadius: '0.625em',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-              fontSize: '0.8rem',
+              fontSize: '0.875rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
-              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
@@ -718,9 +718,9 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: isMobile ? '0.75rem' : '1rem',
-          marginBottom: isMobile ? '0.75rem' : '1.125rem'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(17.5rem, 90vw), 1fr))', 
+          gap: isMobile ? '0.75em' : '1em',
+          marginBottom: isMobile ? '0.75em' : '1.125em'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -976,7 +976,7 @@ const GestionCursos = () => {
               WebkitOverflowScrolling: 'touch'
             }}
           >
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? '900px' : 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? 'min(56.25rem, 95vw)' : 'auto' }}>
             <thead>
               <tr style={{ 
                 background: 'rgba(248, 113, 113, 0.15)', 

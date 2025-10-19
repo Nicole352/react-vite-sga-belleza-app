@@ -61,13 +61,13 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         setError('Solo se permiten archivos JPG, PNG, WEBP o PDF');
         return;
       }
-      
+
       // Validar tamaño (5MB máximo)
       if (file.size > 5 * 1024 * 1024) {
         setError('El archivo no puede ser mayor a 5MB');
         return;
       }
-      
+
       setArchivoComprobante(file);
       setError('');
     }
@@ -110,7 +110,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       formData.append('metodo_pago', metodoPago);
       formData.append('monto_pagado', montoNumerico.toFixed(2));
       formData.append('numero_comprobante', numeroComprobante);
-      
+
       // Solo agregar banco y fecha si es transferencia
       if (metodoPago === 'transferencia') {
         formData.append('banco_comprobante', bancoComprobante);
@@ -121,7 +121,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         formData.append('fecha_transferencia', new Date().toISOString().split('T')[0]);
         formData.append('recibido_por', recibidoPor);
       }
-      
+
       formData.append('observaciones', observaciones);
       formData.append('comprobante', archivoComprobante);
 
@@ -184,79 +184,82 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(6px)',
+      backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(0.375rem)',
       zIndex: 2000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '12px',
-      overflow: 'auto'
+      padding: '1em',
+      overflowY: 'auto'
     }}>
       <div style={{
         background: theme.modalBg,
-        borderRadius: '12px',
+        borderRadius: '0.75em',
         width: '100%',
-        maxWidth: '760px',
-        maxHeight: '85vh',
+        maxWidth: '34rem',
+        maxHeight: '90vh',
         overflow: 'auto',
-        padding: '12px',
+        padding: '1.25em',
         fontFamily: 'Montserrat, sans-serif',
         position: 'relative',
-        border: `1px solid ${theme.border}`,
-        boxShadow: darkMode 
-          ? '0 16px 36px rgba(0, 0, 0, 0.45)' 
-          : '0 16px 36px rgba(0, 0, 0, 0.15)'
+        border: `0.0625rem solid ${theme.border}`,
+        boxShadow: darkMode
+          ? '0 1.25rem 3rem rgba(0, 0, 0, 0.5)'
+          : '0 1.25rem 3rem rgba(0, 0, 0, 0.2)',
+        margin: 'auto'
       }}>
         {/* Botón cerrar */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '12px',
-            right: '12px',
+            top: '1em',
+            right: '1em',
             background: theme.hoverBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '8px',
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: '0.5em',
             color: theme.textPrimary,
-            padding: '8px',
+            padding: '0.5em',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            zIndex: 10
           }}
           onMouseEnter={(e) => e.currentTarget.style.background = theme.inputBg}
           onMouseLeave={(e) => e.currentTarget.style.background = theme.hoverBg}
         >
-          <X size={12} />
+          <X size={16} />
         </button>
 
         {/* Header */}
-        <div style={{ marginBottom: '8px' }}>
-          <h2 style={{ 
-            color: theme.textPrimary, 
-            fontSize: '1.05rem', 
-            fontWeight: '800', 
-            margin: '0 0 4px 0',
+        <div style={{ marginBottom: '1.25em', paddingRight: '2.5em' }}>
+          <h2 style={{
+            color: theme.textPrimary,
+            fontSize: '1.125rem',
+            fontWeight: '800',
+            margin: '0 0 0.375em 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '0.5em'
           }}>
             <div style={{
-              width: '30px',
-              height: '30px',
+              width: '2.25em',
+              height: '2.25em',
               background: 'linear-gradient(135deg, #10b981, #059669)',
-              borderRadius: '10px',
+              borderRadius: '0.625em',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              flexShrink: 0
             }}>
-              <CreditCard size={16} color="#fff" />
+              <CreditCard size={18} color="#fff" />
             </div>
             Pagar Mensualidad
           </h2>
-          <div style={{ color: theme.textMuted, fontSize: '0.8rem', marginLeft: '38px' }}>
+          <div style={{ color: theme.textMuted, fontSize: '0.8rem', marginLeft: '2.75em', fontWeight: '600' }}>
             {cuota.curso_nombre} • Cuota {cuota.numero_cuota}
           </div>
         </div>
@@ -264,25 +267,25 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Información de la cuota */}
         <div style={{
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
-          border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
-          borderRadius: '10px',
-          padding: '8px',
-          marginBottom: '8px'
+          border: `0.0625rem solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+          borderRadius: '0.625em',
+          padding: '0.875em',
+          marginBottom: '1em'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '6px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75em', marginBottom: '0.75em' }}>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.78rem', marginBottom: '2px', fontWeight: '700' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.7rem', marginBottom: '0.25em', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Monto de la Cuota
               </div>
-              <div style={{ color: '#10b981', fontSize: '1rem', fontWeight: '800' }}>
-                {formatearMonto(cuota.monto)}
+              <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '800' }}>
+                ${formatearMonto(cuota.monto)}
               </div>
             </div>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.78rem', marginBottom: '2px', fontWeight: '700' }}>
-                Fecha de Vencimiento
+              <div style={{ color: theme.textMuted, fontSize: '0.7rem', marginBottom: '0.25em', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Vencimiento
               </div>
-              <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '700' }}>
+              <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '700' }}>
                 {formatearFecha(cuota.fecha_vencimiento)}
               </div>
             </div>
@@ -293,9 +296,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '4px'
+              marginBottom: '0.375em'
             }}>
               Monto a Pagar *
             </label>
@@ -308,25 +311,28 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               required
               style={{
                 width: '100%',
-                padding: '6px 8px',
+                padding: '0.625em 0.875em',
                 background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
-                border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
-                borderRadius: '8px',
+                border: `0.0625rem solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                borderRadius: '0.5em',
                 color: theme.textPrimary,
-                fontSize: '0.95rem',
+                fontSize: '1rem',
                 fontWeight: '800',
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Montserrat, sans-serif',
+                outline: 'none',
+                transition: 'all 0.2s ease'
               }}
             />
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px',
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.375em',
               color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
-              fontSize: '0.78rem',
-              marginTop: '4px'
+              fontSize: '0.7rem',
+              marginTop: '0.375em',
+              lineHeight: '1.3'
             }}>
-              <Info size={12} style={{ flexShrink: 0 }} />
+              <Info size={12} style={{ flexShrink: 0, marginTop: '0.0625em' }} />
               <span>Puedes pagar más del monto de la cuota para adelantar pagos</span>
             </div>
           </div>
@@ -335,46 +341,49 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
           {/* Método de pago */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: '1em' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '6px'
+              marginBottom: '0.5em'
             }}>
               Método de Pago *
             </label>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625em' }}>
               {[
-                { value: 'transferencia', label: 'Transferencia Bancaria', icon: Building },
+                { value: 'transferencia', label: 'Transferencia', icon: Building },
                 { value: 'efectivo', label: 'Efectivo', icon: CreditCard }
               ].map((metodo) => {
                 const Icon = metodo.icon;
+                const isSelected = metodoPago === metodo.value;
                 return (
                   <button
                     key={metodo.value}
                     type="button"
                     onClick={() => setMetodoPago(metodo.value as any)}
                     style={{
-                      padding: '4px 8px',
-                      background: metodoPago === metodo.value 
-                        ? 'linear-gradient(135deg, #10b981, #059669)' 
+                      padding: '0.75em',
+                      background: isSelected
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
                         : theme.inputBg,
-                      color: metodoPago === metodo.value ? '#fff' : theme.textPrimary,
-                      border: `1px solid ${metodoPago === metodo.value ? '#10b981' : theme.inputBorder}`,
-                      borderRadius: '8px',
+                      color: isSelected ? '#fff' : theme.textPrimary,
+                      border: `0.0625rem solid ${isSelected ? '#10b981' : theme.inputBorder}`,
+                      borderRadius: '0.5em',
                       cursor: 'pointer',
                       fontSize: '0.8rem',
                       fontWeight: '800',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '6px',
+                      gap: '0.375em',
                       fontFamily: 'Montserrat, sans-serif',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      boxShadow: isSelected ? '0 0.25rem 0.5rem rgba(16, 185, 129, 0.25)' : 'none'
                     }}
                   >
-                    <Icon size={10} />
+                    <Icon size={20} />
                     {metodo.label}
                   </button>
                 );
@@ -384,163 +393,213 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
           {/* Campos específicos para transferencia */}
           {metodoPago === 'transferencia' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '8px' }}>
-              {/* Banco */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  color: theme.textPrimary,
-                  fontSize: '0.82rem',
-                  fontWeight: '800',
-                  marginBottom: '4px'
-                }}>
-                  Banco *
-                </label>
-                <select
-                  value={bancoComprobante}
-                  onChange={(e) => setBancoComprobante(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '6px 8px',
-                    background: theme.inputBg,
-                    border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '8px',
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75em', marginBottom: '1em' }}>
+                {/* Banco */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{
+                    display: 'block',
                     color: theme.textPrimary,
-                    fontSize: '0.85rem',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                >
-                  <option value="">Seleccionar banco...</option>
-                  {bancos.map((banco) => (
-                    <option key={banco} value={banco} style={{ background: darkMode ? '#1e293b' : '#ffffff', color: darkMode ? '#fff' : '#374151' }}>
-                      {banco}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Número de comprobante */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  color: theme.textPrimary,
-                  fontSize: '0.82rem',
-                  fontWeight: '800',
-                  marginBottom: '4px'
-                }}>
-                  Número de Comprobante *
-                </label>
-                <input
-                  type="text"
-                  value={numeroComprobante}
-                  onChange={(e) => setNumeroComprobante(e.target.value)}
-                  placeholder="Ej: 1234567890"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '6px 8px',
-                    background: theme.inputBg,
-                    border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '8px',
-                    color: theme.textPrimary,
-                    fontSize: '0.82rem',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                />
-              </div>
-
-              {/* Fecha de transferencia */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  color: theme.textPrimary,
-                  fontSize: '0.82rem',
-                  fontWeight: '800',
-                  marginBottom: '4px'
-                }}>
-                  Fecha de Transferencia *
-                </label>
-                <input
-                  type="date"
-                  value={fechaTransferencia}
-                  onChange={(e) => setFechaTransferencia(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '6px 10px',
-                    background: theme.inputBg,
-                    border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '8px',
-                    color: theme.textPrimary,
-                    fontSize: '0.85rem',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                />
-              </div>
-
-              {/* Recibido por */}
-              <div>
-                <label style={{
-                  display: 'block',
-                  color: theme.textPrimary,
-                  fontSize: '0.82rem',
-                  fontWeight: '800',
-                  marginBottom: '4px'
-                }}>
-                  Recibido por *
-                </label>
-                <input
-                  type="text"
-                  value={recibidoPor}
-                  onChange={(e) => setRecibidoPor(e.target.value)}
-                  placeholder="Nombre de quien recibió el pago"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '6px 10px',
-                    background: theme.inputBg,
-                    border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '8px',
-                    color: theme.textPrimary,
-                    fontSize: '0.85rem',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                />
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center', 
-                  gap: '6px',
-                  color: darkMode ? 'rgba(16, 185, 129, 0.9)' : 'rgba(5, 150, 105, 0.9)',
-                  fontSize: '0.78rem',
-                  marginTop: '4px'
-                }}>
-                  <Info size={12} style={{ flexShrink: 0 }} />
-                  <span>Ingresa el número de factura y el nombre de la persona que te atendió en la academia</span>
+                    fontSize: '0.8rem',
+                    fontWeight: '800',
+                    marginBottom: '0.375em'
+                  }}>
+                    Banco *
+                  </label>
+                  <select
+                    value={bancoComprobante}
+                    onChange={(e) => setBancoComprobante(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.625em 0.875em',
+                      background: theme.inputBg,
+                      border: `0.0625rem solid ${theme.inputBorder}`,
+                      borderRadius: '0.5em',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="">Seleccionar banco...</option>
+                    {bancos.map((banco) => (
+                      <option key={banco} value={banco} style={{ background: darkMode ? '#1e293b' : '#ffffff', color: darkMode ? '#fff' : '#374151' }}>
+                        {banco}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                {/* Número de comprobante */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '800',
+                    marginBottom: '0.375em'
+                  }}>
+                    Número de Comprobante *
+                  </label>
+                  <input
+                    type="text"
+                    value={numeroComprobante}
+                    onChange={(e) => setNumeroComprobante(e.target.value)}
+                    placeholder="Ej: 1234567890"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.625em 0.875em',
+                      background: theme.inputBg,
+                      border: `0.0625rem solid ${theme.inputBorder}`,
+                      borderRadius: '0.5em',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Fecha de transferencia */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '800',
+                    marginBottom: '0.375em'
+                  }}>
+                    Fecha de Transferencia *
+                  </label>
+                  <input
+                    type="date"
+                    value={fechaTransferencia}
+                    onChange={(e) => setFechaTransferencia(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.625em 0.875em',
+                      background: theme.inputBg,
+                      border: `0.0625rem solid ${theme.inputBorder}`,
+                      borderRadius: '0.5em',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Campos específicos para efectivo */}
+          {metodoPago === 'efectivo' && (
+            <div style={{ marginBottom: '1em' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75em' }}>
+                {/* Número de factura */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '800',
+                    marginBottom: '0.375em'
+                  }}>
+                    Número de Factura *
+                  </label>
+                  <input
+                    type="text"
+                    value={numeroComprobante}
+                    onChange={(e) => setNumeroComprobante(e.target.value)}
+                    placeholder="Ej: 001-001-0001234"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.625em 0.875em',
+                      background: theme.inputBg,
+                      border: `0.0625rem solid ${theme.inputBorder}`,
+                      borderRadius: '0.5em',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Recibido por */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '800',
+                    marginBottom: '0.375em'
+                  }}>
+                    Recibido por *
+                  </label>
+                  <input
+                    type="text"
+                    value={recibidoPor}
+                    onChange={(e) => setRecibidoPor(e.target.value)}
+                    placeholder="Nombre completo"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.625em 0.875em',
+                      background: theme.inputBg,
+                      border: `0.0625rem solid ${theme.inputBorder}`,
+                      borderRadius: '0.5em',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.375em',
+                color: darkMode ? 'rgba(59, 130, 246, 0.9)' : 'rgba(37, 99, 235, 0.9)',
+                fontSize: '0.7rem',
+                marginTop: '0.5em',
+                padding: '0.625em',
+                background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                borderRadius: '0.5em',
+                border: `0.0625rem solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
+                lineHeight: '1.3'
+              }}>
+                <Info size={12} style={{ flexShrink: 0, marginTop: '0.0625em' }} />
+                <span>Ingresa el número de factura y el nombre de la persona que te atendió en la academia</span>
               </div>
             </div>
           )}
 
           {/* Subir comprobante */}
-          <div style={{ marginBottom: '10px' }}>
+          <div style={{ marginBottom: '1em' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '6px'
+              marginBottom: '0.5em'
             }}>
               Comprobante de Pago *
             </label>
             <div style={{
-              border: `2px dashed ${archivoComprobante ? '#10b981' : theme.border}`,
-              borderRadius: '10px',
-              padding: '12px',
+              border: `0.0625rem dashed ${archivoComprobante ? '#10b981' : theme.border}`,
+              borderRadius: '0.5em',
+              padding: '1.25em',
               textAlign: 'center',
               cursor: 'pointer',
-              background: archivoComprobante 
-                ? (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)') 
+              background: archivoComprobante
+                ? (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
                 : theme.inputBg,
               transition: 'all 0.3s ease'
             }}>
@@ -553,30 +612,30 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 required
               />
               <label htmlFor="comprobante-upload" style={{ cursor: 'pointer', display: 'block' }}>
-                <Upload size={20} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '6px' }} />
-                <div style={{ 
-                  color: archivoComprobante ? '#10b981' : theme.textPrimary, 
+                <Upload size={28} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '0.5em' }} />
+                <div style={{
+                  color: archivoComprobante ? '#10b981' : theme.textPrimary,
                   fontSize: '0.85rem',
                   fontWeight: '800',
-                  marginBottom: '4px'
+                  marginBottom: '0.375em'
                 }}>
-                  {archivoComprobante ? archivoComprobante.name : 'Subir comprobante (JPG, PNG, PDF)'}
+                  {archivoComprobante ? archivoComprobante.name : 'Haz clic para subir'}
                 </div>
-                <div style={{ color: theme.textMuted, fontSize: '0.78rem' }}>
-                  Máximo 5MB
+                <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                  JPG, PNG o PDF • Máx. 5MB
                 </div>
               </label>
             </div>
           </div>
 
           {/* Observaciones */}
-          <div style={{ marginBottom: '10px' }}>
+          <div style={{ marginBottom: '1em' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '6px'
+              marginBottom: '0.375em'
             }}>
               Observaciones (Opcional)
             </label>
@@ -584,17 +643,19 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               placeholder="Comentarios adicionales..."
-              rows={3}
+              rows={2}
               style={{
                 width: '100%',
-                padding: '8px 10px',
+                padding: '0.625em 0.875em',
                 background: theme.inputBg,
-                border: `1px solid ${theme.inputBorder}`,
-                borderRadius: '8px',
+                border: `0.0625rem solid ${theme.inputBorder}`,
+                borderRadius: '0.5em',
                 color: theme.textPrimary,
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontFamily: 'Montserrat, sans-serif',
-                resize: 'vertical'
+                resize: 'vertical',
+                outline: 'none',
+                lineHeight: '1.4'
               }}
             />
           </div>
@@ -603,36 +664,37 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           {error && (
             <div style={{
               background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-              border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.3)'}`,
+              border: `0.0625rem solid ${darkMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.3)'}`,
               color: darkMode ? '#fecaca' : '#dc2626',
-              padding: '8px',
-              borderRadius: '8px',
-              marginBottom: '10px',
-              fontSize: '0.82rem',
+              padding: '0.75em',
+              borderRadius: '0.5em',
+              marginBottom: '1em',
+              fontSize: '0.8rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              fontWeight: '600'
+              gap: '0.5em',
+              fontWeight: '600',
+              lineHeight: '1.3'
             }}>
-              <AlertCircle size={14} />
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
               {error}
             </div>
           )}
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', marginTop: '10px' }}>
+          <div style={{ display: 'flex', gap: '0.625em', justifyContent: 'flex-end', marginTop: '1.25em' }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
-                padding: '6px 12px',
+                padding: '0.75em 1.25em',
                 background: theme.inputBg,
                 color: theme.textPrimary,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.5em',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontWeight: '800',
                 fontFamily: 'Montserrat, sans-serif',
                 transition: 'all 0.2s ease'
@@ -646,29 +708,29 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               type="submit"
               disabled={loading}
               style={{
-                padding: '6px 12px',
+                padding: '0.75em 1.5em',
                 background: loading ? 'rgba(16, 185, 129, 0.5)' : 'linear-gradient(135deg, #10b981, #059669)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '0.5em',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontWeight: '800',
                 fontFamily: 'Montserrat, sans-serif',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                boxShadow: loading ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+                gap: '0.375em',
+                boxShadow: loading ? 'none' : '0 0.25rem 0.625rem rgba(16, 185, 129, 0.3)',
                 transition: 'all 0.2s ease'
               }}
             >
               {loading ? (
                 <>
                   <div style={{
-                    width: '12px',
-                    height: '12px',
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    borderTop: '2px solid #fff',
+                    width: '0.875em',
+                    height: '0.875em',
+                    border: '0.125rem solid rgba(255,255,255,0.3)',
+                    borderTop: '0.125rem solid #fff',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }} />
@@ -676,7 +738,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 </>
               ) : (
                 <>
-                  <CheckCircle size={12} />
+                  <CheckCircle size={14} />
                   Procesar Pago
                 </>
               )}

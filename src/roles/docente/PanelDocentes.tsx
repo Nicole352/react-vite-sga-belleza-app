@@ -34,7 +34,7 @@ const PanelDocentes = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
-  const [userData, setUserData] = useState<{nombres?: string; apellidos?: string} | null>(null);
+  const [userData, setUserData] = useState<{ nombres?: string; apellidos?: string } | null>(null);
 
   // Obtener datos del usuario
   useEffect(() => {
@@ -212,12 +212,12 @@ const PanelDocentes = () => {
         .docente-panel textarea,
         .docente-panel select {
           background: var(--docente-input-bg) !important;
-          border: 1px solid var(--docente-input-border) !important;
+          border: 0.0625rem solid var(--docente-input-border) !important;
           color: var(--docente-text-primary) !important;
         }
       `}</style>
 
-      <div 
+      <div
         className="docente-panel"
         style={{
           position: 'fixed',
@@ -239,14 +239,14 @@ const PanelDocentes = () => {
         <div style={{
           width: sidebarCollapsed ? '5rem' : '17.5rem',
           background: theme.sidebarBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.border}`,
+          backdropFilter: 'blur(1.25rem)',
+          border: `0.0625rem solid ${theme.border}`,
           borderRadius: '0 1.25rem 1.25rem 0',
-          padding: sidebarCollapsed ? '0.75rem 0.5rem 1.5rem 0.5rem' : '0.75rem 1.5rem 1.5rem 1.5rem',
+          padding: sidebarCollapsed ? '0.75em 0.5em 1.5em 0.5em' : '0.75em 1.5em 1.5em 1.5em',
           position: 'relative',
           height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)'
         }}>
           {/* Botón hamburguesa */}
           <button
@@ -259,7 +259,7 @@ const PanelDocentes = () => {
               width: '2.25rem',
               height: '2.25rem',
               borderRadius: '0.5rem',
-              border: `1px solid ${theme.border}`,
+              border: `0.0625rem solid ${theme.border}`,
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
               color: theme.accent,
               cursor: 'pointer',
@@ -281,20 +281,20 @@ const PanelDocentes = () => {
             <Menu size={20} />
           </button>
           {/* Header del Sidebar - Solo Logo */}
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '8px',
-            paddingBottom: '4px',
-            borderBottom: `1px solid ${theme.border}`,
-            paddingTop: '0px',
-            marginTop: sidebarCollapsed ? '48px' : '0px'
+            marginBottom: '0.5em',
+            paddingBottom: '0.25em',
+            borderBottom: `0.0625rem solid ${theme.border}`,
+            paddingTop: '0',
+            marginTop: sidebarCollapsed ? '3rem' : '0'
           }}>
             {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
           {/* Navegación del Sidebar */}
-          <nav style={{ marginBottom: '32px' }}>
+          <nav style={{ marginBottom: '2em' }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -310,13 +310,13 @@ const PanelDocentes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    gap: '0.625rem',
-                    padding: sidebarCollapsed ? '0.75rem 0.5rem' : '0.75rem 1rem',
-                    marginBottom: '0.375rem',
-                    borderRadius: '0.75rem',
+                    gap: '0.625em',
+                    padding: sidebarCollapsed ? '0.75em 0.5em' : '0.75em 1em',
+                    marginBottom: '0.375em',
+                    borderRadius: '0.75em',
                     border: 'none',
-                    background: activeTab === tab.id ? 
-                      'linear-gradient(135deg, #3b82f6, #2563eb)' : 
+                    background: activeTab === tab.id ?
+                      'linear-gradient(135deg, #3b82f6, #2563eb)' :
                       'transparent',
                     color: activeTab === tab.id ? '#ffffff' : theme.textMuted,
                     fontSize: '0.85rem',
@@ -325,15 +325,15 @@ const PanelDocentes = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'left',
                     fontFamily: 'Montserrat, sans-serif',
-                    boxShadow: activeTab === tab.id ? '0 8px 20px rgba(59, 130, 246, 0.3)' : 'none'
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)' : 'none'
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.id) {
-                      e.currentTarget.style.background = darkMode 
-                        ? 'rgba(59, 130, 246, 0.1)' 
+                      e.currentTarget.style.background = darkMode
+                        ? 'rgba(59, 130, 246, 0.1)'
                         : 'rgba(59, 130, 246, 0.08)';
                       e.currentTarget.style.color = theme.accent;
-                      e.currentTarget.style.transform = 'translateX(4px)';
+                      e.currentTarget.style.transform = 'translateX(0.25em)';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -354,20 +354,20 @@ const PanelDocentes = () => {
         </div>
 
         {/* Contenido Principal */}
-        <div style={{ 
-          flex: 1, 
-          padding: '1.5rem',
+        <div style={{
+          flex: 1,
+          padding: '1.5em',
           minHeight: '100%'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
-            border: `1px solid ${theme.border}`,
+            border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '1rem 1.5rem',
+            padding: '1em 1.5em',
             marginBottom: '1rem',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -375,7 +375,7 @@ const PanelDocentes = () => {
             zIndex: 2
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
               <div style={{
                 width: '3rem',
                 height: '3rem',
@@ -384,7 +384,7 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
+                boxShadow: '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)'
               }}>
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
@@ -393,19 +393,19 @@ const PanelDocentes = () => {
                 })()}
               </div>
               <div>
-                <h1 style={{ 
-                  fontSize: '1.2rem', 
-                  fontWeight: '800', 
+                <h1 style={{
+                  fontSize: '1.2rem',
+                  fontWeight: '800',
                   color: theme.textPrimary,
                   margin: 0
                 }}>
                   Panel Docente
                 </h1>
-                <p style={{ 
-                  color: theme.textSecondary, 
-                  margin: 0, 
+                <p style={{
+                  color: theme.textSecondary,
+                  margin: 0,
                   fontSize: '0.8rem',
-                  marginTop: '2px'
+                  marginTop: '0.125em'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -413,8 +413,8 @@ const PanelDocentes = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
-              <ProfileMenu 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+              <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
                 theme={theme}
@@ -428,12 +428,12 @@ const PanelDocentes = () => {
           {/* Contenido del Tab Activo o Rutas */}
           <div style={{
             background: theme.contentBg,
-            backdropFilter: 'blur(20px)',
-            border: `1px solid ${theme.border}`,
+            backdropFilter: 'blur(1.25rem)',
+            border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '2rem',
-            minHeight: 'calc(100vh - 180px)',
-            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
+            padding: '2em',
+            minHeight: '100vh',
+            boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             <Routes>
               <Route path="/" element={
@@ -466,18 +466,18 @@ const PanelDocentes = () => {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 10000,
-          backdropFilter: 'blur(8px)'
+          backdropFilter: 'blur(0.5rem)'
         }}>
           <div style={{
             background: darkMode ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             borderRadius: '1.25rem',
-            padding: '2rem',
+            padding: '2em',
             maxWidth: '31.25rem',
             width: '90%',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
-            border: `1px solid ${theme.border}`
+            boxShadow: '0 1.25rem 3.75rem rgba(0,0,0,0.4)',
+            border: `0.0625rem solid ${theme.border}`
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.5em' }}>
               <div style={{
                 width: '5rem',
                 height: '5rem',
@@ -486,12 +486,12 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 16px',
-                boxShadow: `0 8px 24px ${theme.accent}40`
+                margin: '0 auto 1em',
+                boxShadow: `0 0.5rem 1.5rem ${theme.accent}40`
               }}>
                 <Lock size={40} color="#fff" />
               </div>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0' }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.8rem', fontWeight: '800', margin: '0 0 0.5em 0' }}>
                 Cambiar Contraseña
               </h2>
               <p style={{ color: theme.textMuted, fontSize: '0.95rem', margin: 0 }}>
@@ -502,10 +502,10 @@ const PanelDocentes = () => {
             {resetError && (
               <div style={{
                 background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '0.75rem',
-                padding: '0.75rem',
-                marginBottom: '1.25rem',
+                border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '0.75em',
+                padding: '0.75em',
+                marginBottom: '1.25em',
                 color: '#ef4444',
                 fontSize: '0.9rem',
                 textAlign: 'center'
@@ -514,8 +514,8 @@ const PanelDocentes = () => {
               </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+            <div style={{ marginBottom: '1.25em' }}>
+              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '0.5em' }}>
                 Nueva Contraseña
               </label>
               <div style={{ position: 'relative' }}>
@@ -526,10 +526,10 @@ const PanelDocentes = () => {
                   placeholder="Mínimo 6 caracteres"
                   style={{
                     width: '100%',
-                    padding: '14px 45px 14px 14px',
+                    padding: '0.875em 2.8em 0.875em 0.875em',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '12px',
+                    border: `0.0625rem solid ${theme.border}`,
+                    borderRadius: '0.75em',
                     color: theme.textPrimary,
                     fontSize: '0.95rem'
                   }}
@@ -539,13 +539,13 @@ const PanelDocentes = () => {
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   style={{
                     position: 'absolute',
-                    right: '12px',
+                    right: '0.75em',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: '4px'
+                    padding: '0.25em'
                   }}
                 >
                   {showNewPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
@@ -553,8 +553,8 @@ const PanelDocentes = () => {
               </div>
             </div>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+            <div style={{ marginBottom: '1.5em' }}>
+              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '0.5em' }}>
                 Confirmar Contraseña
               </label>
               <div style={{ position: 'relative' }}>
@@ -565,10 +565,10 @@ const PanelDocentes = () => {
                   placeholder="Repite la contraseña"
                   style={{
                     width: '100%',
-                    padding: '14px 45px 14px 14px',
+                    padding: '0.875em 2.8em 0.875em 0.875em',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '12px',
+                    border: `0.0625rem solid ${theme.border}`,
+                    borderRadius: '0.75em',
                     color: theme.textPrimary,
                     fontSize: '0.95rem'
                   }}
@@ -578,13 +578,13 @@ const PanelDocentes = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   style={{
                     position: 'absolute',
-                    right: '12px',
+                    right: '0.75em',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: '4px'
+                    padding: '0.25em'
                   }}
                 >
                   {showConfirmPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
@@ -597,10 +597,10 @@ const PanelDocentes = () => {
               disabled={resetLoading}
               style={{
                 width: '100%',
-                padding: '1rem',
+                padding: '1em',
                 background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '0.75em',
                 color: '#fff',
                 fontSize: '1rem',
                 fontWeight: '700',
@@ -608,8 +608,8 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
-                boxShadow: `0 4px 12px ${theme.accent}40`,
+                gap: '0.5em',
+                boxShadow: `0 0.25rem 0.75rem ${theme.accent}40`,
                 opacity: resetLoading ? 0.7 : 1
               }}
             >

@@ -175,7 +175,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
         if (logoDataUrl) {
           doc.addImage(logoDataUrl, 'PNG', pageWidth - 14 - 24, 10, 24, 24);
         }
-      } catch {}
+      } catch { }
 
       // Construir head y body
       const head = [[
@@ -219,23 +219,23 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       right: 0,
       bottom: 0,
       background: 'rgba(0,0,0,0.7)',
-      backdropFilter: 'blur(8px)',
+      backdropFilter: 'blur(0.5rem)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 9999,
-      padding: '20px'
+      padding: '1.25em'
     }}>
       <div style={{
         background: darkMode ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        borderRadius: '20px',
+        borderRadius: '1.25em',
         maxWidth: '95vw',
         maxHeight: '90vh',
         width: '100%',
         overflow: 'hidden',
-        boxShadow: darkMode 
-          ? '0 25px 50px -12px rgba(0, 0, 0, 0.8)' 
-          : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        boxShadow: darkMode
+          ? '0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.8)'
+          : '0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25)',
         display: 'flex',
         flexDirection: 'column'
       }}>
@@ -307,8 +307,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
         </div>
 
         {/* Content */}
-        <div style={{ 
-          flex: 1, 
+        <div style={{
+          flex: 1,
           overflow: 'auto',
           padding: '24px'
         }}>
@@ -345,24 +345,24 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                   </p>
                 </div>
               ) : (
-                <div style={{ 
+                <div style={{
                   overflowX: 'auto',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
                   borderRadius: '16px',
                   border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`
                 }}>
-                  <table style={{ 
-                    width: '100%', 
+                  <table style={{
+                    width: '100%',
                     borderCollapse: 'collapse',
                     fontSize: '0.85rem'
                   }}>
                     <thead>
-                      <tr style={{ 
+                      <tr style={{
                         background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
                         borderBottom: `2px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`
                       }}>
-                        <th style={{ 
-                          padding: '16px', 
+                        <th style={{
+                          padding: '16px',
                           textAlign: 'left',
                           color: darkMode ? '#fff' : '#1e293b',
                           fontWeight: '700',
@@ -374,16 +374,16 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                           Estudiante
                         </th>
                         {tareas.map((tarea) => (
-                          <th key={tarea.id_tarea} style={{ 
-                            padding: '16px', 
+                          <th key={tarea.id_tarea} style={{
+                            padding: '16px',
                             textAlign: 'center',
                             color: darkMode ? '#fff' : '#1e293b',
                             fontWeight: '700',
                             minWidth: '100px'
                           }}>
                             <div style={{ marginBottom: '4px' }}>{tarea.titulo}</div>
-                            <div style={{ 
-                              fontSize: '0.75rem', 
+                            <div style={{
+                              fontSize: '0.75rem',
                               color: darkMode ? 'rgba(255,255,255,0.6)' : '#64748b',
                               fontWeight: '500'
                             }}>
@@ -391,8 +391,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                             </div>
                           </th>
                         ))}
-                        <th style={{ 
-                          padding: '16px', 
+                        <th style={{
+                          padding: '16px',
                           textAlign: 'center',
                           color: darkMode ? '#fff' : '#1e293b',
                           fontWeight: '700',
@@ -407,17 +407,17 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                       {estudiantes.map((estudiante, idx) => (
                         <tr key={estudiante.id_estudiante} style={{
                           borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-                          background: idx % 2 === 0 
+                          background: idx % 2 === 0
                             ? (darkMode ? 'rgba(255,255,255,0.02)' : 'transparent')
                             : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)')
                         }}>
-                          <td style={{ 
+                          <td style={{
                             padding: '16px',
                             color: darkMode ? '#fff' : '#1e293b',
                             fontWeight: '600',
                             position: 'sticky',
                             left: 0,
-                            background: idx % 2 === 0 
+                            background: idx % 2 === 0
                               ? (darkMode ? 'rgba(255,255,255,0.02)' : 'transparent')
                               : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'),
                             zIndex: 9
@@ -430,14 +430,14 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                               ? null
                               : (typeof notaVal === 'number' ? notaVal : Number(notaVal));
                             const porcentaje = nota !== null && Number.isFinite(nota) ? (nota / tarea.nota_maxima) * 100 : 0;
-                            const color = nota === null ? '#94a3b8' 
-                              : porcentaje >= 70 ? '#10b981' 
-                              : porcentaje >= 50 ? '#f59e0b' 
-                              : '#ef4444';
-                            
+                            const color = nota === null ? '#94a3b8'
+                              : porcentaje >= 70 ? '#10b981'
+                                : porcentaje >= 50 ? '#f59e0b'
+                                  : '#ef4444';
+
                             return (
-                              <td key={tarea.id_tarea} style={{ 
-                                padding: '16px', 
+                              <td key={tarea.id_tarea} style={{
+                                padding: '16px',
                                 textAlign: 'center'
                               }}>
                                 <div style={{
@@ -454,8 +454,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                               </td>
                             );
                           })}
-                          <td style={{ 
-                            padding: '16px', 
+                          <td style={{
+                            padding: '16px',
                             textAlign: 'center',
                             background: darkMode ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.02)'
                           }}>

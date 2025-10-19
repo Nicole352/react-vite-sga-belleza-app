@@ -198,20 +198,20 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
     return (
       <div style={{
         width: '100%',
-        minHeight: '400px',
+        minHeight: '25rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid rgba(59, 130, 246, 0.3)',
-            borderTop: '4px solid #3b82f6',
+            width: '3.125rem',
+            height: '3.125rem',
+            border: '0.25rem solid rgba(59, 130, 246, 0.3)',
+            borderTop: '0.25rem solid #3b82f6',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
+            margin: '0 auto 1.25em'
           }} />
           <p style={{ fontSize: '1.1rem', color: darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)' }}>Cargando curso...</p>
         </div>
@@ -221,39 +221,42 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
 
   return (
     <div style={{
-      width: '100%'
+      width: '100%',
+      minHeight: '100%',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <div style={{
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
             : 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '14px',
-          padding: '16px',
-          marginBottom: '16px',
-          border: `1px solid ${theme.border}`
+          backdropFilter: 'blur(0.625rem)',
+          borderRadius: '0.875em',
+          padding: '1em',
+          marginBottom: '1em',
+          border: `0.0625rem solid ${theme.border}`
         }}>
           <button
             onClick={() => navigate('/panel/docente')}
             style={{
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '8px',
-              padding: '8px 12px',
+              border: `0.0625rem solid ${theme.border}`,
+              borderRadius: '0.5em',
+              padding: '0.5em 0.75em',
               color: theme.accent,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginBottom: '12px',
+              gap: '0.5em',
+              marginBottom: '0.75em',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               fontWeight: '600'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)';
-              e.currentTarget.style.transform = 'translateX(-5px)';
+              e.currentTarget.style.transform = 'translateX(-0.3125em)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)';
@@ -264,16 +267,16 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
             Volver a Mis Cursos
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75em' }}>
             <div>
               <h1 style={{
                 fontSize: '1.25rem',
                 fontWeight: '800',
                 color: theme.textPrimary,
-                marginBottom: '6px',
+                marginBottom: '0.375em',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px'
+                gap: '0.625em'
               }}>
                 <BookOpen size={18} style={{ color: theme.accent }} />
                 {curso?.nombre}
@@ -288,25 +291,25 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '8px 14px',
+                borderRadius: '0.5em',
+                padding: '0.5em 0.875em',
                 color: '#fff',
                 fontWeight: '800',
                 fontSize: '0.9rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5em',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 3px 10px rgba(59, 130, 246, 0.25)'
+                boxShadow: '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 5px 14px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-0.0625rem)';
+                e.currentTarget.style.boxShadow = '0 0.3125rem 0.875rem rgba(59, 130, 246, 0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 3px 10px rgba(59, 130, 246, 0.25)';
+                e.currentTarget.style.boxShadow = '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)';
               }}
             >
               <Plus size={16} />
@@ -319,18 +322,18 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
         {modulos.length === 0 ? (
           <div style={{
             background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '60px 30px',
+            backdropFilter: 'blur(0.625rem)',
+            borderRadius: '1.25em',
+            padding: '3.75em 1.875em',
             textAlign: 'center',
-            border: `1px solid ${theme.border}`,
-            boxShadow: darkMode ? 'none' : '0 4px 20px rgba(0,0,0,0.08)'
+            border: `0.0625rem solid ${theme.border}`,
+            boxShadow: darkMode ? 'none' : '0 0.25rem 1.25rem rgba(0,0,0,0.08)'
           }}>
-            <BookOpen size={64} style={{ color: darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(59, 130, 246, 0.4)', margin: '0 auto 20px' }} />
-            <h3 style={{ color: theme.textPrimary, fontSize: '1.5rem', marginBottom: '10px', fontWeight: '700' }}>
+            <BookOpen size={64} style={{ color: darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(59, 130, 246, 0.4)', margin: '0 auto 1.25em' }} />
+            <h3 style={{ color: theme.textPrimary, fontSize: '1.5rem', marginBottom: '0.625em', fontWeight: '700' }}>
               No hay módulos creados
             </h3>
-            <p style={{ color: theme.textMuted, marginBottom: '20px', fontSize: '1rem' }}>
+            <p style={{ color: theme.textMuted, marginBottom: '1.25em', fontSize: '1rem' }}>
               Crea tu primer módulo (parcial) para comenzar a organizar las tareas del curso
             </p>
             <button
@@ -338,29 +341,29 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '12px',
-                padding: '14px 28px',
+                borderRadius: '0.75em',
+                padding: '0.875em 1.75em',
                 color: '#fff',
                 fontWeight: '600',
                 cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)',
+                boxShadow: '0 0.25rem 0.9375rem rgba(59, 130, 246, 0.3)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-0.125rem)';
+                e.currentTarget.style.boxShadow = '0 0.375rem 1.25rem rgba(59, 130, 246, 0.4)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.boxShadow = '0 0.25rem 0.9375rem rgba(59, 130, 246, 0.3)';
               }}
             >
-              <Plus size={20} style={{ display: 'inline', marginRight: '8px' }} />
+              <Plus size={20} style={{ display: 'inline', marginRight: '0.5em' }} />
               Crear Primer Módulo
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
             {modulos.map((modulo) => (
               <div
                 key={modulo.id_modulo}
@@ -368,27 +371,27 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                   background: darkMode 
                     ? 'rgba(255,255,255,0.03)'
                     : '#ffffff',
-                  borderRadius: '12px',
+                  borderRadius: '0.75em',
                   border: darkMode 
-                    ? '1px solid rgba(255,255,255,0.08)' 
-                    : '1px solid #e5e7eb',
+                    ? '0.0625rem solid rgba(255,255,255,0.08)' 
+                    : '0.0625rem solid #e5e7eb',
                   overflow: 'hidden',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: darkMode 
-                    ? '0 2px 8px rgba(0,0,0,0.1)' 
-                    : '0 1px 3px rgba(0,0,0,0.1)',
+                    ? '0 0.125rem 0.5rem rgba(0,0,0,0.1)' 
+                    : '0 0.0625rem 0.1875rem rgba(0,0,0,0.1)',
                   position: 'relative' as const
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = darkMode
-                    ? '0 8px 24px rgba(0,0,0,0.2)'
-                    : '0 4px 12px rgba(0,0,0,0.08)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
+                    ? '0 0.5rem 1.5rem rgba(0,0,0,0.2)'
+                    : '0 0.25rem 0.75rem rgba(0,0,0,0.08)';
+                  e.currentTarget.style.transform = 'translateY(-0.125rem)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = darkMode
-                    ? '0 2px 8px rgba(0,0,0,0.1)'
-                    : '0 1px 3px rgba(0,0,0,0.1)';
+                    ? '0 0.125rem 0.5rem rgba(0,0,0,0.1)'
+                    : '0 0.0625rem 0.1875rem rgba(0,0,0,0.1)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >

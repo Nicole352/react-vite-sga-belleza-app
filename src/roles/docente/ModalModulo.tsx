@@ -14,10 +14,10 @@ interface ModalModuloProps {
   darkMode?: boolean;
 }
 
-const ModalModulo: React.FC<ModalModuloProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSuccess, 
+const ModalModulo: React.FC<ModalModuloProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
   id_curso,
   moduloEditar,
   darkMode = true
@@ -77,7 +77,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       const dataToSend = {
         ...formData,
         id_curso: parseInt(id_curso),
@@ -120,24 +120,24 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '16px',
-      backdropFilter: 'blur(6px)'
+      padding: '1em',
+      backdropFilter: 'blur(0.375rem)'
     }}>
       <div style={{
-        background: darkMode 
+        background: darkMode
           ? 'linear-gradient(135deg, rgba(26,26,46,0.98) 0%, rgba(22,33,62,0.98) 100%)'
           : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
-        borderRadius: '12px',
-        padding: '16px',
-        maxWidth: '560px',
+        borderRadius: '0.75em',
+        padding: '1em',
+        maxWidth: '35rem',
         width: '100%',
         maxHeight: '90vh',
         overflowY: 'auto',
-        border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
-        boxShadow: darkMode ? '0 16px 48px rgba(0,0,0,0.45)' : '0 16px 48px rgba(0,0,0,0.15)'
+        border: `0.0625rem solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
+        boxShadow: darkMode ? '0 1rem 3rem rgba(0,0,0,0.45)' : '0 1rem 3rem rgba(0,0,0,0.15)'
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75em' }}>
           <h3 style={{ color: darkMode ? '#fff' : '#1e293b', fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>
             {moduloEditar ? 'Editar Módulo' : 'Crear Nuevo Módulo'}
           </h3>
@@ -145,9 +145,9 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             onClick={onClose}
             style={{
               background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '8px',
-              padding: '6px',
+              border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '0.5em',
+              padding: '0.375em',
               color: '#ef4444',
               cursor: 'pointer',
               display: 'flex',
@@ -170,12 +170,12 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
         <form onSubmit={handleSubmit}>
           {/* Nombre */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
+          <div style={{ marginBottom: '0.75em' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '0.375em', fontWeight: '700', fontSize: '0.85rem' }}>
               Nombre del Módulo *
             </label>
             <div style={{ position: 'relative' }}>
-              <FileText size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
+              <FileText size={16} style={{ position: 'absolute', left: '0.625em', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
               <input
                 type="text"
                 name="nombre"
@@ -185,10 +185,10 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 required
                 style={{
                   width: '100%',
-                  padding: '10px 10px 10px 36px',
+                  padding: '0.625em 0.625em 0.625em 2.25em',
                   background: '#fff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
+                  border: '0.0625rem solid #e2e8f0',
+                  borderRadius: '0.5em',
                   color: '#1e293b',
                   fontSize: '0.85rem',
                   outline: 'none',
@@ -196,7 +196,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
+                  e.currentTarget.style.boxShadow = '0 0 0 0.125rem rgba(59, 130, 246, 0.15)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = '#e2e8f0';
@@ -390,16 +390,16 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           </div>
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '0.5em', justifyContent: 'flex-end', marginTop: '0.5em' }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
                 background: '#fff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '8px 12px',
+                border: '0.0625rem solid #e2e8f0',
+                borderRadius: '0.5em',
+                padding: '0.5em 0.75em',
                 color: '#64748b',
                 fontWeight: '700',
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -424,40 +424,40 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               type="submit"
               disabled={loading}
               style={{
-                background: loading 
-                  ? 'rgba(59, 130, 246, 0.6)' 
+                background: loading
+                  ? 'rgba(59, 130, 246, 0.6)'
                   : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '8px 12px',
+                borderRadius: '0.5em',
+                padding: '0.5em 0.75em',
                 color: '#fff',
                 fontWeight: '800',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                boxShadow: loading ? 'none' : '0 3px 10px rgba(59, 130, 246, 0.25)',
+                gap: '0.5em',
+                boxShadow: loading ? 'none' : '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)',
                 fontSize: '0.85rem',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 5px 14px rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-0.0625rem)';
+                  e.currentTarget.style.boxShadow = '0 0.3125rem 0.875rem rgba(59, 130, 246, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 3px 10px rgba(59, 130, 246, 0.25)';
+                e.currentTarget.style.boxShadow = '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)';
               }}
             >
               {loading ? (
                 <>
                   <div style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    borderTop: '2px solid #fff',
+                    width: '1rem',
+                    height: '1rem',
+                    border: '0.125rem solid rgba(255,255,255,0.3)',
+                    borderTop: '0.125rem solid #fff',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }} />

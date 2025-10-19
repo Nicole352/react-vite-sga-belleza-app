@@ -518,7 +518,7 @@ const GestionTiposCurso: React.FC = () => {
               <span>👈</span>
             </div>
           )}
-          
+
           <div
             className="responsive-table-container"
             style={{
@@ -531,147 +531,147 @@ const GestionTiposCurso: React.FC = () => {
               position: 'relative'
             }}
           >
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse', 
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
               minWidth: isSmallScreen ? '700px' : 'auto'
             }}>
-            <thead>
-              <tr style={{
-                background: 'rgba(248, 113, 113, 0.15)',
-                borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
-              }}>
-                <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'left', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '35%' }}>
-                  Nombre
-                </th>
-                <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                  Duración
-                </th>
-                <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'right', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '20%' }}>
-                  Precio
-                </th>
-                <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                  Estado
-                </th>
-                <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedTipos.map((t, index) => (
-                <tr
-                  key={t.id_tipo_curso}
-                  style={{
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
-                  }}
-                >
-                  <td style={{ padding: '0.75rem', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
-                    {t.nombre}
-                  </td>
-                  <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.8)', textAlign: 'center', fontSize: '0.8rem' }}>
-                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
-                  </td>
-                  <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.9)', textAlign: 'right', fontWeight: 600, fontSize: '0.85rem' }}>
-                    {formatPrice(t.precio_base ?? null)}
-                  </td>
-                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        padding: '4px 0.625rem',
-                        borderRadius: 8,
-                        background: t.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' : 'rgba(156,163,175,0.2)',
-                        border: t.estado === 'activo' ? `1px solid ${RedColorPalette.success}` : '1px solid rgba(156,163,175,0.3)',
-                        color: t.estado === 'activo' ? RedColorPalette.success : '#9ca3af',
-                        fontWeight: 700,
-                        fontSize: '0.7rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      {t.estado || 'activo'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                      <button
-                        onClick={() => openEdit(t)}
-                        style={{
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          border: `1px solid ${RedColorPalette.primary}`,
-                          color: RedColorPalette.primary,
-                          padding: '6px 0.625rem',
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          fontSize: '0.75rem',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-                          transform: 'translateZ(0)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                          e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
-                      >
-                        <Edit size={12} />
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(t.id_tipo_curso)}
-                        style={{
-                          background: 'rgba(185, 28, 28, 0.15)',
-                          border: `1px solid ${RedColorPalette.primaryDeep}`,
-                          color: RedColorPalette.primaryDeep,
-                          padding: '6px 0.625rem',
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          fontSize: '0.75rem',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-                          transform: 'translateZ(0)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(185, 28, 28, 0.25)';
-                          e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                          e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primaryDeep}40`;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(185, 28, 28, 0.15)';
-                          e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </td>
+              <thead>
+                <tr style={{
+                  background: 'rgba(248, 113, 113, 0.15)',
+                  borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
+                }}>
+                  <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'left', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '35%' }}>
+                    Nombre
+                  </th>
+                  <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                    Duración
+                  </th>
+                  <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'right', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '20%' }}>
+                    Precio
+                  </th>
+                  <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                    Estado
+                  </th>
+                  <th style={{ padding: '10px 0.75rem', color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
+                    Acciones
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedTipos.map((t, index) => (
+                  <tr
+                    key={t.id_tipo_curso}
+                    style={{
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                    }}
+                  >
+                    <td style={{ padding: '0.75rem', color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+                      {t.nombre}
+                    </td>
+                    <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.8)', textAlign: 'center', fontSize: '0.8rem' }}>
+                      {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                    </td>
+                    <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.9)', textAlign: 'right', fontWeight: 600, fontSize: '0.85rem' }}>
+                      {formatPrice(t.precio_base ?? null)}
+                    </td>
+                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 0.625rem',
+                          borderRadius: 8,
+                          background: t.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' : 'rgba(156,163,175,0.2)',
+                          border: t.estado === 'activo' ? `1px solid ${RedColorPalette.success}` : '1px solid rgba(156,163,175,0.3)',
+                          color: t.estado === 'activo' ? RedColorPalette.success : '#9ca3af',
+                          fontWeight: 700,
+                          fontSize: '0.7rem',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {t.estado || 'activo'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.75rem' }}>
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                        <button
+                          onClick={() => openEdit(t)}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: `1px solid ${RedColorPalette.primary}`,
+                            color: RedColorPalette.primary,
+                            padding: '6px 0.625rem',
+                            borderRadius: 8,
+                            cursor: 'pointer',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                            transform: 'translateZ(0)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                            e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                            e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                            e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
+                        >
+                          <Edit size={12} />
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(t.id_tipo_curso)}
+                          style={{
+                            background: 'rgba(185, 28, 28, 0.15)',
+                            border: `1px solid ${RedColorPalette.primaryDeep}`,
+                            color: RedColorPalette.primaryDeep,
+                            padding: '6px 0.625rem',
+                            borderRadius: 8,
+                            cursor: 'pointer',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                            transform: 'translateZ(0)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(185, 28, 28, 0.25)';
+                            e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
+                            e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primaryDeep}40`;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(185, 28, 28, 0.15)';
+                            e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
 
@@ -733,8 +733,8 @@ const GestionTiposCurso: React.FC = () => {
           border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
           borderRadius: isMobile ? '12px' : '1rem',
         }}>
-          <div style={{ 
-            color: 'rgba(255,255,255,0.7)', 
+          <div style={{
+            color: 'rgba(255,255,255,0.7)',
             fontSize: isMobile ? '0.8rem' : '0.9rem',
             textAlign: isSmallScreen ? 'center' : 'left'
           }}>
@@ -761,7 +761,7 @@ const GestionTiposCurso: React.FC = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              <ChevronLeft size={isMobile ? 14 : 16} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
@@ -804,7 +804,7 @@ const GestionTiposCurso: React.FC = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              {!isMobile && 'Siguiente'} 
+              {!isMobile && 'Siguiente'}
               <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>

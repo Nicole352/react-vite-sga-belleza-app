@@ -145,10 +145,10 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
   // Estilos base adaptativos
   const inputStyle = {
     width: '100%',
-    padding: '10px 12px',
+    padding: '0.625em 0.75em',
     background: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
-    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-    borderRadius: '8px',
+    border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+    borderRadius: '0.5em',
     color: darkMode ? '#fff' : '#1e293b',
     fontSize: '0.875rem',
     outline: 'none',
@@ -158,7 +158,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
   const labelStyle = {
     color: darkMode ? 'rgba(255,255,255,0.9)' : '#374151',
     display: 'block',
-    marginBottom: '6px',
+    marginBottom: '0.375em',
     fontWeight: '600' as const,
     fontSize: '0.875rem'
   };
@@ -175,28 +175,28 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '16px',
-      backdropFilter: 'blur(6px)'
+      padding: '1em',
+      backdropFilter: 'blur(0.375rem)'
     }}>
       <div style={{
         background: darkMode 
           ? 'rgba(26,26,46,0.98)'
           : '#ffffff',
-        borderRadius: '12px',
-        padding: '16px',
-        maxWidth: '560px',
+        borderRadius: '0.75em',
+        padding: '1em',
+        maxWidth: '35rem',
         width: '100%',
         maxHeight: '85vh',
         overflowY: 'auto',
         border: darkMode 
-          ? '1px solid rgba(255,255,255,0.1)' 
-          : '1px solid #e5e7eb',
+          ? '0.0625rem solid rgba(255,255,255,0.1)' 
+          : '0.0625rem solid #e5e7eb',
         boxShadow: darkMode 
-          ? '0 16px 48px rgba(0,0,0,0.4)' 
-          : '0 16px 48px rgba(0,0,0,0.15)'
+          ? '0 1rem 3rem rgba(0,0,0,0.4)' 
+          : '0 1rem 3rem rgba(0,0,0,0.15)'
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75em' }}>
           <h3 style={{ 
             color: darkMode ? '#fff' : '#1e293b', 
             fontSize: '1.1rem', 
@@ -209,9 +209,9 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
             onClick={onClose}
             style={{
               background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '8px',
-              padding: '6px',
+              border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '0.5em',
+              padding: '0.375em',
               color: '#ef4444',
               cursor: 'pointer',
               display: 'flex',
@@ -230,7 +230,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.75em' }}>
           {/* Título */}
           <div>
             <label style={labelStyle}>

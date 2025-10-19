@@ -32,7 +32,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       if (!token) {
         console.error('No hay token de autenticación');
         return;
@@ -85,7 +85,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   const theme = getThemeColors();
 
   const diasAbreviados = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-  
+
   // Generar horas del día (7 AM - 7 PM)
   const horasDelDia = Array.from({ length: 13 }, (_, i) => i + 7); // 7 a 19
 
@@ -100,14 +100,14 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   const getClasePosition = (horaInicio: string, horaFin: string) => {
     const [horaI, minI] = horaInicio.split(':').map(Number);
     const [horaF, minF] = horaFin.split(':').map(Number);
-    
+
     const inicioEnMinutos = (horaI * 60) + minI;
     const finEnMinutos = (horaF * 60) + minF;
     const baseMinutos = 7 * 60; // 7 AM
-    
+
     const top = ((inicioEnMinutos - baseMinutos) / 60) * 30; // 50px por hora
     const height = ((finEnMinutos - inicioEnMinutos) / 60) * 30;
-    
+
     return { top, height };
   };
 
@@ -116,13 +116,13 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   ];
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '60px', color: theme.textSecondary }}>Cargando horario...</div>;
+    return <div style={{ textAlign: 'center', padding: '3.75em', color: theme.textSecondary }}>Cargando horario...</div>;
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 2px 0' }}>
+    <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: '0.625em' }}>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.125em 0' }}>
           Mi Horario Semanal
         </h2>
         <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0 }}>
@@ -133,41 +133,42 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
       {/* Tabla de Horario Tipo Calendario */}
       <div style={{
         background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '16px',
-        padding: '12px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 10px 30px rgba(0, 0, 0, 0.3)' : '0 10px 30px rgba(0, 0, 0, 0.1)',
-        overflowX: 'auto'
+        border: `0.0625rem solid ${theme.border}`,
+        borderRadius: '1em',
+        padding: '0.75em',
+        backdropFilter: 'blur(1.25rem)',
+        boxShadow: darkMode ? '0 0.625rem 1.875rem rgba(0, 0, 0, 0.3)' : '0 0.625rem 1.875rem rgba(0, 0, 0, 0.1)',
+        overflowX: 'auto',
+        flex: 1
       }}>
-        <div style={{ minWidth: '900px' }}>
+        <div style={{ minWidth: '56.25rem' }}>
           {/* Header con días de la semana */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '80px repeat(7, 1fr)',
-            gap: '2px',
-            marginBottom: '2px'
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gap: '0.125em',
+            marginBottom: '0.125em'
           }}>
-            <div style={{ padding: '16px 8px' }}></div>
+            <div style={{ padding: '1em 0.5em' }}></div>
             {horariosPorDia.map(({ dia, diaAbreviado }) => (
               <div
                 key={dia}
                 style={{
-                  padding: '10px 6px',
+                  padding: '0.625em 0.375em',
                   background: `linear-gradient(135deg, ${theme.accent}15, ${theme.accent}08)`,
-                  borderRadius: '10px 10px 0 0',
+                  borderRadius: '0.625em 0.625em 0 0',
                   textAlign: 'center',
-                  border: `1px solid ${theme.border}`,
+                  border: `0.0625rem solid ${theme.border}`,
                   borderBottom: 'none'
                 }}
               >
-                <div style={{ 
-                  color: theme.accent, 
-                  fontSize: '0.7rem', 
+                <div style={{
+                  color: theme.accent,
+                  fontSize: '0.7rem',
                   fontWeight: '600',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
+                  letterSpacing: '0.03125em',
+                  marginBottom: '0.125em'
                 }}>
                   {diaAbreviado}
                 </div>
@@ -179,10 +180,10 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
           </div>
 
           {/* Grid de horarios */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '80px repeat(7, 1fr)',
-            gap: '2px',
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gap: '0.125em',
             position: 'relative'
           }}>
             {/* Columna de horas */}
@@ -191,8 +192,8 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                 <div
                   key={hora}
                   style={{
-                    height: '30px',
-                    padding: '4px',
+                    height: '1.875rem',
+                    padding: '0.25em',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
@@ -213,8 +214,8 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                 style={{
                   position: 'relative',
                   background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: diaIndex === 0 ? '0 0 0 12px' : diaIndex === 6 ? '0 0 12px 0' : '0'
+                  border: `0.0625rem solid ${theme.border}`,
+                  borderRadius: diaIndex === 0 ? '0 0 0 0.75em' : diaIndex === 6 ? '0 0 0.75em 0' : '0'
                 }}
               >
                 {/* Líneas de hora */}
@@ -223,11 +224,11 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                     key={hora}
                     style={{
                       position: 'absolute',
-                      top: `${index * 30}px`,
+                      top: `${index * 1.875}rem`,
                       left: 0,
                       right: 0,
-                      height: '30px',
-                      borderBottom: `1px dashed ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`
+                      height: '1.875rem',
+                      borderBottom: `0.0625rem dashed ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`
                     }}
                   />
                 ))}
@@ -236,22 +237,22 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                 {clases.map((clase, index) => {
                   const { top, height } = getClasePosition(clase.hora_inicio, clase.hora_fin);
                   const color = coloresClases[index % coloresClases.length];
-                  
+
                   return (
                     <div
                       key={clase.id_asignacion}
                       style={{
                         position: 'absolute',
                         top: `${top}px`,
-                        left: '4px',
-                        right: '4px',
+                        left: '0.25em',
+                        right: '0.25em',
                         height: `${height - 8}px`,
                         background: `linear-gradient(135deg, ${color}dd, ${color}bb)`,
-                        borderRadius: '6px',
-                        padding: '6px',
+                        borderRadius: '0.375em',
+                        padding: '0.375em',
                         overflow: 'hidden',
-                        boxShadow: `0 4px 12px ${color}40`,
-                        border: `1px solid ${color}`,
+                        boxShadow: `0 0.25rem 0.75rem ${color}40`,
+                        border: `0.0625rem solid ${color}`,
                         cursor: 'pointer',
                         transition: 'all 0.3s ease'
                       }}
@@ -264,21 +265,21 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                         e.currentTarget.style.zIndex = '1';
                       }}
                     >
-                      <div style={{ color: '#fff', fontSize: '0.65rem', fontWeight: '700', marginBottom: '2px' }}>
+                      <div style={{ color: '#fff', fontSize: '0.65rem', fontWeight: '700', marginBottom: '0.125em' }}>
                         {clase.hora_inicio.substring(0, 5)} - {clase.hora_fin.substring(0, 5)}
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', lineHeight: 1.1, marginBottom: '2px' }}>
+                      <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', lineHeight: 1.1, marginBottom: '0.125em' }}>
                         {clase.curso_nombre}
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.1875em' }}>
                         <MapPin size={10} />
                         {clase.aula_nombre}
                       </div>
                       <div style={{
-                        marginTop: '2px',
-                        padding: '2px 4px',
+                        marginTop: '0.125em',
+                        padding: '0.125em 0.25em',
                         background: 'rgba(255,255,255,0.2)',
-                        borderRadius: '3px',
+                        borderRadius: '0.1875em',
                         fontSize: '0.6rem',
                         fontWeight: '600',
                         color: '#fff',

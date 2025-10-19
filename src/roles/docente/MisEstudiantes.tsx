@@ -33,7 +33,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       if (!token) {
         console.error('No hay token de autenticación');
         return;
@@ -87,7 +87,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
     .map(k => ({ codigo: k.split('||')[0], nombre: k.split('||')[1] }));
 
   const estudiantesFiltrados = estudiantes.filter(est => {
-    const matchTexto = 
+    const matchTexto =
       est.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       est.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
       est.cedula.includes(searchTerm) ||
@@ -97,13 +97,13 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   });
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '60px', color: theme.textSecondary }}>Cargando estudiantes...</div>;
+    return <div style={{ textAlign: 'center', padding: '3.75em', color: theme.textSecondary }}>Cargando estudiantes...</div>;
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
+    <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: '1em' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.25em 0' }}>
           Mis Estudiantes
         </h2>
         <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0 }}>
@@ -112,23 +112,23 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       </div>
 
       {/* Estadísticas (ultra-compactas, una sola línea) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(120px, 1fr))', gap: '6px', marginBottom: '12px' }}>
-        <div style={{ background: `linear-gradient(135deg, #3b82f6, #2563eb)`, borderRadius: '10px', padding: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(7.5rem, 1fr))', gap: '0.375em', marginBottom: '0.75em' }}>
+        <div style={{ background: `linear-gradient(135deg, #3b82f6, #2563eb)`, borderRadius: '0.625em', padding: '0.375em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
             <Users size={12} />
             <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
             <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length}</span>
           </div>
         </div>
-        <div style={{ background: `linear-gradient(135deg, #10b981, #059669)`, borderRadius: '10px', padding: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+        <div style={{ background: `linear-gradient(135deg, #10b981, #059669)`, borderRadius: '0.625em', padding: '0.375em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
             <Award size={12} />
             <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Destacados:</span>
             <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}</span>
           </div>
         </div>
-        <div style={{ background: `linear-gradient(135deg, #f59e0b, #d97706)`, borderRadius: '10px', padding: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+        <div style={{ background: `linear-gradient(135deg, #f59e0b, #d97706)`, borderRadius: '0.625em', padding: '0.375em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
             <Star size={12} />
             <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
             <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}</span>
@@ -137,12 +137,12 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       </div>
 
       {/* Filtros */}
-      <div style={{ marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 240px', gap: '10px' }}>
+      <div style={{ marginBottom: '1em', display: 'grid', gridTemplateColumns: '1fr 15rem', gap: '0.625em' }}>
         <div style={{ position: 'relative' }}>
-          <Search 
-            size={20} 
-            color={theme.textMuted} 
-            style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}
+          <Search
+            size={20}
+            color={theme.textMuted}
+            style={{ position: 'absolute', left: '1em', top: '50%', transform: 'translateY(-50%)' }}
           />
           <input
             type="text"
@@ -151,10 +151,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 12px 10px 44px',
+              padding: '0.625em 0.75em 0.625em 2.75em',
               background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-              border: `1px solid ${theme.border}`,
-              borderRadius: '10px',
+              border: `0.0625rem solid ${theme.border}`,
+              borderRadius: '0.625em',
               color: theme.textPrimary,
               fontSize: '0.9rem'
             }}
@@ -165,10 +165,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           onChange={(e) => setCursoFiltro(e.target.value)}
           style={{
             width: '100%',
-            padding: '10px 12px',
+            padding: '0.625em 0.75em',
             background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-            border: `1px solid ${theme.border}`,
-            borderRadius: '10px',
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: '0.625em',
             color: theme.textPrimary,
             fontSize: '0.9rem'
           }}
@@ -184,19 +184,20 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       {/* Lista de Estudiantes (compacta) */}
       <div style={{
         background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '16px',
-        padding: '16px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        border: `0.0625rem solid ${theme.border}`,
+        borderRadius: '1em',
+        padding: '1em',
+        backdropFilter: 'blur(1.25rem)',
+        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)',
+        flex: 1
       }}>
         {estudiantesFiltrados.length === 0 ? (
           <div style={{
-            padding: '60px 20px',
+            padding: '3.75em 1.25em',
             textAlign: 'center'
           }}>
-            <Users size={64} color={theme.textMuted} style={{ marginBottom: '16px', opacity: 0.5 }} />
-            <h3 style={{ color: theme.textPrimary, margin: '0 0 8px 0' }}>
+            <Users size={64} color={theme.textMuted} style={{ marginBottom: '1em', opacity: 0.5 }} />
+            <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
               {searchTerm ? 'No se encontraron estudiantes' : 'No tienes estudiantes asignados'}
             </h3>
             <p style={{ color: theme.textMuted, margin: 0 }}>
@@ -208,16 +209,16 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             <div style={{
               display: 'grid',
               gridTemplateColumns: '2fr 1fr 1.5fr 1.5fr 1fr',
-              gap: '10px',
-              padding: '6px 8px',
+              gap: '0.625em',
+              padding: '0.375em 0.5em',
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '8px',
-              marginBottom: '8px',
+              borderRadius: '0.5em',
+              marginBottom: '0.5em',
               fontWeight: '700',
               fontSize: '0.75rem',
               color: theme.accent,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.03125em'
             }}>
               <div>Estudiante</div>
               <div>Cédula</div>
@@ -227,7 +228,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             </div>
 
             {/* Filas de estudiantes */}
-            <div style={{ display: 'grid', gap: '6px' }}>
+            <div style={{ display: 'grid', gap: '0.375em' }}>
               {estudiantesFiltrados.map((estudiante, index) => {
                 return (
                   <div
@@ -235,18 +236,18 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '2fr 1fr 1.5fr 1.5fr 1fr',
-                      gap: '8px',
-                      padding: '8px',
+                      gap: '0.5em',
+                      padding: '0.5em',
                       background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5em',
+                      border: `0.0625rem solid ${theme.border}`,
                       alignItems: 'center',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)';
-                      e.currentTarget.style.transform = 'translateX(4px)';
+                      e.currentTarget.style.transform = 'translateX(0.25em)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
@@ -254,10 +255,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     }}
                   >
                     {/* Columna: Estudiante */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', minWidth: 0 }}>
                       <div style={{
-                        width: '28px',
-                        height: '28px',
+                        width: '1.75rem',
+                        height: '1.75rem',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                         display: 'flex',
@@ -281,20 +282,20 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Columna: Curso */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', overflow: 'hidden', minWidth: 0 }}>
                       <span style={{
                         background: `${theme.accent}20`,
                         color: theme.accent,
-                        padding: '3px 8px',
-                        borderRadius: '10px',
+                        padding: '0.1875em 0.5em',
+                        borderRadius: '0.625em',
                         fontSize: '0.7rem',
                         fontWeight: '700',
                         flexShrink: 0
                       }}>
                         {estudiante.codigo_curso}
                       </span>
-                      <span style={{ 
-                        color: theme.textPrimary, 
+                      <span style={{
+                        color: theme.textPrimary,
                         fontSize: '0.85rem',
                         fontWeight: '600',
                         overflow: 'hidden',
@@ -306,7 +307,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Columna: Email */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', overflow: 'hidden', minWidth: 0 }}>
                       <Mail size={12} color={theme.textMuted} />
                       <span style={{ color: theme.textSecondary, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {estudiante.email || '-'}
@@ -314,7 +315,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Columna: Teléfono */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
                       <Phone size={12} color={theme.textMuted} />
                       <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
                         {estudiante.telefono || '-'}

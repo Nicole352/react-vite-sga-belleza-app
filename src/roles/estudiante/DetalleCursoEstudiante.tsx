@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, BookOpen, Calendar, FileText, Upload, 
+import {
+  ArrowLeft, BookOpen, Calendar, FileText, Upload,
   CheckCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import axios from 'axios';
@@ -91,12 +91,12 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       const response = await axios.get(`${API_BASE}/modulos/curso/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       // El backend retorna { success: true, modulos: [...] }
-      const modulosData = Array.isArray(response.data.modulos) ? response.data.modulos : 
-                         Array.isArray(response.data) ? response.data : [];
+      const modulosData = Array.isArray(response.data.modulos) ? response.data.modulos :
+        Array.isArray(response.data) ? response.data : [];
       setModulos(modulosData);
-      
+
       // Cargar tareas de cada módulo
       modulosData.forEach((modulo: Modulo) => {
         fetchTareasModulo(modulo.id_modulo);
@@ -115,10 +115,10 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       const response = await axios.get(`${API_BASE}/tareas/modulo/${id_modulo}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       // El backend retorna { success: true, tareas: [...] }
-      const tareasData = Array.isArray(response.data.tareas) ? response.data.tareas : 
-                        Array.isArray(response.data) ? response.data : [];
+      const tareasData = Array.isArray(response.data.tareas) ? response.data.tareas :
+        Array.isArray(response.data) ? response.data : [];
       setTareasPorModulo(prev => ({
         ...prev,
         [id_modulo]: tareasData
@@ -143,7 +143,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     try {
       setUploadingTarea(id_tarea);
       const token = sessionStorage.getItem('auth_token');
-      
+
       const formData = new FormData();
       formData.append('archivo', file);
       formData.append('id_tarea', id_tarea.toString());
@@ -156,7 +156,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       });
 
       toast.success('¡Archivo entregado exitosamente!');
-      
+
       // Recargar todas las tareas para actualizar el estado
       await Promise.all(modulos.map(modulo => fetchTareasModulo(modulo.id_modulo)));
     } catch (error: any) {
@@ -169,11 +169,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '400px',
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '25em',
         color: theme.textPrimary
       }}>
         Cargando...
@@ -186,11 +186,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       {/* Header */}
       <div style={{
         background: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
-        border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e5e7eb',
-        borderRadius: '16px',
-        padding: '24px 28px',
-        marginBottom: '20px',
-        boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.1)'
+        border: darkMode ? '0.0625rem solid rgba(255,255,255,0.08)' : '0.0625rem solid #e5e7eb',
+        borderRadius: '1em',
+        padding: '1.5em 1.75em',
+        marginBottom: '1.25em',
+        boxShadow: darkMode ? '0 0.125rem 0.5rem rgba(0,0,0,0.1)' : '0 0.0625rem 0.1875rem rgba(0,0,0,0.1)'
       }}>
         <button
           onClick={() => navigate('/panel/estudiante')}
@@ -201,11 +201,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            marginBottom: '16px',
+            gap: '0.375em',
+            marginBottom: '1em',
             fontWeight: '600',
             fontSize: '0.875rem',
-            padding: '4px 0',
+            padding: '0.25em 0',
             transition: 'opacity 0.2s ease'
           }}
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
@@ -215,14 +215,14 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
           Volver a Mis Cursos
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
           <BookOpen size={28} color={theme.accent} />
           <div>
-            <h1 style={{ 
-              color: theme.textPrimary, 
-              fontSize: '1.5rem', 
-              fontWeight: '700', 
-              margin: '0 0 4px 0',
+            <h1 style={{
+              color: theme.textPrimary,
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              margin: '0 0 0.25em 0',
               letterSpacing: '-0.01em'
             }}>
               {curso?.nombre}
@@ -238,25 +238,25 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       {modulos.length === 0 ? (
         <div style={{
           background: theme.cardBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '16px',
-          padding: '48px',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '1em',
+          padding: '3em',
           textAlign: 'center'
         }}>
-          <BookOpen size={48} style={{ color: theme.textMuted, margin: '0 auto 16px' }} />
+          <BookOpen size={48} style={{ color: theme.textMuted, margin: '0 auto 1em' }} />
           <p style={{ color: theme.textMuted }}>
             No hay módulos disponibles en este curso
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
           {modulos.map((modulo) => (
             <div
               key={modulo.id_modulo}
               style={{
                 background: darkMode ? 'rgba(255,255,255,0.02)' : '#ffffff',
-                border: darkMode ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e5e7eb',
-                borderRadius: '12px',
+                border: darkMode ? '0.0625rem solid rgba(255,255,255,0.06)' : '0.0625rem solid #e5e7eb',
+                borderRadius: '0.75em',
                 overflow: 'hidden',
                 transition: 'all 0.2s ease'
               }}
@@ -264,7 +264,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
               {/* Header del Módulo */}
               <div
                 style={{
-                  padding: '16px 20px',
+                  padding: '1em 1.25em',
                   cursor: 'pointer',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -280,11 +280,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ 
-                    color: theme.textPrimary, 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    margin: '0 0 4px 0',
+                  <h3 style={{
+                    color: theme.textPrimary,
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    margin: '0 0 0.25em 0',
                     letterSpacing: '-0.01em'
                   }}>
                     {modulo.nombre}
@@ -302,45 +302,45 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
 
               {/* Lista de Tareas */}
               {modulosExpandidos[modulo.id_modulo] && (
-                <div style={{ padding: '0 24px 20px' }}>
+                <div style={{ padding: '0 1.5em 1.25em' }}>
                   {!tareasPorModulo[modulo.id_modulo] || tareasPorModulo[modulo.id_modulo].length === 0 ? (
-                    <p style={{ color: theme.textMuted, textAlign: 'center', padding: '20px' }}>
+                    <p style={{ color: theme.textMuted, textAlign: 'center', padding: '1.25em' }}>
                       No hay tareas en este módulo
                     </p>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625em' }}>
                       {tareasPorModulo[modulo.id_modulo].map((tarea) => (
                         <div
                           key={tarea.id_tarea}
                           style={{
                             background: darkMode ? 'rgba(255,255,255,0.015)' : '#f9fafb',
-                            border: `1px solid ${darkMode ? 'rgba(255,255,255,0.04)' : '#e5e7eb'}`,
-                            borderRadius: '10px',
-                            padding: '16px 18px'
+                            border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.04)' : '#e5e7eb'}`,
+                            borderRadius: '0.625em',
+                            padding: '1em 1.125em'
                           }}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.625em' }}>
                             <div style={{ flex: 1 }}>
-                              <h4 style={{ 
-                                color: theme.textPrimary, 
-                                fontSize: '0.9375rem', 
-                                fontWeight: '600', 
-                                margin: '0 0 6px 0',
+                              <h4 style={{
+                                color: theme.textPrimary,
+                                fontSize: '0.9375rem',
+                                fontWeight: '600',
+                                margin: '0 0 0.375em 0',
                                 letterSpacing: '-0.01em'
                               }}>
                                 {tarea.titulo}
                               </h4>
                               {tarea.descripcion && (
-                                <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: '0 0 0.5em 0', lineHeight: '1.4' }}>
                                   {tarea.descripcion}
                                 </p>
                               )}
-                              <div style={{ display: 'flex', gap: '12px', fontSize: '0.8125rem', color: theme.textMuted }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <div style={{ display: 'flex', gap: '0.75em', fontSize: '0.8125rem', color: theme.textMuted }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
                                   <Calendar size={13} />
                                   {new Date(tarea.fecha_limite).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                                 </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
                                   <FileText size={13} />
                                   Nota máx: {tarea.nota_maxima}
                                 </span>
@@ -351,9 +351,9 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                             {tarea.entrega ? (
                               <div style={{
                                 background: tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.08)',
-                                border: `1px solid ${tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
-                                borderRadius: '6px',
-                                padding: '4px 10px',
+                                border: `0.0625rem solid ${tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                borderRadius: '0.375em',
+                                padding: '0.25em 0.625em',
                                 fontSize: '0.6875rem',
                                 fontWeight: '600',
                                 color: tarea.entrega.calificacion ? '#10b981' : '#3b82f6',
@@ -364,9 +364,9 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                             ) : (
                               <div style={{
                                 background: 'rgba(239, 68, 68, 0.08)',
-                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                borderRadius: '6px',
-                                padding: '4px 10px',
+                                border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+                                borderRadius: '0.375em',
+                                padding: '0.25em 0.625em',
                                 fontSize: '0.6875rem',
                                 fontWeight: '600',
                                 color: '#ef4444',
@@ -379,7 +379,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
 
                           {/* Subir archivo */}
                           {tarea.permite_archivo && !tarea.entrega && (
-                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.04)' : '#e5e7eb'}` }}>
+                            <div style={{ marginTop: '0.625em', paddingTop: '0.625em', borderTop: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.04)' : '#e5e7eb'}` }}>
                               <input
                                 type="file"
                                 accept={tarea.formatos_permitidos.split(',').map(f => `.${f}`).join(',')}
@@ -401,34 +401,34 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                 style={{
                                   background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
                                   border: 'none',
-                                  borderRadius: '7px',
-                                  padding: '8px 14px',
+                                  borderRadius: '0.4375em',
+                                  padding: '0.5em 0.875em',
                                   color: darkMode ? '#000' : '#fff',
                                   cursor: uploadingTarea === tarea.id_tarea ? 'not-allowed' : 'pointer',
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '6px',
+                                  gap: '0.375em',
                                   fontWeight: '600',
                                   fontSize: '0.8125rem',
                                   opacity: uploadingTarea === tarea.id_tarea ? 0.6 : 1,
-                                  boxShadow: '0 2px 6px rgba(251, 191, 36, 0.25)',
+                                  boxShadow: '0 0.125rem 0.375rem rgba(251, 191, 36, 0.25)',
                                   transition: 'all 0.2s ease'
                                 }}
                                 onMouseEnter={(e) => {
                                   if (uploadingTarea !== tarea.id_tarea) {
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 10px rgba(251, 191, 36, 0.3)';
+                                    e.currentTarget.style.transform = 'translateY(-0.0625rem)';
+                                    e.currentTarget.style.boxShadow = '0 0.25rem 0.625rem rgba(251, 191, 36, 0.3)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   e.currentTarget.style.transform = 'translateY(0)';
-                                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(251, 191, 36, 0.25)';
+                                  e.currentTarget.style.boxShadow = '0 0.125rem 0.375rem rgba(251, 191, 36, 0.25)';
                                 }}
                               >
                                 <Upload size={15} />
                                 {uploadingTarea === tarea.id_tarea ? 'Subiendo...' : 'Subir Archivo'}
                               </label>
-                              <p style={{ color: theme.textMuted, fontSize: '0.6875rem', margin: '6px 0 0 0' }}>
+                              <p style={{ color: theme.textMuted, fontSize: '0.6875rem', margin: '0.375em 0 0 0' }}>
                                 Formatos: {tarea.formatos_permitidos.toUpperCase()} • Máx: {tarea.tamano_maximo_mb}MB
                               </p>
                             </div>
@@ -438,14 +438,14 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                           {tarea.entrega && (
                             <div style={{
                               background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-                              border: '1px solid rgba(16, 185, 129, 0.2)',
-                              borderRadius: '8px',
-                              padding: '12px',
-                              marginTop: '12px'
+                              border: '0.0625rem solid rgba(16, 185, 129, 0.2)',
+                              borderRadius: '0.5em',
+                              padding: '0.75em',
+                              marginTop: '0.75em'
                             }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tarea.entrega.calificacion ? '8px' : '0' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tarea.entrega.calificacion ? '0.5em' : '0' }}>
                                 <div>
-                                  <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: '0 0 4px 0' }}>
+                                  <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: '0 0 0.25em 0' }}>
                                     {tarea.entrega.archivo_nombre}
                                   </p>
                                   <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
@@ -454,19 +454,19 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                 </div>
                                 <CheckCircle size={20} color="#10b981" />
                               </div>
-                              
+
                               {/* Mostrar calificación si existe */}
                               {tarea.entrega.calificacion !== undefined && tarea.entrega.calificacion !== null && (
                                 <div style={{
-                                  borderTop: '1px solid rgba(16, 185, 129, 0.2)',
-                                  paddingTop: '8px',
-                                  marginTop: '8px'
+                                  borderTop: '0.0625rem solid rgba(16, 185, 129, 0.2)',
+                                  paddingTop: '0.5em',
+                                  marginTop: '0.5em'
                                 }}>
-                                  <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '700', margin: '0 0 4px 0' }}>
+                                  <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '700', margin: '0 0 0.25em 0' }}>
                                     Calificación: {tarea.entrega.calificacion}/{tarea.nota_maxima}
                                   </p>
                                   {tarea.entrega.comentarios && (
-                                    <p style={{ color: theme.textSecondary, fontSize: '0.8125rem', margin: '0 0 4px 0', fontStyle: 'italic' }}>
+                                    <p style={{ color: theme.textSecondary, fontSize: '0.8125rem', margin: '0 0 0.25em 0', fontStyle: 'italic' }}>
                                       "{tarea.entrega.comentarios}"
                                     </p>
                                   )}

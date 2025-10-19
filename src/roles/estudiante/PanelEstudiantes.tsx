@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { BookOpen, UserCircle, Settings, Lock, Eye, EyeOff, CheckCircle, CheckCircle2, Info, Menu
+import {
+  BookOpen, UserCircle, Settings, Lock, Eye, EyeOff, CheckCircle, CheckCircle2, Info, Menu
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -225,7 +226,7 @@ const PanelEstudiantes = () => {
           .estudiante-panel textarea,
           .estudiante-panel select {
             background: var(--estudiante-input-bg) !important;
-            border: 1px solid var(--estudiante-input-border) !important;
+            border: 0.0625rem solid var(--estudiante-input-border) !important;
             color: var(--estudiante-text-primary) !important;
           }
       `}</style>
@@ -252,13 +253,14 @@ const PanelEstudiantes = () => {
         <div style={{
           width: sidebarCollapsed ? '5rem' : '17.5rem',
           background: theme.sidebarBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.border}`,
+          backdropFilter: 'blur(1.25rem)',
+          border: `0.0625rem solid ${theme.border}`,
           borderRadius: '0 1.25rem 1.25rem 0',
           padding: sidebarCollapsed ? '0.75rem 0.5rem 1.5rem 0.5rem' : '0.75rem 1.5rem 1.5rem 1.5rem',
           height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
+          flexShrink: 0
         }}>
           {/* Botón hamburguesa */}
           <button
@@ -271,7 +273,7 @@ const PanelEstudiantes = () => {
               width: '2.25rem',
               height: '2.25rem',
               borderRadius: '0.5rem',
-              border: `1px solid ${theme.border}`,
+              border: `0.0625rem solid ${theme.border}`,
               background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
               color: theme.accent,
               cursor: 'pointer',
@@ -297,17 +299,17 @@ const PanelEstudiantes = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '8px',
-            paddingBottom: '4px',
-            borderBottom: `1px solid ${theme.border}`,
-            paddingTop: '0px',
-            marginTop: sidebarCollapsed ? '48px' : '0px'
+            marginBottom: '0.5em',
+            paddingBottom: '0.25em',
+            borderBottom: `0.0625rem solid ${theme.border}`,
+            paddingTop: '0',
+            marginTop: sidebarCollapsed ? '3em' : '0'
           }}>
             {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
           {/* Navegación del Sidebar */}
-          <nav style={{ marginBottom: '32px' }}>
+          <nav style={{ marginBottom: '2em' }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -335,7 +337,7 @@ const PanelEstudiantes = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'left',
                     fontFamily: 'Montserrat, sans-serif',
-                    boxShadow: activeTab === tab.id ? '0 8px 20px rgba(245, 158, 11, 0.3)' : 'none'
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(245, 158, 11, 0.3)' : 'none'
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.id) {
@@ -343,7 +345,7 @@ const PanelEstudiantes = () => {
                         ? 'rgba(251, 191, 36, 0.1)'
                         : 'rgba(251, 191, 36, 0.08)';
                       e.currentTarget.style.color = theme.accent;
-                      e.currentTarget.style.transform = 'translateX(4px)';
+                      e.currentTarget.style.transform = 'translateX(0.25rem)';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -367,25 +369,28 @@ const PanelEstudiantes = () => {
         <div style={{
           flex: 1,
           padding: '1.5rem',
-          minHeight: '100%'
+          minHeight: '100%',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
-            border: `1px solid ${theme.border}`,
+            border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
             padding: '1rem 1.5rem',
             marginBottom: '1.5rem',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
-            zIndex: 2
+            zIndex: 2,
+            flexShrink: 0
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
               <div style={{
                 width: '3rem',
                 height: '3rem',
@@ -394,7 +399,7 @@ const PanelEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(245, 158, 11, 0.3)'
+                boxShadow: '0 0.5rem 1.25rem rgba(245, 158, 11, 0.3)'
               }}>
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
@@ -415,7 +420,7 @@ const PanelEstudiantes = () => {
                   color: theme.textSecondary,
                   margin: 0,
                   fontSize: '0.8rem',
-                  marginTop: '2px'
+                  marginTop: '0.125em'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -423,8 +428,8 @@ const PanelEstudiantes = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ProfileMenu 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+              <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
                 theme={theme}
@@ -438,14 +443,18 @@ const PanelEstudiantes = () => {
           {/* Contenido de la sección activa */}
           <div style={{
             background: theme.contentBg,
-            backdropFilter: 'blur(20px)',
-            border: `1px solid ${theme.border}`,
+            backdropFilter: 'blur(1.25rem)',
+            border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
             padding: '2rem',
-            minHeight: 'calc(100vh - 180px)',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             position: 'relative',
-            zIndex: 1
+            zIndex: 1,
+            overflow: 'hidden',
+            minHeight: 0
           }}>
             <Routes>
               <Route index element={
@@ -477,15 +486,15 @@ const PanelEstudiantes = () => {
           }}>
             <div style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '2px solid rgba(251, 191, 36, 0.4)',
+              border: '0.125rem solid rgba(251, 191, 36, 0.4)',
               borderRadius: '1.25rem',
               padding: '2.5rem',
               maxWidth: '31.25rem',
               width: '100%',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 25px 50px rgba(251, 191, 36, 0.3)'
+              backdropFilter: 'blur(1.25rem)',
+              boxShadow: '0 1.5625rem 3.125rem rgba(251, 191, 36, 0.3)'
             }}>
-              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '2em' }}>
                 <div style={{
                   width: '5rem',
                   height: '5rem',
@@ -494,8 +503,8 @@ const PanelEstudiantes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 20px',
-                  boxShadow: '0 10px 30px rgba(251, 191, 36, 0.4)'
+                  margin: '0 auto 1.25em',
+                  boxShadow: '0 0.625rem 1.875rem rgba(251, 191, 36, 0.4)'
                 }}>
                   <Lock size={32} color="#000" />
                 </div>
@@ -503,7 +512,7 @@ const PanelEstudiantes = () => {
                   fontSize: '1.8rem',
                   fontWeight: '700',
                   color: '#fff',
-                  margin: '0 0 12px 0',
+                  margin: '0 0 0.75em 0',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
                   Restablecer Contraseña
@@ -518,13 +527,13 @@ const PanelEstudiantes = () => {
                 </p>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '1.5em' }}>
                 <label style={{
                   display: 'block',
                   color: 'rgba(255,255,255,0.9)',
                   fontSize: '0.9rem',
                   fontWeight: '600',
-                  marginBottom: '8px'
+                  marginBottom: '0.5em'
                 }}>
                   Nueva Contraseña
                 </label>
@@ -536,10 +545,10 @@ const PanelEstudiantes = () => {
                     placeholder="Mínimo 6 caracteres"
                     style={{
                       width: '100%',
-                      padding: '14px 50px 14px 16px',
+                      padding: '0.875em 3.125em 0.875em 1em',
                       background: 'rgba(255,255,255,0.08)',
-                      border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                      borderRadius: '12px',
+                      border: '0.09375rem solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '0.75em',
                       color: '#fff',
                       fontSize: '1rem',
                       fontFamily: 'Montserrat, sans-serif'
@@ -550,7 +559,7 @@ const PanelEstudiantes = () => {
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     style={{
                       position: 'absolute',
-                      right: '16px',
+                      right: '1em',
                       top: '50%',
                       transform: 'translateY(-50%)',
                       background: 'none',
@@ -565,13 +574,13 @@ const PanelEstudiantes = () => {
                 </div>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '1.5em' }}>
                 <label style={{
                   display: 'block',
                   color: 'rgba(255,255,255,0.9)',
                   fontSize: '0.9rem',
                   fontWeight: '600',
-                  marginBottom: '8px'
+                  marginBottom: '0.5em'
                 }}>
                   Confirmar Contraseña
                 </label>
@@ -583,10 +592,10 @@ const PanelEstudiantes = () => {
                     placeholder="Repite la contraseña"
                     style={{
                       width: '100%',
-                      padding: '14px 50px 14px 16px',
+                      padding: '0.875em 3.125em 0.875em 1em',
                       background: 'rgba(255,255,255,0.08)',
-                      border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                      borderRadius: '12px',
+                      border: '0.09375rem solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '0.75em',
                       color: '#fff',
                       fontSize: '1rem',
                       fontFamily: 'Montserrat, sans-serif'
@@ -597,7 +606,7 @@ const PanelEstudiantes = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     style={{
                       position: 'absolute',
-                      right: '16px',
+                      right: '1em',
                       top: '50%',
                       transform: 'translateY(-50%)',
                       background: 'none',
@@ -615,11 +624,11 @@ const PanelEstudiantes = () => {
               {resetError && (
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  border: '0.0625rem solid rgba(239, 68, 68, 0.4)',
                   color: '#fecaca',
                   padding: '0.75rem 1rem',
                   borderRadius: '0.5rem',
-                  marginBottom: '20px',
+                  marginBottom: '1.25em',
                   fontSize: '0.9rem',
                   textAlign: 'center'
                 }}>
@@ -643,11 +652,11 @@ const PanelEstudiantes = () => {
                   transition: 'all 0.3s ease',
                   fontFamily: 'Montserrat, sans-serif',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
+                  letterSpacing: '0.03125em',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '0.5em'
                 }}
               >
                 {resetLoading ? (
@@ -655,8 +664,8 @@ const PanelEstudiantes = () => {
                     <div style={{
                       width: '1.25rem',
                       height: '1.25rem',
-                      border: '2px solid rgba(0,0,0,0.3)',
-                      borderTop: '2px solid #000',
+                      border: '0.125rem solid rgba(0,0,0,0.3)',
+                      borderTop: '0.125rem solid #000',
                       borderRadius: '50%',
                       animation: 'spin 0.8s linear infinite'
                     }} />
@@ -674,10 +683,10 @@ const PanelEstudiantes = () => {
                 textAlign: 'center',
                 color: 'rgba(255,255,255,0.6)',
                 fontSize: '0.85rem',
-                marginTop: '20px',
+                marginTop: '1.25em',
                 marginBottom: 0
               }}>
-                <Info size={16} style={{ display: 'inline', marginRight: '6px' }} /> Tip: Usa una contraseña segura que incluya letras, números y símbolos
+                <Info size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> Tip: Usa una contraseña segura que incluya letras, números y símbolos
               </p>
             </div>
           </div>

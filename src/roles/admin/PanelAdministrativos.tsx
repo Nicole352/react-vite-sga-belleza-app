@@ -242,9 +242,9 @@ const PanelAdministrativos = () => {
         <div style={{
           width: isSmallScreen ? '16rem' : (sidebarCollapsed ? '4.5rem' : '16rem'),
           background: theme.sidebarBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: isSmallScreen ? '0' : '0 1rem 1rem 0',
-          padding: (isSmallScreen || !sidebarCollapsed) ? '0.625rem 1rem 1.25rem 1rem' : '0.625rem 0.375rem 1.25rem 0.375rem',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: isSmallScreen ? '0' : '0 1em 1em 0',
+          padding: (isSmallScreen || !sidebarCollapsed) ? '0.625em 1em 1.25em 1em' : '0.625em 0.375em 1.25em 0.375em',
           position: 'fixed',
           height: '100vh',
           left: isSmallScreen ? (mobileMenuOpen ? '0' : '-16rem') : '0',
@@ -268,7 +268,7 @@ const PanelAdministrativos = () => {
                 width: '2.25rem',
                 height: '2.25rem',
                 borderRadius: '0.5rem',
-                border: `1px solid ${theme.border}`,
+                border: `0.0625rem solid ${theme.border}`,
                 background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                 color: theme.accent,
                 cursor: 'pointer',
@@ -302,7 +302,7 @@ const PanelAdministrativos = () => {
                 width: '2.25rem',
                 height: '2.25rem',
                 borderRadius: '0.5rem',
-                border: `1px solid ${theme.border}`,
+                border: `0.0625rem solid ${theme.border}`,
                 background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                 color: theme.accent,
                 cursor: 'pointer',
@@ -324,16 +324,16 @@ const PanelAdministrativos = () => {
             alignItems: 'center',
             marginBottom: '0.5rem',
             paddingBottom: '0.25rem',
-            borderBottom: `1px solid ${theme.border}`,
-            paddingTop: '0px',
-            marginTop: (isSmallScreen || !sidebarCollapsed) ? '0px' : '3rem'
+            borderBottom: `0.0625rem solid ${theme.border}`,
+            paddingTop: '0',
+            marginTop: (isSmallScreen || !sidebarCollapsed) ? '0' : '3rem'
           }}>
             {(isSmallScreen || !sidebarCollapsed) && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
           {/* Navegación del Sidebar */}
-          <nav style={{ 
-            marginBottom: '2rem',
+          <nav style={{
+            marginBottom: '2em',
             flex: 1
           }}>
             {tabs.map((tab) => {
@@ -351,10 +351,10 @@ const PanelAdministrativos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: (sidebarCollapsed && !isSmallScreen) ? 'center' : 'flex-start',
-                    gap: '0.625rem',
-                    padding: (sidebarCollapsed && !isSmallScreen) ? '12px 0.5rem' : '12px 1rem',
-                    marginBottom: '0.375rem',
-                    borderRadius: '0.75rem',
+                    gap: '0.625em',
+                    padding: (sidebarCollapsed && !isSmallScreen) ? '0.75em 0.5em' : '0.75em 1em',
+                    marginBottom: '0.375em',
+                    borderRadius: '0.75em',
                     border: 'none',
                     background: activeTab === tab.id ?
                       'linear-gradient(135deg, #ef4444, #dc2626)' :
@@ -393,9 +393,9 @@ const PanelAdministrativos = () => {
 
         {/* Contenido Principal */}
         <div style={{
-          marginLeft: isSmallScreen ? '0' : (sidebarCollapsed ? '70px' : '17.5rem'),
+          marginLeft: isSmallScreen ? '0' : (sidebarCollapsed ? '4.375rem' : '17.5rem'),
           flex: 1,
-          padding: isMobile ? '12px' : '1.25rem',
+          padding: isMobile ? '0.75em' : '1.25rem',
           minHeight: '100vh',
           transition: 'margin-left 0.3s ease',
           width: isSmallScreen ? '100%' : 'auto',
@@ -405,10 +405,10 @@ const PanelAdministrativos = () => {
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: isMobile ? '12px' : '1.25rem',
-            padding: isMobile ? '12px 1rem' : '16px 2rem',
-            marginBottom: isMobile ? '12px' : '1rem',
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: isMobile ? '0.75em' : '1.25rem',
+            padding: isMobile ? '0.75em 1em' : '1em 2em',
+            marginBottom: isMobile ? '0.75em' : '1rem',
             boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
@@ -417,7 +417,7 @@ const PanelAdministrativos = () => {
             zIndex: 100
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.5em' : '1rem' }}>
               {/* Botón hamburguesa móvil */}
               {isSmallScreen && (
                 <button
@@ -425,8 +425,8 @@ const PanelAdministrativos = () => {
                   style={{
                     width: '2.5rem',
                     height: '2.5rem',
-                    borderRadius: '0.625rem',
-                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.625em',
+                    border: `0.0625rem solid ${theme.border}`,
                     background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                     color: theme.accent,
                     cursor: 'pointer',
@@ -440,10 +440,10 @@ const PanelAdministrativos = () => {
                   <Menu size={20} />
                 </button>
               )}
-              
+
               <div style={{
-                width: isMobile ? '36px' : '3rem',
-                height: isMobile ? '36px' : '3rem',
+                width: isMobile ? '2.25rem' : '3rem',
+                height: isMobile ? '2.25rem' : '3rem',
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '50%',
                 display: 'flex',
@@ -471,7 +471,7 @@ const PanelAdministrativos = () => {
                   color: theme.textSecondary,
                   margin: 0,
                   fontSize: isMobile ? '0.7rem' : '0.8rem',
-                  marginTop: '0.25rem'
+                  marginTop: '0.25em'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -479,7 +479,7 @@ const PanelAdministrativos = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
@@ -492,9 +492,9 @@ const PanelAdministrativos = () => {
           {/* Contenido de la sección activa */}
           <div style={{
             background: theme.contentBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: isMobile ? '12px' : '1.25rem',
-            minHeight: isMobile ? '400px' : '37.5rem',
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: isMobile ? '0.75em' : '1.25rem',
+            minHeight: isMobile ? '25rem' : '37.5rem',
             boxShadow: darkMode ? '0 0.125rem 0.625rem rgba(0, 0, 0, 0.5)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)'
           }}>
             {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}

@@ -380,8 +380,8 @@ const GestionPagosEstudiante = () => {
           <div style={{
             width: '3.125rem',
             height: '3.125rem',
-            border: '4px solid rgba(239, 68, 68, 0.2)',
-            borderTop: '4px solid #ef4444',
+            border: '0.25rem solid rgba(239, 68, 68, 0.2)',
+            borderTop: '0.25rem solid #ef4444',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
@@ -397,21 +397,21 @@ const GestionPagosEstudiante = () => {
       {/* Header */}
       <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)', 
+          color: 'rgba(255,255,255,0.95)',
           margin: '0 0 0.375rem 0',
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: isMobile ? '6px' : '0.625rem', 
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? '6px' : '0.625rem',
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <DollarSign size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Pagos {!isMobile && 'Mensuales'}
         </h2>
-        <p style={{ 
-          color: 'rgba(255,255,255,0.7)', 
-          margin: 0, 
-          fontSize: isMobile ? '0.75rem' : '0.85rem', 
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        <p style={{
+          color: 'rgba(255,255,255,0.7)',
+          margin: 0,
+          fontSize: isMobile ? '0.75rem' : '0.85rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
         }}>
           Verifica y administra los pagos mensuales de los estudiantes
         </p>
@@ -421,15 +421,15 @@ const GestionPagosEstudiante = () => {
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         backdropFilter: 'blur(1.25rem)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: isMobile ? '12px' : '1rem',
-        padding: isMobile ? '12px' : '1rem',
-        marginBottom: isMobile ? '12px' : '1rem'
+        border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+        borderRadius: isMobile ? '0.75em' : '1rem',
+        padding: isMobile ? '0.75em' : '1rem',
+        marginBottom: isMobile ? '0.75em' : '1rem'
       }}>
         <div className="responsive-filters">
-          <div style={{ 
-            position: 'relative', 
-            flex: 1, 
+          <div style={{
+            position: 'relative',
+            flex: 1,
             minWidth: isSmallScreen ? 'auto' : '17.5rem',
             width: isSmallScreen ? '100%' : 'auto'
           }}>
@@ -441,16 +441,16 @@ const GestionPagosEstudiante = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '10px 0.625rem 0.625rem 2.375rem',
+                padding: '0.625em 0.625rem 0.625rem 2.375rem',
                 background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '0.0625rem solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: '#fff',
                 fontSize: '0.8rem'
               }}
             />
           </div>
-          <div style={{ 
+          <div style={{
             minWidth: isSmallScreen ? 'auto' : 180,
             width: isSmallScreen ? '100%' : 'auto'
           }}>
@@ -484,19 +484,19 @@ const GestionPagosEstudiante = () => {
               style={{
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 backdropFilter: 'blur(1.25rem)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: isMobile ? '12px' : '1rem',
-                padding: isMobile ? '12px' : '1rem',
+                border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+                borderRadius: isMobile ? '0.75em' : '1rem',
+                padding: isMobile ? '0.75em' : '1rem',
                 boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
               }}
             >
               {/* Información Principal */}
-              <div style={{ marginBottom: isMobile ? '10px' : '0.875rem' }}>
-                <h3 style={{ 
-                  color: '#fff', 
-                  fontSize: isMobile ? '0.9rem' : '1rem', 
-                  fontWeight: '700', 
-                  margin: isMobile ? '0 0 0.5rem 0' : '0 0 0.75rem 0' 
+              <div style={{ marginBottom: isMobile ? '0.625em' : '0.875rem' }}>
+                <h3 style={{
+                  color: '#fff',
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontWeight: '700',
+                  margin: isMobile ? '0 0 0.5rem 0' : '0 0 0.75rem 0'
                 }}>
                   {pago.estudiante_nombre} {pago.estudiante_apellido}
                 </h3>
@@ -504,9 +504,9 @@ const GestionPagosEstudiante = () => {
                 {/* Primera fila - Información básica con selectores */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
-                  gap: isMobile ? '10px' : '0.75rem',
-                  marginBottom: isMobile ? '8px' : '0.625rem'
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(11.25rem, 90vw), 1fr))',
+                  gap: isMobile ? '0.625em' : '0.75rem',
+                  marginBottom: isMobile ? '0.5em' : '0.625rem'
                 }}>
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Identificación</div>
@@ -529,9 +529,9 @@ const GestionPagosEstudiante = () => {
                         }}
                         style={{
                           width: '100%',
-                          padding: '4px 0.5rem',
+                          padding: '0.25em 0.5rem',
                           background: 'rgba(255,255,255,0.1)',
-                          border: '1px solid rgba(255,255,255,0.2)',
+                          border: '0.0625rem solid rgba(255,255,255,0.2)',
                           borderRadius: '0.375rem',
                           color: '#fff',
                           fontSize: '0.85rem',
@@ -588,16 +588,16 @@ const GestionPagosEstudiante = () => {
                   </div>
 
                   <div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                      marginBottom: '0.25rem' 
+                    <div style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: isMobile ? '0.7rem' : '0.8rem',
+                      marginBottom: '0.25rem'
                     }}>
                       Vencimiento
                     </div>
-                    <div style={{ 
-                      color: '#fff', 
-                      fontSize: isMobile ? '0.8rem' : '0.9rem' 
+                    <div style={{
+                      color: '#fff',
+                      fontSize: isMobile ? '0.8rem' : '0.9rem'
                     }}>
                       {formatearFecha(pago.fecha_vencimiento)}
                     </div>
@@ -608,24 +608,24 @@ const GestionPagosEstudiante = () => {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: isMobile ? '1fr' : (pago.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)'),
-                  gap: isMobile ? '10px' : '0.75rem',
+                  gap: isMobile ? '0.625em' : '0.75rem',
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante */}
                   <div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                      marginBottom: '0.25rem' 
+                    <div style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: isMobile ? '0.7rem' : '0.8rem',
+                      marginBottom: '0.25rem'
                     }}>
                       {isMobile ? 'Nº Comprobante' : 'Número Comprobante'}
                     </div>
                     {pago.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(251, 191, 36, 0.1)',
-                        border: '1px solid rgba(251, 191, 36, 0.3)',
+                        border: '0.0625rem solid rgba(251, 191, 36, 0.3)',
                         color: '#fbbf24',
-                        padding: '6px 0.5rem',
+                        padding: '0.375em 0.5rem',
                         borderRadius: '0.375rem',
                         fontSize: '0.8rem',
                         fontWeight: '600',
@@ -638,9 +638,9 @@ const GestionPagosEstudiante = () => {
                     ) : (
                       <div style={{
                         background: 'rgba(107, 114, 128, 0.1)',
-                        border: '1px solid rgba(107, 114, 128, 0.3)',
+                        border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
                         color: 'rgba(255, 255, 255, 0.5)',
-                        padding: '6px 0.5rem',
+                        padding: '0.375em 0.5rem',
                         borderRadius: '0.375rem',
                         fontSize: '0.8rem',
                         textAlign: 'center',
@@ -659,9 +659,9 @@ const GestionPagosEstudiante = () => {
                       {(pago as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
-                          border: '1px solid rgba(180, 83, 9, 0.3)',
+                          border: '0.0625rem solid rgba(180, 83, 9, 0.3)',
                           color: '#b45309',
-                          padding: '6px 0.5rem',
+                          padding: '0.375em 0.5rem',
                           borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           fontWeight: '600',
@@ -673,9 +673,9 @@ const GestionPagosEstudiante = () => {
                       ) : (
                         <div style={{
                           background: 'rgba(107, 114, 128, 0.1)',
-                          border: '1px solid rgba(107, 114, 128, 0.3)',
+                          border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
                           color: 'rgba(255, 255, 255, 0.5)',
-                          padding: '6px 0.5rem',
+                          padding: '0.375em 0.5rem',
                           borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           textAlign: 'center',
@@ -690,10 +690,10 @@ const GestionPagosEstudiante = () => {
 
                   {/* Comprobante - Botón */}
                   <div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                      marginBottom: '0.25rem' 
+                    <div style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: isMobile ? '0.7rem' : '0.8rem',
+                      marginBottom: '0.25rem'
                     }}>
                       Comprobante
                     </div>
@@ -701,9 +701,9 @@ const GestionPagosEstudiante = () => {
                       onClick={() => openComprobanteModal(pago)}
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
                         color: '#10b981',
-                        padding: isMobile ? '8px 0.625rem' : '6px 0.5rem',
+                        padding: isMobile ? '0.5em 0.625rem' : '0.375em 0.5rem',
                         borderRadius: '0.375rem',
                         cursor: 'pointer',
                         fontSize: isMobile ? '0.75rem' : '0.7rem',
@@ -723,16 +723,16 @@ const GestionPagosEstudiante = () => {
 
                   {/* Estado */}
                   <div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: isMobile ? '0.65rem' : '0.7rem', 
-                      marginBottom: '0.1875rem' 
+                    <div style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: isMobile ? '0.65rem' : '0.7rem',
+                      marginBottom: '0.1875rem'
                     }}>
                       Estado
                     </div>
                     <div style={{
                       display: 'flex',
-                      padding: '5px 0.375rem',
+                      padding: '0.3125em 0.375rem',
                       borderRadius: '0.3125rem',
                       fontSize: '0.7rem',
                       fontWeight: '600',
@@ -744,10 +744,10 @@ const GestionPagosEstudiante = () => {
                         pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
                           pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
                             'rgba(156, 163, 175, 0.15)',
-                      border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                        pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                          pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                            '1px solid rgba(156, 163, 175, 0.3)',
+                      border: pago.estado === 'verificado' ? '0.0625rem solid rgba(16, 185, 129, 0.3)' :
+                        pago.estado === 'pagado' ? '0.0625rem solid rgba(251, 191, 36, 0.3)' :
+                          pago.estado === 'vencido' ? '0.0625rem solid rgba(239, 68, 68, 0.3)' :
+                            '0.0625rem solid rgba(156, 163, 175, 0.3)',
                       color: pago.estado === 'verificado' ? '#10b981' :
                         pago.estado === 'pagado' ? '#fbbf24' :
                           pago.estado === 'vencido' ? '#ef4444' :
@@ -763,10 +763,10 @@ const GestionPagosEstudiante = () => {
               <div style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
-                gap: isMobile ? '8px' : '0.625rem',
+                gap: isMobile ? '0.5em' : '0.625rem',
                 justifyContent: 'flex-end',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                paddingTop: isMobile ? '10px' : '0.75rem'
+                borderTop: '0.0625rem solid rgba(255,255,255,0.1)',
+                paddingTop: isMobile ? '0.625em' : '0.75rem'
               }}>
                 <button
                   onClick={() => {
@@ -775,9 +775,9 @@ const GestionPagosEstudiante = () => {
                   }}
                   style={{
                     background: 'rgba(59, 130, 246, 0.15)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
                     color: '#3b82f6',
-                    padding: '10px 1rem',
+                    padding: '0.625em 1rem',
                     borderRadius: '0.625rem',
                     cursor: 'pointer',
                     display: 'flex',
@@ -797,9 +797,9 @@ const GestionPagosEstudiante = () => {
                       disabled={procesando}
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
                         color: '#10b981',
-                        padding: '10px 1rem',
+                        padding: '0.625em 1rem',
                         borderRadius: '0.625rem',
                         cursor: procesando ? 'not-allowed' : 'pointer',
                         display: 'flex',
@@ -818,9 +818,9 @@ const GestionPagosEstudiante = () => {
                       disabled={procesando}
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
                         color: '#ef4444',
-                        padding: '10px 1rem',
+                        padding: '0.625em 1rem',
                         borderRadius: '0.625rem',
                         cursor: procesando ? 'not-allowed' : 'pointer',
                         display: 'flex',
@@ -845,7 +845,7 @@ const GestionPagosEstudiante = () => {
 
       {/* Modal de detalle PREMIUM */}
       {showModal && selectedPago && (
-        <div 
+        <div
           data-modal-overlay="true"
           className="responsive-modal-overlay"
           style={{
@@ -861,22 +861,22 @@ const GestionPagosEstudiante = () => {
             padding: isMobile ? '0' : '1.25rem',
           }}
         >
-          <div 
+          <div
             className="responsive-modal-content"
             style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: '100%',
-            maxWidth: isMobile ? '100%' : '50rem',
-            padding: isMobile ? '16px 1rem 1.5rem 1rem' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: isMobile ? '85vh' : '90vh',
-            overflowY: 'auto',
-            animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
-          }}>
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+              borderRadius: isMobile ? '1.25em 1.25rem 0 0' : '0.75rem',
+              width: '100%',
+              maxWidth: isMobile ? '100%' : '50rem',
+              padding: isMobile ? '1em 1rem 1.5rem 1rem' : '1.125em 1.75rem 1.375rem 1.75rem',
+              color: '#fff',
+              margin: '0 auto',
+              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
+              maxHeight: isMobile ? '85vh' : '90vh',
+              overflowY: 'auto',
+              animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
+            }}>
             {/* Header */}
             <div style={{
               display: 'flex',
@@ -886,14 +886,14 @@ const GestionPagosEstudiante = () => {
               paddingBottom: isMobile ? '12px' : '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: isMobile ? '1rem' : '1.25rem', 
-                fontWeight: '600', 
-                letterSpacing: '-0.02em', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: isMobile ? '6px' : '0.5rem' 
+              <h3 style={{
+                margin: 0,
+                fontSize: isMobile ? '1rem' : '1.25rem',
+                fontWeight: '600',
+                letterSpacing: '-0.02em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: isMobile ? '6px' : '0.5rem'
               }}>
                 <Download size={isMobile ? 18 : 20} />
                 {isMobile ? 'Detalle' : 'Detalle del Pago'}
@@ -1425,7 +1425,7 @@ const GestionPagosEstudiante = () => {
 
       {/* Modal Comprobante */}
       {showComprobanteModal && (
-        <div 
+        <div
           data-modal-overlay="true"
           className="responsive-modal-overlay"
           style={{
@@ -1441,22 +1441,22 @@ const GestionPagosEstudiante = () => {
             padding: isMobile ? '0' : '1.25rem',
           }}
         >
-          <div 
+          <div
             className="responsive-modal-content"
             style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: '100%',
-            maxWidth: isMobile ? '100%' : '50rem',
-            maxHeight: isMobile ? '85vh' : '90vh',
-            padding: isMobile ? '16px 1rem 1.5rem 1rem' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
-          }}>
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
+              width: '100%',
+              maxWidth: isMobile ? '100%' : '50rem',
+              maxHeight: isMobile ? '85vh' : '90vh',
+              padding: isMobile ? '16px 1rem 1.5rem 1rem' : '18px 1.75rem 1.375rem 1.75rem',
+              color: '#fff',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
+              animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
+            }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -1466,15 +1466,15 @@ const GestionPagosEstudiante = () => {
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <div>
-                <h3 style={{ 
-                  margin: 0, 
-                  color: '#10b981', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: isMobile ? '6px' : '0.5rem', 
-                  fontSize: isMobile ? '1rem' : '1.25rem', 
-                  fontWeight: '600', 
-                  letterSpacing: '-0.02em' 
+                <h3 style={{
+                  margin: 0,
+                  color: '#10b981',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? '6px' : '0.5rem',
+                  fontSize: isMobile ? '1rem' : '1.25rem',
+                  fontWeight: '600',
+                  letterSpacing: '-0.02em'
                 }}>
                   <Download size={isMobile ? 18 : 20} />
                   Comprobante{!isMobile && ' de Pago'}
@@ -1615,16 +1615,16 @@ const GestionPagosEstudiante = () => {
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: isMobile ? '12px' : '1.25rem',
         }}>
-          <div style={{ 
-            color: 'rgba(255,255,255,0.7)', 
+          <div style={{
+            color: 'rgba(255,255,255,0.7)',
             fontSize: isMobile ? '0.8rem' : '0.9rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {currentPage} de {totalPages} • Total: {estudiantesFiltrados.length} estudiantes
           </div>
-          <div style={{ 
-            display: 'flex', 
-            gap: '0.5rem', 
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -1648,7 +1648,7 @@ const GestionPagosEstudiante = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              <ChevronLeft size={isMobile ? 14 : 16} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -1691,7 +1691,7 @@ const GestionPagosEstudiante = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              {!isMobile && 'Siguiente'} 
+              {!isMobile && 'Siguiente'}
               <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
@@ -1700,7 +1700,7 @@ const GestionPagosEstudiante = () => {
 
       {/* Modal de Verificación Inteligente */}
       {showVerificacionModal && pagoAVerificar && (
-        <div 
+        <div
           data-modal-overlay="true"
           className="responsive-modal-overlay"
           style={{
@@ -1716,21 +1716,21 @@ const GestionPagosEstudiante = () => {
             padding: isMobile ? '0' : '1.25rem',
           }}
         >
-          <div 
+          <div
             className="responsive-modal-content"
             style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: '100%',
-            maxWidth: '31.25rem',
-            padding: '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-          }}>
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
+              width: '100%',
+              maxWidth: '31.25rem',
+              padding: '18px 1.75rem 1.375rem 1.75rem',
+              color: '#fff',
+              margin: '0 auto',
+              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}>
             {/* Header */}
             <div style={{
               display: 'flex',
@@ -1963,7 +1963,7 @@ const GestionPagosEstudiante = () => {
 
       {/* Modal de Rechazo Elegante */}
       {showRechazoModal && pagoARechazar && (
-        <div 
+        <div
           data-modal-overlay="true"
           className="responsive-modal-overlay"
           style={{
@@ -1979,21 +1979,21 @@ const GestionPagosEstudiante = () => {
             padding: isMobile ? '0' : '1.25rem',
           }}
         >
-          <div 
+          <div
             className="responsive-modal-content"
             style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '0.75rem',
-            width: '100%',
-            maxWidth: '31.25rem',
-            padding: '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-          }}>
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '0.75rem',
+              width: '100%',
+              maxWidth: '31.25rem',
+              padding: '18px 1.75rem 1.375rem 1.75rem',
+              color: '#fff',
+              margin: '0 auto',
+              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}>
             {/* Header del modal */}
             <div style={{
               display: 'flex',

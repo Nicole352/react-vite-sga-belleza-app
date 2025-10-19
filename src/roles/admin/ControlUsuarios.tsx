@@ -433,7 +433,7 @@ const ControlUsuarios = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '6px' : '0.625rem',
+          gap: isMobile ? '0.375rem' : '0.625rem',
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <Users size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
@@ -459,18 +459,18 @@ const ControlUsuarios = () => {
         {/* Total Usuarios */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.75em',
           transition: 'all 0.2s ease',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
             <div style={{
               background: 'rgba(239, 68, 68, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
+              borderRadius: '0.375em',
+              padding: '0.35em',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -478,7 +478,7 @@ const ControlUsuarios = () => {
             }}>
               <Users size={14} color="#ef4444" strokeWidth={2} />
             </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Usuarios</h3>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35em', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Usuarios</h3>
           </div>
           <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalUsuarios}
@@ -663,9 +663,9 @@ const ControlUsuarios = () => {
               }}
               style={{
                 width: '100%',
-                padding: '10px 0.75rem 0.625rem 2.5rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #e2e8f0',
+                padding: '0.625em 0.75em 0.625em 2.5em',
+                borderRadius: '0.5em',
+                border: '0.0625rem solid #e2e8f0',
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 fontSize: '0.9rem',
                 color: 'rgba(255,255,255,0.95)'
@@ -680,12 +680,11 @@ const ControlUsuarios = () => {
               setPage(1);
             }}
             style={{
-              padding: '10px 1rem',
-              borderRadius: '0.5rem',
-              border: '1px solid #e2e8f0',
+              padding: '0.625em 1em',
+              borderRadius: '0.5em',
+              border: '0.0625rem solid #e2e8f0',
               backgroundColor: 'rgba(255,255,255,0.1)',
               fontSize: '0.9rem',
-              color: 'rgba(255,255,255,0.95)',
               cursor: 'pointer',
               width: isMobile ? '100%' : 'auto'
             }}
@@ -703,9 +702,9 @@ const ControlUsuarios = () => {
               setPage(1);
             }}
             style={{
-              padding: '10px 1rem',
-              borderRadius: '0.5rem',
-              border: '1px solid #e2e8f0',
+              padding: '0.625em 1em',
+              borderRadius: '0.5em',
+              border: '0.0625rem solid #e2e8f0',
               backgroundColor: 'rgba(255,255,255,0.1)',
               fontSize: '0.9rem',
               color: 'rgba(255,255,255,0.95)',
@@ -764,14 +763,14 @@ const ControlUsuarios = () => {
 
             <div className="responsive-table-container" style={{
               overflowX: 'auto',
-              borderRadius: '0.75rem',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '0.75em',
+              border: '0.0625rem solid rgba(255, 255, 255, 0.1)',
               backgroundColor: 'transparent',
-              boxShadow: '0 0.0625rem 0.1875rem rgba(0,0,0,0.3)'
+              boxShadow: '0 0.0625rem 0.1875em rgba(0,0,0,0.3)'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{
-                  borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderBottom: '0.125rem solid rgba(255, 255, 255, 0.1)',
                   backgroundColor: 'rgba(255, 255, 255, 0.03)'
                 }}>
                   <tr>
@@ -787,7 +786,7 @@ const ControlUsuarios = () => {
                 <tbody>
                   {usuarios.map((usuario) => (
                     <tr key={usuario.id_usuario} style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      borderBottom: '0.0625rem solid rgba(255, 255, 255, 0.05)',
                       transition: 'background-color 0.2s'
                     }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}

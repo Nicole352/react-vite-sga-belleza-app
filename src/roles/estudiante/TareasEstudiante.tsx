@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, BookOpen, Upload, CheckCircle, Clock, 
+import {
+  ArrowLeft, BookOpen, Upload, CheckCircle, Clock,
   AlertCircle, FileText, Award, TrendingUp, Download,
   ChevronDown, ChevronUp
 } from 'lucide-react';
@@ -61,7 +61,7 @@ const TareasEstudiante: React.FC = () => {
   useEffect(() => {
     // Agrupar tareas por módulo
     const agrupados: { [key: string]: ModuloAgrupado } = {};
-    
+
     tareas.forEach(tarea => {
       const key = `${tarea.modulo_orden}-${tarea.modulo_nombre}`;
       if (!agrupados[key]) {
@@ -165,7 +165,7 @@ const TareasEstudiante: React.FC = () => {
       if (tareaSeleccionada?.id_entrega) {
         // Actualizar entrega existente
         await axios.put(`${API_BASE}/entregas/${tareaSeleccionada.id_entrega}`, formData, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
@@ -174,7 +174,7 @@ const TareasEstudiante: React.FC = () => {
       } else {
         // Crear nueva entrega
         await axios.post(`${API_BASE}/entregas`, formData, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
@@ -250,13 +250,13 @@ const TareasEstudiante: React.FC = () => {
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid rgba(251, 146, 60, 0.3)',
-            borderTop: '4px solid #fb923c',
+            width: '3.125rem',
+            height: '3.125rem',
+            border: '0.25rem solid rgba(251, 146, 60, 0.3)',
+            borderTop: '0.25rem solid #fb923c',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
+            margin: '0 auto 1.25em'
           }} />
           <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)' }}>Cargando tareas...</p>
         </div>
@@ -271,36 +271,36 @@ const TareasEstudiante: React.FC = () => {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)',
-      padding: '40px 20px'
+      padding: '2.5em 1.25em'
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '87.5rem', margin: '0 auto' }}>
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '20px',
-          padding: '30px',
-          marginBottom: '30px',
-          border: '1px solid rgba(251, 146, 60, 0.2)'
+          backdropFilter: 'blur(0.625rem)',
+          borderRadius: '1.25em',
+          padding: '1.875em',
+          marginBottom: '1.875em',
+          border: '0.0625rem solid rgba(251, 146, 60, 0.2)'
         }}>
           <button
             onClick={() => navigate('/panel/estudiante')}
             style={{
               background: 'rgba(251, 146, 60, 0.1)',
-              border: '1px solid rgba(251, 146, 60, 0.3)',
-              borderRadius: '12px',
-              padding: '10px 20px',
+              border: '0.0625rem solid rgba(251, 146, 60, 0.3)',
+              borderRadius: '0.75em',
+              padding: '0.625em 1.25em',
               color: '#fb923c',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginBottom: '20px',
+              gap: '0.5em',
+              marginBottom: '1.25em',
               cursor: 'pointer',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(251, 146, 60, 0.2)';
-              e.currentTarget.style.transform = 'translateX(-5px)';
+              e.currentTarget.style.transform = 'translateX(-0.3125em)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(251, 146, 60, 0.1)';
@@ -311,16 +311,16 @@ const TareasEstudiante: React.FC = () => {
             Volver a Mis Cursos
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25em' }}>
             <div>
               <h1 style={{
                 fontSize: '2rem',
                 fontWeight: '700',
                 color: '#fff',
-                marginBottom: '10px',
+                marginBottom: '0.625em',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '15px'
+                gap: '0.9375em'
               }}>
                 <BookOpen size={32} style={{ color: '#fb923c' }} />
                 {curso?.nombre}
@@ -333,12 +333,12 @@ const TareasEstudiante: React.FC = () => {
             {promedioGeneral && (
               <div style={{
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                borderRadius: '15px',
-                padding: '20px 30px',
+                borderRadius: '0.9375em',
+                padding: '1.25em 1.875em',
                 textAlign: 'center',
-                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                boxShadow: '0 0.25rem 0.9375rem rgba(16, 185, 129, 0.3)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.3125em' }}>
                   <Award size={24} style={{ color: '#fff' }} />
                   <span style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '500' }}>Promedio General</span>
                 </div>
@@ -350,41 +350,41 @@ const TareasEstudiante: React.FC = () => {
           </div>
 
           {/* Estadísticas */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '25px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(12.5rem, 90vw), 1fr))', gap: '0.9375em', marginTop: '1.5625em' }}>
             <div style={{
               background: 'rgba(255,255,255,0.05)',
-              borderRadius: '12px',
-              padding: '15px',
-              border: '1px solid rgba(255,255,255,0.1)'
+              borderRadius: '0.75em',
+              padding: '0.9375em',
+              border: '0.0625rem solid rgba(255,255,255,0.1)'
             }}>
-              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '5px' }}>Total Tareas</div>
+              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.3125em' }}>Total Tareas</div>
               <div style={{ color: '#fff', fontSize: '1.8rem', fontWeight: '700' }}>{stats.total}</div>
             </div>
             <div style={{
               background: 'rgba(251, 191, 36, 0.1)',
-              borderRadius: '12px',
-              padding: '15px',
-              border: '1px solid rgba(251, 191, 36, 0.2)'
+              borderRadius: '0.75em',
+              padding: '0.9375em',
+              border: '0.0625rem solid rgba(251, 191, 36, 0.2)'
             }}>
-              <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '5px' }}>Pendientes</div>
+              <div style={{ color: '#fbbf24', fontSize: '0.85rem', marginBottom: '0.3125em' }}>Pendientes</div>
               <div style={{ color: '#fbbf24', fontSize: '1.8rem', fontWeight: '700' }}>{stats.pendientes}</div>
             </div>
             <div style={{
               background: 'rgba(59, 130, 246, 0.1)',
-              borderRadius: '12px',
-              padding: '15px',
-              border: '1px solid rgba(59, 130, 246, 0.2)'
+              borderRadius: '0.75em',
+              padding: '0.9375em',
+              border: '0.0625rem solid rgba(59, 130, 246, 0.2)'
             }}>
-              <div style={{ color: '#3b82f6', fontSize: '0.85rem', marginBottom: '5px' }}>Entregadas</div>
+              <div style={{ color: '#3b82f6', fontSize: '0.85rem', marginBottom: '0.3125em' }}>Entregadas</div>
               <div style={{ color: '#3b82f6', fontSize: '1.8rem', fontWeight: '700' }}>{stats.entregadas}</div>
             </div>
             <div style={{
               background: 'rgba(16, 185, 129, 0.1)',
-              borderRadius: '12px',
-              padding: '15px',
-              border: '1px solid rgba(16, 185, 129, 0.2)'
+              borderRadius: '0.75em',
+              padding: '0.9375em',
+              border: '0.0625rem solid rgba(16, 185, 129, 0.2)'
             }}>
-              <div style={{ color: '#10b981', fontSize: '0.85rem', marginBottom: '5px' }}>Calificadas</div>
+              <div style={{ color: '#10b981', fontSize: '0.85rem', marginBottom: '0.3125em' }}>Calificadas</div>
               <div style={{ color: '#10b981', fontSize: '1.8rem', fontWeight: '700' }}>{stats.calificadas}</div>
             </div>
           </div>
@@ -394,14 +394,14 @@ const TareasEstudiante: React.FC = () => {
         {modulosAgrupados.length === 0 ? (
           <div style={{
             background: 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '60px 30px',
+            backdropFilter: 'blur(0.625rem)',
+            borderRadius: '1.25em',
+            padding: '3.75em 1.875em',
             textAlign: 'center',
-            border: '1px solid rgba(255,255,255,0.1)'
+            border: '0.0625rem solid rgba(255,255,255,0.1)'
           }}>
-            <FileText size={64} style={{ color: 'rgba(255,255,255,0.3)', margin: '0 auto 20px' }} />
-            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '10px' }}>
+            <FileText size={64} style={{ color: 'rgba(255,255,255,0.3)', margin: '0 auto 1.25em' }} />
+            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.625em' }}>
               No hay tareas disponibles
             </h3>
             <p style={{ color: 'rgba(255,255,255,0.6)' }}>
@@ -409,35 +409,35 @@ const TareasEstudiante: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25em' }}>
             {modulosAgrupados.map((modulo) => (
               <div
                 key={modulo.orden}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
-                  backdropFilter: 'blur(10px)',
-                  borderRadius: '20px',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(0.625rem)',
+                  borderRadius: '1.25em',
+                  border: '0.0625rem solid rgba(255,255,255,0.1)',
                   overflow: 'hidden'
                 }}
               >
                 {/* Header del Módulo */}
                 <div
                   style={{
-                    padding: '25px 30px',
+                    padding: '1.5625em 1.875em',
                     background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%)',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    borderBottom: '0.0625rem solid rgba(255,255,255,0.1)',
                     cursor: 'pointer'
                   }}
                   onClick={() => toggleModulo(modulo.orden)}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.9375em' }}>
                       <span style={{
                         background: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
                         color: '#fff',
-                        padding: '6px 12px',
-                        borderRadius: '8px',
+                        padding: '0.375em 0.75em',
+                        borderRadius: '0.5em',
                         fontSize: '0.9rem',
                         fontWeight: '600'
                       }}>
@@ -461,8 +461,8 @@ const TareasEstudiante: React.FC = () => {
 
                 {/* Lista de Tareas */}
                 {modulosExpandidos[modulo.orden] && (
-                  <div style={{ padding: '20px 30px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div style={{ padding: '1.25em 1.875em' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9375em' }}>
                       {modulo.tareas.map((tarea) => {
                         const estadoColor = getEstadoColor(tarea.estado_estudiante);
                         const isVencida = new Date(tarea.fecha_limite) < new Date() && tarea.estado_estudiante === 'pendiente';
@@ -472,29 +472,29 @@ const TareasEstudiante: React.FC = () => {
                             key={tarea.id_tarea}
                             style={{
                               background: 'rgba(255,255,255,0.03)',
-                              border: `1px solid ${isVencida ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.1)'}`,
-                              borderRadius: '12px',
-                              padding: '20px',
+                              border: `0.0625rem solid ${isVencida ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.1)'}`,
+                              borderRadius: '0.75em',
+                              padding: '1.25em',
                               transition: 'all 0.3s ease'
                             }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.25em', flexWrap: 'wrap' }}>
                               <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.625em', flexWrap: 'wrap' }}>
                                   <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
                                     {tarea.titulo}
                                   </h4>
                                   <span style={{
                                     background: estadoColor.bg,
                                     color: estadoColor.text,
-                                    border: `1px solid ${estadoColor.border}`,
-                                    padding: '4px 12px',
-                                    borderRadius: '8px',
+                                    border: `0.0625rem solid ${estadoColor.border}`,
+                                    padding: '0.25em 0.75em',
+                                    borderRadius: '0.5em',
                                     fontSize: '0.8rem',
                                     fontWeight: '500',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '5px'
+                                    gap: '0.3125em'
                                   }}>
                                     {getEstadoIcon(tarea.estado_estudiante)}
                                     {getEstadoTexto(tarea.estado_estudiante)}
@@ -503,9 +503,9 @@ const TareasEstudiante: React.FC = () => {
                                     <span style={{
                                       background: 'rgba(239, 68, 68, 0.1)',
                                       color: '#ef4444',
-                                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                                      padding: '4px 12px',
-                                      borderRadius: '8px',
+                                      border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+                                      padding: '0.25em 0.75em',
+                                      borderRadius: '0.5em',
                                       fontSize: '0.8rem',
                                       fontWeight: '500'
                                     }}>
@@ -515,22 +515,22 @@ const TareasEstudiante: React.FC = () => {
                                 </div>
 
                                 {tarea.descripcion && (
-                                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '12px' }}>
+                                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '0.75em' }}>
                                     {tarea.descripcion}
                                   </p>
                                 )}
 
-                                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', flexWrap: 'wrap' }}>
-                                  <span style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ display: 'flex', gap: '1.25em', fontSize: '0.85rem', flexWrap: 'wrap' }}>
+                                  <span style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '0.3125em' }}>
                                     <Clock size={14} />
                                     Límite: {new Date(tarea.fecha_limite).toLocaleDateString()}
                                   </span>
-                                  <span style={{ color: '#fb923c', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  <span style={{ color: '#fb923c', display: 'flex', alignItems: 'center', gap: '0.3125em' }}>
                                     <Award size={14} />
                                     Nota máx: {tarea.nota_maxima}
                                   </span>
                                   {tarea.fecha_entrega && (
-                                    <span style={{ color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span style={{ color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.3125em' }}>
                                       <Upload size={14} />
                                       Entregado: {new Date(tarea.fecha_entrega).toLocaleDateString()}
                                     </span>
@@ -540,19 +540,19 @@ const TareasEstudiante: React.FC = () => {
                                 {/* Calificación */}
                                 {tarea.estado_estudiante === 'calificado' && tarea.nota !== null && (
                                   <div style={{
-                                    marginTop: '15px',
-                                    padding: '15px',
-                                    background: tarea.nota >= tarea.nota_minima_aprobacion 
-                                      ? 'rgba(16, 185, 129, 0.1)' 
+                                    marginTop: '0.9375em',
+                                    padding: '0.9375em',
+                                    background: tarea.nota >= tarea.nota_minima_aprobacion
+                                      ? 'rgba(16, 185, 129, 0.1)'
                                       : 'rgba(239, 68, 68, 0.1)',
-                                    border: `1px solid ${tarea.nota >= tarea.nota_minima_aprobacion 
-                                      ? 'rgba(16, 185, 129, 0.3)' 
+                                    border: `0.0625rem solid ${tarea.nota >= tarea.nota_minima_aprobacion
+                                      ? 'rgba(16, 185, 129, 0.3)'
                                       : 'rgba(239, 68, 68, 0.3)'}`,
-                                    borderRadius: '10px'
+                                    borderRadius: '0.625em'
                                   }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.9375em', marginBottom: '0.625em' }}>
                                       <div>
-                                        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: '5px' }}>
+                                        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.3125em' }}>
                                           Tu Calificación
                                         </div>
                                         <div style={{
@@ -564,10 +564,10 @@ const TareasEstudiante: React.FC = () => {
                                         </div>
                                       </div>
                                       <div style={{
-                                        padding: '8px 16px',
-                                        borderRadius: '8px',
-                                        background: tarea.resultado === 'aprobado' 
-                                          ? 'rgba(16, 185, 129, 0.2)' 
+                                        padding: '0.5em 1em',
+                                        borderRadius: '0.5em',
+                                        background: tarea.resultado === 'aprobado'
+                                          ? 'rgba(16, 185, 129, 0.2)'
                                           : 'rgba(239, 68, 68, 0.2)',
                                         color: tarea.resultado === 'aprobado' ? '#10b981' : '#ef4444',
                                         fontWeight: '600',
@@ -578,7 +578,7 @@ const TareasEstudiante: React.FC = () => {
                                     </div>
                                     {tarea.comentario_docente && (
                                       <div>
-                                        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: '5px' }}>
+                                        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.3125em' }}>
                                           Comentario del docente:
                                         </div>
                                         <p style={{ color: '#fff', fontSize: '0.9rem', margin: 0 }}>
@@ -591,31 +591,31 @@ const TareasEstudiante: React.FC = () => {
                               </div>
 
                               {/* Botones de acción */}
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625em' }}>
                                 {tarea.estado_estudiante === 'pendiente' && (
                                   <button
                                     onClick={() => handleEntregarTarea(tarea)}
                                     style={{
                                       background: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
                                       border: 'none',
-                                      borderRadius: '10px',
-                                      padding: '10px 20px',
+                                      borderRadius: '0.625em',
+                                      padding: '0.625em 1.25em',
                                       color: '#fff',
                                       fontWeight: '600',
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: '8px',
+                                      gap: '0.5em',
                                       cursor: 'pointer',
                                       transition: 'all 0.3s ease',
-                                      boxShadow: '0 4px 15px rgba(251, 146, 60, 0.3)'
+                                      boxShadow: '0 0.25rem 0.9375rem rgba(251, 146, 60, 0.3)'
                                     }}
                                     onMouseEnter={(e) => {
-                                      e.currentTarget.style.transform = 'translateY(-2px)';
-                                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(251, 146, 60, 0.4)';
+                                      e.currentTarget.style.transform = 'translateY(-0.125rem)';
+                                      e.currentTarget.style.boxShadow = '0 0.375rem 1.25rem rgba(251, 146, 60, 0.4)';
                                     }}
                                     onMouseLeave={(e) => {
                                       e.currentTarget.style.transform = 'translateY(0)';
-                                      e.currentTarget.style.boxShadow = '0 4px 15px rgba(251, 146, 60, 0.3)';
+                                      e.currentTarget.style.boxShadow = '0 0.25rem 0.9375rem rgba(251, 146, 60, 0.3)';
                                     }}
                                   >
                                     <Upload size={18} />
@@ -629,14 +629,14 @@ const TareasEstudiante: React.FC = () => {
                                       onClick={() => window.open(`${API_BASE}/entregas/${tarea.id_entrega}/archivo`, '_blank')}
                                       style={{
                                         background: 'rgba(59, 130, 246, 0.1)',
-                                        border: '1px solid rgba(59, 130, 246, 0.3)',
-                                        borderRadius: '10px',
-                                        padding: '10px 20px',
+                                        border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                                        borderRadius: '0.625em',
+                                        padding: '0.625em 1.25em',
                                         color: '#3b82f6',
                                         fontWeight: '600',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '8px',
+                                        gap: '0.5em',
                                         cursor: 'pointer',
                                         transition: 'all 0.3s ease'
                                       }}
@@ -651,14 +651,14 @@ const TareasEstudiante: React.FC = () => {
                                         onClick={() => handleEntregarTarea(tarea)}
                                         style={{
                                           background: 'rgba(251, 146, 60, 0.1)',
-                                          border: '1px solid rgba(251, 146, 60, 0.3)',
-                                          borderRadius: '10px',
-                                          padding: '10px 20px',
+                                          border: '0.0625rem solid rgba(251, 146, 60, 0.3)',
+                                          borderRadius: '0.625em',
+                                          padding: '0.625em 1.25em',
                                           color: '#fb923c',
                                           fontWeight: '600',
                                           display: 'flex',
                                           alignItems: 'center',
-                                          gap: '8px',
+                                          gap: '0.5em',
                                           cursor: 'pointer',
                                           transition: 'all 0.3s ease'
                                         }}
@@ -698,34 +698,34 @@ const TareasEstudiante: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
-          padding: '20px'
+          padding: '1.25em'
         }}>
           <div style={{
             background: '#1a1a2e',
-            borderRadius: '20px',
-            padding: '30px',
-            maxWidth: '600px',
+            borderRadius: '1.25em',
+            padding: '1.875em',
+            maxWidth: '37.5rem',
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
-            border: '1px solid rgba(251, 146, 60, 0.3)'
+            border: '0.0625rem solid rgba(251, 146, 60, 0.3)'
           }}>
-            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '10px' }}>
+            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.625em' }}>
               {tareaSeleccionada.id_entrega ? 'Re-entregar Tarea' : 'Entregar Tarea'}
             </h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '25px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1.5625em' }}>
               {tareaSeleccionada.titulo}
             </p>
 
             {tareaSeleccionada.instrucciones && (
               <div style={{
                 background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '12px',
-                padding: '15px',
-                marginBottom: '20px'
+                border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '0.75em',
+                padding: '0.9375em',
+                marginBottom: '1.25em'
               }}>
-                <div style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
+                <div style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5em' }}>
                   📋 Instrucciones:
                 </div>
                 <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', margin: 0, whiteSpace: 'pre-wrap' }}>
@@ -734,8 +734,8 @@ const TareasEstudiante: React.FC = () => {
               </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ color: '#fff', display: 'block', marginBottom: '10px', fontWeight: '600' }}>
+            <div style={{ marginBottom: '1.25em' }}>
+              <label style={{ color: '#fff', display: 'block', marginBottom: '0.625em', fontWeight: '600' }}>
                 Archivo *
               </label>
               <input
@@ -744,24 +744,24 @@ const TareasEstudiante: React.FC = () => {
                 onChange={handleFileChange}
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '0.75em',
                   background: 'rgba(255,255,255,0.05)',
-                  border: '2px dashed rgba(251, 146, 60, 0.3)',
-                  borderRadius: '12px',
+                  border: '0.125rem dashed rgba(251, 146, 60, 0.3)',
+                  borderRadius: '0.75em',
                   color: '#fff',
                   cursor: 'pointer'
                 }}
               />
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '8px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '0.5em' }}>
                 Formatos permitidos: PDF, JPG, PNG, WEBP (máx. 5MB)
               </p>
               {archivo && (
                 <div style={{
-                  marginTop: '10px',
-                  padding: '10px',
+                  marginTop: '0.625em',
+                  padding: '0.625em',
                   background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '8px',
+                  border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '0.5em',
                   color: '#10b981',
                   fontSize: '0.9rem'
                 }}>
@@ -770,8 +770,8 @@ const TareasEstudiante: React.FC = () => {
               )}
             </div>
 
-            <div style={{ marginBottom: '25px' }}>
-              <label style={{ color: '#fff', display: 'block', marginBottom: '10px', fontWeight: '600' }}>
+            <div style={{ marginBottom: '1.5625em' }}>
+              <label style={{ color: '#fff', display: 'block', marginBottom: '0.625em', fontWeight: '600' }}>
                 Comentario (opcional)
               </label>
               <textarea
@@ -780,11 +780,11 @@ const TareasEstudiante: React.FC = () => {
                 placeholder="Agrega un comentario sobre tu entrega..."
                 style={{
                   width: '100%',
-                  minHeight: '100px',
-                  padding: '12px',
+                  minHeight: '6.25rem',
+                  padding: '0.75em',
                   background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
+                  border: '0.0625rem solid rgba(255,255,255,0.1)',
+                  borderRadius: '0.75em',
                   color: '#fff',
                   fontSize: '0.95rem',
                   resize: 'vertical'
@@ -792,15 +792,15 @@ const TareasEstudiante: React.FC = () => {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '0.625em', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setShowModalEntrega(false)}
                 disabled={uploading}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '10px',
-                  padding: '12px 24px',
+                  border: '0.0625rem solid rgba(255,255,255,0.1)',
+                  borderRadius: '0.625em',
+                  padding: '0.75em 1.5em',
                   color: '#fff',
                   fontWeight: '600',
                   cursor: uploading ? 'not-allowed' : 'pointer',
@@ -813,27 +813,27 @@ const TareasEstudiante: React.FC = () => {
                 onClick={handleSubmitEntrega}
                 disabled={uploading || (!archivo && !tareaSeleccionada.id_entrega)}
                 style={{
-                  background: uploading 
-                    ? 'rgba(251, 146, 60, 0.5)' 
+                  background: uploading
+                    ? 'rgba(251, 146, 60, 0.5)'
                     : 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
                   border: 'none',
-                  borderRadius: '10px',
-                  padding: '12px 24px',
+                  borderRadius: '0.625em',
+                  padding: '0.75em 1.5em',
                   color: '#fff',
                   fontWeight: '600',
                   cursor: uploading || (!archivo && !tareaSeleccionada.id_entrega) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5em'
                 }}
               >
                 {uploading ? (
                   <>
                     <div style={{
-                      width: '16px',
-                      height: '16px',
-                      border: '2px solid rgba(255,255,255,0.3)',
-                      borderTop: '2px solid #fff',
+                      width: '1rem',
+                      height: '1rem',
+                      border: '0.125rem solid rgba(255,255,255,0.3)',
+                      borderTop: '0.125rem solid #fff',
                       borderRadius: '50%',
                       animation: 'spin 1s linear infinite'
                     }} />

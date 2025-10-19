@@ -66,7 +66,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
     try {
       setLoadingCuotas(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
@@ -105,7 +105,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       setLoading(true);
       setError(null);
       const token = sessionStorage.getItem('auth_token');
-      
+
       if (!token) {
         throw new Error('No hay token de autenticación');
       }
@@ -180,9 +180,9 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
   if (loading) {
     return (
-      <div style={{ 
-        padding: '40px', 
-        textAlign: 'center', 
+      <div style={{
+        padding: '2.5em',
+        textAlign: 'center',
         color: '#6b7280',
         fontFamily: 'Montserrat, sans-serif'
       }}>
@@ -199,21 +199,21 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
           backgroundColor: '#f9fafb',
           color: '#1f2937',
           fontFamily: 'Montserrat, sans-serif',
-          padding: '20px'
+          padding: '1.25em'
         }}
       >
-        <AlertCircle size={48} style={{ marginBottom: '16px', color: '#ef4444' }} />
-        <div style={{ fontSize: '1.1rem', marginBottom: '8px' }}>Error al cargar datos</div>
+        <AlertCircle size={48} style={{ marginBottom: '1em', color: '#ef4444' }} />
+        <div style={{ fontSize: '1.1rem', marginBottom: '0.5em' }}>Error al cargar datos</div>
         <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{error}</div>
         <button
           onClick={loadData}
           style={{
-            marginTop: '16px',
-            padding: '8px 16px',
+            marginTop: '1em',
+            padding: '0.5em 1em',
             backgroundColor: '#3b82f6',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
+            borderRadius: '0.375em',
             cursor: 'pointer'
           }}
         >
@@ -226,16 +226,17 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '150vh',
         backgroundColor: darkMode ? '#1a1a1a' : '#f9fafb',
         color: darkMode ? '#fff' : '#1f2937',
         fontFamily: 'Montserrat, sans-serif',
-        padding: '12px'
+        padding: '0.75em',
+        paddingBottom: '5em'
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+      <div style={{ marginBottom: '0.5em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.25em' }}>
           <CreditCard size={16} style={{ color: '#3b82f6' }} />
           <h1 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
             Gestión de Pagos
@@ -249,16 +250,16 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       {/* Info compacta */}
       <div style={{
         background: darkMode ? 'rgba(255,255,255,0.05)' : '#ffffff',
-        border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid #e5e7eb',
-        borderRadius: '10px',
-        padding: '8px',
-        marginBottom: '8px',
+        border: darkMode ? '0.0625rem solid rgba(255,255,255,0.15)' : '0.0625rem solid #e5e7eb',
+        borderRadius: '0.625em',
+        padding: '0.5em',
+        marginBottom: '0.5em',
         display: 'grid',
         gridTemplateColumns: '1fr auto',
         alignItems: 'center',
-        gap: '6px'
+        gap: '0.375em'
       }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', fontSize: '0.78rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5em', alignItems: 'center', fontSize: '0.78rem' }}>
           <span style={{ fontWeight: 700, color: darkMode ? '#fff' : '#1f2937' }}>Disponible</span>
           <span style={{ color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Pagos online seguros</span>
           <span style={{ color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Historial de pagos</span>
@@ -275,8 +276,8 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
             background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
             color: '#fff',
             border: 'none',
-            borderRadius: '8px',
-            padding: '6px 10px',
+            borderRadius: '0.5em',
+            padding: '0.375em 0.625em',
             fontSize: '0.8rem',
             fontWeight: 700,
             cursor: 'pointer'
@@ -288,20 +289,20 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
       {/* Resumen de pagos */}
       {resumenPagos && (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(4, minmax(110px, 1fr))', 
-          gap: '6px', 
-          marginBottom: '8px' 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, minmax(min(6.875rem, 90vw), 1fr))',
+          gap: '0.375em',
+          marginBottom: '0.5em'
         }}>
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
-            border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '6px',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+            borderRadius: '0.5em',
+            padding: '0.375em',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#3b82f6', marginBottom: '2px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#3b82f6', marginBottom: '0.125em' }}>
               {resumenPagos.total_cuotas}
             </div>
             <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Total Cuotas</div>
@@ -309,12 +310,12 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
-            border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-            borderRadius: '10px',
-            padding: '6px',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+            borderRadius: '0.625em',
+            padding: '0.375em',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#10b981', marginBottom: '2px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#10b981', marginBottom: '0.125em' }}>
               {resumenPagos.cuotas_verificadas}
             </div>
             <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Verificadas</div>
@@ -322,12 +323,12 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
-            border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-            borderRadius: '10px',
-            padding: '6px',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+            borderRadius: '0.625em',
+            padding: '0.375em',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#f59e0b', marginBottom: '2px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#f59e0b', marginBottom: '0.125em' }}>
               {resumenPagos.cuotas_pendientes}
             </div>
             <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Pendientes</div>
@@ -335,12 +336,12 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
-            border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-            borderRadius: '10px',
-            padding: '6px',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+            borderRadius: '0.625em',
+            padding: '0.375em',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ef4444', marginBottom: '2px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ef4444', marginBottom: '0.125em' }}>
               {formatearMonto(resumenPagos.monto_pendiente)}
             </div>
             <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>Monto Pendiente</div>
@@ -349,21 +350,21 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       )}
 
       {/* Cursos con pagos pendientes */}
-      <div id="cursos-pagos" style={{ marginBottom: '12px' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '8px', color: darkMode ? '#fff' : '#1f2937' }}>
+      <div id="cursos-pagos" style={{ marginBottom: '0.75em' }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5em', color: darkMode ? '#fff' : '#1f2937' }}>
           Cursos con Pagos Pendientes
         </h2>
 
         {cursosConPagos.length === 0 ? (
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
-            border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-            borderRadius: '12px',
-            padding: '40px',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+            borderRadius: '0.75em',
+            padding: '2.5em',
             textAlign: 'center'
           }}>
-            <CheckCircle size={48} style={{ color: '#10b981', marginBottom: '16px' }} />
-            <div style={{ fontSize: '1.1rem', color: darkMode ? '#fff' : '#1f2937', marginBottom: '8px' }}>
+            <CheckCircle size={48} style={{ color: '#10b981', marginBottom: '1em' }} />
+            <div style={{ fontSize: '1.1rem', color: darkMode ? '#fff' : '#1f2937', marginBottom: '0.5em' }}>
               ¡Excelente! No tienes pagos pendientes
             </div>
             <div style={{ fontSize: '0.9rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
@@ -371,20 +372,20 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
             {cursosConPagos.map((curso) => (
               <div
                 key={curso.id_matricula}
                 style={{
                   backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
-                  border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-                  borderRadius: '10px',
-                  padding: '10px'
+                  border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+                  borderRadius: '0.625em',
+                  padding: '0.625em'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5em' }}>
                   <div>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: '800', margin: '0 0 2px 0', color: darkMode ? '#fff' : '#1f2937' }}>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: '800', margin: '0 0 0.125em 0', color: darkMode ? '#fff' : '#1f2937' }}>
                       {curso.curso_nombre}
                     </h3>
                     <div style={{ fontSize: '0.78rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
@@ -396,12 +397,12 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 10px',
+                      gap: '0.375em',
+                      padding: '0.375em 0.625em',
                       backgroundColor: '#3b82f6',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '8px',
+                      borderRadius: '0.5em',
                       fontSize: '0.8rem',
                       fontWeight: '600',
                       cursor: 'pointer'
@@ -412,30 +413,30 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 90vw), 1fr))', gap: '0.375em' }}>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '2px' }}>Cuotas Pendientes</div>
+                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Cuotas Pendientes</div>
                     <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#f59e0b' }}>
                       {curso.cuotas_pendientes}
                     </div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '2px' }}>Cuotas Vencidas</div>
+                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Cuotas Vencidas</div>
                     <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ef4444' }}>
                       {curso.cuotas_vencidas}
                     </div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '2px' }}>Monto Pendiente</div>
+                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Monto Pendiente</div>
                     <div style={{ fontSize: '0.95rem', fontWeight: '800', color: darkMode ? '#fff' : '#1f2937' }}>
                       {formatearMonto(curso.monto_pendiente)}
                     </div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '2px' }}>Próximo Vencimiento</div>
+                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Próximo Vencimiento</div>
                     <div style={{ fontSize: '0.85rem', fontWeight: '700', color: darkMode ? '#fff' : '#1f2937' }}>
                       {formatearFecha(curso.proxima_fecha_vencimiento)}
                     </div>
@@ -455,33 +456,38 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.55)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(0.375rem)',
           zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '12px'
+          padding: '1em',
+          overflowY: 'auto'
         }}>
           <div style={{
-            backgroundColor: darkMode ? 'rgba(0,0,0,0.92)' : '#ffffff',
-            borderRadius: '10px',
+            backgroundColor: darkMode ? 'rgba(0,0,0,0.95)' : '#ffffff',
+            borderRadius: '0.75em',
             width: '100%',
-            maxWidth: '760px',
-            maxHeight: '78vh',
+            maxWidth: '50rem',
+            maxHeight: '85vh',
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            border: darkMode ? '0.0625rem solid rgba(255,255,255,0.15)' : '0.0625rem solid #e5e7eb',
+            boxShadow: darkMode ? '0 1.25rem 3rem rgba(0,0,0,0.5)' : '0 1.25rem 3rem rgba(0,0,0,0.2)',
+            margin: 'auto'
           }}>
             {/* Header del modal */}
             <div style={{
-              padding: '12px',
-              borderBottom: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
+              padding: '0.75em',
+              borderBottom: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
               <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: '800', margin: '0 0 2px 0', color: darkMode ? '#fff' : '#1f2937' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: '800', margin: '0 0 0.125em 0', color: darkMode ? '#fff' : '#1f2937' }}>
                   Cuotas de {selectedMatricula.curso_nombre}
                 </h3>
                 <div style={{ fontSize: '0.78rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
@@ -496,7 +502,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                   fontSize: '1.2rem',
                   cursor: 'pointer',
                   color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280',
-                  padding: '4px'
+                  padding: '0.25em'
                 }}
               >
                 ✕
@@ -504,30 +510,30 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
             </div>
 
             {/* Contenido del modal */}
-            <div style={{ padding: '12px', overflow: 'auto' }}>
+            <div style={{ padding: '0.75em', overflow: 'auto' }}>
               {loadingCuotas ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
+                <div style={{ textAlign: 'center', padding: '1.25em', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
                   Cargando cuotas...
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
                   {cuotasMatricula.map((cuota) => (
                     <div
                       key={cuota.id_pago}
                       style={{
                         backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
-                        border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        padding: '10px'
+                        border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
+                        borderRadius: '0.5em',
+                        padding: '0.625em'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
                           <div style={{
                             backgroundColor: getEstadoColor(cuota.estado),
                             color: 'white',
-                            padding: '3px 6px',
-                            borderRadius: '4px',
+                            padding: '0.1875em 0.375em',
+                            borderRadius: '0.25em',
                             fontSize: '0.75rem',
                             fontWeight: '700'
                           }}>
@@ -535,13 +541,13 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                           </div>
                           <div>
                             <div style={{ fontWeight: '800', color: darkMode ? '#fff' : '#1f2937', fontSize: '0.9rem' }}>
-                              {cuota.modalidad_pago === 'clases' 
+                              {cuota.modalidad_pago === 'clases'
                                 ? `Clase ${cuota.numero_cuota} - ${formatearMonto(cuota.monto)}`
                                 : `Cuota ${cuota.numero_cuota} - ${formatearMonto(cuota.monto)}`
                               }
                             </div>
                             <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280' }}>
-                              {cuota.modalidad_pago === 'clases' 
+                              {cuota.modalidad_pago === 'clases'
                                 ? `Fecha programada: ${formatearFecha(cuota.fecha_vencimiento)}`
                                 : `Vence: ${formatearFecha(cuota.fecha_vencimiento)}`
                               }
@@ -558,11 +564,11 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                           <button
                             onClick={() => handlePagarCuota(cuota)}
                             style={{
-                              padding: '6px 10px',
+                              padding: '0.375em 0.625em',
                               backgroundColor: '#10b981',
                               color: 'white',
                               border: 'none',
-                              borderRadius: '6px',
+                              borderRadius: '0.375em',
                               fontSize: '0.8rem',
                               fontWeight: '800',
                               cursor: 'pointer'
@@ -580,24 +586,24 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                       {/* Alerta de pago en verificación */}
                       {cuota.estado === 'pagado' && (
                         <div style={{
-                          marginTop: '8px',
-                          padding: '8px',
+                          marginTop: '0.5em',
+                          padding: '0.5em',
                           backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                          border: '1px solid rgba(16, 185, 129, 0.3)',
-                          borderRadius: '6px',
+                          border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
+                          borderRadius: '0.375em',
                           display: 'flex',
-                          gap: '6px',
+                          gap: '0.375em',
                           alignItems: 'flex-start'
                         }}>
-                          <CheckCircle size={14} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+                          <CheckCircle size={14} style={{ color: '#10b981', flexShrink: 0, marginTop: '0.125em' }} />
                           <div>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#10b981', marginBottom: '2px' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#10b981', marginBottom: '0.125em' }}>
                               ⏳ Pago en Verificación
                             </div>
                             <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.8)' : '#1f2937' }}>
                               Tu comprobante ha sido recibido y está siendo revisado por el administrador.
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280', marginTop: '0.125em' }}>
                               Recibirás una notificación cuando sea verificado.
                             </div>
                           </div>
@@ -605,35 +611,35 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                       )}
 
                       {/* Alerta de pago rechazado */}
-                      {cuota.observaciones && (cuota.estado === 'pendiente' || cuota.estado === 'vencido') && 
-                       (cuota.observaciones.toLowerCase().includes('rechazado') || 
-                        cuota.observaciones.toLowerCase().includes('incorrecto') ||
-                        cuota.observaciones.toLowerCase().includes('error') ||
-                        cuota.observaciones.toLowerCase().includes('inválido')) && (
-                        <div style={{
-                          marginTop: '8px',
-                          padding: '8px',
-                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          gap: '6px',
-                          alignItems: 'flex-start'
-                        }}>
-                          <AlertCircle size={14} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
-                          <div>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#ef4444', marginBottom: '2px' }}>
-                              <XCircle size={16} style={{ display: 'inline', marginRight: '4px' }} /> Pago Rechazado
-                            </div>
-                            <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.8)' : '#1f2937' }}>
-                              {cuota.observaciones}
-                            </div>
-                            <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280', marginTop: '2px' }}>
-                              Por favor, vuelve a subir el comprobante correcto.
+                      {cuota.observaciones && (cuota.estado === 'pendiente' || cuota.estado === 'vencido') &&
+                        (cuota.observaciones.toLowerCase().includes('rechazado') ||
+                          cuota.observaciones.toLowerCase().includes('incorrecto') ||
+                          cuota.observaciones.toLowerCase().includes('error') ||
+                          cuota.observaciones.toLowerCase().includes('inválido')) && (
+                          <div style={{
+                            marginTop: '0.5em',
+                            padding: '0.5em',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+                            borderRadius: '0.375em',
+                            display: 'flex',
+                            gap: '0.375em',
+                            alignItems: 'flex-start'
+                          }}>
+                            <AlertCircle size={14} style={{ color: '#ef4444', flexShrink: 0, marginTop: '0.125em' }} />
+                            <div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#ef4444', marginBottom: '0.125em' }}>
+                                <XCircle size={16} style={{ display: 'inline', marginRight: '0.25em' }} /> Pago Rechazado
+                              </div>
+                              <div style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.8)' : '#1f2937' }}>
+                                {cuota.observaciones}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280', marginTop: '0.125em' }}>
+                                Por favor, vuelve a subir el comprobante correcto.
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   ))}
                 </div>

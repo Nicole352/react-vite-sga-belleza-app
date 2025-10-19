@@ -228,7 +228,7 @@ const GestionAulas = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex', 
           alignItems: 'center', 
-          gap: isMobile ? '6px' : '0.625rem', 
+          gap: isMobile ? '0.375rem' : '0.625rem', 
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <Building2 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
@@ -245,12 +245,12 @@ const GestionAulas = () => {
       </div>
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '1em' }}>
         <div style={{ 
           display: 'flex', 
           flexDirection: isMobile ? 'column' : 'row',
           flexWrap: 'wrap', 
-          gap: '0.75rem', 
+          gap: '0.75em', 
           alignItems: isMobile ? 'stretch' : 'center', 
           justifyContent: 'space-between' 
         }}>
@@ -271,18 +271,18 @@ const GestionAulas = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 0.625rem 0.625rem 2.375rem',
+                  padding: '0.625em 0.625em 0.625em 2.375em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625rem',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '0.8rem'
+                  fontSize: '0.875rem'
                 }}
               />
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 25vw)', flex: isMobile ? '1' : 'initial' }}>
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -300,10 +300,10 @@ const GestionAulas = () => {
             {/* Toggle Vista */}
             <div style={{ 
               display: 'flex', 
-              gap: '0.375rem', 
+              gap: '0.375em', 
               background: 'rgba(255,255,255,0.05)', 
-              borderRadius: '0.625rem', 
-              padding: '0.1875rem',
+              borderRadius: '0.625em', 
+              padding: '0.1875em',
               width: isSmallScreen ? '100%' : 'auto'
             }}>
               <button
@@ -312,14 +312,14 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3125rem',
-                  padding: isMobile ? '7px 0.625rem' : '7px 0.75rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.4375em 0.625em' : '0.4375em 0.75em',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '0.4375rem',
+                  border: viewMode === 'cards' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
+                  borderRadius: '0.4em',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.75rem' : '0.75rem',
+                  fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -333,14 +333,14 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: isMobile ? '7px 0.625rem' : '8px 0.875rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.4375em 0.625em' : '0.5em 0.875em',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '0.5rem',
+                  border: viewMode === 'table' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
+                  borderRadius: '0.5em',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.75rem' : '0.9rem',
+                  fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -361,17 +361,17 @@ const GestionAulas = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
-              padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
+              gap: '0.5em',
+              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '0.625rem',
+              borderRadius: '0.625em',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-              fontSize: '0.8rem',
+              fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
@@ -382,8 +382,8 @@ const GestionAulas = () => {
       </GlassEffect>
 
       {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
-        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 45vw), 1fr))', gap: '0.75em', marginBottom: '1em' }}>
+        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75em 0.5em' }}>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {totalCount}
           </div>
@@ -406,10 +406,10 @@ const GestionAulas = () => {
       {error && (
         <div style={{ 
           background: 'rgba(239, 68, 68, 0.1)', 
-          border: '1px solid rgba(239, 68, 68, 0.3)', 
-          borderRadius: 12, 
-          padding: 16, 
-          marginBottom: 24, 
+          border: '0.0625rem solid rgba(239, 68, 68, 0.3)', 
+          borderRadius: '0.75em', 
+          padding: '1em', 
+          marginBottom: '1.5em', 
           color: '#ef4444' 
         }}>
           {error}
@@ -418,13 +418,13 @@ const GestionAulas = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.125rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(17.5rem, 90vw), 1fr))', gap: '1em', marginBottom: '1.125em' }}>
           {loading ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               Cargando aulas...
             </div>
           ) : aulasSorted.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               No hay aulas registradas
             </div>
           ) : (
@@ -440,11 +440,11 @@ const GestionAulas = () => {
                   padding: '0.875rem',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75em' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
                     <div style={{ 
-                      width: 40, 
-                      height: 40, 
+                      width: '2.5em', 
+                      height: '2.5em', 
                       borderRadius: '50%', 
                       background: 'rgba(239, 68, 68, 0.15)', 
                       display: 'flex', 
@@ -554,10 +554,10 @@ const GestionAulas = () => {
       {viewMode === 'table' && (
         <div style={{ 
           background: 'rgba(255,255,255,0.05)', 
-          borderRadius: 16, 
+          borderRadius: '1em', 
           overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.1)',
-          marginBottom: '1.5rem'
+          border: '0.0625rem solid rgba(255,255,255,0.1)',
+          marginBottom: '1.5em'
         }}>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (

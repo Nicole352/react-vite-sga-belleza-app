@@ -175,29 +175,29 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 999999,
-        backdropFilter: 'blur(6px)'
+        backdropFilter: 'blur(0.375rem)'
       }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
           background: theme.modalBg,
-          borderRadius: '12px',
+          borderRadius: '0.75em',
           width: '90%',
-          maxWidth: '900px',
+          maxWidth: '56.25rem',
           maxHeight: '85vh',
           overflow: 'hidden',
-          boxShadow: darkMode ? '0 16px 48px rgba(0,0,0,0.45)' : '0 16px 48px rgba(0,0,0,0.18)'
+          boxShadow: darkMode ? '0 1rem 3rem rgba(0,0,0,0.45)' : '0 1rem 3rem rgba(0,0,0,0.18)'
         }}>
         {/* Header */}
         <div style={{
-          padding: '12px 14px',
-          borderBottom: `1px solid ${theme.border}`,
+          padding: '0.75em 0.875em',
+          borderBottom: `0.0625rem solid ${theme.border}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div>
-            <h2 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px 0' }}>
+            <h2 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 0.125em 0' }}>
               Entregas de Tarea
             </h2>
             <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: 0 }}>
@@ -211,8 +211,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               border: 'none',
               color: theme.textSecondary,
               cursor: 'pointer',
-              padding: '6px',
-              borderRadius: '6px',
+              padding: '0.375em',
+              borderRadius: '0.375em',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -224,10 +224,10 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Content */}
         <div style={{
-          padding: '10px',
-          maxHeight: 'calc(85vh - 80px)',
+          padding: '0.625em',
+          maxHeight: 'calc(85vh - 5rem)',
           overflowY: 'auto',
-          minHeight: '200px'
+          minHeight: '12.5rem'
         }}>
           {loading ? (
             <div style={{ 

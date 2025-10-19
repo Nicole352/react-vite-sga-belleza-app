@@ -207,18 +207,18 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   const theme = getThemeColors();
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '60px', color: theme.textSecondary }}>Cargando perfil...</div>;
+    return <div style={{ textAlign: 'center', padding: '3.75em', color: theme.textSecondary }}>Cargando perfil...</div>;
   }
 
   if (!docente) {
-    return <div style={{ textAlign: 'center', padding: '60px', color: theme.textSecondary }}>No se pudo cargar el perfil</div>;
+    return <div style={{ textAlign: 'center', padding: '3.75em', color: theme.textSecondary }}>No se pudo cargar el perfil</div>;
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: '1em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.25em 0' }}>
             Mi Perfil
           </h2>
           <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0 }}>
@@ -230,41 +230,41 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
           <button
             onClick={() => setEditing(true)}
             style={{
-              padding: '10px 14px',
+              padding: '0.625em 0.875em',
               background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '0.625em',
               color: '#fff',
               fontSize: '0.85rem',
               fontWeight: '700',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '0.5em'
             }}
           >
             <Edit size={16} />
             Editar Perfil
           </button>
         ) : (
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '0.625em' }}>
             <button
               onClick={() => {
                 setEditing(false);
                 setFormData(docente);
               }}
               style={{
-                padding: '10px 14px',
+                padding: '0.625em 0.875em',
                 background: 'transparent',
-                border: `1px solid ${theme.border}`,
-                borderRadius: '10px',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.625em',
                 color: theme.textSecondary,
                 fontSize: '0.85rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '0.5em'
               }}
             >
               <X size={16} />
@@ -273,17 +273,17 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             <button
               onClick={handleSave}
               style={{
-                padding: '10px 14px',
+                padding: '0.625em 0.875em',
                 background: `linear-gradient(135deg, ${theme.success}, ${theme.success}dd)`,
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '0.625em',
                 color: '#fff',
                 fontSize: '0.85rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '0.5em'
               }}
             >
               <Save size={16} />
@@ -293,58 +293,58 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1em', flex: 1 }}>
         {/* Card de perfil */}
         <div style={{
           background: theme.cardBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '16px',
-          padding: '16px',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '1em',
+          padding: '1em',
           textAlign: 'center'
         }}>
           <div style={{
-            width: '84px',
-            height: '84px',
+            width: '5.25rem',
+            height: '5.25rem',
             borderRadius: '50%',
             background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 12px',
+            margin: '0 auto 0.75em',
             fontSize: '2rem',
             fontWeight: '800',
             color: '#fff',
-            boxShadow: `0 8px 24px ${theme.accent}40`
+            boxShadow: `0 0.5rem 1.5rem ${theme.accent}40`
           }}>
             {docente.nombres.charAt(0)}{docente.apellidos.charAt(0)}
           </div>
 
-          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px 0' }}>
+          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 0.125em 0' }}>
             {docente.nombres} {docente.apellidos}
           </h3>
-          <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '0 0 6px 0' }}>
+          <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '0 0 0.375em 0' }}>
             @{docente.username}
           </p>
           
           <div style={{
-            padding: '6px 12px',
+            padding: '0.375em 0.75em',
             background: `${theme.accent}20`,
-            borderRadius: '14px',
+            borderRadius: '0.875em',
             color: theme.accent,
             fontSize: '0.8rem',
             fontWeight: '700',
             display: 'inline-block',
-            marginTop: '8px'
+            marginTop: '0.5em'
           }}>
             👨‍🏫 Docente
           </div>
 
           <div style={{
-            marginTop: '16px',
-            paddingTop: '16px',
-            borderTop: `1px solid ${theme.border}`
+            marginTop: '1em',
+            paddingTop: '1em',
+            borderTop: `0.0625rem solid ${theme.border}`
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.5em' }}>
               <Award size={16} color={theme.success} />
               <div style={{ textAlign: 'left', flex: 1 }}>
                 <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Título</div>
@@ -355,7 +355,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             </div>
 
             {docente.experiencia_anos !== undefined && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
                 <Calendar size={16} color={theme.accent} />
                 <div style={{ textAlign: 'left', flex: 1 }}>
                   <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Experiencia</div>
@@ -371,35 +371,35 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
         {/* Información detallada */}
         <div style={{
           background: theme.cardBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '16px',
-          padding: '16px'
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '1em',
+          padding: '1em'
         }}>
-          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '700', margin: '0 0 12px 0' }}>
+          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '700', margin: '0 0 0.75em 0' }}>
             Información Personal
           </h3>
 
-          <div style={{ display: 'grid', gap: '12px' }}>
+          <div style={{ display: 'grid', gap: '0.75em' }}>
             {/* Identificación */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '0.375em' }}>
                 Identificación
               </label>
               <div style={{
-                padding: '10px 12px',
+                padding: '0.625em 0.75em',
                 background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.5em',
                 color: theme.textPrimary,
                 fontSize: '0.9rem'
               }}>
-                <FileText size={14} style={{ display: 'inline', marginRight: '6px' }} /> {docente.identificacion}
+                <FileText size={14} style={{ display: 'inline', marginRight: '0.375em' }} /> {docente.identificacion}
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '0.375em' }}>
                 Email
               </label>
               {editing ? (
@@ -409,25 +409,25 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '0.625em 0.75em',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '8px',
+                    border: `0.0625rem solid ${theme.border}`,
+                    borderRadius: '0.5em',
                     color: theme.textPrimary,
                     fontSize: '0.9rem'
                   }}
                 />
               ) : (
                 <div style={{
-                  padding: '10px 12px',
+                  padding: '0.625em 0.75em',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '8px',
+                  border: `0.0625rem solid ${theme.border}`,
+                  borderRadius: '0.5em',
                   color: theme.textPrimary,
                   fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5em'
                 }}>
                   <Mail size={14} color={theme.textMuted} />
                   {docente.email || 'No especificado'}
@@ -437,7 +437,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
             {/* Teléfono */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '0.375em' }}>
                 Teléfono
               </label>
               {editing ? (
@@ -447,25 +447,25 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '0.625em 0.75em',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '8px',
+                    border: `0.0625rem solid ${theme.border}`,
+                    borderRadius: '0.5em',
                     color: theme.textPrimary,
                     fontSize: '0.9rem'
                   }}
                 />
               ) : (
                 <div style={{
-                  padding: '10px 12px',
+                  padding: '0.625em 0.75em',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '8px',
+                  border: `0.0625rem solid ${theme.border}`,
+                  borderRadius: '0.5em',
                   color: theme.textPrimary,
                   fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5em'
                 }}>
                   <Phone size={14} color={theme.textMuted} />
                   {docente.telefono || 'No especificado'}
@@ -476,19 +476,19 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             {/* Fecha de Nacimiento */}
             {docente.fecha_nacimiento && (
               <div>
-                <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '0.375em' }}>
                   Fecha de Nacimiento
                 </label>
                 <div style={{
-                  padding: '10px 12px',
+                  padding: '0.625em 0.75em',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '8px',
+                  border: `0.0625rem solid ${theme.border}`,
+                  borderRadius: '0.5em',
                   color: theme.textPrimary,
                   fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5em'
                 }}>
                   <Calendar size={14} color={theme.textMuted} />
                   {new Date(docente.fecha_nacimiento).toLocaleDateString()}
