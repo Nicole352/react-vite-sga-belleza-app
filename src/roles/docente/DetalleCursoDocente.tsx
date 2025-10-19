@@ -230,9 +230,9 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
             ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
             : 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%)',
           backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px',
+          borderRadius: '14px',
+          padding: '16px',
+          marginBottom: '16px',
           border: `1px solid ${theme.border}`
         }}>
           <button
@@ -240,13 +240,13 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
             style={{
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
               border: `1px solid ${theme.border}`,
-              borderRadius: '12px',
-              padding: '10px 20px',
+              borderRadius: '8px',
+              padding: '8px 12px',
               color: theme.accent,
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              marginBottom: '20px',
+              marginBottom: '12px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               fontWeight: '600'
@@ -264,21 +264,21 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
             Volver a Mis Cursos
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h1 style={{
-                fontSize: '2rem',
-                fontWeight: '700',
+                fontSize: '1.25rem',
+                fontWeight: '800',
                 color: theme.textPrimary,
-                marginBottom: '10px',
+                marginBottom: '6px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '15px'
+                gap: '10px'
               }}>
-                <BookOpen size={32} style={{ color: theme.accent }} />
+                <BookOpen size={18} style={{ color: theme.accent }} />
                 {curso?.nombre}
               </h1>
-              <p style={{ color: theme.textMuted, fontSize: '1rem' }}>
+              <p style={{ color: theme.textMuted, fontSize: '0.85rem' }}>
                 Código: {curso?.codigo_curso} • {curso?.total_estudiantes || 0} estudiantes matriculados
               </p>
             </div>
@@ -288,27 +288,28 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '12px',
-                padding: '12px 24px',
+                borderRadius: '8px',
+                padding: '8px 14px',
                 color: '#fff',
-                fontWeight: '600',
+                fontWeight: '800',
+                fontSize: '0.9rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)'
+                boxShadow: '0 3px 10px rgba(59, 130, 246, 0.25)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 5px 14px rgba(59, 130, 246, 0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.3)';
+                e.currentTarget.style.boxShadow = '0 3px 10px rgba(59, 130, 246, 0.25)';
               }}
             >
-              <Plus size={20} />
+              <Plus size={16} />
               Crear Módulo
             </button>
           </div>
@@ -359,7 +360,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {modulos.map((modulo) => (
               <div
                 key={modulo.id_modulo}
@@ -367,7 +368,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                   background: darkMode 
                     ? 'rgba(255,255,255,0.03)'
                     : '#ffffff',
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   border: darkMode 
                     ? '1px solid rgba(255,255,255,0.08)' 
                     : '1px solid #e5e7eb',
@@ -394,39 +395,39 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                 {/* Header del Módulo */}
                 <div
                   style={{
-                    padding: '24px 28px',
+                    padding: '14px 16px',
                     cursor: 'pointer',
                     transition: 'background 0.2s ease'
                   }}
                   onClick={() => toggleModulo(modulo.id_modulo)}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     {/* Contenido Principal */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {/* Título y Badge */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
                         <div style={{
                           background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                           color: '#fff',
-                          padding: '4px 12px',
-                          borderRadius: '8px',
-                          fontSize: '0.875rem',
-                          fontWeight: '700',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '800',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
-                          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.25)'
+                          boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)'
                         }}>
-                          <Hash size={14} />
+                          <Hash size={12} />
                           {modulo.numero_orden}
                         </div>
                         <h3 style={{ 
                           color: theme.textPrimary, 
-                          fontSize: '1.25rem', 
-                          fontWeight: '600', 
+                          fontSize: '1rem', 
+                          fontWeight: '800', 
                           margin: 0,
                           letterSpacing: '-0.01em',
-                          lineHeight: '1.4'
+                          lineHeight: '1.3'
                         }}>
                           {modulo.nombre}
                         </h3>
@@ -434,33 +435,33 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                       {modulo.descripcion && (
                         <p style={{ 
                           color: theme.textMuted, 
-                          margin: '8px 0 0 0',
-                          fontSize: '0.95rem',
-                          lineHeight: '1.5'
+                          margin: '6px 0 0 0',
+                          fontSize: '0.85rem',
+                          lineHeight: '1.4'
                         }}>
                           {modulo.descripcion}
                         </p>
                       )}
                       {/* Metadatos y Estado */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: theme.textMuted }}>
-                          <FileText size={16} style={{ color: theme.accent, opacity: 0.7 }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: theme.textMuted }}>
+                          <FileText size={14} style={{ color: theme.accent, opacity: 0.7 }} />
                           <span style={{ fontWeight: '500' }}>
                             {modulo.total_tareas} {modulo.total_tareas === 1 ? 'tarea' : 'tareas'}
                           </span>
                         </div>
                         {modulo.fecha_inicio && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: theme.textMuted }}>
-                            <Calendar size={16} style={{ color: theme.accent, opacity: 0.7 }} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: theme.textMuted }}>
+                            <Calendar size={14} style={{ color: theme.accent, opacity: 0.7 }} />
                             <span style={{ fontWeight: '500' }}>
                               {new Date(modulo.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                             </span>
                           </div>
                         )}
                         <div style={{
-                          padding: '4px 10px',
+                          padding: '3px 8px',
                           borderRadius: '6px',
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: '600',
                           textTransform: 'capitalize' as const,
                           ...getEstadoColor(modulo.estado)
@@ -471,7 +472,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                     </div>
 
                     {/* Botones de Acción */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -481,7 +482,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
                           border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
                           borderRadius: '8px',
-                          padding: '8px 14px',
+                          padding: '6px 10px',
                           color: '#10b981',
                           display: 'flex',
                           alignItems: 'center',
@@ -489,7 +490,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           fontWeight: '600',
-                          fontSize: '0.875rem'
+                          fontSize: '0.8rem'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
@@ -511,7 +512,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                           background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                           border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
                           borderRadius: '8px',
-                          padding: '8px',
+                          padding: '6px',
                           color: '#ef4444',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
@@ -547,24 +548,24 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
 
                 {/* Lista de Tareas (expandible) */}
                 {modulosExpandidos[modulo.id_modulo] && (
-                  <div style={{ padding: '20px 30px' }}>
+                  <div style={{ padding: '12px 16px' }}>
                     {!tareasPorModulo[modulo.id_modulo] ? (
-                      <div style={{ textAlign: 'center', padding: '20px', color: theme.textMuted }}>
+                      <div style={{ textAlign: 'center', padding: '12px', color: theme.textMuted }}>
                         Cargando tareas...
                       </div>
                     ) : tareasPorModulo[modulo.id_modulo].length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '40px', color: theme.textMuted }}>
-                        <FileText size={48} style={{ margin: '0 auto 15px', opacity: 0.3, color: theme.textMuted }} />
+                      <div style={{ textAlign: 'center', padding: '20px', color: theme.textMuted }}>
+                        <FileText size={36} style={{ margin: '0 auto 10px', opacity: 0.3, color: theme.textMuted }} />
                         <p>No hay tareas en este módulo</p>
                         <button
                           onClick={() => handleCrearTarea(modulo.id_modulo)}
                           style={{
                             background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
                             border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
-                            borderRadius: '10px',
-                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            padding: '8px 12px',
                             color: '#10b981',
-                            marginTop: '15px',
+                            marginTop: '10px',
                             cursor: 'pointer',
                             transition: 'all 0.2s ease'
                           }}
@@ -580,15 +581,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                         </button>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {tareasPorModulo[modulo.id_modulo].map((tarea) => (
                           <div
                             key={tarea.id_tarea}
                             style={{
-                              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
+                              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.98)',
                               border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                              borderRadius: '12px',
-                              padding: '20px',
+                              borderRadius: '10px',
+                              padding: '12px',
                               cursor: 'pointer',
                               transition: 'all 0.3s ease',
                               boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.05)'
@@ -603,29 +604,36 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                               e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
                               if (!darkMode) e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
                             }}
-                            onClick={() => navigate(`/panel/docente/tarea/${tarea.id_tarea}`)}
+                            onClick={() => {
+                              setTareaSeleccionada({
+                                id: tarea.id_tarea,
+                                nombre: tarea.titulo,
+                                nota_maxima: tarea.nota_maxima
+                              });
+                              setShowModalEntregas(true);
+                            }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '15px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
                               <div style={{ flex: 1 }}>
-                                <h4 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px' }}>
+                                <h4 style={{ color: theme.textPrimary, fontSize: '0.95rem', fontWeight: '800', marginBottom: '6px' }}>
                                   {tarea.titulo}
                                 </h4>
                                 {tarea.descripcion && (
-                                  <p style={{ color: theme.textMuted, fontSize: '0.9rem', marginBottom: '12px' }}>
+                                  <p style={{ color: theme.textMuted, fontSize: '0.8rem', marginBottom: '8px' }}>
                                     {tarea.descripcion}
                                   </p>
                                 )}
-                                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', flexWrap: 'wrap' }}>
                                   <span style={{ color: theme.textMuted, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <Clock size={14} />
+                                    <Clock size={12} />
                                     Límite: {new Date(tarea.fecha_limite).toLocaleDateString()}
                                   </span>
                                   <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <CheckCircle size={14} />
+                                    <CheckCircle size={12} />
                                     {tarea.entregas_calificadas}/{tarea.total_entregas} calificadas
                                   </span>
                                   <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <AlertCircle size={14} />
+                                    <AlertCircle size={12} />
                                     Nota máx: {tarea.nota_maxima}
                                   </span>
                                 </div>
@@ -650,15 +658,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                                     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    padding: '8px 14px',
+                                    padding: '6px 10px',
                                     color: '#fff',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '6px',
-                                    fontWeight: '600',
-                                    fontSize: '0.8125rem',
-                                    marginTop: '12px',
+                                    fontWeight: '700',
+                                    fontSize: '0.8rem',
+                                    marginTop: '6px',
                                     boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
                                     transition: 'all 0.2s ease'
                                   }}
@@ -671,7 +679,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                                     e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
                                   }}
                                 >
-                                  <FileText size={15} />
+                                  <FileText size={13} />
                                   Ver Entregas ({tarea.total_entregas})
                                 </button>
                               )}

@@ -9,13 +9,11 @@ import {
   Clock,
   TrendingUp,
   ChevronRight,
-  FileText,
-  CheckCircle,
   GraduationCap,
   Target,
   MapPin,
-  Bell
 } from 'lucide-react';
+import ModalCalificaciones from './ModalCalificaciones';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -49,6 +47,9 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCalif, setShowCalif] = useState(false);
+  const [cursoSelId, setCursoSelId] = useState<number | null>(null);
+  const [cursoSelNombre, setCursoSelNombre] = useState<string>('');
 
   useEffect(() => {
     setIsVisible(true);
@@ -145,15 +146,15 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
+        padding: '12px',
+        marginBottom: '12px',
         backdropFilter: 'blur(20px)',
         boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
+            width: '44px',
+            height: '44px',
             background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
             borderRadius: '50%',
             display: 'flex',
@@ -161,20 +162,20 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             justifyContent: 'center',
             boxShadow: `0 8px 24px ${theme.accent}30`
           }}>
-            <GraduationCap size={32} color="#fff" />
+            <GraduationCap size={18} color="#fff" />
           </div>
           <div>
             <h1 style={{ 
-              fontSize: '2.2rem', 
+              fontSize: '1.4rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 8px 0' 
+              margin: '0 0 4px 0' 
             }}>
-              <Hand size={32} style={{ display: 'inline', marginRight: '8px' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
+              <Hand size={16} style={{ display: 'inline', marginRight: '6px' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
-              fontSize: '1.1rem', 
+              fontSize: '0.85rem', 
               margin: '0 0 4px 0' 
             }}>
               {userData?.titulo_profesional || 'Gestiona tus cursos y estudiantes'}
@@ -182,16 +183,16 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '16px',
-              fontSize: '0.9rem',
+              gap: '8px',
+              fontSize: '0.75rem',
               color: theme.textMuted
             }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={16} />
+                <Calendar size={12} />
                 {new Date().toLocaleDateString('es-ES')}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={16} />
+                <Clock size={12} />
                 {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -199,88 +200,76 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
 
         {/* Estadísticas rápidas - 4 tarjetas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px' }}>
           <div style={{
             background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
             border: `1px solid ${theme.accent}30`,
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <BookOpen size={20} color={theme.accent} />
-              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '600' }}>Cursos Activos</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.accent }}>
-              {cursos.length}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <BookOpen size={12} color={theme.accent} />
+              <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
+              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.length}</span>
             </div>
           </div>
 
           <div style={{
             background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
             border: `1px solid ${theme.success}30`,
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Users size={20} color={theme.success} />
-              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>Total Estudiantes</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.success }}>
-              {totalEstudiantes}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Users size={12} color={theme.success} />
+              <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
+              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>{totalEstudiantes}</span>
             </div>
           </div>
 
           <div style={{
             background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
             border: `1px solid ${theme.warning}30`,
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Target size={20} color={theme.warning} />
-              <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '600' }}>Ocupación</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.warning }}>
-              {promedioOcupacion}%
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Target size={12} color={theme.warning} />
+              <span style={{ color: theme.warning, fontSize: '0.7rem', fontWeight: '700' }}>Ocupación:</span>
+              <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '800' }}>{promedioOcupacion}%</span>
             </div>
           </div>
 
           <div style={{
             background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
             border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Award size={20} color="#8b5cf6" />
-              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '600' }}>Capacidad Total</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#8b5cf6' }}>
-              {capacidadTotal}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Award size={12} color="#8b5cf6" />
+              <span style={{ color: '#8b5cf6', fontSize: '0.7rem', fontWeight: '700' }}>Capacidad Total:</span>
+              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '800' }}>{capacidadTotal}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '16px' }}>
         {/* Panel principal - Mis Cursos Activos */}
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
           borderRadius: '20px',
-          padding: '32px',
+          padding: '16px',
           backdropFilter: 'blur(20px)',
           boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
         }}>
         <h2 style={{ 
-          fontSize: '1.6rem', 
+          fontSize: '1.2rem', 
           fontWeight: '700', 
           color: theme.textPrimary, 
-          margin: '0 0 24px 0' 
+          margin: '0 0 16px 0' 
         }}>
           Mis Cursos Activos
         </h2>
@@ -320,13 +309,13 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '20px' }}>
+          <div style={{ display: 'grid', gap: '12px' }}>
             {cursos.map((curso) => (
               <div
                 key={curso.id_curso}
                 onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
                 style={{
-                  padding: '24px',
+                  padding: '14px',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                   borderRadius: '16px',
                   border: `1px solid ${theme.border}`,
@@ -348,28 +337,28 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                       <div style={{
                         background: `${theme.accent}20`,
                         color: theme.accent,
-                        padding: '4px 12px',
+                        padding: '3px 10px',
                         borderRadius: '16px',
-                        fontSize: '0.8rem',
+                        fontSize: '0.75rem',
                         fontWeight: '600'
                       }}>
                         {curso.codigo_curso}
                       </div>
-                      <span style={{ color: theme.textMuted, fontSize: '0.9rem' }}>
+                      <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
                         {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
                       </span>
                     </div>
                     <h3 style={{ 
-                      fontSize: '1.3rem', 
+                      fontSize: '1.1rem', 
                       fontWeight: '700', 
                       color: theme.textPrimary, 
-                      margin: '0 0 12px 0' 
+                      margin: '0 0 8px 0' 
                     }}>
                       {curso.nombre}
                     </h3>
@@ -392,39 +381,39 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                     <div style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
-                      gap: '8px',
+                      gap: '6px',
                       color: theme.textMuted,
-                      fontSize: '0.9rem'
+                      fontSize: '0.8rem'
                     }}>
-                      <Users size={16} />
+                      <Users size={12} />
                       <span>{curso.total_estudiantes} estudiantes matriculados</span>
                     </div>
                   </div>
 
                   <div style={{ 
                     textAlign: 'right',
-                    minWidth: '120px'
+                    minWidth: '100px'
                   }}>
                     <div style={{ 
-                      fontSize: '2rem', 
+                      fontSize: '1.4rem', 
                       fontWeight: '800', 
                       color: theme.accent,
                       lineHeight: 1
                     }}>
                       {curso.total_estudiantes}
                     </div>
-                    <div style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
+                    <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
                       de {curso.capacidad_maxima}
                     </div>
                     
                     {/* Barra de progreso */}
                     <div style={{ 
                       width: '100%', 
-                      height: '8px', 
+                      height: '6px', 
                       background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                       borderRadius: '4px',
                       overflow: 'hidden',
-                      marginTop: '8px'
+                      marginTop: '6px'
                     }}>
                       <div style={{
                         width: `${(curso.total_estudiantes / curso.capacidad_maxima) * 100}%`,
@@ -435,8 +424,8 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                     </div>
                     <div style={{ 
                       color: theme.textMuted, 
-                      fontSize: '0.75rem', 
-                      marginTop: '4px' 
+                      fontSize: '0.7rem', 
+                      marginTop: '3px' 
                     }}>
                       {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
                     </div>
@@ -449,127 +438,63 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
 
         {/* Panel lateral */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Próximas Clases */}
           <div style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '24px',
+            borderRadius: '16px',
+            padding: '12px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
               Próximas Clases
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {cursos.slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
-                  padding: '16px',
+                  padding: '8px',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '12px',
+                  borderRadius: '10px',
                   border: `1px solid ${theme.border}`
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
+                      width: '6px',
+                      height: '6px',
                       borderRadius: '50%',
-                      background: index === 0 ? theme.accent : theme.success
+                      background: index === 0 ? theme.accent : theme.success,
+                      flexShrink: 0
                     }} />
-                    <span style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                    <span style={{ color: theme.textPrimary, fontWeight: '600', flexShrink: 0 }}>
                       {new Date(curso.fecha_inicio).toLocaleDateString()}
                     </span>
+                    <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                    <span style={{ color: theme.textPrimary, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {curso.nombre}
+                    </span>
+                    {curso.aula_nombre && (
+                      <>
+                        <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {curso.aula_nombre}{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
-                    {curso.nombre}
-                  </p>
-                  {curso.aula_nombre && (
-                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                      {curso.aula_nombre} {curso.aula_ubicacion && `- ${curso.aula_ubicacion}`}
-                    </p>
-                  )}
                 </div>
               ))}
               
               {cursos.length === 0 && (
                 <div style={{
-                  padding: '16px',
+                  padding: '12px',
                   textAlign: 'center',
                   color: theme.textMuted,
-                  fontSize: '0.9rem'
+                  fontSize: '0.85rem'
                 }}>
                   No hay clases programadas
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Estadísticas de Estudiantes */}
-          <div style={{
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '24px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
-              Resumen de Estudiantes
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {cursos.length > 0 ? (
-                <>
-                  <div style={{
-                    padding: '16px',
-                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-                    borderRadius: '12px',
-                    border: `1px solid ${theme.accent}30`
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <Users size={16} color={theme.accent} />
-                      <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '600' }}>
-                        Total Estudiantes
-                      </span>
-                    </div>
-                    <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                      {totalEstudiantes}
-                    </p>
-                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                      En {cursos.length} curso{cursos.length > 1 ? 's' : ''}
-                    </p>
-                  </div>
-
-                  <div style={{
-                    padding: '16px',
-                    background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-                    borderRadius: '12px',
-                    border: `1px solid ${theme.success}30`
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <CheckCircle size={16} color={theme.success} />
-                      <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>
-                        Ocupación Promedio
-                      </span>
-                    </div>
-                    <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                      {promedioOcupacion}%
-                    </p>
-                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                      De capacidad total
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <div style={{
-                  padding: '16px',
-                  textAlign: 'center',
-                  color: theme.textMuted,
-                  fontSize: '0.9rem'
-                }}>
-                  Sin datos disponibles
                 </div>
               )}
             </div>
@@ -580,75 +505,84 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '24px',
+            padding: '16px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
               Acceso Rápido
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button style={{
+              <button onClick={() => { const c = cursos[0]; if (c) { setCursoSelId(c.id_curso); setCursoSelNombre(c.nombre); setShowCalif(true); } }} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
                 borderRadius: '8px',
-                padding: '12px',
+                padding: '10px',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
               }}>
-                <TrendingUp size={16} />
+                <TrendingUp size={14} />
                 Calificaciones
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
               </button>
 
-              <button style={{
+              <button onClick={() => navigate('/panel/docente/horario')} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
                 borderRadius: '8px',
-                padding: '12px',
+                padding: '10px',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
               }}>
-                <FileText size={16} />
-                Material de Clase
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+                <Calendar size={14} />
+                Horario
+                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
               </button>
 
-              <button style={{
+              <button onClick={() => navigate('/panel/docente/estudiantes')} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
                 borderRadius: '8px',
-                padding: '12px',
+                padding: '10px',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
               }}>
-                <Bell size={16} />
-                Notificaciones
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+                <Users size={14} />
+                Lista de Estudiantes
+                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
               </button>
             </div>
           </div>
         </div>
       </div>
+      {showCalif && cursoSelId !== null && (
+        <ModalCalificaciones
+          isOpen={showCalif}
+          onClose={() => setShowCalif(false)}
+          cursoId={cursoSelId}
+          cursoNombre={cursoSelNombre}
+          darkMode={darkMode}
+        />
+      )}
     </div>
   );
 };
