@@ -182,6 +182,7 @@ const PanelDocentes = () => {
   };
 
   const theme = getThemeColors();
+  const scaleFactor = 0.85;
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
@@ -219,10 +220,19 @@ const PanelDocentes = () => {
       <div 
         className="docente-panel"
         style={{
-          minHeight: '100vh',
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
-          display: 'flex'
+          display: 'flex',
+          transform: `scale(${scaleFactor})`,
+          transformOrigin: 'top left',
+          width: `calc(100% / ${scaleFactor})`,
+          height: `calc(100% / ${scaleFactor})`,
+          overflow: 'auto'
         }}
       >
         {/* Sidebar */}
@@ -233,11 +243,8 @@ const PanelDocentes = () => {
           border: `1px solid ${theme.border}`,
           borderRadius: '0 20px 20px 0',
           padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
-          position: 'fixed',
-          height: '100vh',
-          left: 0,
-          top: 0,
-          zIndex: 1000,
+          position: 'relative',
+          height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
@@ -348,19 +355,17 @@ const PanelDocentes = () => {
 
         {/* Contenido Principal */}
         <div style={{ 
-          marginLeft: sidebarCollapsed ? '80px' : '280px',
-          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
           flex: 1, 
           padding: '24px',
-          minHeight: '100vh'
+          minHeight: '100%'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '20px 32px',
-            marginBottom: '24px',
+            padding: '16px 24px',
+            marginBottom: '16px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             display: 'flex',
@@ -372,8 +377,8 @@ const PanelDocentes = () => {
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
-                width: '56px',
-                height: '56px',
+                width: '48px',
+                height: '48px',
                 background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                 borderRadius: '50%',
                 display: 'flex',
@@ -384,12 +389,12 @@ const PanelDocentes = () => {
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
                   const IconComponent = activeTabData?.icon || BarChart3;
-                  return <IconComponent size={28} color="#fff" />;
+                  return <IconComponent size={22} color="#fff" />;
                 })()}
               </div>
               <div>
                 <h1 style={{ 
-                  fontSize: '1.8rem', 
+                  fontSize: '1.2rem', 
                   fontWeight: '800', 
                   color: theme.textPrimary,
                   margin: 0
@@ -399,8 +404,8 @@ const PanelDocentes = () => {
                 <p style={{ 
                   color: theme.textSecondary, 
                   margin: 0, 
-                  fontSize: '1rem',
-                  marginTop: '4px'
+                  fontSize: '0.8rem',
+                  marginTop: '2px'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -440,6 +445,8 @@ const PanelDocentes = () => {
                   {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
                 </>
               } />
+              <Route path="/estudiantes" element={<MisEstudiantes darkMode={darkMode} />} />
+              <Route path="/horario" element={<MiHorario darkMode={darkMode} />} />
               <Route path="/curso/:id" element={<DetalleCursoDocente darkMode={darkMode} />} />
             </Routes>
           </div>
