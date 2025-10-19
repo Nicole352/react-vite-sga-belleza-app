@@ -26,6 +26,8 @@ import {
   GraduationCap
 } from 'lucide-react';
 
+const API_BASE = 'http://localhost:3000/api';
+
 interface PerfilProps {
   darkMode: boolean;
 }
@@ -66,6 +68,60 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
   useEffect(() => {
     setIsVisible(true);
+  }, []);
+
+  // Cargar perfil real del estudiante desde API
+  useEffect(() => {
+    const loadPerfil = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        if (!token) return;
+        const headers = { Authorization: `Bearer ${token}` } as any;
+
+        // Intentos de endpoints comunes
+        const endpoints = [
+          `${API_BASE}/estudiantes/me`,
+          `${API_BASE}/usuarios/me`,
+          `${API_BASE}/auth/me`,
+          `${API_BASE}/perfil`
+        ];
+
+        let data: any | null = null;
+        for (const url of endpoints) {
+          try {
+            const res = await fetch(url, { headers });
+            if (res.ok) { data = await res.json(); break; }
+          } catch {}
+        }
+        if (!data) return;
+
+        // Mapeo tolerante de campos
+        const nombre = (data.nombres ?? data.nombre ?? '').toString().trim() || studentInfo.nombre;
+        const apellido = (data.apellidos ?? data.apellido ?? '').toString().trim() || studentInfo.apellido;
+        const email = (data.email ?? data.correo ?? '').toString().trim() || studentInfo.email;
+        const telefono = (data.telefono ?? data.celular ?? data.telefono_contacto ?? '').toString().trim() || studentInfo.telefono;
+        const cedula = (data.cedula ?? data.identificacion ?? data.dni ?? '').toString().trim() || studentInfo.cedula;
+        const direccion = (data.direccion ?? data.domicilio ?? '').toString().trim() || studentInfo.direccion;
+        const fechaNacimiento = (data.fecha_nacimiento ?? data.nacimiento ?? '').toString().slice(0,10) || studentInfo.fechaNacimiento;
+        const genero = (data.genero ?? data.sexo ?? '').toString().trim() || studentInfo.genero;
+        const fechaIngreso = (data.fecha_ingreso ?? data.created_at ?? '').toString().slice(0,10) || studentInfo.fechaIngreso;
+        const carrera = (data.carrera ?? data.programa ?? data.curso ?? '').toString().trim() || studentInfo.carrera;
+        const semestre = (data.semestre ?? data.periodo ?? '').toString().trim() || studentInfo.semestre;
+        const promedio = Number(data.promedio ?? data.promedio_general ?? studentInfo.promedio);
+        const estado = (data.estado ?? data.activo ? 'Activo' : 'Inactivo') || studentInfo.estado;
+        const foto = (data.foto_url ?? data.avatar ?? data.foto ?? '').toString().trim() || studentInfo.foto;
+
+        setStudentInfo(prev => ({
+          ...prev,
+          nombre, apellido, email, telefono, cedula, direccion,
+          fechaNacimiento, genero, fechaIngreso, carrera, semestre,
+          promedio: isNaN(promedio) ? prev.promedio : promedio,
+          estado, foto
+        }));
+      } catch {}
+    };
+    loadPerfil();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Función para obtener colores según el tema
@@ -195,32 +251,32 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        borderRadius: '12px',
+        padding: '12px',
+        marginBottom: '12px',
+        backdropFilter: 'blur(10px)',
+        boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Foto de perfil */}
           <div style={{ position: 'relative' }}>
             <img 
               src={studentInfo.foto}
               alt={`${studentInfo.nombre} ${studentInfo.apellido}`}
               style={{ 
-                width: '120px', 
-                height: '120px', 
+                width: '72px', 
+                height: '72px', 
                 borderRadius: '50%', 
                 objectFit: 'cover',
-                boxShadow: `0 8px 24px ${theme.accent}30`
+                boxShadow: `0 6px 16px ${theme.accent}30`
               }}
             />
             <button style={{
               position: 'absolute',
-              bottom: '8px',
-              right: '8px',
-              width: '36px',
-              height: '36px',
+              bottom: '4px',
+              right: '4px',
+              width: '24px',
+              height: '24px',
               borderRadius: '50%',
               background: theme.accent,
               border: 'none',
@@ -229,81 +285,81 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: `0 4px 12px ${theme.accent}40`
+              boxShadow: `0 3px 8px ${theme.accent}40`
             }}>
-              <Camera size={18} />
+              <Camera size={12} />
             </button>
           </div>
 
           {/* Información básica */}
           <div style={{ flex: 1 }}>
             <h1 style={{ 
-              fontSize: '2.2rem', 
+              fontSize: '1.1rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 8px 0' 
+              margin: '0 0 4px 0' 
             }}>
               {studentInfo.nombre} {studentInfo.apellido}
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
-              fontSize: '1.1rem', 
-              margin: '0 0 12px 0' 
+              fontSize: '0.85rem', 
+              margin: '0 0 6px 0' 
             }}>
               {studentInfo.carrera} - {studentInfo.semestre}
             </p>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '16px',
-              fontSize: '0.9rem',
+              gap: '8px',
+              fontSize: '0.8rem',
               color: theme.textMuted,
               flexWrap: 'wrap'
             }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Mail size={16} />
+                <Mail size={12} />
                 {studentInfo.email}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <GraduationCap size={16} />
+                <GraduationCap size={12} />
                 {studentInfo.estado}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Star size={16} />
+                <Star size={12} />
                 Promedio: {studentInfo.promedio}/10
               </span>
             </div>
           </div>
 
           {/* Estadísticas rápidas */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
             <div style={{
               background: darkMode ? `${theme.success}20` : `${theme.success}10`,
               border: `1px solid ${theme.success}30`,
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: '8px',
+              padding: '8px',
               textAlign: 'center',
               minWidth: '100px'
             }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: theme.success }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: '800', color: theme.success }}>
                 {studentInfo.promedio}
               </div>
-              <div style={{ fontSize: '0.8rem', color: theme.textMuted }}>
+              <div style={{ fontSize: '0.72rem', color: theme.textMuted }}>
                 Promedio
               </div>
             </div>
             <div style={{
               background: darkMode ? `${theme.info}20` : `${theme.info}10`,
               border: `1px solid ${theme.info}30`,
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: '8px',
+              padding: '8px',
               textAlign: 'center',
               minWidth: '100px'
             }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: theme.info }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: '800', color: theme.info }}>
                 2
               </div>
-              <div style={{ fontSize: '0.8rem', color: theme.textMuted }}>
+              <div style={{ fontSize: '0.72rem', color: theme.textMuted }}>
                 Semestres
               </div>
             </div>
@@ -315,13 +371,13 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        borderRadius: '10px',
+        padding: '10px',
+        marginBottom: '12px',
+        backdropFilter: 'blur(10px)',
+        boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
       }}>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -331,18 +387,18 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 style={{
-                  padding: '12px 24px',
+                  padding: '6px 10px',
                   background: isActive ? theme.accent : 'transparent',
                   color: isActive ? (darkMode ? '#000' : '#fff') : theme.textSecondary,
                   border: isActive ? 'none' : `1px solid ${theme.border}`,
-                  borderRadius: '12px',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
+                  borderRadius: '8px',
+                  fontSize: '0.8rem',
+                  fontWeight: '800',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '6px',
                   fontFamily: 'Montserrat, sans-serif'
                 }}
                 onMouseEnter={(e) => {
@@ -358,7 +414,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   }
                 }}
               >
-                <Icon size={18} />
+                <Icon size={14} />
                 {tab.name}
               </button>
             );
@@ -370,10 +426,10 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        borderRadius: '10px',
+        padding: '12px',
+        backdropFilter: 'blur(10px)',
+        boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
       }}>
         {/* Información Personal */}
         {activeTab === 'informacion' && (

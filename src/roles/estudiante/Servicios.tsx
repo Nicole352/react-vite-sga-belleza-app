@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, FileText, HelpCircle, Settings, CreditCard, Search, CheckCircle, Clock, Mail } from 'lucide-react';
+import { CreditCard, Search, CheckCircle, Clock, Mail } from 'lucide-react';
 
 // Importar el componente de Pagos Mensuales
 import PagosMenuales from './PagosMenuales';
@@ -99,38 +99,38 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        borderRadius: '12px',
+        padding: '12px',
+        marginBottom: '12px',
+        backdropFilter: 'blur(10px)',
+        boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
+            width: '40px',
+            height: '40px',
             background: `linear-gradient(135deg, ${theme.success}, #059669)`,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: `0 8px 24px ${theme.success}30`
+            boxShadow: `0 4px 12px ${theme.success}30`
           }}>
-            <CreditCard size={32} color={darkMode ? '#000' : '#fff'} />
+            <CreditCard size={18} color={darkMode ? '#000' : '#fff'} />
           </div>
           <div>
             <h1 style={{ 
-              fontSize: '2.2rem', 
+              fontSize: '1.1rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 8px 0' 
+              margin: '0 0 4px 0' 
             }}>
-              <CreditCard size={28} style={{ display: 'inline', marginRight: '8px' }} /> Gestión de Pagos
+              <CreditCard size={16} style={{ display: 'inline', marginRight: '6px' }} /> Gestión de Pagos
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
-              fontSize: '1.1rem', 
-              margin: '0 0 4px 0' 
+              fontSize: '0.85rem', 
+              margin: 0 
             }}>
               Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
             </p>
@@ -138,10 +138,10 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         </div>
 
         {/* Búsqueda */}
-        <div style={{ position: 'relative', maxWidth: '400px' }}>
-          <Search size={20} style={{
+        <div style={{ position: 'relative', maxWidth: '360px' }}>
+          <Search size={14} style={{
             position: 'absolute',
-            left: '16px',
+            left: '10px',
             top: '50%',
             transform: 'translateY(-50%)',
             color: theme.textMuted
@@ -153,12 +153,12 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '12px 16px 12px 50px',
+              padding: '8px 10px 8px 34px',
               background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
               border: `1px solid ${theme.border}`,
-              borderRadius: '12px',
+              borderRadius: '8px',
               color: theme.textPrimary,
-              fontSize: '1rem',
+              fontSize: '0.85rem',
               fontFamily: 'Montserrat, sans-serif'
             }}
           />
@@ -166,7 +166,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       </div>
 
       {/* Servicios */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
         {filteredServices.map((service) => {
           const Icon = service.icon;
           const statusColor = getStatusColor(service.status);
@@ -177,49 +177,49 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               style={{
                 background: theme.cardBg,
                 border: `1px solid ${theme.border}`,
-                borderRadius: '20px',
-                padding: '32px',
-                backdropFilter: 'blur(20px)',
-                boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.3s ease',
+                borderRadius: '12px',
+                padding: '16px',
+                backdropFilter: 'blur(10px)',
+                boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.2s ease',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = darkMode 
-                  ? '0 25px 50px rgba(0, 0, 0, 0.4)' 
-                  : '0 25px 50px rgba(0, 0, 0, 0.15)';
+                  ? '0 16px 32px rgba(0, 0, 0, 0.35)' 
+                  : '0 16px 32px rgba(0, 0, 0, 0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = darkMode 
-                  ? '0 20px 40px rgba(0, 0, 0, 0.3)' 
-                  : '0 20px 40px rgba(0, 0, 0, 0.1)';
+                  ? '0 12px 24px rgba(0, 0, 0, 0.25)' 
+                  : '0 12px 24px rgba(0, 0, 0, 0.08)';
               }}
             >
               {/* Header del servicio */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <div style={{
-                  width: '60px',
-                  height: '60px',
+                  width: '36px',
+                  height: '36px',
                   background: `${theme.accent}20`,
-                  borderRadius: '16px',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Icon size={28} color={theme.accent} />
+                  <Icon size={16} color={theme.accent} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <h3 style={{
-                    fontSize: '1.3rem',
-                    fontWeight: '700',
+                    fontSize: '1rem',
+                    fontWeight: '800',
                     color: theme.textPrimary,
-                    margin: '0 0 8px 0'
+                    margin: '0 0 4px 0'
                   }}>
                     {service.title}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{
                       width: '8px',
                       height: '8px',
@@ -228,8 +228,8 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                     }} />
                     <span style={{
                       color: statusColor,
-                      fontSize: '0.9rem',
-                      fontWeight: '600'
+                      fontSize: '0.8rem',
+                      fontWeight: '700'
                     }}>
                       {getStatusText(service.status)}
                     </span>
@@ -240,30 +240,30 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               {/* Descripción */}
               <p style={{
                 color: theme.textSecondary,
-                fontSize: '1rem',
-                margin: '0 0 20px 0',
-                lineHeight: 1.6
+                fontSize: '0.9rem',
+                margin: '0 0 10px 0',
+                lineHeight: 1.4
               }}>
                 {service.description}
               </p>
 
               {/* Características */}
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '12px' }}>
                 <h4 style={{
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: '0 0 12px 0'
+                  margin: '0 0 8px 0'
                 }}>
                   Características:
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {service.features.map((feature, index) => (
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <CheckCircle size={16} color={theme.success} />
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle size={12} color={theme.success} />
                       <span style={{
                         color: theme.textSecondary,
-                        fontSize: '0.9rem'
+                        fontSize: '0.85rem'
                       }}>
                         {feature}
                       </span>
@@ -275,19 +275,19 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               {/* Información de contacto */}
               <div style={{
                 background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '20px'
+                borderRadius: '8px',
+                padding: '10px',
+                marginBottom: '12px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Clock size={16} color={theme.textMuted} />
-                  <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <Clock size={12} color={theme.textMuted} />
+                  <span style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>
                     {service.schedule}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Mail size={16} color={theme.textMuted} />
-                  <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Mail size={12} color={theme.textMuted} />
+                  <span style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>
                     {service.contact}
                   </span>
                 </div>
@@ -307,18 +307,18 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                   : `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
                 color: darkMode ? '#000' : '#fff',
                 border: 'none',
-                borderRadius: '12px',
-                padding: '14px 24px',
-                fontSize: '1rem',
-                fontWeight: '700',
+                borderRadius: '10px',
+                padding: '10px 12px',
+                fontSize: '0.85rem',
+                fontWeight: '800',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '6px'
               }}>
-                <CreditCard size={18} />
+                <CreditCard size={14} />
                 {service.action}
               </button>
             </div>
@@ -331,24 +331,24 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '64px 32px',
+          borderRadius: '12px',
+          padding: '32px 16px',
           textAlign: 'center',
-          backdropFilter: 'blur(20px)',
-          boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          backdropFilter: 'blur(10px)',
+          boxShadow: darkMode ? '0 12px 24px rgba(0, 0, 0, 0.25)' : '0 12px 24px rgba(0, 0, 0, 0.08)'
         }}>
-          <Search size={48} color={theme.textMuted} style={{ marginBottom: '16px' }} />
+          <Search size={24} color={theme.textMuted} style={{ marginBottom: '10px' }} />
           <h3 style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
+            fontSize: '1.1rem',
+            fontWeight: '800',
             color: theme.textPrimary,
-            margin: '0 0 12px 0'
+            margin: '0 0 6px 0'
           }}>
             No se encontraron servicios
           </h3>
           <p style={{
             color: theme.textSecondary,
-            fontSize: '1rem',
+            fontSize: '0.9rem',
             margin: 0
           }}>
             Intenta con otros términos de búsqueda
@@ -373,21 +373,21 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
           onClick={() => setShowPagosMenuales(false)}
           style={{
             position: 'fixed',
-            top: '20px',
-            right: '20px',
+            top: '12px',
+            right: '12px',
             background: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
+            borderRadius: '8px',
             color: '#fff',
-            padding: '12px 16px',
+            padding: '8px 12px',
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.85rem',
             fontFamily: 'Montserrat, sans-serif',
             zIndex: 2001,
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            fontWeight: '600'
+            gap: '6px',
+            fontWeight: '800'
           }}
         >
           ✕ Cerrar
