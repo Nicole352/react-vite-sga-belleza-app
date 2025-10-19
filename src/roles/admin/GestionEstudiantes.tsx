@@ -117,12 +117,24 @@ const GestionEstudiantes = () => {
       color: '#fff' 
     }}>
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? 12 : 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, marginBottom: 6 }}>
-          <GraduationCap size={isMobile ? 20 : 24} color={RedColorPalette.primary} />
-          <h1 className="responsive-title" style={{ margin: 0, fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>Gestión de Estudiantes</h1>
-        </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: isMobile ? '0.75rem' : '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+      <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', 
+          margin: '0 0 0.375rem 0',
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: isMobile ? '6px' : '0.625rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+        }}>
+          <GraduationCap size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
+          Gestión de Estudiantes
+        </h2>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          margin: 0, 
+          fontSize: isMobile ? '0.75rem' : '0.85rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        }}>
           Administra y visualiza la información de todos los estudiantes registrados
         </p>
       </div>
@@ -130,10 +142,10 @@ const GestionEstudiantes = () => {
       {/* Controles */}
       <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? 12 : 16 }}>
         <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
                 placeholder={isMobile ? "Buscar estudiantes..." : "Buscar por nombre, apellido, cédula o email..."}
@@ -141,10 +153,10 @@ const GestionEstudiantes = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 10px 10px 38px',
+                  padding: '10px 0.625rem 0.625rem 2.375rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
@@ -167,18 +179,18 @@ const GestionEstudiantes = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px', width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ display: 'flex', gap: '0.375rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.625rem', padding: '0.1875rem', width: isSmallScreen ? '100%' : 'auto' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  gap: '0.3125rem',
+                  padding: isMobile ? '7px 0.625rem' : '7px 0.75rem',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '7px',
+                  borderRadius: '0.4375rem',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.75rem',
@@ -195,11 +207,11 @@ const GestionEstudiantes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  gap: '0.375rem',
+                  padding: isMobile ? '7px 0.625rem' : '8px 0.875rem',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.9rem',
@@ -221,17 +233,17 @@ const GestionEstudiantes = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              padding: isMobile ? '10px 16px' : '12px 24px',
+              gap: '0.5rem',
+              padding: isMobile ? '10px 1rem' : '12px 1.5rem',
               background: loading ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '0.625rem',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
@@ -241,21 +253,21 @@ const GestionEstudiantes = () => {
       </GlassEffect>
 
       {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {totalCount}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
             Total Estudiantes
           </div>
         </GlassEffect>
         
-        <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: mapToRedScheme('#3b82f6'), marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+        <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#3b82f6'), marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {estudiantes.filter(e => e.estado === 'activo').length}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
             Estudiantes Activos
           </div>
         </GlassEffect>
@@ -277,9 +289,9 @@ const GestionEstudiantes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.125rem' }}>
           {estudiantesFiltrados.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
             </div>
           ) : (
@@ -292,10 +304,10 @@ const GestionEstudiantes = () => {
                 hover
                 animated
                 style={{
-                  padding: '14px',
+                  padding: '0.875rem',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ 
                       width: 40, 
@@ -309,12 +321,12 @@ const GestionEstudiantes = () => {
                       <User size={20} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.1875rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                         {estudiante.nombre} {estudiante.apellido}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '2px 8px',
+                        padding: '2px 0.5rem',
                         borderRadius: '9999px',
                         fontSize: '0.65rem',
                         fontWeight: '600',
@@ -335,10 +347,10 @@ const GestionEstudiantes = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
-                      <IdCard size={10} style={{ display: 'inline', marginRight: '3px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <IdCard size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
                       Identificación
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'SF Mono, Monaco, Consolas, monospace' }}>
@@ -346,8 +358,8 @@ const GestionEstudiantes = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <User size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      <User size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
                       Usuario
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
@@ -355,8 +367,8 @@ const GestionEstudiantes = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <Mail size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      <Mail size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
                       Email
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
@@ -364,8 +376,8 @@ const GestionEstudiantes = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '4px' }}>
-                      <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      <Calendar size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
                       Registro
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
@@ -381,11 +393,11 @@ const GestionEstudiantes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px',
-                    padding: '10px',
+                    gap: '0.375rem',
+                    padding: '0.625rem',
                     background: 'rgba(239, 68, 68, 0.1)',
                     border: `1px solid ${RedColorPalette.primary}`,
-                    borderRadius: '10px',
+                    borderRadius: '0.625rem',
                     color: RedColorPalette.primary,
                     fontSize: '0.85rem',
                     fontWeight: 600,
@@ -395,7 +407,7 @@ const GestionEstudiantes = () => {
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                     e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
+                    e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -419,12 +431,12 @@ const GestionEstudiantes = () => {
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 24px',
+          padding: isMobile ? '16px' : '20px 1.5rem',
           marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
-          marginBottom: '24px'
+          borderRadius: '1rem',
+          marginBottom: '1.5rem'
         }}>
           <div style={{ 
             color: 'rgba(255,255,255,0.7)', 
@@ -435,7 +447,7 @@ const GestionEstudiantes = () => {
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: '8px',
+            gap: '0.5rem',
             justifyContent: isMobile ? 'center' : 'flex-start',
             flexWrap: 'wrap'
           }}>
@@ -446,11 +458,11 @@ const GestionEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -467,16 +479,16 @@ const GestionEstudiantes = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                   background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '40px',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {pageNum}
@@ -489,11 +501,11 @@ const GestionEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -523,16 +535,16 @@ const GestionEstudiantes = () => {
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              margin: '12px',
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              margin: '0.75rem',
               color: '#ef4444',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '0.375rem'
             }}>
               <span>👉</span>
               <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -544,22 +556,22 @@ const GestionEstudiantes = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.1)' }}>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Estudiante
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Identificación
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Usuario
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Estado
                 </th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Fecha Registro
                 </th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem', textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontSize: '0.9rem' }}>
                   Acciones
                 </th>
               </tr>
@@ -567,7 +579,7 @@ const GestionEstudiantes = () => {
             <tbody>
               {estudiantesFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                  <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
                     {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
                   </td>
                 </tr>
@@ -577,7 +589,7 @@ const GestionEstudiantes = () => {
                     borderTop: index > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none',
                     transition: 'background-color 0.2s'
                   }}>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ 
                           width: 40, 
@@ -602,16 +614,16 @@ const GestionEstudiantes = () => {
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                    <td style={{ padding: '1rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
                       {estudiante.identificacion}
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '1rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
                       {estudiante.username || 'No asignado'}
                     </td>
-                    <td style={{ padding: '16px' }}>
+                    <td style={{ padding: '1rem' }}>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '4px 12px',
+                        padding: '4px 0.75rem',
                         borderRadius: '9999px',
                         fontSize: '0.8rem',
                         fontWeight: '500',
@@ -629,24 +641,24 @@ const GestionEstudiantes = () => {
                         {estudiante.estado}
                       </span>
                     </td>
-                    <td style={{ padding: '16px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '1rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
                       {formatDate(estudiante.fecha_registro)}
                     </td>
-                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                    <td style={{ padding: '1rem', textAlign: 'center' }}>
                       <button
                         onClick={() => handleViewEstudiante(estudiante)}
                         style={{
                           background: 'rgba(59, 130, 246, 0.15)',
                           border: '1px solid rgba(59, 130, 246, 0.3)',
                           color: '#3b82f6',
-                          padding: '8px 12px',
-                          borderRadius: '8px',
+                          padding: '8px 0.75rem',
+                          borderRadius: '0.5rem',
                           cursor: 'pointer',
                           fontSize: '0.8rem',
                           fontWeight: '500',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '6px',
+                          gap: '0.375rem',
                           margin: '0 auto'
                         }}
                       >
@@ -670,12 +682,12 @@ const GestionEstudiantes = () => {
             justifyContent: 'space-between',
             alignItems: isMobile ? 'stretch' : 'center',
             gap: isMobile ? '12px' : '0',
-            padding: isMobile ? '16px' : '20px 24px',
-            marginTop: '12px',
+            padding: isMobile ? '16px' : '20px 1.5rem',
+            marginTop: '0.75rem',
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '16px',
-            marginBottom: '24px'
+            borderRadius: '1rem',
+            marginBottom: '1.5rem'
           }}>
             <div style={{ 
               color: 'rgba(255,255,255,0.7)', 
@@ -686,7 +698,7 @@ const GestionEstudiantes = () => {
             </div>
             <div style={{ 
               display: 'flex', 
-              gap: '8px',
+              gap: '0.5rem',
               justifyContent: isMobile ? 'center' : 'flex-start',
               flexWrap: 'wrap'
             }}>
@@ -697,11 +709,11 @@ const GestionEstudiantes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: isMobile ? '4px' : '6px',
-                  padding: isMobile ? '8px 12px' : '8px 16px',
+                  gap: isMobile ? '4px' : '0.375rem',
+                  padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                   background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
@@ -718,16 +730,16 @@ const GestionEstudiantes = () => {
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
                   style={{
-                    padding: isMobile ? '8px 10px' : '8px 14px',
+                    padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                     background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                     border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '10px',
+                    borderRadius: '0.625rem',
                     color: '#fff',
                     fontSize: isMobile ? '0.8rem' : '0.9rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    minWidth: isMobile ? '36px' : '40px',
+                    minWidth: isMobile ? '36px' : '2.5rem',
                   }}
                 >
                   {pageNum}
@@ -740,11 +752,11 @@ const GestionEstudiantes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: isMobile ? '4px' : '6px',
-                  padding: isMobile ? '8px 12px' : '8px 16px',
+                  gap: isMobile ? '4px' : '0.375rem',
+                  padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                   background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
@@ -776,19 +788,19 @@ const GestionEstudiantes = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
           }}
         >
           <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '700px',
-            padding: isMobile ? '16px' : '18px 28px 22px 28px',
+            maxWidth: isMobile ? '100vw' : '43.75rem',
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
             maxHeight: isMobile ? '90vh' : '85vh',
             overflowY: 'auto',
           }}>
@@ -797,11 +809,11 @@ const GestionEstudiantes = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
-              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 <GraduationCap size={20} />
                 Información del Estudiante
               </h3>
@@ -810,8 +822,8 @@ const GestionEstudiantes = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -852,7 +864,7 @@ const GestionEstudiantes = () => {
               </div>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>
-                <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <User size={16} color="#3b82f6" />
                   {selectedEstudiante.username || 'No asignado'}
                 </div>
@@ -860,7 +872,7 @@ const GestionEstudiantes = () => {
               {selectedEstudiante.telefono && (
                 <div>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Phone size={16} color="#10b981" />
                     {selectedEstudiante.telefono}
                   </div>
@@ -869,7 +881,7 @@ const GestionEstudiantes = () => {
               {selectedEstudiante.fecha_nacimiento && (
                 <div>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Calendar size={16} color="#fbbf24" />
                     {formatDate(selectedEstudiante.fecha_nacimiento)}
                   </div>
@@ -884,7 +896,7 @@ const GestionEstudiantes = () => {
               {selectedEstudiante.direccion && (
                 <div style={{ gridColumn: '1 / -1' }}>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Dirección</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <MapPin size={16} color="#ef4444" />
                     {selectedEstudiante.direccion}
                   </div>
@@ -894,7 +906,7 @@ const GestionEstudiantes = () => {
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
                 <span style={{
                   display: 'inline-flex',
-                  padding: '6px 12px',
+                  padding: '6px 0.75rem',
                   borderRadius: '9999px',
                   fontSize: '0.9rem',
                   fontWeight: '600',
@@ -926,8 +938,8 @@ const GestionEstudiantes = () => {
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
                   color: '#9ca3af',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
+                  padding: '10px 1.25rem',
+                  borderRadius: '0.5rem',
                   width: isMobile ? '100%' : 'auto',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
@@ -945,3 +957,6 @@ const GestionEstudiantes = () => {
 };
 
 export default GestionEstudiantes;
+
+
+

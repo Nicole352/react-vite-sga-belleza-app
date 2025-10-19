@@ -9,6 +9,45 @@
 */
 
 /* ============================================
+   FONT SIZE BASE - ESCALA TODO EL PANEL
+   ============================================ */
+
+/* Escala base para pantallas grandes (1920px+) */
+@media (min-width: 1920px) {
+  html {
+    font-size: 18px; /* Aumenta ligeramente para pantallas muy grandes */
+  }
+}
+
+/* Escala normal para desktop (1025px - 1919px) */
+@media (min-width: 1025px) and (max-width: 1919px) {
+  html {
+    font-size: 16px; /* Tamaño base estándar */
+  }
+}
+
+/* Escala reducida para laptops pequeñas (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  html {
+    font-size: 14px; /* Reduce todo un 12.5% */
+  }
+}
+
+/* Escala para tablets (641px - 768px) */
+@media (min-width: 641px) and (max-width: 768px) {
+  html {
+    font-size: 13px; /* Reduce todo un 18.75% */
+  }
+}
+
+/* Escala para móviles (0 - 640px) */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px; /* Móvil mantiene tamaño legible */
+  }
+}
+
+/* ============================================
    GRID RESPONSIVE
    ============================================ */
 
@@ -16,7 +55,7 @@
 .responsive-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 @media (max-width: 1024px) {
@@ -35,7 +74,7 @@
 .responsive-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 @media (max-width: 1024px) {
@@ -54,7 +93,7 @@
 .responsive-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 @media (max-width: 640px) {
@@ -66,8 +105,8 @@
 /* Grid auto-fit (se adapta automáticamente) */
 .responsive-grid-auto {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+  gap: 0.75rem;
 }
 
 @media (max-width: 640px) {
@@ -82,13 +121,13 @@
 
 .responsive-flex {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 .responsive-flex-column-mobile {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 @media (max-width: 640px) {
@@ -102,18 +141,18 @@
    ============================================ */
 
 .responsive-padding {
-  padding: 32px;
+  padding: 2rem;
 }
 
 @media (max-width: 1024px) {
   .responsive-padding {
-    padding: 24px;
+    padding: 1.5rem;
   }
 }
 
 @media (max-width: 640px) {
   .responsive-padding {
-    padding: 16px;
+    padding: 1rem;
   }
 }
 
@@ -196,13 +235,13 @@
   
   .responsive-table-container th,
   .responsive-table-container td {
-    padding: 8px 6px !important;
+    padding: 0.5rem 0.375rem !important;
     white-space: nowrap;
   }
   
   /* Hacer los botones más pequeños en móvil */
   .responsive-table-container button {
-    padding: 6px 8px !important;
+    padding: 0.375rem 0.5rem !important;
     font-size: 0.7rem !important;
   }
 }
@@ -213,7 +252,7 @@
 
 .responsive-button-group {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -233,7 +272,7 @@
 
 .responsive-filters {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -254,14 +293,14 @@
    ============================================ */
 
 .responsive-card {
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 0.75rem;
+  padding: 1rem;
 }
 
 @media (max-width: 640px) {
   .responsive-card {
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 0.625rem;
+    padding: 0.75rem;
   }
 }
 
@@ -316,13 +355,13 @@
   div[style*="position: fixed"] button[type="submit"],
   div[style*="position: fixed"] button[type="button"] {
     width: 100%;
-    padding: 12px !important;
+    padding: 0.75rem !important;
     font-size: 0.9rem !important;
   }
   
   /* Padding reducido en modales móviles */
   div[style*="position: fixed"] > div {
-    padding: 16px !important;
+    padding: 1rem !important;
   }
 }
 

@@ -250,12 +250,12 @@ const PanelEstudiantes = () => {
       >
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '80px' : '280px',
+          width: sidebarCollapsed ? '5rem' : '17.5rem',
           background: theme.sidebarBg,
           backdropFilter: 'blur(20px)',
           border: `1px solid ${theme.border}`,
-          borderRadius: '0 20px 20px 0',
-          padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
+          borderRadius: '0 1.25rem 1.25rem 0',
+          padding: sidebarCollapsed ? '0.75rem 0.5rem 1.5rem 0.5rem' : '0.75rem 1.5rem 1.5rem 1.5rem',
           height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
@@ -265,12 +265,12 @@ const PanelEstudiantes = () => {
             onClick={toggleSidebar}
             style={{
               position: 'absolute',
-              top: '16px',
-              right: sidebarCollapsed ? '50%' : '16px',
+              top: '1rem',
+              right: sidebarCollapsed ? '50%' : '1rem',
               transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
+              width: '2.25rem',
+              height: '2.25rem',
+              borderRadius: '0.5rem',
               border: `1px solid ${theme.border}`,
               background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
               color: theme.accent,
@@ -320,10 +320,10 @@ const PanelEstudiantes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    gap: '10px',
-                    padding: sidebarCollapsed ? '12px 8px' : '12px 16px',
-                    marginBottom: '6px',
-                    borderRadius: '12px',
+                    gap: '0.625rem',
+                    padding: sidebarCollapsed ? '0.75rem 0.5rem' : '0.75rem 1rem',
+                    marginBottom: '0.375rem',
+                    borderRadius: '0.75rem',
                     border: 'none',
                     background: activeTab === tab.id ?
                       'linear-gradient(135deg, #f59e0b, #d97706)' :
@@ -366,16 +366,16 @@ const PanelEstudiantes = () => {
         {/* Contenido Principal */}
         <div style={{
           flex: 1,
-          padding: '24px',
+          padding: '1.5rem',
           minHeight: '100%'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '16px 24px',
-            marginBottom: '24px',
+            borderRadius: '1.25rem',
+            padding: '1rem 1.5rem',
+            marginBottom: '1.5rem',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             display: 'flex',
@@ -387,8 +387,8 @@ const PanelEstudiantes = () => {
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
-                width: '48px',
-                height: '48px',
+                width: '3rem',
+                height: '3rem',
                 background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                 borderRadius: '50%',
                 display: 'flex',
@@ -440,8 +440,8 @@ const PanelEstudiantes = () => {
             background: theme.contentBg,
             backdropFilter: 'blur(20px)',
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '32px',
+            borderRadius: '1.25rem',
+            padding: '2rem',
             minHeight: 'calc(100vh - 180px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             position: 'relative',
@@ -473,22 +473,22 @@ const PanelEstudiantes = () => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
-            padding: '20px'
+            padding: '1.25rem'
           }}>
             <div style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
               border: '2px solid rgba(251, 191, 36, 0.4)',
-              borderRadius: '20px',
-              padding: '40px',
-              maxWidth: '500px',
+              borderRadius: '1.25rem',
+              padding: '2.5rem',
+              maxWidth: '31.25rem',
               width: '100%',
               backdropFilter: 'blur(20px)',
               boxShadow: '0 25px 50px rgba(251, 191, 36, 0.3)'
             }}>
               <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
+                  width: '5rem',
+                  height: '5rem',
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   borderRadius: '50%',
                   display: 'flex',
@@ -557,7 +557,7 @@ const PanelEstudiantes = () => {
                       border: 'none',
                       color: 'rgba(255,255,255,0.7)',
                       cursor: 'pointer',
-                      padding: '4px'
+                      padding: '0.25rem'
                     }}
                   >
                     {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -604,7 +604,7 @@ const PanelEstudiantes = () => {
                       border: 'none',
                       color: 'rgba(255,255,255,0.7)',
                       cursor: 'pointer',
-                      padding: '4px'
+                      padding: '0.25rem'
                     }}
                   >
                     {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -617,8 +617,8 @@ const PanelEstudiantes = () => {
                   background: 'rgba(239, 68, 68, 0.15)',
                   border: '1px solid rgba(239, 68, 68, 0.4)',
                   color: '#fecaca',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.5rem',
                   marginBottom: '20px',
                   fontSize: '0.9rem',
                   textAlign: 'center'
@@ -635,8 +635,8 @@ const PanelEstudiantes = () => {
                   background: resetLoading ? 'rgba(251, 191, 36, 0.5)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   color: '#000',
                   border: 'none',
-                  borderRadius: '12px',
-                  padding: '16px 24px',
+                  borderRadius: '0.75rem',
+                  padding: '1rem 1.5rem',
                   fontSize: '1.1rem',
                   fontWeight: '700',
                   cursor: resetLoading ? 'not-allowed' : 'pointer',
@@ -653,8 +653,8 @@ const PanelEstudiantes = () => {
                 {resetLoading ? (
                   <>
                     <div style={{
-                      width: '20px',
-                      height: '20px',
+                      width: '1.25rem',
+                      height: '1.25rem',
                       border: '2px solid rgba(0,0,0,0.3)',
                       borderTop: '2px solid #000',
                       borderRadius: '50%',

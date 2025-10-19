@@ -565,10 +565,10 @@ const GestionCursos = () => {
   return (
     <div className="responsive-padding">
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '12px' : '18px' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
         <h2 className="responsive-title" style={{ 
-          color: 'rgba(255,255,255,0.95)', margin: '0 0 6px 0',
-          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          color: 'rgba(255,255,255,0.95)', margin: '0 0 0.375rem 0',
+          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Cursos
@@ -580,12 +580,12 @@ const GestionCursos = () => {
 
       {/* Advertencia si no hay tipos de curso */}
       {tiposCursos.length === 0 && (
-        <GlassEffect variant="card" tint="warning" intensity="light" style={{ marginBottom: '16px' }}>
+        <GlassEffect variant="card" tint="warning" intensity="light" style={{ marginBottom: '1rem' }}>
           <div style={{
             color: mapToRedScheme('#fbbf24'),
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
               <span style={{ fontWeight: 600 }}>Primero crea un "Tipo de Curso" en el módulo Tipos de Curso para poder crear cursos.</span>
             </div>
           </div>
@@ -593,12 +593,12 @@ const GestionCursos = () => {
       )}
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
         <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
                 placeholder="Buscar cursos o instructores..."
@@ -606,10 +606,10 @@ const GestionCursos = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 10px 10px 38px',
+                  padding: '10px 0.625rem 0.625rem 2.375rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
@@ -633,18 +633,18 @@ const GestionCursos = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '3px', width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ display: 'flex', gap: '0.375rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.625rem', padding: '0.1875rem', width: isSmallScreen ? '100%' : 'auto' }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  gap: '0.3125rem',
+                  padding: isMobile ? '7px 0.625rem' : '7px 0.75rem',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '7px',
+                  borderRadius: '0.4375rem',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: '0.75rem',
@@ -661,11 +661,11 @@ const GestionCursos = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  gap: '0.375rem',
+                  padding: isMobile ? '7px 0.625rem' : '8px 0.875rem',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.9rem',
@@ -687,17 +687,17 @@ const GestionCursos = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              padding: isMobile ? '10px 16px' : '12px 24px',
+              gap: '0.5rem',
+              padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
               background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '0.625rem',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
@@ -707,7 +707,7 @@ const GestionCursos = () => {
         </div>
 
         {/* Info de resultados */}
-        <div style={{ marginTop: '12px', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           {searchTerm || filterEstado !== 'todos' 
             ? `${filteredCursos.length} de ${cursos.length} cursos` 
             : `Total: ${cursos.length} cursos`}
@@ -719,8 +719,8 @@ const GestionCursos = () => {
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: isMobile ? '12px' : '16px',
-          marginBottom: isMobile ? '12px' : '18px'
+          gap: isMobile ? '0.75rem' : '1rem',
+          marginBottom: isMobile ? '0.75rem' : '1.125rem'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -741,15 +741,15 @@ const GestionCursos = () => {
                 hover
                 animated
               >
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                     <span style={{ 
                       color: 'rgba(255,255,255,0.6)', 
                       fontSize: '0.7rem', 
                       fontFamily: 'monospace',
                       background: 'rgba(255,255,255,0.05)',
-                      padding: '3px 6px',
-                      borderRadius: '5px'
+                      padding: '3px 0.375rem',
+                      borderRadius: '0.3125rem'
                     }}>
                       {curso.codigo_curso}
                     </span>
@@ -757,8 +757,8 @@ const GestionCursos = () => {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '3px',
-                        padding: '3px 8px',
+                        gap: '0.1875rem',
+                        padding: '3px 0.5rem',
                         borderRadius: 6,
                         background: estadoConfig.bg,
                         color: estadoConfig.color,
@@ -775,7 +775,7 @@ const GestionCursos = () => {
                     color: '#fff', 
                     fontSize: '0.95rem', 
                     fontWeight: 700, 
-                    margin: '0 0 8px 0'
+                    margin: '0 0 0.5rem 0'
                   }}>
                     {curso.nombre}
                   </h3>
@@ -784,13 +784,13 @@ const GestionCursos = () => {
                 <div style={{ 
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  gap: '10px', 
-                  marginBottom: '12px',
-                  paddingTop: '10px',
+                  gap: '0.625rem', 
+                  marginBottom: '0.75rem',
+                  paddingTop: '0.625rem',
                   borderTop: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Fecha Inicio
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
@@ -798,7 +798,7 @@ const GestionCursos = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Fecha Fin
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
@@ -806,7 +806,7 @@ const GestionCursos = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Cupos
                     </div>
                     <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
@@ -814,7 +814,7 @@ const GestionCursos = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Horario
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
@@ -823,7 +823,7 @@ const GestionCursos = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => handleViewCurso(curso)}
                     style={{
@@ -831,11 +831,11 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '5px',
-                      padding: '8px',
+                      gap: '0.3125rem',
+                      padding: '0.5rem',
                       background: 'rgba(239, 68, 68, 0.1)',
                       border: `1px solid ${RedColorPalette.primary}`,
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       color: RedColorPalette.primary,
                       fontSize: '0.7rem',
                       fontWeight: 600,
@@ -845,7 +845,7 @@ const GestionCursos = () => {
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                       e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                      e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
+                      e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -862,11 +862,11 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
-                      padding: '10px',
+                      gap: '0.375rem',
+                      padding: '0.625rem',
                       background: 'rgba(255,255,255,0.08)',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: '#fff',
                       fontSize: '0.85rem',
                       fontWeight: 600,
@@ -885,10 +885,10 @@ const GestionCursos = () => {
                   <button
                     onClick={() => handleDeleteCurso(curso.id_curso)}
                     style={{
-                      padding: '10px 12px',
+                      padding: '10px 0.75rem',
                       background: 'rgba(239, 68, 68, 0.15)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: '#ef4444',
                       fontSize: '0.85rem',
                       fontWeight: 600,
@@ -912,11 +912,11 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
-                      padding: '10px',
+                      gap: '0.375rem',
+                      padding: '0.625rem',
                       background: curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                       border: curso.estado === 'cancelado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: curso.estado === 'cancelado' ? mapToRedScheme('#10b981') : RedColorPalette.primary,
                       fontSize: '0.85rem',
                       fontWeight: 600,
@@ -948,16 +948,16 @@ const GestionCursos = () => {
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              marginBottom: '12px',
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              marginBottom: '0.75rem',
               color: '#ef4444',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '0.375rem'
             }}>
               <span>👉</span>
               <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -970,9 +970,9 @@ const GestionCursos = () => {
             style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: isMobile ? '12px' : '16px',
+              borderRadius: isMobile ? '0.75rem' : '1rem',
               overflow: 'auto',
-              marginBottom: isMobile ? '12px' : '24px',
+              marginBottom: isMobile ? '0.75rem' : '1.5rem',
               WebkitOverflowScrolling: 'touch'
             }}
           >
@@ -983,7 +983,7 @@ const GestionCursos = () => {
                 borderBottom: '1px solid rgba(248, 113, 113, 0.3)' 
               }}>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'left',
                 fontWeight: 600,
@@ -994,7 +994,7 @@ const GestionCursos = () => {
                 Código
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'left',
                 fontWeight: 600,
@@ -1005,7 +1005,7 @@ const GestionCursos = () => {
                 Nombre
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'center',
                 fontWeight: 600,
@@ -1016,7 +1016,7 @@ const GestionCursos = () => {
                 Fecha Inicio
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'center',
                 fontWeight: 600,
@@ -1027,7 +1027,7 @@ const GestionCursos = () => {
                 Fecha Fin
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'center',
                 fontWeight: 600,
@@ -1038,7 +1038,7 @@ const GestionCursos = () => {
                 Cupos
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'center',
                 fontWeight: 600,
@@ -1049,7 +1049,7 @@ const GestionCursos = () => {
                 Estado
               </th>
               <th style={{ 
-                padding: '10px 12px', 
+                padding: '10px 0.75rem', 
                 color: '#fff', 
                 textAlign: 'center',
                 fontWeight: 600,
@@ -1078,7 +1078,7 @@ const GestionCursos = () => {
                   }}
                 >
                   <td style={{ 
-                    padding: '12px', 
+                    padding: '0.75rem', 
                     color: 'rgba(255,255,255,0.9)',
                     fontWeight: 600,
                     fontSize: '0.8rem',
@@ -1087,7 +1087,7 @@ const GestionCursos = () => {
                     {curso.codigo_curso}
                   </td>
                   <td style={{ 
-                    padding: '12px', 
+                    padding: '0.75rem', 
                     color: '#fff',
                     fontWeight: 600,
                     fontSize: '0.85rem'
@@ -1095,7 +1095,7 @@ const GestionCursos = () => {
                     {curso.nombre}
                   </td>
                   <td style={{ 
-                    padding: '12px', 
+                    padding: '0.75rem', 
                     color: 'rgba(255,255,255,0.8)', 
                     textAlign: 'center',
                     fontSize: '0.8rem'
@@ -1103,19 +1103,19 @@ const GestionCursos = () => {
                     {curso.fecha_inicio}
                   </td>
                   <td style={{ 
-                    padding: '12px', 
+                    padding: '0.75rem', 
                     color: 'rgba(255,255,255,0.8)', 
                     textAlign: 'center',
                     fontSize: '0.8rem'
                   }}>
                     {curso.fecha_fin}
                   </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     {curso.estado === 'cancelado' ? (
                       <span style={{
                         display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '8px',
+                        padding: '4px 0.625rem',
+                        borderRadius: '0.5rem',
                         fontSize: '0.7rem',
                         fontWeight: 700,
                         background: 'rgba(156, 163, 175, 0.2)',
@@ -1128,8 +1128,8 @@ const GestionCursos = () => {
                     ) : (
                       <span style={{
                         display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '8px',
+                        padding: '4px 0.625rem',
+                        borderRadius: '0.5rem',
                         fontSize: '0.7rem',
                         fontWeight: 700,
                         background: (curso.cupos_disponibles || 0) > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
@@ -1140,11 +1140,11 @@ const GestionCursos = () => {
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     <span style={{ 
                       display: 'inline-block',
-                      padding: '4px 10px', 
-                      borderRadius: '8px', 
+                      padding: '4px 0.625rem', 
+                      borderRadius: '0.5rem', 
                       fontSize: '0.7rem', 
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -1164,22 +1164,22 @@ const GestionCursos = () => {
                       {curso.estado}
                     </span>
                   </td>
-                  <td style={{ padding: '12px' }}>
-                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                  <td style={{ padding: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                       <button 
                         onClick={() => handleViewCurso(curso)} 
                         style={{ 
                           background: 'rgba(239, 68, 68, 0.1)', 
                           border: `1px solid ${RedColorPalette.primary}`, 
                           color: RedColorPalette.primary, 
-                          padding: '6px 10px', 
-                          borderRadius: '6px', 
+                          padding: '6px 0.625rem', 
+                          borderRadius: '0.375rem', 
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '4px',
+                          gap: '0.25rem',
                           transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                           transform: 'translateZ(0)'
@@ -1187,7 +1187,7 @@ const GestionCursos = () => {
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                           e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
+                          e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -1204,14 +1204,14 @@ const GestionCursos = () => {
                           background: 'rgba(239, 68, 68, 0.1)', 
                           border: `1px solid ${RedColorPalette.primary}`, 
                           color: RedColorPalette.primary, 
-                          padding: '6px 10px', 
-                          borderRadius: '6px', 
+                          padding: '6px 0.625rem', 
+                          borderRadius: '0.375rem', 
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '4px',
+                          gap: '0.25rem',
                           transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                           transform: 'translateZ(0)'
@@ -1219,7 +1219,7 @@ const GestionCursos = () => {
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                           e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                          e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
+                          e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -1236,14 +1236,14 @@ const GestionCursos = () => {
                           background: 'rgba(239, 68, 68, 0.2)', 
                           border: '1px solid rgba(239, 68, 68, 0.3)', 
                           color: '#ef4444', 
-                          padding: '6px 10px', 
-                          borderRadius: '6px', 
+                          padding: '6px 0.625rem', 
+                          borderRadius: '0.375rem', 
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '4px',
+                          gap: '0.25rem',
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
@@ -1262,13 +1262,13 @@ const GestionCursos = () => {
                           background: curso.estado === 'cancelado' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)', 
                           border: curso.estado === 'cancelado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(156, 163, 175, 0.3)', 
                           color: curso.estado === 'cancelado' ? mapToRedScheme('#10b981') : '#9ca3af', 
-                          padding: '6px 10px', 
-                          borderRadius: '6px',
+                          padding: '6px 0.625rem', 
+                          borderRadius: '0.375rem',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '4px', 
+                          gap: '0.25rem', 
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           whiteSpace: 'nowrap'
@@ -1296,13 +1296,13 @@ const GestionCursos = () => {
       {loading && (
         <div style={{ 
           color: 'rgba(255,255,255,0.6)', 
-          padding: '60px 20px',
+          padding: '60px 1.25rem',
           textAlign: 'center',
           fontSize: '1rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
-          marginBottom: '24px'
+          borderRadius: '1rem',
+          marginBottom: '1.5rem'
         }}>
           Cargando cursos...
         </div>
@@ -1310,13 +1310,13 @@ const GestionCursos = () => {
       {error && (
         <div style={{ 
           color: '#ef4444', 
-          padding: '20px',
+          padding: '1.25rem',
           textAlign: 'center',
           background: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '16px',
+          borderRadius: '1rem',
           fontSize: '0.95rem',
-          marginBottom: '24px'
+          marginBottom: '1.5rem'
         }}>
           {error}
         </div>
@@ -1324,13 +1324,13 @@ const GestionCursos = () => {
       {!loading && !error && filteredCursos.length === 0 && (
         <div style={{ 
           color: 'rgba(255,255,255,0.6)', 
-          padding: '60px 20px',
+          padding: '60px 1.25rem',
           textAlign: 'center',
           fontSize: '1rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
-          marginBottom: '24px'
+          borderRadius: '1rem',
+          marginBottom: '1.5rem'
         }}>
           {searchTerm || filterEstado !== 'todos' ? 'No se encontraron cursos' : 'No hay cursos registrados'}
         </div>
@@ -1343,13 +1343,13 @@ const GestionCursos = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 24px',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '16px' : '20px 1.5rem',
           marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
-          marginBottom: '24px'
+          borderRadius: '1rem',
+          marginBottom: '1.5rem'
         }}>
           <div style={{ 
             color: 'rgba(255,255,255,0.7)', 
@@ -1360,7 +1360,7 @@ const GestionCursos = () => {
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: '8px', 
+            gap: '0.5rem', 
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -1371,11 +1371,11 @@ const GestionCursos = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -1392,16 +1392,16 @@ const GestionCursos = () => {
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 style={{
-                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                   background: currentPage === page ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
                   border: currentPage === page ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '40px',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {page}
@@ -1414,11 +1414,11 @@ const GestionCursos = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -1449,7 +1449,7 @@ const GestionCursos = () => {
             alignItems: isSmallScreen ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 99999,
-            padding: isSmallScreen ? '0' : '20px',
+            padding: isSmallScreen ? '0' : '1.25rem',
           }}
         >
           <div 
@@ -1457,14 +1457,14 @@ const GestionCursos = () => {
             style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isSmallScreen ? '20px 20px 0 0' : '12px',
+            borderRadius: isSmallScreen ? '20px 1.25rem 0 0' : '0.75rem',
             width: isSmallScreen ? '100%' : '100%',
             maxWidth: isSmallScreen ? '100%' : '750px',
             maxHeight: isSmallScreen ? '90vh' : '85vh',
-            padding: isMobile ? '16px 20px 20px 20px' : '18px 28px 22px 28px',
+            padding: isMobile ? '16px 1.25rem 1.25rem 1.25rem' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
             overflowY: 'auto',
             animation: isSmallScreen ? 'slideUp 0.3s ease-out' : 'scaleIn 0.3s ease-out'
           }}>
@@ -1472,8 +1472,8 @@ const GestionCursos = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: isMobile ? '14px' : '18px',
-              paddingBottom: isMobile ? '10px' : '14px',
+              marginBottom: isMobile ? '14px' : '1.125rem',
+              paddingBottom: isMobile ? '10px' : '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h3 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
@@ -1484,8 +1484,8 @@ const GestionCursos = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1507,7 +1507,7 @@ const GestionCursos = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', gap: isMobile ? '12px' : '16px', columnGap: isSmallScreen ? 0 : '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', gap: isMobile ? '0.75rem' : '1rem', columnGap: isSmallScreen ? 0 : '1.25rem' }}>
                 {/* Fila 1: Código y Tipo de curso */}
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Código</label>
@@ -1520,10 +1520,10 @@ const GestionCursos = () => {
                     readOnly={true}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: 'rgba(255,255,255,0.05)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: 'rgba(255,255,255,0.7)',
                       cursor: 'not-allowed'
                     }} 
@@ -1536,21 +1536,21 @@ const GestionCursos = () => {
                     // En edición: mostrar solo el nombre del tipo (no editable)
                     <div style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '0.75rem',
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: 'rgba(255,255,255,0.8)',
                       fontSize: '0.9rem',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px'
+                      gap: '0.5rem'
                     }}>
                       <span style={{ 
                         background: 'rgba(239, 68, 68, 0.15)', 
                         color: '#ef4444', 
-                        padding: '2px 6px', 
-                        borderRadius: '4px', 
+                        padding: '2px 0.375rem', 
+                        borderRadius: '0.25rem', 
                         fontSize: '0.7rem', 
                         fontWeight: '600' 
                       }}>
@@ -1598,10 +1598,10 @@ const GestionCursos = () => {
                     readOnly={modalType === 'create'}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: modalType === 'edit' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: modalType === 'edit' ? '#fff' : 'rgba(255,255,255,0.7)',
                       cursor: modalType === 'edit' ? 'text' : 'not-allowed'
                     }} 
@@ -1624,10 +1624,10 @@ const GestionCursos = () => {
                     disabled={modalType === 'view'}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: 'rgba(255,255,255,0.1)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: '#fff' 
                     }} 
                   />
@@ -1641,10 +1641,10 @@ const GestionCursos = () => {
                     disabled={modalType === 'view'}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: 'rgba(255,255,255,0.1)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: '#fff',
                       cursor: modalType === 'view' ? 'not-allowed' : 'pointer'
                     }} 
@@ -1663,10 +1663,10 @@ const GestionCursos = () => {
                     disabled={modalType === 'view'}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: 'rgba(255,255,255,0.1)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: '#fff' 
                     }} 
                   />
@@ -1681,10 +1681,10 @@ const GestionCursos = () => {
                     disabled={modalType === 'view'}
                     style={{ 
                       width: '100%', 
-                      padding: '12px', 
+                      padding: '0.75rem', 
                       background: 'rgba(255,255,255,0.1)', 
                       border: '1px solid rgba(255,255,255,0.2)', 
-                      borderRadius: '10px', 
+                      borderRadius: '0.625rem', 
                       color: '#fff' 
                     }} 
                   />
@@ -1708,12 +1708,12 @@ const GestionCursos = () => {
               </div>
 
               {modalType !== 'view' && (
-                <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? '10px' : '12px', marginTop: isMobile ? '16px' : '32px', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? '10px' : '0.75rem', marginTop: isMobile ? '16px' : '2rem', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
                     style={{
-                      padding: isMobile ? '10px 16px' : '12px 24px',
+                      padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
                       background: 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: isMobile ? 10 : 12,
@@ -1731,8 +1731,8 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
-                      padding: isMobile ? '10px 16px' : '12px 24px',
+                      gap: '0.5rem',
+                      padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
                       background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                       border: 'none',
                       borderRadius: isMobile ? 10 : 12,
@@ -1782,3 +1782,6 @@ const GestionCursos = () => {
 };
 
 export default GestionCursos;
+
+
+

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassEffect from '../../components/GlassEffect';
+import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -43,15 +44,15 @@ const Reportes = () => {
     }
     
     .metricas-scroll::-webkit-scrollbar {
-      height: 6px;
+      height: 0.375rem;
     }
     .metricas-scroll::-webkit-scrollbar-track {
       background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
+      border-radius: 0.625rem;
     }
     .metricas-scroll::-webkit-scrollbar-thumb {
       background: rgba(239, 68, 68, 0.5);
-      border-radius: 10px;
+      border-radius: 0.625rem;
     }
     .metricas-scroll::-webkit-scrollbar-thumb:hover {
       background: rgba(239, 68, 68, 0.7);
@@ -60,7 +61,7 @@ const Reportes = () => {
     /* Forzar que las tarjetas no se envuelvan */
     .metricas-scroll > div {
       flex-shrink: 0 !important;
-      min-width: 150px !important;
+      min-width: 9.375rem !important;
     }
   `;
   
@@ -496,7 +497,7 @@ const Reportes = () => {
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center', 
-            gap: '8px',
+            gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Curso:</label>
@@ -504,9 +505,9 @@ const Reportes = () => {
               value={filtroCurso}
               onChange={(e) => setFiltroCurso(e.target.value)}
               style={{
-                padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
-                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '300px',
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '18.75rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -541,7 +542,7 @@ const Reportes = () => {
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center', 
-            gap: '8px',
+            gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
@@ -549,8 +550,8 @@ const Reportes = () => {
               value={filtroEstadoEstudiante}
               onChange={(e) => setFiltroEstadoEstudiante(e.target.value)}
               style={{
-                padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                 color: '#fff', fontSize: '0.9rem',
                 width: isMobile ? '100%' : 'auto'
               }}
@@ -572,7 +573,7 @@ const Reportes = () => {
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center', 
-            gap: '8px',
+            gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Tipo Pago:</label>
@@ -580,8 +581,8 @@ const Reportes = () => {
               value={filtroTipoPago}
               onChange={(e) => setFiltroTipoPago(e.target.value)}
               style={{
-                padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                 color: '#fff', fontSize: '0.9rem'
               }}
             >
@@ -595,7 +596,7 @@ const Reportes = () => {
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center', 
-            gap: '8px',
+            gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
             <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
@@ -603,9 +604,9 @@ const Reportes = () => {
               value={filtroEstadoPago}
               onChange={(e) => setFiltroEstadoPago(e.target.value)}
               style={{
-                padding: '8px 12px', background: 'rgba(255,255,255,0.1)',
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
                 width: isMobile ? '100%' : 'auto',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                 color: '#fff', fontSize: '0.9rem'
               }}
             >
@@ -625,8 +626,8 @@ const Reportes = () => {
   const renderEstadisticas = () => {
     if (!datosReporte || !estadisticas) {
       return (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'rgba(255,255,255,0.5)' }}>
-          <BarChart3 size={64} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+        <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: 'rgba(255,255,255,0.5)' }}>
+          <BarChart3 size={64} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
           <p style={{ fontSize: '1.1rem', margin: 0 }}>
             Selecciona un tipo de reporte y haz clic en "Ver Reporte" para visualizar las estadísticas
           </p>
@@ -638,9 +639,9 @@ const Reportes = () => {
       // Mostrar mensaje si no hay datos
       if (datosReporte && datosReporte.length === 0) {
         return (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <AlertCircle size={64} color="#f59e0b" style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '8px' }}>No hay estudiantes en este período</h3>
+          <div style={{ textAlign: 'center', padding: '60px 1.25rem' }}>
+            <AlertCircle size={64} color="#f59e0b" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.5rem' }}>No hay estudiantes en este período</h3>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>
               Intenta seleccionar otro período o curso, o verifica que haya estudiantes matriculados.
             </p>
@@ -649,14 +650,14 @@ const Reportes = () => {
       }
 
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '16px' : '24px', width: '100%' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '16px' : '1.5rem', width: '100%' }}>
           {/* Métricas principales */}
           <div className="metricas-scroll" style={{ 
             display: isMobile ? 'flex' : 'grid',
             flexWrap: isMobile ? 'nowrap' : undefined,
             gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
-            gap: isMobile ? '10px' : '12px',
-            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            gap: isMobile ? '10px' : '0.75rem',
+            width: isMobile ? 'calc(100% + 2rem)' : '100%',
             overflowX: isMobile ? 'scroll' : 'visible',
             overflowY: 'hidden',
             paddingBottom: isMobile ? '8px' : '0',
@@ -677,28 +678,28 @@ const Reportes = () => {
                 style={{
                   background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                   border: `2px solid ${metrica.color}40`,
-                  borderRadius: '10px', 
-                  padding: isMobile ? '14px 10px' : '20px 16px',
+                  borderRadius: '0.625rem', 
+                  padding: isMobile ? '14px 0.625rem' : '20px 1rem',
                   textAlign: 'center',
-                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  minHeight: isMobile ? '90px' : '120px',
+                  minHeight: isMobile ? '90px' : '7.5rem',
                   width: isMobile ? '140px' : 'auto',
                   minWidth: isMobile ? '140px' : 'auto',
                   boxSizing: 'border-box',
                   flexShrink: 0
                 }}
               >
-                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
+                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))', flexShrink: 0 }} />
                 <div style={{
                   color: '#fff',
                   fontSize: isMobile ? '1.4rem' : '1.8rem', 
                   fontWeight: '800', 
-                  marginBottom: '4px',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                  marginBottom: '0.25rem',
+                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif',
                   lineHeight: '1'
                 }}>
@@ -729,8 +730,8 @@ const Reportes = () => {
                 color: '#fff',
                 fontSize: '0.95rem',
                 fontWeight: '700',
-                marginBottom: '12px',
-                textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                marginBottom: '0.75rem',
+                textShadow: '0 0.125rem 0.25rem rgba(0,0,0,0.5)'
               }}>
                 Estudiantes Matriculados ({datosReporte.length})
               </h4>
@@ -740,16 +741,16 @@ const Reportes = () => {
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.1)',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  marginBottom: '12px',
+                  borderRadius: '0.5rem',
+                  padding: '8px 0.75rem',
+                  marginBottom: '0.75rem',
                   color: '#ef4444',
                   fontSize: '0.75rem',
                   textAlign: 'center',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px'
+                  gap: '0.375rem'
                 }}>
                   <span>👉</span>
                   <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -762,7 +763,7 @@ const Reportes = () => {
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
                   border: '2px solid rgba(59, 130, 246, 0.3)',
                   borderRadius: isMobile ? 12 : 16,
-                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
+                  boxShadow: '0 0.25rem 1.25rem rgba(59, 130, 246, 0.1)',
                   overflow: 'auto',
                   WebkitOverflowScrolling: 'touch',
                   maxWidth: '100%'
@@ -780,7 +781,7 @@ const Reportes = () => {
                       background: 'rgba(59, 130, 246, 0.1)'
                     }}>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#60a5fa',
                         fontSize: '0.7rem',
@@ -789,7 +790,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Nombre</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#60a5fa',
                         fontSize: '0.7rem',
@@ -798,7 +799,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Curso</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#60a5fa',
                         fontSize: '0.7rem',
@@ -807,7 +808,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Estado</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#60a5fa',
                         fontSize: '0.7rem',
@@ -824,7 +825,7 @@ const Reportes = () => {
                         transition: 'background 0.2s ease'
                       }}>
                         <td style={{
-                          padding: '16px 12px',
+                          padding: '16px 0.75rem',
                           color: '#fff',
                           fontSize: '0.95rem',
                           fontWeight: '500'
@@ -832,16 +833,16 @@ const Reportes = () => {
                           {estudiante.nombre} {estudiante.apellido}
                         </td>
                         <td style={{
-                          padding: '16px 12px',
+                          padding: '16px 0.75rem',
                           color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.9rem'
                         }}>
                           {estudiante.nombre_curso}
                         </td>
-                        <td style={{ padding: '12px', fontSize: '0.85rem' }}>
+                        <td style={{ padding: '0.75rem', fontSize: '0.85rem' }}>
                           <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
+                            padding: '4px 0.5rem',
+                            borderRadius: '0.25rem',
                             fontSize: '0.75rem',
                             fontWeight: '600',
                             background: estudiante.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.2)' :
@@ -855,7 +856,7 @@ const Reportes = () => {
                           </span>
                         </td>
                         <td style={{
-                          padding: '16px 12px',
+                          padding: '16px 0.75rem',
                           color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.9rem'
                         }}>
@@ -866,7 +867,7 @@ const Reportes = () => {
                   </tbody>
                 </table>
                 {datosReporte.length > 10 && (
-                  <div style={{ padding: isMobile ? '12px' : '16px' }}>
+                  <div style={{ padding: isMobile ? '12px' : '1rem' }}>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0, textAlign: 'center' }}>
                       Mostrando 10 de {datosReporte.length} estudiantes. Descarga el reporte completo en PDF o Excel.
                     </p>
@@ -881,14 +882,14 @@ const Reportes = () => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem', width: '100%' }}>
           {/* Métricas principales */}
           <div className="metricas-scroll" style={{ 
             display: isMobile ? 'flex' : 'grid',
             flexWrap: isMobile ? 'nowrap' : undefined,
             gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
-            gap: isMobile ? '10px' : '12px',
-            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            gap: isMobile ? '10px' : '0.75rem',
+            width: isMobile ? 'calc(100% + 2rem)' : '100%',
             overflowX: isMobile ? 'scroll' : 'visible',
             overflowY: 'hidden',
             paddingBottom: isMobile ? '8px' : '0',
@@ -909,28 +910,28 @@ const Reportes = () => {
                 style={{
                   background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                   border: `2px solid ${metrica.color}40`,
-                  borderRadius: '10px', 
-                  padding: isMobile ? '14px 10px' : '20px 16px',
+                  borderRadius: '0.625rem', 
+                  padding: isMobile ? '14px 0.625rem' : '20px 1rem',
                   textAlign: 'center',
-                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  minHeight: isMobile ? '90px' : '120px',
+                  minHeight: isMobile ? '90px' : '7.5rem',
                   width: isMobile ? '140px' : 'auto',
                   minWidth: isMobile ? '140px' : 'auto',
                   boxSizing: 'border-box',
                   flexShrink: 0
                 }}
               >
-                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))', flexShrink: 0 }} />
+                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))', flexShrink: 0 }} />
                 <div style={{
                   color: '#fff',
                   fontSize: isMobile ? '1.2rem' : '1.5rem', 
                   fontWeight: '800', 
-                  marginBottom: '4px',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                  marginBottom: '0.25rem',
+                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif',
                   lineHeight: '1'
                 }}>
@@ -959,11 +960,11 @@ const Reportes = () => {
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '12px' : '16px',
-              boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
+              borderRadius: isMobile ? '10px' : '0.75rem',
+              padding: isMobile ? '12px' : '1rem',
+              boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
+              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Detalle de Pagos ({datosReporte.length})
               </h4>
               
@@ -972,16 +973,16 @@ const Reportes = () => {
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.1)',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  marginBottom: '12px',
+                  borderRadius: '0.5rem',
+                  padding: '8px 0.75rem',
+                  marginBottom: '0.75rem',
                   color: '#ef4444',
                   fontSize: '0.75rem',
                   textAlign: 'center',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px'
+                  gap: '0.375rem'
                 }}>
                   <span>👉</span>
                   <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -994,7 +995,7 @@ const Reportes = () => {
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
                   border: '2px solid rgba(16, 185, 129, 0.3)',
                   borderRadius: isMobile ? 10 : 12,
-                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)',
+                  boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)',
                   overflow: 'auto',
                   WebkitOverflowScrolling: 'touch',
                   maxWidth: '100%'
@@ -1012,7 +1013,7 @@ const Reportes = () => {
                       background: 'rgba(16, 185, 129, 0.1)'
                     }}>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#10b981',
                         fontSize: '0.7rem',
@@ -1021,7 +1022,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Estudiante</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#10b981',
                         fontSize: '0.7rem',
@@ -1030,7 +1031,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Curso</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#10b981',
                         fontSize: '0.7rem',
@@ -1039,7 +1040,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Monto</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#10b981',
                         fontSize: '0.7rem',
@@ -1048,7 +1049,7 @@ const Reportes = () => {
                         letterSpacing: '0.5px'
                       }}>Fecha</th>
                       <th style={{
-                        padding: '10px 8px',
+                        padding: '10px 0.5rem',
                         textAlign: 'left',
                         color: '#10b981',
                         fontSize: '0.7rem',
@@ -1065,7 +1066,7 @@ const Reportes = () => {
                         transition: 'background 0.2s ease'
                       }}>
                         <td style={{
-                          padding: '10px 8px',
+                          padding: '10px 0.5rem',
                           color: '#fff',
                           fontSize: '0.8rem',
                           fontWeight: '500'
@@ -1073,14 +1074,14 @@ const Reportes = () => {
                           {pago.nombre_estudiante} {pago.apellido_estudiante}
                         </td>
                         <td style={{
-                          padding: '10px 8px',
+                          padding: '10px 0.5rem',
                           color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.75rem'
                         }}>
                           {pago.nombre_curso}
                         </td>
                         <td style={{
-                          padding: '10px 8px',
+                          padding: '10px 0.5rem',
                           color: '#10b981',
                           fontSize: '0.8rem',
                           fontWeight: '600'
@@ -1088,7 +1089,7 @@ const Reportes = () => {
                           ${parseFloat(pago.monto).toFixed(2)}
                         </td>
                         <td style={{
-                          padding: '10px 8px',
+                          padding: '10px 0.5rem',
                           color: 'rgba(255,255,255,0.85)',
                           fontSize: '0.75rem'
                         }}>
@@ -1099,10 +1100,10 @@ const Reportes = () => {
                               : 'N/A'
                           }
                         </td>
-                        <td style={{ padding: '10px 8px', fontSize: '0.75rem' }}>
+                        <td style={{ padding: '10px 0.5rem', fontSize: '0.75rem' }}>
                           <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
+                            padding: '4px 0.5rem',
+                            borderRadius: '0.25rem',
                             fontSize: '0.7rem',
                             fontWeight: '600',
                             background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
@@ -1120,7 +1121,7 @@ const Reportes = () => {
                   </tbody>
                 </table>
                 {datosReporte.length > 10 && (
-                  <div style={{ padding: isMobile ? '12px' : '16px' }}>
+                  <div style={{ padding: isMobile ? '12px' : '1rem' }}>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', margin: 0, textAlign: 'center' }}>
                       Mostrando 10 de {datosReporte.length} pagos. Descarga el reporte completo en PDF o Excel.
                     </p>
@@ -1135,14 +1136,14 @@ const Reportes = () => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '16px', width: '100%' }}>
+        <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem', width: '100%' }}>
           {/* Métricas principales */}
           <div className="metricas-scroll" style={{ 
             display: isMobile ? 'flex' : 'grid',
             flexWrap: isMobile ? 'nowrap' : undefined,
             gridTemplateColumns: isMobile ? 'none' : 'repeat(3, 1fr)',
-            gap: isMobile ? '10px' : '12px',
-            width: isMobile ? 'calc(100% + 32px)' : '100%',
+            gap: isMobile ? '10px' : '0.75rem',
+            width: isMobile ? 'calc(100% + 2rem)' : '100%',
             overflowX: isMobile ? 'scroll' : 'visible',
             overflowY: 'hidden',
             paddingBottom: isMobile ? '8px' : '0',
@@ -1165,19 +1166,19 @@ const Reportes = () => {
                                 style={{
                   background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
                   border: `2px solid ${metrica.color}40`,
-                  borderRadius: '10px', padding: isMobile ? '10px 8px' : '12px',
+                  borderRadius: '0.625rem', padding: isMobile ? '10px 0.5rem' : '0.75rem',
                   textAlign: 'center',
-                  boxShadow: `0 4px 20px ${metrica.color}20`,
+                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
                   width: isMobile ? '140px' : 'auto',
                   minWidth: isMobile ? '140px' : 'auto',
                   flexShrink: 0
                 }}
               >
-                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '6px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))' }} />
                 <div style={{
                   color: '#fff',
-                  fontSize: '1.5rem', fontWeight: '800', marginBottom: '4px',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                  fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.25rem',
+                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
                   {metrica.valor}
@@ -1198,27 +1199,27 @@ const Reportes = () => {
             <div style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '12px' : '16px',
-              boxShadow: '0 4px 20px rgba(16, 185, 129, 0.1)'
+              borderRadius: isMobile ? '10px' : '0.75rem',
+              padding: isMobile ? '12px' : '1rem',
+              boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>
+              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Cursos Disponibles ({datosReporte.length})
               </h4>
-              <div style={{ display: 'grid', gap: '12px' }}>
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {datosReporte.slice(0, 5).map((curso, idx) => (
                   <div key={idx} style={{
                     background: 'rgba(16, 185, 129, 0.1)',
                     border: '1px solid rgba(16, 185, 129, 0.2)',
-                    borderRadius: '10px',
-                    padding: '12px'
+                    borderRadius: '0.625rem',
+                    padding: '0.75rem'
                   }}>
                     <div style={{ 
                       display: 'flex', 
                       flexDirection: isMobile ? 'column' : 'row',
                       justifyContent: 'space-between', 
                       alignItems: isMobile ? 'flex-start' : 'center', 
-                      marginBottom: '6px',
+                      marginBottom: '0.375rem',
                       gap: isMobile ? '4px' : '0'
                     }}>
                       <div style={{ color: '#fff', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '600' }}>
@@ -1228,12 +1229,12 @@ const Reportes = () => {
                         {curso.porcentaje_ocupacion}% ocupación
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: '8px', height: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: '0.5rem', height: '0.5rem' }}>
                         <div style={{
                           background: '#10b981',
                           height: '100%',
-                          borderRadius: '8px',
+                          borderRadius: '0.5rem',
                           width: `${curso.porcentaje_ocupacion}%`
                         }} />
                       </div>
@@ -1244,7 +1245,7 @@ const Reportes = () => {
                     <div style={{ 
                       display: 'flex', 
                       flexDirection: isMobile ? 'column' : 'row',
-                      gap: isMobile ? '4px' : '16px', 
+                      gap: isMobile ? '4px' : '1rem', 
                       fontSize: isMobile ? '0.75rem' : '0.85rem', 
                       color: 'rgba(255,255,255,0.6)' 
                     }}>
@@ -1255,7 +1256,7 @@ const Reportes = () => {
                 ))}
               </div>
               {datosReporte.length > 5 && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '16px', textAlign: 'center' }}>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '1rem', textAlign: 'center' }}>
                   Mostrando 5 de {datosReporte.length} cursos. Descarga el reporte completo en PDF o Excel.
                 </p>
               )}
@@ -1266,8 +1267,8 @@ const Reportes = () => {
     }
 
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'rgba(255,255,255,0.5)' }}>
-        <AlertCircle size={64} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+      <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: 'rgba(255,255,255,0.5)' }}>
+        <AlertCircle size={64} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
         <p style={{ fontSize: '1.1rem', margin: 0 }}>
           Visualización de estadísticas en desarrollo para este tipo de reporte
         </p>
@@ -1278,21 +1279,25 @@ const Reportes = () => {
   return (
     <>
       <style>{scrollbarStyles}</style>
-      <div style={{ padding: isMobile ? '16px' : '24px' }}>
-        <div style={{ marginBottom: '14px' }}>
-        <h2 style={{
-          color: '#fff', 
-          fontSize: isMobile ? '1rem' : '1.2rem', 
-          fontWeight: '700', 
-          margin: '0 0 4px 0',
+      <div className="responsive-padding">
+        <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', 
+          margin: '0 0 0.375rem 0',
           display: 'flex', 
           alignItems: 'center', 
-          gap: '8px'
+          gap: isMobile ? '6px' : '0.625rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <BarChart3 size={isMobile ? 18 : 22} color="#ef4444" />
+          <BarChart3 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Reportes y Estadísticas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.7rem' : '0.75rem' }}>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          margin: 0, 
+          fontSize: isMobile ? '0.75rem' : '0.85rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        }}>
           Análisis detallado del rendimiento académico y financiero
         </p>
       </div>
@@ -1300,14 +1305,14 @@ const Reportes = () => {
       {/* Pestañas: Generar / Historial */}
       <div style={{
         display: 'flex',
-        gap: '8px',
-        marginBottom: '12px',
+        gap: '0.5rem',
+        marginBottom: '0.75rem',
         borderBottom: '2px solid rgba(239, 68, 68, 0.2)'
       }}>
         <button
           onClick={() => setVistaActual('generar')}
           style={{
-            padding: '8px 14px',
+            padding: '8px 0.875rem',
             background: vistaActual === 'generar' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
             border: 'none',
             borderBottom: vistaActual === 'generar' ? '2px solid #ef4444' : '2px solid transparent',
@@ -1318,7 +1323,7 @@ const Reportes = () => {
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px'
+            gap: '0.3125rem'
           }}
         >
           <BarChart3 size={14} />
@@ -1327,7 +1332,7 @@ const Reportes = () => {
         <button
           onClick={() => setVistaActual('historial')}
           style={{
-            padding: '8px 14px',
+            padding: '8px 0.875rem',
             background: vistaActual === 'historial' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
             border: 'none',
             borderBottom: vistaActual === 'historial' ? '2px solid #ef4444' : '2px solid transparent',
@@ -1338,7 +1343,7 @@ const Reportes = () => {
             transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px'
+            gap: '0.3125rem'
           }}
         >
           <History size={14} />
@@ -1353,15 +1358,15 @@ const Reportes = () => {
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', 
-            gap: '12px', 
-            marginBottom: '16px' 
+            gap: '0.75rem', 
+            marginBottom: '1rem' 
           }}>
             {reportesDisponibles.map(reporte => {
               const isSelected = tipoReporte === reporte.id;
               
               const cardContent = (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                     <reporte.icono size={24} color={isSelected ? '#fff' : '#ef4444'} />
                     <div style={{
                       color: '#fff',
@@ -1395,12 +1400,12 @@ const Reportes = () => {
                       backgroundColor: '#ef4444',
                       backgroundImage: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                       border: '2px solid #ef4444',
-                      borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '12px' : '16px',
+                      borderRadius: isMobile ? '10px' : '0.75rem',
+              padding: isMobile ? '12px' : '1rem',
                       cursor: 'pointer',
                       textAlign: 'left',
                       transition: 'all 0.3s ease',
-                      boxShadow: '0 8px 24px rgba(239, 68, 68, 0.5)',
+                      boxShadow: '0 0.5rem 1.5rem rgba(239, 68, 68, 0.5)',
                       position: 'relative',
                       overflow: 'hidden'
                     }}
@@ -1422,7 +1427,7 @@ const Reportes = () => {
                     setEstadisticas(null);
                   }}
                   style={{
-                    padding: '16px',
+                    padding: '1rem',
                     cursor: 'pointer',
                     textAlign: 'left'
                   }}
@@ -1436,24 +1441,24 @@ const Reportes = () => {
           {/* Controles de Filtro */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)', 
+            backdropFilter: 'blur(1.25rem)', 
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: isMobile ? '12px' : '16px', 
-            padding: isMobile ? '12px' : '16px', 
-            marginBottom: '16px'
+            borderRadius: isMobile ? '12px' : '1rem', 
+            padding: isMobile ? '12px' : '1rem', 
+            marginBottom: '1rem'
           }}>
             <div style={{ 
               display: 'flex', 
               flexDirection: isMobile ? 'column' : 'row',
               flexWrap: 'wrap', 
-              gap: '12px', 
+              gap: '0.75rem', 
               alignItems: isMobile ? 'stretch' : 'center', 
               justifyContent: 'space-between' 
             }}>
               <div style={{ 
                 display: 'flex', 
                 flexDirection: isMobile ? 'column' : 'row',
-                gap: '12px', 
+                gap: '0.75rem', 
                 alignItems: isMobile ? 'stretch' : 'center', 
                 flex: 1, 
                 flexWrap: 'wrap' 
@@ -1464,9 +1469,9 @@ const Reportes = () => {
                     value={periodoSeleccionado}
                     onChange={(e) => setPeriodoSeleccionado(e.target.value)}
                     style={{
-                      padding: '10px 12px', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px',
-                      color: '#fff', fontSize: '0.8rem', minWidth: '250px'
+                      padding: '10px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.625rem',
+                      color: '#fff', fontSize: '0.8rem', minWidth: '15.625rem'
                     }}
                   >
                     <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
@@ -1503,17 +1508,17 @@ const Reportes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  padding: isMobile ? '10px 16px' : '12px 24px',
+                  gap: '0.5rem',
+                  padding: isMobile ? '10px 1rem' : '12px 1.5rem',
                   background: loading ? 'rgba(239, 68, 68, 0.3)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
                   border: 'none',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                   fontSize: '0.8rem',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
                   width: isSmallScreen ? '100%' : 'auto'
                 }}
               >
@@ -1527,18 +1532,18 @@ const Reportes = () => {
           <div style={{ 
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
-            gap: '12px', 
-            marginBottom: '16px', 
+            gap: '0.75rem', 
+            marginBottom: '1rem', 
             justifyContent: isMobile ? 'stretch' : 'flex-end' 
           }}>
             <button
               onClick={() => descargarArchivo('pdf')}
               disabled={!datosReporte || descargando || loading}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '10px 1.25rem',
                 background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
                 border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '8px', color: '#f59e0b', fontSize: '0.8rem', fontWeight: '600',
+                borderRadius: '0.5rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: '600',
                 cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
                 opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
                 width: isMobile ? '100%' : 'auto'
@@ -1551,10 +1556,10 @@ const Reportes = () => {
               onClick={() => descargarArchivo('excel')}
               disabled={!datosReporte || descargando || loading}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '10px 1.25rem',
                 background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
                 border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '8px', color: '#10b981', fontSize: '0.8rem', fontWeight: '600',
+                borderRadius: '0.5rem', color: '#10b981', fontSize: '0.8rem', fontWeight: '600',
                 cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
                 opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
                 width: isMobile ? '100%' : 'auto'
@@ -1568,18 +1573,18 @@ const Reportes = () => {
           {/* Contenido del Reporte */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: isMobile ? '12px' : '20px', 
-            padding: isMobile ? '16px' : '32px',
+            backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: isMobile ? '12px' : '1.25rem', 
+            padding: isMobile ? '16px' : '2rem',
             overflowX: 'hidden',
             overflowY: 'auto'
           }}>
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <h3 style={{ 
                 color: '#fff', 
                 fontSize: isMobile ? '0.95rem' : '1.1rem', 
                 fontWeight: '700', 
-                margin: '0 0 6px 0' 
+                margin: '0 0 0.375rem 0' 
               }}>
                 {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
               </h3>
@@ -1597,12 +1602,12 @@ const Reportes = () => {
               <div style={{
                 background: 'rgba(239, 68, 68, 0.1)',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '12px' : '16px',
-                marginBottom: '24px',
+                borderRadius: isMobile ? '10px' : '0.75rem',
+              padding: isMobile ? '12px' : '1rem',
+                marginBottom: '1.5rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: '0.75rem',
                 color: '#ef4444'
               }}>
                 <AlertCircle size={20} />
@@ -1619,14 +1624,14 @@ const Reportes = () => {
       {vistaActual === 'historial' && (
         <div style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(1.25rem)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '12px',
-          padding: '16px'
+          borderRadius: '0.75rem',
+          padding: '1rem'
         }}>
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <History size={22} color="#ef4444" />
                 Historial de Reportes
               </h3>
@@ -1638,10 +1643,10 @@ const Reportes = () => {
               value={filtroTipoHistorial}
               onChange={(e) => setFiltroTipoHistorial(e.target.value)}
               style={{
-                padding: '8px 12px',
+                padding: '8px 0.75rem',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
                 color: '#fff',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
@@ -1655,17 +1660,17 @@ const Reportes = () => {
           </div>
 
           {loadingHistorial ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
+            <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
+              <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando historial...</p>
             </div>
           ) : historialReportes.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <History size={48} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 12px' }} />
+            <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
+              <History size={48} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 0.75rem' }} />
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay reportes generados aún</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
               {historialReportes
                 .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
                 .map((reporte, idx) => {
@@ -1676,8 +1681,8 @@ const Reportes = () => {
                     <div key={idx} style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '10px',
-                      padding: isMobile ? '10px' : '12px',
+                      borderRadius: '0.625rem',
+                      padding: isMobile ? '10px' : '0.75rem',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
@@ -1693,14 +1698,14 @@ const Reportes = () => {
                       <div style={{ 
                         display: 'flex', 
                         flexDirection: isMobile ? 'column' : 'row',
-                        gap: isMobile ? '10px' : '14px', 
+                        gap: isMobile ? '10px' : '0.875rem', 
                         alignItems: isMobile ? 'stretch' : 'start' 
                       }}>
                         <div style={{
                           background: `${tipoColor}20`,
                           border: `2px solid ${tipoColor}`,
-                          borderRadius: '10px',
-                          padding: isMobile ? '8px' : '10px',
+                          borderRadius: '0.625rem',
+                          padding: isMobile ? '8px' : '0.625rem',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1715,7 +1720,7 @@ const Reportes = () => {
                             flexDirection: isMobile ? 'column' : 'row',
                             justifyContent: 'space-between', 
                             alignItems: isMobile ? 'flex-start' : 'start', 
-                            marginBottom: '8px',
+                            marginBottom: '0.5rem',
                             gap: isMobile ? '6px' : '0'
                           }}>
                             <div>
@@ -1723,7 +1728,7 @@ const Reportes = () => {
                                 color: '#fff', 
                                 fontSize: isMobile ? '0.85rem' : '0.9rem', 
                                 fontWeight: '600', 
-                                margin: '0 0 3px 0',
+                                margin: '0 0 0.1875rem 0',
                                 wordBreak: 'break-word'
                               }}>
                                 {reporte.nombre_reporte}
@@ -1738,10 +1743,10 @@ const Reportes = () => {
                               </p>
                             </div>
                             <span style={{
-                              padding: '3px 10px',
+                              padding: '3px 0.625rem',
                               background: `${tipoColor}20`,
                               border: `1px solid ${tipoColor}`,
-                              borderRadius: '5px',
+                              borderRadius: '0.3125rem',
                               color: tipoColor,
                               fontSize: '0.7rem',
                               fontWeight: '600',
@@ -1754,15 +1759,15 @@ const Reportes = () => {
                           <div style={{ 
                             display: 'flex', 
                             flexDirection: isMobile ? 'column' : 'row',
-                            gap: isMobile ? '4px' : '16px', 
+                            gap: isMobile ? '4px' : '1rem', 
                             fontSize: isMobile ? '0.7rem' : '0.75rem', 
                             color: 'rgba(255,255,255,0.7)' 
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
                               <User size={isMobile ? 10 : 12} />
                               <span>{reporte.generado_por}</span>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
                               <Clock size={isMobile ? 10 : 12} />
                               <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
                                 day: '2-digit',
@@ -1795,5 +1800,8 @@ const Reportes = () => {
 };
 
 export default Reportes;
+
+
+
 
 

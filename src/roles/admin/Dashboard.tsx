@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-  GraduationCap, BookOpen, DollarSign, Award, TrendingUp,
+  BookOpen, DollarSign, Award, TrendingUp,
   AlertTriangle, UserCheck, Target, PieChart, BarChart3,
-  Activity, UserPlus, Shield, Users, Clock, CheckCircle
+  Activity, UserPlus, Shield, GraduationCap, Users, CheckCircle, Clock
 } from 'lucide-react';
 import GlassEffect from '../../components/GlassEffect';
-import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -76,206 +76,302 @@ const Dashboard = () => {
       {/* Tarjetas principales */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: isMobile ? '12px' : '16px',
-        marginBottom: isMobile ? '16px' : '24px'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(15rem, 1fr))',
+        gap: isMobile ? '0.75rem' : '0.875rem',
+        marginBottom: isMobile ? '1rem' : '1.125rem'
       }}>
         {/* Total Administradores */}
-        <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Total Administradores</h3>
-              <p style={{ color: RedColorPalette.primary, fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.totalAdministradores.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(239, 68, 68, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Shield size={16} color="#ef4444" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '10px' }}>
-              <Shield size={22} color={RedColorPalette.primary} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Administradores</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeAdministradores >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeAdministradores >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.totalAdministradores.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
 
         {/* Cursos Activos */}
-        <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Cursos Activos</h3>
-              <p style={{ color: mapToRedScheme('#10b981'), fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.cursosActivos.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(16, 185, 129, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <BookOpen size={16} color="#10b981" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '10px' }}>
-              <BookOpen size={22} color={mapToRedScheme('#10b981')} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Cursos Activos</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeCursos >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeCursos >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeCursos >= 0 ? '+' : ''}${stats.porcentajeCursos}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.cursosActivos.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeCursos >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeCursos >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeCursos >= 0 ? '+' : ''}${stats.porcentajeCursos}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
 
         {/* Matrículas Aceptadas */}
-        <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Matrículas Aceptadas</h3>
-              <p style={{ color: mapToRedScheme('#22c55e'), fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.matriculasAceptadas.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(34, 197, 94, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <CheckCircle size={16} color="#22c55e" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '10px' }}>
-              <CheckCircle size={22} color={mapToRedScheme('#22c55e')} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Matrículas Aceptadas</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeMatriculasAceptadas >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeMatriculasAceptadas >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeMatriculasAceptadas >= 0 ? '+' : ''}${stats.porcentajeMatriculasAceptadas}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.matriculasAceptadas.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeMatriculasAceptadas >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeMatriculasAceptadas >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeMatriculasAceptadas >= 0 ? '+' : ''}${stats.porcentajeMatriculasAceptadas}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
 
         {/* Matrículas Pendientes */}
-        <GlassEffect variant="card" tint="warning" intensity="medium" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Matrículas Pendientes</h3>
-              <p style={{ color: mapToRedScheme('#f59e0b'), fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.matriculasPendientes.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(245, 158, 11, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Clock size={16} color="#f59e0b" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="warning" intensity="light" style={{ padding: '10px' }}>
-              <Clock size={22} color={mapToRedScheme('#f59e0b')} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Matrículas Pendientes</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeMatriculasPendientes >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeMatriculasPendientes >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeMatriculasPendientes >= 0 ? '+' : ''}${stats.porcentajeMatriculasPendientes}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.matriculasPendientes.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeMatriculasPendientes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeMatriculasPendientes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeMatriculasPendientes >= 0 ? '+' : ''}${stats.porcentajeMatriculasPendientes}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
 
         {/* Total Estudiantes */}
-        <GlassEffect variant="card" tint="neutral" intensity="medium" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Total Estudiantes</h3>
-              <p style={{ color: mapToRedScheme('#3b82f6'), fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(59, 130, 246, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <GraduationCap size={16} color="#3b82f6" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="neutral" intensity="light" style={{ padding: '10px' }}>
-              <GraduationCap size={22} color={RedColorPalette.primary} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Estudiantes</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeEstudiantes >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeEstudiantes >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
 
         {/* Total Docentes */}
-        <GlassEffect variant="card" tint="red" intensity="strong" hover animated>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div>
-              <h3 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: '600', margin: '0 0 6px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Total Docentes</h3>
-              <p style={{ color: mapToRedScheme('#a855f7'), fontSize: '1.8rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                {loading ? '...' : stats.totalDocentes.toLocaleString()}
-              </p>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', 
+          border: '1px solid rgba(255,255,255,0.08)', 
+          borderRadius: '0.875rem', 
+          padding: '0.875rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem', minHeight: '2rem' }}>
+            <div style={{ 
+              background: 'rgba(168, 85, 247, 0.12)', 
+              borderRadius: '0.5rem', 
+              padding: '0.4rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Users size={16} color="#a855f7" strokeWidth={2} />
             </div>
-            <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '10px' }}>
-              <Users size={22} color={mapToRedScheme('#a855f7')} />
-            </GlassEffect>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Docentes</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <TrendingUp size={14} color={stats.porcentajeDocentes >= 0 ? RedColorPalette.success : RedColorPalette.primary} />
-            <span style={{ color: stats.porcentajeDocentes >= 0 ? RedColorPalette.success : RedColorPalette.primary, fontSize: '0.7rem', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-              {loading ? '...' : `${stats.porcentajeDocentes >= 0 ? '+' : ''}${stats.porcentajeDocentes}%`}
-            </span>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>vs mes anterior</span>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.875rem)', fontWeight: '700', margin: '0 0 0.5rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em', minHeight: '1.75rem' }}>
+            {loading ? '...' : stats.totalDocentes.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', minHeight: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <TrendingUp size={10} color={stats.porcentajeDocentes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeDocentes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeDocentes >= 0 ? '+' : ''}${stats.porcentajeDocentes}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
           </div>
-        </GlassEffect>
+        </div>
       </div>
 
       {/* Estadísticas adicionales */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-          border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '14px'
+          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.04))',
+          border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: '0.625rem', padding: '0.75rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <AlertTriangle size={16} color="#ef4444" />
-            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', fontWeight: '600', margin: 0 }}>Pagos Pendientes</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+            <AlertTriangle size={isMobile ? 13 : 15} color="#ef4444" />
+            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem', fontWeight: '600', margin: 0 }}>Pagos Pendientes</h4>
           </div>
-          <p style={{ color: '#ef4444', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>23</p>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', margin: '4px 0 0 0' }}>$12,450 en deuda</p>
+          <p style={{ color: '#ef4444', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>23</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.625rem', margin: '0.25rem 0 0 0' }}>$12,450 en deuda</p>
         </div>
 
         <div style={{
-          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(21, 128, 61, 0.05))',
-          border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '12px', padding: '14px'
+          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(21, 128, 61, 0.04))',
+          border: '1px solid rgba(34, 197, 94, 0.15)', borderRadius: '0.625rem', padding: '0.75rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <UserCheck size={16} color="#22c55e" />
-            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', fontWeight: '600', margin: 0 }}>Profesores Activos</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+            <UserCheck size={isMobile ? 13 : 15} color="#22c55e" />
+            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem', fontWeight: '600', margin: 0 }}>Profesores Activos</h4>
           </div>
-          <p style={{ color: '#22c55e', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>8</p>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', margin: '4px 0 0 0' }}>Todos asignados</p>
+          <p style={{ color: '#22c55e', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>8</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.625rem', margin: '0.25rem 0 0 0' }}>Todos asignados</p>
         </div>
 
         <div style={{
-          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05))',
-          border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '12px', padding: '14px'
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(124, 58, 237, 0.04))',
+          border: '1px solid rgba(139, 92, 246, 0.15)', borderRadius: '0.625rem', padding: '0.75rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Target size={16} color="#8b5cf6" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+            <Target size={isMobile ? 13 : 15} color="#8b5cf6" />
             <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', fontWeight: '600', margin: 0 }}>Tasa Graduación</h4>
           </div>
-          <p style={{ color: '#8b5cf6', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>87%</p>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', margin: '4px 0 0 0' }}>Último semestre</p>
+          <p style={{ color: '#8b5cf6', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>87%</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.625rem', margin: '0.25rem 0 0 0' }}>Último semestre</p>
         </div>
 
         <div style={{
           background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.05))',
-          border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '12px', padding: '14px'
+          border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '0.75rem', padding: '0.75rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <PieChart size={16} color="#06b6d4" />
-            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', fontWeight: '600', margin: 0 }}>Ocupación Cursos</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+            <PieChart size={isMobile ? 13 : 15} color="#06b6d4" />
+            <h4 style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem', fontWeight: '600', margin: 0 }}>Ocupación Cursos</h4>
           </div>
-          <p style={{ color: '#06b6d4', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>73%</p>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', margin: '4px 0 0 0' }}>Promedio general</p>
+          <p style={{ color: '#06b6d4', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>73%</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.625rem', margin: '0.25rem 0 0 0' }}>Promedio general</p>
         </div>
       </div>
 
       {/* Gráfico de barras - Matrículas por mes */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '16px', padding: '20px', marginBottom: '24px'
+        background: 'linear-gradient(135deg, rgba(15,15,20,0.7) 0%, rgba(30,30,35,0.7) 100%)',
+        backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.15)',
+        borderRadius: '0.875rem', padding: '1.125rem', marginBottom: '1.25rem'
       }}>
-        <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <BarChart3 size={20} color="#ef4444" />
+        <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '1rem', fontWeight: '700', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <BarChart3 size={isMobile ? 17 : 19} color="#ef4444" />
           Matrículas por Mes (Últimos 6 meses)
         </h3>
 
-        <div style={{ display: 'flex', alignItems: 'end', gap: '12px', height: '160px', padding: '0 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'end', gap: '0.75rem', height: '10rem', padding: '0 0.75rem' }}>
           {[
             { mes: 'Ago', valor: 32, altura: '60%' },
             { mes: 'Sep', valor: 28, altura: '52%' },
@@ -287,8 +383,8 @@ const Dashboard = () => {
             <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
               <div style={{
                 width: '100%', height: item.altura, background: `linear-gradient(180deg, #ef4444, #dc2626)`,
-                borderRadius: '6px 6px 3px 3px', marginBottom: '8px', display: 'flex',
-                alignItems: 'start', justifyContent: 'center', paddingTop: '6px',
+                borderRadius: '6px 0.375rem 0.1875rem 0.1875rem', marginBottom: '0.5rem', display: 'flex',
+                alignItems: 'start', justifyContent: 'center', paddingTop: '0.375rem',
                 color: '#fff', fontSize: '0.7rem', fontWeight: '600'
               }}>
                 {item.valor}
@@ -303,16 +399,16 @@ const Dashboard = () => {
 
       {/* Actividad Reciente */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '16px', padding: '20px'
+        background: 'linear-gradient(135deg, rgba(15,15,20,0.7) 0%, rgba(30,30,35,0.7) 100%)',
+        backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.15)',
+        borderRadius: '0.875rem', padding: '1.125rem'
       }}>
-        <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '700', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Activity size={20} color="#ef4444" />
+        <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '1rem', fontWeight: '700', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Activity size={isMobile ? 17 : 19} color="#ef4444" />
           Actividad Reciente
         </h3>
 
-        <div style={{ display: 'grid', gap: '12px' }}>
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
           {[
             { texto: 'Nueva matrícula: Ana García en Cosmetología Básica', tiempo: 'Hace 2 horas', icono: UserPlus, color: '#10b981' },
             { texto: 'Pago recibido: Carlos López - $350', tiempo: 'Hace 4 horas', icono: DollarSign, color: '#f59e0b' },
@@ -323,23 +419,23 @@ const Dashboard = () => {
             const IconComponent = actividad.icono;
             return (
               <div key={index} style={{
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '12px',
-                background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)'
+                display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem',
+                background: 'rgba(255,255,255,0.02)', borderRadius: '0.625rem', border: '1px solid rgba(255,255,255,0.05)'
               }}>
                 <div style={{
                   background: `rgba(${actividad.color === '#10b981' ? '16, 185, 129' :
                     actividad.color === '#f59e0b' ? '245, 158, 11' :
                       actividad.color === '#a855f7' ? '168, 85, 247' :
                         actividad.color === '#3b82f6' ? '59, 130, 246' : '239, 68, 68'}, 0.2)`,
-                  borderRadius: '8px', padding: '8px'
+                  borderRadius: '0.5rem', padding: '0.5rem'
                 }}>
-                  <IconComponent size={18} color={actividad.color} />
+                  <IconComponent size={isMobile ? 16 : 17} color={actividad.color} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 3px 0' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 0.1875rem 0' }}>
                     {actividad.texto}
                   </p>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', margin: 0 }}>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', margin: 0 }}>
                     {actividad.tiempo}
                   </p>
                 </div>
@@ -353,3 +449,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

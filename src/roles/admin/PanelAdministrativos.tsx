@@ -167,13 +167,50 @@ const PanelAdministrativos = () => {
         .admin-panel textarea,
         .admin-panel select {
           background: var(--admin-input-bg) !important;
-          border: 1px solid var(--admin-input-border) !important;
+          border: 0.0625rem solid var(--admin-input-border) !important;
           color: var(--admin-text-primary) !important;
         }
         
         .admin-panel input::placeholder,
         .admin-panel textarea::placeholder {
           color: var(--admin-text-muted) !important;
+        }
+        
+        /* Escalar contenido en pantallas pequeñas */
+        @media (max-width: 1366px) and (min-width: 1025px) {
+          .admin-panel {
+            font-size: 0.8125rem !important;
+          }
+          
+          .admin-panel h1 {
+            font-size: 1.5rem !important;
+          }
+          
+          .admin-panel h2 {
+            font-size: 1.3rem !important;
+          }
+          
+          .admin-panel h3 {
+            font-size: 1.1rem !important;
+          }
+          
+          .admin-panel button {
+            padding: 0.5rem 0.875rem !important;
+            font-size: 0.85rem !important;
+          }
+          
+          .admin-panel input,
+          .admin-panel select,
+          .admin-panel textarea {
+            font-size: 0.9rem !important;
+            padding: 0.5rem 0.625rem !important;
+          }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+          .admin-panel {
+            font-size: 0.75rem !important;
+          }
         }
       `}</style>
 
@@ -183,7 +220,8 @@ const PanelAdministrativos = () => {
           minHeight: '100vh',
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
-          display: 'flex'
+          display: 'flex',
+          fontSize: '0.875rem'
         }}
       >
         {/* Overlay para móvil */}
@@ -202,17 +240,17 @@ const PanelAdministrativos = () => {
 
         {/* Sidebar */}
         <div style={{
-          width: isSmallScreen ? '280px' : (sidebarCollapsed ? '70px' : '280px'),
+          width: isSmallScreen ? '16rem' : (sidebarCollapsed ? '4.5rem' : '16rem'),
           background: theme.sidebarBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: isSmallScreen ? '0' : '0 16px 16px 0',
-          padding: (isSmallScreen || !sidebarCollapsed) ? '10px 16px 20px 16px' : '10px 6px 20px 6px',
+          borderRadius: isSmallScreen ? '0' : '0 1rem 1rem 0',
+          padding: (isSmallScreen || !sidebarCollapsed) ? '0.625rem 1rem 1.25rem 1rem' : '0.625rem 0.375rem 1.25rem 0.375rem',
           position: 'fixed',
           height: '100vh',
-          left: isSmallScreen ? (mobileMenuOpen ? '0' : '-280px') : '0',
+          left: isSmallScreen ? (mobileMenuOpen ? '0' : '-16rem') : '0',
           top: 0,
           zIndex: 1000,
-          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)',
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
           transition: 'all 0.3s ease',
           overflowY: isSmallScreen ? 'auto' : 'hidden',
           display: 'flex',
@@ -224,12 +262,12 @@ const PanelAdministrativos = () => {
               onClick={toggleSidebar}
               style={{
                 position: 'absolute',
-                top: '16px',
-                right: sidebarCollapsed ? '50%' : '16px',
+                top: '1rem',
+                right: sidebarCollapsed ? '50%' : '1rem',
                 transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
                 border: `1px solid ${theme.border}`,
                 background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                 color: theme.accent,
@@ -259,11 +297,11 @@ const PanelAdministrativos = () => {
               onClick={() => setMobileMenuOpen(false)}
               style={{
                 position: 'absolute',
-                top: '16px',
-                right: '16px',
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
+                top: '1rem',
+                right: '1rem',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
                 border: `1px solid ${theme.border}`,
                 background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                 color: theme.accent,
@@ -284,18 +322,18 @@ const PanelAdministrativos = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '8px',
-            paddingBottom: '4px',
+            marginBottom: '0.5rem',
+            paddingBottom: '0.25rem',
             borderBottom: `1px solid ${theme.border}`,
             paddingTop: '0px',
-            marginTop: (isSmallScreen || !sidebarCollapsed) ? '0px' : '48px'
+            marginTop: (isSmallScreen || !sidebarCollapsed) ? '0px' : '3rem'
           }}>
             {(isSmallScreen || !sidebarCollapsed) && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
           {/* Navegación del Sidebar */}
           <nav style={{ 
-            marginBottom: '32px',
+            marginBottom: '2rem',
             flex: 1
           }}>
             {tabs.map((tab) => {
@@ -313,10 +351,10 @@ const PanelAdministrativos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: (sidebarCollapsed && !isSmallScreen) ? 'center' : 'flex-start',
-                    gap: '10px',
-                    padding: (sidebarCollapsed && !isSmallScreen) ? '12px 8px' : '12px 16px',
-                    marginBottom: '6px',
-                    borderRadius: '12px',
+                    gap: '0.625rem',
+                    padding: (sidebarCollapsed && !isSmallScreen) ? '12px 0.5rem' : '12px 1rem',
+                    marginBottom: '0.375rem',
+                    borderRadius: '0.75rem',
                     border: 'none',
                     background: activeTab === tab.id ?
                       'linear-gradient(135deg, #ef4444, #dc2626)' :
@@ -327,7 +365,7 @@ const PanelAdministrativos = () => {
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     textAlign: 'left',
-                    boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none',
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)' : 'none',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden'
                   }}
@@ -355,21 +393,23 @@ const PanelAdministrativos = () => {
 
         {/* Contenido Principal */}
         <div style={{
-          marginLeft: isSmallScreen ? '0' : (sidebarCollapsed ? '70px' : '280px'),
+          marginLeft: isSmallScreen ? '0' : (sidebarCollapsed ? '70px' : '17.5rem'),
           flex: 1,
-          padding: isMobile ? '12px' : '24px',
+          padding: isMobile ? '12px' : '1.25rem',
           minHeight: '100vh',
           transition: 'margin-left 0.3s ease',
-          width: isSmallScreen ? '100%' : 'auto'
+          width: isSmallScreen ? '100%' : 'auto',
+          maxWidth: '100%',
+          overflowX: 'hidden'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: isMobile ? '12px' : '20px',
-            padding: isMobile ? '12px 16px' : '16px 32px',
-            marginBottom: isMobile ? '12px' : '16px',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            borderRadius: isMobile ? '12px' : '1.25rem',
+            padding: isMobile ? '12px 1rem' : '16px 2rem',
+            marginBottom: isMobile ? '12px' : '1rem',
+            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -377,15 +417,15 @@ const PanelAdministrativos = () => {
             zIndex: 100
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '1rem' }}>
               {/* Botón hamburguesa móvil */}
               {isSmallScreen && (
                 <button
                   onClick={() => setMobileMenuOpen(true)}
                   style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '10px',
+                    width: '2.5rem',
+                    height: '2.5rem',
+                    borderRadius: '0.625rem',
                     border: `1px solid ${theme.border}`,
                     background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                     color: theme.accent,
@@ -402,14 +442,14 @@ const PanelAdministrativos = () => {
               )}
               
               <div style={{
-                width: isMobile ? '36px' : '48px',
-                height: isMobile ? '36px' : '48px',
+                width: isMobile ? '36px' : '3rem',
+                height: isMobile ? '36px' : '3rem',
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)',
+                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)',
                 flexShrink: 0
               }}>
                 {(() => {
@@ -431,7 +471,7 @@ const PanelAdministrativos = () => {
                   color: theme.textSecondary,
                   margin: 0,
                   fontSize: isMobile ? '0.7rem' : '0.8rem',
-                  marginTop: '4px'
+                  marginTop: '0.25rem'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -439,7 +479,7 @@ const PanelAdministrativos = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
@@ -453,9 +493,9 @@ const PanelAdministrativos = () => {
           <div style={{
             background: theme.contentBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: isMobile ? '12px' : '20px',
-            minHeight: isMobile ? '400px' : '600px',
-            boxShadow: darkMode ? '0 2px 10px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
+            borderRadius: isMobile ? '12px' : '1.25rem',
+            minHeight: isMobile ? '400px' : '37.5rem',
+            boxShadow: darkMode ? '0 0.125rem 0.625rem rgba(0, 0, 0, 0.5)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)'
           }}>
             {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}
             {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}
@@ -476,3 +516,6 @@ const PanelAdministrativos = () => {
 };
 
 export default PanelAdministrativos;
+
+
+

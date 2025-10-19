@@ -237,12 +237,12 @@ const PanelDocentes = () => {
       >
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '80px' : '280px',
+          width: sidebarCollapsed ? '5rem' : '17.5rem',
           background: theme.sidebarBg,
           backdropFilter: 'blur(20px)',
           border: `1px solid ${theme.border}`,
-          borderRadius: '0 20px 20px 0',
-          padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
+          borderRadius: '0 1.25rem 1.25rem 0',
+          padding: sidebarCollapsed ? '0.75rem 0.5rem 1.5rem 0.5rem' : '0.75rem 1.5rem 1.5rem 1.5rem',
           position: 'relative',
           height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -253,12 +253,12 @@ const PanelDocentes = () => {
             onClick={toggleSidebar}
             style={{
               position: 'absolute',
-              top: '16px',
-              right: sidebarCollapsed ? '50%' : '16px',
+              top: '1rem',
+              right: sidebarCollapsed ? '50%' : '1rem',
               transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
+              width: '2.25rem',
+              height: '2.25rem',
+              borderRadius: '0.5rem',
               border: `1px solid ${theme.border}`,
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
               color: theme.accent,
@@ -310,10 +310,10 @@ const PanelDocentes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    gap: '10px',
-                    padding: sidebarCollapsed ? '12px 8px' : '12px 16px',
-                    marginBottom: '6px',
-                    borderRadius: '12px',
+                    gap: '0.625rem',
+                    padding: sidebarCollapsed ? '0.75rem 0.5rem' : '0.75rem 1rem',
+                    marginBottom: '0.375rem',
+                    borderRadius: '0.75rem',
                     border: 'none',
                     background: activeTab === tab.id ? 
                       'linear-gradient(135deg, #3b82f6, #2563eb)' : 
@@ -356,16 +356,16 @@ const PanelDocentes = () => {
         {/* Contenido Principal */}
         <div style={{ 
           flex: 1, 
-          padding: '24px',
+          padding: '1.5rem',
           minHeight: '100%'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '16px 24px',
-            marginBottom: '16px',
+            borderRadius: '1.25rem',
+            padding: '1rem 1.5rem',
+            marginBottom: '1rem',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             display: 'flex',
@@ -377,8 +377,8 @@ const PanelDocentes = () => {
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
-                width: '48px',
-                height: '48px',
+                width: '3rem',
+                height: '3rem',
                 background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                 borderRadius: '50%',
                 display: 'flex',
@@ -430,8 +430,8 @@ const PanelDocentes = () => {
             background: theme.contentBg,
             backdropFilter: 'blur(20px)',
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '32px',
+            borderRadius: '1.25rem',
+            padding: '2rem',
             minHeight: 'calc(100vh - 180px)',
             boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)'
           }}>
@@ -470,17 +470,17 @@ const PanelDocentes = () => {
         }}>
           <div style={{
             background: darkMode ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            borderRadius: '20px',
-            padding: '32px',
-            maxWidth: '500px',
+            borderRadius: '1.25rem',
+            padding: '2rem',
+            maxWidth: '31.25rem',
             width: '90%',
             boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
             border: `1px solid ${theme.border}`
           }}>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <div style={{
-                width: '80px',
-                height: '80px',
+                width: '5rem',
+                height: '5rem',
                 background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                 borderRadius: '50%',
                 display: 'flex',
@@ -503,9 +503,9 @@ const PanelDocentes = () => {
               <div style={{
                 background: 'rgba(239, 68, 68, 0.1)',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '12px',
-                padding: '12px',
-                marginBottom: '20px',
+                borderRadius: '0.75rem',
+                padding: '0.75rem',
+                marginBottom: '1.25rem',
                 color: '#ef4444',
                 fontSize: '0.9rem',
                 textAlign: 'center'
@@ -597,7 +597,7 @@ const PanelDocentes = () => {
               disabled={resetLoading}
               style={{
                 width: '100%',
-                padding: '16px',
+                padding: '1rem',
                 background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                 border: 'none',
                 borderRadius: '12px',

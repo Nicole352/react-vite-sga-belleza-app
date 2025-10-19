@@ -137,7 +137,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
 
   return (
     <div style={{
-      transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
+      transform: isVisible ? 'translateY(0)' : 'translateY(-1.875rem)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
@@ -145,22 +145,22 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '12px',
-        marginBottom: '12px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        borderRadius: '1.25rem',
+        padding: '0.75rem',
+        marginBottom: '0.75rem',
+        backdropFilter: 'blur(1.25rem)',
+        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
           <div style={{
-            width: '44px',
-            height: '44px',
+            width: '2.75rem',
+            height: '2.75rem',
             background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: `0 8px 24px ${theme.accent}30`
+            boxShadow: `0 0.5rem 1.5rem ${theme.accent}30`
           }}>
             <GraduationCap size={18} color="#fff" />
           </div>
@@ -169,29 +169,29 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               fontSize: '1.4rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 4px 0' 
+              margin: '0 0 0.25rem 0' 
             }}>
-              <Hand size={16} style={{ display: 'inline', marginRight: '6px' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
+              <Hand size={16} style={{ display: 'inline', marginRight: '0.375rem' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
               fontSize: '0.85rem', 
-              margin: '0 0 4px 0' 
+              margin: '0 0 0.25rem 0' 
             }}>
               {userData?.titulo_profesional || 'Gestiona tus cursos y estudiantes'}
             </p>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '8px',
+              gap: '0.5rem',
               fontSize: '0.75rem',
               color: theme.textMuted
             }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                 <Calendar size={12} />
                 {new Date().toLocaleDateString('es-ES')}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                 <Clock size={12} />
                 {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
               </span>
@@ -200,14 +200,14 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
 
         {/* Estadísticas rápidas - 4 tarjetas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(7.5rem, 1fr))', gap: '0.375rem' }}>
           <div style={{
             background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
             border: `1px solid ${theme.accent}30`,
-            borderRadius: '10px',
-            padding: '6px'
+            borderRadius: '0.625rem',
+            padding: '0.375rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', whiteSpace: 'nowrap' }}>
               <BookOpen size={12} color={theme.accent} />
               <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
               <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.length}</span>
@@ -217,10 +217,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           <div style={{
             background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
             border: `1px solid ${theme.success}30`,
-            borderRadius: '10px',
-            padding: '6px'
+            borderRadius: '0.625rem',
+            padding: '0.375rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', whiteSpace: 'nowrap' }}>
               <Users size={12} color={theme.success} />
               <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
               <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>{totalEstudiantes}</span>
@@ -230,10 +230,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           <div style={{
             background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
             border: `1px solid ${theme.warning}30`,
-            borderRadius: '10px',
-            padding: '6px'
+            borderRadius: '0.625rem',
+            padding: '0.375rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', whiteSpace: 'nowrap' }}>
               <Target size={12} color={theme.warning} />
               <span style={{ color: theme.warning, fontSize: '0.7rem', fontWeight: '700' }}>Ocupación:</span>
               <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '800' }}>{promedioOcupacion}%</span>
@@ -243,10 +243,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           <div style={{
             background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
             border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '10px',
-            padding: '6px'
+            borderRadius: '0.625rem',
+            padding: '0.375rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', whiteSpace: 'nowrap' }}>
               <Award size={12} color="#8b5cf6" />
               <span style={{ color: '#8b5cf6', fontSize: '0.7rem', fontWeight: '700' }}>Capacidad Total:</span>
               <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '800' }}>{capacidadTotal}</span>
@@ -255,38 +255,38 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1rem' }}>
         {/* Panel principal - Mis Cursos Activos */}
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '16px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          borderRadius: '1.25rem',
+          padding: '1rem',
+          backdropFilter: 'blur(1.25rem)',
+          boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
         }}>
         <h2 style={{ 
           fontSize: '1.2rem', 
           fontWeight: '700', 
           color: theme.textPrimary, 
-          margin: '0 0 16px 0' 
+          margin: '0 0 1rem 0' 
         }}>
           Mis Cursos Activos
         </h2>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
+          <div style={{ textAlign: 'center', padding: '2.5rem' }}>
             <div style={{ 
               fontSize: '1.1rem', 
               color: theme.textSecondary,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '12px'
+              gap: '0.75rem'
             }}>
               <div style={{
-                width: '20px',
-                height: '20px',
+                width: '1.25rem',
+                height: '1.25rem',
                 border: `2px solid ${theme.textMuted}`,
                 borderTop: `2px solid ${theme.accent}`,
                 borderRadius: '50%',
@@ -298,10 +298,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         ) : cursos.length === 0 ? (
           <div style={{
             textAlign: 'center',
-            padding: '60px 20px'
+            padding: '3.75rem 1.25rem'
           }}>
-            <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '16px', opacity: 0.5 }} />
-            <h3 style={{ color: theme.textPrimary, margin: '0 0 8px 0' }}>
+            <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+            <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5rem 0' }}>
               No tienes cursos asignados
             </h3>
             <p style={{ color: theme.textMuted, margin: 0 }}>
@@ -309,15 +309,15 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '12px' }}>
+          <div style={{ display: 'grid', gap: '0.75rem' }}>
             {cursos.map((curso) => (
               <div
                 key={curso.id_curso}
                 onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
                 style={{
-                  padding: '14px',
+                  padding: '0.875rem',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '16px',
+                  borderRadius: '1rem',
                   border: `1px solid ${theme.border}`,
                   transition: 'all 0.3s ease', 
                   cursor: 'pointer'
@@ -325,10 +325,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
                   e.currentTarget.style.borderColor = theme.accent;
-                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.transform = 'translateY(-0.125rem)';
                   e.currentTarget.style.boxShadow = darkMode 
-                    ? '0 8px 25px rgba(0, 0, 0, 0.4)' 
-                    : '0 8px 25px rgba(0, 0, 0, 0.15)';
+                    ? '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.4)' 
+                    : '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
@@ -337,14 +337,14 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.625rem' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.375rem' }}>
                       <div style={{
                         background: `${theme.accent}20`,
                         color: theme.accent,
-                        padding: '3px 10px',
-                        borderRadius: '16px',
+                        padding: '0.1875rem 0.625rem',
+                        borderRadius: '1rem',
                         fontSize: '0.75rem',
                         fontWeight: '600'
                       }}>
@@ -358,7 +358,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                       fontSize: '1.1rem', 
                       fontWeight: '700', 
                       color: theme.textPrimary, 
-                      margin: '0 0 8px 0' 
+                      margin: '0 0 0.5rem 0' 
                     }}>
                       {curso.nombre}
                     </h3>
@@ -368,10 +368,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                       <div style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '8px',
+                        gap: '0.5rem',
                         color: theme.textMuted,
                         fontSize: '0.9rem',
-                        marginBottom: '8px'
+                        marginBottom: '0.5rem'
                       }}>
                         <MapPin size={16} color={theme.success} />
                         <span><strong style={{ color: theme.textPrimary }}>{curso.aula_nombre}</strong>{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}</span>
@@ -381,7 +381,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                     <div style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
-                      gap: '6px',
+                      gap: '0.375rem',
                       color: theme.textMuted,
                       fontSize: '0.8rem'
                     }}>
@@ -392,7 +392,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
 
                   <div style={{ 
                     textAlign: 'right',
-                    minWidth: '100px'
+                    minWidth: '6.25rem'
                   }}>
                     <div style={{ 
                       fontSize: '1.4rem', 
@@ -409,23 +409,23 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                     {/* Barra de progreso */}
                     <div style={{ 
                       width: '100%', 
-                      height: '6px', 
+                      height: '0.375rem', 
                       background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                      borderRadius: '4px',
+                      borderRadius: '0.25rem',
                       overflow: 'hidden',
-                      marginTop: '6px'
+                      marginTop: '0.375rem'
                     }}>
                       <div style={{
                         width: `${(curso.total_estudiantes / curso.capacidad_maxima) * 100}%`,
                         height: '100%',
                         background: `linear-gradient(90deg, ${theme.accent}, ${theme.accent}dd)`,
-                        borderRadius: '4px'
+                        borderRadius: '0.25rem'
                       }} />
                     </div>
                     <div style={{ 
                       color: theme.textMuted, 
                       fontSize: '0.7rem', 
-                      marginTop: '3px' 
+                      marginTop: '0.1875rem' 
                     }}>
                       {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
                     </div>
@@ -438,32 +438,32 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
 
         {/* Panel lateral */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Próximas Clases */}
           <div style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '16px',
-            padding: '12px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+            borderRadius: '1rem',
+            padding: '0.75rem',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5rem 0' }}>
               Próximas Clases
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {cursos.slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
-                  padding: '8px',
+                  padding: '0.5rem',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   border: `1px solid ${theme.border}`
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     <div style={{
-                      width: '6px',
-                      height: '6px',
+                      width: '0.375rem',
+                      height: '0.375rem',
                       borderRadius: '50%',
                       background: index === 0 ? theme.accent : theme.success,
                       flexShrink: 0
@@ -489,7 +489,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               
               {cursos.length === 0 && (
                 <div style={{
-                  padding: '12px',
+                  padding: '0.75rem',
                   textAlign: 'center',
                   color: theme.textMuted,
                   fontSize: '0.85rem'
@@ -504,26 +504,26 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           <div style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '16px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+            borderRadius: '1.25rem',
+            padding: '1rem',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.75rem 0' }}>
               Acceso Rápido
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button onClick={() => { const c = cursos[0]; if (c) { setCursoSelId(c.id_curso); setCursoSelNombre(c.nombre); setShowCalif(true); } }} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
-                padding: '10px',
+                borderRadius: '0.5rem',
+                padding: '0.625rem',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
@@ -536,13 +536,13 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               <button onClick={() => navigate('/panel/docente/horario')} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
-                padding: '10px',
+                borderRadius: '0.5rem',
+                padding: '0.625rem',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
@@ -555,13 +555,13 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               <button onClick={() => navigate('/panel/docente/estudiantes')} style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
-                padding: '10px',
+                borderRadius: '0.5rem',
+                padding: '0.625rem',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'

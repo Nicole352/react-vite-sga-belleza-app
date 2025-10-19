@@ -1,7 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus, DollarSign, FileText, CreditCard, Building2 } from 'lucide-react';
-import GlassEffect from '../../components/GlassEffect';
-import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -100,7 +99,7 @@ interface Stats {
 
 const ControlUsuarios = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
-  
+
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalUsuarios: 0,
@@ -251,18 +250,6 @@ const ControlUsuarios = () => {
     }
   };
 
-  const getOperacionColor = (operacion: string) => {
-    switch (operacion) {
-      case 'INSERT':
-        return 'bg-green-500/20 text-green-400';
-      case 'UPDATE':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'DELETE':
-        return 'bg-red-500/20 text-red-400';
-      default:
-        return 'bg-gray-500/20 text-gray-400';
-    }
-  };
 
   const verDetalle = async (usuario: Usuario) => {
     setShowModal(true);
@@ -279,14 +266,14 @@ const ControlUsuarios = () => {
         });
         if (usuarioRes.ok) {
           const usuarioData = await usuarioRes.json();
-          console.log('👤 Usuario completo recibido:', usuarioData);
+          console.log('?? Usuario completo recibido:', usuarioData);
           setUsuarioSeleccionado(usuarioData.usuario);
         } else {
-          console.error('❌ Error al cargar usuario:', usuarioRes.status);
+          console.error('? Error al cargar usuario:', usuarioRes.status);
           setUsuarioSeleccionado(usuario); // Fallback al usuario de la lista
         }
       } catch (err) {
-        console.error('❌ Error en fetch de usuario:', err);
+        console.error('? Error en fetch de usuario:', err);
         setUsuarioSeleccionado(usuario); // Fallback al usuario de la lista
       }
 
@@ -297,14 +284,14 @@ const ControlUsuarios = () => {
         });
         if (sesionesRes.ok) {
           const sesionesData = await sesionesRes.json();
-          console.log('📊 Sesiones recibidas:', sesionesData);
+          console.log('?? Sesiones recibidas:', sesionesData);
           setSesiones(sesionesData.sesiones || []);
         } else {
-          console.error('❌ Error al cargar sesiones:', sesionesRes.status);
+          console.error('? Error al cargar sesiones:', sesionesRes.status);
           setSesiones([]);
         }
       } catch (err) {
-        console.error('❌ Error en fetch de sesiones:', err);
+        console.error('? Error en fetch de sesiones:', err);
         setSesiones([]);
       }
 
@@ -315,14 +302,14 @@ const ControlUsuarios = () => {
         });
         if (accionesRes.ok) {
           const accionesData = await accionesRes.json();
-          console.log('📊 Acciones recibidas:', accionesData);
+          console.log('?? Acciones recibidas:', accionesData);
           setAcciones(accionesData.acciones || []);
         } else {
-          console.error('❌ Error al cargar acciones:', accionesRes.status);
+          console.error('? Error al cargar acciones:', accionesRes.status);
           setAcciones([]);
         }
       } catch (err) {
-        console.error('❌ Error en fetch de acciones:', err);
+        console.error('? Error en fetch de acciones:', err);
         setAcciones([]);
       }
 
@@ -334,14 +321,14 @@ const ControlUsuarios = () => {
           });
           if (pagosRes.ok) {
             const pagosData = await pagosRes.json();
-            console.log('💰 Pagos recibidos:', pagosData);
+            console.log('?? Pagos recibidos:', pagosData);
             setPagos(pagosData.pagos || []);
           } else {
-            console.error('❌ Error al cargar pagos:', pagosRes.status);
+            console.error('? Error al cargar pagos:', pagosRes.status);
             setPagos([]);
           }
         } catch (err) {
-          console.error('❌ Error en fetch de pagos:', err);
+          console.error('? Error en fetch de pagos:', err);
           setPagos([]);
         }
 
@@ -352,14 +339,14 @@ const ControlUsuarios = () => {
           });
           if (deberesRes.ok) {
             const deberesData = await deberesRes.json();
-            console.log('📚 Deberes recibidos:', deberesData);
+            console.log('?? Deberes recibidos:', deberesData);
             setDeberes(deberesData.deberes || []);
           } else {
-            console.error('❌ Error al cargar deberes:', deberesRes.status);
+            console.error('? Error al cargar deberes:', deberesRes.status);
             setDeberes([]);
           }
         } catch (err) {
-          console.error('❌ Error en fetch de deberes:', err);
+          console.error('? Error en fetch de deberes:', err);
           setDeberes([]);
         }
       } else {
@@ -438,217 +425,305 @@ const ControlUsuarios = () => {
   };
 
   return (
-    <>
-      <div style={{ padding: '32px' }}>
-        {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{
-            fontSize: '2rem',
-            fontWeight: '700',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            color: '#1e293b',
-            margin: 0,
-            marginBottom: '6px'
-          }}>
-            <Users style={{ width: '26px', height: '26px', color: '#ef4444' }} />
-            Control de Usuarios
-          </h1>
-          <p style={{
-            fontSize: '0.85rem',
-            color: '#64748b',
-            margin: 0
-          }}>
-            Gestiona todos los usuarios del sistema
+    <div className="responsive-padding">
+      {/* Header */}
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)',
+          margin: '0 0 0.375rem 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? '6px' : '0.625rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+        }}>
+          <Users size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
+          Control de Usuarios
+        </h2>
+        <p style={{
+          color: 'rgba(255,255,255,0.7)',
+          margin: 0,
+          fontSize: isMobile ? '0.75rem' : '0.85rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+        }}>
+          Gestiona todos los usuarios del sistema
+        </p>
+      </div>
+
+      {/* Estadísticas */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+        gap: isMobile ? '0.75rem' : '0.875rem',
+        marginBottom: isMobile ? '1rem' : '1.125rem'
+      }}>
+        {/* Total Usuarios */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Users size={14} color="#ef4444" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Usuarios</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalUsuarios}
           </p>
         </div>
 
-        {/* Estadísticas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-          {/* Total Usuarios */}
-          <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Total Usuarios</h3>
-                <p style={{ color: RedColorPalette.primary, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.totalUsuarios}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '8px' }}>
-                <Users size={20} color={RedColorPalette.primary} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-
-          {/* Activos */}
-          <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Activos</h3>
-                <p style={{ color: mapToRedScheme('#10b981'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.usuariosActivos}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '8px' }}>
-                <Users size={20} color={mapToRedScheme('#10b981')} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-
-          {/* Inactivos */}
-          <GlassEffect variant="card" tint="error" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Inactivos</h3>
-                <p style={{ color: RedColorPalette.primaryLight, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.usuariosInactivos}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="error" intensity="light" style={{ padding: '8px' }}>
-                <Users size={20} color={RedColorPalette.primaryLight} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-
-          {/* Admins */}
-          <GlassEffect variant="card" tint="red" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Admins</h3>
-                <p style={{ color: RedColorPalette.primary, fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.totalAdministradores}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="red" intensity="light" style={{ padding: '8px' }}>
-                <Shield size={20} color={RedColorPalette.primary} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-
-          {/* Docentes */}
-          <GlassEffect variant="card" tint="neutral" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Docentes</h3>
-                <p style={{ color: mapToRedScheme('#3b82f6'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.totalDocentes}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="neutral" intensity="light" style={{ padding: '8px' }}>
-                <UserCheck size={20} color={mapToRedScheme('#3b82f6')} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-
-          {/* Estudiantes */}
-          <GlassEffect variant="card" tint="success" intensity="medium" hover animated>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: '500', margin: '0 0 6px 0' }}>Estudiantes</h3>
-                <p style={{ color: mapToRedScheme('#22c55e'), fontSize: '1.6rem', fontWeight: '700', margin: 0 }}>
-                  {loading ? '...' : stats.totalEstudiantes}
-                </p>
-              </div>
-              <GlassEffect variant="button" tint="success" intensity="light" style={{ padding: '8px' }}>
-                <GraduationCap size={20} color={mapToRedScheme('#22c55e')} />
-              </GlassEffect>
-            </div>
-          </GlassEffect>
-        </div>
-
-        {/* Filtros */}
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: '16px', 
-            flexWrap: 'wrap' 
-          }}>
-            <div style={{ 
-              flex: isMobile ? 'none' : '1', 
-              minWidth: isMobile ? 'auto' : '300px', 
-              position: 'relative' 
+        {/* Activos */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             }}>
-              <Search style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '20px',
-                height: '20px',
-                color: '#94a3b8'
-              }} />
-              <input
-                type="text"
-                placeholder={isMobile ? "Buscar..." : "Buscar por nombre, username o email..."}
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 40px',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  backgroundColor: 'white',
-                  fontSize: '0.9rem',
-                  color: '#1e293b'
-                }}
-              />
+              <UserCheck size={14} color="#10b981" strokeWidth={2} />
             </div>
-
-            <select
-              value={rolFilter}
-              onChange={(e) => {
-                setRolFilter(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                backgroundColor: 'white',
-                fontSize: '0.9rem',
-                color: '#1e293b',
-                cursor: 'pointer',
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              <option value="todos">Todos los roles</option>
-              <option value="administrativo">Administrativo</option>
-              <option value="docente">Docente</option>
-              <option value="estudiante">Estudiante</option>
-            </select>
-
-            <select
-              value={estadoFilter}
-              onChange={(e) => {
-                setEstadoFilter(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                backgroundColor: 'white',
-                fontSize: '0.9rem',
-                color: '#1e293b',
-                cursor: 'pointer',
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-              <option value="pendiente">Pendiente</option>
-            </select>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Activos</h3>
           </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.usuariosActivos}
+          </p>
         </div>
 
-        {/* Tabla de usuarios */}
-        {loading ? (
+        {/* Inactivos */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Power size={14} color="#ef4444" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Inactivos</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.usuariosInactivos}
+          </p>
+        </div>
+
+        {/* Admins */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Shield size={14} color="#ef4444" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Admins</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalAdministradores}
+          </p>
+        </div>
+
+        {/* Docentes */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <UserCheck size={14} color="#3b82f6" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Docentes</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalDocentes}
+          </p>
+        </div>
+
+        {/* Estudiantes */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              background: 'rgba(34, 197, 94, 0.12)',
+              borderRadius: '0.375rem',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <GraduationCap size={14} color="#22c55e" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Estudiantes</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalEstudiantes}
+          </p>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div style={{ marginBottom: isMobile ? '1.25rem' : '2rem' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '0.75rem' : '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{
+            flex: isMobile ? 'none' : '1',
+            minWidth: isMobile ? 'auto' : '18.75rem',
+            position: 'relative'
+          }}>
+            <Search style={{
+              position: 'absolute',
+              left: '0.75rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '1.25rem',
+              height: '1.25rem',
+              color: 'rgba(255,255,255,0.5)'
+            }} />
+            <input
+              type="text"
+              placeholder={isMobile ? "Buscar..." : "Buscar por nombre, username o email..."}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                width: '100%',
+                padding: '10px 0.75rem 0.625rem 2.5rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                fontSize: '0.9rem',
+                color: 'rgba(255,255,255,0.95)'
+              }}
+            />
+          </div>
+
+          <select
+            value={rolFilter}
+            onChange={(e) => {
+              setRolFilter(e.target.value);
+              setPage(1);
+            }}
+            style={{
+              padding: '10px 1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              fontSize: '0.9rem',
+              color: 'rgba(255,255,255,0.95)',
+              cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto'
+            }}
+          >
+            <option value="todos">Todos los roles</option>
+            <option value="administrativo">Administrativo</option>
+            <option value="docente">Docente</option>
+            <option value="estudiante">Estudiante</option>
+          </select>
+
+          <select
+            value={estadoFilter}
+            onChange={(e) => {
+              setEstadoFilter(e.target.value);
+              setPage(1);
+            }}
+            style={{
+              padding: '10px 1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              fontSize: '0.9rem',
+              color: 'rgba(255,255,255,0.95)',
+              cursor: 'pointer',
+              width: isMobile ? '100%' : 'auto'
+            }}
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+            <option value="pendiente">Pendiente</option>
+          </select>
+        </div>
+      </div >
+
+      {/* Tabla de usuarios */}
+      {
+        loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent"></div>
             <p className="mt-4 opacity-70">Cargando usuarios...</p>
@@ -670,29 +745,29 @@ const ControlUsuarios = () => {
               <div style={{
                 background: 'rgba(239, 68, 68, 0.1)',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '8px',
-                padding: '8px 12px',
-                marginBottom: '12px',
+                borderRadius: '0.5rem',
+                padding: '8px 0.75rem',
+                marginBottom: '0.75rem',
                 color: '#ef4444',
                 fontSize: '0.75rem',
                 textAlign: 'center',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px'
+                gap: '0.375rem'
               }}>
-                <span>👉</span>
+                <span>??</span>
                 <span>Desliza horizontalmente para ver toda la tabla</span>
-                <span>👈</span>
+                <span>??</span>
               </div>
             )}
-            
+
             <div className="responsive-table-container" style={{
               overflowX: 'auto',
-              borderRadius: '12px',
+              borderRadius: '0.75rem',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               backgroundColor: 'transparent',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+              boxShadow: '0 0.0625rem 0.1875rem rgba(0,0,0,0.3)'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{
@@ -700,13 +775,13 @@ const ControlUsuarios = () => {
                   backgroundColor: 'rgba(255, 255, 255, 0.03)'
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Email</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '16px', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Email</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -718,40 +793,40 @@ const ControlUsuarios = () => {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '1rem' }}>
                         <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#e5e5e5' }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ fontWeight: '500', color: '#ffffff', marginBottom: '4px' }}>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ fontWeight: '500', color: '#ffffff', marginBottom: '0.25rem' }}>
                           {usuario.nombre} {usuario.apellido}
                         </div>
                         <div style={{ fontSize: '0.8rem', color: '#a3a3a3' }}>{usuario.cedula}</div>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
                           {usuario.nombre_rol}
                         </span>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '1rem' }}>
                         <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{usuario.email || '-'}</div>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
                           {usuario.estado}
                         </span>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td style={{ padding: '1rem' }}>
                         <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                           <button
                             onClick={() => verDetalle(usuario)}
                             style={{
-                              padding: '8px',
-                              borderRadius: '8px',
+                              padding: '0.5rem',
+                              borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
                               color: '#3b82f6',
@@ -768,13 +843,13 @@ const ControlUsuarios = () => {
                             }}
                             title="Ver detalle"
                           >
-                            <Eye style={{ width: '16px', height: '16px' }} />
+                            <Eye style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => confirmarCambioEstado(usuario)}
                             style={{
-                              padding: '8px',
-                              borderRadius: '8px',
+                              padding: '0.5rem',
+                              borderRadius: '0.5rem',
                               border: `1px solid ${usuario.estado === 'activo' ? '#ef4444' : '#10b981'}`,
                               backgroundColor: 'transparent',
                               color: usuario.estado === 'activo' ? '#ef4444' : '#10b981',
@@ -793,13 +868,13 @@ const ControlUsuarios = () => {
                             }}
                             title={usuario.estado === 'activo' ? 'Desactivar' : 'Activar'}
                           >
-                            <Power style={{ width: '16px', height: '16px' }} />
+                            <Power style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => resetearPassword(usuario)}
                             style={{
-                              padding: '8px',
-                              borderRadius: '8px',
+                              padding: '0.5rem',
+                              borderRadius: '0.5rem',
                               border: '1px solid #f59e0b',
                               backgroundColor: 'transparent',
                               color: '#f59e0b',
@@ -816,7 +891,7 @@ const ControlUsuarios = () => {
                             }}
                             title="Resetear contraseña"
                           >
-                            <KeyRound style={{ width: '16px', height: '16px' }} />
+                            <KeyRound style={{ width: '1rem', height: '1rem' }} />
                           </button>
                         </div>
                       </td>
@@ -833,23 +908,23 @@ const ControlUsuarios = () => {
                 flexDirection: isMobile ? 'column' : 'row',
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                gap: isMobile ? '12px' : '0',
-                padding: isMobile ? '16px' : '20px 24px',
-                marginTop: isMobile ? '16px' : '24px',
+                gap: isMobile ? '0.75rem' : '0',
+                padding: isMobile ? '16px' : '20px 1.5rem',
+                marginTop: isMobile ? '16px' : '1.5rem',
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '16px',
+                borderRadius: '1rem',
               }}>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.7)', 
+                <div style={{
+                  color: 'rgba(255,255,255,0.7)',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   textAlign: isMobile ? 'center' : 'left'
                 }}>
                   Página {page} de {totalPages} • Total: {usuarios.length} usuarios
                 </div>
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '8px',
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem',
                   justifyContent: isMobile ? 'center' : 'flex-start',
                   flexWrap: 'wrap'
                 }}>
@@ -860,11 +935,11 @@ const ControlUsuarios = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: isMobile ? '4px' : '6px',
-                      padding: isMobile ? '8px 12px' : '8px 16px',
+                      gap: isMobile ? '4px' : '0.375rem',
+                      padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                       background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                       fontSize: isMobile ? '0.8rem' : '0.9rem',
                       fontWeight: 600,
@@ -880,16 +955,16 @@ const ControlUsuarios = () => {
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
                       style={{
-                        padding: isMobile ? '8px 10px' : '8px 14px',
+                        padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                         background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                         border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
-                        borderRadius: '10px',
+                        borderRadius: '0.625rem',
                         color: '#fff',
                         fontSize: isMobile ? '0.8rem' : '0.9rem',
                         fontWeight: 600,
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        minWidth: isMobile ? '36px' : '40px',
+                        minWidth: isMobile ? '36px' : '2.5rem',
                       }}
                     >
                       {pageNum}
@@ -902,11 +977,11 @@ const ControlUsuarios = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: isMobile ? '4px' : '6px',
-                      padding: isMobile ? '8px 12px' : '8px 16px',
+                      gap: isMobile ? '4px' : '0.375rem',
+                      padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                       background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                       border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                       fontSize: isMobile ? '0.8rem' : '0.9rem',
                       fontWeight: 600,
@@ -921,8 +996,8 @@ const ControlUsuarios = () => {
               </div>
             )}
           </>
-        )}
-      </div>
+        )
+      }
 
       {/* Modales */}
       <ModalDetalle
@@ -939,7 +1014,6 @@ const ControlUsuarios = () => {
         formatFecha={formatFecha}
         getRolColor={getRolColor}
         getEstadoColor={getEstadoColor}
-        getOperacionColor={getOperacionColor}
       />
 
       <ModalConfirmacion
@@ -960,7 +1034,7 @@ const ControlUsuarios = () => {
           setCredenciales(null);
         }}
       />
-    </>
+    </div >
   );
 };
 
@@ -982,7 +1056,6 @@ interface ModalDetalleProps {
   formatFecha: (fecha: string | null) => string;
   getRolColor: (rol: string) => string;
   getEstadoColor: (estado: string) => string;
-  getOperacionColor: (operacion: string) => string;
 }
 
 const ModalDetalle = ({
@@ -998,8 +1071,7 @@ const ModalDetalle = ({
   onChangeTab,
   formatFecha,
   getRolColor,
-  getEstadoColor,
-  getOperacionColor
+  getEstadoColor
 }: ModalDetalleProps) => {
   // Verificación temprana
   if (!show || !usuario) return null;
@@ -1008,7 +1080,7 @@ const ModalDetalle = ({
   const esEstudiante = usuario.nombre_rol?.toLowerCase() === 'estudiante';
 
   // Debug: Log para verificar datos
-  console.log('🔍 Modal - Datos recibidos:', {
+  console.log('?? Modal - Datos recibidos:', {
     esEstudiante,
     pagosLength: pagos?.length || 0,
     deberesLength: deberes?.length || 0,
@@ -1029,7 +1101,7 @@ const ModalDetalle = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 99999,
-        padding: '20px',
+        padding: '1.25rem',
       } as React.CSSProperties}
     >
       <div
@@ -1037,12 +1109,12 @@ const ModalDetalle = ({
         style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '12px',
+          borderRadius: '0.75rem',
           width: '100%',
           maxWidth: '900px',
           color: '#fff',
           margin: '0 auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+          boxShadow: '0 25px 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
@@ -1054,20 +1126,20 @@ const ModalDetalle = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '18px 28px',
+          padding: '18px 1.75rem',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '3rem',
+              height: '3rem',
               borderRadius: '50%',
               background: 'rgba(239, 68, 68, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <UserCircle style={{ width: '28px', height: '28px', color: '#ef4444' }} />
+              <UserCircle style={{ width: '1.75rem', height: '1.75rem', color: '#ef4444' }} />
             </div>
             <div>
               <h2 style={{
@@ -1075,7 +1147,7 @@ const ModalDetalle = ({
                 fontWeight: '600',
                 color: '#fff',
                 margin: 0,
-                marginBottom: '4px',
+                marginBottom: '0.25rem',
                 letterSpacing: '-0.02em'
               }}>
                 {usuario.nombre} {usuario.apellido}
@@ -1094,8 +1166,8 @@ const ModalDetalle = ({
             style={{
               background: 'rgba(255,255,255,0.05)',
               border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              padding: '6px',
+              borderRadius: '0.5rem',
+              padding: '0.375rem',
               color: '#fff',
               cursor: 'pointer',
               display: 'flex',
@@ -1112,7 +1184,7 @@ const ModalDetalle = ({
               e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
             }}
           >
-            <X style={{ width: '18px', height: '18px' }} />
+            <X style={{ width: '1.125rem', height: '1.125rem' }} />
           </button>
         </div>
 
@@ -1122,7 +1194,7 @@ const ModalDetalle = ({
             onClick={() => onChangeTab('info')}
             style={{
               flex: 1,
-              padding: '16px 24px',
+              padding: '16px 1.5rem',
               fontWeight: '600',
               fontSize: '0.9rem',
               border: 'none',
@@ -1140,14 +1212,14 @@ const ModalDetalle = ({
               if (tabActiva !== 'info') e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
             }}
           >
-            <UserCircle style={{ width: '16px', height: '16px', display: 'inline', marginRight: '8px' }} />
+            <UserCircle style={{ width: '1rem', height: '1rem', display: 'inline', marginRight: '0.5rem' }} />
             Información General
           </button>
           <button
             onClick={() => onChangeTab('sesiones')}
             style={{
               flex: 1,
-              padding: '16px 24px',
+              padding: '16px 1.5rem',
               fontWeight: '600',
               fontSize: '0.9rem',
               border: 'none',
@@ -1172,7 +1244,7 @@ const ModalDetalle = ({
             onClick={() => onChangeTab('acciones')}
             style={{
               flex: 1,
-              padding: '16px 24px',
+              padding: '16px 1.5rem',
               fontWeight: '600',
               fontSize: '0.9rem',
               border: 'none',
@@ -1190,61 +1262,61 @@ const ModalDetalle = ({
               if (tabActiva !== 'acciones') e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
             }}
           >
-            <Activity style={{ width: '16px', height: '16px', display: 'inline', marginRight: '8px' }} />
+            <Activity style={{ width: '1rem', height: '1rem', display: 'inline', marginRight: '0.5rem' }} />
             Últimas Acciones
           </button>
         </div>
 
         {/* Contenido */}
-        <div style={{ padding: '32px', overflowY: 'auto', flex: 1, backgroundColor: 'transparent' }}>
+        <div style={{ padding: '2rem', overflowY: 'auto', flex: 1, backgroundColor: 'transparent' }}>
           {tabActiva === 'info' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {/* Información Básica */}
               <div style={{
                 backgroundColor: 'rgba(255,255,255,0.05)',
-                padding: '20px',
-                borderRadius: '12px',
+                padding: '1.25rem',
+                borderRadius: '0.75rem',
                 border: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <h3 style={{
                   fontSize: '1rem',
                   fontWeight: '700',
                   color: 'rgba(255,255,255,0.95)',
-                  marginBottom: '16px',
+                  marginBottom: '1rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5rem'
                 }}>
-                  <UserCircle style={{ width: '20px', height: '20px', color: '#ef4444' }} />
+                  <UserCircle style={{ width: '1.25rem', height: '1.25rem', color: '#ef4444' }} />
                   Información Básica
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>CÉDULA</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>CÉDULA</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.cedula}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>ROL</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ROL</div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
                       {usuario.nombre_rol}
                     </span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>EMAIL</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>EMAIL</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.email || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>TELÉFONO</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>TELÉFONO</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.telefono || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>ESTADO</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ESTADO</div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
                       {usuario.estado}
                     </span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontWeight: '600' }}>ÚLTIMA CONEXIÓN</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ÚLTIMA CONEXIÓN</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                   </div>
                 </div>
@@ -1253,31 +1325,31 @@ const ModalDetalle = ({
               {/* Trazabilidad del Sistema */}
               <div style={{
                 backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                padding: '20px',
-                borderRadius: '12px',
+                padding: '1.25rem',
+                borderRadius: '0.75rem',
                 border: '1px solid rgba(251, 191, 36, 0.3)'
               }}>
                 <h3 style={{
                   fontSize: '1rem',
                   fontWeight: '700',
                   color: '#fbbf24',
-                  marginBottom: '16px',
+                  marginBottom: '1rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '0.5rem'
                 }}>
-                  <Shield style={{ width: '20px', height: '20px', color: '#f59e0b' }} />
+                  <Shield style={{ width: '1.25rem', height: '1.25rem', color: '#f59e0b' }} />
                   Trazabilidad del Sistema
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '4px', fontWeight: '600' }}>CREADO POR</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CREADO POR</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
                       {usuario.creado_por || 'Sistema'}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '4px', fontWeight: '600' }}>FECHA DE CREACIÓN</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>FECHA DE CREACIÓN</div>
                     <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
                       {formatFecha(usuario.fecha_creacion || usuario.fecha_registro)}
                     </div>
@@ -1285,13 +1357,13 @@ const ModalDetalle = ({
                   {usuario.modificado_por && (
                     <>
                       <div>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '4px', fontWeight: '600' }}>MODIFICADO POR</div>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>MODIFICADO POR</div>
                         <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
                           {usuario.modificado_por}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '4px', fontWeight: '600' }}>ÚLTIMA MODIFICACIÓN</div>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>ÚLTIMA MODIFICACIÓN</div>
                         <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
                           {formatFecha(usuario.fecha_modificacion || null)}
                         </div>
@@ -1305,37 +1377,37 @@ const ModalDetalle = ({
               {usuario.nombre_rol?.toLowerCase() === 'estudiante' && (
                 <div style={{
                   backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '20px',
-                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  borderRadius: '0.75rem',
                   border: '1px solid rgba(239, 68, 68, 0.3)'
                 }}>
                   <h3 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
                     color: '#f87171',
-                    marginBottom: '16px',
+                    marginBottom: '1rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '0.5rem'
                   }}>
-                    <BookOpen style={{ width: '20px', height: '20px', color: '#ef4444' }} />
+                    <BookOpen style={{ width: '1.25rem', height: '1.25rem', color: '#ef4444' }} />
                     Información Académica
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>CURSOS MATRICULADOS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CURSOS MATRICULADOS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.cursos_matriculados || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>PAGOS COMPLETADOS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS COMPLETADOS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.pagos_completados || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>PAGOS PENDIENTES</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS PENDIENTES</div>
                       <div style={{ fontSize: '1.5rem', color: '#ef4444', fontWeight: '700' }}>
                         {usuario.pagos_pendientes || 0}
                       </div>
@@ -1348,31 +1420,31 @@ const ModalDetalle = ({
               {usuario.nombre_rol?.toLowerCase() === 'docente' && (
                 <div style={{
                   backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '20px',
-                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  borderRadius: '0.75rem',
                   border: '1px solid rgba(239, 68, 68, 0.3)'
                 }}>
                   <h3 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
                     color: '#f87171',
-                    marginBottom: '16px',
+                    marginBottom: '1rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '0.5rem'
                   }}>
-                    <BookOpen style={{ width: '20px', height: '20px', color: '#ef4444' }} />
+                    <BookOpen style={{ width: '1.25rem', height: '1.25rem', color: '#ef4444' }} />
                     Información Académica
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>CURSOS ASIGNADOS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CURSOS ASIGNADOS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.cursos_asignados || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>ESTUDIANTES ACTIVOS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>ESTUDIANTES ACTIVOS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.estudiantes_activos || 0}
                       </div>
@@ -1385,37 +1457,37 @@ const ModalDetalle = ({
               {usuario.nombre_rol?.toLowerCase() === 'administrativo' && (
                 <div style={{
                   backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '20px',
-                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  borderRadius: '0.75rem',
                   border: '1px solid rgba(239, 68, 68, 0.3)'
                 }}>
                   <h3 style={{
                     fontSize: '1rem',
                     fontWeight: '700',
                     color: '#f87171',
-                    marginBottom: '16px',
+                    marginBottom: '1rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '0.5rem'
                   }}>
-                    <Activity style={{ width: '20px', height: '20px', color: '#ef4444' }} />
+                    <Activity style={{ width: '1.25rem', height: '1.25rem', color: '#ef4444' }} />
                     Actividad del Sistema
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>MATRÍCULAS APROBADAS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>MATRÍCULAS APROBADAS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.matriculas_aprobadas || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>PAGOS VERIFICADOS</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS VERIFICADOS</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.pagos_verificados || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '4px', fontWeight: '600' }}>TOTAL ACCIONES</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>TOTAL ACCIONES</div>
                       <div style={{ fontSize: '1.5rem', color: '#f87171', fontWeight: '700' }}>
                         {usuario.total_acciones || 0}
                       </div>
@@ -1427,13 +1499,13 @@ const ModalDetalle = ({
           )}
 
           {tabActiva === 'sesiones' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {loadingModal ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
                   <div style={{
                     display: 'inline-block',
-                    width: '32px',
-                    height: '32px',
+                    width: '2rem',
+                    height: '2rem',
                     border: '4px solid #fee2e2',
                     borderTop: '4px solid #ef4444',
                     borderRadius: '50%',
@@ -1442,9 +1514,9 @@ const ModalDetalle = ({
                 </div>
               ) : sesiones.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
-                  <Clock style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: 'rgba(255,255,255,0.3)' }} />
+                  <Clock style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: 'rgba(255,255,255,0.3)' }} />
                   <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>No hay sesiones registradas para este usuario</p>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '8px' }}>Las sesiones aparecerán cuando el usuario inicie sesión</p>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '0.5rem' }}>Las sesiones aparecer�n cuando el usuario inicie sesi�n</p>
                 </div>
               ) : (
                 sesiones.map((sesion) => {
@@ -1458,18 +1530,18 @@ const ModalDetalle = ({
 
                   return (
                     <div key={sesion.id_sesion} style={{
-                      padding: '20px',
-                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      borderRadius: '0.75rem',
                       border: sesion.activa ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
                       backgroundColor: sesion.activa ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
                       transition: 'all 0.3s ease'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '10px',
+                            width: '2.5rem',
+                            height: '2.5rem',
+                            borderRadius: '0.625rem',
                             backgroundColor: sesion.activa ? '#10b981' : 'rgba(255,255,255,0.2)',
                             display: 'flex',
                             alignItems: 'center',
@@ -1478,18 +1550,18 @@ const ModalDetalle = ({
                             {sesion.activa ? <CheckCircle size={20} color="#fff" /> : <XCircle size={20} color="#fff" />}
                           </div>
                           <div>
-                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '4px' }}>
-                              {sesion.activa ? 'Sesión Activa' : 'Sesión Finalizada'}
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
+                              {sesion.activa ? 'Sesi�n Activa' : 'Sesi�n Finalizada'}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               {esMovil ? <Monitor size={14} /> : <Globe size={14} />}
-                              <span>{esMovil ? 'Móvil' : 'Escritorio'} • {navegador}</span>
+                              <span>{esMovil ? 'M�vil' : 'Escritorio'} � {navegador}</span>
                             </div>
                           </div>
                         </div>
                         <span style={{
-                          padding: '4px 12px',
-                          borderRadius: '6px',
+                          padding: '4px 0.75rem',
+                          borderRadius: '0.375rem',
                           fontSize: '0.75rem',
                           fontWeight: '600',
                           backgroundColor: sesion.activa ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.1)',
@@ -1499,19 +1571,19 @@ const ModalDetalle = ({
                         </span>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                           <Calendar size={16} color="#ef4444" />
                           <div>
-                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Inicio de Sesión</div>
+                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Inicio de Sesi�n</div>
                             <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{formatFecha(sesion.fecha_inicio)}</div>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                           <Clock size={16} color={sesion.activa ? '#10b981' : '#ef4444'} />
                           <div>
                             <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                              {sesion.activa ? 'Expira' : 'Cerró Sesión'}
+                              {sesion.activa ? 'Expira' : 'Cerr� Sesi�n'}
                             </div>
                             <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>
                               {sesion.activa ? formatFecha(sesion.fecha_expiracion) : formatFecha(sesion.fecha_cierre || sesion.fecha_expiracion)}
@@ -1521,13 +1593,13 @@ const ModalDetalle = ({
                       </div>
 
                       <div style={{
-                        marginTop: '12px',
-                        padding: '12px',
-                        borderRadius: '8px',
+                        marginTop: '0.75rem',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
                         backgroundColor: 'rgba(255,255,255,0.03)',
                         border: '1px solid rgba(255,255,255,0.1)'
                       }}>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '6px' }}>User Agent:</div>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.375rem' }}>User Agent:</div>
                         <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', wordBreak: 'break-all' }}>{sesion.user_agent}</div>
                       </div>
                     </div>
@@ -1538,13 +1610,13 @@ const ModalDetalle = ({
           )}
 
           {tabActiva === 'acciones' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {loadingModal ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
                   <div style={{
                     display: 'inline-block',
-                    width: '32px',
-                    height: '32px',
+                    width: '2rem',
+                    height: '2rem',
                     border: '4px solid #fee2e2',
                     borderTop: '4px solid #ef4444',
                     borderRadius: '50%',
@@ -1553,28 +1625,28 @@ const ModalDetalle = ({
                 </div>
               ) : (
                 <>
-                  {/* Sección de Pagos - Solo para estudiantes */}
+                  {/* Secci�n de Pagos - Solo para estudiantes */}
                   {esEstudiante && pagos && pagos.length > 0 && (
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <DollarSign size={20} color='#10b981' />
                         Pagos Realizados ({pagos.length})
                       </h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {pagos.map((pago) => (
                           <div key={pago.id_pago} style={{
-                            padding: '20px',
-                            borderRadius: '12px',
+                            padding: '1.25rem',
+                            borderRadius: '0.75rem',
                             border: '1px solid rgba(16, 185, 129, 0.3)',
                             backgroundColor: 'rgba(255,255,255,0.05)',
                             transition: 'all 0.3s ease'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <div style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '10px',
+                                  width: '2.5rem',
+                                  height: '2.5rem',
+                                  borderRadius: '0.625rem',
                                   backgroundColor: '#10b981',
                                   display: 'flex',
                                   alignItems: 'center',
@@ -1583,7 +1655,7 @@ const ModalDetalle = ({
                                   <DollarSign size={20} color="#fff" />
                                 </div>
                                 <div>
-                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '4px' }}>
+                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
                                     Pago Cuota #{pago.numero_cuota} - ${parseFloat(String(pago.monto)).toFixed(2)}
                                   </div>
                                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', fontWeight: '600' }}>
@@ -1592,8 +1664,8 @@ const ModalDetalle = ({
                                 </div>
                               </div>
                               <span style={{
-                                padding: '4px 12px',
-                                borderRadius: '6px',
+                                padding: '4px 0.75rem',
+                                borderRadius: '0.375rem',
                                 fontSize: '0.75rem',
                                 fontWeight: '600',
                                 backgroundColor: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(251, 191, 36, 0.2)',
@@ -1603,32 +1675,32 @@ const ModalDetalle = ({
                               </span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.85rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.85rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                 <Calendar size={16} color="#10b981" />
                                 <div>
                                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Fecha de Pago</div>
                                   <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{formatFecha(pago.fecha_pago)}</div>
                                 </div>
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                 {pago.metodo_pago === 'transferencia' ? <Building2 size={16} color="#3b82f6" /> : <CreditCard size={16} color="#f59e0b" />}
                                 <div>
-                                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Método de Pago</div>
+                                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>M�todo de Pago</div>
                                   <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)', textTransform: 'capitalize' }}>{pago.metodo_pago}</div>
                                 </div>
                               </div>
                               {pago.numero_comprobante && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                   <FileText size={16} color="rgba(255,255,255,0.6)" />
                                   <div>
-                                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>N° Comprobante</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>N� Comprobante</div>
                                     <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{pago.numero_comprobante}</div>
                                   </div>
                                 </div>
                               )}
                               {pago.recibido_por && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                   <UserCircle size={16} color="#f59e0b" />
                                   <div>
                                     <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Recibido por</div>
@@ -1643,28 +1715,28 @@ const ModalDetalle = ({
                     </div>
                   )}
 
-                  {/* Sección de Deberes - Solo para estudiantes */}
+                  {/* Secci�n de Deberes - Solo para estudiantes */}
                   {esEstudiante && deberes && deberes.length > 0 && (
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <BookOpen size={20} color="#3b82f6" />
                         Deberes Entregados ({deberes.length})
                       </h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {deberes.map((deber) => (
                           <div key={deber.id_entrega} style={{
-                            padding: '20px',
-                            borderRadius: '12px',
+                            padding: '1.25rem',
+                            borderRadius: '0.75rem',
                             border: '1px solid rgba(59, 130, 246, 0.3)',
                             backgroundColor: 'rgba(255,255,255,0.05)',
                             transition: 'all 0.3s ease'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <div style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '10px',
+                                  width: '2.5rem',
+                                  height: '2.5rem',
+                                  borderRadius: '0.625rem',
                                   backgroundColor: '#3b82f6',
                                   display: 'flex',
                                   alignItems: 'center',
@@ -1673,7 +1745,7 @@ const ModalDetalle = ({
                                   <BookOpen size={20} color="#fff" />
                                 </div>
                                 <div>
-                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '4px' }}>
+                                  <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
                                     {deber.deber_titulo}
                                   </div>
                                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', fontWeight: '600' }}>
@@ -1683,8 +1755,8 @@ const ModalDetalle = ({
                               </div>
                               {deber.calificacion !== null && deber.calificacion !== undefined && (
                                 <span style={{
-                                  padding: '4px 12px',
-                                  borderRadius: '6px',
+                                  padding: '4px 0.75rem',
+                                  borderRadius: '0.375rem',
                                   fontSize: '0.75rem',
                                   fontWeight: '600',
                                   backgroundColor: deber.calificacion >= 7 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
@@ -1695,15 +1767,15 @@ const ModalDetalle = ({
                               )}
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.85rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.85rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                 <Calendar size={16} color="#3b82f6" />
                                 <div>
                                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Fecha de Entrega</div>
                                   <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{formatFecha(deber.fecha_entrega)}</div>
                                 </div>
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                 <FileText size={16} color="rgba(255,255,255,0.6)" />
                                 <div>
                                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Archivo</div>
@@ -1711,7 +1783,7 @@ const ModalDetalle = ({
                                 </div>
                               </div>
                               {deber.docente_nombre && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)', gridColumn: '1 / -1' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)', gridColumn: '1 / -1' }}>
                                   <UserCircle size={16} color="rgba(255,255,255,0.6)" />
                                   <div>
                                     <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Docente</div>
@@ -1721,8 +1793,8 @@ const ModalDetalle = ({
                               )}
                             </div>
                             {deber.comentario_docente && (
-                              <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '6px' }}>Comentario del Docente:</div>
+                              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.375rem' }}>Comentario del Docente:</div>
                                 <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>{deber.comentario_docente}</div>
                               </div>
                             )}
@@ -1732,42 +1804,42 @@ const ModalDetalle = ({
                     </div>
                   )}
 
-                  {/* Sección de Acciones de Auditoría */}
+                  {/* Secci�n de Acciones de Auditor�a */}
                   {acciones.length === 0 && (!esEstudiante || (pagos.length === 0 && deberes.length === 0)) ? (
                     <div style={{ textAlign: 'center', padding: '48px 0' }}>
-                      <Activity style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: 'rgba(255,255,255,0.3)' }} />
+                      <Activity style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: 'rgba(255,255,255,0.3)' }} />
                       <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>No hay acciones registradas para este usuario</p>
-                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '8px' }}>Las acciones aparecerán cuando el usuario realice cambios en el sistema</p>
+                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '0.5rem' }}>Las acciones aparecer�n cuando el usuario realice cambios en el sistema</p>
                     </div>
                   ) : acciones.length > 0 && (
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Activity size={20} color="#ef4444" />
                         Acciones del Sistema ({acciones.length})
                       </h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {acciones.map((accion) => {
-                          // Determinar icono y color según operación
+                          // Determinar icono y color seg�n operaci�n
                           const operacionConfig = {
-                            'INSERT': { icono: Plus, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Creación' },
-                            'UPDATE': { icono: Edit, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Actualización' },
-                            'DELETE': { icono: Trash2, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.2)', label: 'Eliminación' }
-                          }[accion.operacion] || { icono: Activity, color: '#64748b', bg: 'rgba(100, 116, 139, 0.2)', label: accion.operacion };
+                            'INSERT': { icono: Plus, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Creaci�n' },
+                            'UPDATE': { icono: Edit, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Actualizaci�n' },
+                            'DELETE': { icono: Trash2, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.2)', label: 'Eliminaci�n' }
+                          }[accion.operacion] || { icono: Activity, color: 'rgba(255,255,255,0.7)', bg: 'rgba(100, 116, 139, 0.2)', label: accion.operacion };
 
                           return (
                             <div key={accion.id_auditoria} style={{
-                              padding: '20px',
-                              borderRadius: '12px',
+                              padding: '1.25rem',
+                              borderRadius: '0.75rem',
                               border: `1px solid ${operacionConfig.color}40`,
                               backgroundColor: 'rgba(255,255,255,0.05)',
                               transition: 'all 0.3s ease'
                             }}>
-                              <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                   <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    borderRadius: '10px',
+                                    width: '2.5rem',
+                                    height: '2.5rem',
+                                    borderRadius: '0.625rem',
                                     backgroundColor: operacionConfig.color,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -1776,7 +1848,7 @@ const ModalDetalle = ({
                                     {React.createElement(operacionConfig.icono, { size: 20, color: '#fff' })}
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '4px' }}>
+                                    <div style={{ fontSize: '1rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
                                       {accion.descripcion || operacionConfig.label}
                                     </div>
                                     <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', fontWeight: '600' }}>
@@ -1785,8 +1857,8 @@ const ModalDetalle = ({
                                   </div>
                                 </div>
                                 <span style={{
-                                  padding: '4px 12px',
-                                  borderRadius: '6px',
+                                  padding: '4px 0.75rem',
+                                  borderRadius: '0.375rem',
                                   fontSize: '0.75rem',
                                   fontWeight: '600',
                                   backgroundColor: operacionConfig.bg,
@@ -1796,11 +1868,11 @@ const ModalDetalle = ({
                                 </span>
                               </div>
 
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '0.85rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.6)' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                   <Calendar size={16} color="#ef4444" />
                                   <div>
-                                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Fecha de Operación</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Fecha de Operaci�n</div>
                                     <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{formatFecha(accion.fecha_operacion)}</div>
                                   </div>
                                 </div>
@@ -1851,33 +1923,33 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '20px',
+        padding: '1.25rem',
       } as React.CSSProperties}
     >
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
         border: '1px solid rgba(239, 68, 68, 0.3)',
-        borderRadius: '12px',
+        borderRadius: '0.75rem',
         width: '100%',
-        maxWidth: '500px',
-        padding: '18px 28px 22px 28px',
+        maxWidth: '31.25rem',
+        padding: '18px 1.75rem 1.375rem 1.75rem',
         color: '#fff',
         margin: '0 auto',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+        boxShadow: '0 25px 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
       }}>
-        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '12px' }}>
+        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
           {accion.tipo === 'activar' ? 'Activar Usuario' : 'Desactivar Usuario'}
         </h3>
-        <p style={{ marginBottom: '20px', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
-          ¿Estás seguro de {accion.tipo} a <strong style={{ color: '#fff' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
+        <p style={{ marginBottom: '1.25rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+          �Est�s seguro de {accion.tipo} a <strong style={{ color: '#fff' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
         </p>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
             onClick={onCancel}
             style={{
               flex: 1,
-              padding: '10px 16px',
-              borderRadius: '8px',
+              padding: '10px 1rem',
+              borderRadius: '0.5rem',
               border: '1px solid rgba(255,255,255,0.2)',
               background: 'rgba(255,255,255,0.05)',
               color: '#fff',
@@ -1895,8 +1967,8 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
             onClick={onConfirm}
             style={{
               flex: 1,
-              padding: '10px 16px',
-              borderRadius: '8px',
+              padding: '10px 1rem',
+              borderRadius: '0.5rem',
               border: 'none',
               background: accion.tipo === 'activar' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
               color: '#fff',
@@ -1942,51 +2014,51 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '20px',
+        padding: '1.25rem',
       } as React.CSSProperties}
     >
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
         border: '1px solid rgba(59, 130, 246, 0.3)',
-        borderRadius: '12px',
+        borderRadius: '0.75rem',
         width: '100%',
-        maxWidth: '500px',
-        padding: '18px 28px 22px 28px',
+        maxWidth: '31.25rem',
+        padding: '18px 1.75rem 1.375rem 1.75rem',
         color: '#fff',
         margin: '0 auto',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+        boxShadow: '0 25px 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
       }}>
-        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '12px' }}>
-          ðŸ” Contraseña Reseteada
+        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
+          🔐 Contrase�a Reseteada
         </h3>
-        <p style={{ marginBottom: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+        <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
           Las nuevas credenciales son:
         </p>
         <div style={{
-          marginBottom: '20px',
-          padding: '16px',
-          borderRadius: '8px',
+          marginBottom: '1.25rem',
+          padding: '1rem',
+          borderRadius: '0.5rem',
           background: 'rgba(59, 130, 246, 0.1)',
           border: '1px solid rgba(59, 130, 246, 0.3)',
         }}>
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Usuario</div>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Usuario</div>
             <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Contraseña Temporal</div>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Contrase�a Temporal</div>
             <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
           </div>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
-          âš ï¸ El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
+        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.25rem' }}>
+          ⚠️ El usuario deber� cambiar esta contrase�a en su primer inicio de sesi�n.
         </p>
         <button
           onClick={onClose}
           style={{
             width: '100%',
-            padding: '10px 16px',
-            borderRadius: '8px',
+            padding: '10px 1rem',
+            borderRadius: '0.5rem',
             border: 'none',
             background: 'linear-gradient(135deg, #ef4444, #dc2626)',
             color: '#fff',
@@ -2005,3 +2077,7 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
 
 
 export default ControlUsuarios;
+
+
+
+

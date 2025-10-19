@@ -247,6 +247,99 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           background: ${darkMode ? 'inherit' : 'var(--theme-bg-content)'} !important;
         }
         
+        /* RESPONSIVE: Escalar TODO el contenido en laptops pequeñas */
+        @media (max-width: 1366px) and (min-width: 1025px) {
+          .admin-theme-wrapper {
+            font-size: 13px !important;
+          }
+          
+          .admin-theme-wrapper h1 {
+            font-size: 1.3rem !important;
+          }
+          
+          .admin-theme-wrapper h2 {
+            font-size: 1.1rem !important;
+          }
+          
+          .admin-theme-wrapper h3 {
+            font-size: 0.95rem !important;
+          }
+          
+          .admin-theme-wrapper h4 {
+            font-size: 0.85rem !important;
+          }
+          
+          .admin-theme-wrapper button {
+            padding: 8px 14px !important;
+            font-size: 0.85rem !important;
+          }
+          
+          .admin-theme-wrapper input,
+          .admin-theme-wrapper select,
+          .admin-theme-wrapper textarea {
+            font-size: 0.85rem !important;
+            padding: 8px 10px !important;
+          }
+          
+          .admin-theme-wrapper table {
+            font-size: 0.85rem !important;
+          }
+          
+          .admin-theme-wrapper table th,
+          .admin-theme-wrapper table td {
+            padding: 8px 10px !important;
+          }
+          
+          /* Cards y contenedores */
+          .admin-theme-wrapper > div > div {
+            padding: 16px !important;
+          }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+          .admin-theme-wrapper {
+            font-size: 12px !important;
+          }
+          
+          .admin-theme-wrapper h1 {
+            font-size: 1.2rem !important;
+          }
+          
+          .admin-theme-wrapper h2 {
+            font-size: 1rem !important;
+          }
+          
+          .admin-theme-wrapper h3 {
+            font-size: 0.9rem !important;
+          }
+          
+          .admin-theme-wrapper button {
+            padding: 6px 12px !important;
+            font-size: 0.8rem !important;
+          }
+        }
+        
+        /* Reducir títulos en TODAS las resoluciones */
+        .admin-theme-wrapper h1 {
+          font-size: 1.5rem !important;
+        }
+        
+        .admin-theme-wrapper h2 {
+          font-size: 1.25rem !important;
+        }
+        
+        .admin-theme-wrapper h3 {
+          font-size: 1.1rem !important;
+        }
+        
+        .admin-theme-wrapper h4 {
+          font-size: 0.95rem !important;
+        }
+        
+        .admin-theme-wrapper h5 {
+          font-size: 0.85rem !important;
+        }
+        
         /* Forzar backgrounds específicos que aparecen en SuperAdmin */
         .admin-theme-wrapper div[style*="background: rgba(0,0,0,0.9)"],
         .admin-theme-wrapper div[style*="background: rgba(26,26,26,0.9)"],

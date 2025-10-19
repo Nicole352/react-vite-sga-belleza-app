@@ -216,21 +216,30 @@ const GestionAulas = () => {
   const aulasActivas = aulasSorted.filter(a => a.estado === 'activa').length;
 
   return (
-    <div style={{ 
+    <div className="responsive-padding" style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
-      padding: 24, 
       color: '#fff' 
     }}>
       {/* Header */}
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <Building2 size={24} color={RedColorPalette.primary} />
-          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-            Gestión de Aulas
-          </h1>
-        </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', 
+          margin: '0 0 0.375rem 0',
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: isMobile ? '6px' : '0.625rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+        }}>
+          <Building2 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
+          Gestión de Aulas
+        </h2>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          margin: 0, 
+          fontSize: isMobile ? '0.75rem' : '0.85rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        }}>
           Administra las aulas y espacios físicos de la institución
         </p>
       </div>
@@ -241,20 +250,20 @@ const GestionAulas = () => {
           display: 'flex', 
           flexDirection: isMobile ? 'column' : 'row',
           flexWrap: 'wrap', 
-          gap: '12px', 
+          gap: '0.75rem', 
           alignItems: isMobile ? 'stretch' : 'center', 
           justifyContent: 'space-between' 
         }}>
           <div style={{ 
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
-            gap: '12px', 
+            gap: '0.75rem', 
             alignItems: isMobile ? 'stretch' : 'center', 
             flex: 1 
           }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '280px', flex: isMobile ? '1' : 'initial' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '17.5rem', flex: isMobile ? '1' : 'initial' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
               <input
                 type="text"
                 placeholder={isMobile ? "Buscar..." : "Buscar por código, nombre o ubicación..."}
@@ -262,10 +271,10 @@ const GestionAulas = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 10px 10px 38px',
+                  padding: '10px 0.625rem 0.625rem 2.375rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
@@ -291,10 +300,10 @@ const GestionAulas = () => {
             {/* Toggle Vista */}
             <div style={{ 
               display: 'flex', 
-              gap: '6px', 
+              gap: '0.375rem', 
               background: 'rgba(255,255,255,0.05)', 
-              borderRadius: '10px', 
-              padding: '3px',
+              borderRadius: '0.625rem', 
+              padding: '0.1875rem',
               width: isSmallScreen ? '100%' : 'auto'
             }}>
               <button
@@ -303,11 +312,11 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  gap: '0.3125rem',
+                  padding: isMobile ? '7px 0.625rem' : '7px 0.75rem',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '7px',
+                  borderRadius: '0.4375rem',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.75rem',
@@ -324,11 +333,11 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  gap: '0.375rem',
+                  padding: isMobile ? '7px 0.625rem' : '8px 0.875rem',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.9rem',
@@ -352,17 +361,17 @@ const GestionAulas = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              padding: isMobile ? '10px 16px' : '12px 24px',
+              gap: '0.5rem',
+              padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '0.625rem',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
@@ -373,21 +382,21 @@ const GestionAulas = () => {
       </GlassEffect>
 
       {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {totalCount}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
             Total Aulas
           </div>
         </GlassEffect>
         
-        <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: 3, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+        <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
             {aulasActivas}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
             Aulas Activas
           </div>
         </GlassEffect>
@@ -409,13 +418,13 @@ const GestionAulas = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.125rem' }}>
           {loading ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               Cargando aulas...
             </div>
           ) : aulasSorted.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
               No hay aulas registradas
             </div>
           ) : (
@@ -428,10 +437,10 @@ const GestionAulas = () => {
                 hover
                 animated
                 style={{
-                  padding: '14px',
+                  padding: '0.875rem',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ 
                       width: 40, 
@@ -445,12 +454,12 @@ const GestionAulas = () => {
                       <Building2 size={20} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 3px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.1875rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                         {aula.nombre}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '2px 8px',
+                        padding: '2px 0.5rem',
                         borderRadius: '9999px',
                         fontSize: '0.65rem',
                         fontWeight: '600',
@@ -465,9 +474,9 @@ const GestionAulas = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Código
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace' }}>
@@ -475,8 +484,8 @@ const GestionAulas = () => {
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
-                      <Calendar size={10} style={{ display: 'inline', marginRight: '3px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <Calendar size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
                       Fecha Creación
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.7rem' }}>
@@ -484,8 +493,8 @@ const GestionAulas = () => {
                     </div>
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
-                      <MapPin size={10} style={{ display: 'inline', marginRight: '3px' }} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <MapPin size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
                       Ubicación
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.7rem' }}>
@@ -494,7 +503,7 @@ const GestionAulas = () => {
                   </div>
                   {aula.descripcion && (
                     <div style={{ gridColumn: '1 / -1' }}>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                         Descripción
                       </div>
                       <div style={{ color: '#fff', fontSize: '0.7rem' }}>
@@ -511,11 +520,11 @@ const GestionAulas = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px',
-                    padding: '10px',
+                    gap: '0.375rem',
+                    padding: '0.625rem',
                     background: 'rgba(239, 68, 68, 0.1)',
                     border: `1px solid ${RedColorPalette.primary}`,
-                    borderRadius: '10px',
+                    borderRadius: '0.625rem',
                     color: RedColorPalette.primary,
                     fontSize: '0.85rem',
                     fontWeight: 600,
@@ -525,7 +534,7 @@ const GestionAulas = () => {
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
                     e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                    e.currentTarget.style.boxShadow = `0 4px 12px ${RedColorPalette.primary}40`;
+                    e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -548,23 +557,23 @@ const GestionAulas = () => {
           borderRadius: 16, 
           overflow: 'hidden',
           border: '1px solid rgba(255,255,255,0.1)',
-          marginBottom: '24px'
+          marginBottom: '1.5rem'
         }}>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              margin: '12px',
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              margin: '0.75rem',
               color: '#ef4444',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '0.375rem'
             }}>
               <span>👉</span>
               <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -579,22 +588,22 @@ const GestionAulas = () => {
                   background: 'rgba(248, 113, 113, 0.15)',
                   borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
                 }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Código
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Nombre
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Ubicación
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Estado
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Fecha Creación
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Acciones
                   </th>
                 </tr>
@@ -602,13 +611,13 @@ const GestionAulas = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
                       Cargando aulas...
                     </td>
                   </tr>
                 ) : aulasSorted.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
                       No hay aulas registradas
                     </td>
                   </tr>
@@ -628,7 +637,7 @@ const GestionAulas = () => {
                         e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                       }}
                     >
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ 
                           fontWeight: '600',
                           color: '#f87171',
@@ -638,12 +647,12 @@ const GestionAulas = () => {
                           {aula.codigo_aula}
                         </div>
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ 
                           fontWeight: '600',
                           color: '#fff',
                           fontSize: '0.85rem',
-                          marginBottom: '2px'
+                          marginBottom: '0.125rem'
                         }}>
                           {aula.nombre}
                         </div>
@@ -651,7 +660,7 @@ const GestionAulas = () => {
                           <div style={{ 
                             fontSize: '0.7rem',
                             color: 'rgba(255,255,255,0.5)',
-                            maxWidth: '200px',
+                            maxWidth: '12.5rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
@@ -660,11 +669,11 @@ const GestionAulas = () => {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ 
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '6px',
+                          gap: '0.375rem',
                           color: 'rgba(255,255,255,0.8)',
                           fontSize: '0.8rem'
                         }}>
@@ -672,10 +681,10 @@ const GestionAulas = () => {
                           {aula.ubicacion || 'No especificada'}
                         </div>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                         <span style={{
-                          padding: '4px 10px',
-                          borderRadius: '8px',
+                          padding: '4px 0.625rem',
+                          borderRadius: '0.5rem',
                           fontSize: '0.7rem',
                           fontWeight: '700',
                           textTransform: 'uppercase',
@@ -686,11 +695,11 @@ const GestionAulas = () => {
                           {getEstadoText(aula.estado)}
                         </span>
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ 
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '6px',
+                          gap: '0.375rem',
                           color: 'rgba(255,255,255,0.8)',
                           fontSize: '0.75rem'
                         }}>
@@ -698,19 +707,19 @@ const GestionAulas = () => {
                           {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
                         </div>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                         <button
                           onClick={() => openEditModal(aula)}
                           style={{
-                            padding: '6px 10px',
+                            padding: '6px 0.625rem',
                             background: 'rgba(245, 158, 11, 0.2)',
                             border: '1px solid rgba(245, 158, 11, 0.3)',
                             color: '#fbbf24',
-                            borderRadius: '6px',
+                            borderRadius: '0.375rem',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '4px',
+                            gap: '0.25rem',
                             fontSize: '0.75rem',
                             fontWeight: '600',
                             transition: 'all 0.2s ease'
@@ -742,13 +751,13 @@ const GestionAulas = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 24px',
-          marginTop: isMobile ? '16px' : '20px',
-          marginBottom: '24px',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '16px' : '20px 1.5rem',
+          marginTop: isMobile ? '16px' : '1.25rem',
+          marginBottom: '1.5rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
+          borderRadius: '1rem',
         }}>
           <div style={{ 
             color: 'rgba(255,255,255,0.7)', 
@@ -759,7 +768,7 @@ const GestionAulas = () => {
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: '8px', 
+            gap: '0.5rem', 
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -770,11 +779,11 @@ const GestionAulas = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -791,16 +800,16 @@ const GestionAulas = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                   background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '40px',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {pageNum}
@@ -813,11 +822,11 @@ const GestionAulas = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -847,7 +856,7 @@ const GestionAulas = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
             }}
         >
           <GlassEffect
@@ -857,21 +866,21 @@ const GestionAulas = () => {
             className="responsive-modal"
             style={{
               width: isMobile ? '100vw' : '100%',
-              maxWidth: isMobile ? '100vw' : '600px',
-              padding: isMobile ? '16px' : '18px 28px 22px 28px',
+              maxWidth: isMobile ? '100vw' : '37.5rem',
+              padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
               color: '#fff',
               margin: '0 auto',
               maxHeight: isMobile ? '90vh' : '85vh',
               overflowY: 'auto',
-              borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             }}
           >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h2 style={{
@@ -882,7 +891,7 @@ const GestionAulas = () => {
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5rem',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
               }}>
                 <Building2 size={20} color={RedColorPalette.primary} />
@@ -896,8 +905,8 @@ const GestionAulas = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -918,16 +927,16 @@ const GestionAulas = () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '1.25rem' }}>
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: isMobile ? '16px' : '20px' 
+                gap: isMobile ? '16px' : '1.25rem' 
               }}>
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     color: 'rgba(255,255,255,0.9)',
                     fontSize: '0.875rem'
@@ -940,9 +949,9 @@ const GestionAulas = () => {
                     readOnly
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '0.75rem',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.05)',
                       color: 'rgba(255,255,255,0.5)',
                       fontSize: '0.95rem',
@@ -952,7 +961,7 @@ const GestionAulas = () => {
                   <div style={{
                     fontSize: '0.75rem',
                     color: 'rgba(255,255,255,0.5)',
-                    marginTop: '4px'
+                    marginTop: '0.25rem'
                   }}>
                     Se genera automáticamente
                   </div>
@@ -961,7 +970,7 @@ const GestionAulas = () => {
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     color: 'rgba(255,255,255,0.9)',
                     fontSize: '0.875rem'
@@ -990,9 +999,9 @@ const GestionAulas = () => {
                     placeholder="Ej: Aula de Cosmetología"
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '0.75rem',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
                       fontSize: '0.95rem'
@@ -1005,7 +1014,7 @@ const GestionAulas = () => {
               <div>
                 <label style={{
                   display: 'block',
-                  marginBottom: '8px',
+                  marginBottom: '0.5rem',
                   fontWeight: '500',
                   color: 'rgba(255,255,255,0.9)',
                   fontSize: '0.875rem'
@@ -1019,9 +1028,9 @@ const GestionAulas = () => {
                   rows={3}
                   style={{
                     width: '100%',
-                    padding: '12px',
+                    padding: '0.75rem',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '8px',
+                    borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
                     color: '#fff',
                     fontSize: '0.95rem',
@@ -1031,11 +1040,11 @@ const GestionAulas = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     color: 'rgba(255,255,255,0.9)',
                     fontSize: '0.875rem'
@@ -1049,9 +1058,9 @@ const GestionAulas = () => {
                     placeholder="Ej: Edificio A - Piso 2"
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '0.75rem',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
                       fontSize: '0.95rem'
@@ -1062,7 +1071,7 @@ const GestionAulas = () => {
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     color: 'rgba(255,255,255,0.9)',
                     fontSize: '0.875rem'
@@ -1088,8 +1097,8 @@ const GestionAulas = () => {
             <div style={{
               display: 'flex',
               flexDirection: isMobile ? 'column-reverse' : 'row',
-              gap: '12px',
-              marginTop: isMobile ? '24px' : '32px',
+              gap: '0.75rem',
+              marginTop: isMobile ? '24px' : '2rem',
               justifyContent: 'flex-end'
             }}>
               <button
@@ -1098,11 +1107,11 @@ const GestionAulas = () => {
                   setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
                 }}
                 style={{
-                  padding: '12px 24px',
+                  padding: '0.75rem 1.5rem',
                   background: 'rgba(255,255,255,0.05)',
                   color: 'rgba(255,255,255,0.7)',
                   border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.95rem',
                   fontWeight: '500',
@@ -1115,26 +1124,26 @@ const GestionAulas = () => {
                 onClick={handleCreateAula}
                 disabled={!formData.nombre.trim() || loading}
                 style={{
-                  padding: '12px 24px',
+                  padding: '0.75rem 1.5rem',
                   background: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.05)' : RedColorPalette.primary,
                   color: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.3)' : 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
+                  gap: '0.5rem',
                   width: isMobile ? '100%' : 'auto'
                 }}
               >
                 {loading ? (
                   <>
                     <div style={{
-                      width: '16px',
-                      height: '16px',
+                      width: '1rem',
+                      height: '1rem',
                       border: '2px solid transparent',
                       borderTop: '2px solid currentColor',
                       borderRadius: '50%',
@@ -1168,7 +1177,7 @@ const GestionAulas = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
             }}
         >
           <GlassEffect
@@ -1178,21 +1187,21 @@ const GestionAulas = () => {
             className="responsive-modal"
             style={{
               width: isMobile ? '100vw' : '100%',
-              maxWidth: isMobile ? '100vw' : '600px',
-              padding: isMobile ? '16px' : '18px 28px 22px 28px',
+              maxWidth: isMobile ? '100vw' : '37.5rem',
+              padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
               color: '#fff',
               margin: '0 auto',
               maxHeight: isMobile ? '90vh' : '85vh',
               overflowY: 'auto',
-              borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             }}
           >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h2 style={{
@@ -1203,7 +1212,7 @@ const GestionAulas = () => {
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '0.5rem',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
               }}>
                 <Edit size={20} color={RedColorPalette.primary} />
@@ -1217,8 +1226,8 @@ const GestionAulas = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1241,16 +1250,16 @@ const GestionAulas = () => {
 
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
-              padding: '16px',
-              borderRadius: '8px',
-              marginBottom: '20px',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              marginBottom: '1.25rem',
               border: '1px solid rgba(239, 68, 68, 0.3)'
             }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginBottom: '8px'
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
               }}>
                 <Building2 size={16} color={RedColorPalette.primary} />
                 <span style={{
@@ -1268,16 +1277,16 @@ const GestionAulas = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '1.25rem' }}>
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: isMobile ? '16px' : '20px' 
+                gap: isMobile ? '16px' : '1.25rem' 
               }}>
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     fontSize: '0.875rem',
                     color: 'rgba(255,255,255,0.9)'
@@ -1291,9 +1300,9 @@ const GestionAulas = () => {
                     placeholder="Ej: Aula de Teoría 1"
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '10px 0.75rem',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
                       fontSize: '0.9rem',
@@ -1306,7 +1315,7 @@ const GestionAulas = () => {
                 <div>
                   <label style={{
                     display: 'block',
-                    marginBottom: '8px',
+                    marginBottom: '0.5rem',
                     fontWeight: '500',
                     fontSize: '0.875rem',
                     color: 'rgba(255,255,255,0.9)'
@@ -1318,9 +1327,9 @@ const GestionAulas = () => {
                     onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '10px 0.75rem',
                       border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
                       fontSize: '0.9rem',
@@ -1338,7 +1347,7 @@ const GestionAulas = () => {
               <div>
                 <label style={{
                   display: 'block',
-                  marginBottom: '8px',
+                  marginBottom: '0.5rem',
                   fontWeight: '500',
                   fontSize: '0.875rem',
                   color: 'rgba(255,255,255,0.9)'
@@ -1352,9 +1361,9 @@ const GestionAulas = () => {
                   rows={3}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '10px 0.75rem',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '8px',
+                    borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
                     color: '#fff',
                     fontSize: '0.9rem',
@@ -1368,7 +1377,7 @@ const GestionAulas = () => {
               <div>
                 <label style={{
                   display: 'block',
-                  marginBottom: '8px',
+                  marginBottom: '0.5rem',
                   fontWeight: '500',
                   fontSize: '0.875rem',
                   color: 'rgba(255,255,255,0.9)'
@@ -1382,9 +1391,9 @@ const GestionAulas = () => {
                   placeholder="Ej: Edificio A - Piso 2"
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '10px 0.75rem',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '8px',
+                    borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
                     color: '#fff',
                     fontSize: '0.9rem',
@@ -1397,8 +1406,8 @@ const GestionAulas = () => {
             <div style={{
               display: 'flex',
               flexDirection: isMobile ? 'column-reverse' : 'row',
-              gap: '12px',
-              marginTop: isMobile ? '24px' : '32px',
+              gap: '0.75rem',
+              marginTop: isMobile ? '24px' : '2rem',
               justifyContent: 'flex-end'
             }}>
               <button
@@ -1407,11 +1416,11 @@ const GestionAulas = () => {
                   setSelectedAula(null);
                 }}
                 style={{
-                  padding: '12px 24px',
+                  padding: '0.75rem 1.5rem',
                   background: 'rgba(255,255,255,0.05)',
                   color: 'rgba(255,255,255,0.7)',
                   border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.95rem',
                   fontWeight: '500',
@@ -1424,26 +1433,26 @@ const GestionAulas = () => {
                 onClick={handleUpdateAula}
                 disabled={!formData.nombre.trim() || loading}
                 style={{
-                  padding: '12px 24px',
+                  padding: '0.75rem 1.5rem',
                   background: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.05)' : RedColorPalette.primary,
                   color: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.3)' : 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
+                  gap: '0.5rem',
                   width: isMobile ? '100%' : 'auto'
                 }}
               >
                 {loading ? (
                   <>
                     <div style={{
-                      width: '16px',
-                      height: '16px',
+                      width: '1rem',
+                      height: '1rem',
                       border: '2px solid transparent',
                       borderTop: '2px solid currentColor',
                       borderRadius: '50%',
@@ -1474,5 +1483,9 @@ const GestionAulas = () => {
 };
 
 export default GestionAulas;
+
+
+
+
 
 

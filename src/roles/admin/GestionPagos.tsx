@@ -173,18 +173,18 @@ const GestionPagos = () => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '400px',
+        height: '25rem',
         color: 'var(--admin-text-primary)'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ 
-            width: '50px', 
-            height: '50px', 
+            width: '3.125rem', 
+            height: '3.125rem', 
             border: '4px solid var(--admin-border)', 
             borderTop: '4px solid var(--admin-accent)', 
             borderRadius: '50%', 
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
+            margin: '0 auto 1rem'
           }} />
           <p>Cargando pagos...</p>
         </div>
@@ -193,17 +193,17 @@ const GestionPagos = () => {
   }
 
   return (
-    <div style={{ padding: '32px' }}>
+    <div style={{ padding: '2rem' }}>
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ 
           color: '#fff', 
           fontSize: '2rem', 
           fontWeight: '700', 
-          margin: '0 0 8px 0',
+          margin: '0 0 0.5rem 0',
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px'
+          gap: '0.75rem'
         }}>
           <DollarSign size={32} color="#ef4444" />
           Gestión de Pagos
@@ -218,17 +218,17 @@ const GestionPagos = () => {
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '20px', 
-          marginBottom: '24px' 
+          gap: '1.25rem', 
+          marginBottom: '1.5rem' 
         }}>
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(1.25rem)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            padding: '24px',
-            borderRadius: '20px'
+            padding: '1.5rem',
+            borderRadius: '1.25rem'
           }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '8px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               Total Pagos
             </div>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#fff' }}>
@@ -238,12 +238,12 @@ const GestionPagos = () => {
 
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(1.25rem)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            padding: '24px',
-            borderRadius: '20px'
+            padding: '1.5rem',
+            borderRadius: '1.25rem'
           }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '8px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               Pendientes
             </div>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#f59e0b' }}>
@@ -253,12 +253,12 @@ const GestionPagos = () => {
 
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(1.25rem)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            padding: '24px',
-            borderRadius: '20px'
+            padding: '1.5rem',
+            borderRadius: '1.25rem'
           }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '8px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               Verificados
             </div>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>
@@ -268,12 +268,12 @@ const GestionPagos = () => {
 
           <div style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(1.25rem)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
-            padding: '24px',
-            borderRadius: '20px'
+            padding: '1.5rem',
+            borderRadius: '1.25rem'
           }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '8px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               Monto Pendiente
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#ef4444' }}>
@@ -286,15 +286,15 @@ const GestionPagos = () => {
       {/* Controles */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(1.25rem)',
         border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '24px'
+        borderRadius: '1.25rem',
+        padding: '1.5rem',
+        marginBottom: '1.5rem'
       }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', minWidth: '300px' }}>
-            <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', minWidth: '18.75rem' }}>
+            <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
             <input
               type="text"
               placeholder="Buscar por estudiante, cédula, curso..."
@@ -302,28 +302,28 @@ const GestionPagos = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 12px 12px 44px',
+                padding: '12px 0.75rem 0.75rem 2.75rem',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
+                borderRadius: '0.75rem',
                 color: '#fff',
                 fontSize: '0.9rem'
               }}
             />
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
               style={{
-                padding: '10px 16px',
+                padding: '10px 1rem',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
+                borderRadius: '0.75rem',
                 color: '#fff',
                 fontSize: '0.9rem',
                 cursor: 'pointer',
-                minWidth: '180px'
+                minWidth: '11.25rem'
               }}
             >
               <option value="todos" style={{ background: '#1a1a2e', color: '#fff' }}>Todos los estados</option>
@@ -339,22 +339,22 @@ const GestionPagos = () => {
       {/* Tabla de pagos */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(1.25rem)',
         border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
+        borderRadius: '1.25rem',
         overflow: 'hidden'
       }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--admin-hover-bg)' }}>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Estudiante</th>
-                <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Curso</th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Cuota</th>
-                <th style={{ padding: '16px', textAlign: 'right', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Monto</th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Vencimiento</th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Estado</th>
-                <th style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Acciones</th>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Estudiante</th>
+                <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Curso</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Cuota</th>
+                <th style={{ padding: '1rem', textAlign: 'right', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Monto</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Vencimiento</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Estado</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -368,7 +368,7 @@ const GestionPagos = () => {
                   onMouseEnter={(e) => e.currentTarget.style.background = 'var(--admin-hover-bg)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  <td style={{ padding: '16px' }}>
+                  <td style={{ padding: '1rem' }}>
                     <div style={{ color: 'var(--admin-text-primary)', fontWeight: '600' }}>
                       {pago.estudiante_nombre} {pago.estudiante_apellido}
                     </div>
@@ -376,22 +376,22 @@ const GestionPagos = () => {
                       {pago.estudiante_cedula}
                     </div>
                   </td>
-                  <td style={{ padding: '16px', color: 'var(--admin-text-secondary)' }}>
+                  <td style={{ padding: '1rem', color: 'var(--admin-text-secondary)' }}>
                     {pago.curso_nombre}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>
+                  <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-primary)', fontWeight: '600' }}>
                     #{pago.numero_cuota}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'right', color: 'var(--admin-text-primary)', fontWeight: '700' }}>
+                  <td style={{ padding: '1rem', textAlign: 'right', color: 'var(--admin-text-primary)', fontWeight: '700' }}>
                     {formatearMonto(pago.monto)}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center', color: 'var(--admin-text-secondary)', fontSize: '0.9rem' }}>
+                  <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--admin-text-secondary)', fontSize: '0.9rem' }}>
                     {formatearFecha(pago.fecha_vencimiento)}
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>
                     <span style={{
-                      padding: '6px 12px',
-                      borderRadius: '20px',
+                      padding: '6px 0.75rem',
+                      borderRadius: '1.25rem',
                       fontSize: '0.85rem',
                       fontWeight: '600',
                       background: `${getEstadoColor(pago.estado)}20`,
@@ -400,24 +400,24 @@ const GestionPagos = () => {
                       {getEstadoLabel(pago.estado)}
                     </span>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>
                     <button
                       onClick={() => {
                         setSelectedPago(pago);
                         setShowModal(true);
                       }}
                       style={{
-                        padding: '8px 16px',
+                        padding: '8px 1rem',
                         background: 'var(--admin-accent)',
                         color: '#fff',
                         border: 'none',
-                        borderRadius: '8px',
+                        borderRadius: '0.5rem',
                         cursor: 'pointer',
                         fontSize: '0.9rem',
                         fontWeight: '600',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px'
+                        gap: '0.375rem'
                       }}
                     >
                       <Eye size={16} />
@@ -436,24 +436,24 @@ const GestionPagos = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '20px 24px',
+            padding: '20px 1.5rem',
             borderTop: '1px solid var(--admin-border)'
           }}>
             <div style={{ color: 'var(--admin-text-secondary)', fontSize: '0.9rem' }}>
               Página {currentPage} de {totalPages} • Total: {pagosFiltrados.length} pagos
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 16px',
+                  gap: '0.375rem',
+                  padding: '8px 1rem',
                   background: currentPage === 1 ? 'var(--admin-input-bg)' : 'var(--admin-hover-bg)',
                   border: '1px solid var(--admin-border)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: currentPage === 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -468,16 +468,16 @@ const GestionPagos = () => {
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
                   style={{
-                    padding: '8px 14px',
+                    padding: '8px 0.875rem',
                     background: currentPage === pageNum ? 'var(--admin-accent)' : 'var(--admin-input-bg)',
                     border: currentPage === pageNum ? '1px solid var(--admin-accent)' : '1px solid var(--admin-border)',
-                    borderRadius: '10px',
+                    borderRadius: '0.625rem',
                     color: currentPage === pageNum ? '#fff' : 'var(--admin-text-primary)',
                     fontSize: '0.9rem',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    minWidth: '40px',
+                    minWidth: '2.5rem',
                   }}
                 >
                   {pageNum}
@@ -489,11 +489,11 @@ const GestionPagos = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 16px',
+                  gap: '0.375rem',
+                  padding: '8px 1rem',
                   background: currentPage === totalPages ? 'var(--admin-input-bg)' : 'var(--admin-hover-bg)',
                   border: '1px solid var(--admin-border)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: currentPage === totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                   fontSize: '0.9rem',
                   fontWeight: 600,
@@ -522,36 +522,36 @@ const GestionPagos = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px'
+            padding: '1.25rem'
           }}
         >
           <div style={{
             background: 'var(--admin-bg-secondary)',
-            borderRadius: '16px',
-            padding: '32px',
-            maxWidth: '600px',
+            borderRadius: '1rem',
+            padding: '2rem',
+            maxWidth: '37.5rem',
             width: '100%',
             border: '1px solid var(--admin-border)'
           }}>
-            <h2 style={{ color: 'var(--admin-text-primary)', marginBottom: '24px' }}>
+            <h2 style={{ color: 'var(--admin-text-primary)', marginBottom: '1.5rem' }}>
               Detalle del Pago
             </h2>
             
             {/* Sección de Comprobante */}
             {selectedPago.numero_comprobante && (
               <div style={{ marginTop: 16, marginBottom: 24, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-                <h4 style={{ margin: '0 0 12px 0', color: 'var(--admin-text-primary)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--admin-text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
                   <Download size={18} color="#10b981" />
                   Comprobante
                 </h4>
-                <div style={{ marginBottom: '12px' }}>
+                <div style={{ marginBottom: '0.75rem' }}>
                   <button
                     onClick={() => handleVerComprobante(selectedPago)}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 8,
-                      padding: '10px 16px',
+                      padding: '10px 1rem',
                       borderRadius: 8,
                       border: '1px solid rgba(16, 185, 129, 0.3)',
                       background: 'rgba(16, 185, 129, 0.1)',
@@ -576,12 +576,12 @@ const GestionPagos = () => {
             <button
               onClick={() => setShowModal(false)}
               style={{
-                marginTop: '24px',
-                padding: '12px 24px',
+                marginTop: '1.5rem',
+                padding: '12px 1.5rem',
                 background: 'var(--admin-accent)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
                 cursor: 'pointer',
                 fontWeight: '600'
               }}
@@ -609,7 +609,7 @@ const GestionPagos = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
             border: '1px solid rgba(16, 185, 129, 0.3)', 
             borderRadius: 16, 
-            width: 'min(90vw, 800px)', 
+            width: 'min(90vw, 50rem)', 
             maxHeight: '90vh',
             padding: 24, 
             color: '#fff',
@@ -618,13 +618,13 @@ const GestionPagos = () => {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Download size={20} />
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
                   <p style={{ 
-                    margin: '4px 0 0 28px', 
+                    margin: '4px 0 0 1.75rem', 
                     color: '#fbbf24', 
                     fontSize: '0.9rem',
                     fontFamily: 'monospace',
@@ -641,7 +641,7 @@ const GestionPagos = () => {
                   border: 'none', 
                   color: '#fff', 
                   cursor: 'pointer',
-                  padding: '4px'
+                  padding: '0.25rem'
                 }}
               >
                 <X size={24} />
@@ -654,8 +654,8 @@ const GestionPagos = () => {
               justifyContent: 'center', 
               alignItems: 'center',
               background: 'rgba(255,255,255,0.05)',
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: '0.75rem',
+              padding: '1rem',
               overflow: 'hidden'
             }}>
               <img 
@@ -665,7 +665,7 @@ const GestionPagos = () => {
                   maxWidth: '100%', 
                   maxHeight: '100%', 
                   objectFit: 'contain',
-                  borderRadius: '8px'
+                  borderRadius: '0.5rem'
                 }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
@@ -684,10 +684,10 @@ const GestionPagos = () => {
             </div>
             
             <div style={{ 
-              marginTop: '16px', 
+              marginTop: '1rem', 
               display: 'flex', 
               justifyContent: 'center', 
-              gap: '12px' 
+              gap: '0.75rem' 
             }}>
               <a 
                 href={comprobanteUrl} 
@@ -697,12 +697,12 @@ const GestionPagos = () => {
                   background: 'rgba(16, 185, 129, 0.15)',
                   border: '1px solid rgba(16, 185, 129, 0.3)',
                   color: '#10b981',
-                  padding: '10px 16px',
-                  borderRadius: '8px',
+                  padding: '10px 1rem',
+                  borderRadius: '0.5rem',
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '0.5rem',
                   fontSize: '0.9rem',
                   fontWeight: '500'
                 }}
@@ -716,8 +716,8 @@ const GestionPagos = () => {
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
                   color: '#9ca3af',
-                  padding: '10px 16px',
-                  borderRadius: '8px',
+                  padding: '10px 1rem',
+                  borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500'
@@ -741,3 +741,6 @@ const GestionPagos = () => {
 };
 
 export default GestionPagos;
+
+
+

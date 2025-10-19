@@ -276,45 +276,54 @@ const AsignacionAula: React.FC = () => {
   };
 
   return (
-    <div style={{ 
+    <div className="responsive-padding" style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
-      padding: 24, 
       color: '#fff' 
     }}>
       {/* Header */}
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <MapPin size={24} color={RedColorPalette.primary} />
-          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-            Asignación de Aulas
-          </h1>
-        </div>
-        <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', 
+          margin: '0 0 0.375rem 0',
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: isMobile ? '6px' : '0.625rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+        }}>
+          <MapPin size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
+          Asignación de Aulas
+        </h2>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          margin: 0, 
+          fontSize: isMobile ? '0.75rem' : '0.85rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        }}>
           Gestiona la asignación de aulas, horarios y profesores
         </p>
       </div>
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '1rem' }}>
         <div style={{ 
           display: 'flex', 
           flexDirection: isMobile ? 'column' : 'row',
           flexWrap: 'wrap', 
-          gap: '12px', 
+          gap: '0.75rem', 
           alignItems: isMobile ? 'stretch' : 'center', 
           justifyContent: 'space-between' 
         }}>
           <div style={{ 
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
-            gap: '12px', 
+            gap: '0.75rem', 
             alignItems: isMobile ? 'stretch' : 'center', 
             flex: 1 
           }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '280px', flex: isMobile ? '1' : 'initial' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '17.5rem', flex: isMobile ? '1' : 'initial' }}>
+              <Search size={isMobile ? 14 : 16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)', pointerEvents: 'none' }} />
               <input
                 type="text"
                 placeholder={isMobile ? "Buscar..." : "Buscar por aula, curso o profesor..."}
@@ -322,10 +331,10 @@ const AsignacionAula: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 10px 10px 38px',
+                  padding: '0.625rem 0.625rem 0.625rem 2.375rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: '0.8rem'
                 }}
@@ -333,7 +342,7 @@ const AsignacionAula: React.FC = () => {
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+            <div style={{ minWidth: isMobile ? 'auto' : '12.5rem', flex: isMobile ? '1' : 'initial' }}>
               <StyledSelect
                 name="filtroEstado"
                 value={filtroEstado}
@@ -349,10 +358,10 @@ const AsignacionAula: React.FC = () => {
             {/* Toggle Vista */}
             <div style={{ 
               display: 'flex', 
-              gap: '6px', 
+              gap: '0.375rem', 
               background: 'rgba(255,255,255,0.05)', 
-              borderRadius: '10px', 
-              padding: '3px',
+              borderRadius: '0.625rem', 
+              padding: '0.1875rem',
               width: isSmallScreen ? '100%' : 'auto'
             }}>
               <button
@@ -361,11 +370,11 @@ const AsignacionAula: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  padding: isMobile ? '7px 10px' : '7px 12px',
+                  gap: '0.3125rem',
+                  padding: isMobile ? '0.4375rem 0.625rem' : '0.4375rem 0.75rem',
                   background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'cards' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '7px',
+                  borderRadius: '0.4375rem',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.75rem',
@@ -382,11 +391,11 @@ const AsignacionAula: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  padding: isMobile ? '7px 10px' : '8px 14px',
+                  gap: '0.375rem',
+                  padding: isMobile ? '0.4375rem 0.625rem' : '0.5rem 0.875rem',
                   background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
                   border: viewMode === 'table' ? `1px solid ${RedColorPalette.primary}` : '1px solid transparent',
-                  borderRadius: '8px',
+                  borderRadius: '0.5rem',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
                   fontSize: isMobile ? '0.75rem' : '0.9rem',
@@ -407,18 +416,18 @@ const AsignacionAula: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              padding: isMobile ? '10px 16px' : '12px 24px',
+              gap: '0.5rem',
+              padding: isMobile ? '0.625rem 1rem' : '0.75rem 1.5rem',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '0.625rem',
               color: '#fff',
               width: isSmallScreen ? '100%' : 'auto',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)'
             }}
           >
             <Plus size={16} />
@@ -429,7 +438,7 @@ const AsignacionAula: React.FC = () => {
 
       {/* Estados de carga y error */}
       {loading && (
-        <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.7)' }}>
+        <div style={{ textAlign: 'center', padding: '2.5rem', color: 'rgba(255,255,255,0.7)' }}>
           Cargando asignaciones...
         </div>
       )}
@@ -437,8 +446,8 @@ const AsignacionAula: React.FC = () => {
       {error && (
         <div style={{
           background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '12px', padding: '16px', color: '#ef4444',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          borderRadius: '0.75rem', padding: '1rem', color: '#ef4444',
+          display: 'flex', alignItems: 'center', gap: '0.75rem'
         }}>
           <AlertCircle size={20} />
           {error}
@@ -447,53 +456,53 @@ const AsignacionAula: React.FC = () => {
 
       {/* Vista Cards - Tarjetas Compactas */}
       {!loading && !error && viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(17.5rem, 1fr))', gap: '1rem', marginBottom: '1.125rem' }}>
           {asignacionesPaginadas.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '30px 20px', color: 'rgba(255,255,255,0.7)' }}>
-              <MapPin size={32} style={{ marginBottom: '10px', opacity: 0.5 }} />
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '1.875rem 1.25rem', color: 'rgba(255,255,255,0.7)' }}>
+              <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.625rem', opacity: 0.5 }} />
               <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
             </div>
           ) : (
             asignacionesPaginadas.map(asignacion => (
               <div key={asignacion.id_asignacion} style={{
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                backdropFilter: 'blur(20px)',
+                backdropFilter: 'blur(1.25rem)',
                 border: '1px solid rgba(248, 113, 113, 0.2)',
-                borderRadius: '12px',
+                borderRadius: '0.75rem',
                 overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                boxShadow: '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(248, 113, 113, 0.3)';
+                e.currentTarget.style.boxShadow = '0 0.5rem 1.5rem rgba(248, 113, 113, 0.3)';
                 e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.4)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                e.currentTarget.style.boxShadow = '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)';
                 e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.2)';
               }}
               >
                 {/* Header */}
                 <div style={{
                   background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
-                  padding: '12px 14px',
+                  padding: '0.75rem 0.875rem',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: '6px',
+                      width: '1.875rem',
+                      height: '1.875rem',
+                      borderRadius: '0.375rem',
                       background: 'rgba(255,255,255,0.2)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <MapPin size={16} color="#fff" />
+                      <MapPin size={isMobile ? 14 : 16} color="#fff" />
                     </div>
                     <div>
                       <h3 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700', margin: 0 }}>
@@ -507,8 +516,8 @@ const AsignacionAula: React.FC = () => {
                   <div style={{
                     background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(156, 163, 175, 0.3)',
                     color: '#fff',
-                    padding: '3px 8px',
-                    borderRadius: '10px',
+                    padding: '3px 0.5rem',
+                    borderRadius: '0.625rem',
                     fontSize: '0.65rem',
                     fontWeight: '700',
                     textTransform: 'uppercase'
@@ -518,11 +527,11 @@ const AsignacionAula: React.FC = () => {
                 </div>
 
                 {/* Contenido */}
-                <div style={{ padding: '12px 14px' }}>
+                <div style={{ padding: '0.75rem 0.875rem' }}>
                   {/* Curso y Docente */}
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <Calendar size={10} />
+                  <div style={{ marginBottom: '0.625rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                      <Calendar size={isMobile ? 9 : 10} />
                       CURSO
                     </div>
                     <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '600' }}>
@@ -530,9 +539,9 @@ const AsignacionAula: React.FC = () => {
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <Users size={10} />
+                  <div style={{ marginBottom: '0.625rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                      <Users size={isMobile ? 9 : 10} />
                       DOCENTE
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem' }}>
@@ -541,10 +550,10 @@ const AsignacionAula: React.FC = () => {
                   </div>
 
                   {/* Horario y Período */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.625rem' }}>
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <Clock size={10} />
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                        <Clock size={isMobile ? 9 : 10} />
                         HORARIO
                       </div>
                       <div style={{ color: '#fff', fontSize: '0.7rem', fontWeight: '600' }}>
@@ -552,7 +561,7 @@ const AsignacionAula: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '4px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '0.25rem' }}>
                         PERÍODO
                       </div>
                       <div style={{ color: '#fff', fontSize: '0.75rem' }}>
@@ -565,17 +574,17 @@ const AsignacionAula: React.FC = () => {
                   </div>
 
                   {/* Días */}
-                  <div style={{ marginBottom: '14px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '6px' }}>
+                  <div style={{ marginBottom: '0.875rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '0.375rem' }}>
                       DÍAS DE CLASE
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                       {asignacion.dias.split(',').map((dia: string, idx: number) => (
                         <div key={idx} style={{
                           background: 'rgba(59, 130, 246, 0.2)',
                           color: '#60a5fa',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.375rem',
                           fontSize: '0.7rem',
                           fontWeight: '600',
                           border: '1px solid rgba(59, 130, 246, 0.3)'
@@ -589,11 +598,11 @@ const AsignacionAula: React.FC = () => {
                   {/* Ocupación */}
                   <div style={{
                     background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    marginBottom: '12px'
+                    borderRadius: '0.5rem',
+                    padding: '0.625rem',
+                    marginBottom: '0.75rem'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: '600' }}>
                         OCUPACIÓN
                       </div>
@@ -603,9 +612,9 @@ const AsignacionAula: React.FC = () => {
                     </div>
                     <div style={{
                       width: '100%',
-                      height: '6px',
+                      height: '0.375rem',
                       background: 'rgba(255,255,255,0.1)',
-                      borderRadius: '10px',
+                      borderRadius: '0.625rem',
                       overflow: 'hidden'
                     }}>
                       <div style={{
@@ -617,7 +626,7 @@ const AsignacionAula: React.FC = () => {
                         transition: 'width 0.3s ease'
                       }} />
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginTop: '4px', textAlign: 'right' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginTop: '0.25rem', textAlign: 'right' }}>
                       {asignacion.porcentaje_ocupacion}% ocupado
                     </div>
                   </div>
@@ -627,10 +636,10 @@ const AsignacionAula: React.FC = () => {
                     onClick={() => handleEditAsignacion(asignacion)}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '0.625rem',
                       background: 'rgba(245, 158, 11, 0.2)',
                       border: '1px solid rgba(245, 158, 11, 0.3)',
-                      borderRadius: '8px',
+                      borderRadius: '0.5rem',
                       color: '#fbbf24',
                       fontSize: '0.85rem',
                       fontWeight: '600',
@@ -638,7 +647,7 @@ const AsignacionAula: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
+                      gap: '0.375rem',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -648,7 +657,7 @@ const AsignacionAula: React.FC = () => {
                       e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
                     }}
                   >
-                    <Edit size={14} />
+                    <Edit size={isMobile ? 12 : 14} />
                     Editar Asignación
                   </button>
                 </div>
@@ -662,28 +671,28 @@ const AsignacionAula: React.FC = () => {
       {!loading && !error && viewMode === 'table' && (
         <div style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(1.25rem)',
           border: '1px solid rgba(248, 113, 113, 0.2)',
-          borderRadius: '16px',
+          borderRadius: '1rem',
           overflow: 'hidden',
-          marginBottom: '24px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+          marginBottom: '1.5rem',
+          boxShadow: '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)'
         }}>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              margin: '12px',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              margin: '0.75rem',
               color: '#ef4444',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '6px'
+              gap: '0.375rem'
             }}>
               <span>👉</span>
               <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -692,8 +701,8 @@ const AsignacionAula: React.FC = () => {
           )}
           
           {asignacionesPaginadas.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.7)' }}>
-              <MapPin size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+            <div style={{ textAlign: 'center', padding: '2.5rem 1.25rem', color: 'rgba(255,255,255,0.7)' }}>
+              <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.75rem', opacity: 0.5 }} />
               <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
             </div>
           ) : (
@@ -704,35 +713,35 @@ const AsignacionAula: React.FC = () => {
                     background: 'rgba(248, 113, 113, 0.15)',
                     borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
                   }}>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         <MapPin size={14} />
                         Aula
                       </div>
                     </th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Curso</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Docente</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Curso</th>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Docente</th>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         <Clock size={14} />
                         Horario
                       </div>
                     </th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Días</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Días</th>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'left', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         <Calendar size={14} />
                         Período
                       </div>
                     </th>
-                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: 'center' }}>
                         <Users size={14} />
                         Ocupación
                       </div>
                     </th>
-                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ padding: '10px 0.75rem', textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -751,12 +760,12 @@ const AsignacionAula: React.FC = () => {
                         e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                       }}
                     >
-                      <td style={{ padding: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <div style={{
                             width: 32,
                             height: 32,
-                            borderRadius: '8px',
+                            borderRadius: '0.5rem',
                             background: 'rgba(248, 113, 113, 0.2)',
                             display: 'flex',
                             alignItems: 'center',
@@ -771,21 +780,21 @@ const AsignacionAula: React.FC = () => {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.8rem' }}>{asignacion.curso_nombre}</div>
                         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>{asignacion.tipo_curso_nombre}</div>
                       </td>
-                      <td style={{ padding: '12px', color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem' }}>
                         {asignacion.docente_nombres} {asignacion.docente_apellidos}
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ 
                           display: 'inline-flex', 
                           alignItems: 'center', 
-                          gap: '4px',
+                          gap: '0.25rem',
                           background: 'rgba(59, 130, 246, 0.15)',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          padding: '4px 0.5rem',
+                          borderRadius: '0.375rem',
                           border: '1px solid rgba(59, 130, 246, 0.3)'
                         }}>
                           <Clock size={12} color="#60a5fa" />
@@ -794,14 +803,14 @@ const AsignacionAula: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td style={{ padding: '12px' }}>
-                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                           {asignacion.dias.split(',').map((dia, idx) => (
                             <span key={idx} style={{ 
                               background: 'rgba(139, 92, 246, 0.2)', 
                               color: '#a78bfa', 
-                              padding: '2px 6px', 
-                              borderRadius: '4px', 
+                              padding: '2px 0.375rem', 
+                              borderRadius: '0.25rem', 
                               fontSize: '0.65rem',
                               fontWeight: '600',
                               border: '1px solid rgba(139, 92, 246, 0.3)'
@@ -811,7 +820,7 @@ const AsignacionAula: React.FC = () => {
                           ))}
                         </div>
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ padding: '0.75rem' }}>
                         <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '600' }}>
                           {formatearFecha(asignacion.fecha_inicio)}
                         </div>
@@ -819,20 +828,20 @@ const AsignacionAula: React.FC = () => {
                           {formatearFecha(asignacion.fecha_fin)}
                         </div>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', marginBottom: '4px' }}>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.25rem' }}>
                           {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                         </div>
                         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
                           {asignacion.porcentaje_ocupacion}%
                         </div>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                         <div style={{
                           background: asignacion.estado === 'activa' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)',
                           color: asignacion.estado === 'activa' ? '#10b981' : '#9ca3af',
-                          padding: '4px 10px',
-                          borderRadius: '8px',
+                          padding: '4px 0.625rem',
+                          borderRadius: '0.5rem',
                           fontSize: '0.7rem',
                           fontWeight: '700',
                           display: 'inline-block',
@@ -842,19 +851,19 @@ const AsignacionAula: React.FC = () => {
                           {asignacion.estado}
                         </div>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                         <button
                           onClick={() => handleEditAsignacion(asignacion)}
                           style={{
-                            padding: '6px 10px',
+                            padding: '6px 0.625rem',
                             background: 'rgba(245, 158, 11, 0.2)',
                             border: '1px solid rgba(245, 158, 11, 0.3)',
-                            borderRadius: '6px',
+                            borderRadius: '0.375rem',
                             color: '#fbbf24',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '4px',
+                            gap: '0.25rem',
                             fontSize: '0.75rem',
                             fontWeight: '600',
                             transition: 'all 0.2s ease'
@@ -886,13 +895,13 @@ const AsignacionAula: React.FC = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 24px',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '16px' : '20px 1.5rem',
           marginTop: isMobile ? '16px' : '90px',
-          marginBottom: '24px',
+          marginBottom: '1.5rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '16px',
+          borderRadius: '1rem',
         }}>
           <div style={{ 
             color: 'rgba(255,255,255,0.7)', 
@@ -903,7 +912,7 @@ const AsignacionAula: React.FC = () => {
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: '8px', 
+            gap: '0.5rem', 
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -914,11 +923,11 @@ const AsignacionAula: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -935,16 +944,16 @@ const AsignacionAula: React.FC = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                   background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '40px',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {pageNum}
@@ -957,11 +966,11 @@ const AsignacionAula: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -991,19 +1000,19 @@ const AsignacionAula: React.FC = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
           }}
         >
           <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '700px',
-            padding: isMobile ? '16px' : '18px 28px 22px 28px',
+            maxWidth: isMobile ? '100vw' : '43.75rem',
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
             maxHeight: isMobile ? '90vh' : '85vh',
             overflowY: 'auto',
           }}>
@@ -1011,8 +1020,8 @@ const AsignacionAula: React.FC = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff' }}>
@@ -1023,8 +1032,8 @@ const AsignacionAula: React.FC = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1045,14 +1054,14 @@ const AsignacionAula: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: isMobile ? '16px' : '20px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: isMobile ? '16px' : '1.25rem' }}>
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: isMobile ? '16px' : '16px' 
+                gap: isMobile ? '16px' : '1rem' 
               }}>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Aula</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Aula</label>
                   <StyledSelect
                     name="id_aula"
                     required
@@ -1065,7 +1074,7 @@ const AsignacionAula: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Curso</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Curso</label>
                   <StyledSelect
                     name="id_curso"
                     required
@@ -1083,15 +1092,15 @@ const AsignacionAula: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
                   Docente {docentes.length > 0 && `(${docentes.filter(d => d.estado === 'activo').length} disponibles)`}
                 </label>
                 {docentes.length === 0 ? (
                   <div style={{ 
-                    padding: '12px', 
+                    padding: '0.75rem', 
                     background: 'rgba(239, 68, 68, 0.1)', 
                     border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: '8px',
+                    borderRadius: '0.5rem',
                     color: '#ef4444',
                     fontSize: '0.9rem'
                   }}>
@@ -1112,16 +1121,16 @@ const AsignacionAula: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '12px', display: 'block' }}>Días de Clase</label>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.75rem', display: 'block' }}>Días de Clase</label>
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
-                  gap: '8px' 
+                  gap: '0.5rem' 
                 }}>
                   {diasSemana.map(dia => {
                     const diasArray = selectedAsignacion?.dias?.split(',') || [];
                     return (
-                      <label key={dia} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                      <label key={dia} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
                         <input
                           type="checkbox" name="dias" value={dia}
                           defaultChecked={diasArray.includes(dia)}
@@ -1137,28 +1146,28 @@ const AsignacionAula: React.FC = () => {
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: isMobile ? '16px' : '16px' 
+                gap: isMobile ? '16px' : '1rem' 
               }}>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Hora Inicio</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Inicio</label>
                   <input
                     type="time" name="hora_inicio" required
                     defaultValue={selectedAsignacion?.hora_inicio?.substring(0, 5) || ''}
                     style={{
-                      width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                      width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                       color: '#fff', fontSize: '0.9rem'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Hora Fin</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Fin</label>
                   <input
                     type="time" name="hora_fin" required
                     defaultValue={selectedAsignacion?.hora_fin?.substring(0, 5) || ''}
                     style={{
-                      width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                      width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                       color: '#fff', fontSize: '0.9rem'
                     }}
                   />
@@ -1166,15 +1175,15 @@ const AsignacionAula: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Observaciones (opcional)</label>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Observaciones (opcional)</label>
                 <textarea
                   name="observaciones"
                   rows={3}
                   defaultValue={selectedAsignacion?.observaciones || ''}
                   placeholder="Notas adicionales sobre la asignación..."
                   style={{
-                    width: '100%', padding: '12px', background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                    width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                     color: '#fff', fontSize: '0.9rem', resize: 'vertical'
                   }}
                 />
@@ -1183,15 +1192,15 @@ const AsignacionAula: React.FC = () => {
               <div style={{ 
                 display: 'flex', 
                 flexDirection: isMobile ? 'column-reverse' : 'row',
-                gap: '12px', 
+                gap: '0.75rem', 
                 justifyContent: 'flex-end', 
-                marginTop: isMobile ? '20px' : '24px' 
+                marginTop: isMobile ? '20px' : '1.5rem' 
               }}>
                 <button
                   type="button" onClick={() => setShowModal(false)}
                   style={{
-                    padding: '12px 24px', background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px',
+                    padding: '0.75rem 1.5rem', background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
                     color: 'rgba(255,255,255,0.8)', cursor: 'pointer',
                     width: isMobile ? '100%' : 'auto'
                   }}
@@ -1202,11 +1211,11 @@ const AsignacionAula: React.FC = () => {
                   type="submit"
                   disabled={saving}
                   style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    padding: '12px 24px', background: saving ? 'rgba(156, 163, 175, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    border: 'none', borderRadius: '8px', color: '#fff', fontWeight: '600',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    padding: '0.75rem 1.5rem', background: saving ? 'rgba(156, 163, 175, 0.5)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    border: 'none', borderRadius: '0.5rem', color: '#fff', fontWeight: '600',
                     cursor: saving ? 'not-allowed' : 'pointer', 
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
                     opacity: saving ? 0.7 : 1,
                     width: isMobile ? '100%' : 'auto'
                   }}
@@ -1224,3 +1233,6 @@ const AsignacionAula: React.FC = () => {
 };
 
 export default AsignacionAula;
+
+
+

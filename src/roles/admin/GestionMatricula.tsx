@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
+import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 type Solicitud = {
@@ -240,14 +241,14 @@ const GestionMatricula = () => {
         // CASO: Estudiante existente - Solo se creó matrícula
         toast.success(
           <div style={{ lineHeight: '1.6' }}>
-            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 size={20} />
               Matrícula aprobada exitosamente
             </div>
             <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
               <div><strong>Estudiante:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
               <div><strong>Usuario:</strong> {data.estudiante.username}</div>
-              <div style={{ marginTop: '6px', padding: '8px', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+              <div style={{ marginTop: '0.375rem', padding: '0.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '0.375rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
                 <div style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '600' }}>
                   El estudiante usará sus credenciales existentes
                 </div>
@@ -266,7 +267,7 @@ const GestionMatricula = () => {
         // CASO: Estudiante nuevo - Se creó usuario + matrícula
         toast.success(
           <div style={{ lineHeight: '1.6' }}>
-            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 size={20} />
               Estudiante creado exitosamente
             </div>
@@ -274,7 +275,7 @@ const GestionMatricula = () => {
               <div><strong>Nombre:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
               <div><strong>Usuario:</strong> {data.estudiante.username}</div>
               <div><strong>Email:</strong> {data.estudiante.email}</div>
-              <div style={{ marginTop: '6px', color: '#fbbf24', fontWeight: '600' }}>
+              <div style={{ marginTop: '0.375rem', color: '#fbbf24', fontWeight: '600' }}>
                 <strong>Contraseña:</strong> {data.estudiante.password_temporal}
               </div>
             </div>
@@ -351,7 +352,7 @@ const GestionMatricula = () => {
             background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
             border: '1px solid rgba(251, 191, 36, 0.4)',
             color: '#fbbf24',
-            backdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(0.625rem)',
           },
         });
       }
@@ -398,15 +399,24 @@ const GestionMatricula = () => {
 
   return (
     <div className="responsive-padding">
-      <div style={{ marginBottom: isMobile ? '12px' : '18px' }}>
-        <h2 className="responsive-title" style={{ 
-          color: '#fff', margin: '0 0 6px 0',
-          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px'
+      <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
+          color: 'rgba(255,255,255,0.95)', 
+          margin: '0 0 0.375rem 0',
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: isMobile ? '6px' : '0.625rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
-          <GraduationCap size={isMobile ? 20 : 26} color="#ef4444" />
+          <GraduationCap size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Matrículas
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.75rem' : '0.85rem' }}>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          margin: 0, 
+          fontSize: isMobile ? '0.75rem' : '0.85rem', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+        }}>
           Administra las matrículas y credenciales de acceso de los estudiantes
         </p>
       </div>
@@ -414,23 +424,23 @@ const GestionMatricula = () => {
       {/* Controles */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: isMobile ? '12px' : '16px', padding: isMobile ? '12px' : '16px', marginBottom: isMobile ? '12px' : '16px'
+        backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
+        borderRadius: isMobile ? '12px' : '1rem', padding: isMobile ? '12px' : '1rem', marginBottom: isMobile ? '12px' : '1rem'
       }}>
         <div className="responsive-filters">
-          <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '280px', width: isSmallScreen ? '100%' : 'auto' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+          <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
             <input
               type="text" placeholder="Buscar por nombre, email o cédula..."
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%', padding: '10px 10px 10px 38px',
+                width: '100%', padding: '10px 0.625rem 0.625rem 2.375rem',
                 background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px', color: '#fff', fontSize: '0.8rem'
+                borderRadius: '0.625rem', color: '#fff', fontSize: '0.8rem'
               }}
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '12px', alignItems: isSmallScreen ? 'stretch' : 'center', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
             <div style={{ minWidth: isSmallScreen ? 'auto' : 180, width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filterEstado"
@@ -456,7 +466,7 @@ const GestionMatricula = () => {
                 ]}
               />
             </div>
-            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 14px' : '8px 14px', fontSize: '0.8rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto' }}>Refrescar</button>
+            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto' }}>Refrescar</button>
           </div>
         </div>
         {/* Counters + Pagination */}
@@ -464,19 +474,19 @@ const GestionMatricula = () => {
           {/* Counters */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <span style={{
-              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
+              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
             }}>Pendiente: {counters.pendiente}</span>
             <span style={{
-              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
+              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
             }}>Aprobado: {counters.aprobado}</span>
             <span style={{
-              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
+              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
             }}>Rechazado: {counters.rechazado}</span>
             <span style={{
-              padding: '5px 8px', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
+              padding: '5px 0.5rem', borderRadius: 9999, fontSize: '0.7rem', fontWeight: 700,
               background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
             }}>Observaciones: {counters.observaciones}</span>
           </div>
@@ -499,18 +509,18 @@ const GestionMatricula = () => {
             </div>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: '7px 10px', fontSize: '0.75rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
+              padding: '7px 0.625rem', fontSize: '0.75rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
             }}>Anterior</button>
             <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
             <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
-              padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
+              padding: '8px 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
             }}>Siguiente</button>
           </div>
         </div>
       </div>
 
       {/* Lista de Solicitudes */}
-      <div style={{ display: 'grid', gap: isMobile ? '12px' : '14px' }}>
+      <div style={{ display: 'grid', gap: isMobile ? '12px' : '0.875rem' }}>
         {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando...</div>)}
         {error && (<div style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</div>)}
         {!loading && solicitudesFiltradas.length === 0 && (
@@ -533,12 +543,12 @@ const GestionMatricula = () => {
           return (
             <div key={sol.id_solicitud} style={{
               background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: isMobile ? '12px' : '16px', padding: isMobile ? '12px' : '16px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+              backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: isMobile ? '12px' : '1rem', padding: isMobile ? '12px' : '1rem', boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
             }}>
               {/* Información Principal */}
-              <div style={{ marginBottom: '14px' }}>
-                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0' }}>
+              <div style={{ marginBottom: '0.875rem' }}>
+                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.75rem 0' }}>
                   {sol.nombre_solicitante} {sol.apellido_solicitante}
                 </h3>
                 
@@ -546,24 +556,24 @@ const GestionMatricula = () => {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))', 
-                  gap: isMobile ? '10px' : '12px',
-                  marginBottom: '10px'
+                  gap: isMobile ? '10px' : '0.75rem',
+                  marginBottom: '0.625rem'
                 }}>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Identificación</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Identificación</div>
                     <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Email</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Email</div>
                     <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.email_solicitante}</div>
                   </div>
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Fecha de Solicitud</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Fecha de Solicitud</div>
                     <div style={{ color: '#fff', fontSize: '0.8rem' }}>{formatearFecha(sol.fecha_solicitud)}</div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Tipo de Curso</div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Tipo de Curso</div>
                       <div style={{ color: '#fff', fontSize: '0.8rem' }}>{(sol as any).tipo_curso_nombre}</div>
                     </div>
                   )}
@@ -575,19 +585,19 @@ const GestionMatricula = () => {
                   gridTemplateColumns: isMobile 
                     ? '1fr' 
                     : (sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)'), 
-                  gap: isMobile ? '8px' : '10px',
+                  gap: isMobile ? '8px' : '0.625rem',
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante - Campo separado */}
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '3px' }}>Número Comprobante</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Número Comprobante</div>
                     {sol.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(251, 191, 36, 0.1)',
                         border: '1px solid rgba(251, 191, 36, 0.3)',
                         color: '#fbbf24',
-                        padding: '5px 6px',
-                        borderRadius: '5px',
+                        padding: '5px 0.375rem',
+                        borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         fontWeight: '600',
                         fontFamily: 'monospace',
@@ -601,8 +611,8 @@ const GestionMatricula = () => {
                         background: 'rgba(107, 114, 128, 0.1)',
                         border: '1px solid rgba(107, 114, 128, 0.3)',
                         color: 'rgba(255, 255, 255, 0.5)',
-                        padding: '5px 6px',
-                        borderRadius: '5px',
+                        padding: '5px 0.375rem',
+                        borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         textAlign: 'center',
                         fontStyle: 'italic',
@@ -616,14 +626,14 @@ const GestionMatricula = () => {
                   {/* Recibido por - Solo para efectivo */}
                   {sol.metodo_pago === 'efectivo' && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Recibido por</div>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Recibido por</div>
                       {(sol as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
                           border: '1px solid rgba(180, 83, 9, 0.3)',
                           color: '#b45309',
-                          padding: '6px 8px',
-                          borderRadius: '6px',
+                          padding: '6px 0.5rem',
+                          borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           fontWeight: '600',
                           textAlign: 'center',
@@ -636,8 +646,8 @@ const GestionMatricula = () => {
                           background: 'rgba(107, 114, 128, 0.1)',
                           border: '1px solid rgba(107, 114, 128, 0.3)',
                           color: 'rgba(255, 255, 255, 0.5)',
-                          padding: '6px 8px',
-                          borderRadius: '6px',
+                          padding: '6px 0.5rem',
+                          borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           textAlign: 'center',
                           fontStyle: 'italic',
@@ -651,21 +661,21 @@ const GestionMatricula = () => {
 
                   {/* Comprobante - Solo botón */}
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Comprobante</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Comprobante</div>
                     <button
                       onClick={() => openComprobanteModal(sol.id_solicitud, sol.numero_comprobante)}
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
                         border: '1px solid rgba(16, 185, 129, 0.3)',
                         color: '#10b981',
-                        padding: '6px 8px',
-                        borderRadius: '6px',
+                        padding: '6px 0.5rem',
+                        borderRadius: '0.375rem',
                         cursor: 'pointer',
                         fontSize: '0.8rem',
                         fontWeight: '500',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
+                        gap: '0.25rem',
                         whiteSpace: 'nowrap',
                         width: '100%',
                         justifyContent: 'center'
@@ -678,11 +688,11 @@ const GestionMatricula = () => {
 
                   {/* Estado - Campo separado */}
                   <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '4px' }}>Estado</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Estado</div>
                     <div style={{ 
                       display: 'flex',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
+                      padding: '6px 0.5rem',
+                      borderRadius: '0.375rem',
                       fontSize: '0.8rem',
                       fontWeight: '600',
                       textTransform: 'capitalize',
@@ -712,10 +722,10 @@ const GestionMatricula = () => {
               <div style={{ 
                 display: 'flex', 
                 flexDirection: isSmallScreen ? 'column' : 'row',
-                gap: isMobile ? '8px' : '12px', 
+                gap: isMobile ? '8px' : '0.75rem', 
                 justifyContent: isSmallScreen ? 'stretch' : 'flex-end',
                 borderTop: '1px solid rgba(255,255,255,0.1)',
-                paddingTop: isMobile ? '12px' : '16px'
+                paddingTop: isMobile ? '12px' : '1rem'
               }}>
                 <button 
                   onClick={() => openModal(sol.id_solicitud)} 
@@ -723,13 +733,13 @@ const GestionMatricula = () => {
                     background: 'rgba(59, 130, 246, 0.15)', 
                     border: '1px solid rgba(59, 130, 246, 0.3)', 
                     color: '#3b82f6', 
-                    padding: isMobile ? '10px 14px' : '10px 16px', 
-                    borderRadius: isMobile ? '8px' : '10px', 
+                    padding: isMobile ? '10px 0.875rem' : '10px 1rem', 
+                    borderRadius: isMobile ? '8px' : '0.625rem', 
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
+                    gap: '0.5rem',
                     fontSize: isMobile ? '0.85rem' : '0.9rem',
                     fontWeight: '500',
                     width: isSmallScreen ? '100%' : 'auto'
@@ -747,13 +757,13 @@ const GestionMatricula = () => {
                         background: 'rgba(16, 185, 129, 0.15)', 
                         border: '1px solid rgba(16, 185, 129, 0.3)', 
                         color: '#10b981', 
-                        padding: isMobile ? '10px 14px' : '8px 12px', 
-                        borderRadius: '8px', 
+                        padding: isMobile ? '10px 0.875rem' : '8px 0.75rem', 
+                        borderRadius: '0.5rem', 
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px',
+                        gap: '0.375rem',
                         opacity: decidiendo ? 0.6 : 1,
                         fontSize: isMobile ? '0.85rem' : '0.75rem',
                         fontWeight: '500',
@@ -770,13 +780,13 @@ const GestionMatricula = () => {
                         background: 'rgba(239, 68, 68, 0.15)', 
                         border: '1px solid rgba(239, 68, 68, 0.3)', 
                         color: '#ef4444', 
-                        padding: isMobile ? '10px 14px' : '8px 12px', 
-                        borderRadius: '8px', 
+                        padding: isMobile ? '10px 0.875rem' : '8px 0.75rem', 
+                        borderRadius: '0.5rem', 
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px',
+                        gap: '0.375rem',
                         opacity: decidiendo ? 0.6 : 1,
                         fontSize: isMobile ? '0.85rem' : '0.75rem',
                         fontWeight: '500',
@@ -802,12 +812,12 @@ const GestionMatricula = () => {
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 24px',
-          marginTop: isMobile ? '16px' : '24px',
+          padding: isMobile ? '16px' : '20px 1.5rem',
+          marginTop: isMobile ? '16px' : '1.5rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(1.25rem)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: isMobile ? '12px' : '20px',
+          borderRadius: isMobile ? '12px' : '1.25rem',
         }}>
           <div style={{ 
             color: 'rgba(255,255,255,0.7)', 
@@ -818,7 +828,7 @@ const GestionMatricula = () => {
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: '8px', 
+            gap: '0.5rem', 
             flexWrap: 'wrap', 
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -829,11 +839,11 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -850,16 +860,16 @@ const GestionMatricula = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 10px' : '8px 14px',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
                   background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
                   border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '10px',
+                  borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '40px',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {pageNum}
@@ -872,11 +882,11 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '6px',
-                padding: isMobile ? '8px 12px' : '8px 16px',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
@@ -906,19 +916,19 @@ const GestionMatricula = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
           }}
         >
           <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '800px',
-            padding: isMobile ? '16px' : '18px 28px 22px 28px',
+            maxWidth: isMobile ? '100vw' : '50rem',
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
             maxHeight: isMobile ? '90vh' : '85vh',
             overflowY: 'auto',
           }}>
@@ -926,8 +936,8 @@ const GestionMatricula = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>Solicitud {selected.codigo_solicitud}</h3>
@@ -936,8 +946,8 @@ const GestionMatricula = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1036,7 +1046,7 @@ const GestionMatricula = () => {
                     color: '#fff', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '8px',
+                    gap: '0.5rem',
                     textTransform: 'capitalize'
                   }}>
                     <Clock size={16} color="#fbbf24" />
@@ -1065,8 +1075,8 @@ const GestionMatricula = () => {
                         fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
+                        padding: '4px 0.5rem',
+                        borderRadius: '0.375rem',
                         border: '1px solid rgba(251, 191, 36, 0.3)'
                       }}>
                         {selected.numero_comprobante}
@@ -1112,8 +1122,8 @@ const GestionMatricula = () => {
                         fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
+                        padding: '4px 0.5rem',
+                        borderRadius: '0.375rem',
                         border: '1px solid rgba(251, 191, 36, 0.3)'
                       }}>
                         {selected.numero_comprobante}
@@ -1128,8 +1138,8 @@ const GestionMatricula = () => {
                         fontWeight: '600',
                         fontSize: '0.95rem',
                         background: 'rgba(180, 83, 9, 0.1)',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
+                        padding: '4px 0.5rem',
+                        borderRadius: '0.375rem',
                         border: '1px solid rgba(180, 83, 9, 0.3)'
                       }}>
                         {(selected as any).recibido_por}
@@ -1143,7 +1153,7 @@ const GestionMatricula = () => {
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
                 <div style={{ 
                   display: 'inline-flex',
-                  padding: '6px 12px',
+                  padding: '6px 0.75rem',
                   borderRadius: '9999px',
                   fontSize: '0.9rem',
                   fontWeight: '600',
@@ -1168,11 +1178,11 @@ const GestionMatricula = () => {
 
             {/* Comprobante */}
             <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-              <h4 style={{ margin: '0 0 12px 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 style={{ margin: '0 0 0.75rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Download size={18} color="#10b981" />
                 Comprobante de Pago
               </h4>
-              <div style={{ marginBottom: '12px' }}>
+              <div style={{ marginBottom: '0.75rem' }}>
                 <a 
                   href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/comprobante`} 
                   target="_blank" 
@@ -1181,7 +1191,7 @@ const GestionMatricula = () => {
                     display: 'inline-flex', 
                     alignItems: 'center', 
                     gap: 8, 
-                    padding: '10px 16px', 
+                    padding: '10px 1rem', 
                     borderRadius: 8, 
                     border: '1px solid rgba(16, 185, 129, 0.3)', 
                     background: 'rgba(16, 185, 129, 0.1)',
@@ -1201,7 +1211,7 @@ const GestionMatricula = () => {
 
             {/* Documentos */}
             <div style={{ marginTop: 16, background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)', borderRadius: 12, padding: 16 }}>
-              <h4 style={{ margin: '0 0 16px 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FileText size={18} color="#3b82f6" />
                 Documentos
               </h4>
@@ -1214,7 +1224,7 @@ const GestionMatricula = () => {
                   // Solo mostrar documento de identificación para ecuatorianos
                   return (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         <IdCard size={14} color="#3b82f6" />
                         Documento de Identificación
                       </div>
@@ -1226,7 +1236,7 @@ const GestionMatricula = () => {
                           display: 'inline-flex', 
                           alignItems: 'center', 
                           gap: 8, 
-                          padding: '8px 12px', 
+                          padding: '8px 0.75rem', 
                           borderRadius: 8, 
                           border: '1px solid rgba(59, 130, 246, 0.3)', 
                           background: 'rgba(59, 130, 246, 0.1)',
@@ -1246,10 +1256,10 @@ const GestionMatricula = () => {
                     <div style={{ 
                       display: 'grid', 
                       gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                      gap: isMobile ? '10px' : '12px' 
+                      gap: isMobile ? '10px' : '0.75rem' 
                     }}>
                       <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                           <IdCard size={14} color="#3b82f6" />
                           Copia de Pasaporte
                         </div>
@@ -1261,7 +1271,7 @@ const GestionMatricula = () => {
                             display: 'inline-flex', 
                             alignItems: 'center', 
                             gap: 8, 
-                            padding: '8px 12px', 
+                            padding: '8px 0.75rem', 
                             borderRadius: 8, 
                             border: '1px solid rgba(59, 130, 246, 0.3)', 
                             background: 'rgba(59, 130, 246, 0.1)',
@@ -1275,7 +1285,7 @@ const GestionMatricula = () => {
                         </a>
                       </div>
                       <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                           <FileText size={14} color="#3b82f6" />
                           Documento de Estatus Legal
                         </div>
@@ -1287,7 +1297,7 @@ const GestionMatricula = () => {
                             display: 'inline-flex', 
                             alignItems: 'center', 
                             gap: 8, 
-                            padding: '8px 12px', 
+                            padding: '8px 0.75rem', 
                             borderRadius: 8, 
                             border: '1px solid rgba(59, 130, 246, 0.3)', 
                             background: 'rgba(59, 130, 246, 0.1)',
@@ -1320,11 +1330,11 @@ const GestionMatricula = () => {
                     <div style={{
                       background: 'rgba(239, 68, 68, 0.1)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      marginBottom: '16px'
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1rem'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                         <Lock size={20} />
                         <h4 style={{ color: '#ef4444', margin: 0, fontSize: '1rem', fontWeight: '600' }}>
                           Curso Bloqueado
@@ -1336,7 +1346,7 @@ const GestionMatricula = () => {
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                      <button onClick={() => handleDecision('rechazado')} disabled={decidiendo} style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '10px 16px', borderRadius: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      <button onClick={() => handleDecision('rechazado')} disabled={decidiendo} style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '10px 1rem', borderRadius: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                         <XCircle size={16} /> Rechazar
                       </button>
                     </div>
@@ -1351,18 +1361,18 @@ const GestionMatricula = () => {
                     <div style={{
                       background: selected.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                       border: selected.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '12px',
-                      padding: '16px',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
                       display: 'inline-block'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <span>
                           {selected.estado === 'aprobado' ? <CheckCircle2 size={28} color="#10b981" /> : selected.estado === 'rechazado' ? <XCircle size={28} color="#ef4444" /> : <AlertCircle size={28} color="#f59e0b" />}
                         </span>
                         <div style={{ textAlign: 'left' }}>
                           <h4 style={{ 
                             color: selected.estado === 'aprobado' ? '#10b981' : '#ef4444', 
-                            margin: '0 0 4px 0', 
+                            margin: '0 0 0.25rem 0', 
                             fontSize: '1rem', 
                             fontWeight: '600',
                             textTransform: 'capitalize'
@@ -1398,7 +1408,7 @@ const GestionMatricula = () => {
                       background: 'rgba(239, 68, 68, 0.15)', 
                       border: '1px solid rgba(239, 68, 68, 0.3)', 
                       color: '#ef4444', 
-                      padding: '12px 20px', 
+                      padding: '12px 1.25rem', 
                       borderRadius: 12, 
                       cursor: decidiendo ? 'not-allowed' : 'pointer', 
                       display: 'inline-flex', 
@@ -1420,7 +1430,7 @@ const GestionMatricula = () => {
                       background: 'linear-gradient(135deg, #10b981, #059669)', 
                       border: 'none', 
                       color: '#fff', 
-                      padding: '12px 20px', 
+                      padding: '12px 1.25rem', 
                       borderRadius: 12, 
                       cursor: decidiendo ? 'not-allowed' : 'pointer', 
                       display: 'inline-flex', 
@@ -1456,38 +1466,38 @@ const GestionMatricula = () => {
             alignItems: isMobile ? 'flex-end' : 'center', 
             justifyContent: 'center', 
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
           }}
         >
           <div className="responsive-modal" style={{ 
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)', 
             border: '1px solid rgba(16, 185, 129, 0.3)', 
-            borderRadius: isMobile ? '20px 20px 0 0' : '12px', 
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem', 
             width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '800px',
+            maxWidth: isMobile ? '100vw' : '50rem',
             maxHeight: isMobile ? '90vh' : '85vh',
-            padding: isMobile ? '16px' : '18px 28px 22px 28px', 
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem', 
             color: '#fff',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
           }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center', 
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               <div>
-                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                   <Download size={20} />
                   Comprobante de Pago
                 </h3>
                 {comprobanteNumero && (
                   <p style={{ 
-                    margin: '6px 0 0 28px', 
+                    margin: '6px 0 0 1.75rem', 
                     color: '#fbbf24', 
                     fontSize: '0.85rem',
                     fontFamily: 'monospace',
@@ -1502,8 +1512,8 @@ const GestionMatricula = () => {
                 style={{ 
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1530,8 +1540,8 @@ const GestionMatricula = () => {
               justifyContent: 'center', 
               alignItems: 'center',
               background: 'rgba(255,255,255,0.05)',
-              borderRadius: '12px',
-              padding: '16px',
+              borderRadius: '0.75rem',
+              padding: '1rem',
               overflow: 'hidden'
             }}>
               <img 
@@ -1541,7 +1551,7 @@ const GestionMatricula = () => {
                   maxWidth: '100%', 
                   maxHeight: '100%', 
                   objectFit: 'contain',
-                  borderRadius: '8px'
+                  borderRadius: '0.5rem'
                 }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
@@ -1560,10 +1570,10 @@ const GestionMatricula = () => {
             </div>
             
             <div style={{ 
-              marginTop: '16px', 
+              marginTop: '1rem', 
               display: 'flex', 
               justifyContent: 'center', 
-              gap: '12px' 
+              gap: '0.75rem' 
             }}>
               <a 
                 href={comprobanteUrl} 
@@ -1573,12 +1583,12 @@ const GestionMatricula = () => {
                   background: 'rgba(16, 185, 129, 0.15)',
                   border: '1px solid rgba(16, 185, 129, 0.3)',
                   color: '#10b981',
-                  padding: '10px 16px',
-                  borderRadius: '8px',
+                  padding: '10px 1rem',
+                  borderRadius: '0.5rem',
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '0.5rem',
                   fontSize: '0.9rem',
                   fontWeight: '500'
                 }}
@@ -1592,8 +1602,8 @@ const GestionMatricula = () => {
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
                   color: '#9ca3af',
-                  padding: '10px 16px',
-                  borderRadius: '8px',
+                  padding: '10px 1rem',
+                  borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500'
@@ -1620,19 +1630,19 @@ const GestionMatricula = () => {
             alignItems: isMobile ? 'flex-end' : 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: isMobile ? '0' : '20px',
+            padding: isMobile ? '0' : '1.25rem',
           }}
         >
           <div className="responsive-modal" style={{
             background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 20px 0 0' : '12px',
+            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
             width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '800px',
-            padding: isMobile ? '16px' : '18px 28px 22px 28px',
+            maxWidth: isMobile ? '100vw' : '50rem',
+            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
             color: '#fff',
             margin: '0 auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
             maxHeight: isMobile ? '90vh' : '85vh',
             overflowY: 'auto',
           }}>
@@ -1640,11 +1650,11 @@ const GestionMatricula = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '18px',
-              paddingBottom: '14px',
+              marginBottom: '1.125rem',
+              paddingBottom: '0.875rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
-              <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+              <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 <Check size={20} />
                 {approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante'}
               </h3>
@@ -1653,8 +1663,8 @@ const GestionMatricula = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1763,7 +1773,7 @@ const GestionMatricula = () => {
                   color: '#fff', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '8px',
+                  gap: '0.5rem',
                   textTransform: 'capitalize'
                 }}>
                   <Clock size={16} color="#fbbf24" />
@@ -1775,7 +1785,7 @@ const GestionMatricula = () => {
             {/* Usuario Generado - Solo mostrar si NO es estudiante existente */}
             {!approvalData?.id_estudiante_existente && (
               <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-                <h4 style={{ margin: '0 0 12px 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <GraduationCap size={18} color="#10b981" />
                   Usuario Generado Automáticamente
                 </h4>
@@ -1785,10 +1795,10 @@ const GestionMatricula = () => {
                   fontFamily: 'monospace',
                   fontWeight: '700',
                   background: 'rgba(16, 185, 129, 0.1)',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
+                  padding: '8px 0.75rem',
+                  borderRadius: '0.5rem',
                   border: '1px solid rgba(16, 185, 129, 0.2)',
-                  marginBottom: '8px'
+                  marginBottom: '0.5rem'
                 }}>
                   {generatedUsername}
                 </div>
@@ -1810,7 +1820,7 @@ const GestionMatricula = () => {
                 borderRadius: 12, 
                 padding: 16 
               }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={18} color="#3b82f6" />
                   Estudiante Existente
                 </h4>
@@ -1830,9 +1840,9 @@ const GestionMatricula = () => {
             <div style={{ 
               display: 'flex', 
               flexDirection: isMobile ? 'column-reverse' : 'row',
-              gap: '12px', 
+              gap: '0.75rem', 
               justifyContent: 'flex-end',
-              marginTop: isMobile ? '16px' : '20px'
+              marginTop: isMobile ? '16px' : '1.25rem'
             }}>
               <button
                 onClick={() => setShowApprovalModal(false)}
@@ -1840,8 +1850,8 @@ const GestionMatricula = () => {
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
                   color: '#9ca3af',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
+                  padding: '10px 1.25rem',
+                  borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500',
@@ -1857,15 +1867,15 @@ const GestionMatricula = () => {
                   background: decidiendo ? 'rgba(156, 163, 175, 0.15)' : 'rgba(16, 185, 129, 0.15)',
                   border: decidiendo ? '1px solid rgba(156, 163, 175, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
                   color: decidiendo ? '#9ca3af' : '#10b981',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
+                  padding: '10px 1.25rem',
+                  borderRadius: '0.5rem',
                   cursor: decidiendo ? 'not-allowed' : 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
+                  gap: '0.375rem',
                   opacity: decidiendo ? 0.7 : 1,
                   width: isMobile ? '100%' : 'auto'
                 }}
@@ -1882,3 +1892,6 @@ const GestionMatricula = () => {
 };
 
 export default GestionMatricula;
+
+
+
