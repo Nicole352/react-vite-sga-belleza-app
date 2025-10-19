@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
+
 import { 
   BookOpen, 
   Calendar, 
   Users, 
   Clock, 
   MapPin, 
-  Circle,
   Award,
   ChevronRight,
   FileText,
   Eye,
   Upload,
-  Download,
   Target,
   Play,
   GraduationCap,
@@ -71,6 +70,10 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [showCalificaciones, setShowCalificaciones] = useState(false);
+  const [showCompaneros, setShowCompaneros] = useState(false);
+  const [calificaciones, setCalificaciones] = useState<Array<{cursoId:number; cursoNombre:string; modulo?:string; tarea:string; nota:number}>>([]);
+  const [companeros, setCompaneros] = useState<Array<{cursoId:number; cursoNombre:string; nombre:string; email?:string}>>([]);
 
   useEffect(() => {
     setIsVisible(true);
@@ -160,6 +163,66 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
 
   const theme = getThemeColors();
 
+  // Cargar calificaciones por curso del estudiante autenticado
+  const fetchCalificaciones = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+      if (!cursosMatriculados || cursosMatriculados.length === 0) {
+        setCalificaciones([]);
+        return;
+      }
+      const headers = { 'Authorization': `Bearer ${token}` } as any;
+      const all: Array<{cursoId:number; cursoNombre:string; modulo?:string; tarea:string; nota:number}> = [];
+      for (const curso of cursosMatriculados) {
+        const res = await fetch(`${API_BASE}/calificaciones/estudiante/curso/${curso.id_curso}`, { headers });
+        if (!res.ok) continue;
+        const payload = await res.json();
+        const items = (payload?.calificaciones || []) as any[];
+        for (const it of items) {
+          const tareaNombreRaw = it.tarea_nombre ?? it.nombre_tarea ?? it.titulo ?? it.tarea ?? it.nombre ?? '';
+          const tareaNombre = String(tareaNombreRaw).trim().length > 0 ? String(tareaNombreRaw) : 'Actividad';
+          const notaNum = Number(it.nota ?? it.calificacion ?? it.puntaje ?? 0);
+          const moduloNombre = it.modulo_nombre ?? it.nombre_modulo ?? it.modulo ?? undefined;
+          all.push({ cursoId: curso.id_curso, cursoNombre: curso.nombre, modulo: moduloNombre ? String(moduloNombre) : undefined, tarea: String(tareaNombre), nota: isNaN(notaNum) ? 0 : notaNum });
+        }
+      }
+      setCalificaciones(all);
+    } catch (e) {
+      setCalificaciones([]);
+    }
+  };
+
+  // Cargar compañeros por curso del estudiante autenticado
+  const fetchCompaneros = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+      if (!cursosMatriculados || cursosMatriculados.length === 0) {
+        setCompaneros([]);
+        return;
+      }
+      const headers = { 'Authorization': `Bearer ${token}` } as any;
+      const all: Array<{cursoId:number; cursoNombre:string; nombre:string; email?:string}> = [];
+      for (const curso of cursosMatriculados) {
+        const res = await fetch(`${API_BASE}/cursos/${curso.id_curso}/estudiantes`, { headers });
+        if (!res.ok) continue;
+        const lista = await res.json();
+        const arr = (Array.isArray(lista?.estudiantes) ? lista.estudiantes : Array.isArray(lista) ? lista : []) as any[];
+        for (const est of arr) {
+          const composed = `${est.nombres ?? ''} ${est.apellidos ?? ''}`.trim();
+          const preferido = (est.nombre_completo ?? composed);
+          const nombre = (preferido && preferido.length > 0) ? preferido : (est.nombre ?? 'Estudiante');
+          const email = est.email ?? est.correo ?? undefined;
+          all.push({ cursoId: curso.id_curso, cursoNombre: curso.nombre, nombre, email });
+        }
+      }
+      setCompaneros(all);
+    } catch (e) {
+      setCompaneros([]);
+    }
+  };
+
   return (
     <div style={{
       transform: isVisible ? 'translateY(0)' : 'translateY(-30px)',
@@ -171,15 +234,15 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
         borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
+        padding: '12px',
+        marginBottom: '12px',
         backdropFilter: 'blur(20px)',
         boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
+            width: '44px',
+            height: '44px',
             background: `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
             borderRadius: '50%',
             display: 'flex',
@@ -187,20 +250,20 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             justifyContent: 'center',
             boxShadow: `0 8px 24px ${theme.accent}30`
           }}>
-            <BookOpen size={32} color={darkMode ? '#000' : '#fff'} />
+            <BookOpen size={18} color={darkMode ? '#000' : '#fff'} />
           </div>
           <div>
             <h1 style={{ 
-              fontSize: '2.2rem', 
+              fontSize: '1.2rem', 
               fontWeight: '800', 
               color: theme.textPrimary, 
-              margin: '0 0 8px 0' 
+              margin: '0 0 4px 0' 
             }}>
-              <Hand size={32} style={{ display: 'inline', marginRight: '8px' }} /> ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}!
+              <Hand size={16} style={{ display: 'inline', marginRight: '6px' }} /> ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
-              fontSize: '1.1rem', 
+              fontSize: '0.85rem', 
               margin: '0 0 4px 0' 
             }}>
               Continúa tu formación en Belleza y Estética
@@ -208,85 +271,81 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '16px',
-              fontSize: '0.9rem',
+              gap: '8px',
+              fontSize: '0.75rem',
               color: theme.textMuted
             }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar size={16} />
+                <Calendar size={12} />
                 {new Date().toLocaleDateString('es-ES')}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={16} />
+                <Clock size={12} />
                 {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Estadísticas rápidas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        {/* Estadísticas rápidas (ultra-compactas, una sola línea) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(120px, 1fr))', gap: '6px' }}>
           <div style={{
             background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
             border: `1px solid ${theme.success}30`,
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Target size={20} color={theme.success} />
-              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>Progreso General</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.success }}>
-              {cursosMatriculados.length > 0 ? 
-                Math.round(cursosMatriculados.reduce((acc, curso) => acc + curso.progreso, 0) / cursosMatriculados.length) : 0}%
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Target size={12} color={theme.success} />
+              <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Progreso General:</span>
+              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>
+                {cursosMatriculados.length > 0 ? 
+                  Math.round(cursosMatriculados.reduce((acc, curso) => acc + curso.progreso, 0) / cursosMatriculados.length) : 0}%
+              </span>
             </div>
           </div>
 
           <div style={{
             background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
             border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <BookOpen size={20} color="#3b82f6" />
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '600' }}>Cursos Activos</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <BookOpen size={12} color="#3b82f6" />
+              <span style={{ color: '#3b82f6', fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
+              <span style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
             </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#3b82f6' }}>{cursosMatriculados.length}</div>
           </div>
 
           <div style={{
             background: darkMode ? `rgba(251, 191, 36, 0.1)` : `rgba(251, 191, 36, 0.05)`,
             border: `1px solid ${theme.accent}30`,
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Star size={20} color={theme.accent} />
-              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '600' }}>Promedio</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: theme.accent }}>
-              {cursosMatriculados.length > 0 ? 
-                (cursosMatriculados.reduce((acc, curso) => acc + curso.calificacion, 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Star size={12} color={theme.accent} />
+              <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
+              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>
+                {cursosMatriculados.length > 0 ? 
+                  (cursosMatriculados.reduce((acc, curso) => acc + curso.calificacion, 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+              </span>
             </div>
           </div>
 
           <div style={{
             background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
             border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
+            borderRadius: '10px',
+            padding: '6px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Award size={20} color="#8b5cf6" />
-              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '600' }}>Tareas Pendientes</span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#8b5cf6' }}>
-              {cursosMatriculados.reduce((acc, curso) => acc + curso.tareasPendientes, 0)}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              <Award size={12} color="#8b5cf6" />
+              <span style={{ color: '#8b5cf6', fontSize: '0.7rem', fontWeight: '700' }}>Tareas Pendientes:</span>
+              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '800' }}>
+                {cursosMatriculados.reduce((acc, curso) => acc + curso.tareasPendientes, 0)}
+              </span>
             </div>
           </div>
         </div>
@@ -298,11 +357,11 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
           borderRadius: '20px',
-          padding: '32px',
+          padding: '16px',
           backdropFilter: 'blur(20px)',
           boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
         }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 24px 0' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
             Mis Cursos en Progreso
           </h2>
           
@@ -374,37 +433,37 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             </div>
           )}
           
-          <div style={{ display: 'grid', gap: '20px' }}>
+          <div style={{ display: 'grid', gap: '12px' }}>
             {cursosMatriculados.map((curso) => (
             <div
               key={curso.id_curso}
               onClick={() => window.location.href = `/panel/estudiante/curso/${curso.id_curso}`}
               style={{
-              padding: '24px',
+              padding: '14px',
               background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
               borderRadius: '16px',
               border: `1px solid ${theme.border}`,
               transition: 'all 0.3s ease',
               cursor: 'pointer'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                     <div style={{
                       background: `${theme.success}20`,
                       color: theme.success,
-                      padding: '4px 12px',
+                      padding: '3px 10px',
                       borderRadius: '16px',
-                      fontSize: '0.8rem',
+                      fontSize: '0.75rem',
                       fontWeight: '600'
                     }}>
                       {curso.codigo_curso || `CURSO-${curso.id_curso}`}
                     </div>
-                    <span style={{ color: theme.textMuted, fontSize: '0.9rem' }}>
+                    <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
                       {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
                     {curso.nombre || 'Curso sin nombre'}
                   </h3>
                   
@@ -412,9 +471,9 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(3, 1fr)', 
-                    gap: '12px', 
-                    marginBottom: '12px',
-                    padding: '12px',
+                    gap: '8px', 
+                    marginBottom: '10px',
+                    padding: '8px',
                     background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
                     borderRadius: '12px',
                     border: `1px solid ${theme.border}`
@@ -428,7 +487,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                             Docente
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', lineHeight: '1.3' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600', lineHeight: '1.3' }}>
                           {curso.docente.nombre_completo}
                         </div>
                         {curso.docente.titulo && (
@@ -448,7 +507,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                             Aula
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
                           {curso.aula.nombre}
                         </div>
                         {curso.aula.ubicacion && (
@@ -468,7 +527,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                             Horario
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
                           {curso.horario.hora_inicio?.substring(0, 5)} - {curso.horario.hora_fin?.substring(0, 5)}
                         </div>
                         {curso.horario.dias && (
@@ -497,30 +556,30 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                     )}
                   </div>
 
-                  <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Calendar size={14} />
+                  <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar size={12} />
                     Próxima clase: {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
                   </p>
                 </div>
                 
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                    <Star size={16} color={theme.accent} />
-                    <span style={{ color: theme.accent, fontSize: '1rem', fontWeight: '600' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <Star size={14} color={theme.accent} />
+                    <span style={{ color: theme.accent, fontSize: '0.95rem', fontWeight: '600' }}>
                       {curso.calificacion}/10
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: theme.textMuted }}>
+                  <div style={{ fontSize: '0.75rem', color: theme.textMuted }}>
                     Progreso: {curso.progreso}%
                   </div>
                 </div>
               </div>
 
               {/* Barra de progreso */}
-              <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '10px' }}>
                 <div style={{ 
                   width: '100%', 
-                  height: '8px', 
+                  height: '6px', 
                   background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
                   borderRadius: '4px',
                   overflow: 'hidden'
@@ -540,22 +599,22 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {curso.tareasPendientes > 0 ? (
                     <>
-                      <AlertCircle size={16} color={theme.warning} />
-                      <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '600' }}>
+                      <AlertCircle size={14} color={theme.warning} />
+                      <span style={{ color: theme.warning, fontSize: '0.85rem', fontWeight: '600' }}>
                         {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} pendiente{curso.tareasPendientes > 1 ? 's' : ''}
                       </span>
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={16} color={theme.success} />
-                      <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>
+                      <CheckCircle size={14} color={theme.success} />
+                      <span style={{ color: theme.success, fontSize: '0.85rem', fontWeight: '600' }}>
                         Al día con las tareas
                       </span>
                     </>
                   )}
                 </div>
                 
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   {curso.tareasPendientes > 0 ? (
                     <button
                       onClick={() => {
@@ -566,8 +625,8 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: '8px',
-                        padding: '8px 16px',
-                        fontSize: '0.9rem',
+                        padding: '6px 12px',
+                        fontSize: '0.85rem',
                         fontWeight: '600',
                         cursor: 'pointer',
                         display: 'flex',
@@ -576,7 +635,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      <Upload size={16} />
+                      <Upload size={14} />
                       Subir Tarea
                     </button>
                   ) : (
@@ -586,8 +645,8 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: '8px',
-                        padding: '8px 16px',
-                        fontSize: '0.9rem',
+                        padding: '6px 12px',
+                        fontSize: '0.85rem',
                         fontWeight: '600',
                         cursor: 'pointer',
                         display: 'flex',
@@ -596,7 +655,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      <Play size={16} />
+                      <Play size={14} />
                       Continuar
                     </button>
                   )}
@@ -607,8 +666,8 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                       color: theme.accent,
                       border: `1px solid ${theme.accent}30`,
                       borderRadius: '8px',
-                      padding: '8px 16px',
-                      fontSize: '0.9rem',
+                      padding: '6px 12px',
+                      fontSize: '0.85rem',
                       fontWeight: '600',
                       cursor: 'pointer',
                       display: 'flex',
@@ -617,7 +676,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    <Eye size={16} />
+                    <Eye size={14} />
                     Ver Detalles
                   </button>
                 </div>
@@ -628,44 +687,44 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         </div>
 
         {/* Panel lateral */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Próximas clases */}
           <div style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '24px',
+            padding: '12px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
               Próximas Clases
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {cursosMatriculados.slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
-                  padding: '16px',
+                  padding: '8px',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                   borderRadius: '12px',
                   border: `1px solid ${theme.border}`
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
+                      width: '5px',
+                      height: '5px',
                       borderRadius: '50%',
                       background: index === 0 ? theme.success : '#3b82f6'
                     }} />
-                    <span style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                    <span style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
                       {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </span>
                   </div>
-                  <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
+                  <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0 }}>
                     {curso.nombre}
                   </p>
                   {curso.aula?.nombre && (
-                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                    <p style={{ color: theme.textMuted, fontSize: '0.7rem', margin: '2px 0 0 0' }}>
                       {curso.aula.nombre} {curso.aula.ubicacion && `- ${curso.aula.ubicacion}`}
                     </p>
                   )}
@@ -674,10 +733,10 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               
               {cursosMatriculados.length === 0 && (
                 <div style={{
-                  padding: '16px',
+                  padding: '12px',
                   textAlign: 'center',
                   color: theme.textMuted,
-                  fontSize: '0.9rem'
+                  fontSize: '0.85rem'
                 }}>
                   No hay clases programadas
                 </div>
@@ -686,90 +745,72 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
           </div>
 
           {/* Notificaciones */}
-          <div style={{
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '24px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
-              Notificaciones
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {cursosMatriculados.filter(curso => curso.tareasPendientes > 0).map((curso) => (
-                <div key={curso.id_curso} style={{
-                  padding: '16px',
-                  background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.warning}30`
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <AlertCircle size={16} color={theme.warning} />
-                    <span style={{ color: theme.warning, fontSize: '0.9rem', fontWeight: '600' }}>
-                      Tarea Pendiente
-                    </span>
+          {cursosMatriculados.some(curso => curso.tareasPendientes > 0) && (
+            <div style={{
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: '20px',
+              padding: '12px',
+              backdropFilter: 'blur(20px)',
+              boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+            }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+                Notificaciones
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {cursosMatriculados.filter(curso => curso.tareasPendientes > 0).map((curso) => (
+                  <div key={curso.id_curso} style={{
+                    padding: '10px',
+                    background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
+                    borderRadius: '12px',
+                    border: `1px solid ${theme.warning}30`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                      <AlertCircle size={14} color={theme.warning} />
+                      <span style={{ color: theme.warning, fontSize: '0.85rem', fontWeight: '600' }}>
+                        Tarea Pendiente
+                      </span>
+                    </div>
+                    <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: 0 }}>
+                      {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} - {curso.nombre}
+                    </p>
+                    <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: '2px 0 0 0' }}>
+                      Pendiente desde hoy
+                    </p>
                   </div>
-                  <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
-                    {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} - {curso.nombre}
-                  </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                    Pendiente desde hoy
-                  </p>
-                </div>
-              ))}
-
-              {cursosMatriculados.filter(curso => curso.tareasPendientes === 0).length > 0 && (
-                <div style={{
-                  padding: '16px',
-                  background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.success}30`
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <CheckCircle size={16} color={theme.success} />
-                    <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '600' }}>
-                      ¡Al día!
-                    </span>
-                  </div>
-                  <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
-                    No tienes tareas pendientes
-                  </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                    ¡Excelente trabajo!
-                  </p>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Acceso rápido */}
           <div style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '24px',
+            padding: '12px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
           }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 16px 0' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
               Acceso Rápido
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button style={{
+              <button
+                onClick={() => { setShowCalificaciones(true); fetchCalificaciones(); }}
+                style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
                 borderRadius: '8px',
-                padding: '12px',
+                padding: '10px',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
               }}>
@@ -777,46 +818,128 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 Mis Calificaciones
                 <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
               </button>
-
-              <button style={{
+              <button
+                onClick={() => { setShowCompaneros(true); fetchCompaneros(); }}
+                style={{
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
                 borderRadius: '8px',
-                padding: '12px',
+                padding: '10px',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                transition: 'all 0.3s ease'
-              }}>
-                <Download size={16} />
-                Material de Estudio
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
-              </button>
-
-              <button style={{
-                background: 'transparent',
-                border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
-                padding: '12px',
-                color: theme.textSecondary,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease'
               }}>
                 <Users size={16} />
-                Foro de Estudiantes
+                Compañeros de Curso
                 <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
               </button>
             </div>
           </div>
+
+          {/* Modal: Mis Calificaciones */}
+          {showCalificaciones && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+            }}>
+              <div style={{
+                background: theme.cardBg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: '12px',
+                width: '100%', maxWidth: '720px', maxHeight: '80vh', overflow: 'auto', padding: '16px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '1rem', color: theme.textPrimary, fontWeight: 800 }}>Mis Calificaciones</h4>
+                  <button onClick={() => setShowCalificaciones(false)} style={{ border: 'none', background: 'transparent', color: theme.textSecondary, cursor: 'pointer' }}>✕</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {calificaciones.length === 0 && (
+                    <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>No hay calificaciones disponibles.</div>
+                  )}
+                  {calificaciones.length > 0 && (
+                    <>
+                      <div style={{ display: 'grid', gap: '6px' }}>
+                        {calificaciones.map((c, idx) => (
+                          <div key={idx} style={{
+                            display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 2.5fr 0.8fr',
+                            alignItems: 'center',
+                            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                            border: `1px solid ${theme.border}`,
+                            borderRadius: '8px',
+                            padding: '8px'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: theme.textSecondary, fontWeight: 600 }}>{c.cursoNombre}</div>
+                            <div style={{ fontSize: '0.8rem', color: theme.textMuted }}>{c.modulo ?? 'Módulo'}</div>
+                            <div style={{ fontSize: '0.85rem', color: theme.textPrimary }}>Tarea: {c.tarea}</div>
+                            <div style={{ textAlign: 'right', fontWeight: 800, color: theme.accent }}>{c.nota.toFixed(1)}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: '8px', textAlign: 'right', color: theme.textSecondary, fontSize: '0.9rem' }}>
+                        Promedio: <span style={{ color: theme.textPrimary, fontWeight: 800 }}>
+                          {(
+                            calificaciones.reduce((acc, it) => acc + (isNaN(it.nota) ? 0 : it.nota), 0) / calificaciones.length
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Compañeros de Curso */}
+          {showCompaneros && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+            }}>
+              <div style={{
+                background: theme.cardBg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: '12px',
+                width: '100%', maxWidth: '640px', maxHeight: '80vh', overflow: 'auto', padding: '16px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '1rem', color: theme.textPrimary, fontWeight: 800 }}>Compañeros de Curso</h4>
+                  <button onClick={() => setShowCompaneros(false)} style={{ border: 'none', background: 'transparent', color: theme.textSecondary, cursor: 'pointer' }}>✕</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {companeros.length === 0 && (
+                    <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>No hay compañeros disponibles.</div>
+                  )}
+                  {companeros.length > 0 && (
+                    cursosMatriculados.map((curso) => (
+                      <div key={curso.id_curso} style={{ marginBottom: '8px' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: theme.textPrimary, marginBottom: '4px' }}>{curso.nombre}</div>
+                        <div style={{ display: 'grid', gap: '4px' }}>
+                          {companeros.filter(c => c.cursoId === curso.id_curso).map((cmp, i) => (
+                            <div key={i} style={{
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                              border: `1px solid ${theme.border}`, borderRadius: '8px', padding: '6px'
+                            }}>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: 700 }}>{cmp.nombre}</span>
+                                <span style={{ color: theme.textMuted, fontSize: '0.75rem' }}>{curso.nombre}</span>
+                              </div>
+                              {cmp.email && <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>{cmp.email}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

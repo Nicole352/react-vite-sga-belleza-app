@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { BookOpen, UserCircle, Settings, Lock, Eye, EyeOff, CheckCircle, CheckCircle2, Info, Menu
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -15,7 +15,6 @@ import DetalleCursoEstudiante from './DetalleCursoEstudiante';
 const API_BASE = 'http://localhost:3000/api';
 
 const PanelEstudiantes = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('mi-aula');
   const [darkMode, setDarkMode] = useState(() => {
     // Cargar preferencia guardada o usar modo claro por defecto
@@ -221,15 +220,32 @@ const PanelEstudiantes = () => {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
+          
+          .estudiante-panel input,
+          .estudiante-panel textarea,
+          .estudiante-panel select {
+            background: var(--estudiante-input-bg) !important;
+            border: 1px solid var(--estudiante-input-border) !important;
+            color: var(--estudiante-text-primary) !important;
+          }
       `}</style>
 
       <div
         className="estudiante-panel"
         style={{
-          minHeight: '100vh',
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
-          display: 'flex'
+          display: 'flex',
+          transform: 'scale(0.85)',
+          transformOrigin: 'top left',
+          width: 'calc(100% / 0.85)',
+          height: 'calc(100% / 0.85)',
+          overflow: 'auto'
         }}
       >
         {/* Sidebar */}
@@ -240,11 +256,7 @@ const PanelEstudiantes = () => {
           border: `1px solid ${theme.border}`,
           borderRadius: '0 20px 20px 0',
           padding: sidebarCollapsed ? '12px 8px 24px 8px' : '12px 24px 24px 24px',
-          position: 'fixed',
-          height: '100vh',
-          left: 0,
-          top: 0,
-          zIndex: 1000,
+          height: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
         }}>
@@ -353,18 +365,16 @@ const PanelEstudiantes = () => {
 
         {/* Contenido Principal */}
         <div style={{
-          marginLeft: sidebarCollapsed ? '80px' : '280px',
-          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           flex: 1,
           padding: '24px',
-          minHeight: '100vh'
+          minHeight: '100%'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            padding: '20px 32px',
+            padding: '16px 24px',
             marginBottom: '24px',
             backdropFilter: 'blur(20px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
@@ -377,8 +387,8 @@ const PanelEstudiantes = () => {
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
-                width: '56px',
-                height: '56px',
+                width: '48px',
+                height: '48px',
                 background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                 borderRadius: '50%',
                 display: 'flex',
@@ -389,12 +399,12 @@ const PanelEstudiantes = () => {
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
                   const IconComponent = activeTabData?.icon || BookOpen;
-                  return <IconComponent size={28} color="#fff" />;
+                  return <IconComponent size={22} color="#fff" />;
                 })()}
               </div>
               <div>
                 <h1 style={{
-                  fontSize: '1.8rem',
+                  fontSize: '1.2rem',
                   fontWeight: '800',
                   color: theme.textPrimary,
                   margin: 0
@@ -404,8 +414,8 @@ const PanelEstudiantes = () => {
                 <p style={{
                   color: theme.textSecondary,
                   margin: 0,
-                  fontSize: '1rem',
-                  marginTop: '4px'
+                  fontSize: '0.8rem',
+                  marginTop: '2px'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -431,7 +441,8 @@ const PanelEstudiantes = () => {
             backdropFilter: 'blur(20px)',
             border: `1px solid ${theme.border}`,
             borderRadius: '20px',
-            minHeight: '600px',
+            padding: '32px',
+            minHeight: 'calc(100vh - 180px)',
             boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
             position: 'relative',
             zIndex: 1
