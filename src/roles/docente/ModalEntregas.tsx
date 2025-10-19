@@ -175,32 +175,32 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 999999,
-        backdropFilter: 'blur(4px)'
+        backdropFilter: 'blur(6px)'
       }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
           background: theme.modalBg,
-          borderRadius: '16px',
+          borderRadius: '12px',
           width: '90%',
           maxWidth: '900px',
           maxHeight: '85vh',
           overflow: 'hidden',
-          boxShadow: darkMode ? '0 20px 60px rgba(0,0,0,0.5)' : '0 20px 60px rgba(0,0,0,0.2)'
+          boxShadow: darkMode ? '0 16px 48px rgba(0,0,0,0.45)' : '0 16px 48px rgba(0,0,0,0.18)'
         }}>
         {/* Header */}
         <div style={{
-          padding: '20px 24px',
+          padding: '12px 14px',
           borderBottom: `1px solid ${theme.border}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div>
-            <h2 style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '700', margin: '0 0 4px 0' }}>
+            <h2 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px 0' }}>
               Entregas de Tarea
             </h2>
-            <p style={{ color: theme.textSecondary, fontSize: '0.875rem', margin: 0 }}>
+            <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: 0 }}>
               {nombre_tarea}
             </p>
           </div>
@@ -211,20 +211,20 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               border: 'none',
               color: theme.textSecondary,
               cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '8px',
+              padding: '6px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Content */}
         <div style={{
-          padding: '24px',
+          padding: '10px',
           maxHeight: 'calc(85vh - 80px)',
           overflowY: 'auto',
           minHeight: '200px'
@@ -232,18 +232,18 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           {loading ? (
             <div style={{ 
               textAlign: 'center', 
-              padding: '60px 40px', 
+              padding: '36px 20px', 
               color: theme.textPrimary,
-              fontSize: '1.1rem',
+              fontSize: '1rem',
               fontWeight: '500'
             }}>
               <div style={{ 
-                width: '50px', 
-                height: '50px', 
-                border: '4px solid rgba(59, 130, 246, 0.2)',
-                borderTop: '4px solid #3b82f6',
+                width: '40px', 
+                height: '40px', 
+                border: '3px solid rgba(59, 130, 246, 0.2)',
+                borderTop: '3px solid #3b82f6',
                 borderRadius: '50%',
-                margin: '0 auto 20px',
+                margin: '0 auto 12px',
                 animation: 'spin 1s linear infinite'
               }}></div>
               Cargando entregas...
@@ -251,40 +251,40 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           ) : entregas.length === 0 ? (
             <div style={{ 
               textAlign: 'center', 
-              padding: '60px 40px', 
+              padding: '28px 16px', 
               color: theme.textSecondary,
-              fontSize: '1rem'
+              fontSize: '0.95rem'
             }}>
               📋 No hay entregas para esta tarea
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {entregas.map((entrega) => (
                 <div
                   key={entrega.id_entrega}
                   style={{
                     background: darkMode ? 'rgba(255,255,255,0.03)' : '#f9fafb',
                     border: `1px solid ${theme.border}`,
-                    borderRadius: '12px',
-                    padding: '20px'
+                    borderRadius: '8px',
+                    padding: '8px'
                   }}
                 >
                   {/* Info del estudiante */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                        <User size={18} color={darkMode ? '#3b82f6' : '#2563eb'} />
-                        <h3 style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '600', margin: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                        <User size={14} color={darkMode ? '#3b82f6' : '#2563eb'} />
+                        <h3 style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '700', margin: 0 }}>
                           {entrega.estudiante_nombre} {entrega.estudiante_apellido}
                         </h3>
                       </div>
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '0.8125rem', color: theme.textSecondary }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Calendar size={14} />
+                      <div style={{ display: 'flex', gap: '8px', fontSize: '0.78rem', color: theme.textSecondary }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Calendar size={12} />
                           {new Date(entrega.fecha_entrega).toLocaleDateString('es-ES')}
                         </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FileText size={14} />
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <FileText size={12} />
                           {entrega.archivo_nombre}
                         </span>
                       </div>
@@ -292,35 +292,42 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
                     {/* Estado */}
                     {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
-                      <div style={{
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
-                        borderRadius: '8px',
-                        padding: '6px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        color: '#10b981',
-                        fontSize: '0.875rem',
-                        fontWeight: '600'
-                      }}>
-                        <CheckCircle size={16} />
-                        {entrega.calificacion}/{nota_maxima}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          background: 'rgba(16, 185, 129, 0.1)',
+                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          borderRadius: '6px',
+                          padding: '3px 6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          color: '#10b981',
+                          fontSize: '0.78rem',
+                          fontWeight: '700'
+                        }}>
+                          <CheckCircle size={12} />
+                          {entrega.calificacion}/{nota_maxima}
+                        </div>
+                        {entrega.fecha_calificacion && (
+                          <span style={{ color: theme.textSecondary, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                            Calificado el {new Date(entrega.fecha_calificacion).toLocaleDateString('es-ES')}
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <div style={{
                         background: 'rgba(239, 68, 68, 0.1)',
                         border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '8px',
-                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        padding: '3px 6px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '5px',
                         color: '#ef4444',
-                        fontSize: '0.875rem',
-                        fontWeight: '600'
+                        fontSize: '0.78rem',
+                        fontWeight: '700'
                       }}>
-                        <AlertCircle size={16} />
+                        <AlertCircle size={12} />
                         Pendiente
                       </div>
                     )}
@@ -332,19 +339,19 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     style={{
                       background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                       border: 'none',
-                      borderRadius: '8px',
-                      padding: '8px 14px',
+                      borderRadius: '6px',
+                      padding: '5px 8px',
                       color: '#fff',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
-                      fontWeight: '600',
-                      fontSize: '0.8125rem',
-                      marginBottom: '16px'
+                      fontWeight: '700',
+                      fontSize: '0.78rem',
+                      marginBottom: '8px'
                     }}
                   >
-                    <Download size={15} />
+                    <Download size={12} />
                     Descargar Archivo
                   </button>
 
@@ -352,14 +359,14 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   {(entrega.calificacion === undefined || entrega.calificacion === null) && (
                     <div style={{
                       borderTop: `1px solid ${theme.border}`,
-                      paddingTop: '16px',
+                      paddingTop: '8px',
                       display: 'grid',
                       gridTemplateColumns: '120px 1fr auto',
-                      gap: '12px',
+                      gap: '8px',
                       alignItems: 'end'
                     }}>
                       <div>
-                        <label style={{ color: theme.textSecondary, fontSize: '0.8125rem', display: 'block', marginBottom: '6px' }}>
+                        <label style={{ color: theme.textSecondary, fontSize: '0.78rem', display: 'block', marginBottom: '4px' }}>
                           Nota (0-{nota_maxima})
                         </label>
                         <input
@@ -371,18 +378,18 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                           onChange={(e) => setNotaInput(prev => ({ ...prev, [entrega.id_entrega]: e.target.value }))}
                           style={{
                             width: '100%',
-                            padding: '8px 12px',
+                            padding: '6px 8px',
                             background: theme.inputBg,
                             border: `1px solid ${theme.inputBorder}`,
                             borderRadius: '8px',
                             color: theme.textPrimary,
-                            fontSize: '0.875rem'
+                            fontSize: '0.78rem'
                           }}
                           placeholder="0.0"
                         />
                       </div>
                       <div>
-                        <label style={{ color: theme.textSecondary, fontSize: '0.8125rem', display: 'block', marginBottom: '6px' }}>
+                        <label style={{ color: theme.textSecondary, fontSize: '0.78rem', display: 'block', marginBottom: '4px' }}>
                           Comentario (opcional)
                         </label>
                         <textarea
@@ -390,12 +397,12 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                           onChange={(e) => setComentarioInput(prev => ({ ...prev, [entrega.id_entrega]: e.target.value }))}
                           style={{
                             width: '100%',
-                            padding: '8px 12px',
+                            padding: '6px 8px',
                             background: theme.inputBg,
                             border: `1px solid ${theme.inputBorder}`,
                             borderRadius: '8px',
                             color: theme.textPrimary,
-                            fontSize: '0.875rem',
+                            fontSize: '0.78rem',
                             resize: 'vertical',
                             minHeight: '40px',
                             fontFamily: 'inherit'
@@ -410,11 +417,11 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                           background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                           border: 'none',
                           borderRadius: '8px',
-                          padding: '10px 16px',
+                          padding: '6px 10px',
                           color: '#fff',
                           cursor: calificando === entrega.id_entrega ? 'not-allowed' : 'pointer',
-                          fontWeight: '600',
-                          fontSize: '0.875rem',
+                          fontWeight: '700',
+                          fontSize: '0.78rem',
                           opacity: calificando === entrega.id_entrega ? 0.6 : 1,
                           whiteSpace: 'nowrap'
                         }}
@@ -424,29 +431,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     </div>
                   )}
 
-                  {/* Mostrar calificación existente */}
-                  {entrega.calificacion !== undefined && entrega.calificacion !== null && (
-                    <div style={{
-                      borderTop: `1px solid ${theme.border}`,
-                      paddingTop: '16px',
-                      background: darkMode ? 'rgba(16, 185, 129, 0.05)' : 'rgba(16, 185, 129, 0.03)',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      marginTop: '12px'
-                    }}>
-                      <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: '0 0 4px 0' }}>
-                        Calificación: {entrega.calificacion}/{nota_maxima}
-                      </p>
-                      {entrega.comentario && (
-                        <p style={{ color: theme.textSecondary, fontSize: '0.8125rem', margin: '0 0 4px 0' }}>
-                          {entrega.comentario}
-                        </p>
-                      )}
-                      <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0 }}>
-                        Calificado el {new Date(entrega.fecha_calificacion!).toLocaleDateString('es-ES')}
-                      </p>
-                    </div>
-                  )}
+                  {/* Se elimina bloque inferior de calificación para ahorrar espacio; ahora se muestra en el header derecho */}
                 </div>
               ))}
             </div>
