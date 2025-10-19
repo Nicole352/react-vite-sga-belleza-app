@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, BookOpen } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -121,11 +121,11 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
+      <div style={{ marginBottom: '10px' }}>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 2px 0' }}>
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0 }}>
           Visualiza tu calendario de clases
         </p>
       </div>
@@ -135,7 +135,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
         borderRadius: '16px',
-        padding: '16px',
+        padding: '12px',
         backdropFilter: 'blur(20px)',
         boxShadow: darkMode ? '0 10px 30px rgba(0, 0, 0, 0.3)' : '0 10px 30px rgba(0, 0, 0, 0.1)',
         overflowX: 'auto'

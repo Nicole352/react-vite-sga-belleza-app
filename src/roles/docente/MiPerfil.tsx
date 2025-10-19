@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Calendar, MapPin, Edit, Save, X, CheckCircle2, AlertCircle, Award, FileText } from 'lucide-react';
+import { Mail, Phone, Calendar, Edit, Save, X, CheckCircle2, AlertCircle, Award, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const API_BASE = 'http://localhost:3000/api';
@@ -55,15 +55,111 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   const handleSave = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      
-      // TODO: Implementar endpoint de actualización
-      const response = await fetch(`${API_BASE}/docentes/${docente?.id_usuario}`, {
+      if (!token || !docente) return;
+
+      let ident = ((formData.identificacion ?? docente.identificacion) || (docente as any).cedula || '').toString();
+      const nombres = (formData.nombres ?? docente.nombres) as string;
+      const apellidos = (formData.apellidos ?? docente.apellidos) as string;
+      const fecha_nacimiento = (formData.fecha_nacimiento ?? docente.fecha_nacimiento) as string | undefined;
+      const titulo_profesional = (formData.titulo_profesional ?? docente.titulo_profesional) as string;
+      const experiencia_anos = (formData.experiencia_anos ?? docente.experiencia_anos ?? 0) as number;
+      const estado = (formData as any).estado ?? (docente as any).estado ?? 'activo';
+
+      // 1) Resolver id_docente buscando por identificacion/username, con fallback a listado amplio
+      let id_docente: number | null = null;
+      let registro: any = null;
+      const namesKey = `${docente.nombres} ${docente.apellidos}`.trim().toLowerCase();
+      // intento 1: por identificacion
+      try {
+        const res1 = await fetch(`${API_BASE}/docentes?search=${encodeURIComponent(ident)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res1.ok) {
+          const lista1 = await res1.json();
+          if (Array.isArray(lista1)) {
+            registro = lista1.find((d: any) => `${(d.identificacion || d.cedula || '').toString().trim()}` === ident.trim());
+            id_docente = registro?.id_docente ?? null;
+          }
+        }
+      } catch {}
+      // intento 2: por username
+      if (!id_docente && docente.username) {
+        try {
+          const res2 = await fetch(`${API_BASE}/docentes?search=${encodeURIComponent(docente.username)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res2.ok) {
+            const lista2 = await res2.json();
+            if (Array.isArray(lista2)) {
+              registro = lista2.find((d: any) => d.username === docente.username);
+              id_docente = registro?.id_docente ?? null;
+            }
+          }
+        } catch {}
+      }
+      // intento 3: listar muchos y filtrar localmente
+      if (!id_docente) {
+        const res3 = await fetch(`${API_BASE}/docentes?limit=1000`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res3.ok) throw new Error('No se pudo obtener la lista de docentes');
+        const lista3 = await res3.json();
+        if (Array.isArray(lista3)) {
+          registro = lista3.find((d: any) => `${(d.identificacion || d.cedula || '').toString().trim()}` === ident.trim())
+                  || lista3.find((d: any) => (d.username || '').toString() === (docente.username || '').toString())
+                  || lista3.find((d: any) => `${(d.nombres || '').toString().trim().toLowerCase()} ${(d.apellidos || '').toString().trim().toLowerCase()}` === namesKey);
+          id_docente = registro?.id_docente ?? null;
+        }
+      }
+      // si no tenemos identificacion, intenta usar la del registro encontrado o consultarla
+      if (!ident.trim() && registro?.identificacion) {
+        ident = `${registro.identificacion}`;
+      }
+      if (!ident.trim()) {
+        // intentar obtener desde /api/usuarios/:id (cedula)
+        try {
+          const resU = await fetch(`${API_BASE}/usuarios/${docente.id_usuario}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (resU.ok) {
+            const dataU = await resU.json();
+            const ced = dataU?.usuario?.cedula || dataU?.usuario?.cedula?.toString?.();
+            if (ced) ident = `${ced}`;
+          }
+        } catch {}
+      }
+      if (!ident.trim() && id_docente) {
+        // intentar obtener desde /api/docentes/:id (identificacion)
+        try {
+          const resD = await fetch(`${API_BASE}/docentes/${id_docente}`);
+          if (resD.ok) {
+            const dataD = await resD.json();
+            const identDoc = dataD?.docente?.identificacion || dataD?.identificacion;
+            if (identDoc) ident = `${identDoc}`;
+          }
+        } catch {}
+      }
+      if (!ident.trim()) {
+        throw new Error('La identificación es obligatoria');
+      }
+      if (!id_docente) throw new Error('No se encontró el ID del docente (verifica tu identificación)');
+
+      // 2) Enviar PUT con el payload requerido por el backend
+      const response = await fetch(`${API_BASE}/docentes/${id_docente}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          identificacion: ident.trim(),
+          nombres,
+          apellidos,
+          fecha_nacimiento: fecha_nacimiento || null,
+          titulo_profesional,
+          experiencia_anos: Number(experiencia_anos) || 0,
+          estado
+        })
       });
 
       if (response.ok) {
@@ -72,6 +168,9 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
         toast.success('Perfil actualizado exitosamente', {
           icon: <CheckCircle2 size={20} />,
         });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.message || 'Error al actualizar');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -117,12 +216,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
             Mi Perfil
           </h2>
-          <p style={{ color: theme.textMuted, fontSize: '1rem', margin: 0 }}>
+          <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0 }}>
             Gestiona tu información personal
           </p>
         </div>
@@ -131,12 +230,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
           <button
             onClick={() => setEditing(true)}
             style={{
-              padding: '12px 24px',
+              padding: '10px 14px',
               background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '10px',
               color: '#fff',
-              fontSize: '0.95rem',
+              fontSize: '0.85rem',
               fontWeight: '700',
               cursor: 'pointer',
               display: 'flex',
@@ -144,23 +243,23 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               gap: '8px'
             }}
           >
-            <Edit size={18} />
+            <Edit size={16} />
             Editar Perfil
           </button>
         ) : (
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => {
                 setEditing(false);
                 setFormData(docente);
               }}
               style={{
-                padding: '12px 24px',
+                padding: '10px 14px',
                 background: 'transparent',
                 border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: theme.textSecondary,
-                fontSize: '0.95rem',
+                fontSize: '0.85rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 display: 'flex',
@@ -168,18 +267,18 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 gap: '8px'
               }}
             >
-              <X size={18} />
+              <X size={16} />
               Cancelar
             </button>
             <button
               onClick={handleSave}
               style={{
-                padding: '12px 24px',
+                padding: '10px 14px',
                 background: `linear-gradient(135deg, ${theme.success}, ${theme.success}dd)`,
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: '#fff',
-                fontSize: '0.95rem',
+                fontSize: '0.85rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 display: 'flex',
@@ -187,32 +286,32 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 gap: '8px'
               }}
             >
-              <Save size={18} />
+              <Save size={16} />
               Guardar
             </button>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
         {/* Card de perfil */}
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '32px',
+          borderRadius: '16px',
+          padding: '16px',
           textAlign: 'center'
         }}>
           <div style={{
-            width: '120px',
-            height: '120px',
+            width: '84px',
+            height: '84px',
             borderRadius: '50%',
             background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 20px',
-            fontSize: '3rem',
+            margin: '0 auto 12px',
+            fontSize: '2rem',
             fontWeight: '800',
             color: '#fff',
             boxShadow: `0 8px 24px ${theme.accent}40`
@@ -220,47 +319,47 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             {docente.nombres.charAt(0)}{docente.apellidos.charAt(0)}
           </div>
 
-          <h3 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: '0 0 4px 0' }}>
+          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '800', margin: '0 0 2px 0' }}>
             {docente.nombres} {docente.apellidos}
           </h3>
-          <p style={{ color: theme.textMuted, fontSize: '0.9rem', margin: '0 0 8px 0' }}>
+          <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: '0 0 6px 0' }}>
             @{docente.username}
           </p>
           
           <div style={{
-            padding: '8px 16px',
+            padding: '6px 12px',
             background: `${theme.accent}20`,
-            borderRadius: '20px',
+            borderRadius: '14px',
             color: theme.accent,
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
             fontWeight: '700',
             display: 'inline-block',
-            marginTop: '12px'
+            marginTop: '8px'
           }}>
             👨‍🏫 Docente
           </div>
 
           <div style={{
-            marginTop: '24px',
-            paddingTop: '24px',
+            marginTop: '16px',
+            paddingTop: '16px',
             borderTop: `1px solid ${theme.border}`
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <Award size={20} color={theme.success} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <Award size={16} color={theme.success} />
               <div style={{ textAlign: 'left', flex: 1 }}>
-                <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>Título</div>
-                <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Título</div>
+                <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
                   {docente.titulo_profesional}
                 </div>
               </div>
             </div>
 
             {docente.experiencia_anos !== undefined && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Calendar size={20} color={theme.accent} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={16} color={theme.accent} />
                 <div style={{ textAlign: 'left', flex: 1 }}>
-                  <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>Experiencia</div>
-                  <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
+                  <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Experiencia</div>
+                  <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600' }}>
                     {docente.experiencia_anos} años
                   </div>
                 </div>
@@ -273,34 +372,34 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '32px'
+          borderRadius: '16px',
+          padding: '16px'
         }}>
-          <h3 style={{ color: theme.textPrimary, fontSize: '1.3rem', fontWeight: '700', margin: '0 0 24px 0' }}>
+          <h3 style={{ color: theme.textPrimary, fontSize: '1.1rem', fontWeight: '700', margin: '0 0 12px 0' }}>
             Información Personal
           </h3>
 
-          <div style={{ display: 'grid', gap: '20px' }}>
+          <div style={{ display: 'grid', gap: '12px' }}>
             {/* Identificación */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
                 Identificación
               </label>
               <div style={{
-                padding: '12px 16px',
+                padding: '10px 12px',
                 background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                 border: `1px solid ${theme.border}`,
-                borderRadius: '10px',
+                borderRadius: '8px',
                 color: theme.textPrimary,
-                fontSize: '0.95rem'
+                fontSize: '0.9rem'
               }}>
-                <FileText size={16} style={{ display: 'inline', marginRight: '6px' }} /> {docente.identificacion}
+                <FileText size={14} style={{ display: 'inline', marginRight: '6px' }} /> {docente.identificacion}
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
                 Email
               </label>
               {editing ? (
@@ -310,27 +409,27 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '10px 12px',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
                     border: `1px solid ${theme.border}`,
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '0.95rem'
+                    fontSize: '0.9rem'
                   }}
                 />
               ) : (
                 <div style={{
-                  padding: '12px 16px',
+                  padding: '10px 12px',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                   border: `1px solid ${theme.border}`,
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <Mail size={16} color={theme.textMuted} />
+                  <Mail size={14} color={theme.textMuted} />
                   {docente.email || 'No especificado'}
                 </div>
               )}
@@ -338,7 +437,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
             {/* Teléfono */}
             <div>
-              <label style={{ color: theme.textMuted, fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
                 Teléfono
               </label>
               {editing ? (
@@ -348,27 +447,27 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '10px 12px',
                     background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
                     border: `1px solid ${theme.border}`,
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     color: theme.textPrimary,
-                    fontSize: '0.95rem'
+                    fontSize: '0.9rem'
                   }}
                 />
               ) : (
                 <div style={{
-                  padding: '12px 16px',
+                  padding: '10px 12px',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                   border: `1px solid ${theme.border}`,
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <Phone size={16} color={theme.textMuted} />
+                  <Phone size={14} color={theme.textMuted} />
                   {docente.telefono || 'No especificado'}
                 </div>
               )}
@@ -377,21 +476,21 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             {/* Fecha de Nacimiento */}
             {docente.fecha_nacimiento && (
               <div>
-                <label style={{ color: theme.textMuted, fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: theme.textMuted, fontSize: '0.8rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
                   Fecha de Nacimiento
                 </label>
                 <div style={{
-                  padding: '12px 16px',
+                  padding: '10px 12px',
                   background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                   border: `1px solid ${theme.border}`,
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   color: theme.textPrimary,
-                  fontSize: '0.95rem',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <Calendar size={16} color={theme.textMuted} />
+                  <Calendar size={14} color={theme.textMuted} />
                   {new Date(docente.fecha_nacimiento).toLocaleDateString()}
                 </div>
               </div>
@@ -399,6 +498,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
