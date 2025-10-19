@@ -102,84 +102,37 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 4px 0' }}>
           Mis Estudiantes
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '1rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0 }}>
           Gestiona y monitorea el progreso de tus estudiantes
         </p>
       </div>
 
-      {/* Estadísticas compactas (una sola línea) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(140px, 1fr))', gap: '10px', marginBottom: '12px' }}>
-        <div style={{
-          background: `linear-gradient(135deg, #3b82f6, #2563eb)`,
-          borderRadius: '10px',
-          padding: '10px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '60px',
-            height: '60px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Users size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
-            {estudiantesFiltrados.length}
+      {/* Estadísticas (ultra-compactas, una sola línea) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(120px, 1fr))', gap: '6px', marginBottom: '12px' }}>
+        <div style={{ background: `linear-gradient(135deg, #3b82f6, #2563eb)`, borderRadius: '10px', padding: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+            <Users size={12} />
+            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length}</span>
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Total Estudiantes</div>
         </div>
-
-        <div style={{
-          background: `linear-gradient(135deg, #10b981, #059669)`,
-          borderRadius: '10px',
-          padding: '10px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '60px',
-            height: '60px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Award size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
-            {estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}
+        <div style={{ background: `linear-gradient(135deg, #10b981, #059669)`, borderRadius: '10px', padding: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+            <Award size={12} />
+            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Destacados:</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}</span>
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Destacados (≥8.0)</div>
         </div>
-
-        <div style={{
-          background: `linear-gradient(135deg, #f59e0b, #d97706)`,
-          borderRadius: '10px',
-          padding: '10px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '-20px',
-            width: '60px',
-            height: '60px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '50%'
-          }} />
-          <Star size={18} color="#fff" style={{ marginBottom: '4px', position: 'relative', zIndex: 1 }} />
-          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', position: 'relative', zIndex: 1 }}>
-            {estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}
+        <div style={{ background: `linear-gradient(135deg, #f59e0b, #d97706)`, borderRadius: '10px', padding: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', color: '#fff' }}>
+            <Star size={12} />
+            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}</span>
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '700', position: 'relative', zIndex: 1 }}>Promedio General</div>
         </div>
       </div>
 
@@ -228,12 +181,12 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       </div>
 
 
-      {/* Tabla Educativa de Estudiantes */}
+      {/* Lista de Estudiantes (compacta) */}
       <div style={{
         background: theme.cardBg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        padding: '24px',
+        borderRadius: '16px',
+        padding: '16px',
         backdropFilter: 'blur(20px)',
         boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
       }}>
@@ -252,56 +205,40 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            {/* Header de la tabla */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '2fr 1.5fr 1fr 1fr',
-              gap: '16px',
-              padding: '10px 12px',
+              gridTemplateColumns: '2fr 1fr 1.5fr 1.5fr 1fr',
+              gap: '10px',
+              padding: '6px 8px',
               background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '10px',
-              marginBottom: '12px',
+              borderRadius: '8px',
+              marginBottom: '8px',
               fontWeight: '700',
-              fontSize: '0.8rem',
+              fontSize: '0.75rem',
               color: theme.accent,
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
             }}>
               <div>Estudiante</div>
+              <div>Cédula</div>
               <div>Curso</div>
-              <div>Contacto</div>
-              <div style={{ textAlign: 'center' }}>Promedio</div>
+              <div>Email</div>
+              <div>Teléfono</div>
             </div>
 
             {/* Filas de estudiantes */}
-            <div style={{ display: 'grid', gap: '8px' }}>
+            <div style={{ display: 'grid', gap: '6px' }}>
               {estudiantesFiltrados.map((estudiante, index) => {
-                const getPromedioColor = (promedio: number | undefined) => {
-                  if (!promedio) return theme.textMuted;
-                  if (promedio >= 9) return '#10b981';
-                  if (promedio >= 8) return '#3b82f6';
-                  if (promedio >= 7) return '#f59e0b';
-                  return '#ef4444';
-                };
-
-                const getPromedioLabel = (promedio: number | undefined) => {
-                  if (!promedio) return 'N/A';
-                  if (promedio >= 9) return 'Excelente';
-                  if (promedio >= 8) return 'Muy Bueno';
-                  if (promedio >= 7) return 'Bueno';
-                  return 'Regular';
-                };
-
                 return (
                   <div
                     key={estudiante.id_usuario}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '2fr 1.5fr 1fr 1fr',
-                      gap: '12px',
-                      padding: '12px',
+                      gridTemplateColumns: '2fr 1fr 1.5fr 1.5fr 1fr',
+                      gap: '8px',
+                      padding: '8px',
                       background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      borderRadius: '10px',
+                      borderRadius: '8px',
                       border: `1px solid ${theme.border}`,
                       alignItems: 'center',
                       transition: 'all 0.3s ease',
@@ -317,62 +254,46 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     }}
                   >
                     {/* Columna: Estudiante */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                       <div style={{
-                        width: '36px',
-                        height: '36px',
+                        width: '28px',
+                        height: '28px',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
-                        fontSize: '0.9rem',
+                        fontSize: '0.8rem',
                         fontWeight: '800',
                         flexShrink: 0
                       }}>
                         {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                       </div>
-                      <div style={{ overflow: 'hidden' }}>
-                        <div style={{ 
-                          color: theme.textPrimary, 
-                          fontSize: '0.9rem', 
-                          fontWeight: '700',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {estudiante.nombre} {estudiante.apellido}
-                        </div>
-                        <div style={{ 
-                          color: theme.textMuted, 
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          marginTop: '2px'
-                        }}>
-                          <span>ID:</span>
-                          <span style={{ fontWeight: '600' }}>{estudiante.cedula}</span>
-                        </div>
+                      <div style={{ overflow: 'hidden', color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '700', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {estudiante.nombre} {estudiante.apellido}
                       </div>
                     </div>
 
+                    {/* Columna: Cédula */}
+                    <div style={{ color: theme.textSecondary, fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                      {estudiante.cedula}
+                    </div>
+
                     {/* Columna: Curso */}
-                    <div>
-                      <div style={{
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', minWidth: 0 }}>
+                      <span style={{
                         background: `${theme.accent}20`,
                         color: theme.accent,
-                        padding: '4px 10px',
-                        borderRadius: '12px',
+                        padding: '3px 8px',
+                        borderRadius: '10px',
                         fontSize: '0.7rem',
                         fontWeight: '700',
-                        display: 'inline-block',
-                        marginBottom: '4px'
+                        flexShrink: 0
                       }}>
                         {estudiante.codigo_curso}
-                      </div>
-                      <div style={{ 
+                      </span>
+                      <span style={{ 
                         color: theme.textPrimary, 
                         fontSize: '0.85rem',
                         fontWeight: '600',
@@ -381,68 +302,23 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                         whiteSpace: 'nowrap'
                       }}>
                         {estudiante.curso_nombre}
-                      </div>
+                      </span>
                     </div>
 
-                    {/* Columna: Contacto */}
-                    <div>
-                      {estudiante.email && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          marginBottom: '4px'
-                        }}>
-                          <Mail size={12} color={theme.textMuted} />
-                          <span style={{ 
-                            color: theme.textSecondary, 
-                            fontSize: '0.75rem',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {estudiante.email}
-                          </span>
-                        </div>
-                      )}
-                      {estudiante.telefono && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Phone size={12} color={theme.textMuted} />
-                          <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                            {estudiante.telefono}
-                          </span>
-                        </div>
-                      )}
+                    {/* Columna: Email */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
+                      <Mail size={12} color={theme.textMuted} />
+                      <span style={{ color: theme.textSecondary, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {estudiante.email || '-'}
+                      </span>
                     </div>
 
-                    {/* Columna: Promedio */}
-                    <div style={{ textAlign: 'center' }}>
-                      {estudiante.promedio !== undefined ? (
-                        <div>
-                          <div style={{
-                            fontSize: '1.2rem',
-                            fontWeight: '800',
-                            color: getPromedioColor(estudiante.promedio),
-                            lineHeight: 1,
-                            marginBottom: '2px'
-                          }}>
-                            {estudiante.promedio.toFixed(1)}
-                          </div>
-                          <div style={{
-                            fontSize: '0.6rem',
-                            fontWeight: '600',
-                            color: getPromedioColor(estudiante.promedio),
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                          }}>
-                            {getPromedioLabel(estudiante.promedio)}
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
-                          Sin calificar
-                        </div>
-                      )}
+                    {/* Columna: Teléfono */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Phone size={12} color={theme.textMuted} />
+                      <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
+                        {estudiante.telefono || '-'}
+                      </span>
                     </div>
                   </div>
                 );

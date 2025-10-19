@@ -150,42 +150,36 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         </p>
       </div>
 
-      {/* Estadísticas */}
+      {/* Estadísticas (ultra-compactas) */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '12px',
-        marginBottom: '20px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+        gap: '6px',
+        marginBottom: '16px'
       }}>
         <div style={{
           background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
           border: `1px solid ${theme.accent}30`,
-          borderRadius: '12px',
-          padding: '16px',
-          textAlign: 'center'
+          borderRadius: '10px',
+          padding: '6px'
         }}>
-          <BookOpen size={24} color={theme.accent} style={{ marginBottom: '8px' }} />
-          <div style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.accent, marginBottom: '2px' }}>
-            {cursos.length}
-          </div>
-          <div style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600' }}>
-            Cursos Activos
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <BookOpen size={12} color={theme.accent} />
+            <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
+            <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.length}</span>
           </div>
         </div>
 
         <div style={{
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
           border: `1px solid ${theme.success}30`,
-          borderRadius: '12px',
-          padding: '16px',
-          textAlign: 'center'
+          borderRadius: '10px',
+          padding: '6px'
         }}>
-          <Users size={24} color={theme.success} style={{ marginBottom: '8px' }} />
-          <div style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.success, marginBottom: '2px' }}>
-            {cursos.reduce((acc, curso) => acc + curso.total_estudiantes, 0)}
-          </div>
-          <div style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '600' }}>
-            Total Estudiantes
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+            <Users size={12} color={theme.success} />
+            <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
+            <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.reduce((acc, curso) => acc + curso.total_estudiantes, 0)}</span>
           </div>
         </div>
       </div>
