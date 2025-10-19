@@ -115,30 +115,30 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0,0,0,0.7)',
+      background: 'rgba(0,0,0,0.6)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px',
-      backdropFilter: 'blur(8px)'
+      padding: '16px',
+      backdropFilter: 'blur(6px)'
     }}>
       <div style={{
         background: darkMode 
           ? 'linear-gradient(135deg, rgba(26,26,46,0.98) 0%, rgba(22,33,62,0.98) 100%)'
           : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
-        borderRadius: '24px',
-        padding: '32px',
-        maxWidth: '650px',
+        borderRadius: '12px',
+        padding: '16px',
+        maxWidth: '560px',
         width: '100%',
         maxHeight: '90vh',
         overflowY: 'auto',
-        border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
-        boxShadow: darkMode ? '0 25px 70px rgba(0,0,0,0.5)' : '0 25px 70px rgba(0,0,0,0.15)'
+        border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
+        boxShadow: darkMode ? '0 16px 48px rgba(0,0,0,0.45)' : '0 16px 48px rgba(0,0,0,0.15)'
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-          <h3 style={{ color: darkMode ? '#fff' : '#1e293b', fontSize: '1.75rem', fontWeight: '800', margin: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ color: darkMode ? '#fff' : '#1e293b', fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>
             {moduloEditar ? 'Editar Módulo' : 'Crear Nuevo Módulo'}
           </h3>
           <button
@@ -146,8 +146,8 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '12px',
-              padding: '10px',
+              borderRadius: '8px',
+              padding: '6px',
               color: '#ef4444',
               cursor: 'pointer',
               display: 'flex',
@@ -157,25 +157,25 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.transform = 'scale(1.02)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
               e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            <X size={22} />
+            <X size={16} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* Nombre */}
-          <div style={{ marginBottom: '22px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
               Nombre del Módulo *
             </label>
             <div style={{ position: 'relative' }}>
-              <FileText size={20} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
+              <FileText size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
               <input
                 type="text"
                 name="nombre"
@@ -185,18 +185,18 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 required
                 style={{
                   width: '100%',
-                  padding: '14px 14px 14px 45px',
+                  padding: '10px 10px 10px 36px',
                   background: '#fff',
-                  border: '2px solid #e2e8f0',
-                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
                   color: '#1e293b',
-                  fontSize: '0.95rem',
+                  fontSize: '0.85rem',
                   outline: 'none',
                   transition: 'all 0.2s ease'
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = '#e2e8f0';
@@ -207,12 +207,12 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           </div>
 
           {/* Número de Orden */}
-          <div style={{ marginBottom: '22px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
               Número de Orden *
             </label>
             <div style={{ position: 'relative' }}>
-              <Hash size={20} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
+              <Hash size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
               <input
                 type="number"
                 name="numero_orden"
@@ -223,18 +223,18 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 required
                 style={{
                   width: '100%',
-                  padding: '14px 14px 14px 45px',
+                  padding: '10px 10px 10px 36px',
                   background: '#fff',
-                  border: '2px solid #e2e8f0',
-                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
                   color: '#1e293b',
-                  fontSize: '0.95rem',
+                  fontSize: '0.85rem',
                   outline: 'none',
                   transition: 'all 0.2s ease'
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = '#e2e8f0';
@@ -242,14 +242,14 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 }}
               />
             </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '6px', marginLeft: '2px' }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px', marginLeft: '2px' }}>
               Define el orden de visualización del módulo
             </p>
           </div>
 
           {/* Descripción */}
-          <div style={{ marginBottom: '22px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
               Descripción (opcional)
             </label>
             <textarea
@@ -259,13 +259,13 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               placeholder="Describe brevemente el contenido de este módulo..."
               style={{
                 width: '100%',
-                minHeight: '90px',
-                padding: '14px',
+                minHeight: '70px',
+                padding: '10px',
                 background: '#fff',
-                border: '2px solid #e2e8f0',
-                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
                 color: '#1e293b',
-                fontSize: '0.95rem',
+                fontSize: '0.85rem',
                 resize: 'vertical',
                 outline: 'none',
                 transition: 'all 0.2s ease',
@@ -273,7 +273,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#3b82f6';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = '#e2e8f0';
@@ -283,13 +283,13 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           </div>
 
           {/* Fechas */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '22px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
             <div>
-              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
                 Fecha Inicio (opcional)
               </label>
               <div style={{ position: 'relative' }}>
-                <Calendar size={20} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
+                <Calendar size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
                 <input
                   type="date"
                   name="fecha_inicio"
@@ -297,18 +297,18 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                   onChange={handleChange}
                   style={{
                     width: '100%',
-                    padding: '14px 14px 14px 45px',
+                    padding: '10px 10px 10px 36px',
                     background: '#fff',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
                     color: '#1e293b',
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
                     outline: 'none',
                     transition: 'all 0.2s ease'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
                   }}
                   onBlur={(e) => {
                     e.currentTarget.style.borderColor = '#e2e8f0';
@@ -319,11 +319,11 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             </div>
 
             <div>
-              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
                 Fecha Fin (opcional)
               </label>
               <div style={{ position: 'relative' }}>
-                <Calendar size={20} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
+                <Calendar size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
                 <input
                   type="date"
                   name="fecha_fin"
@@ -331,18 +331,18 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                   onChange={handleChange}
                   style={{
                     width: '100%',
-                    padding: '14px 14px 14px 45px',
+                    padding: '10px 10px 10px 36px',
                     background: '#fff',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
                     color: '#1e293b',
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
                     outline: 'none',
                     transition: 'all 0.2s ease'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
                   }}
                   onBlur={(e) => {
                     e.currentTarget.style.borderColor = '#e2e8f0';
@@ -354,8 +354,8 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           </div>
 
           {/* Estado */}
-          <div style={{ marginBottom: '28px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '0.95rem' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
               Estado
             </label>
             <select
@@ -364,19 +364,19 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               onChange={handleChange}
               style={{
                 width: '100%',
-                padding: '14px',
+                padding: '10px 12px',
                 background: '#fff',
-                border: '2px solid #e2e8f0',
-                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
                 color: '#1e293b',
-                fontSize: '0.95rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 outline: 'none',
                 transition: 'all 0.2s ease'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#3b82f6';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = '#e2e8f0';
@@ -390,21 +390,21 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           </div>
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
                 background: '#fff',
-                border: '2px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '14px 28px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '8px 12px',
                 color: '#64748b',
-                fontWeight: '600',
+                fontWeight: '700',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.5 : 1,
-                fontSize: '0.95rem',
+                fontSize: '0.85rem',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
@@ -428,27 +428,27 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                   ? 'rgba(59, 130, 246, 0.6)' 
                   : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '12px',
-                padding: '14px 28px',
+                borderRadius: '8px',
+                padding: '8px 12px',
                 color: '#fff',
-                fontWeight: '600',
+                fontWeight: '800',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: loading ? 'none' : '0 4px 15px rgba(59, 130, 246, 0.3)',
-                fontSize: '0.95rem',
+                boxShadow: loading ? 'none' : '0 3px 10px rgba(59, 130, 246, 0.25)',
+                fontSize: '0.85rem',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
                   e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                  e.currentTarget.style.boxShadow = '0 5px 14px rgba(59, 130, 246, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.boxShadow = '0 3px 10px rgba(59, 130, 246, 0.25)';
               }}
             >
               {loading ? (
@@ -465,7 +465,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 </>
               ) : (
                 <>
-                  <Save size={18} />
+                  <Save size={16} />
                   {moduloEditar ? 'Actualizar' : 'Crear Módulo'}
                 </>
               )}
