@@ -182,7 +182,6 @@ const PanelDocentes = () => {
   };
 
   const theme = getThemeColors();
-  const scaleFactor = 0.85;
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
@@ -220,33 +219,30 @@ const PanelDocentes = () => {
       <div
         className="docente-panel"
         style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+          minHeight: '100vh',
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
           display: 'flex',
-          transform: `scale(${scaleFactor})`,
-          transformOrigin: 'top left',
-          width: `calc(100% / ${scaleFactor})`,
-          height: `calc(100% / ${scaleFactor})`,
-          overflow: 'auto'
+          fontSize: '0.8rem'
         }}
       >
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '5rem' : '17.5rem',
+          width: sidebarCollapsed ? '4.5rem' : '16rem',
           background: theme.sidebarBg,
-          backdropFilter: 'blur(1.25rem)',
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '0 1.25rem 1.25rem 0',
-          padding: sidebarCollapsed ? '0.75em 0.5em 1.5em 0.5em' : '0.75em 1.5em 1.5em 1.5em',
-          position: 'relative',
-          height: '100%',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)'
+          borderRadius: '0 1em 1em 0',
+          padding: sidebarCollapsed ? '0.625em 0.375em 1.25em 0.375em' : '0.625em 1em 1.25em 1em',
+          position: 'fixed',
+          height: '100vh',
+          left: '0',
+          top: 0,
+          zIndex: 1000,
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease',
+          overflowY: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* Botón hamburguesa */}
           <button
@@ -280,21 +276,26 @@ const PanelDocentes = () => {
           >
             <Menu size={20} />
           </button>
+
           {/* Header del Sidebar - Solo Logo */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '0.5em',
-            paddingBottom: '0.25em',
+            marginBottom: '0.5rem',
+            paddingBottom: '0.25rem',
             borderBottom: `0.0625rem solid ${theme.border}`,
             paddingTop: '0',
             marginTop: sidebarCollapsed ? '3rem' : '0'
           }}>
             {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
+
           {/* Navegación del Sidebar */}
-          <nav style={{ marginBottom: '2em' }}>
+          <nav style={{
+            marginBottom: '2em',
+            flex: 1
+          }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -318,33 +319,31 @@ const PanelDocentes = () => {
                     background: activeTab === tab.id ?
                       'linear-gradient(135deg, #3b82f6, #2563eb)' :
                       'transparent',
-                    color: activeTab === tab.id ? '#ffffff' : theme.textMuted,
-                    fontSize: '0.85rem',
+                    color: activeTab === tab.id ? '#fff' : theme.textMuted,
+                    fontSize: '0.75rem',
                     fontWeight: '500',
+                    letterSpacing: '0.05em',
                     cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'all 0.3s ease',
                     textAlign: 'left',
-                    fontFamily: 'Montserrat, sans-serif',
-                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)' : 'none'
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)' : 'none',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.id) {
-                      e.currentTarget.style.background = darkMode
-                        ? 'rgba(59, 130, 246, 0.1)'
-                        : 'rgba(59, 130, 246, 0.08)';
-                      e.currentTarget.style.color = theme.accent;
-                      e.currentTarget.style.transform = 'translateX(0.25em)';
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.color = theme.textSecondary;
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (activeTab !== tab.id) {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = theme.textMuted;
-                      e.currentTarget.style.transform = 'translateX(0)';
                     }
                   }}
                 >
-                  <IconComponent size={20} style={{ flexShrink: 0 }} />
+                  <IconComponent size={18} style={{ flexShrink: 0 }} />
                   {!sidebarCollapsed && <span>{tab.name}</span>}
                 </button>
               );
@@ -355,9 +354,15 @@ const PanelDocentes = () => {
 
         {/* Contenido Principal */}
         <div style={{
+          marginLeft: sidebarCollapsed ? '4.375rem' : '17.5rem',
           flex: 1,
-          padding: '1.5em',
-          minHeight: '100%'
+          padding: '1.25rem',
+          minHeight: '100vh',
+          transition: 'margin-left 0.3s ease',
+          width: 'auto',
+          maxWidth: '100%',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}>
           {/* Navbar */}
           <div style={{
@@ -395,9 +400,11 @@ const PanelDocentes = () => {
               <div>
                 <h1 style={{
                   fontSize: '1.2rem',
-                  fontWeight: '800',
+                  fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: 0
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   Panel Docente
                 </h1>
@@ -432,7 +439,7 @@ const PanelDocentes = () => {
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
             padding: '2em',
-            minHeight: '100vh',
+            minHeight: '37.5rem',
             boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             <Routes>

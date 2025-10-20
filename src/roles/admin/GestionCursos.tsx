@@ -563,12 +563,12 @@ const GestionCursos = () => {
   };
 
   return (
-    <div className="responsive-padding">
+    <div>
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{ 
+      <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
+        <h2 className="responsive-title" style={{
           color: 'rgba(255,255,255,0.95)', margin: '0 0 0.375rem 0',
-          display: 'flex', alignItems: 'center', gap: isMobile ? '0.375rem' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
         }}>
           <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Cursos
@@ -593,7 +593,7 @@ const GestionCursos = () => {
       )}
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '1rem' }}>
         <div className="responsive-filters">
           <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
@@ -611,7 +611,7 @@ const GestionCursos = () => {
                   border: '0.0625rem solid rgba(255,255,255,0.2)',
                   borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '0.875rem'
+                  fontSize: '0.8rem'
                 }}
               />
             </div>
@@ -647,7 +647,7 @@ const GestionCursos = () => {
                   borderRadius: '0.4em',
                   color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -668,7 +668,7 @@ const GestionCursos = () => {
                   borderRadius: '0.5em',
                   color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
                   flex: isSmallScreen ? 1 : 'initial'
@@ -694,7 +694,7 @@ const GestionCursos = () => {
               borderRadius: '0.625em',
               color: '#fff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-              fontSize: '0.875rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               cursor: tiposCursos.length === 0 ? 'not-allowed' : 'pointer',
               boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
@@ -707,7 +707,7 @@ const GestionCursos = () => {
         </div>
 
         {/* Info de resultados */}
-        <div style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', marginTop: '0.75rem' }}>
           {searchTerm || filterEstado !== 'todos' 
             ? `${filteredCursos.length} de ${cursos.length} cursos` 
             : `Total: ${cursos.length} cursos`}
@@ -718,9 +718,9 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(17.5rem, 90vw), 1fr))', 
-          gap: isMobile ? '0.75em' : '1em',
-          marginBottom: isMobile ? '0.75em' : '1.125em'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: isMobile ? '12px' : '1rem',
+          marginBottom: isMobile ? '12px' : '1.125rem'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -773,8 +773,6 @@ const GestionCursos = () => {
                   </div>
                   <h3 style={{ 
                     color: '#fff', 
-                    fontSize: '0.95rem', 
-                    fontWeight: 700, 
                     margin: '0 0 0.5rem 0'
                   }}>
                     {curso.nombre}
@@ -809,7 +807,7 @@ const GestionCursos = () => {
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Cupos
                     </div>
-                    <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                    <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.75rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                       {curso.estado === 'cancelado' ? 'N/A' : `${curso.cupos_disponibles || 0} / ${curso.capacidad_maxima}`}
                     </div>
                   </div>
@@ -868,7 +866,7 @@ const GestionCursos = () => {
                       border: '1px solid rgba(255,255,255,0.15)',
                       borderRadius: '0.625rem',
                       color: '#fff',
-                      fontSize: '0.85rem',
+                      fontSize: '0.8rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -1002,7 +1000,7 @@ const GestionCursos = () => {
                 textTransform: 'uppercase',
                 width: '20%'
               }}>
-                Nombre
+                NOMBRE
               </th>
               <th style={{ 
                 padding: '10px 0.75rem', 
@@ -1086,11 +1084,11 @@ const GestionCursos = () => {
                   }}>
                     {curso.codigo_curso}
                   </td>
-                  <td style={{ 
+                  <td className="table-nombre-uppercase" style={{ 
                     padding: '0.75rem', 
                     color: '#fff',
                     fontWeight: 600,
-                    fontSize: '0.85rem'
+                    fontSize: '0.8rem'
                   }}>
                     {curso.nombre}
                   </td>
@@ -1098,7 +1096,7 @@ const GestionCursos = () => {
                     padding: '0.75rem', 
                     color: 'rgba(255,255,255,0.8)', 
                     textAlign: 'center',
-                    fontSize: '0.8rem'
+                    fontSize: '0.75rem'
                   }}>
                     {curso.fecha_inicio}
                   </td>
@@ -1106,7 +1104,7 @@ const GestionCursos = () => {
                     padding: '0.75rem', 
                     color: 'rgba(255,255,255,0.8)', 
                     textAlign: 'center',
-                    fontSize: '0.8rem'
+                    fontSize: '0.75rem'
                   }}>
                     {curso.fecha_fin}
                   </td>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus, DollarSign, FileText, CreditCard, Building2 } from 'lucide-react';
+import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus, DollarSign, FileText, CreditCard, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
@@ -425,7 +425,7 @@ const ControlUsuarios = () => {
   };
 
   return (
-    <div className="responsive-padding">
+    <div>
       {/* Header */}
       <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
@@ -449,185 +449,191 @@ const ControlUsuarios = () => {
         </p>
       </div>
 
-      {/* Estadísticas */}
+      {/* Estadísticas - Compactas y horizontales */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-        gap: isMobile ? '0.75rem' : '0.875rem',
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(6, 1fr)',
+        gap: isMobile ? '0.5rem' : '0.625rem',
         marginBottom: isMobile ? '1rem' : '1.125rem'
       }}>
         {/* Total Usuarios */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
-          border: '0.0625rem solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75em',
-          padding: '0.75em',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.12)',
-              borderRadius: '0.375em',
-              padding: '0.35em',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Users size={14} color="#ef4444" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35em', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Total Usuarios</h3>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Users size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.totalUsuarios}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Total</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.totalUsuarios}
+            </div>
+          </div>
         </div>
 
         {/* Activos */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <UserCheck size={14} color="#10b981" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Activos</h3>
+          <div style={{
+            background: 'rgba(16, 185, 129, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <UserCheck size={16} color="#10b981" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.usuariosActivos}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Activos</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.usuariosActivos}
+            </div>
+          </div>
         </div>
 
         {/* Inactivos */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Power size={14} color="#ef4444" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Inactivos</h3>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Power size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.usuariosInactivos}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Inactivos</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.usuariosInactivos}
+            </div>
+          </div>
         </div>
 
         {/* Admins */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Shield size={14} color="#ef4444" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Admins</h3>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Shield size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.totalAdministradores}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Admins</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.totalAdministradores}
+            </div>
+          </div>
         </div>
 
         {/* Docentes */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              background: 'rgba(59, 130, 246, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <UserCheck size={14} color="#3b82f6" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Docentes</h3>
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <UserCheck size={16} color="#3b82f6" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.totalDocentes}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Docentes</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.totalDocentes}
+            </div>
+          </div>
         </div>
 
         {/* Estudiantes */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
           display: 'flex',
-          flexDirection: 'column'
+          alignItems: 'center',
+          gap: '0.625rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              background: 'rgba(34, 197, 94, 0.12)',
-              borderRadius: '0.375rem',
-              padding: '0.35rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <GraduationCap size={14} color="#22c55e" strokeWidth={2} />
-            </div>
-            <h3 style={{ color: 'rgba(50,50,60,1)', fontSize: '0.35rem', fontWeight: '400', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', lineHeight: '1.2' }}>Estudiantes</h3>
+          <div style={{
+            background: 'rgba(34, 197, 94, 0.12)',
+            borderRadius: '0.375rem',
+            padding: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <GraduationCap size={16} color="#22c55e" strokeWidth={2.5} />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: 'clamp(1.5rem, 3vw, 1.75rem)', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
-            {loading ? '...' : stats.totalEstudiantes}
-          </p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Estudiantes</div>
+            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              {loading ? '...' : stats.totalEstudiantes}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -763,61 +769,61 @@ const ControlUsuarios = () => {
 
             <div className="responsive-table-container" style={{
               overflowX: 'auto',
-              borderRadius: '0.75em',
-              border: '0.0625rem solid rgba(255, 255, 255, 0.1)',
-              backgroundColor: 'transparent',
-              boxShadow: '0 0.0625rem 0.1875em rgba(0,0,0,0.3)'
+              borderRadius: isMobile ? '12px' : '1rem',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              marginBottom: isMobile ? '12px' : '1.5rem'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{
-                  borderBottom: '0.125rem solid rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.03)'
+                  borderBottom: '1px solid rgba(248, 113, 113, 0.3)',
+                  background: 'rgba(248, 113, 113, 0.15)'
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Email</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '1rem', fontWeight: '600', color: '#a3a3a3', fontSize: '0.85rem' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Email</th>
+                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usuarios.map((usuario) => (
                     <tr key={usuario.id_usuario} style={{
-                      borderBottom: '0.0625rem solid rgba(255, 255, 255, 0.05)',
-                      transition: 'background-color 0.2s'
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      transition: 'all 0.2s ease'
                     }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#e5e5e5' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ fontWeight: '500', color: '#ffffff', marginBottom: '0.25rem' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ fontWeight: '600', color: '#fff', marginBottom: '0.1875rem', fontSize: '0.8rem' }}>
                           {usuario.nombre} {usuario.apellido}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#a3a3a3' }}>{usuario.cedula}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)' }}>{usuario.cedula}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
                           {usuario.nombre_rol}
                         </span>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{usuario.email || '-'}</div>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>{usuario.email || '-'}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
                           {usuario.estado}
                         </span>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#e5e5e5' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                      <td style={{ padding: '0.75rem' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
@@ -909,7 +915,7 @@ const ControlUsuarios = () => {
                 alignItems: isMobile ? 'stretch' : 'center',
                 gap: isMobile ? '0.75rem' : '0',
                 padding: isMobile ? '16px' : '20px 1.5rem',
-                marginTop: isMobile ? '16px' : '1.5rem',
+                marginTop: isMobile ? '16px' : '90px',
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
                 borderRadius: '1rem',
@@ -947,7 +953,8 @@ const ControlUsuarios = () => {
                       flex: isMobile ? '1' : 'initial'
                     }}
                   >
-                    Anterior
+                    <ChevronLeft size={isMobile ? 14 : 16} />
+                    {!isMobile && 'Anterior'}
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
                     <button
@@ -989,7 +996,8 @@ const ControlUsuarios = () => {
                       flex: isMobile ? '1' : 'initial'
                     }}
                   >
-                    Siguiente
+                    {!isMobile && 'Siguiente'}
+                    <ChevronRight size={isMobile ? 14 : 16} />
                   </button>
                 </div>
               </div>

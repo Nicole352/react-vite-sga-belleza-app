@@ -398,7 +398,7 @@ const GestionMatricula = () => {
   }, [filterEstado, filterTipo]);
 
   return (
-    <div className="responsive-padding">
+    <div>
       <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
           color: 'rgba(255,255,255,0.95)',
@@ -434,8 +434,8 @@ const GestionMatricula = () => {
               type="text" placeholder="Buscar por nombre, email o cédula..."
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%', padding: '0.625em 0.625rem 0.625rem 2.375rem',
-                background: 'rgba(255,255,255,0.1)', border: '0.0625rem solid rgba(255,255,255,0.2)',
+                width: '100%', padding: '10px 0.625rem 0.625rem 2.375rem',
+                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem', color: '#fff', fontSize: '0.8rem'
               }}
             />
@@ -466,7 +466,7 @@ const GestionMatricula = () => {
                 ]}
               />
             </div>
-            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.875rem', fontSize: '0.8rem', borderRadius: '0.5em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto' }}>Refrescar</button>
+            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto', fontWeight: '600' }}>Refrescar</button>
           </div>
         </div>
         {/* Counters + Pagination */}
@@ -474,20 +474,20 @@ const GestionMatricula = () => {
           {/* Counters */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <span style={{
-              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(156, 163, 175, 0.15)', border: '0.0625rem solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
+              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
             }}>Pendiente: {counters.pendiente}</span>
             <span style={{
-              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(16, 185, 129, 0.15)', border: '0.0625rem solid rgba(16, 185, 129, 0.3)', color: '#10b981'
+              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
             }}>Aprobado: {counters.aprobado}</span>
             <span style={{
-              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(239, 68, 68, 0.15)', border: '0.0625rem solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
+              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
             }}>Rechazado: {counters.rechazado}</span>
             <span style={{
-              padding: '0.3125em 0.5rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(251, 191, 36, 0.15)', border: '0.0625rem solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
+              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
+              background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
             }}>Observaciones: {counters.observaciones}</span>
           </div>
           {/* Pagination */}
@@ -509,7 +509,7 @@ const GestionMatricula = () => {
             </div>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: '0.4375em 0.625rem', fontSize: '0.75rem', borderRadius: '0.5em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer'
+              padding: '7px 0.625rem', fontSize: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer', fontWeight: '600'
             }}>Anterior</button>
             <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
             <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
@@ -520,11 +520,11 @@ const GestionMatricula = () => {
       </div>
 
       {/* Lista de Solicitudes */}
-      <div style={{ display: 'grid', gap: isMobile ? '0.75em' : '0.875rem' }}>
-        {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando...</div>)}
-        {error && (<div style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</div>)}
+      <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem' }}>
+        {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Cargando...</div>)}
+        {error && (<div style={{ color: '#ef4444', fontSize: '0.8rem' }}>{error}</div>)}
         {!loading && solicitudesFiltradas.length === 0 && (
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay solicitudes</div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>No hay solicitudes</div>
         )}
         {paginatedSolicitudes.map((sol) => {
           // Formatear fecha de solicitud
@@ -542,81 +542,127 @@ const GestionMatricula = () => {
 
           return (
             <div key={sol.id_solicitud} style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-              backdropFilter: 'blur(1.25rem)', border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
-              borderRadius: isMobile ? '0.75em' : '1rem', padding: isMobile ? '0.75em' : '1rem', boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
+              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+              backdropFilter: 'blur(1.25rem)', 
+              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+              borderRadius: '0.75rem', 
+              padding: '0.875rem', 
+              boxShadow: '0 0.25rem 0.75rem rgba(0, 0, 0, 0.2)',
+              transition: 'all 0.3s ease'
             }}>
               {/* Información Principal */}
               <div style={{ marginBottom: '0.875rem' }}>
-                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.75rem 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
+                  <span style={{ 
+                    color: 'rgba(255,255,255,0.6)', 
+                    fontSize: '0.7rem', 
+                    fontFamily: 'monospace',
+                    background: 'rgba(255,255,255,0.05)',
+                    padding: '3px 0.375rem',
+                    borderRadius: '0.3125rem'
+                  }}>
+                    {sol.codigo_solicitud}
+                  </span>
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.1875rem',
+                    padding: '3px 0.5rem',
+                    borderRadius: 6,
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
+                      sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
+                        sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                          'rgba(156, 163, 175, 0.15)',
+                    border: sol.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                      sol.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                        sol.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                          '1px solid rgba(156, 163, 175, 0.3)',
+                    color: sol.estado === 'aprobado' ? '#10b981' :
+                      sol.estado === 'rechazado' ? '#ef4444' :
+                        sol.estado === 'observaciones' ? '#fbbf24' :
+                          '#9ca3af'
+                  }}>
+                    {sol.estado}
+                  </span>
+                </div>
+                <h3 style={{ 
+                  color: '#fff', 
+                  margin: '0 0 0.5rem 0'
+                }}>
                   {sol.nombre_solicitante} {sol.apellido_solicitante}
                 </h3>
+              </div>
+
+              <div style={{ 
+                paddingTop: '0.625rem',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                marginBottom: '0.875rem'
+              }}>
 
                 {/* Primera fila - Información básica */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(11.25rem, 90vw), 1fr))',
-                  gap: isMobile ? '0.625em' : '0.75rem',
-                  marginBottom: '0.625rem'
+                  display: 'flex',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem',
+                  flexWrap: 'wrap'
                 }}>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Identificación</div>
-                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.identificacion_solicitante || '-'}</div>
+                  <div style={{ flex: '1 1 200px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Email</div>
-                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{sol.email_solicitante}</div>
+                  <div style={{ flex: '1 1 200px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Email</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{sol.email_solicitante}</div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Fecha de Solicitud</div>
-                    <div style={{ color: '#fff', fontSize: '0.8rem' }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                  <div style={{ flex: '1 1 150px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Fecha de Solicitud</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{formatearFecha(sol.fecha_solicitud)}</div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
-                    <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Tipo de Curso</div>
-                      <div style={{ color: '#fff', fontSize: '0.8rem' }}>{(sol as any).tipo_curso_nombre}</div>
+                    <div style={{ flex: '1 1 150px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Tipo de Curso</div>
+                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{(sol as any).tipo_curso_nombre}</div>
                     </div>
                   )}
                 </div>
 
-                {/* Segunda fila - Número, Comprobante y Estado separados */}
+                {/* Segunda fila - Número y Comprobante */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: isMobile
-                    ? '1fr'
-                    : (sol.metodo_pago === 'efectivo' ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)'),
-                  gap: isMobile ? '0.5em' : '0.625rem',
+                  display: 'flex',
+                  gap: '0.625rem',
+                  flexWrap: 'wrap',
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante - Campo separado */}
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', marginBottom: '0.1875rem' }}>Número Comprobante</div>
+                  <div style={{ flex: '1 1 140px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Número Comprobante</div>
                     {sol.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(251, 191, 36, 0.1)',
-                        border: '0.0625rem solid rgba(251, 191, 36, 0.3)',
+                        border: '1px solid rgba(251, 191, 36, 0.3)',
                         color: '#fbbf24',
-                        padding: '0.3125em 0.375rem',
+                        padding: '4px 0.5rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         fontWeight: '600',
                         fontFamily: 'monospace',
-                        textAlign: 'center',
-                        width: '100%'
+                        textAlign: 'center'
                       }}>
                         {sol.numero_comprobante}
                       </div>
                     ) : (
                       <div style={{
                         background: 'rgba(107, 114, 128, 0.1)',
-                        border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
+                        border: '1px solid rgba(107, 114, 128, 0.3)',
                         color: 'rgba(255, 255, 255, 0.5)',
-                        padding: '0.3125em 0.375rem',
+                        padding: '4px 0.5rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         textAlign: 'center',
-                        fontStyle: 'italic',
-                        width: '100%'
+                        fontStyle: 'italic'
                       }}>
                         {sol.metodo_pago === 'transferencia' ? 'Sin número' : 'N/A'}
                       </div>
@@ -625,33 +671,31 @@ const GestionMatricula = () => {
 
                   {/* Recibido por - Solo para efectivo */}
                   {sol.metodo_pago === 'efectivo' && (
-                    <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Recibido por</div>
+                    <div style={{ flex: '1 1 140px' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Recibido por</div>
                       {(sol as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
-                          border: '0.0625rem solid rgba(180, 83, 9, 0.3)',
+                          border: '1px solid rgba(180, 83, 9, 0.3)',
                           color: '#b45309',
-                          padding: '0.375em 0.5rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.8rem',
+                          padding: '4px 0.5rem',
+                          borderRadius: '0.3125rem',
+                          fontSize: '0.7rem',
                           fontWeight: '600',
-                          textAlign: 'center',
-                          width: '100%'
+                          textAlign: 'center'
                         }}>
                           {(sol as any).recibido_por}
                         </div>
                       ) : (
                         <div style={{
                           background: 'rgba(107, 114, 128, 0.1)',
-                          border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
+                          border: '1px solid rgba(107, 114, 128, 0.3)',
                           color: 'rgba(255, 255, 255, 0.5)',
-                          padding: '0.375em 0.5rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.8rem',
+                          padding: '4px 0.5rem',
+                          borderRadius: '0.3125rem',
+                          fontSize: '0.7rem',
                           textAlign: 'center',
-                          fontStyle: 'italic',
-                          width: '100%'
+                          fontStyle: 'italic'
                         }}>
                           Sin registro
                         </div>
@@ -660,60 +704,35 @@ const GestionMatricula = () => {
                   )}
 
                   {/* Comprobante - Solo botón */}
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Comprobante</div>
+                  <div style={{ flex: '1 1 auto' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Comprobante</div>
                     <button
                       onClick={() => openComprobanteModal(sol.id_solicitud, sol.numero_comprobante)}
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
-                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
                         color: '#10b981',
-                        padding: '0.375em 0.5rem',
+                        padding: '6px 0.625rem',
                         borderRadius: '0.375rem',
                         cursor: 'pointer',
-                        fontSize: '0.8rem',
-                        fontWeight: '500',
+                        fontSize: '0.7rem',
+                        fontWeight: '600',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.25rem',
                         whiteSpace: 'nowrap',
-                        width: '100%',
-                        justifyContent: 'center'
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
                       }}
                     >
-                      <Download size={14} />
+                      <Download size={12} />
                       Ver Comprobante
                     </button>
-                  </div>
-
-                  {/* Estado - Campo separado */}
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Estado</div>
-                    <div style={{
-                      display: 'flex',
-                      padding: '0.375em 0.5rem',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      textTransform: 'capitalize',
-                      width: '100%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                        sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                          sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
-                            'rgba(156, 163, 175, 0.15)',
-                      border: sol.estado === 'aprobado' ? '0.0625rem solid rgba(16, 185, 129, 0.3)' :
-                        sol.estado === 'rechazado' ? '0.0625rem solid rgba(239, 68, 68, 0.3)' :
-                          sol.estado === 'observaciones' ? '0.0625rem solid rgba(251, 191, 36, 0.3)' :
-                            '0.0625rem solid rgba(156, 163, 175, 0.3)',
-                      color: sol.estado === 'aprobado' ? '#10b981' :
-                        sol.estado === 'rechazado' ? '#ef4444' :
-                          sol.estado === 'observaciones' ? '#fbbf24' :
-                            '#9ca3af'
-                    }}>
-                      {sol.estado}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -721,31 +740,36 @@ const GestionMatricula = () => {
               {/* Botones de Acción - Parte Inferior */}
               <div style={{
                 display: 'flex',
-                flexDirection: isSmallScreen ? 'column' : 'row',
-                gap: isMobile ? '0.5em' : '0.75rem',
-                justifyContent: isSmallScreen ? 'stretch' : 'flex-end',
-                borderTop: '0.0625rem solid rgba(255,255,255,0.1)',
-                paddingTop: isMobile ? '0.75em' : '1rem'
+                gap: '0.5rem',
+                justifyContent: 'flex-end',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                paddingTop: '0.75rem',
+                marginTop: '0.75rem'
               }}>
                 <button
                   onClick={() => openModal(sol.id_solicitud)}
                   style={{
-                    background: 'rgba(59, 130, 246, 0.15)',
-                    border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
                     color: '#3b82f6',
-                    padding: isMobile ? '0.625em 0.875rem' : '0.625em 1rem',
-                    borderRadius: isMobile ? '0.5em' : '0.625rem',
+                    padding: '6px 0.75rem',
+                    borderRadius: '0.5rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    fontSize: isMobile ? '0.85rem' : '0.9rem',
-                    fontWeight: '500',
-                    width: isSmallScreen ? '100%' : 'auto'
+                    gap: '0.375rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
                   }}
                 >
-                  <Eye size={16} />
+                  <Eye size={14} />
                   Ver
                 </button>
                 {sol.estado === 'pendiente' && (
@@ -811,13 +835,12 @@ const GestionMatricula = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '0.75em' : '0',
-          padding: isMobile ? '1em' : '1.25em 1.5rem',
-          marginTop: isMobile ? '1em' : '1.5rem',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '16px' : '20px 1.5rem',
+          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(1.25rem)',
-          border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
-          borderRadius: isMobile ? '0.75em' : '1.25rem',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '1rem',
         }}>
           <div style={{
             color: 'rgba(255,255,255,0.7)',
@@ -839,10 +862,10 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '0.25em' : '0.375rem',
-                padding: isMobile ? '0.5em 0.75rem' : '0.5em 1rem',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
@@ -882,10 +905,10 @@ const GestionMatricula = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '0.25em' : '0.375rem',
-                padding: isMobile ? '0.5em 0.75rem' : '0.5em 1rem',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',

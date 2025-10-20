@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Settings, UserCheck, Key, Save, Plus, Edit3, Lock, Server, Database, 
   Mail, Activity, CheckCircle
@@ -7,83 +7,68 @@ import {
 const ConfiguracionPanel: React.FC = () => {
   return (
     <div style={{
-      padding: '32px',
-      background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
       minHeight: '100vh',
-      fontFamily: 'Montserrat, sans-serif'
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+      color: '#fff',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
     }}>
-      {/* Header de Configuración */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-          }}>
-            <Settings size={40} color="#fff" />
-          </div>
-          <div>
-            <h1 style={{ 
-              fontSize: '2.2rem', 
-              fontWeight: '800', 
-              color: 'var(--superadmin-text-primary, var(--admin-text-primary, #1e293b))',
-              margin: 0
-            }}>
-              Configuración del Sistema
-            </h1>
-            <p style={{ 
-              color: 'var(--superadmin-text-secondary, var(--admin-text-secondary, rgba(30,41,59,0.8)))', 
-              marginTop: '8px', 
-              margin: 0, 
-              fontSize: '1.1rem' 
-            }}>
-              Configuraciones generales y perfil del Super Administrador
-            </p>
-          </div>
-        </div>
+      {/* Header */}
+      <div style={{ marginBottom: '1em' }}>
+        <h2 style={{
+          color: 'rgba(255,255,255,0.95)',
+          margin: '0 0 0.375rem 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.625rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+          fontSize: '1.625rem',
+          fontWeight: '700'
+        }}>
+          <Settings size={26} color="#ef4444" />
+          Configuración del Sistema
+        </h2>
+        <p style={{
+          color: 'rgba(255,255,255,0.7)',
+          margin: 0,
+          fontSize: '0.85rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+        }}>
+          Configuraciones generales y perfil del Super Administrador
+        </p>
       </div>
 
       {/* Grid de Configuraciones */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(25rem, 100%), 1fr))', gap: '1em' }}>
         
         {/* Perfil del Super Administrador */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '20px',
-          padding: '32px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(255,255,255,0.1)',
+          borderRadius: '0.875em',
+          padding: '1.5em',
+          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '1.5em' }}>
             <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              borderRadius: '12px',
+              width: '2.5em',
+              height: '2.5em',
+              background: 'rgba(59, 130, 246, 0.15)',
+              border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '0.625em',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
+              justifyContent: 'center'
             }}>
-              <UserCheck size={24} color="#fff" />
+              <UserCheck size={20} color="#3b82f6" />
             </div>
-            <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>
+            <h2 style={{ 
+              color: 'rgba(255,255,255,0.95)', 
+              fontSize: '1.125rem', 
+              fontWeight: '700', 
+              margin: 0,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+            }}>
               Perfil del Administrador
             </h2>
           </div>
@@ -122,17 +107,26 @@ const ConfiguracionPanel: React.FC = () => {
               </div>
             </div>
             <button style={{
-              background: 'rgba(59, 130, 246, 0.2)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '8px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '0.5em',
               color: '#3b82f6',
-              padding: '8px 16px',
-              fontSize: '0.85rem',
+              padding: '0.5em 1em',
+              fontSize: '0.8rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              margin: '0 auto'
+              gap: '0.375em',
+              margin: '0 auto',
+              fontWeight: '600',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
             }}>
               <Plus size={14} />
               Cambiar Foto
@@ -140,9 +134,16 @@ const ConfiguracionPanel: React.FC = () => {
           </div>
 
           {/* Información del Perfil */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
             <div>
-              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+              <label style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '0.75rem', 
+                fontWeight: '500', 
+                marginBottom: '0.375em', 
+                display: 'block',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
                 Nombre Completo
               </label>
               <input
@@ -150,19 +151,27 @@ const ConfiguracionPanel: React.FC = () => {
                 defaultValue="Super Administrador"
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '0.625em 0.75em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '1rem',
-                  transition: 'all 0.2s'
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
                 }}
               />
             </div>
             
             <div>
-              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+              <label style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '0.75rem', 
+                fontWeight: '500', 
+                marginBottom: '0.375em', 
+                display: 'block',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
                 Email
               </label>
               <input
@@ -170,19 +179,27 @@ const ConfiguracionPanel: React.FC = () => {
                 defaultValue="superadmin@instituto.edu"
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '0.625em 0.75em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '1rem',
-                  transition: 'all 0.2s'
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
                 }}
               />
             </div>
 
             <div>
-              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+              <label style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '0.75rem', 
+                fontWeight: '500', 
+                marginBottom: '0.375em', 
+                display: 'block',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
                 Teléfono
               </label>
               <input
@@ -190,33 +207,41 @@ const ConfiguracionPanel: React.FC = () => {
                 defaultValue="+593 99 123 4567"
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '0.625em 0.75em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '1rem',
-                  transition: 'all 0.2s'
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
                 }}
               />
             </div>
 
             <button style={{
-              padding: '14px 28px',
+              padding: '0.75em 1.5em',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '0.625em',
               color: '#fff',
               cursor: 'pointer',
-              fontSize: '1rem',
+              fontSize: '0.875rem',
               fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.2s',
-              marginTop: '16px'
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              boxShadow: '0 0.25rem 0.75em rgba(59, 130, 246, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(59, 130, 246, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(59, 130, 246, 0.3)';
             }}>
               <Save size={16} />
               Guardar Cambios
@@ -226,35 +251,48 @@ const ConfiguracionPanel: React.FC = () => {
 
         {/* Seguridad y Contraseña */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '20px',
-          padding: '32px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(255,255,255,0.1)',
+          borderRadius: '0.875em',
+          padding: '1.5em',
+          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '1.5em' }}>
             <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '12px',
+              width: '2.5em',
+              height: '2.5em',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '0.625em',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
+              justifyContent: 'center'
             }}>
-              <Key size={24} color="#fff" />
+              <Key size={20} color="#ef4444" />
             </div>
-            <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: '700', margin: 0 }}>
+            <h2 style={{ 
+              color: 'rgba(255,255,255,0.95)', 
+              fontSize: '1.125rem', 
+              fontWeight: '700', 
+              margin: 0,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+            }}>
               Seguridad
             </h2>
           </div>
 
           {/* Cambiar Contraseña */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1em', marginBottom: '1.5em' }}>
             <div>
-              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+              <label style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '0.75rem', 
+                fontWeight: '500', 
+                marginBottom: '0.375em', 
+                display: 'block',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
                 Contraseña Actual
               </label>
               <input
@@ -262,12 +300,13 @@ const ConfiguracionPanel: React.FC = () => {
                 placeholder="Ingresa tu contraseña actual"
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '0.625em 0.75em',
                   background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
                   color: '#fff',
-                  fontSize: '1rem',
+                  fontSize: '0.875rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                   transition: 'all 0.2s'
                 }}
               />

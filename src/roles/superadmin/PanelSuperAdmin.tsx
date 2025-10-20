@@ -4,13 +4,13 @@ import {
   FileText,
   Settings,
   Users,
-  Sun,
-  Moon,
-  Shield
+  Shield,
+  Menu
 } from 'lucide-react';
-import LogoutButton from '../../components/LogoutButton';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
+import ProfileMenu from '../../components/ProfileMenu';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
 
 // Importar los nuevos componentes
 import AdministradoresPanel from './AdministradoresPanel';
@@ -21,20 +21,44 @@ import HistorialAuditoria from './HistorialAuditoria';
 
 const PanelSuperAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    // Cargar preferencia guardada o usar modo oscuro por defecto
     const saved = localStorage.getItem('superadmin-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [userData, setUserData] = useState<any>(null);
+  const { isMobile, isSmallScreen } = useBreakpoints();
 
-  // Guardar preferencia de modo cuando cambie
   useEffect(() => {
     localStorage.setItem('superadmin-dark-mode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Función para alternar modo
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
+      const response = await fetch('http://localhost:3000/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Error obteniendo datos del usuario:', error);
+    }
+  };
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   // Funciones para obtener colores según el tema (igual que Admin)
@@ -126,302 +150,234 @@ const PanelSuperAdmin: React.FC = () => {
           minHeight: '100vh',
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
-          display: 'flex'
+          display: 'flex',
+          fontSize: '0.8rem'
         }}
       >
         {/* Sidebar */}
         <div style={{
-          width: '280px',
+          width: sidebarCollapsed ? '4.5rem' : '16rem',
           background: theme.sidebarBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.border}`,
-          borderRadius: '0 20px 20px 0',
-          padding: '24px',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '0 1em 1em 0',
+          padding: sidebarCollapsed ? '0.625em 0.375em 1.25em 0.375em' : '0.625em 1em 1.25em 1em',
           position: 'fixed',
           height: '100vh',
-          left: 0,
+          left: '0',
           top: 0,
           zIndex: 1000,
-          boxShadow: darkMode ? '4px 0 20px rgba(0, 0, 0, 0.3)' : '4px 0 20px rgba(0, 0, 0, 0.1)'
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease',
+          overflowY: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-        {/* Header del Sidebar - Logo y Texto */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: `1px solid ${theme.border}`,
-          paddingTop: '8px'
-        }}>
-          <SchoolLogo size={120} darkMode={darkMode} />
-          <div style={{ marginTop: '8px', textAlign: 'center' }}>
-            <h1 style={{ 
-              color: theme.textPrimary, 
-              fontSize: '1.2rem', 
-              fontWeight: '600', 
-              margin: 0,
-              lineHeight: 1.2,
-              letterSpacing: '1px',
-              textTransform: 'uppercase'
-            }}>
-              Panel Super
-            </h1>
-            <p style={{ 
-              color: theme.textMuted, 
-              fontSize: '0.9rem', 
-              margin: 0,
-              marginTop: '2px',
-              fontWeight: '400',
-              letterSpacing: '0.3px'
-            }}>
-              Administrador
-            </p>
+          {/* Botón hamburguesa */}
+          <button
+            onClick={toggleSidebar}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: sidebarCollapsed ? '50%' : '1rem',
+              transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
+              width: '2.25rem',
+              height: '2.25rem',
+              borderRadius: '0.5rem',
+              border: `0.0625rem solid ${theme.border}`,
+              background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+              color: theme.accent,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
+            }}
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Header del Sidebar - Solo Logo */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '0.5rem',
+            paddingBottom: '0.25rem',
+            borderBottom: `0.0625rem solid ${theme.border}`,
+            paddingTop: '0',
+            marginTop: !sidebarCollapsed ? '0' : '3rem'
+          }}>
+            {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
-        </div>
         
-        {/* Navegación del Sidebar */}
-        <nav style={{ marginBottom: '32px' }}>
-          {tabs.map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '16px',
-                  marginBottom: '8px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: activeTab === tab.id ? 
-                    'linear-gradient(135deg, #ef4444, #dc2626)' : 
-                    'transparent',
-                  color: activeTab === tab.id ? '#fff' : theme.textMuted,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'left',
-                  boxShadow: activeTab === tab.id ? '0 8px 20px rgba(239, 68, 68, 0.3)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== tab.id) {
-                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                    e.currentTarget.style.color = theme.textSecondary;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== tab.id) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = theme.textMuted;
-                  }
-                }}
-              >
-                <IconComponent size={20} />
-                {tab.name}
-              </button>
+          {/* Navegación del Sidebar */}
+          <nav style={{
+            marginBottom: '2em',
+            flex: 1
+          }}>
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  title={sidebarCollapsed ? tab.name : ''}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                    gap: '0.625em',
+                    padding: sidebarCollapsed ? '0.75em 0.5em' : '0.75em 1em',
+                    marginBottom: '0.375em',
+                    borderRadius: '0.75em',
+                    border: 'none',
+                    background: activeTab === tab.id ?
+                      'linear-gradient(135deg, #ef4444, #dc2626)' :
+                      'transparent',
+                    color: activeTab === tab.id ? '#fff' : theme.textMuted,
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.05em',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'left',
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)' : 'none',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.color = theme.textSecondary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = theme.textMuted;
+                    }
+                  }}
+                >
+                  <IconComponent size={18} style={{ flexShrink: 0 }} />
+                  {!sidebarCollapsed && <span>{tab.name}</span>}
+                </button>
             );
           })}
         </nav>
 
-        {/* Botón de Cerrar Sesión */}
-        <div style={{ 
-          position: 'absolute', 
-          bottom: '24px', 
-          left: '24px', 
-          right: '24px' 
-        }}>
-          <div style={{
-            background: darkMode 
-              ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))' 
-              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
-            border: `1px solid ${theme.border}`,
-            borderRadius: '12px',
-            padding: '12px'
-          }}>
-            <LogoutButton darkMode={darkMode} />
-          </div>
         </div>
-      </div>
 
-      {/* Contenido Principal */}
-      <div style={{
-        marginLeft: '280px',
-        flex: 1,
-        padding: '24px',
-        minHeight: '100vh'
-      }}>
-        {/* Navbar */}
+        {/* Contenido Principal */}
         <div style={{
-          background: theme.navbarBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          padding: '20px 32px',
-          marginBottom: '24px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          marginLeft: sidebarCollapsed ? '4.375rem' : '17.5rem',
+          flex: 1,
+          padding: '1.25rem',
+          minHeight: '100vh',
+          transition: 'margin-left 0.3s ease',
+          width: 'auto',
+          maxWidth: '100%',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}>
-          {/* Información del módulo activo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
-            }}>
-              {(() => {
-                const activeTabData = tabs.find(t => t.id === activeTab);
-                const IconComponent = activeTabData?.icon || BarChart3;
-                return <IconComponent size={28} color="#fff" />;
-              })()}
-            </div>
-            <div>
-              <h1 style={{ 
-                fontSize: '1.8rem', 
-                fontWeight: '800', 
-                color: theme.textPrimary,
-                margin: 0
-              }}>
-                {tabs.find(t => t.id === activeTab)?.name || 'Dashboard'}
-              </h1>
-              <p style={{ 
-                color: theme.textSecondary, 
-                margin: 0, 
-                fontSize: '1rem',
-                marginTop: '4px'
-              }}>
-                {activeTab === 'dashboard' && 'Resumen general del sistema y estadísticas'}
-                {activeTab === 'administradores' && 'Gestión de usuarios administradores'}
-                {activeTab === 'auditoria' && 'Registro completo de operaciones del sistema'}
-                {activeTab === 'logs' && 'Registro de actividades del sistema'}
-                {activeTab === 'config' && 'Configuración general del sistema'}
-              </p>
-            </div>
-          </div>
-
-          {/* Iconos del lado derecho */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* Icono de Perfil de Usuario */}
-            <div style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-            }}>
-              <Users size={22} color="#fff" />
-            </div>
-
-            {/* Toggle Switch de modo claro/oscuro */}
-            <div
-              onClick={toggleDarkMode}
-              style={{
-                position: 'relative',
-                width: '52px',
-                height: '26px',
-                background: darkMode 
-                  ? 'rgba(55, 65, 81, 0.8)' 
-                  : 'rgba(229, 231, 235, 0.8)',
-              borderRadius: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
-              boxShadow: darkMode 
-                ? 'inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1)' 
-                : 'inset 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.05)',
-              backdropFilter: 'blur(8px)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(55, 65, 81, 0.9)' 
-                : 'rgba(229, 231, 235, 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(55, 65, 81, 0.8)' 
-                : 'rgba(229, 231, 235, 0.8)';
-            }}
-          >
-            {/* Círculo deslizante más pequeño */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '2px',
-                left: darkMode ? '26px' : '2px',
-                width: '22px',
-                height: '22px',
-                background: darkMode 
-                  ? 'linear-gradient(135deg, #374151, #4b5563)' 
-                  : 'linear-gradient(135deg, #ffffff, #f9fafb)',
+          {/* Navbar */}
+          <div style={{
+            background: theme.navbarBg,
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: '1.25rem',
+            padding: '1em 1.5em',
+            marginBottom: '1rem',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            {/* Información del módulo activo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+              <div style={{
+                width: '3rem',
+                height: '3rem',
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '50%',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: darkMode 
-                  ? '0 1px 3px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1)' 
-                  : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.9)',
-                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'}`
-              }}
-            >
-              {darkMode ? (
-                <Moon size={12} color="#d1d5db" />
-              ) : (
-                <Sun size={12} color="#f59e0b" />
-              )}
+                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)'
+              }}>
+                {(() => {
+                  const activeTabData = tabs.find(t => t.id === activeTab);
+                  const IconComponent = activeTabData?.icon || BarChart3;
+                  return <IconComponent size={22} color="#fff" />;
+                })()}
+              </div>
+              <div>
+                <h1 style={{
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  color: theme.textPrimary,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: 0
+                }}>
+                  Panel Super Admin
+                </h1>
+                <p style={{
+                  color: theme.textSecondary,
+                  margin: 0,
+                  fontSize: '0.8rem',
+                  marginTop: '0.125em'
+                }}>
+                  Sistema de gestión académica
+                </p>
+              </div>
             </div>
+
+            {/* Iconos del lado derecho */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+              <ProfileMenu
+                darkMode={darkMode}
+                toggleDarkMode={toggleDarkMode}
+                theme={theme}
+                userData={userData}
+                onChangePassword={() => {}}
+                avatarColor="linear-gradient(135deg, #ef4444, #dc2626)"
+            />
           </div>
-        </div>
         </div>
 
         {/* Contenido de la sección activa */}
         <div style={{
           background: theme.contentBg,
-          backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.border}`,
-          borderRadius: '20px',
-          minHeight: '600px',
-          boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)'
+          backdropFilter: 'blur(1.25rem)',
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '1.25rem',
+          padding: '2em',
+          minHeight: '37.5rem',
+          boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
         }}>
-          {activeTab === 'dashboard' && (
-            <AdminThemeWrapper darkMode={darkMode}>
-              <PanelDashboardSuperAdmin />
-            </AdminThemeWrapper>
-          )}
-          {activeTab === 'administradores' && <AdminThemeWrapper darkMode={darkMode}><AdministradoresPanel /></AdminThemeWrapper>}
-          {activeTab === 'auditoria' && <AdminThemeWrapper darkMode={darkMode}><HistorialAuditoria /></AdminThemeWrapper>}
-          {activeTab === 'logs' && <AdminThemeWrapper darkMode={darkMode}><LogsPanel /></AdminThemeWrapper>}
-          {activeTab === 'config' && <AdminThemeWrapper darkMode={darkMode}><ConfiguracionPanel /></AdminThemeWrapper>}
+          <AdminThemeWrapper darkMode={darkMode}>
+            {activeTab === 'dashboard' && <PanelDashboardSuperAdmin />}
+            {activeTab === 'administradores' && <AdministradoresPanel />}
+            {activeTab === 'auditoria' && <HistorialAuditoria />}
+            {activeTab === 'logs' && <LogsPanel />}
+            {activeTab === 'config' && <ConfiguracionPanel />}
+          </AdminThemeWrapper>
         </div>
       </div>
-      </div>
-    </>
+    </div>
+  </>
   );
 };
 

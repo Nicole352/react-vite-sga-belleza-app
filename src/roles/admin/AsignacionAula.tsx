@@ -276,7 +276,7 @@ const AsignacionAula: React.FC = () => {
   };
 
   return (
-    <div className="responsive-padding" style={{
+    <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       color: '#fff'
@@ -305,7 +305,7 @@ const AsignacionAula: React.FC = () => {
       </div>
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '1em' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
         <div style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -505,7 +505,7 @@ const AsignacionAula: React.FC = () => {
                       <MapPin size={isMobile ? 14 : 16} color="#fff" />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', fontSize: '0.9em', fontWeight: '700', margin: 0 }}>
+                      <h3 style={{ color: '#fff', margin: 0 }}>
                         {asignacion.aula_nombre}
                       </h3>
                       <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65em' }}>
@@ -775,14 +775,13 @@ const AsignacionAula: React.FC = () => {
                             <MapPin size={14} color="#f87171" />
                           </div>
                           <div>
-                            <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.85rem' }}>{asignacion.aula_nombre}</div>
+                            <div className="table-nombre-uppercase" style={{ color: '#fff', fontWeight: '600', fontSize: '0.85rem' }}>{asignacion.aula_nombre}</div>
                             <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>{asignacion.codigo_aula}</div>
                           </div>
                         </div>
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.8rem' }}>{asignacion.curso_nombre}</div>
-                        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>{asignacion.tipo_curso_nombre}</div>
                       </td>
                       <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem' }}>
                         {asignacion.docente_nombres} {asignacion.docente_apellidos}
@@ -896,11 +895,10 @@ const AsignacionAula: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '1rem' : '1.25rem 1.5rem',
-          marginTop: isMobile ? '1rem' : '5.625rem',
-          marginBottom: '1.5rem',
+          padding: isMobile ? '16px' : '20px 1.5rem',
+          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',
         }}>
           <div style={{
@@ -923,10 +921,10 @@ const AsignacionAula: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '0.25rem' : '0.375rem',
-                padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
@@ -944,16 +942,16 @@ const AsignacionAula: React.FC = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '0.5rem 0.625rem' : '0.5rem 0.875rem',
-                  background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
-                  border: page === pageNum ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid rgba(255,255,255,0.15)',
+                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
+                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '0.625rem',
                   color: '#fff',
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '2.25rem' : '2.5rem',
+                  minWidth: isMobile ? '36px' : '2.5rem',
                 }}
               >
                 {pageNum}
@@ -966,10 +964,10 @@ const AsignacionAula: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '0.25rem' : '0.375rem',
-                padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
+                gap: isMobile ? '4px' : '0.375rem',
+                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
                 background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '0.625rem',
                 color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
                 fontSize: isMobile ? '0.8rem' : '0.9rem',

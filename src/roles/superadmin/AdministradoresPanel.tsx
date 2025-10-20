@@ -493,11 +493,10 @@ const AdministradoresPanel: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       position: 'relative',
       overflow: 'hidden',
-      padding: '32px',
-      fontFamily: 'Montserrat, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
     }}>
       {notification && <Notification message={notification.message} type={notification.type} />}
       
@@ -574,147 +573,167 @@ const AdministradoresPanel: React.FC = () => {
       </style>
 
       {/* Header Principal */}
+      <div style={{ marginBottom: '0.75rem' }}>
+        <h2 style={{
+          color: 'rgba(255,255,255,0.95)',
+          margin: '0 0 0.375rem 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.625rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+          fontSize: '1.625rem',
+          fontWeight: '700'
+        }}>
+          <Users size={26} color="#ef4444" />
+          Gestión de Administradores
+        </h2>
+        <p style={{
+          color: 'rgba(255,255,255,0.7)',
+          margin: 0,
+          fontSize: '0.85rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+        }}>
+          Administra los usuarios con permisos del sistema institucional
+        </p>
+      </div>
+
+      {/* Barra de Búsqueda y Controles */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid rgba(255,255,255,0.1)',
+        borderRadius: '0.875em',
+        padding: '1em',
+        marginBottom: '1em'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{
-              width: '80px', height: '80px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-            }}>
-              <Users size={40} color="#fff" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flex: 1, minWidth: '15rem' }}>
+            <div style={{ flex: 1, position: 'relative', minWidth: '17.5rem' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+              <input
+                type="text"
+                placeholder="Buscar por nombre o email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.625em 0.625em 2.375em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
+              />
             </div>
-            <div>
-              <h1 style={{ 
-                fontSize: '2.2rem', 
-                fontWeight: '800', 
-                color: 'var(--superadmin-text-primary, var(--admin-text-primary, #1e293b))', 
-                margin: 0
-              }}>
-                Gestión de Administradores
-              </h1>
-              <p style={{ 
-                color: 'var(--superadmin-text-secondary, var(--admin-text-secondary, rgba(30,41,59,0.8)))', 
-                marginTop: '8px', 
-                margin: 0, 
-                fontSize: '1.1rem' 
-              }}>
-                Administra los usuarios con permisos del sistema institucional
-              </p>
+
+            <div style={{ minWidth: '12.5rem' }}>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
+              >
+                <option value="all">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+              </select>
             </div>
           </div>
-          
+
           <button
             onClick={() => setShowCreateAdminModal(true)}
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5em',
+              padding: '0.75em 1.5em',
               background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              border: 'none', borderRadius: '16px', color: '#fff',
-              padding: '16px 32px', fontSize: '1rem', fontWeight: '700',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px',
-              boxShadow: '0 12px 28px rgba(239, 68, 68, 0.4)'
+              border: 'none',
+              borderRadius: '0.625em',
+              color: '#fff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(239, 68, 68, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)';
             }}
           >
-            <UserPlus size={20} />
+            <UserPlus size={16} />
             Nuevo Administrador
           </button>
         </div>
       </div>
 
-      {/* Barra de Búsqueda */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', padding: '24px', marginBottom: '32px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
-            <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }}>
-              <Search size={20} />
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar por nombre o email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%', padding: '14px 16px 14px 50px',
-                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px', color: '#fff', fontSize: '1rem'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Filter size={20} color="rgba(255,255,255,0.7)" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              style={{
-                padding: '12px 16px', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
-                color: '#fff', fontSize: '0.9rem', cursor: 'pointer', minWidth: '120px'
-              }}
-            >
-              <option value="all">Todos</option>
-              <option value="activo">Activos</option>
-              <option value="inactivo">Inactivos</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       {/* Lista de Administradores */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)', border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid rgba(255,255,255,0.1)',
+        borderRadius: '0.875em',
+        overflow: 'hidden',
+        boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
       }}>
         {/* Header de la tabla */}
         <div className="admins-grid admins-grid-header" style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.08))',
-          borderBottom: '2px solid rgba(239, 68, 68, 0.3)',
-          padding: '24px'
+          background: 'rgba(248, 113, 113, 0.15)',
+          borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)',
+          padding: '1em 1.5em'
         }}>
           <div className="col-admin" style={{ 
-            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-            fontWeight: '800', 
-            fontSize: '0.95rem', 
+            color: '#fff', 
+            fontWeight: '600', 
+            fontSize: '0.75rem', 
             textTransform: 'uppercase',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.5px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
           }}>
             Administrador
           </div>
           <div className="col-email" style={{ 
-            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-            fontWeight: '800', 
-            fontSize: '0.95rem', 
+            color: '#fff', 
+            fontWeight: '600', 
+            fontSize: '0.75rem', 
             textTransform: 'uppercase',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.5px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
           }}>
             Email
           </div>
           <div className="col-estado" style={{ 
-            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-            fontWeight: '800', 
-            fontSize: '0.95rem', 
+            color: '#fff', 
+            fontWeight: '600', 
+            fontSize: '0.75rem', 
             textTransform: 'uppercase',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.5px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
           }}>
             Estado
           </div>
           <div className="col-ultimo" style={{ 
-            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-            fontWeight: '800', 
-            fontSize: '0.95rem', 
+            color: '#fff', 
+            fontWeight: '600', 
+            fontSize: '0.75rem', 
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
           }}>
@@ -735,9 +754,9 @@ const AdministradoresPanel: React.FC = () => {
         {/* Filas de administradores */}
         <div>
           {filteredAdministradores.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-              <Users size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-              <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '8px' }}>
+            <div style={{ padding: '3.75em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+              <Users size={48} style={{ marginBottom: '1em', opacity: 0.5 }} />
+              <div style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
                 No se encontraron administradores
               </div>
             </div>
@@ -747,95 +766,151 @@ const AdministradoresPanel: React.FC = () => {
                 key={admin.id}
                 className="admin-card admins-grid"
                 style={{
-                  padding: '20px 24px',
-                  borderBottom: index < filteredAdministradores.length - 1 ? '2px solid rgba(255,255,255,0.12)' : 'none',
-                  background: admin.estado === 'activo'
-                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02))'
-                    : 'linear-gradient(135deg, rgba(107, 114, 128, 0.06), rgba(107, 114, 128, 0.02))',
-                  transition: 'all 0.3s ease'
+                  padding: '1em 1.5em',
+                  borderBottom: index < filteredAdministradores.length - 1 ? '0.0625rem solid rgba(255,255,255,0.08)' : 'none',
+                  background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                 }}
               >
                 {/* Información del administrador */}
-                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
                   <div style={{
-                    width: '45px', 
-                    height: '45px', 
-                    minWidth: '45px',
-                    minHeight: '45px',
-                    borderRadius: '10px',
+                    width: '2.75em', 
+                    height: '2.75em', 
+                    minWidth: '2.75em',
+                    minHeight: '2.75em',
+                    borderRadius: '0.625em',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)', 
+                    boxShadow: '0 0.25em 0.75em rgba(239, 68, 68, 0.25)', 
                     position: 'relative',
                     flexShrink: 0
                   }}>
                     <span style={{ 
                       color: '#fff', 
                       fontWeight: '700', 
-                      fontSize: '1rem',
+                      fontSize: '0.875rem',
                       textAlign: 'center',
-                      lineHeight: '1'
+                      lineHeight: '1',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
                     }}>
                       {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                     </span>
                     <div style={{
                       position: 'absolute', 
-                      bottom: '-2px', 
-                      right: '-2px',
-                      width: '16px', 
-                      height: '16px', 
+                      bottom: '-0.125em', 
+                      right: '-0.125em',
+                      width: '0.875em', 
+                      height: '0.875em', 
                       borderRadius: '50%',
                       background: admin.estado === 'activo' ? '#10b981' : '#6b7280',
-                      border: '2px solid rgba(0,0,0,0.9)'
+                      border: '0.125em solid rgba(0,0,0,0.9)',
+                      boxShadow: '0 0 0.5em rgba(0,0,0,0.3)'
                     }} />
                   </div>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: '700', fontSize: '1.1rem', marginBottom: '4px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ 
+                      color: '#fff', 
+                      fontWeight: '600', 
+                      fontSize: '0.9rem', 
+                      marginBottom: '0.1875em',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
                       {admin.nombre}
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '2px' }}>
+                    <div style={{ 
+                      color: 'rgba(255,255,255,0.6)', 
+                      fontSize: '0.75rem', 
+                      marginBottom: '0.125em',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                    }}>
                       {admin.rol}
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
-                      {admin.telefono}
-                    </div>
+                    {admin.telefono && (
+                      <div style={{ 
+                        color: 'rgba(255,255,255,0.5)', 
+                        fontSize: '0.7rem',
+                        fontFamily: 'monospace'
+                      }}>
+                        {admin.telefono}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Email */}
-                <div className="col-email" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', wordBreak: 'break-word' }}>
+                <div className="col-email" style={{ 
+                  color: 'rgba(255,255,255,0.8)', 
+                  fontSize: '0.8rem', 
+                  wordBreak: 'break-word',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}>
                   {admin.email}
                 </div>
 
                 {/* Estado */}
                 <div className="col-estado">
                   <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
-                    background: admin.estado === 'activo' ? 
-                      'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))' : 
-                      'linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(107, 114, 128, 0.1))',
-                    color: admin.estado === 'activo' ? '#10b981' : '#6b7280',
-                    border: `1px solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.375em',
+                    padding: '0.3125em 0.625em', 
+                    borderRadius: '0.5em', 
+                    fontSize: '0.7rem', 
+                    fontWeight: '600',
+                    background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(107, 114, 128, 0.15)',
+                    color: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
+                    border: `0.0625rem solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
+                    textTransform: 'capitalize',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
                   }}>
                     <div style={{
-                      width: '6px', height: '6px', borderRadius: '50%',
-                      background: admin.estado === 'activo' ? '#10b981' : '#6b7280'
+                      width: '0.375em', 
+                      height: '0.375em', 
+                      borderRadius: '50%',
+                      background: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
+                      boxShadow: admin.estado === 'activo' ? '0 0 0.5em rgba(16, 185, 129, 0.6)' : 'none'
                     }} />
                     {admin.estado}
                   </span>
                 </div>
 
                 {/* Último acceso */}
-                <div className="col-ultimo" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Clock size={14} />
+                <div className="col-ultimo" style={{ 
+                  color: 'rgba(255,255,255,0.7)', 
+                  fontSize: '0.75rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.375em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}>
+                  <Clock size={12} />
                   {formatDateTime(admin.ultimoAcceso)}
                 </div>
 
-                {/* Acciones */}
-                <div className="col-acciones" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                {/* Acciones - Grid 2x2 */}
+                <div className="col-acciones" style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <div style={{
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '0.375em'
+                  }}>
+                  {/* Fila 1 */}
                   <Tooltip content="Editar">
                     <button
                       onClick={() => {
@@ -861,12 +936,30 @@ const AdministradoresPanel: React.FC = () => {
                       }}
                       className="action-btn"
                       style={{
-                        width: '36px', height: '36px', borderRadius: '8px', border: 'none',
-                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1))',
-                        color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '2.25em', 
+                        height: '2.25em', 
+                        borderRadius: '0.5em', 
+                        border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        color: '#3b82f6', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(59, 130, 246, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      <Edit3 size={16} />
+                      <Edit3 size={14} />
                     </button>
                   </Tooltip>
 
@@ -878,29 +971,70 @@ const AdministradoresPanel: React.FC = () => {
                       }}
                       className="action-btn"
                       style={{
-                        width: '36px', height: '36px', borderRadius: '8px', border: 'none',
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1))',
-                        color: '#f59e0b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '2.25em', 
+                        height: '2.25em', 
+                        borderRadius: '0.5em', 
+                        border: '0.0625rem solid rgba(245, 158, 11, 0.3)',
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        color: '#f59e0b', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(245, 158, 11, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(245, 158, 11, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      <Key size={16} />
+                      <Key size={14} />
                     </button>
                   </Tooltip>
 
+                  {/* Fila 2 */}
                   <Tooltip content={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}>
                     <button
                       onClick={() => toggleAdminStatus(admin)}
                       className="action-btn"
                       style={{
-                        width: '36px', height: '36px', borderRadius: '8px', border: 'none',
+                        width: '2.25em', 
+                        height: '2.25em', 
+                        borderRadius: '0.5em', 
+                        border: admin.estado === 'activo' ? 
+                          '0.0625rem solid rgba(239, 68, 68, 0.3)' :
+                          '0.0625rem solid rgba(16, 185, 129, 0.3)',
                         background: admin.estado === 'activo' ? 
-                          'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))' :
-                          'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))',
+                          'rgba(239, 68, 68, 0.1)' :
+                          'rgba(16, 185, 129, 0.1)',
                         color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = admin.estado === 'activo' ? 
+                          'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = admin.estado === 'activo' ? 
+                          '0 0.25em 0.75em rgba(239, 68, 68, 0.3)' : '0 0.25em 0.75em rgba(16, 185, 129, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = admin.estado === 'activo' ? 
+                          'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      {admin.estado === 'activo' ? <Lock size={16} /> : <Unlock size={16} />}
+                      {admin.estado === 'activo' ? <Lock size={14} /> : <Unlock size={14} />}
                     </button>
                   </Tooltip>
 
@@ -912,14 +1046,33 @@ const AdministradoresPanel: React.FC = () => {
                       }}
                       className="action-btn"
                       style={{
-                        width: '36px', height: '36px', borderRadius: '8px', border: 'none',
-                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))',
-                        color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '2.25em', 
+                        height: '2.25em', 
+                        borderRadius: '0.5em', 
+                        border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#ef4444', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(239, 68, 68, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </button>
                   </Tooltip>
+                  </div>
                 </div>
               </div>
             ))

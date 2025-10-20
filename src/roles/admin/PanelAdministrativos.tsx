@@ -175,43 +175,6 @@ const PanelAdministrativos = () => {
         .admin-panel textarea::placeholder {
           color: var(--admin-text-muted) !important;
         }
-        
-        /* Escalar contenido en pantallas pequeñas */
-        @media (max-width: 1366px) and (min-width: 1025px) {
-          .admin-panel {
-            font-size: 0.8125rem !important;
-          }
-          
-          .admin-panel h1 {
-            font-size: 1.5rem !important;
-          }
-          
-          .admin-panel h2 {
-            font-size: 1.3rem !important;
-          }
-          
-          .admin-panel h3 {
-            font-size: 1.1rem !important;
-          }
-          
-          .admin-panel button {
-            padding: 0.5rem 0.875rem !important;
-            font-size: 0.85rem !important;
-          }
-          
-          .admin-panel input,
-          .admin-panel select,
-          .admin-panel textarea {
-            font-size: 0.9rem !important;
-            padding: 0.5rem 0.625rem !important;
-          }
-        }
-        
-        @media (max-width: 1024px) and (min-width: 769px) {
-          .admin-panel {
-            font-size: 0.75rem !important;
-          }
-        }
       `}</style>
 
       <div
@@ -221,7 +184,7 @@ const PanelAdministrativos = () => {
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
           display: 'flex',
-          fontSize: '0.875rem'
+          fontSize: '0.8rem'
         }}
       >
         {/* Overlay para móvil */}
@@ -362,6 +325,7 @@ const PanelAdministrativos = () => {
                     color: activeTab === tab.id ? '#fff' : theme.textMuted,
                     fontSize: '0.75rem',
                     fontWeight: '500',
+                    letterSpacing: '0.05em',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     textAlign: 'left',
@@ -406,18 +370,19 @@ const PanelAdministrativos = () => {
           <div style={{
             background: theme.navbarBg,
             border: `0.0625rem solid ${theme.border}`,
-            borderRadius: isMobile ? '0.75em' : '1.25rem',
-            padding: isMobile ? '0.75em 1em' : '1em 2em',
-            marginBottom: isMobile ? '0.75em' : '1rem',
+            borderRadius: '1.25rem',
+            padding: '1em 1.5em',
+            marginBottom: '1rem',
+            backdropFilter: 'blur(1.25rem)',
             boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
-            zIndex: 100
+            zIndex: 2
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.5em' : '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
               {/* Botón hamburguesa móvil */}
               {isSmallScreen && (
                 <button
@@ -442,36 +407,37 @@ const PanelAdministrativos = () => {
               )}
 
               <div style={{
-                width: isMobile ? '2.25rem' : '3rem',
-                height: isMobile ? '2.25rem' : '3rem',
+                width: '3rem',
+                height: '3rem',
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)',
-                flexShrink: 0
+                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)'
               }}>
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
                   const IconComponent = activeTabData?.icon || BarChart3;
-                  return <IconComponent size={isMobile ? 18 : 24} color="#fff" />;
+                  return <IconComponent size={22} color="#fff" />;
                 })()}
               </div>
-              <div className={isMobile ? 'hide-mobile' : ''}>
+              <div>
                 <h1 style={{
-                  fontSize: isMobile ? '1rem' : '1.4rem',
-                  fontWeight: '800',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: 0
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
-                  Panel Administrativos
+                  Panel Administrativo
                 </h1>
                 <p style={{
                   color: theme.textSecondary,
                   margin: 0,
-                  fontSize: isMobile ? '0.7rem' : '0.8rem',
-                  marginTop: '0.25em'
+                  fontSize: '0.8rem',
+                  marginTop: '0.125em'
                 }}>
                   Sistema de gestión académica
                 </p>
@@ -492,10 +458,12 @@ const PanelAdministrativos = () => {
           {/* Contenido de la sección activa */}
           <div style={{
             background: theme.contentBg,
+            backdropFilter: 'blur(1.25rem)',
             border: `0.0625rem solid ${theme.border}`,
-            borderRadius: isMobile ? '0.75em' : '1.25rem',
-            minHeight: isMobile ? '25rem' : '37.5rem',
-            boxShadow: darkMode ? '0 0.125rem 0.625rem rgba(0, 0, 0, 0.5)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)'
+            borderRadius: '1.25rem',
+            padding: '2em',
+            minHeight: '37.5rem',
+            boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             {activeTab === 'dashboard' && <AdminThemeWrapper darkMode={darkMode}><Dashboard /></AdminThemeWrapper>}
             {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}

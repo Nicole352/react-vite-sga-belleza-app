@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, Filter, X, ChevronLeft, ChevronRight, Eye, Download, User, Database, Activity } from 'lucide-react';
-import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import * as XLSX from 'xlsx';
 
 // Tipos
@@ -51,7 +50,7 @@ const HistorialAuditoria: React.FC = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [total, setTotal] = useState(0);
-  const limite = 20;
+  const limite = 10;
 
   // Modal
   const [modalDetalle, setModalDetalle] = useState<Auditoria | null>(null);
@@ -107,7 +106,7 @@ const HistorialAuditoria: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setAuditorias(data.data.auditorias);
         setTotal(data.data.total);
@@ -295,136 +294,311 @@ const HistorialAuditoria: React.FC = () => {
   };
 
   return (
-    <AdminThemeWrapper>
-      <div className="p-6 space-y-6">
+    <>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+        color: '#fff',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+      }}>
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
-              <FileText className="w-8 h-8 text-white" />
-            </div>
+        <div style={{ marginBottom: '1em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1em' }}>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Historial de Auditoría</h1>
-              <p className="text-gray-600">Registro completo de operaciones del sistema</p>
+              <h2 style={{
+                color: 'rgba(255,255,255,0.95)',
+                margin: '0 0 0.375rem 0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.625rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+                fontSize: '1.625rem',
+                fontWeight: '700'
+              }}>
+                <FileText size={26} color="#ef4444" />
+                Historial de Auditoría
+              </h2>
+              <p style={{
+                color: 'rgba(255,255,255,0.7)',
+                margin: 0,
+                fontSize: '0.85rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
+                Registro completo de operaciones del sistema
+              </p>
             </div>
-          </div>
 
-          <button
-            onClick={exportarExcel}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Download className="w-5 h-5" />
-            Exportar Excel
-          </button>
+            <button
+              onClick={exportarExcel}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5em',
+                padding: '0.75em 1.5em',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                border: 'none',
+                borderRadius: '0.625em',
+                color: '#fff',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)';
+              }}
+            >
+              <Download size={16} />
+              Exportar Excel
+            </button>
+          </div>
         </div>
 
         {/* Estadísticas */}
         {estadisticas && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">Total Registros</p>
-                  <p className="text-3xl font-bold">{estadisticas.total}</p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(15rem, 90vw), 1fr))',
+            gap: '0.875em',
+            marginBottom: '1.125em'
+          }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '0.0625rem solid rgba(255,255,255,0.08)',
+              borderRadius: '0.75em',
+              padding: '0.625em',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+                <div style={{
+                  background: 'rgba(59, 130, 246, 0.12)',
+                  borderRadius: '0.375em',
+                  padding: '0.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Database size={14} color="#3b82f6" strokeWidth={2} />
                 </div>
-                <Database className="w-12 h-12 text-blue-200" />
+                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Registros</h3>
               </div>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+                {estadisticas.total.toLocaleString()}
+              </p>
             </div>
 
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-sm">Últimas 24h</p>
-                  <p className="text-3xl font-bold">{estadisticas.actividadReciente}</p>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '0.0625rem solid rgba(255,255,255,0.08)',
+              borderRadius: '0.75em',
+              padding: '0.625em',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+                <div style={{
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  borderRadius: '0.375em',
+                  padding: '0.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Activity size={14} color="#10b981" strokeWidth={2} />
                 </div>
-                <Activity className="w-12 h-12 text-green-200" />
+                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Últimas 24h</h3>
               </div>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+                {estadisticas.actividadReciente.toLocaleString()}
+              </p>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100 text-sm">Tablas Auditadas</p>
-                  <p className="text-3xl font-bold">{estadisticas.porTabla.length}</p>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '0.0625rem solid rgba(255,255,255,0.08)',
+              borderRadius: '0.75em',
+              padding: '0.625em',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+                <div style={{
+                  background: 'rgba(168, 85, 247, 0.12)',
+                  borderRadius: '0.375em',
+                  padding: '0.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Database size={14} color="#a855f7" strokeWidth={2} />
                 </div>
-                <Database className="w-12 h-12 text-purple-200" />
+                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Tablas Auditadas</h3>
               </div>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+                {estadisticas.porTabla.length.toLocaleString()}
+              </p>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-orange-100 text-sm">Usuarios Activos</p>
-                  <p className="text-3xl font-bold">{estadisticas.porUsuario.length}</p>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '0.0625rem solid rgba(255,255,255,0.08)',
+              borderRadius: '0.75em',
+              padding: '0.625em',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+                <div style={{
+                  background: 'rgba(245, 158, 11, 0.12)',
+                  borderRadius: '0.375em',
+                  padding: '0.3em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <User size={14} color="#f59e0b" strokeWidth={2} />
                 </div>
-                <User className="w-12 h-12 text-orange-200" />
+                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Usuarios Activos</h3>
               </div>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+                {estadisticas.porUsuario.length.toLocaleString()}
+              </p>
             </div>
           </div>
         )}
 
         {/* Filtros */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Filtros</h2>
+        <div style={{
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(255,255,255,0.1)',
+          borderRadius: '0.875em',
+          padding: '1em',
+          marginBottom: '1em'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '1em' }}>
+            <Filter size={18} color="rgba(255,255,255,0.9)" />
+            <h2 style={{
+              color: 'rgba(255,255,255,0.95)',
+              fontSize: '1rem',
+              fontWeight: '600',
+              margin: 0,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+            }}>Filtros</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(12.5rem, 100%), 1fr))',
+            gap: '0.75em'
+          }}>
             {/* Búsqueda */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{
+                display: 'block',
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                marginBottom: '0.375em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}>
                 Búsqueda
               </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div style={{ position: 'relative' }}>
+                <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
                 <input
                   type="text"
                   value={filtros.busqueda}
                   onChange={(e) => handleFiltroChange('busqueda', e.target.value)}
                   placeholder="Usuario, tabla..."
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  style={{
+                    width: '100%',
+                    padding: '0.625em 0.625em 0.625em 2.375em',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '0.0625rem solid rgba(255,255,255,0.2)',
+                    borderRadius: '0.625em',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                  }}
                 />
               </div>
             </div>
 
             {/* Tabla */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                 Tabla
               </label>
               <select
                 value={filtros.tabla}
                 onChange={(e) => handleFiltroChange('tabla', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
               >
-                <option value="">Todas</option>
+                <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
                 {tablasDisponibles.map(tabla => (
-                  <option key={tabla} value={tabla}>{tabla}</option>
+                  <option key={tabla} value={tabla} style={{ background: '#1a1a2e', color: '#fff' }}>{tabla}</option>
                 ))}
               </select>
             </div>
 
             {/* Operación */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                 Operación
               </label>
               <select
                 value={filtros.operacion}
                 onChange={(e) => handleFiltroChange('operacion', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
               >
-                <option value="">Todas</option>
-                <option value="INSERT">INSERT</option>
-                <option value="UPDATE">UPDATE</option>
-                <option value="DELETE">DELETE</option>
+                <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
+                <option value="INSERT" style={{ background: '#1a1a2e', color: '#fff' }}>INSERT</option>
+                <option value="UPDATE" style={{ background: '#1a1a2e', color: '#fff' }}>UPDATE</option>
+                <option value="DELETE" style={{ background: '#1a1a2e', color: '#fff' }}>DELETE</option>
               </select>
             </div>
 
             {/* ID Registro */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                 ID Registro
               </label>
               <input
@@ -432,43 +606,92 @@ const HistorialAuditoria: React.FC = () => {
                 value={filtros.id_registro}
                 onChange={(e) => handleFiltroChange('id_registro', e.target.value)}
                 placeholder="ID..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
               />
             </div>
 
             {/* Fecha Inicio */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                 Fecha Inicio
               </label>
               <input
                 type="date"
                 value={filtros.fecha_inicio}
                 onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
               />
             </div>
 
             {/* Fecha Fin */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                 Fecha Fin
               </label>
               <input
                 type="date"
                 value={filtros.fecha_fin}
                 onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.625em 0.75em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
               />
             </div>
 
             {/* Botón limpiar */}
-            <div className="flex items-end">
+            <div style={{ display: 'flex', alignItems: 'end' }}>
               <button
                 onClick={limpiarFiltros}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5em',
+                  padding: '0.625em 1em',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '0.0625rem solid rgba(255,255,255,0.2)',
+                  borderRadius: '0.625em',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
               >
-                <X className="w-4 h-4" />
+                <X size={14} />
                 Limpiar
               </button>
             </div>
@@ -476,71 +699,144 @@ const HistorialAuditoria: React.FC = () => {
         </div>
 
         {/* Tabla de auditorías */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div style={{
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(255,255,255,0.1)',
+          borderRadius: '0.875em',
+          overflow: 'hidden',
+          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
+        }}>
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3em' }}>
+              <div style={{
+                width: '3em',
+                height: '3em',
+                border: '0.1875em solid rgba(239, 68, 68, 0.2)',
+                borderTop: '0.1875em solid #ef4444',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
             </div>
           ) : error ? (
-            <div className="p-6 text-center text-red-600">
+            <div style={{ padding: '2em', textAlign: 'center', color: '#ef4444' }}>
               <p>{error}</p>
             </div>
           ) : auditorias.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p>No se encontraron registros de auditoría</p>
+            <div style={{ padding: '3em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+              <FileText size={48} style={{ margin: '0 auto 1em', opacity: 0.5 }} />
+              <p style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>No se encontraron registros de auditoría</p>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">ID</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Fecha/Hora</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Usuario</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Operación</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Tabla</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">ID Registro</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase">IP</th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase">Acciones</th>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{
+                      background: 'rgba(248, 113, 113, 0.15)',
+                      borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)'
+                    }}>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>ID</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Fecha/Hora</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Usuario</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Operación</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Tabla</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>ID Registro</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>IP</th>
+                      <th style={{ padding: '0.75em', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {auditorias.map((auditoria) => (
-                      <tr key={auditoria.id_auditoria} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 text-sm text-gray-900">{auditoria.id_auditoria}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                  <tbody>
+                    {auditorias.map((auditoria, index) => (
+                      <tr
+                        key={auditoria.id_auditoria}
+                        style={{
+                          borderBottom: '0.0625rem solid rgba(255,255,255,0.05)',
+                          background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '0.75em', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontFamily: 'monospace' }}>
+                          {auditoria.id_auditoria}
+                        </td>
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                           {formatearFecha(auditoria.fecha_operacion)}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td style={{ padding: '0.75em' }}>
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'rgba(255,255,255,0.95)', margin: '0 0 0.125em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                               {auditoria.usuario_nombre} {auditoria.usuario_apellido}
                             </p>
-                            <p className="text-xs text-gray-500">@{auditoria.usuario_username}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', margin: 0, fontFamily: 'monospace' }}>
+                              @{auditoria.usuario_username}
+                            </p>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getColorOperacion(auditoria.operacion)}`}>
+                        <td style={{ padding: '0.75em' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            padding: '0.25em 0.625em',
+                            fontSize: '0.7rem',
+                            fontWeight: '600',
+                            borderRadius: '0.5em',
+                            textTransform: 'uppercase',
+                            background: auditoria.operacion === 'INSERT' ? 'rgba(16, 185, 129, 0.15)' :
+                              auditoria.operacion === 'UPDATE' ? 'rgba(245, 158, 11, 0.15)' :
+                                'rgba(239, 68, 68, 0.15)',
+                            color: auditoria.operacion === 'INSERT' ? '#10b981' :
+                              auditoria.operacion === 'UPDATE' ? '#f59e0b' :
+                                '#ef4444',
+                            border: `0.0625rem solid ${auditoria.operacion === 'INSERT' ? 'rgba(16, 185, 129, 0.3)' :
+                              auditoria.operacion === 'UPDATE' ? 'rgba(245, 158, 11, 0.3)' :
+                                'rgba(239, 68, 68, 0.3)'}`,
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                          }}>
                             {auditoria.operacion}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm font-mono text-gray-700">
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', fontFamily: 'monospace' }}>
                           {auditoria.tabla_afectada}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
                           #{auditoria.id_registro}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 font-mono">
+                        <td style={{ padding: '0.75em', fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
                           {auditoria.ip_address}
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td style={{ padding: '0.75em', textAlign: 'center' }}>
                           <button
                             onClick={() => verDetalle(auditoria)}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.375em',
+                              padding: '0.5em 0.875em',
+                              background: 'rgba(59, 130, 246, 0.1)',
+                              border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '0.5em',
+                              color: '#3b82f6',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                              e.currentTarget.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye size={14} />
                             Ver
                           </button>
                         </td>
@@ -551,30 +847,93 @@ const HistorialAuditoria: React.FC = () => {
               </div>
 
               {/* Paginación */}
-              <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-                <div className="text-sm text-gray-600">
+              <div style={{
+                background: 'rgba(255,255,255,0.03)',
+                padding: '1em 1.5em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderTop: '0.0625rem solid rgba(255,255,255,0.08)',
+                flexWrap: 'wrap',
+                gap: '1em'
+              }}>
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                }}>
                   Mostrando {((paginaActual - 1) * limite) + 1} - {Math.min(paginaActual * limite, total)} de {total} registros
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
                   <button
                     onClick={() => setPaginaActual(prev => Math.max(1, prev - 1))}
                     disabled={paginaActual === 1}
-                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    style={{
+                      padding: '0.5em',
+                      background: paginaActual === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                      border: '0.0625rem solid rgba(255,255,255,0.2)',
+                      borderRadius: '0.5em',
+                      color: paginaActual === 1 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.9)',
+                      cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      opacity: paginaActual === 1 ? 0.5 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (paginaActual !== 1) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (paginaActual !== 1) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                      }
+                    }}
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft size={18} />
                   </button>
 
-                  <span className="px-4 py-2 text-sm font-medium text-gray-700">
+                  <span style={{
+                    padding: '0.5em 1em',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    color: 'rgba(255,255,255,0.9)',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                  }}>
                     Página {paginaActual} de {totalPaginas}
                   </span>
 
                   <button
                     onClick={() => setPaginaActual(prev => Math.min(totalPaginas, prev + 1))}
                     disabled={paginaActual === totalPaginas}
-                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    style={{
+                      padding: '0.5em',
+                      background: paginaActual === totalPaginas ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+                      border: '0.0625rem solid rgba(255,255,255,0.2)',
+                      borderRadius: '0.5em',
+                      color: paginaActual === totalPaginas ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.9)',
+                      cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      opacity: paginaActual === totalPaginas ? 0.5 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (paginaActual !== totalPaginas) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (paginaActual !== totalPaginas) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                      }
+                    }}
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight size={18} />
                   </button>
                 </div>
               </div>
@@ -663,7 +1022,14 @@ const HistorialAuditoria: React.FC = () => {
           </div>
         )}
       </div>
-    </AdminThemeWrapper>
+
+      <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}</style>
+    </>
   );
 };
 

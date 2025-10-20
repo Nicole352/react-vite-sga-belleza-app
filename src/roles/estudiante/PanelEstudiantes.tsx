@@ -234,33 +234,30 @@ const PanelEstudiantes = () => {
       <div
         className="estudiante-panel"
         style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+          minHeight: '100vh',
           background: theme.background,
           fontFamily: 'Montserrat, sans-serif',
           display: 'flex',
-          transform: 'scale(0.85)',
-          transformOrigin: 'top left',
-          width: 'calc(100% / 0.85)',
-          height: 'calc(100% / 0.85)',
-          overflow: 'auto'
+          fontSize: '0.8rem'
         }}
       >
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '5rem' : '17.5rem',
+          width: sidebarCollapsed ? '4.5rem' : '16rem',
           background: theme.sidebarBg,
-          backdropFilter: 'blur(1.25rem)',
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '0 1.25rem 1.25rem 0',
-          padding: sidebarCollapsed ? '0.75rem 0.5rem 1.5rem 0.5rem' : '0.75rem 1.5rem 1.5rem 1.5rem',
-          height: '100%',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          borderRadius: '0 1em 1em 0',
+          padding: sidebarCollapsed ? '0.625em 0.375em 1.25em 0.375em' : '0.625em 1em 1.25em 1em',
+          position: 'fixed',
+          height: '100vh',
+          left: '0',
+          top: 0,
+          zIndex: 1000,
           boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
-          flexShrink: 0
+          transition: 'all 0.3s ease',
+          overflowY: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* Botón hamburguesa */}
           <button
@@ -299,17 +296,20 @@ const PanelEstudiantes = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginBottom: '0.5em',
-            paddingBottom: '0.25em',
+            marginBottom: '0.5rem',
+            paddingBottom: '0.25rem',
             borderBottom: `0.0625rem solid ${theme.border}`,
             paddingTop: '0',
-            marginTop: sidebarCollapsed ? '3em' : '0'
+            marginTop: sidebarCollapsed ? '3rem' : '0'
           }}>
             {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
           {/* Navegación del Sidebar */}
-          <nav style={{ marginBottom: '2em' }}>
+          <nav style={{
+            marginBottom: '2em',
+            flex: 1
+          }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -322,41 +322,39 @@ const PanelEstudiantes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    gap: '0.625rem',
-                    padding: sidebarCollapsed ? '0.75rem 0.5rem' : '0.75rem 1rem',
-                    marginBottom: '0.375rem',
-                    borderRadius: '0.75rem',
+                    gap: '0.625em',
+                    padding: sidebarCollapsed ? '0.75em 0.5em' : '0.75em 1em',
+                    marginBottom: '0.375em',
+                    borderRadius: '0.75em',
                     border: 'none',
                     background: activeTab === tab.id ?
                       'linear-gradient(135deg, #f59e0b, #d97706)' :
                       'transparent',
-                    color: activeTab === tab.id ? (darkMode ? '#ffffff' : '#1e293b') : theme.textMuted,
-                    fontSize: '0.85rem',
+                    color: activeTab === tab.id ? '#fff' : theme.textMuted,
+                    fontSize: '0.75rem',
                     fontWeight: '500',
+                    letterSpacing: '0.05em',
                     cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'all 0.3s ease',
                     textAlign: 'left',
-                    fontFamily: 'Montserrat, sans-serif',
-                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(245, 158, 11, 0.3)' : 'none'
+                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(245, 158, 11, 0.3)' : 'none',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.id) {
-                      e.currentTarget.style.background = darkMode
-                        ? 'rgba(251, 191, 36, 0.1)'
-                        : 'rgba(251, 191, 36, 0.08)';
-                      e.currentTarget.style.color = theme.accent;
-                      e.currentTarget.style.transform = 'translateX(0.25rem)';
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.color = theme.textSecondary;
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (activeTab !== tab.id) {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.color = theme.textMuted;
-                      e.currentTarget.style.transform = 'translateX(0)';
                     }
                   }}
                 >
-                  <IconComponent size={20} style={{ flexShrink: 0 }} />
+                  <IconComponent size={18} style={{ flexShrink: 0 }} />
                   {!sidebarCollapsed && <span>{tab.name}</span>}
                 </button>
               );
@@ -367,27 +365,30 @@ const PanelEstudiantes = () => {
 
         {/* Contenido Principal */}
         <div style={{
+          marginLeft: sidebarCollapsed ? '4.375rem' : '17.5rem',
           flex: 1,
-          padding: '1.5rem',
-          minHeight: '100%',
-          display: 'flex',
-          flexDirection: 'column'
+          padding: '1.25rem',
+          minHeight: '100vh',
+          transition: 'margin-left 0.3s ease',
+          width: 'auto',
+          maxWidth: '100%',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}>
           {/* Navbar */}
           <div style={{
             background: theme.navbarBg,
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '1rem 1.5rem',
-            marginBottom: '1.5rem',
+            padding: '1em 1.5em',
+            marginBottom: '1rem',
             backdropFilter: 'blur(1.25rem)',
             boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
-            zIndex: 2,
-            flexShrink: 0
+            zIndex: 2
           }}>
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
@@ -410,9 +411,11 @@ const PanelEstudiantes = () => {
               <div>
                 <h1 style={{
                   fontSize: '1.2rem',
-                  fontWeight: '800',
+                  fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: 0
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   Panel Estudiante
                 </h1>
@@ -428,7 +431,7 @@ const PanelEstudiantes = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
@@ -446,15 +449,9 @@ const PanelEstudiantes = () => {
             backdropFilter: 'blur(1.25rem)',
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '2rem',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
-            position: 'relative',
-            zIndex: 1,
-            overflow: 'hidden',
-            minHeight: 0
+            padding: '2em',
+            minHeight: '37.5rem',
+            boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             <Routes>
               <Route index element={

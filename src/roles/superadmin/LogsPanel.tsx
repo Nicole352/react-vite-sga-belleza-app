@@ -7,93 +7,90 @@ import {
 const LogsPanel: React.FC = () => {
   return (
     <div style={{
-      padding: '32px',
-      background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
       minHeight: '100vh',
-      fontFamily: 'Montserrat, sans-serif'
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+      color: '#fff',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
     }}>
-      {/* CSS Animations */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}
-      </style>
+      {/* Header */}
+      <div style={{ marginBottom: '1em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1em' }}>
+          <div>
+            <h2 style={{
+              color: 'rgba(255,255,255,0.95)',
+              margin: '0 0 0.375rem 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.625rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+              fontSize: '1.625rem',
+              fontWeight: '700'
+            }}>
+              <FileText size={26} color="#ef4444" />
+              Logs del Sistema
+            </h2>
+            <p style={{
+              color: 'rgba(255,255,255,0.7)',
+              margin: 0,
+              fontSize: '0.85rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+            }}>
+              Registro completo de actividades y eventos del sistema
+            </p>
+          </div>
 
-      {/* Header de Logs */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{
-              width: '80px',
-              height: '80px',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              borderRadius: '50%',
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+            <button style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-            }}>
-              <FileText size={40} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ 
-                fontSize: '2.2rem', 
-                fontWeight: '800', 
-                color: 'var(--superadmin-text-primary, var(--admin-text-primary, #1e293b))',
-                margin: 0
-              }}>
-                Logs del Sistema
-              </h1>
-              <p style={{ 
-                color: 'var(--superadmin-text-secondary, var(--admin-text-secondary, rgba(30,41,59,0.8)))', 
-                marginTop: '8px', 
-                margin: 0, 
-                fontSize: '1.1rem' 
-              }}>
-                Registro completo de actividades y eventos del sistema
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button style={{
-              background: 'rgba(239, 68, 68, 0.2)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
+              gap: '0.5em',
+              padding: '0.75em 1.25em',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '0.625em',
               color: '#ef4444',
-              padding: '8px 16px',
-              fontSize: '0.85rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.875rem',
+              fontWeight: '600',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}>
               <RefreshCw size={14} />
               Actualizar
             </button>
             <button style={{
-              background: 'rgba(16, 185, 129, 0.2)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '8px',
-              color: '#10b981',
-              padding: '8px 16px',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              justifyContent: 'center',
+              gap: '0.5em',
+              padding: '0.75em 1.25em',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              border: 'none',
+              borderRadius: '0.625em',
+              color: '#fff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(16, 185, 129, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)';
             }}>
               <Download size={14} />
               Exportar
@@ -104,65 +101,65 @@ const LogsPanel: React.FC = () => {
 
       {/* Filtros de Logs */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '32px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid rgba(255,255,255,0.1)',
+        borderRadius: '0.875em',
+        padding: '1em',
+        marginBottom: '1em'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flexWrap: 'wrap' }}>
           {/* Búsqueda */}
-          <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
-            <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }}>
-              <Search size={20} />
-            </div>
+          <div style={{ flex: 1, minWidth: '17.5rem', position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
             <input
               type="text"
               placeholder="Buscar en logs..."
               style={{
                 width: '100%',
-                padding: '14px 16px 14px 50px',
+                padding: '0.625em 0.625em 0.625em 2.375em',
                 background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '12px',
+                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                borderRadius: '0.625em',
                 color: '#fff',
-                fontSize: '1rem',
-                transition: 'all 0.3s ease'
+                fontSize: '0.875rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                transition: 'all 0.2s ease'
               }}
             />
           </div>
 
           {/* Filtro por Tipo */}
           <select style={{
-            padding: '12px 16px',
+            padding: '0.625em 0.75em',
             background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '12px',
+            border: '0.0625rem solid rgba(255,255,255,0.2)',
+            borderRadius: '0.625em',
             color: '#fff',
-            fontSize: '0.9rem',
+            fontSize: '0.875rem',
             cursor: 'pointer',
-            minWidth: '150px'
+            minWidth: '12.5rem',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
           }}>
-            <option value="all">Todos los tipos</option>
-            <option value="info">Información</option>
-            <option value="warning">Advertencias</option>
-            <option value="error">Errores</option>
-            <option value="success">Éxito</option>
+            <option value="all" style={{ background: '#1a1a2e', color: '#fff' }}>Todos los tipos</option>
+            <option value="info" style={{ background: '#1a1a2e', color: '#fff' }}>Información</option>
+            <option value="warning" style={{ background: '#1a1a2e', color: '#fff' }}>Advertencias</option>
+            <option value="error" style={{ background: '#1a1a2e', color: '#fff' }}>Errores</option>
+            <option value="success" style={{ background: '#1a1a2e', color: '#fff' }}>Éxito</option>
           </select>
 
           {/* Filtro por Fecha */}
           <input
             type="date"
             style={{
-              padding: '12px 16px',
+              padding: '0.625em 0.75em',
               background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: '12px',
+              border: '0.0625rem solid rgba(255,255,255,0.2)',
+              borderRadius: '0.625em',
               color: '#fff',
-              fontSize: '0.9rem',
-              cursor: 'pointer'
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
             }}
           />
         </div>
@@ -170,36 +167,36 @@ const LogsPanel: React.FC = () => {
 
       {/* Lista de Logs */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid rgba(255,255,255,0.1)',
+        borderRadius: '0.875em',
         overflow: 'hidden',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+        boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
       }}>
         {/* Header de la tabla */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-          borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
-          padding: '20px 24px',
+          background: 'rgba(248, 113, 113, 0.15)',
+          borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)',
+          padding: '1em 1.5em',
           display: 'grid',
-          gridTemplateColumns: '80px 1fr 200px 150px 120px',
-          gap: '20px',
+          gridTemplateColumns: '5em 1fr 12.5rem 9.375rem 7.5rem',
+          gap: '1em',
           alignItems: 'center'
         }}>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
             Tipo
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
             Mensaje
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
             Usuario/Sistema
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
             IP Address
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
             Fecha/Hora
           </div>
         </div>
@@ -223,58 +220,61 @@ const LogsPanel: React.FC = () => {
               <div
                 key={index}
                 style={{
-                  padding: '20px 24px',
-                  borderBottom: index < 9 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                  padding: '1em 1.5em',
+                  borderBottom: index < 9 ? '0.0625rem solid rgba(255,255,255,0.05)' : 'none',
                   display: 'grid',
-                  gridTemplateColumns: '80px 1fr 200px 150px 120px',
-                  gap: '20px',
+                  gridTemplateColumns: '5em 1fr 12.5rem 9.375rem 7.5rem',
+                  gap: '1em',
                   alignItems: 'center',
-                  background: log.type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
-                             log.type === 'warning' ? 'rgba(245, 158, 11, 0.05)' :
-                             log.type === 'success' ? 'rgba(16, 185, 129, 0.05)' : 'transparent',
-                  transition: 'all 0.2s ease',
-                  animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`
+                  background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                 }}
               >
                 {/* Tipo */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '8px',
-                    background: `linear-gradient(135deg, ${log.color}, ${log.color}dd)`,
+                    width: '2.25em',
+                    height: '2.25em',
+                    borderRadius: '0.5em',
+                    background: `${log.color}20`,
+                    border: `0.0625rem solid ${log.color}40`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: `0 4px 12px ${log.color}33`
+                    justifyContent: 'center'
                   }}>
-                    <IconComponent size={18} color="#fff" />
+                    <IconComponent size={16} color={log.color} />
                   </div>
                 </div>
 
                 {/* Mensaje */}
                 <div>
-                  <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '600', marginBottom: '4px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.25em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                     {log.message}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                     {log.type}
                   </div>
                 </div>
 
                 {/* Usuario */}
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', wordBreak: 'break-all' }}>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', wordBreak: 'break-all', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                   {log.user}
                 </div>
 
                 {/* IP */}
                 <div style={{ 
                   color: 'rgba(255,255,255,0.7)', 
-                  fontSize: '0.8rem',
+                  fontSize: '0.7rem',
                   fontFamily: 'monospace',
-                  background: 'rgba(255,255,255,0.1)',
-                  padding: '4px 8px',
-                  borderRadius: '6px',
+                  background: 'rgba(255,255,255,0.08)',
+                  padding: '0.25em 0.5em',
+                  borderRadius: '0.375em',
                   textAlign: 'center'
                 }}>
                   {log.ip}
@@ -282,10 +282,10 @@ const LogsPanel: React.FC = () => {
 
                 {/* Fecha/Hora */}
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: '600' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: '600', fontFamily: 'monospace' }}>
                     {log.time}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', fontFamily: 'monospace' }}>
                     {log.date}
                   </div>
                 </div>
@@ -297,37 +297,50 @@ const LogsPanel: React.FC = () => {
 
       {/* Paginación */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '20px 24px',
-        marginTop: '24px',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid rgba(255,255,255,0.1)',
+        borderRadius: '0.875em',
+        padding: '1em 1.5em',
+        marginTop: '1em',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1em'
       }}>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
           Mostrando 1-10 de 1,247 registros
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
           {[1, 2, 3, '...', 125].map((page, index) => (
             <button
               key={index}
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                border: 'none',
-                background: page === 1 ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.1)',
-                color: page === 1 ? '#fff' : 'rgba(255,255,255,0.7)',
-                fontSize: '0.85rem',
+                width: '2.25em',
+                height: '2.25em',
+                borderRadius: '0.5em',
+                border: page === 1 ? '0.0625rem solid rgba(239, 68, 68, 0.5)' : '0.0625rem solid rgba(255,255,255,0.2)',
+                background: page === 1 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
+                color: page === 1 ? '#ef4444' : 'rgba(255,255,255,0.7)',
+                fontSize: '0.8rem',
                 fontWeight: '600',
                 cursor: page !== '...' ? 'pointer' : 'default',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s ease',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              }}
+              onMouseEnter={(e) => {
+                if (page !== '...' && page !== 1) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (page !== '...' && page !== 1) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }
               }}
             >
               {page}
@@ -335,6 +348,13 @@ const LogsPanel: React.FC = () => {
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };

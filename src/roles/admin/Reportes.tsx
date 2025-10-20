@@ -641,7 +641,7 @@ const Reportes = () => {
         return (
           <div style={{ textAlign: 'center', padding: '60px 1.25rem' }}>
             <AlertCircle size={64} color="#f59e0b" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.5rem' }}>No hay estudiantes en este período</h3>
+            <h3 style={{ color: '#fff', marginBottom: '0.5rem', fontSize: '1.2rem' }}>No hay estudiantes en este período</h3>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>
               Intenta seleccionar otro período o curso, o verifica que haya estudiantes matriculados.
             </p>
@@ -1279,7 +1279,7 @@ const Reportes = () => {
   return (
     <>
       <style>{scrollbarStyles}</style>
-      <div className="responsive-padding">
+      <div>
         <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
           color: 'rgba(255,255,255,0.95)', 
@@ -1631,7 +1631,7 @@ const Reportes = () => {
         }}>
           <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ color: '#fff', margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <History size={22} color="#ef4444" />
                 Historial de Reportes
               </h3>

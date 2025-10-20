@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Users,
   GraduationCap,
@@ -9,10 +9,13 @@ import {
   Database,
   Wifi,
   CheckCircle,
-  Shield
+  Shield,
+  BarChart3
 } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
 
-const PanelDashboardSuperAdmin: React.FC = () => {
+const PanelDashboardSuperAdmin = () => {
+  const { isMobile } = useBreakpoints();
   const [stats, setStats] = useState({
     totalUsuarios: 0,
     totalAdministradores: 0,
@@ -21,18 +24,20 @@ const PanelDashboardSuperAdmin: React.FC = () => {
     porcentajeAdministradores: 0,
     porcentajeEstudiantes: 0
   });
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const API_BASE = 'http://localhost:3000/api';
 
   // Cargar estadísticas reales
   useEffect(() => {
+    let isMounted = true;
+
     const loadStats = async () => {
       try {
         const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
         
         if (!token) {
           console.log('No hay token disponible');
-          setLoading(false);
+          if (isMounted) setLoading(false);
           return;
         }
 
@@ -42,299 +47,346 @@ const PanelDashboardSuperAdmin: React.FC = () => {
 
         if (res.ok) {
           const data = await res.json();
-          setStats(data);
+          if (isMounted) {
+            setStats(data);
+          }
         } else {
           console.log('Error al cargar estadísticas:', res.status);
         }
       } catch (error) {
         console.error('Error cargando estadísticas:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadStats();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
-    <div style={{
-      padding: '32px'
-    }}>
-
-    {/* Tarjetas de Estadísticas Principales */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-      {/* Total Usuarios */}
+    <div>
+      {/* Tarjetas principales */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05))',
-        border: '1px solid rgba(59, 130, 246, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 24px rgba(59, 130, 246, 0.1)'
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(15rem, 90vw), 1fr))',
+        gap: isMobile ? '0.75em' : '0.875em',
+        marginBottom: isMobile ? '1em' : '1.125em'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Users size={24} color="#fff" />
-          </div>
-          <div style={{ 
-            color: stats.porcentajeUsuarios >= 0 ? '#10b981' : '#ef4444', 
-            fontSize: '0.8rem', 
-            fontWeight: '600' 
-          }}>
-            {loading ? '...' : `${stats.porcentajeUsuarios >= 0 ? '+' : ''}${stats.porcentajeUsuarios}% este mes`}
-          </div>
-        </div>
-        <div style={{ color: '#fff', fontSize: '2rem', fontWeight: '700', marginBottom: '4px' }}>
-          {loading ? '...' : stats.totalUsuarios.toLocaleString()}
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-          Total Usuarios
-        </div>
-      </div>
-
-      {/* Total Administradores */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 24px rgba(239, 68, 68, 0.1)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Shield size={24} color="#fff" />
-          </div>
-          <div style={{ 
-            color: stats.porcentajeAdministradores >= 0 ? '#10b981' : '#ef4444', 
-            fontSize: '0.8rem', 
-            fontWeight: '600' 
-          }}>
-            {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}% este mes`}
-          </div>
-        </div>
-        <div style={{ color: '#fff', fontSize: '2rem', fontWeight: '700', marginBottom: '4px' }}>
-          {loading ? '...' : stats.totalAdministradores.toLocaleString()}
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-          Total Administradores
-        </div>
-      </div>
-
-      {/* Estudiantes Activos */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05))',
-        border: '1px solid rgba(16, 185, 129, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 24px rgba(16, 185, 129, 0.1)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <GraduationCap size={24} color="#fff" />
-          </div>
-          <div style={{ 
-            color: stats.porcentajeEstudiantes >= 0 ? '#10b981' : '#ef4444', 
-            fontSize: '0.8rem', 
-            fontWeight: '600' 
-          }}>
-            {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}% este mes`}
-          </div>
-        </div>
-        <div style={{ color: '#fff', fontSize: '2rem', fontWeight: '700', marginBottom: '4px' }}>
-          {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-          Estudiantes Activos
-        </div>
-      </div>
-
-      {/* Ingresos Mensuales */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05))',
-        border: '1px solid rgba(245, 158, 11, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 24px rgba(245, 158, 11, 0.1)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <DollarSign size={24} color="#fff" />
-          </div>
-          <div style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
-            +15% este mes
-          </div>
-        </div>
-        <div style={{ color: '#fff', fontSize: '2rem', fontWeight: '700', marginBottom: '4px' }}>
-          $24,580
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-          Ingresos Mensuales
-        </div>
-      </div>
-
-      {/* Estado del Sistema */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05))',
-        border: '1px solid rgba(16, 185, 129, 0.2)',
-        borderRadius: '20px',
-        padding: '24px',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 24px rgba(16, 185, 129, 0.1)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Server size={24} color="#fff" />
-          </div>
-          <div style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
-            Operativo
-          </div>
-        </div>
-        <div style={{ color: '#fff', fontSize: '2rem', fontWeight: '700', marginBottom: '4px' }}>
-          99.9%
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-          Uptime del Sistema
-        </div>
-      </div>
-    </div>
-
-    {/* Gráficos y Estadísticas Adicionales */}
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-      {/* Gráfico de Actividad */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '32px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Activity size={24} color="#fff" />
-          </div>
-          <h3 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>
-            Actividad del Sistema
-          </h3>
-        </div>
-        
-        {/* Placeholder para gráfico */}
+        {/* Total Usuarios */}
         <div style={{
-          height: '200px',
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '12px',
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.625em',
+          transition: 'all 0.2s ease',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid rgba(255,255,255,0.1)'
+          flexDirection: 'column'
         }}>
-          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-            <TrendingUp size={48} style={{ marginBottom: '16px' }} />
-            <div>Gráfico de actividad semanal</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.12)',
+              borderRadius: '0.375em',
+              padding: '0.3em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Users size={14} color="#3b82f6" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Usuarios</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalUsuarios.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
+              <TrendingUp size={10} color={stats.porcentajeUsuarios >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeUsuarios >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeUsuarios >= 0 ? '+' : ''}${stats.porcentajeUsuarios}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Total Administradores */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.625em',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              borderRadius: '0.375em',
+              padding: '0.3em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Shield size={14} color="#ef4444" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Administradores</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalAdministradores.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
+              <TrendingUp size={10} color={stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Estudiantes Activos */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.625em',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              borderRadius: '0.375em',
+              padding: '0.3em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <GraduationCap size={14} color="#10b981" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Estudiantes Activos</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
+              <TrendingUp size={10} color={stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Ingresos Mensuales */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.625em',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.12)',
+              borderRadius: '0.375em',
+              padding: '0.3em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <DollarSign size={14} color="#f59e0b" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Ingresos Mensuales</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            $24,580
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
+              <TrendingUp size={10} color="#22c55e" strokeWidth={2} />
+              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                +15%
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
+          </div>
+        </div>
+
+        {/* Estado del Sistema */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '0.0625rem solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75em',
+          padding: '0.625em',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              borderRadius: '0.375em',
+              padding: '0.3em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <Server size={14} color="#10b981" strokeWidth={2} />
+            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Uptime del Sistema</h3>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            99.9%
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
+              <CheckCircle size={10} color="#22c55e" strokeWidth={2} />
+              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                Operativo
+              </span>
+            </div>
+            <span style={{ color: 'rgba(150,150,160,1)', fontSize: '0.7rem', fontWeight: '500' }}>Estado actual</span>
           </div>
         </div>
       </div>
 
-      {/* Estado de Servicios */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-        borderRadius: '20px',
-        padding: '32px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
-      }}>
-        <h3 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: '700', marginBottom: '24px' }}>
-          Estado de Servicios
-        </h3>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Database size={20} color="#10b981" />
-              <span style={{ color: '#fff', fontSize: '0.9rem' }}>Base de Datos</span>
+      {/* Gráficos y Estadísticas Adicionales */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: isMobile ? '1em' : '1.25em' }}>
+        {/* Gráfico de Actividad */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(15,15,20,0.7) 0%, rgba(30,30,35,0.7) 100%)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(239, 68, 68, 0.15)',
+          borderRadius: '0.875em',
+          padding: '1.125em',
+          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '1em' }}>
+            <div style={{
+              width: '2.5em',
+              height: '2.5em',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              borderRadius: '0.625em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Activity size={isMobile ? 18 : 20} color="#fff" />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle size={16} color="#10b981" />
-              <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>Activo</span>
-            </div>
+            <h3 style={{ color: 'rgba(255,255,255,0.95)', margin: 0 }}>
+              Actividad del Sistema
+            </h3>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Server size={20} color="#10b981" />
-              <span style={{ color: '#fff', fontSize: '0.9rem' }}>Servidor Web</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle size={16} color="#10b981" />
-              <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>Activo</span>
+          {/* Placeholder para gráfico */}
+          <div style={{
+            height: '12.5rem',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: '0.625em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '0.0625rem solid rgba(255,255,255,0.08)'
+          }}>
+            <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <TrendingUp size={isMobile ? 40 : 48} style={{ marginBottom: '0.75em' }} />
+              <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>Gráfico de actividad semanal</div>
             </div>
           </div>
+        </div>
+
+        {/* Estado de Servicios */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(15,15,20,0.7) 0%, rgba(30,30,35,0.7) 100%)',
+          backdropFilter: 'blur(1.25rem)',
+          border: '0.0625rem solid rgba(239, 68, 68, 0.15)',
+          borderRadius: '0.875em',
+          padding: '1.125em',
+          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
+        }}>
+          <h3 style={{ color: 'rgba(255,255,255,0.95)', marginBottom: '1em' }}>
+            Estado de Servicios
+          </h3>
           
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Wifi size={20} color="#10b981" />
-              <span style={{ color: '#fff', fontSize: '0.9rem' }}>Conectividad</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '0.75em',
+              background: 'rgba(255,255,255,0.02)',
+              borderRadius: '0.625em',
+              border: '0.0625rem solid rgba(255,255,255,0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
+                <Database size={isMobile ? 16 : 18} color="#10b981" />
+                <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', fontWeight: '500' }}>Base de Datos</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                <CheckCircle size={14} color="#10b981" />
+                <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: '600' }}>Activo</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle size={16} color="#10b981" />
-              <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>Estable</span>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '0.75em',
+              background: 'rgba(255,255,255,0.02)',
+              borderRadius: '0.625em',
+              border: '0.0625rem solid rgba(255,255,255,0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
+                <Server size={isMobile ? 16 : 18} color="#10b981" />
+                <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', fontWeight: '500' }}>Servidor Web</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                <CheckCircle size={14} color="#10b981" />
+                <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: '600' }}>Activo</span>
+              </div>
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '0.75em',
+              background: 'rgba(255,255,255,0.02)',
+              borderRadius: '0.625em',
+              border: '0.0625rem solid rgba(255,255,255,0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
+                <Wifi size={isMobile ? 16 : 18} color="#10b981" />
+                <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', fontWeight: '500' }}>Conectividad</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                <CheckCircle size={14} color="#10b981" />
+                <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: '600' }}>Estable</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

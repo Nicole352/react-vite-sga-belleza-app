@@ -111,7 +111,7 @@ const GestionEstudiantes = () => {
   };
 
   return (
-    <div className="responsive-padding" style={{ 
+    <div style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)', 
       color: '#fff' 
@@ -296,128 +296,161 @@ const GestionEstudiantes = () => {
             </div>
           ) : (
             estudiantesFiltrados.map((estudiante) => (
-              <GlassEffect
+              <div
                 key={estudiante.id_usuario}
-                variant="card"
-                tint="red"
-                intensity="light"
-                hover
-                animated
                 style={{
+                  background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+                  border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+                  borderRadius: '0.75rem',
                   padding: '0.875rem',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 0.5rem 1.5rem rgba(239, 68, 68, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ 
-                      width: 40, 
-                      height: 40, 
-                      borderRadius: '50%', 
-                      background: 'rgba(239, 68, 68, 0.15)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center' 
+                <div style={{ marginBottom: '0.875rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
+                    <span style={{ 
+                      color: 'rgba(255,255,255,0.6)', 
+                      fontSize: '0.7rem', 
+                      fontFamily: 'monospace',
+                      background: 'rgba(255,255,255,0.05)',
+                      padding: '3px 0.375rem',
+                      borderRadius: '0.3125rem'
                     }}>
-                      <User size={20} color={RedColorPalette.primary} />
+                      {estudiante.cedula}
+                    </span>
+                    <span style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.1875rem',
+                      padding: '3px 0.5rem',
+                      borderRadius: 6,
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      background: estudiante.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' :
+                                 estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
+                                 'rgba(251, 191, 36, 0.15)',
+                      border: estudiante.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                             estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                             '1px solid rgba(251, 191, 36, 0.3)',
+                      color: estudiante.estado === 'activo' ? mapToRedScheme('#10b981') :
+                            estudiante.estado === 'inactivo' ? RedColorPalette.primary :
+                            '#fbbf24'
+                    }}>
+                      {estudiante.estado}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{
+                      width: '2rem',
+                      height: '2rem',
+                      borderRadius: '50%',
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <User size={16} color={RedColorPalette.primary} />
                     </div>
-                    <div>
-                      <h3 style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.1875rem 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                        {estudiante.nombre} {estudiante.apellido}
-                      </h3>
-                      <span style={{
-                        display: 'inline-flex',
-                        padding: '2px 0.5rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.65rem',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        background: estudiante.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' :
-                                   estudiante.estado === 'inactivo' ? 'rgba(239, 68, 68, 0.15)' :
-                                   'rgba(248, 113, 113, 0.15)',
-                        border: estudiante.estado === 'activo' ? `1px solid ${RedColorPalette.success}` :
-                               estudiante.estado === 'inactivo' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                               `1px solid ${RedColorPalette.primaryLight}`,
-                        color: estudiante.estado === 'activo' ? RedColorPalette.success :
-                              estudiante.estado === 'inactivo' ? RedColorPalette.primary :
-                              RedColorPalette.primaryLight
-                      }}>
-                        {estudiante.estado}
-                      </span>
-                    </div>
+                    <h3 style={{ 
+                      color: '#fff', 
+                      margin: 0
+                    }}>
+                      {estudiante.nombre} {estudiante.apellido}
+                    </h3>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div>
+                <div style={{ 
+                  paddingTop: '0.625rem',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  marginBottom: '0.875rem'
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    gap: '0.75rem',
+                    marginBottom: '0.75rem',
+                    flexWrap: 'wrap'
+                  }}>
+                  <div style={{ flex: '1 1 140px' }}>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                      <IdCard size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
                       Identificación
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'SF Mono, Monaco, Consolas, monospace' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'SF Mono, Monaco, Consolas, monospace' }}>
                       {estudiante.identificacion}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-                      <User size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  <div style={{ flex: '1 1 140px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Usuario
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {estudiante.username || 'No asignado'}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-                      <Mail size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  <div style={{ flex: '1 1 200px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Email
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {estudiante.email}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-                      <Calendar size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  <div style={{ flex: '1 1 120px' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Registro
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
                       {formatDate(estudiante.fecha_registro)}
                     </div>
                   </div>
+                  </div>
                 </div>
 
-                <button
-                  onClick={() => handleViewEstudiante(estudiante)}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.375rem',
-                    padding: '0.625rem',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${RedColorPalette.primary}`,
-                    borderRadius: '0.625rem',
-                    color: RedColorPalette.primary,
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                    e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                    e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <Eye size={14} /> Ver Detalles
-                </button>
-              </GlassEffect>
+                <div style={{ 
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  paddingTop: '0.75rem',
+                  marginTop: '0.75rem'
+                }}>
+                  <button
+                    onClick={() => handleViewEstudiante(estudiante)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem',
+                      padding: '6px 0.75rem',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '0.5rem',
+                      color: '#3b82f6',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                    }}
+                  >
+                    <Eye size={12} /> Ver Detalles
+                  </button>
+                </div>
+              </div>
             ))
           )}
         </div>

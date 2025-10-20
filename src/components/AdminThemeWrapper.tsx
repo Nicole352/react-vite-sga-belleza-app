@@ -189,6 +189,12 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           color: var(--theme-text-primary) !important;
         }
         
+        /* Clase específica para columnas de nombres que deben estar en mayúsculas */
+        .admin-theme-wrapper .table-nombre-uppercase,
+        .admin-theme-wrapper .table-nombre-uppercase div {
+          text-transform: uppercase !important;
+        }
+        
         /* Textos específicos que suelen ser más sutiles */
         .admin-theme-wrapper div[style*="color: rgba(255,255,255,0.6)"],
         .admin-theme-wrapper div[style*="color: rgba(255,255,255,0.7)"],
@@ -262,7 +268,8 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           }
           
           .admin-theme-wrapper h3 {
-            font-size: 0.95rem !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
           }
           
           .admin-theme-wrapper h4 {
@@ -310,7 +317,8 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           }
           
           .admin-theme-wrapper h3 {
-            font-size: 0.9rem !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
           }
           
           .admin-theme-wrapper button {
@@ -329,15 +337,33 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         }
         
         .admin-theme-wrapper h3 {
-          font-size: 1.1rem !important;
+          font-size: 0.8rem !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.02em !important;
+          text-transform: uppercase !important;
+        }
+        
+        /* Regla ultra-específica para h3 en cards */
+        .admin-theme-wrapper div[style*="border-radius"] h3,
+        .admin-theme-wrapper div[style*="borderRadius"] h3,
+        .admin-theme-wrapper [style*="padding"] h3 {
+          font-size: 0.8rem !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.02em !important;
+          text-transform: uppercase !important;
+        }
+        
+        /* Forzar fontWeight en h3 con estilos inline */
+        .admin-theme-wrapper h3[style] {
+          font-weight: 700 !important;
         }
         
         .admin-theme-wrapper h4 {
-          font-size: 0.95rem !important;
+          font-size: 0.75rem !important;
         }
         
         .admin-theme-wrapper h5 {
-          font-size: 0.85rem !important;
+          font-size: 0.7rem !important;
         }
         
         /* Forzar backgrounds específicos que aparecen en SuperAdmin */

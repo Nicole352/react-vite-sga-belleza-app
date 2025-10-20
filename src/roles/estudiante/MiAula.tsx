@@ -228,7 +228,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
       transform: isVisible ? 'translateY(0)' : 'translateY(-1.875rem)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-      height: '100%',
+      minHeight: '100%',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden'
@@ -237,17 +237,16 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `0.0625rem solid ${theme.border}`,
-        borderRadius: '1.25em',
+        borderRadius: '1.25rem',
         padding: '0.75em',
         marginBottom: '0.75em',
         backdropFilter: 'blur(1.25rem)',
-        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)',
-        flexShrink: 0
+        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.5em' }}>
           <div style={{
-            width: '2.75em',
-            height: '2.75em',
+            width: '2.75rem',
+            height: '2.75rem',
             background: `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
             borderRadius: '50%',
             display: 'flex',
@@ -255,7 +254,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             justifyContent: 'center',
             boxShadow: `0 0.5rem 1.5rem ${theme.accent}30`
           }}>
-            <BookOpen size={18} color={darkMode ? '#000' : '#fff'} />
+            <BookOpen size={18} color="#fff" />
           </div>
           <div>
             <h1 style={{
@@ -361,10 +360,10 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         <div style={{
           background: theme.cardBg,
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '1.25em',
+          borderRadius: '1.25rem',
           padding: '0.75em',
-          backdropFilter: 'blur(20px)',
-          boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          backdropFilter: 'blur(1.25rem)',
+          boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
         }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
             Mis Cursos en Progreso
