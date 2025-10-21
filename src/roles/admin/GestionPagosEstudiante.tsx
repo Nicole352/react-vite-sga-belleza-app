@@ -5,6 +5,7 @@ import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -886,65 +887,40 @@ const GestionPagosEstudiante = () => {
       {/* Modal de detalle PREMIUM */}
       {showModal && selectedPago && (
         <div
-          data-modal-overlay="true"
-          className="responsive-modal-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowModal(false)}
         >
           <div
-            className="responsive-modal-content"
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-              borderRadius: isMobile ? '1.25em 1.25rem 0 0' : '0.75rem',
-              width: '100%',
-              maxWidth: isMobile ? '100%' : '50rem',
-              padding: isMobile ? '1em 1rem 1.5rem 1rem' : '1.125em 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
-              margin: '0 auto',
-              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-              maxHeight: isMobile ? '85vh' : '90vh',
-              overflowY: 'auto',
-              animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
-            }}>
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: isMobile ? '14px' : '1.125rem',
-              paddingBottom: isMobile ? '12px' : '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '0.75rem',
+              paddingBottom: '0.75rem',
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: isMobile ? '1rem' : '1.25rem',
-                fontWeight: '600',
-                letterSpacing: '-0.02em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? '6px' : '0.5rem'
-              }}>
-                <Download size={isMobile ? 18 : 20} />
-                {isMobile ? 'Detalle' : 'Detalle del Pago'}
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileText size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{
+                  margin: 0,
+                  fontSize: isMobile ? '1rem' : '1.1rem',
+                  fontWeight: '600',
+                  color: '#fff'
+                }}>
+                  Detalle del Pago
+                </h3>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: isMobile ? '8px' : '0.375rem',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -961,321 +937,279 @@ const GestionPagosEstudiante = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={isMobile ? 20 : 18} />
+                <X size={16} />
               </button>
             </div>
 
-            {/* Content */}
+            {/* Content - Grid compacto de 2 columnas */}
             <div>
-              {/* Stats Cards Row */}
+              {/* Información Principal - Grid 2 columnas */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                gap: isMobile ? '12px' : '1rem',
-                marginBottom: isMobile ? '20px' : '1.75rem'
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                gap: '0.75rem',
+                marginBottom: '1rem'
               }}>
+                {/* Monto */}
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-                  borderRadius: '1rem',
-                  padding: '1.25rem',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  position: 'relative',
-                  overflow: 'hidden'
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div style={{
-                    position: 'absolute',
-                    top: '-20px',
-                    right: '-20px',
-                    width: '5rem',
-                    height: '5rem',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    borderRadius: '50%',
-                    filter: 'blur(1.25rem)'
-                  }} />
-                  <div style={{
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.5rem'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
                   }}>
-                    <DollarSign size={16} style={{ display: 'inline', marginRight: '0.25rem' }} /> Monto
+                    <DollarSign size={16} style={{ color: '#10b981' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>Monto</span>
                   </div>
                   <div style={{
                     color: '#10b981',
-                    fontSize: '1.75rem',
-                    fontWeight: 800,
-                    letterSpacing: '-1px'
+                    fontSize: '1rem',
+                    fontWeight: '700'
                   }}>
                     {formatearMonto(selectedPago.monto)}
                   </div>
                 </div>
 
+                {/* Cuota/Clase */}
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-                  borderRadius: '1rem',
-                  padding: '1.25rem',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  position: 'relative',
-                  overflow: 'hidden'
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div style={{
-                    position: 'absolute',
-                    top: '-20px',
-                    right: '-20px',
-                    width: '5rem',
-                    height: '5rem',
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    borderRadius: '50%',
-                    filter: 'blur(1.25rem)'
-                  }} />
-                  <div style={{
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.5rem'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
                   }}>
-                    <Calendar size={16} style={{ display: 'inline', marginRight: '0.25rem' }} /> {selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
+                    <Calendar size={16} style={{ color: '#3b82f6' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>{selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}</span>
                   </div>
                   <div style={{
                     color: '#3b82f6',
-                    fontSize: '1.75rem',
-                    fontWeight: 800
+                    fontSize: '1rem',
+                    fontWeight: '700'
                   }}>
                     #{selectedPago.numero_cuota}
                   </div>
                 </div>
 
-                <div style={{
-                  background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado'
-                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)'
-                    : selectedPago.estado === 'pendiente'
-                      ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)'
-                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
-                  borderRadius: '1rem',
-                  padding: '1.25rem',
-                  border: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado'
-                    ? '1px solid rgba(16, 185, 129, 0.2)'
-                    : selectedPago.estado === 'pendiente'
-                      ? '1px solid rgba(251, 191, 36, 0.2)'
-                      : '1px solid rgba(239, 68, 68, 0.2)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.75rem'
-                  }}>
-                    <BarChart3 size={16} style={{ display: 'inline', marginRight: '0.25rem' }} /> Estado
-                  </div>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '8px 1rem',
-                    borderRadius: '0.625rem',
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' :
-                      selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' :
-                        'rgba(239, 68, 68, 0.2)',
-                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' :
-                      selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444',
-                    boxShadow: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '0 0.25rem 0.75rem rgba(16, 185, 129, 0.2)' :
-                      selectedPago.estado === 'pendiente' ? '0 0.25rem 0.75rem rgba(251, 191, 36, 0.2)' :
-                        '0 0.25rem 0.75rem rgba(239, 68, 68, 0.2)'
-                  }}>
-                    {selectedPago.estado === 'verificado' ? '✓ ' : selectedPago.estado === 'pagado' ? '✓ ' : selectedPago.estado === 'pendiente' ? '⏱ ' : '✗ '}
-                    {selectedPago.estado}
-                  </span>
-                </div>
-              </div>
-
-              {/* Información Detallada */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr',
-                gap: '1rem',
-                marginBottom: '1.5rem'
-              }}>
-                {/* Estudiante Card */}
+                {/* Estado */}
                 <div style={{
                   background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
-                  }}>
-                    <div style={{
-                      width: '3.5rem',
-                      height: '3.5rem',
-                      borderRadius: '1rem',
-                      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.5rem',
-                      fontWeight: 800,
-                      color: '#fff',
-                      boxShadow: '0 0.5rem 1rem rgba(99, 102, 241, 0.3)'
-                    }}>
-                      {selectedPago.estudiante_nombre?.charAt(0)}{selectedPago.estudiante_apellido?.charAt(0)}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        color: 'rgba(255,255,255,0.5)',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.0625rem',
-                        marginBottom: '0.375rem'
-                      }}>
-                        <User size={16} style={{ display: 'inline', marginRight: '0.25rem' }} /> Estudiante
-                      </div>
-                      <div style={{
-                        color: '#fff',
-                        fontSize: '1.25rem',
-                        fontWeight: 700,
-                        marginBottom: '0.25rem'
-                      }}>
-                        {selectedPago.estudiante_nombre} {selectedPago.estudiante_apellido}
-                      </div>
-                      <div style={{
-                        color: 'rgba(255,255,255,0.6)',
-                        fontSize: '0.9rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
-                        <span style={{
-                          background: 'rgba(251, 191, 36, 0.15)',
-                          color: '#fbbf24',
-                          padding: '4px 0.625rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.8rem',
-                          fontWeight: 600
-                        }}>
-                          ID: {selectedPago.estudiante_cedula}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Curso Card */}
-                <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
                   border: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div style={{
-                    color: 'rgba(255,255,255,0.5)',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.75rem'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
                   }}>
-                    <BookOpen size={16} style={{ display: 'inline', marginRight: '0.25rem' }} /> Curso Matriculado
+                    <BarChart3 size={16} style={{ color: '#fbbf24' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>Estado</span>
+                  </div>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 0.5rem',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' :
+                      selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' :
+                      selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444'
+                  }}>
+                    {selectedPago.estado}
+                  </span>
+                </div>
+
+                {/* Estudiante */}
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
+                  }}>
+                    <User size={16} style={{ color: '#8b5cf6' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>Estudiante</span>
                   </div>
                   <div style={{
                     color: '#fff',
-                    fontSize: '1.15rem',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem'
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    marginBottom: '0.25rem'
                   }}>
-                    <span style={{
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      padding: '8px 0.75rem',
-                      borderRadius: '0.625rem',
-                      fontSize: '0.9rem'
-                    }}>
-                      {selectedPago.curso_nombre}
-                    </span>
+                    {selectedPago.estudiante_nombre} {selectedPago.estudiante_apellido}
+                  </div>
+                  <div style={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: '0.75rem'
+                  }}>
+                    ID: {selectedPago.estudiante_cedula}
                   </div>
                 </div>
+
+                {/* Curso */}
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  gridColumn: isMobile ? '1' : 'span 2'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
+                  }}>
+                    <BookOpen size={16} style={{ color: '#ef4444' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>Curso</span>
+                  </div>
+                  <div style={{
+                    color: '#fff',
+                    fontSize: '0.9rem',
+                    fontWeight: '600'
+                  }}>
+                    {selectedPago.curso_nombre}
+                  </div>
+                </div>
+
+                {/* Comprobante - Solo si existe */}
+                {selectedPago.numero_comprobante && (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                    padding: '0.75rem',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    gridColumn: isMobile ? '1' : 'span 2'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.375rem'
+                    }}>
+                      <FileText size={16} style={{ color: '#fbbf24' }} />
+                      <span style={{
+                        color: 'rgba(255,255,255,0.6)',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase'
+                      }}>Comprobante</span>
+                    </div>
+                    <div style={{
+                      color: '#fbbf24',
+                      fontSize: '0.9rem',
+                      fontWeight: '600'
+                    }}>
+                      {selectedPago.numero_comprobante}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Información de Pago - Solo para efectivo */}
               {selectedPago.metodo_pago === 'efectivo' && (
                 <div style={{
                   background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
-                  marginBottom: '1.5rem',
-                  border: '1px solid rgba(180, 83, 9, 0.3)'
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  gridColumn: isMobile ? '1' : 'span 2'
                 }}>
                   <div style={{
-                    color: 'rgba(255,255,255,0.5)',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '1rem'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.375rem'
                   }}>
-                    💰 Información del Pago en Efectivo
+                    <DollarSign size={16} style={{ color: '#b45309' }} />
+                    <span style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase'
+                    }}>Información de Pago en Efectivo</span>
                   </div>
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '1rem'
+                    gap: '0.5rem'
                   }}>
-                    {selectedPago.numero_comprobante && (
-                      <div>
-                        <div style={{
-                          color: 'rgba(255,255,255,0.6)',
-                          fontSize: '0.75rem',
-                          marginBottom: '0.375rem'
-                        }}>
-                          Número de Comprobante
-                        </div>
-                        <div style={{
-                          color: '#fbbf24',
-                          fontSize: '1rem',
-                          fontWeight: 700,
-                          background: 'rgba(251, 191, 36, 0.1)',
-                          padding: '8px 0.75rem',
-                          borderRadius: '0.5rem',
-                          border: '1px solid rgba(251, 191, 36, 0.3)'
-                        }}>
-                          {selectedPago.numero_comprobante}
-                        </div>
-                      </div>
-                    )}
                     {(selectedPago as any).recibido_por && (
                       <div>
                         <div style={{
                           color: 'rgba(255,255,255,0.6)',
                           fontSize: '0.75rem',
-                          marginBottom: '0.375rem'
+                          marginBottom: '0.25rem'
                         }}>
                           Recibido por
                         </div>
                         <div style={{
                           color: '#b45309',
-                          fontSize: '1rem',
-                          fontWeight: 700,
-                          background: 'rgba(180, 83, 9, 0.1)',
-                          padding: '8px 0.75rem',
-                          borderRadius: '0.5rem',
-                          border: '1px solid rgba(180, 83, 9, 0.3)'
+                          fontSize: '0.9rem',
+                          fontWeight: '600'
                         }}>
                           {(selectedPago as any).recibido_por}
+                        </div>
+                      </div>
+                    )}
+                    {selectedPago.numero_comprobante && (
+                      <div>
+                        <div style={{
+                          color: 'rgba(255,255,255,0.6)',
+                          fontSize: '0.75rem',
+                          marginBottom: '0.25rem'
+                        }}>
+                          Número de Comprobante
+                        </div>
+                        <div style={{
+                          color: '#fbbf24',
+                          fontSize: '0.9rem',
+                          fontWeight: '600'
+                        }}>
+                          {selectedPago.numero_comprobante}
                         </div>
                       </div>
                     )}
@@ -1283,143 +1217,9 @@ const GestionPagosEstudiante = () => {
                 </div>
               )}
 
-              {/* Información de Verificación */}
-              {(selectedPago.estado === 'verificado' && selectedPago.fecha_verificacion) && (
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '1rem',
-                  padding: '1.25rem',
-                  marginBottom: '1.5rem',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-30px',
-                    right: '-30px',
-                    width: '6.25rem',
-                    height: '6.25rem',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    borderRadius: '50%',
-                    filter: 'blur(1.875rem)'
-                  }} />
-                  <div style={{
-                    color: '#10b981',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    ✓ Verificado por Administrador
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <div style={{
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      borderRadius: '0.625rem',
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      color: '#fff',
-                      boxShadow: '0 0.25rem 0.75rem rgba(16, 185, 129, 0.3)'
-                    }}>
-                      <User size={20} />
-                    </div>
-                    <div>
-                      <div style={{
-                        color: 'rgba(255,255,255,0.95)',
-                        fontSize: '1.05rem',
-                        fontWeight: 700,
-                        marginBottom: '0.25rem'
-                      }}>
-                        {selectedPago.admin_nombre || 'Administrador'}
-                      </div>
-                      <div style={{
-                        color: 'rgba(255,255,255,0.7)',
-                        fontSize: '0.85rem',
-                        marginBottom: '0.375rem'
-                      }}>
-                        ID: {selectedPago.admin_identificacion || selectedPago.verificado_por || 'N/A'}
-                      </div>
-                      <div style={{
-                        color: 'rgba(255,255,255,0.6)',
-                        fontSize: '0.8rem'
-                      }}>
-                        {new Date(selectedPago.fecha_verificacion).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Observaciones */}
-              {selectedPago.observaciones && (
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
-                  border: '1px solid rgba(251, 191, 36, 0.3)',
-                  borderRadius: '1rem',
-                  padding: '1.25rem',
-                  marginBottom: '1.5rem',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-30px',
-                    right: '-30px',
-                    width: '6.25rem',
-                    height: '6.25rem',
-                    background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '50%',
-                    filter: 'blur(1.875rem)'
-                  }} />
-                  <div style={{
-                    color: '#fbbf24',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.0625rem',
-                    marginBottom: '0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    <FileText size={18} style={{ display: 'inline', marginRight: '0.375rem' }} /> Observaciones Importantes
-                  </div>
-                  <div style={{
-                    color: 'rgba(255,255,255,0.95)',
-                    fontSize: '1rem',
-                    lineHeight: 1.7,
-                    fontWeight: 500
-                  }}>
-                    {selectedPago.observaciones}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions Premium */}
+              {/* Botón de cierre */}
               <div style={{
                 display: 'flex',
-                gap: '0.75rem',
                 justifyContent: 'flex-end',
                 paddingTop: '0.75rem',
                 borderTop: '1px solid rgba(255,255,255,0.1)'
@@ -1427,29 +1227,24 @@ const GestionPagosEstudiante = () => {
                 <button
                   onClick={() => setShowModal(false)}
                   style={{
-                    padding: '14px 2rem',
+                    padding: '8px 1.25rem',
                     background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '0.875rem',
+                    borderRadius: '0.5rem',
                     cursor: 'pointer',
-                    fontWeight: 800,
-                    fontSize: '1rem',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: '0 0.375rem 1.25rem rgba(239, 68, 68, 0.4)',
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase'
+                    fontWeight: '600',
+                    fontSize: '0.85rem',
+                    transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 0.75rem 1.75rem rgba(239, 68, 68, 0.5)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 0.375rem 1.25rem rgba(239, 68, 68, 0.4)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  ✕ Cerrar
+                  Cerrar
                 </button>
               </div>
             </div>
@@ -1460,64 +1255,44 @@ const GestionPagosEstudiante = () => {
       {/* Modal Comprobante */}
       {showComprobanteModal && (
         <div
-          data-modal-overlay="true"
-          className="responsive-modal-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowComprobanteModal(false)}
         >
           <div
-            className="responsive-modal-content"
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-              width: '100%',
-              maxWidth: isMobile ? '100%' : '50rem',
-              maxHeight: isMobile ? '85vh' : '90vh',
-              padding: isMobile ? '16px 1rem 1.5rem 1rem' : '18px 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
+              maxWidth: '50rem',
               display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-              animation: isMobile ? 'slideUp 0.3s ease-out' : 'none',
-            }}>
+              flexDirection: 'column'
+            }}
+          >
+            {/* Header */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: isMobile ? '14px' : '1.125rem',
-              paddingBottom: isMobile ? '12px' : '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '0.75rem',
+              paddingBottom: '0.75rem',
+              borderBottom: '1px solid rgba(16, 185, 129, 0.2)',
             }}>
               <div>
-                <h3 style={{
-                  margin: 0,
-                  color: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: isMobile ? '6px' : '0.5rem',
-                  fontSize: isMobile ? '1rem' : '1.25rem',
-                  fontWeight: '600',
-                  letterSpacing: '-0.02em'
-                }}>
-                  <Download size={isMobile ? 18 : 20} />
-                  Comprobante{!isMobile && ' de Pago'}
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Download size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: isMobile ? '1rem' : '1.1rem',
+                    fontWeight: '600',
+                    color: '#fff'
+                  }}>
+                    Comprobante de Pago
+                  </h3>
+                </div>
                 {comprobanteNumero && (
                   <p style={{
-                    margin: isMobile ? '4px 0 0 1.5rem' : '6px 0 0 1.75rem',
+                    margin: '4px 0 0 24px',
                     color: '#fbbf24',
-                    fontSize: isMobile ? '0.75rem' : '0.85rem',
+                    fontSize: '0.75rem',
                     fontWeight: '600'
                   }}>
                     Número: {comprobanteNumero}
@@ -1529,8 +1304,8 @@ const GestionPagosEstudiante = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1547,7 +1322,7 @@ const GestionPagosEstudiante = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -1586,11 +1361,14 @@ const GestionPagosEstudiante = () => {
               />
             </div>
 
+            {/* Botones */}
             <div style={{
-              marginTop: '1rem',
+              marginTop: '0.75rem',
               display: 'flex',
               justifyContent: 'center',
-              gap: '0.75rem'
+              gap: '0.5rem',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid rgba(255,255,255,0.1)'
             }}>
               <a
                 href={comprobanteUrl}
@@ -1600,14 +1378,15 @@ const GestionPagosEstudiante = () => {
                   background: 'rgba(16, 185, 129, 0.15)',
                   border: '1px solid rgba(16, 185, 129, 0.3)',
                   color: '#10b981',
-                  padding: '10px 1rem',
+                  padding: '8px 1rem',
                   borderRadius: '0.5rem',
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 <Download size={16} />
@@ -1619,11 +1398,12 @@ const GestionPagosEstudiante = () => {
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
                   color: '#9ca3af',
-                  padding: '10px 1rem',
+                  padding: '8px 1rem',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 Cerrar
@@ -1732,56 +1512,41 @@ const GestionPagosEstudiante = () => {
       {/* Modal de Verificación Inteligente */}
       {showVerificacionModal && pagoAVerificar && (
         <div
-          data-modal-overlay="true"
-          className="responsive-modal-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowVerificacionModal(false)}
         >
           <div
-            className="responsive-modal-content"
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-              width: '100%',
-              maxWidth: '31.25rem',
-              padding: '18px 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
-              margin: '0 auto',
-              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}>
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '31.25rem' }}
+          >
             {/* Header */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '0.75rem',
+              paddingBottom: '0.75rem',
+              borderBottom: '1px solid rgba(16, 185, 129, 0.2)',
             }}>
-              <h3 style={{ margin: 0, color: '#10b981', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Check size={20} />
-                Verificar Pago
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
+                <h3 style={{
+                  margin: 0,
+                  fontSize: isMobile ? '1rem' : '1.1rem',
+                  fontWeight: '600',
+                  color: '#fff'
+                }}>
+                  Verificar Pago
+                </h3>
+              </div>
               <button
                 onClick={() => setShowVerificacionModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1798,12 +1563,12 @@ const GestionPagosEstudiante = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: 0 }}>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', margin: 0 }}>
                 {pagoAVerificar.estudiante_nombre} {pagoAVerificar.estudiante_apellido}
               </p>
             </div>
@@ -1812,14 +1577,14 @@ const GestionPagosEstudiante = () => {
             <div style={{
               background: 'rgba(16, 185, 129, 0.1)',
               border: '1px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: '0.75rem',
-              padding: '1rem',
-              marginBottom: '1.5rem'
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              marginBottom: '1rem'
             }}>
-              <div style={{ display: 'grid', gap: '0.5rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
+              <div style={{ display: 'grid', gap: '0.5rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Monto total pagado:</span>
-                  <strong style={{ fontSize: '1.1rem', color: '#10b981' }}>
+                  <strong style={{ fontSize: '0.95rem', color: '#10b981' }}>
                     {(() => {
                       const estudianteActual = estudiantes.find(e => e.estudiante_cedula === pagoAVerificar.estudiante_cedula);
                       const cursoActual = estudianteActual?.cursos.find(c => c.id_curso === pagoAVerificar.id_curso);
@@ -1852,15 +1617,15 @@ const GestionPagosEstudiante = () => {
             </div>
 
             {/* Selección de cuotas */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', color: '#fff', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.75rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', color: '#fff', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                 ¿Cuántas cuotas desea verificar con este pago?
               </label>
               <div style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '0.75rem',
-                padding: '1rem'
+                borderRadius: '0.5rem',
+                padding: '0.75rem'
               }}>
                 {(() => {
                   const estudianteActual = estudiantes.find(e => e.estudiante_cedula === pagoAVerificar.estudiante_cedula);
@@ -1872,7 +1637,7 @@ const GestionPagosEstudiante = () => {
 
                   if (cuotasDisponibles.length === 0) {
                     return (
-                      <div style={{ textAlign: 'center', padding: '1.25rem', color: 'rgba(255,255,255,0.7)' }}>
+                      <div style={{ textAlign: 'center', padding: '0.75rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
                         Solo la cuota actual está disponible para verificar
                       </div>
                     );
@@ -1882,13 +1647,13 @@ const GestionPagosEstudiante = () => {
                     <label key={cuota.id_pago} style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.75rem',
+                      gap: '0.5rem',
+                      padding: '0.5rem',
                       background: cuotasAVerificar.includes(cuota.id_pago) ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
                       border: cuotasAVerificar.includes(cuota.id_pago) ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       cursor: 'pointer',
-                      marginBottom: '0.5rem',
+                      marginBottom: '0.375rem',
                       transition: 'all 0.2s'
                     }}>
                       <input
@@ -1901,13 +1666,13 @@ const GestionPagosEstudiante = () => {
                             setCuotasAVerificar(cuotasAVerificar.filter(id => id !== cuota.id_pago));
                           }
                         }}
-                        style={{ width: '1.125rem', height: '1.125rem', cursor: 'pointer' }}
+                        style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
                       />
                       <div style={{ flex: 1, color: '#fff' }}>
-                        <div style={{ fontWeight: '600' }}>
+                        <div style={{ fontWeight: '600', fontSize: '0.85rem' }}>
                           {cuota.modalidad_pago === 'clases' ? `Clase ${cuota.numero_cuota}` : `Cuota #${cuota.numero_cuota}`}
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
                           {formatearMonto(cuota.monto)} - {cuota.estado}
                         </div>
                       </div>
@@ -1915,15 +1680,15 @@ const GestionPagosEstudiante = () => {
                   ));
                 })()}
               </div>
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.5rem' }}>
-                <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600' }}>
+              <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.375rem' }}>
+                <div style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
                   Total a verificar: {cuotasAVerificar.length} cuota(s)
                 </div>
               </div>
             </div>
 
             {/* Botones */}
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
               <button
                 onClick={() => {
                   setShowVerificacionModal(false);
@@ -1933,15 +1698,16 @@ const GestionPagosEstudiante = () => {
                 disabled={procesando}
                 style={{
                   flex: 1,
-                  padding: '12px 1.5rem',
+                  padding: '8px 1rem',
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   color: '#9ca3af',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: '600',
                   cursor: procesando ? 'not-allowed' : 'pointer',
-                  opacity: procesando ? 0.5 : 1
+                  opacity: procesando ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
                 }}
               >
                 Cancelar
@@ -1951,28 +1717,29 @@ const GestionPagosEstudiante = () => {
                 disabled={procesando || cuotasAVerificar.length === 0}
                 style={{
                   flex: 1,
-                  padding: '12px 1.5rem',
+                  padding: '8px 1rem',
                   background: procesando || cuotasAVerificar.length === 0
                     ? 'rgba(16, 185, 129, 0.3)'
                     : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   border: 'none',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: '600',
                   cursor: procesando || cuotasAVerificar.length === 0 ? 'not-allowed' : 'pointer',
                   opacity: procesando || cuotasAVerificar.length === 0 ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem'
+                  gap: '0.375rem',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 {procesando ? (
                   <>
                     <div style={{
-                      width: '1rem',
-                      height: '1rem',
+                      width: '0.875rem',
+                      height: '0.875rem',
                       border: '2px solid rgba(255,255,255,0.3)',
                       borderTop: '2px solid #fff',
                       borderRadius: '50%',
@@ -1982,7 +1749,7 @@ const GestionPagosEstudiante = () => {
                   </>
                 ) : (
                   <>
-                    <Check size={18} />
+                    <Check size={16} />
                     Verificar {cuotasAVerificar.length > 1 ? `${cuotasAVerificar.length} Cuotas` : 'Cuota'}
                   </>
                 )}
@@ -1995,56 +1762,41 @@ const GestionPagosEstudiante = () => {
       {/* Modal de Rechazo Elegante */}
       {showRechazoModal && pagoARechazar && (
         <div
-          data-modal-overlay="true"
-          className="responsive-modal-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowRechazoModal(false)}
         >
           <div
-            className="responsive-modal-content"
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '0.75rem',
-              width: '100%',
-              maxWidth: '31.25rem',
-              padding: '18px 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
-              margin: '0 auto',
-              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}>
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '31.25rem' }}
+          >
             {/* Header del modal */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '0.75rem',
+              paddingBottom: '0.75rem',
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
-              <h3 style={{ margin: 0, color: '#ef4444', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <X size={20} />
-                Rechazar Pago
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{
+                  margin: 0,
+                  fontSize: isMobile ? '1rem' : '1.1rem',
+                  fontWeight: '600',
+                  color: '#fff'
+                }}>
+                  Rechazar Pago
+                </h3>
+              </div>
               <button
                 onClick={() => setShowRechazoModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -2061,13 +1813,13 @@ const GestionPagosEstudiante = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '0.75rem' }}>
               <p style={{
                 color: 'rgba(255,255,255,0.7)',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 margin: 0
               }}>
                 {pagoARechazar.modalidad_pago === 'clases' ? `Clase ${pagoARechazar.numero_cuota}` : `Cuota #${pagoARechazar.numero_cuota}`} - {pagoARechazar.estudiante_nombre} {pagoARechazar.estudiante_apellido}
@@ -2078,18 +1830,18 @@ const GestionPagosEstudiante = () => {
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '0.75rem',
-              padding: '1rem',
-              marginBottom: '1.5rem'
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              marginBottom: '1rem'
             }}>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                <AlertCircle size={16} /> Al rechazar este pago:
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginBottom: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <AlertCircle size={14} /> Al rechazar este pago:
               </div>
               <ul style={{
                 color: 'rgba(255,255,255,0.9)',
-                fontSize: '0.85rem',
+                fontSize: '0.75rem',
                 margin: 0,
-                paddingLeft: '1.25rem'
+                paddingLeft: '1rem'
               }}>
                 <li>El estado volverá a "Pendiente"</li>
                 <li>El estudiante deberá subir un nuevo comprobante</li>
@@ -2098,11 +1850,11 @@ const GestionPagosEstudiante = () => {
             </div>
 
             {/* Campo de motivo */}
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <label style={{
                 display: 'block',
                 color: '#fff',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
                 marginBottom: '0.5rem'
               }}>
@@ -2112,29 +1864,29 @@ const GestionPagosEstudiante = () => {
                 value={motivoRechazo}
                 onChange={(e) => setMotivoRechazo(e.target.value)}
                 placeholder="Ej: El comprobante no es legible, número incorrecto, etc."
-                rows={4}
+                rows={3}
                 style={{
                   width: '100%',
-                  padding: '0.75rem',
+                  padding: '0.5rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
                   borderRadius: '0.5rem',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   resize: 'vertical'
                 }}
               />
               <div style={{
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
                 color: 'rgba(255,255,255,0.5)',
-                marginTop: '0.5rem'
+                marginTop: '0.375rem'
               }}>
                 Este mensaje será visible para el estudiante
               </div>
             </div>
 
             {/* Botones */}
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
               <button
                 onClick={() => {
                   setShowRechazoModal(false);
@@ -2144,15 +1896,16 @@ const GestionPagosEstudiante = () => {
                 disabled={procesando}
                 style={{
                   flex: 1,
-                  padding: '12px 1.5rem',
+                  padding: '8px 1rem',
                   background: 'rgba(156, 163, 175, 0.15)',
                   border: '1px solid rgba(156, 163, 175, 0.3)',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   color: '#9ca3af',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: '600',
                   cursor: procesando ? 'not-allowed' : 'pointer',
-                  opacity: procesando ? 0.5 : 1
+                  opacity: procesando ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
                 }}
               >
                 Cancelar
@@ -2162,28 +1915,29 @@ const GestionPagosEstudiante = () => {
                 disabled={procesando || !motivoRechazo.trim()}
                 style={{
                   flex: 1,
-                  padding: '12px 1.5rem',
+                  padding: '8px 1rem',
                   background: procesando || !motivoRechazo.trim()
                     ? 'rgba(239, 68, 68, 0.3)'
                     : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   border: 'none',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   color: '#fff',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: '600',
                   cursor: procesando || !motivoRechazo.trim() ? 'not-allowed' : 'pointer',
                   opacity: procesando || !motivoRechazo.trim() ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem'
+                  gap: '0.375rem',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 {procesando ? (
                   <>
                     <div style={{
-                      width: '1rem',
-                      height: '1rem',
+                      width: '0.875rem',
+                      height: '0.875rem',
                       border: '2px solid rgba(255,255,255,0.3)',
                       borderTop: '2px solid #fff',
                       borderRadius: '50%',
@@ -2193,7 +1947,7 @@ const GestionPagosEstudiante = () => {
                   </>
                 ) : (
                   <>
-                    <X size={18} />
+                    <X size={16} />
                     Rechazar Pago
                   </>
                 )}

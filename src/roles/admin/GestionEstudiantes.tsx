@@ -4,9 +4,11 @@ import {
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
+import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 // Tipos
 interface Estudiante {
@@ -344,19 +346,20 @@ const GestionEstudiantes = () => {
                       {estudiante.estado}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '2rem',
-                      height: '2rem',
-                      borderRadius: '50%',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <User size={16} color={RedColorPalette.primary} />
-                    </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.625rem',
+                    marginBottom: '0.625rem'
+                  }}>
+                    <UserAvatar
+                      userId={estudiante.id_usuario}
+                      nombre={estudiante.nombre}
+                      apellido={estudiante.apellido}
+                      size={2}
+                      showBorder={true}
+                      borderColor="rgba(239, 68, 68, 0.3)"
+                    />
                     <h3 style={{ 
                       color: '#fff', 
                       margin: 0
@@ -801,54 +804,36 @@ const GestionEstudiantes = () => {
       {/* Modal de Detalle */}
       {showModal && selectedEstudiante && (
         <div 
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '43.75rem',
-            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: isMobile ? '90vh' : '85vh',
-            overflowY: 'auto',
-          }}>
+          <div 
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header del Modal */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: isMobile ? 12 : 14,
+              paddingBottom: isMobile ? 8 : 10,
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
-              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
-                <GraduationCap size={20} />
-                Información del Estudiante
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <GraduationCap size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  Información del Estudiante
+                </h3>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -864,75 +849,105 @@ const GestionEstudiantes = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             {/* Información del Estudiante */}
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-              gap: isMobile ? 12 : 16 
+              gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', 
+              gap: isMobile ? 10 : 12,
+              columnGap: isSmallScreen ? 0 : 16
             }}>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.nombre}</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <User size={14} style={{ color: '#ef4444' }} />
+                  Nombres
+                </label>
+                <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>{selectedEstudiante.nombre}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Apellidos</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>{selectedEstudiante.apellido}</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <User size={14} style={{ color: '#ef4444' }} />
+                  Apellidos
+                </label>
+                <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>{selectedEstudiante.apellido}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
-                <div style={{ color: '#fff' }}>{selectedEstudiante.identificacion}</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <IdCard size={14} style={{ color: '#8b5cf6' }} />
+                  Identificación
+                </label>
+                <div style={{ color: '#fff', fontSize: '0.9rem' }}>{selectedEstudiante.identificacion}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>
-                <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <User size={16} color="#3b82f6" />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <User size={14} style={{ color: '#3b82f6' }} />
+                  Usuario
+                </label>
+                <div style={{ color: '#fff', fontSize: '0.9rem' }}>
                   {selectedEstudiante.username || 'No asignado'}
                 </div>
               </div>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <Mail size={14} style={{ color: '#06b6d4' }} />
+                  Email
+                </label>
+                <div style={{ color: '#fff', fontSize: '0.9rem' }}>{selectedEstudiante.email}</div>
+              </div>
               {selectedEstudiante.telefono && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Phone size={16} color="#10b981" />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <Phone size={14} style={{ color: '#10b981' }} />
+                    Teléfono
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '0.9rem' }}>
                     {selectedEstudiante.telefono}
                   </div>
                 </div>
               )}
               {selectedEstudiante.fecha_nacimiento && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Calendar size={16} color="#fbbf24" />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <Calendar size={14} style={{ color: '#fbbf24' }} />
+                    Fecha de Nacimiento
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '0.9rem' }}>
                     {formatDate(selectedEstudiante.fecha_nacimiento)}
                   </div>
                 </div>
               )}
               {selectedEstudiante.genero && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Género</div>
-                  <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selectedEstudiante.genero}</div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <User size={14} style={{ color: '#f59e0b' }} />
+                    Género
+                  </label>
+                  <div style={{ color: '#fff', textTransform: 'capitalize', fontSize: '0.9rem' }}>{selectedEstudiante.genero}</div>
                 </div>
               )}
               {selectedEstudiante.direccion && (
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Dirección</div>
-                  <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <MapPin size={16} color="#ef4444" />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <MapPin size={14} style={{ color: '#ef4444' }} />
+                    Dirección
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '0.9rem' }}>
                     {selectedEstudiante.direccion}
                   </div>
                 </div>
               )}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  Estado
+                </label>
                 <span style={{
                   display: 'inline-flex',
                   padding: '6px 0.75rem',
                   borderRadius: '9999px',
-                  fontSize: '0.9rem',
+                  fontSize: '0.8rem',
                   fontWeight: '600',
                   textTransform: 'capitalize',
                   background: selectedEstudiante.estado === 'activo' ? 'rgba(220, 38, 38, 0.15)' :
@@ -949,25 +964,40 @@ const GestionEstudiantes = () => {
                 </span>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Registro</div>
-                <div style={{ color: '#fff' }}>{formatDate(selectedEstudiante.fecha_registro)}</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                  <Calendar size={14} style={{ color: '#3b82f6' }} />
+                  Fecha de Registro
+                </label>
+                <div style={{ color: '#fff', fontSize: '0.9rem' }}>{formatDate(selectedEstudiante.fecha_registro)}</div>
               </div>
             </div>
 
             {/* Botón Cerrar */}
-            <div style={{ marginTop: isMobile ? 20 : 24, textAlign: isMobile ? 'center' : 'right' }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isSmallScreen ? 'column-reverse' : 'row', 
+              gap: isMobile ? 10 : 12, 
+              marginTop: isMobile ? 16 : 24, 
+              justifyContent: 'flex-end' 
+            }}>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
-                  background: 'rgba(156, 163, 175, 0.15)',
-                  border: '1px solid rgba(156, 163, 175, 0.3)',
-                  color: '#9ca3af',
-                  padding: '10px 1.25rem',
-                  borderRadius: '0.5rem',
-                  width: isMobile ? '100%' : 'auto',
+                  padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: isMobile ? 10 : 12,
+                  color: 'var(--admin-text-muted, rgba(255,255,255,0.7))',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  width: isSmallScreen ? '100%' : 'auto',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
                 }}
               >
                 Cerrar

@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Plus, Edit, Trash2, X, Save, BookOpen, Search, Grid, List, ChevronLeft, ChevronRight
+  Plus, Edit, Trash2, X, Save, BookOpen, Search, Grid, List, ChevronLeft, ChevronRight,
+  FileText, Calendar, DollarSign, CreditCard, Hash, CheckCircle, XCircle
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 type TipoCurso = {
   id_tipo_curso: number;
@@ -833,58 +835,36 @@ const GestionTiposCurso: React.FC = () => {
 
       {showModal && (
         <div
-          data-modal-overlay="true"
+          className="modal-overlay"
           onClick={() => setShowModal(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isSmallScreen ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            padding: isSmallScreen ? '0' : '1.25rem',
-          }}
         >
           <div
+            className="modal-content"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%))',
-              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.3))',
-              borderRadius: isSmallScreen ? '20px 1.25rem 0 0' : '0.75rem',
-              width: isSmallScreen ? '100%' : '100%',
-              maxWidth: isSmallScreen ? '100%' : '43.75rem',
-              maxHeight: isSmallScreen ? '90vh' : '85vh',
-              padding: isMobile ? '16px 1.25rem 1.25rem 1.25rem' : '18px 1.75rem 1.375rem 1.75rem',
-              color: 'var(--admin-text-primary, #fff)',
-              margin: '0 auto',
-              boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-              overflowY: 'auto',
-              animation: isSmallScreen ? 'slideUp 0.3s ease-out' : 'scaleIn 0.3s ease-out'
-            }}
           >
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: isMobile ? 14 : 18,
-                paddingBottom: isMobile ? 10 : 14,
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                marginBottom: isMobile ? 12 : 14,
+                paddingBottom: isMobile ? 8 : 10,
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
-                {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BookOpen size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
+                </h3>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
+                  borderRadius: '8px',
+                  padding: '6px',
                   color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
@@ -901,15 +881,18 @@ const GestionTiposCurso: React.FC = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 16, columnGap: isSmallScreen ? 0 : 20 }}>
-                {/* Nombre - ancho completo */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.875rem' }}>Nombre del tipo</label>
+              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 10 : 12, columnGap: isSmallScreen ? 0 : 16 }}>
+                {/* Nombre - 2 columnas */}
+                <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <FileText size={14} style={{ color: '#ef4444' }} />
+                    Nombre del tipo
+                  </label>
                   <input
                     name="nombre"
                     placeholder="Ej. Cosmetología, Maquillaje Profesional"
@@ -917,12 +900,12 @@ const GestionTiposCurso: React.FC = () => {
                     required
                     style={{
                       width: '100%',
-                      padding: '9px 0.75rem',
+                      padding: '7px 10px',
                       background: 'rgba(255,255,255,0.06)',
                       border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: 8,
+                      borderRadius: 6,
                       color: '#fff',
-                      fontSize: '0.9rem',
+                      fontSize: '0.8rem',
                       transition: 'all 0.2s ease',
                     }}
                     onFocus={(e) => {
@@ -934,36 +917,58 @@ const GestionTiposCurso: React.FC = () => {
                       e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
                     }}
                   />
-                  <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
-                    El nombre que verán los estudiantes en la web.
-                  </div>
                 </div>
 
-                {/* Descripción - ahora arriba, ancho completo */}
+                {/* Estado - 1 columna */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <CheckCircle size={14} style={{ color: '#10b981' }} />
+                    Estado
+                  </label>
+                  <StyledSelect
+                    name="estado"
+                    defaultValue={selected?.estado || 'activo'}
+                    options={[
+                      { value: 'activo', label: 'Activo' },
+                      { value: 'inactivo', label: 'Inactivo' },
+                    ]}
+                  />
+                </div>
+
+                {/* Descripción - ancho completo, más compacta */}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Descripción (opcional)</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <FileText size={14} style={{ color: '#8b5cf6' }} />
+                    Descripción (opcional)
+                  </label>
                   <textarea
                     name="descripcion"
                     defaultValue={selected?.descripcion || ''}
-                    placeholder="Resumen atractivo del programa, objetivos y beneficios principales."
-                    rows={4}
+                    placeholder="Resumen del programa, objetivos y beneficios."
+                    rows={2}
                     style={{
                       width: '100%',
-                      padding: 12,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 10,
-                      color: 'var(--admin-text-primary, #fff)',
+                      padding: '8px 10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      resize: 'vertical',
+                      minHeight: '50px'
                     }}
                   />
                 </div>
 
-                {/* Separador sutil */}
-                <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+                {/* Separador */}
+                <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(239, 68, 68, 0.2)', margin: '6px 0' }} />
 
                 {/* Modalidad de Pago */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600 }}>Modalidad de Pago</label>
+                <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <CreditCard size={14} style={{ color: '#3b82f6' }} />
+                    Modalidad de Pago
+                  </label>
                   <StyledSelect
                     name="modalidad_pago"
                     defaultValue={selected?.modalidad_pago || 'mensual'}
@@ -984,56 +989,14 @@ const GestionTiposCurso: React.FC = () => {
                       }
                     }}
                   />
-                  <div style={{ marginTop: 3, color: 'var(--admin-text-muted, rgba(255,255,255,0.55))', fontSize: '0.7rem' }}>
-                    <strong>Mensual:</strong> Cuotas mensuales. <strong>Por Clases:</strong> Pago por clase.
-                  </div>
                 </div>
 
-                {/* Campos específicos para modalidad "clases" */}
-                <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Número de Clases</label>
-                  <input
-                    type="number"
-                    min={1}
-                    name="numero_clases"
-                    placeholder="Ej. 16"
-                    defaultValue={selected?.numero_clases ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 8,
-                      color: 'var(--admin-text-primary, #fff)',
-                      fontSize: '0.9rem',
-                    }}
-                  />
-                </div>
-
-                <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Precio por Clase (USD)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    name="precio_por_clase"
-                    placeholder="Ej. 15.40"
-                    defaultValue={selected?.precio_por_clase ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 8,
-                      color: 'var(--admin-text-primary, #fff)',
-                      fontSize: '0.9rem',
-                    }}
-                  />
-                </div>
-
-                {/* Duración y Precio en la misma fila */}
+                {/* Duración */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Duración (meses)</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <Calendar size={14} style={{ color: '#f59e0b' }} />
+                    Duración (meses)
+                  </label>
                   <input
                     type="number"
                     min={1}
@@ -1042,17 +1005,22 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.duracion_meses ?? ''}
                     style={{
                       width: '100%',
-                      padding: 10,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 8,
-                      color: 'var(--admin-text-primary, #fff)',
-                      fontSize: '0.9rem',
+                      padding: '7px 10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.8rem',
                     }}
                   />
                 </div>
+
+                {/* Precio base */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Precio base (USD)</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <DollarSign size={14} style={{ color: '#10b981' }} />
+                    Precio base (USD)
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -1062,26 +1030,61 @@ const GestionTiposCurso: React.FC = () => {
                     defaultValue={selected?.precio_base ?? ''}
                     style={{
                       width: '100%',
-                      padding: 10,
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 8,
-                      color: 'var(--admin-text-primary, #fff)',
-                      fontSize: '0.9rem',
+                      padding: '7px 10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.8rem',
                     }}
                   />
                 </div>
 
-                {/* Estado al final a ancho completo, con StyledSelect */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 4, color: 'var(--admin-text-secondary, rgba(255,255,255,0.8))', fontWeight: 600, fontSize: '0.85rem' }}>Estado</label>
-                  <StyledSelect
-                    name="estado"
-                    defaultValue={selected?.estado || 'activo'}
-                    options={[
-                      { value: 'activo', label: 'Activo' },
-                      { value: 'inactivo', label: 'Inactivo' },
-                    ]}
+                {/* Campos específicos para modalidad "clases" */}
+                <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <Hash size={14} style={{ color: '#06b6d4' }} />
+                    Número de Clases
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    name="numero_clases"
+                    placeholder="Ej. 16"
+                    defaultValue={selected?.numero_clases ?? ''}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                    }}
+                  />
+                </div>
+
+                <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <DollarSign size={14} style={{ color: '#8b5cf6' }} />
+                    Precio por Clase (USD)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    name="precio_por_clase"
+                    placeholder="Ej. 15.40"
+                    defaultValue={selected?.precio_por_clase ?? ''}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                    }}
                   />
                 </div>
               </div>

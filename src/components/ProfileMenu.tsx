@@ -1,20 +1,80 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Lock, LogOut, Info, Sun, Moon } from 'lucide-react';
+import { Camera, Lock, LogOut, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PerfilModal from './PerfilModal';
 
 interface ProfileMenuProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
   theme: any;
-  userData?: { nombre?: string; apellido?: string; nombres?: string; apellidos?: string } | null;
+  userData?: { 
+    id_usuario?: number;
+    nombre?: string; 
+    apellido?: string; 
+    nombres?: string; 
+    apellidos?: string;
+    email?: string;
+    username?: string;
+  } | null;
   onChangePassword?: () => void; // Opcional: callback para cambiar contraseña
   avatarColor?: string; // Opcional: color del avatar (default: rojo)
+  fotoPerfilUrl?: string | null; // URL de la foto de perfil
+  onPhotoUpdated?: () => void; // Callback cuando se actualiza la foto
 }
 
-const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePassword, avatarColor = 'linear-gradient(135deg, #ef4444, #dc2626)' }: ProfileMenuProps) => {
+const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePassword, avatarColor = 'linear-gradient(135deg, #ef4444, #dc2626)', fotoPerfilUrl, onPhotoUpdated }: ProfileMenuProps) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showPerfilModal, setShowPerfilModal] = useState(false);
+  const [currentFotoUrl, setCurrentFotoUrl] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Cargar foto de perfil al montar y cuando userData cambie
+  useEffect(() => {
+    const loadFoto = async () => {
+      if (userData?.id_usuario) {
+        try {
+          const token = sessionStorage.getItem('auth_token');
+          const response = await fetch(`http://localhost:3000/api/usuarios/${userData.id_usuario}/foto-perfil`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setCurrentFotoUrl(url);
+          } else {
+            setCurrentFotoUrl(null);
+          }
+        } catch (error) {
+          setCurrentFotoUrl(null);
+        }
+      }
+    };
+    loadFoto();
+  }, [userData?.id_usuario]);
+
+  // Función para recargar la foto cuando se actualiza
+  const handlePhotoUpdate = () => {
+    if (userData?.id_usuario) {
+      const loadFoto = async () => {
+        try {
+          const token = sessionStorage.getItem('auth_token');
+          const response = await fetch(`http://localhost:3000/api/usuarios/${userData.id_usuario}/foto-perfil?t=${Date.now()}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setCurrentFotoUrl(url);
+          }
+        } catch (error) {
+          console.error('Error recargando foto:', error);
+        }
+      };
+      loadFoto();
+    }
+    if (onPhotoUpdated) onPhotoUpdated();
+  };
 
   // Función para obtener iniciales del usuario
   const getInitials = () => {
@@ -87,7 +147,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
         style={{
           width: '44px',
           height: '44px',
-          background: avatarColor,
+          background: currentFotoUrl ? 'transparent' : avatarColor,
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
@@ -102,7 +162,8 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
           fontWeight: '700',
           fontSize: '0.95rem',
           color: '#fff',
-          letterSpacing: '0.5px'
+          letterSpacing: '0.5px',
+          overflow: 'hidden'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.05)';
@@ -122,7 +183,19 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
             : 'rgba(0, 0, 0, 0.3)';
           e.currentTarget.style.boxShadow = `0 4px 12px ${shadowColor}`;
         }}>
-        {getInitials()}
+        {currentFotoUrl ? (
+          <img 
+            src={currentFotoUrl} 
+            alt="Foto de perfil" 
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          getInitials()
+        )}
       </div>
 
       {/* Menú desplegable */}
@@ -166,10 +239,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
             onClick={(e) => {
               e.stopPropagation();
               setShowProfileMenu(false);
-              toast('Función de cambiar foto de perfil próximamente', {
-                icon: <Info size={20} />,
-                duration: 3000,
-              });
+              setShowPerfilModal(true);
             }}
             style={{
               padding: '12px 16px',
@@ -202,10 +272,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
               if (onChangePassword) {
                 onChangePassword();
               } else {
-                toast('Función de cambiar contraseña próximamente', {
-                  icon: <Info size={20} />,
-                  duration: 3000,
-                });
+                toast('Función de cambiar contraseña próximamente');
               }
             }}
             style={{
@@ -322,6 +389,26 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
           }
         }
       `}</style>
+
+      {/* Modal de Perfil */}
+      {userData?.id_usuario && (
+        <PerfilModal
+          isOpen={showPerfilModal}
+          onClose={() => setShowPerfilModal(false)}
+          darkMode={darkMode}
+          theme={theme}
+          userData={{
+            id_usuario: userData.id_usuario,
+            nombre: userData.nombre,
+            apellido: userData.apellido,
+            nombres: userData.nombres,
+            apellidos: userData.apellidos,
+            email: userData.email,
+            username: userData.username
+          }}
+          onPhotoUpdated={handlePhotoUpdate}
+        />
+      )}
     </div>
   );
 };

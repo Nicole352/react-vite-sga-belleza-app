@@ -5,13 +5,16 @@ import {
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
+import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 // Tipos
 interface Docente {
   id_docente: number;
+  id_usuario?: number;
   identificacion: string;
   nombres: string;
   apellidos: string;
@@ -195,7 +198,7 @@ const GestionDocentes = () => {
               <CheckCircle2 size={20} />
               Docente creado exitosamente
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+            <div style={{ fontSize: '0.8rem', opacity: 0.95 }}>
               <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '0.375rem' }}>
                 <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Credenciales de acceso:</div>
                 <div><strong>Usuario:</strong> {result.docente.username}</div>
@@ -491,22 +494,20 @@ const GestionDocentes = () => {
                       {docente.estado}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '2rem',
-                      height: '2rem',
-                      borderRadius: '50%',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <User size={16} color={RedColorPalette.primary} />
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                    <UserAvatar
+                      userId={docente.id_usuario || docente.id_docente}
+                      nombre={docente.nombres}
+                      apellido={docente.apellidos}
+                      size={2}
+                      showBorder={true}
+                      borderColor="rgba(239, 68, 68, 0.3)"
+                    />
                     <h3 style={{
                       color: '#fff',
-                      margin: 0
+                      margin: 0,
+                      fontSize: '0.95rem',
+                      fontWeight: 600
                     }}>
                       {docente.nombres} {docente.apellidos}
                     </h3>
@@ -917,33 +918,14 @@ const GestionDocentes = () => {
       {/* Modal */}
       {showModal && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '43.75rem',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            padding: '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)'
-          }}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '50rem' }}
+          >
             {/* Header del Modal */}
             <div style={{
               display: 'flex',
@@ -1002,8 +984,8 @@ const GestionDocentes = () => {
                     </h4>
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                      gap: isMobile ? 10 : 12
+                      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                      gap: isMobile ? 8 : 10
                     }}>
                       {selectedDocente.username && (
                         <div>
@@ -1024,8 +1006,8 @@ const GestionDocentes = () => {
                 {/* Información Personal */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                  gap: isMobile ? 12 : 16
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                  gap: isMobile ? 8 : 10
                 }}>
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
@@ -1092,7 +1074,7 @@ const GestionDocentes = () => {
                       display: 'inline-flex',
                       padding: '6px 0.75rem',
                       borderRadius: '9999px',
-                      fontSize: '0.9rem',
+                      fontSize: '0.8rem',
                       fontWeight: '600',
                       textTransform: 'capitalize',
                       background: selectedDocente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
@@ -1115,20 +1097,20 @@ const GestionDocentes = () => {
                     padding: 12,
                     marginBottom: 20,
                     color: '#3b82f6',
-                    fontSize: '0.9rem'
+                    fontSize: '0.8rem'
                   }}>
                     <Info size={16} style={{ display: 'inline', marginRight: '0.375rem' }} /> <strong>Credenciales automáticas:</strong> El sistema generará automáticamente un username único (iniciales + apellido) y usará la identificación como contraseña temporal.
                   </div>
                 )}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                  gap: isMobile ? 12 : 16,
-                  marginBottom: isMobile ? 16 : 20
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                  gap: isMobile ? 8 : 10,
+                  marginBottom: isMobile ? 10 : 12
                 }}>
                   {/* Identificación */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Identificación *
                     </label>
                     <input
@@ -1138,19 +1120,19 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.identificacion || ''}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Nombres */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Nombres *
                     </label>
                     <input
@@ -1168,19 +1150,19 @@ const GestionDocentes = () => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Apellidos */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Apellidos *
                     </label>
                     <input
@@ -1198,19 +1180,19 @@ const GestionDocentes = () => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Título Profesional */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Título Profesional *
                     </label>
                     <input
@@ -1220,19 +1202,19 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.titulo_profesional || ''}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Email
                     </label>
                     <input
@@ -1246,19 +1228,19 @@ const GestionDocentes = () => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Teléfono */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Teléfono
                     </label>
                     <input
@@ -1278,19 +1260,19 @@ const GestionDocentes = () => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Fecha de Nacimiento */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Fecha de Nacimiento
                     </label>
                     <input
@@ -1299,19 +1281,19 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.fecha_nacimiento || ''}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Género */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Género
                     </label>
                     <select
@@ -1319,12 +1301,12 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.genero || ''}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     >
                       <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Seleccionar</option>
@@ -1336,7 +1318,7 @@ const GestionDocentes = () => {
 
                   {/* Experiencia */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Experiencia (años)
                     </label>
                     <input
@@ -1346,19 +1328,19 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.experiencia_anos || 0}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     />
                   </div>
 
                   {/* Estado */}
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Estado
                     </label>
                     <select
@@ -1366,12 +1348,12 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.estado || 'activo'}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem'
+                        fontSize: '0.8rem'
                       }}
                     >
                       <option value="activo" style={{ background: '#1a1a2e', color: '#fff' }}>Activo</option>
@@ -1381,7 +1363,7 @@ const GestionDocentes = () => {
 
                   {/* Dirección */}
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: 5, color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                       Dirección
                     </label>
                     <textarea
@@ -1390,12 +1372,12 @@ const GestionDocentes = () => {
                       defaultValue={selectedDocente?.direccion || ''}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '6px 10px',
                         borderRadius: 8,
                         border: '1px solid rgba(255,255,255,0.2)',
                         background: 'rgba(255,255,255,0.1)',
                         color: '#fff',
-                        fontSize: '0.9rem',
+                        fontSize: '0.8rem',
                         resize: 'vertical'
                       }}
                     />
@@ -1405,37 +1387,46 @@ const GestionDocentes = () => {
                 {/* Usuario Generado - Solo en modo crear */}
                 {modalMode === 'create' && previewUsername && (
                   <div style={{
-                    marginTop: 16,
+                    marginTop: 12,
                     background: 'rgba(239, 68, 68, 0.05)',
                     border: '1px solid rgba(239, 68, 68, 0.15)',
-                    borderRadius: 12,
-                    padding: 16
+                    borderRadius: 8,
+                    padding: 12
                   }}>
-                    <h4 style={{
-                      margin: '0 0 0.75rem 0',
-                      color: '#fff',
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem'
+                      justifyContent: 'space-between',
+                      marginBottom: 8
                     }}>
-                      <User size={18} color="#ef4444" />
-                      Usuario Generado Automáticamente
-                    </h4>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375rem',
+                        color: 'rgba(255,255,255,0.8)',
+                        fontSize: '0.8rem',
+                        fontWeight: '600'
+                      }}>
+                        <User size={16} color="#ef4444" />
+                        Usuario Generado Automáticamente
+                      </div>
+                    </div>
                     <div style={{
                       color: '#ef4444',
-                      fontSize: '1.2rem',
+                      fontSize: '1rem',
                       fontWeight: '700',
                       background: 'rgba(239, 68, 68, 0.1)',
-                      padding: '8px 0.75rem',
-                      borderRadius: '0.5rem',
+                      padding: '6px 0.625rem',
+                      borderRadius: '0.375rem',
                       border: '1px solid rgba(239, 68, 68, 0.2)',
-                      marginBottom: '0.5rem'
+                      display: 'inline-block'
                     }}>
                       {previewUsername}
                     </div>
                     <div style={{
-                      color: 'rgba(255,255,255,0.7)',
-                      fontSize: '0.85rem'
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '0.7rem',
+                      marginTop: 6
                     }}>
                       Generado a partir de las iniciales del nombre + primer apellido
                     </div>
@@ -1451,7 +1442,7 @@ const GestionDocentes = () => {
                     padding: 12,
                     marginBottom: 16,
                     color: '#ef4444',
-                    fontSize: '0.9rem'
+                    fontSize: '0.8rem'
                   }}>
                     {error}
                   </div>
@@ -1462,7 +1453,8 @@ const GestionDocentes = () => {
                   display: 'flex',
                   flexDirection: isMobile ? 'column-reverse' : 'row',
                   gap: 12,
-                  justifyContent: 'flex-end'
+                  justifyContent: 'flex-end',
+                  marginTop: 20
                 }}>
                   <button
                     type="button"
@@ -1474,7 +1466,7 @@ const GestionDocentes = () => {
                       padding: '10px 1.25rem',
                       borderRadius: '0.5rem',
                       cursor: 'pointer',
-                      fontSize: '0.9rem',
+                      fontSize: '0.8rem',
                       fontWeight: '500',
                       width: isMobile ? '100%' : 'auto'
                     }}
@@ -1491,7 +1483,7 @@ const GestionDocentes = () => {
                       padding: '10px 1.25rem',
                       borderRadius: '0.5rem',
                       cursor: submitting ? 'not-allowed' : 'pointer',
-                      fontSize: '0.9rem',
+                      fontSize: '0.8rem',
                       fontWeight: '500',
                       display: 'flex',
                       alignItems: 'center',
@@ -1519,7 +1511,7 @@ const GestionDocentes = () => {
                     padding: '10px 1.25rem',
                     borderRadius: '0.5rem',
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.8rem',
                     fontWeight: '500'
                   }}
                 >

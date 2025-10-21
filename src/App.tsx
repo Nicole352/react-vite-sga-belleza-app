@@ -18,6 +18,7 @@ import PanelDocentes from './roles/docente/PanelDocentes';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleRedirect from './components/auth/RoleRedirect';
 import './styles/responsive.css';
+import './utils/modalScrollHelper';
 
 const ToasterWithTheme = () => {
   const { theme } = useTheme();

@@ -308,60 +308,172 @@
    MODALS RESPONSIVE
    ============================================ */
 
-/* Modal en móvil - Ocupa toda la pantalla desde abajo */
+/* Overlay del modal - Base */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  z-index: 99999;
+  padding: 0;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.65);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Contenido del modal - Base */
+.modal-content {
+  position: relative;
+  background: var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%));
+  border: 1px solid var(--admin-border, rgba(239, 68, 68, 0.3));
+  border-radius: 12px;
+  width: 60vw;
+  max-width: 60vw;
+  max-height: 90vh;
+  padding: 1rem 1.5rem;
+  margin: 1rem auto;
+  color: var(--admin-text-primary, #fff);
+  box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: scaleIn 0.3s ease-out;
+  -webkit-overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modal en móvil */
 @media (max-width: 640px) {
-  .responsive-modal {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-    max-height: 90vh !important;
-    border-radius: 20px 20px 0 0 !important;
+  .modal-overlay {
+    padding: 0.75rem;
   }
   
-  /* Aplicar también a modales existentes con position fixed */
-  div[style*="position: fixed"][style*="zIndex: 9999"] > div {
-    width: 95vw !important;
-    max-width: 95vw !important;
-    max-height: 85vh !important;
-    overflow-y: auto !important;
+  .modal-content {
+    width: 92vw;
+    max-width: 92vw;
+    max-height: 82vh;
+    padding: 0.75rem 0.875rem;
+    border-radius: 10px;
+  }
+  
+  /* Fuentes más pequeñas en modal móvil */
+  .modal-content h3 {
+    font-size: 0.9rem;
+  }
+  
+  .modal-content label {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+  }
+  
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  
+  .modal-content button {
+    font-size: 0.85rem;
+    padding: 9px 12px;
+  }
+  
+  .responsive-modal {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Header del modal más compacto */
+  .responsive-modal > div:first-child {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+  
+  /* Título del modal legible */
+  .responsive-modal h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  
+  /* Iconos en el header */
+  .responsive-modal > div:first-child svg {
+    width: 16px;
+    height: 16px;
   }
   
   /* Formularios dentro de modales */
-  .responsive-modal form,
-  div[style*="position: fixed"] form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  .responsive-modal form {
+    gap: 10px;
   }
   
-  /* Grid de 2 columnas a 1 columna en móvil */
-  .responsive-modal form > div[style*="gridTemplateColumns"],
-  div[style*="position: fixed"] form > div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
+  /* Grid de 3 columnas a 1 columna en móvil */
+  .responsive-modal form > div[style*="grid"] {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    column-gap: 0;
   }
   
+  /* Todos los campos de formulario a ancho completo */
+  .responsive-modal form > div > div {
+    grid-column: 1 / -1;
+  }
+  
+  /* Inputs y selects legibles en móvil */
   .responsive-modal input,
   .responsive-modal select,
-  .responsive-modal textarea,
-  div[style*="position: fixed"] input,
-  div[style*="position: fixed"] select,
-  div[style*="position: fixed"] textarea {
-    font-size: 16px !important; /* Evita zoom en iOS */
+  .responsive-modal textarea {
+    font-size: 16px; /* Evita zoom en iOS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Labels legibles */
+  .responsive-modal label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Iconos en labels */
+  .responsive-modal label svg {
+    width: 12px;
+    height: 12px;
   }
   
   /* Botones en modales móviles */
   .responsive-modal button[type="submit"],
-  .responsive-modal button[type="button"],
-  div[style*="position: fixed"] button[type="submit"],
-  div[style*="position: fixed"] button[type="button"] {
-    width: 100%;
-    padding: 0.75rem !important;
-    font-size: 0.9rem !important;
+  .responsive-modal button[type="button"] {
+    font-size: 0.9rem;
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
   }
   
-  /* Padding reducido en modales móviles */
-  div[style*="position: fixed"] > div {
-    padding: 1rem !important;
+  /* Iconos en botones */
+  .responsive-modal button svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Móviles muy pequeños (iPhone SE, etc) */
+@media (max-width: 375px) {
+  .responsive-modal h3 {
+    font-size: 0.85rem;
+  }
+  
+  .responsive-modal label {
+    font-size: 0.75rem;
+  }
+  
+  .responsive-modal form > div {
+    gap: 8px;
   }
 }
 

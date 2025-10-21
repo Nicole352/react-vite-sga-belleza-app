@@ -8,6 +8,7 @@ import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -603,7 +604,7 @@ const AsignacionAula: React.FC = () => {
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: '600' }}>
                         OCUPACIÓN
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700' }}>
+                      <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700' }}>
                         {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                       </div>
                     </div>
@@ -983,52 +984,37 @@ const AsignacionAula: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '1.25rem 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '43.75rem',
-            padding: isMobile ? '1rem' : '1.125rem 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.6)',
-            maxHeight: isMobile ? '90vh' : '85vh',
-            overflowY: 'auto',
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '0.0625rem solid rgba(255, 255, 255, 0.08)',
-            }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff' }}>
-                {modalType === 'create' ? 'Nueva Asignación' : 'Editar Asignación'}
-              </h3>
+          <div 
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: isMobile ? 12 : 14,
+                paddingBottom: isMobile ? 8 : 10,
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPin size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  {modalType === 'create' ? 'Nueva Asignación' : 'Editar Asignación'}
+                </h3>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
-                  border: '0.0625rem solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1044,7 +1030,7 @@ const AsignacionAula: React.FC = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -1055,7 +1041,7 @@ const AsignacionAula: React.FC = () => {
                 gap: isMobile ? '1rem' : '1rem'
               }}>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Aula</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Aula</label>
                   <StyledSelect
                     name="id_aula"
                     required
@@ -1068,7 +1054,7 @@ const AsignacionAula: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Curso</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Curso</label>
                   <StyledSelect
                     name="id_curso"
                     required
@@ -1086,7 +1072,7 @@ const AsignacionAula: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
                   Docente {docentes.length > 0 && `(${docentes.filter(d => d.estado === 'activo').length} disponibles)`}
                 </label>
                 {docentes.length === 0 ? (
@@ -1096,7 +1082,7 @@ const AsignacionAula: React.FC = () => {
                     border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '0.5rem',
                     color: '#ef4444',
-                    fontSize: '0.9rem'
+                    fontSize: '0.8rem'
                   }}>
                     No hay docentes disponibles. Por favor, cree docentes primero.
                   </div>
@@ -1115,7 +1101,7 @@ const AsignacionAula: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.75rem', display: 'block' }}>Días de Clase</label>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.75rem', display: 'block' }}>Días de Clase</label>
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
@@ -1124,7 +1110,7 @@ const AsignacionAula: React.FC = () => {
                   {diasSemana.map(dia => {
                     const diasArray = selectedAsignacion?.dias?.split(',') || [];
                     return (
-                      <label key={dia} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                      <label key={dia} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                         <input
                           type="checkbox" name="dias" value={dia}
                           defaultChecked={diasArray.includes(dia)}
@@ -1143,33 +1129,33 @@ const AsignacionAula: React.FC = () => {
                 gap: isMobile ? '16px' : '1rem'
               }}>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Inicio</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Inicio</label>
                   <input
                     type="time" name="hora_inicio" required
                     defaultValue={selectedAsignacion?.hora_inicio?.substring(0, 5) || ''}
                     style={{
                       width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
                       border: '0.0625rem solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                      color: '#fff', fontSize: '0.9rem'
+                      color: '#fff', fontSize: '0.8rem'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Fin</label>
+                  <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Hora Fin</label>
                   <input
                     type="time" name="hora_fin" required
                     defaultValue={selectedAsignacion?.hora_fin?.substring(0, 5) || ''}
                     style={{
                       width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
                       border: '0.0625rem solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                      color: '#fff', fontSize: '0.9rem'
+                      color: '#fff', fontSize: '0.8rem'
                     }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Observaciones (opcional)</label>
+                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>Observaciones (opcional)</label>
                 <textarea
                   name="observaciones"
                   rows={3}
@@ -1178,7 +1164,7 @@ const AsignacionAula: React.FC = () => {
                   style={{
                     width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.1)',
                     border: '0.0625rem solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                    color: '#fff', fontSize: '0.9rem', resize: 'vertical'
+                    color: '#fff', fontSize: '0.8rem', resize: 'vertical'
                   }}
                 />
               </div>

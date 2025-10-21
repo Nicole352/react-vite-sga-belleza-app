@@ -7,6 +7,7 @@ import GlassEffect from '../../components/GlassEffect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 
 // Tipos
 interface Aula {
@@ -838,57 +839,32 @@ const GestionAulas = () => {
       {/* Modal Crear Aula */}
       {showCreateModal && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
+          className="modal-overlay"
+          onClick={() => {
+            setShowCreateModal(false);
+            setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
           }}
         >
-          <GlassEffect
-            variant="card"
-            tint="neutral"
-            intensity="medium"
-            className="responsive-modal"
-            style={{
-              width: isMobile ? '100vw' : '100%',
-              maxWidth: isMobile ? '100vw' : '37.5rem',
-              padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
-              margin: '0 auto',
-              maxHeight: isMobile ? '90vh' : '85vh',
-              overflowY: 'auto',
-              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            }}
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            }}>
-              <h2 style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                letterSpacing: '-0.02em',
-                color: '#fff',
+            <div
+              style={{
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <Building2 size={20} color={RedColorPalette.primary} />
-                Nueva Aula
-              </h2>
+                marginBottom: isMobile ? 12 : 14,
+                paddingBottom: isMobile ? 8 : 10,
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Building2 size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  Nueva Aula
+                </h3>
+              </div>
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -897,9 +873,9 @@ const GestionAulas = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -915,7 +891,7 @@ const GestionAulas = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -946,7 +922,7 @@ const GestionAulas = () => {
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.05)',
                       color: 'rgba(255,255,255,0.5)',
-                      fontSize: '0.95rem',
+                      fontSize: '0.8rem',
                       cursor: 'not-allowed'
                     }}
                   />
@@ -996,7 +972,7 @@ const GestionAulas = () => {
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
-                      fontSize: '0.95rem'
+                      fontSize: '0.8rem'
                     }}
                     required
                   />
@@ -1025,7 +1001,7 @@ const GestionAulas = () => {
                     borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
                     color: '#fff',
-                    fontSize: '0.95rem',
+                    fontSize: '0.8rem',
                     resize: 'vertical'
                   }}
                 />
@@ -1054,7 +1030,7 @@ const GestionAulas = () => {
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
                       color: '#fff',
-                      fontSize: '0.95rem'
+                      fontSize: '0.8rem'
                     }}
                   />
                 </div>
@@ -1104,7 +1080,7 @@ const GestionAulas = () => {
                   border: '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
-                  fontSize: '0.95rem',
+                  fontSize: '0.8rem',
                   fontWeight: '500',
                   width: isMobile ? '100%' : 'auto'
                 }}
@@ -1121,7 +1097,7 @@ const GestionAulas = () => {
                   border: 'none',
                   borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
-                  fontSize: '0.95rem',
+                  fontSize: '0.8rem',
                   fontWeight: '600',
                   display: 'flex',
                   alignItems: 'center',
@@ -1150,64 +1126,39 @@ const GestionAulas = () => {
                 )}
               </button>
             </div>
-          </GlassEffect>
+          </div>
         </div>
       )}
 
       {/* Modal Editar Aula */}
       {showModal && selectedAula && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
+          className="modal-overlay"
+          onClick={() => {
+            setShowModal(false);
+            setSelectedAula(null);
           }}
         >
-          <GlassEffect
-            variant="card"
-            tint="neutral"
-            intensity="medium"
-            className="responsive-modal"
-            style={{
-              width: isMobile ? '100vw' : '100%',
-              maxWidth: isMobile ? '100vw' : '37.5rem',
-              padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-              color: '#fff',
-              margin: '0 auto',
-              maxHeight: isMobile ? '90vh' : '85vh',
-              overflowY: 'auto',
-              borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            }}
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            }}>
-              <h2 style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                letterSpacing: '-0.02em',
-                color: '#fff',
+            <div
+              style={{
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <Edit size={20} color={RedColorPalette.primary} />
-                Editar Aula
-              </h2>
+                marginBottom: isMobile ? 12 : 14,
+                paddingBottom: isMobile ? 8 : 10,
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Edit size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  Editar Aula
+                </h3>
+              </div>
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -1216,9 +1167,9 @@ const GestionAulas = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1234,7 +1185,7 @@ const GestionAulas = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -1411,7 +1362,7 @@ const GestionAulas = () => {
                   border: '1px solid rgba(255,255,255,0.15)',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
-                  fontSize: '0.95rem',
+                  fontSize: '0.8rem',
                   fontWeight: '500',
                   width: isMobile ? '100%' : 'auto'
                 }}
@@ -1428,7 +1379,7 @@ const GestionAulas = () => {
                   border: 'none',
                   borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
-                  fontSize: '0.95rem',
+                  fontSize: '0.8rem',
                   fontWeight: '600',
                   display: 'flex',
                   alignItems: 'center',
@@ -1457,7 +1408,7 @@ const GestionAulas = () => {
                 )}
               </button>
             </div>
-          </GlassEffect>
+          </div>
         </div>
       )}
 

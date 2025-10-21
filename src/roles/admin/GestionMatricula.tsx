@@ -7,6 +7,7 @@ import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
+import '../../utils/modalScrollHelper';
 type Solicitud = {
   id_solicitud: number;
   codigo_solicitud: string;
@@ -923,50 +924,33 @@ const GestionMatricula = () => {
       {/* Modal Detalle Solicitud */}
       {showModal && selected && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '50rem',
-            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: isMobile ? '90vh' : '85vh',
-            overflowY: 'auto',
-          }}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: isMobile ? 12 : 14,
+              paddingBottom: isMobile ? 8 : 10,
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>Solicitud {selected.codigo_solicitud}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileText size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>Solicitud {selected.codigo_solicitud}</h3>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -982,7 +966,7 @@ const GestionMatricula = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -1471,46 +1455,32 @@ const GestionMatricula = () => {
       {/* Modal Comprobante */}
       {showComprobanteModal && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowComprobanteModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '50rem',
-            maxHeight: isMobile ? '90vh' : '85vh',
-            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-          }}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: isMobile ? 12 : 14,
+              paddingBottom: isMobile ? 8 : 10,
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
               <div>
-                <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
-                  <Download size={20} />
-                  Comprobante de Pago
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Download size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
+                  <h3 style={{ margin: 0, color: '#10b981', fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                    Comprobante de Pago
+                  </h3>
+                </div>
                 {comprobanteNumero && (
                   <p style={{
                     margin: '6px 0 0 1.75rem',
@@ -1527,9 +1497,9 @@ const GestionMatricula = () => {
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1634,53 +1604,35 @@ const GestionMatricula = () => {
       {/* Modal de Aprobación */}
       {showApprovalModal && approvalData && (
         <div
-          data-modal-overlay="true"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: isMobile ? 'flex-end' : 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: isMobile ? '0' : '1.25rem',
-          }}
+          className="modal-overlay"
+          onClick={() => setShowApprovalModal(false)}
         >
-          <div className="responsive-modal" style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: isMobile ? '20px 1.25rem 0 0' : '0.75rem',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '50rem',
-            padding: isMobile ? '16px' : '18px 1.75rem 1.375rem 1.75rem',
-            color: '#fff',
-            margin: '0 auto',
-            boxShadow: '0 25px 3.125rem -12px rgba(0, 0, 0, 0.6)',
-            maxHeight: isMobile ? '90vh' : '85vh',
-            overflowY: 'auto',
-          }}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.125rem',
-              paddingBottom: '0.875rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: isMobile ? 12 : 14,
+              paddingBottom: isMobile ? 8 : 10,
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
             }}>
-              <h3 style={{ margin: 0, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
-                <Check size={20} />
-                {approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante'}
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
+                <h3 style={{ margin: 0, color: '#10b981', fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em' }}>
+                  {approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante'}
+                </h3>
+              </div>
               <button
                 onClick={() => setShowApprovalModal(false)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1696,7 +1648,7 @@ const GestionMatricula = () => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
