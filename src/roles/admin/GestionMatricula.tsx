@@ -405,8 +405,7 @@ const GestionMatricula = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '6px' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '6px' : '0.625rem'
         }}>
           <GraduationCap size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Matrículas
@@ -414,8 +413,7 @@ const GestionMatricula = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Administra las matrículas y credenciales de acceso de los estudiantes
         </p>
@@ -555,8 +553,7 @@ const GestionMatricula = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                   <span style={{ 
                     color: 'rgba(255,255,255,0.6)', 
-                    fontSize: '0.7rem', 
-                    fontFamily: 'monospace',
+                    fontSize: '0.7rem',
                     background: 'rgba(255,255,255,0.05)',
                     padding: '3px 0.375rem',
                     borderRadius: '0.3125rem'
@@ -611,20 +608,20 @@ const GestionMatricula = () => {
                 }}>
                   <div style={{ flex: '1 1 200px' }}>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{sol.identificacion_solicitante || '-'}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
                   <div style={{ flex: '1 1 200px' }}>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Email</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{sol.email_solicitante}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{sol.email_solicitante}</div>
                   </div>
                   <div style={{ flex: '1 1 150px' }}>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Fecha de Solicitud</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{formatearFecha(sol.fecha_solicitud)}</div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
                     <div style={{ flex: '1 1 150px' }}>
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Tipo de Curso</div>
-                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{(sol as any).tipo_curso_nombre}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{(sol as any).tipo_curso_nombre}</div>
                     </div>
                   )}
                 </div>
@@ -648,7 +645,6 @@ const GestionMatricula = () => {
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
                         fontWeight: '600',
-                        fontFamily: 'monospace',
                         textAlign: 'center'
                       }}>
                         {sol.numero_comprobante}
@@ -830,14 +826,13 @@ const GestionMatricula = () => {
 
       {/* Paginación */}
       {!loading && solicitudesFiltradas.length > 0 && (
-        <div style={{
+        <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',
@@ -1095,7 +1090,6 @@ const GestionMatricula = () => {
                       <div style={{
                         color: '#fbbf24',
                         fontWeight: '600',
-                        fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
                         padding: '4px 0.5rem',
@@ -1142,7 +1136,6 @@ const GestionMatricula = () => {
                       <div style={{
                         color: '#fbbf24',
                         fontWeight: '600',
-                        fontFamily: 'monospace',
                         fontSize: '0.95rem',
                         background: 'rgba(251, 191, 36, 0.1)',
                         padding: '4px 0.5rem',
@@ -1523,7 +1516,6 @@ const GestionMatricula = () => {
                     margin: '6px 0 0 1.75rem',
                     color: '#fbbf24',
                     fontSize: '0.85rem',
-                    fontFamily: 'monospace',
                     fontWeight: '600'
                   }}>
                     Número: {comprobanteNumero}
@@ -1815,7 +1807,6 @@ const GestionMatricula = () => {
                 <div style={{
                   color: '#10b981',
                   fontSize: '1.2rem',
-                  fontFamily: 'monospace',
                   fontWeight: '700',
                   background: 'rgba(16, 185, 129, 0.1)',
                   padding: '8px 0.75rem',

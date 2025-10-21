@@ -201,7 +201,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         maxHeight: '90vh',
         overflow: 'auto',
         padding: '1.25em',
-        fontFamily: 'Montserrat, sans-serif',
         position: 'relative',
         border: `0.0625rem solid ${theme.border}`,
         boxShadow: darkMode
@@ -318,7 +317,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 color: theme.textPrimary,
                 fontSize: '1rem',
                 fontWeight: '800',
-                fontFamily: 'Montserrat, sans-serif',
                 outline: 'none',
                 transition: 'all 0.2s ease'
               }}
@@ -378,7 +376,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '0.375em',
-                      fontFamily: 'Montserrat, sans-serif',
                       transition: 'all 0.2s ease',
                       boxShadow: isSelected ? '0 0.25rem 0.5rem rgba(16, 185, 129, 0.25)' : 'none'
                     }}
@@ -418,7 +415,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       borderRadius: '0.5em',
                       color: theme.textPrimary,
                       fontSize: '0.8rem',
-                      fontFamily: 'Montserrat, sans-serif',
                       outline: 'none',
                       cursor: 'pointer'
                     }}
@@ -457,7 +453,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       borderRadius: '0.5em',
                       color: theme.textPrimary,
                       fontSize: '0.8rem',
-                      fontFamily: 'Montserrat, sans-serif',
                       outline: 'none'
                     }}
                   />
@@ -487,7 +482,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       borderRadius: '0.5em',
                       color: theme.textPrimary,
                       fontSize: '0.8rem',
-                      fontFamily: 'Montserrat, sans-serif',
                       outline: 'none'
                     }}
                   />
@@ -525,7 +519,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       borderRadius: '0.5em',
                       color: theme.textPrimary,
                       fontSize: '0.8rem',
-                      fontFamily: 'Montserrat, sans-serif',
                       outline: 'none'
                     }}
                   />
@@ -556,7 +549,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       borderRadius: '0.5em',
                       color: theme.textPrimary,
                       fontSize: '0.8rem',
-                      fontFamily: 'Montserrat, sans-serif',
                       outline: 'none'
                     }}
                   />
@@ -652,7 +644,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 borderRadius: '0.5em',
                 color: theme.textPrimary,
                 fontSize: '0.8rem',
-                fontFamily: 'Montserrat, sans-serif',
                 resize: 'vertical',
                 outline: 'none',
                 lineHeight: '1.4'
@@ -696,7 +687,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 cursor: loading ? 'not-allowed' : 'pointer',
                 fontSize: '0.8rem',
                 fontWeight: '800',
-                fontFamily: 'Montserrat, sans-serif',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => !loading && (e.currentTarget.style.background = theme.hoverBg)}
@@ -716,7 +706,6 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 cursor: loading ? 'not-allowed' : 'pointer',
                 fontSize: '0.8rem',
                 fontWeight: '800',
-                fontFamily: 'Montserrat, sans-serif',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.375em',

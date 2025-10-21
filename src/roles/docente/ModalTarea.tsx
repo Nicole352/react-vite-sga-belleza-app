@@ -266,8 +266,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               style={{
                 ...inputStyle,
                 minHeight: '56px',
-                resize: 'vertical' as const,
-                fontFamily: 'inherit'
+                resize: 'vertical' as const
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#3b82f6';
@@ -291,8 +290,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               style={{
                 ...inputStyle,
                 minHeight: '84px',
-                resize: 'vertical' as const,
-                fontFamily: 'inherit'
+                resize: 'vertical' as const
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#3b82f6';

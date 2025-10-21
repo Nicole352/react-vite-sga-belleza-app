@@ -495,8 +495,7 @@ const AdministradoresPanel: React.FC = () => {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       position: 'relative',
-      overflow: 'hidden',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+      overflow: 'hidden'
     }}>
       {notification && <Notification message={notification.message} type={notification.type} />}
       
@@ -509,398 +508,383 @@ const AdministradoresPanel: React.FC = () => {
           }
           
           .admin-card {
-            animation: fadeIn 0.5s ease-out;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          
-          .admin-card:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.04)) !important;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
-          }
-          
-          .action-btn {
-            transition: all 0.2s ease;
-          }
-          
-          .action-btn:hover {
-            transform: scale(1.1);
-          }
+        animation: fadeIn 0.5s ease-out;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .admin-card:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.04)) !important;
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
+      }
+      
+      .action-btn {
+        transition: all 0.2s ease;
+      }
+      
+      .action-btn:hover {
+        transform: scale(1.1);
+      }
 
-          /* Error text in red - force override */
-          .error-text-red {
-            color: #ef4444 !important;
-          }
+      /* Error text in red - force override */
+      .error-text-red {
+        color: #ef4444 !important;
+      }
 
-          /* Tabla responsive */
-          .admins-grid {
-            display: grid;
-            grid-template-columns: minmax(200px, 1.2fr) minmax(180px, 1fr) minmax(100px, 0.6fr) minmax(140px, 0.8fr) 140px;
-            gap: 16px;
-            align-items: center;
-          }
-          .admins-grid-header {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
-            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 20px 24px;
-          }
+      /* Tabla responsive */
+      .admins-grid {
+        display: grid;
+        grid-template-columns: minmax(200px, 1.2fr) minmax(180px, 1fr) minmax(100px, 0.6fr) minmax(140px, 0.8fr) 140px;
+        gap: 16px;
+        align-items: center;
+      }
+      .admins-grid-header {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 20px 24px;
+      }
 
-          @media (max-width: 1100px) {
-            .admins-grid {
-              grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1fr) minmax(110px, 0.6fr) minmax(160px, 0.8fr) 140px;
-            }
-          }
-          @media (max-width: 900px) {
-            .admins-grid {
-              grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(110px, 0.8fr) 140px;
-            }
-            .col-estado { display: none; }
-          }
-          @media (max-width: 720px) {
-            .admins-grid {
-              grid-template-columns: minmax(200px, 1.6fr) minmax(160px, 1fr) 120px;
-            }
-            .col-email { display: none; }
-            .col-estado { display: none; }
-          }
-          @media (max-width: 520px) {
-            .admins-grid {
-              grid-template-columns: 1fr 1fr; /* Admin | Último acceso; Acciones caerá abajo */
-            }
-            .col-acciones { grid-column: 1 / span 2; justify-content: flex-end; }
-          }
-        `}
-      </style>
+      @media (max-width: 1100px) {
+        .admins-grid {
+          grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1fr) minmax(110px, 0.6fr) minmax(160px, 0.8fr) 140px;
+        }
+      }
+      @media (max-width: 900px) {
+        .admins-grid {
+          grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(110px, 0.8fr) 140px;
+        }
+        .col-estado { display: none; }
+      }
+      @media (max-width: 720px) {
+        .admins-grid {
+          grid-template-columns: minmax(200px, 1.6fr) minmax(160px, 1fr) 120px;
+        }
+        .col-email { display: none; }
+        .col-estado { display: none; }
+      }
+      @media (max-width: 520px) {
+        .admins-grid {
+          grid-template-columns: 1fr 1fr; /* Admin | Último acceso; Acciones caerá abajo */
+        }
+        .col-acciones { grid-column: 1 / span 2; justify-content: flex-end; }
+      }
+    `}
+  </style>
 
-      {/* Header Principal */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <h2 style={{
-          color: 'rgba(255,255,255,0.95)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-          fontSize: '1.625rem',
-          fontWeight: '700'
-        }}>
-          <Users size={26} color="#ef4444" />
-          Gestión de Administradores
-        </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          margin: 0,
-          fontSize: '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-        }}>
-          Administra los usuarios con permisos del sistema institucional
-        </p>
-      </div>
+  {/* Header Principal */}
+  <div style={{ marginBottom: '0.75rem' }}>
+    <h2 style={{
+      color: 'rgba(255,255,255,0.95)',
+      margin: '0 0 0.375rem 0',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.625rem',
+      fontSize: '1.625rem',
+      fontWeight: '700'
+    }}>
+      <Users size={26} color="#ef4444" />
+      Gestión de Administradores
+    </h2>
+    <p style={{
+      color: 'rgba(255,255,255,0.7)',
+      margin: 0,
+      fontSize: '0.85rem',
+    }}>
+      Administra los usuarios con permisos del sistema institucional
+    </p>
+  </div>
 
-      {/* Barra de Búsqueda y Controles */}
-      <div style={{
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(1.25rem)',
-        border: '0.0625rem solid rgba(255,255,255,0.1)',
-        borderRadius: '0.875em',
-        padding: '1em',
-        marginBottom: '1em'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flex: 1, minWidth: '15rem' }}>
-            <div style={{ flex: 1, position: 'relative', minWidth: '17.5rem' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
-              <input
-                type="text"
-                placeholder="Buscar por nombre o email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625em 0.625em 0.625em 2.375em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
-              />
-            </div>
-
-            <div style={{ minWidth: '12.5rem' }}>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
-              >
-                <option value="all">Todos los estados</option>
-                <option value="activo">Activos</option>
-                <option value="inactivo">Inactivos</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowCreateAdminModal(true)}
+  {/* Barra de Búsqueda y Controles */}
+  <div style={{
+    background: 'rgba(255,255,255,0.05)',
+    backdropFilter: 'blur(1.25rem)',
+    border: '0.0625rem solid rgba(255,255,255,0.1)',
+    borderRadius: '0.875em',
+    padding: '1em',
+    marginBottom: '1em'
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flex: 1, minWidth: '15rem' }}>
+        <div style={{ flex: 1, position: 'relative', minWidth: '17.5rem' }}>
+          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5em',
-              padding: '0.75em 1.5em',
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-              border: 'none',
+              width: '100%',
+              padding: '0.625em 0.625em 0.625em 2.375em',
+              background: 'rgba(255,255,255,0.1)',
+              border: '0.0625rem solid rgba(255,255,255,0.2)',
               borderRadius: '0.625em',
               color: '#fff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              fontSize: '0.875rem'
+            }}
+          />
+        </div>
+
+        <div style={{ minWidth: '12.5rem' }}>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.625em 0.75em',
+              background: 'rgba(255,255,255,0.1)',
+              border: '0.0625rem solid rgba(255,255,255,0.2)',
+              borderRadius: '0.625em',
+              color: '#fff',
               fontSize: '0.875rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        onClick={() => setShowCreateAdminModal(true)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5em',
+          padding: '0.75em 1.5em',
+          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          border: 'none',
+          borderRadius: '0.625em',
+          color: '#fff',
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          cursor: 'pointer',
+          boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(239, 68, 68, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)';
+        }}
+      >
+        <UserPlus size={16} />
+        Nuevo Administrador
+      </button>
+    </div>
+  </div>
+
+  {/* Lista de Administradores */}
+  <div style={{
+    background: 'rgba(255,255,255,0.05)',
+    backdropFilter: 'blur(1.25rem)',
+    border: '0.0625rem solid rgba(255,255,255,0.1)',
+    borderRadius: '0.875em',
+    overflow: 'hidden',
+    boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
+  }}>
+    {/* Header de la tabla */}
+    <div className="admins-grid admins-grid-header" style={{
+      background: 'rgba(248, 113, 113, 0.15)',
+      borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)',
+      padding: '1em 1.5em'
+    }}>
+      <div className="col-admin" style={{ 
+        color: '#fff', 
+        fontWeight: '600', 
+        fontSize: '0.75rem', 
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Administrador
+      </div>
+      <div className="col-email" style={{ 
+        color: '#fff', 
+        fontWeight: '600', 
+        fontSize: '0.75rem', 
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Email
+      </div>
+      <div className="col-estado" style={{ 
+        color: '#fff', 
+        fontWeight: '600', 
+        fontSize: '0.75rem', 
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Estado
+      </div>
+      <div className="col-ultimo" style={{ 
+        color: '#fff', 
+        fontWeight: '600', 
+        fontSize: '0.75rem', 
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        Último Acceso
+      </div>
+      <div className="col-acciones" style={{ 
+        color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
+        fontWeight: '800', 
+        fontSize: '0.95rem', 
+        textTransform: 'uppercase', 
+        textAlign: 'center',
+        letterSpacing: '0.5px'
+      }}>
+        Acciones
+      </div>
+    </div>
+
+    {/* Filas de administradores */}
+    <div>
+      {filteredAdministradores.length === 0 ? (
+        <div style={{ padding: '3.75em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+          <Users size={48} style={{ marginBottom: '1em', opacity: 0.5 }} />
+          <div style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5em' }}>
+            No se encontraron administradores
+          </div>
+        </div>
+      ) : (
+        filteredAdministradores.map((admin, index) => (
+          <div
+            key={admin.id}
+            className="admin-card admins-grid"
+            style={{
+              padding: '1em 1.5em',
+              borderBottom: index < filteredAdministradores.length - 1 ? '0.0625rem solid rgba(255,255,255,0.08)' : 'none',
+              background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(239, 68, 68, 0.4)';
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)';
+              e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
             }}
           >
-            <UserPlus size={16} />
-            Nuevo Administrador
-          </button>
-        </div>
-      </div>
-
-      {/* Lista de Administradores */}
-      <div style={{
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(1.25rem)',
-        border: '0.0625rem solid rgba(255,255,255,0.1)',
-        borderRadius: '0.875em',
-        overflow: 'hidden',
-        boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
-      }}>
-        {/* Header de la tabla */}
-        <div className="admins-grid admins-grid-header" style={{
-          background: 'rgba(248, 113, 113, 0.15)',
-          borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)',
-          padding: '1em 1.5em'
-        }}>
-          <div className="col-admin" style={{ 
-            color: '#fff', 
-            fontWeight: '600', 
-            fontSize: '0.75rem', 
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-          }}>
-            Administrador
-          </div>
-          <div className="col-email" style={{ 
-            color: '#fff', 
-            fontWeight: '600', 
-            fontSize: '0.75rem', 
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-          }}>
-            Email
-          </div>
-          <div className="col-estado" style={{ 
-            color: '#fff', 
-            fontWeight: '600', 
-            fontSize: '0.75rem', 
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-          }}>
-            Estado
-          </div>
-          <div className="col-ultimo" style={{ 
-            color: '#fff', 
-            fontWeight: '600', 
-            fontSize: '0.75rem', 
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            Último Acceso
-          </div>
-          <div className="col-acciones" style={{ 
-            color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-            fontWeight: '800', 
-            fontSize: '0.95rem', 
-            textTransform: 'uppercase', 
-            textAlign: 'center',
-            letterSpacing: '0.5px'
-          }}>
-            Acciones
-          </div>
-        </div>
-
-        {/* Filas de administradores */}
-        <div>
-          {filteredAdministradores.length === 0 ? (
-            <div style={{ padding: '3.75em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-              <Users size={48} style={{ marginBottom: '1em', opacity: 0.5 }} />
-              <div style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
-                No se encontraron administradores
+            {/* Información del administrador */}
+            <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+              <div style={{
+                width: '2.75em', 
+                height: '2.75em', 
+                minWidth: '2.75em',
+                minHeight: '2.75em',
+                borderRadius: '0.625em',
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                boxShadow: '0 0.25em 0.75em rgba(239, 68, 68, 0.25)', 
+                position: 'relative',
+                flexShrink: 0
+              }}>
+                <span style={{ 
+                  color: '#fff', 
+                  fontWeight: '700', 
+                  fontSize: '0.875rem',
+                  textAlign: 'center',
+                  lineHeight: '1'
+                }}>
+                  {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                </span>
+                <div style={{
+                  position: 'absolute', 
+                  bottom: '-0.125em', 
+                  right: '-0.125em',
+                  width: '0.875em', 
+                  height: '0.875em', 
+                  borderRadius: '50%',
+                  background: admin.estado === 'activo' ? '#10b981' : '#6b7280',
+                  border: '0.125em solid rgba(0,0,0,0.9)',
+                  boxShadow: '0 0 0.5em rgba(0,0,0,0.3)'
+                }} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ 
+                  color: '#fff', 
+                  fontWeight: '600', 
+                  fontSize: '0.9rem', 
+                  marginBottom: '0.1875em',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {admin.nombre}
+                </div>
+                <div style={{ 
+                  color: 'rgba(255,255,255,0.6)', 
+                  fontSize: '0.75rem', 
+                  marginBottom: '0.125em'
+                }}>
+                  {admin.rol}
+                </div>
+                {admin.telefono && (
+                  <div style={{ 
+                    color: 'rgba(255,255,255,0.5)', 
+                    fontSize: '0.7rem'
+                  }}>
+                    {admin.telefono}
+                  </div>
+                )}
               </div>
             </div>
-          ) : (
-            filteredAdministradores.map((admin, index) => (
-              <div
-                key={admin.id}
-                className="admin-card admins-grid"
-                style={{
-                  padding: '1em 1.5em',
-                  borderBottom: index < filteredAdministradores.length - 1 ? '0.0625rem solid rgba(255,255,255,0.08)' : 'none',
-                  background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
-                }}
-              >
-                {/* Información del administrador */}
-                <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
-                  <div style={{
-                    width: '2.75em', 
-                    height: '2.75em', 
-                    minWidth: '2.75em',
-                    minHeight: '2.75em',
-                    borderRadius: '0.625em',
-                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    boxShadow: '0 0.25em 0.75em rgba(239, 68, 68, 0.25)', 
-                    position: 'relative',
-                    flexShrink: 0
-                  }}>
-                    <span style={{ 
-                      color: '#fff', 
-                      fontWeight: '700', 
-                      fontSize: '0.875rem',
-                      textAlign: 'center',
-                      lineHeight: '1',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
-                    }}>
-                      {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                    </span>
-                    <div style={{
-                      position: 'absolute', 
-                      bottom: '-0.125em', 
-                      right: '-0.125em',
-                      width: '0.875em', 
-                      height: '0.875em', 
-                      borderRadius: '50%',
-                      background: admin.estado === 'activo' ? '#10b981' : '#6b7280',
-                      border: '0.125em solid rgba(0,0,0,0.9)',
-                      boxShadow: '0 0 0.5em rgba(0,0,0,0.3)'
-                    }} />
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ 
-                      color: '#fff', 
-                      fontWeight: '600', 
-                      fontSize: '0.9rem', 
-                      marginBottom: '0.1875em',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {admin.nombre}
-                    </div>
-                    <div style={{ 
-                      color: 'rgba(255,255,255,0.6)', 
-                      fontSize: '0.75rem', 
-                      marginBottom: '0.125em',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                    }}>
-                      {admin.rol}
-                    </div>
-                    {admin.telefono && (
-                      <div style={{ 
-                        color: 'rgba(255,255,255,0.5)', 
-                        fontSize: '0.7rem',
-                        fontFamily: 'monospace'
-                      }}>
-                        {admin.telefono}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Email */}
-                <div className="col-email" style={{ 
-                  color: 'rgba(255,255,255,0.8)', 
-                  fontSize: '0.8rem', 
-                  wordBreak: 'break-word',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}>
-                  {admin.email}
-                </div>
+            {/* Email */}
+            <div className="col-email" style={{ 
+              color: 'rgba(255,255,255,0.8)', 
+              fontSize: '0.8rem', 
+              wordBreak: 'break-word'
+            }}>
+              {admin.email}
+            </div>
 
-                {/* Estado */}
-                <div className="col-estado">
-                  <span style={{
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '0.375em',
-                    padding: '0.3125em 0.625em', 
-                    borderRadius: '0.5em', 
-                    fontSize: '0.7rem', 
-                    fontWeight: '600',
-                    background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(107, 114, 128, 0.15)',
-                    color: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
-                    border: `0.0625rem solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
-                    textTransform: 'capitalize',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                  }}>
-                    <div style={{
-                      width: '0.375em', 
-                      height: '0.375em', 
-                      borderRadius: '50%',
-                      background: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
-                      boxShadow: admin.estado === 'activo' ? '0 0 0.5em rgba(16, 185, 129, 0.6)' : 'none'
-                    }} />
-                    {admin.estado}
-                  </span>
-                </div>
+            {/* Estado */}
+            <div className="col-estado">
+              <span style={{
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.375em',
+                padding: '0.3125em 0.625em', 
+                borderRadius: '0.5em', 
+                fontSize: '0.7rem', 
+                fontWeight: '600',
+                background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(107, 114, 128, 0.15)',
+                color: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
+                border: `0.0625rem solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
+                textTransform: 'capitalize'
+              }}>
+                <div style={{
+                  width: '0.375em', 
+                  height: '0.375em', 
+                  borderRadius: '50%',
+                  background: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
+                  boxShadow: admin.estado === 'activo' ? '0 0 0.5em rgba(16, 185, 129, 0.6)' : 'none'
+                }} />
+                {admin.estado}
+              </span>
+            </div>
 
-                {/* Último acceso */}
-                <div className="col-ultimo" style={{ 
-                  color: 'rgba(255,255,255,0.7)', 
-                  fontSize: '0.75rem', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.375em',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}>
-                  <Clock size={12} />
-                  {formatDateTime(admin.ultimoAcceso)}
-                </div>
+            {/* Último acceso */}
+            <div className="col-ultimo" style={{ 
+              color: 'rgba(255,255,255,0.7)', 
+              fontSize: '0.75rem', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.375em'
+            }}>
+              <Clock size={12} />
+              {formatDateTime(admin.ultimoAcceso)}
+            </div>
 
-                {/* Acciones - Grid 2x2 */}
-                <div className="col-acciones" style={{ 
+            {/* Acciones - Grid 2x2 */}
+            <div className="col-acciones" style={{ 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -1398,8 +1382,7 @@ const AdministradoresPanel: React.FC = () => {
                     color: '#fff',
                     fontSize: '1rem',
                     transition: 'all 0.2s',
-                    resize: 'vertical',
-                    fontFamily: 'inherit'
+                    resize: 'vertical'
                   }}
                   placeholder="Calle Ejemplo 123, Ciudad&#10;Sector, Barrio&#10;Ciudad, Provincia"
                   onInput={(e) => {

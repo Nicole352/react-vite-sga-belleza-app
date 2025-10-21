@@ -184,12 +184,12 @@ const GestionTiposCurso: React.FC = () => {
       <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
           color: 'rgba(255,255,255,0.95)', margin: '0 0 0.375rem 0',
-          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '0.625rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '0.625rem'
         }}>
           <BookOpen size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Tipos de Curso
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.75rem' : '0.85rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: isMobile ? '0.75rem' : '0.85rem' }}>
           Administra los tipos de curso antes de crear cursos.
         </p>
       </div>
@@ -278,7 +278,6 @@ const GestionTiposCurso: React.FC = () => {
               border: 'none',
               borderRadius: '0.625rem',
               color: '#fff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -292,7 +291,7 @@ const GestionTiposCurso: React.FC = () => {
         </div>
 
         {/* Info de resultados */}
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif', marginTop: '0.75rem' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginTop: '0.75rem' }}>
           {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
         </div>
       </GlassEffect>
@@ -335,7 +334,6 @@ const GestionTiposCurso: React.FC = () => {
                   <span style={{
                     color: 'rgba(255,255,255,0.6)',
                     fontSize: '0.7rem',
-                    fontFamily: 'monospace',
                     background: 'rgba(255,255,255,0.05)',
                     padding: '3px 0.375rem',
                     borderRadius: '0.3125rem'
@@ -354,8 +352,7 @@ const GestionTiposCurso: React.FC = () => {
                       border: t.estado === 'activo' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(239,68,68,0.3)',
                       fontWeight: 700,
                       fontSize: '0.65rem',
-                      textTransform: 'uppercase',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+                      textTransform: 'uppercase'
                     }}
                   >
                     {t.estado || 'activo'}
@@ -394,7 +391,7 @@ const GestionTiposCurso: React.FC = () => {
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                     Duración
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>
                     {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </div>
                 </div>
@@ -402,7 +399,7 @@ const GestionTiposCurso: React.FC = () => {
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                     Precio
                   </div>
-                  <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+                  <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: 700 }}>
                     {formatPrice(t.precio_base ?? null)}
                   </div>
                 </div>
@@ -643,7 +640,6 @@ const GestionTiposCurso: React.FC = () => {
                             alignItems: 'center',
                             gap: '0.25rem',
                             transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                             transform: 'translateZ(0)',
                           }}
                           onMouseEnter={(e) => {
@@ -675,7 +671,6 @@ const GestionTiposCurso: React.FC = () => {
                             alignItems: 'center',
                             gap: '0.25rem',
                             transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                             transform: 'translateZ(0)',
                           }}
                           onMouseEnter={(e) => {
@@ -747,14 +742,13 @@ const GestionTiposCurso: React.FC = () => {
 
       {/* Paginación */}
       {!loading && filteredTipos.length > 0 && (
-        <div style={{
+        <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',

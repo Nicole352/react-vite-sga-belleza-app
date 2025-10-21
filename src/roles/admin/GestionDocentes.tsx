@@ -241,7 +241,6 @@ const GestionDocentes = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       color: '#fff'
     }}>
@@ -252,8 +251,7 @@ const GestionDocentes = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '0.375rem' : '0.625rem'
         }}>
           <UserCheck size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Docentes
@@ -261,8 +259,7 @@ const GestionDocentes = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Administra y visualiza la información de todos los docentes registrados
         </p>
@@ -391,7 +388,6 @@ const GestionDocentes = () => {
               border: 'none',
               borderRadius: '0.625rem',
               color: '#fff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -408,7 +404,7 @@ const GestionDocentes = () => {
       {/* Estadísticas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 45vw), 1fr))', gap: '0.75em', marginBottom: '1em' }}>
         <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem' }}>
             {totalCount}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
@@ -417,7 +413,7 @@ const GestionDocentes = () => {
         </GlassEffect>
 
         <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem' }}>
             {docentes.filter(d => d.estado === 'activo').length}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
@@ -532,7 +528,7 @@ const GestionDocentes = () => {
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                         Cédula
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>
                         {docente.identificacion}
                       </div>
                     </div>
@@ -715,14 +711,14 @@ const GestionDocentes = () => {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                      <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                         {docente.identificacion}
                       </td>
                       <td style={{ padding: '0.75rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
                         {docente.username ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                             <User size={12} color="#60a5fa" />
-                            <span style={{ fontFamily: 'monospace', fontWeight: '600', fontSize: '0.75rem' }}>
+                            <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
                               {docente.username}
                             </span>
                           </div>
@@ -824,14 +820,13 @@ const GestionDocentes = () => {
 
       {/* Paginación */}
       {!loading && docentesFiltrados.length > 0 && (
-        <div style={{
+        <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',
@@ -1013,13 +1008,13 @@ const GestionDocentes = () => {
                       {selectedDocente.username && (
                         <div>
                           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', marginBottom: 4 }}>Usuario</div>
-                          <div style={{ color: '#fff', fontWeight: '600', fontFamily: 'monospace' }}>{selectedDocente.username}</div>
+                          <div style={{ color: '#fff', fontWeight: '600' }}>{selectedDocente.username}</div>
                         </div>
                       )}
                       {selectedDocente.password_temporal && (
                         <div>
                           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', marginBottom: 4 }}>Contraseña Temporal</div>
-                          <div style={{ color: '#fff', fontWeight: '600', fontFamily: 'monospace' }}>{selectedDocente.password_temporal}</div>
+                          <div style={{ color: '#fff', fontWeight: '600' }}>{selectedDocente.password_temporal}</div>
                         </div>
                       )}
                     </div>
@@ -1042,7 +1037,7 @@ const GestionDocentes = () => {
                   </div>
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
-                    <div style={{ color: '#fff', fontFamily: 'monospace' }}>{selectedDocente.identificacion}</div>
+                    <div style={{ color: '#fff' }}>{selectedDocente.identificacion}</div>
                   </div>
                   <div>
                     <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Título Profesional</div>
@@ -1429,7 +1424,6 @@ const GestionDocentes = () => {
                     <div style={{
                       color: '#ef4444',
                       fontSize: '1.2rem',
-                      fontFamily: 'monospace',
                       fontWeight: '700',
                       background: 'rgba(239, 68, 68, 0.1)',
                       padding: '8px 0.75rem',

@@ -10,7 +10,6 @@ const LogsPanel: React.FC = () => {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       color: '#fff',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
     }}>
       {/* Header */}
       <div style={{ marginBottom: '1em' }}>
@@ -22,7 +21,6 @@ const LogsPanel: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.625rem',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
               fontSize: '1.625rem',
               fontWeight: '700'
             }}>
@@ -33,7 +31,6 @@ const LogsPanel: React.FC = () => {
               color: 'rgba(255,255,255,0.7)',
               margin: 0,
               fontSize: '0.85rem',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
             }}>
               Registro completo de actividades y eventos del sistema
             </p>
@@ -50,7 +47,6 @@ const LogsPanel: React.FC = () => {
               border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
               borderRadius: '0.625em',
               color: '#ef4444',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -77,7 +73,6 @@ const LogsPanel: React.FC = () => {
               border: 'none',
               borderRadius: '0.625em',
               color: '#fff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -123,7 +118,6 @@ const LogsPanel: React.FC = () => {
                 borderRadius: '0.625em',
                 color: '#fff',
                 fontSize: '0.875rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                 transition: 'all 0.2s ease'
               }}
             />
@@ -138,8 +132,7 @@ const LogsPanel: React.FC = () => {
             color: '#fff',
             fontSize: '0.875rem',
             cursor: 'pointer',
-            minWidth: '12.5rem',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+            minWidth: '12.5rem'
           }}>
             <option value="all" style={{ background: '#1a1a2e', color: '#fff' }}>Todos los tipos</option>
             <option value="info" style={{ background: '#1a1a2e', color: '#fff' }}>Información</option>
@@ -158,8 +151,7 @@ const LogsPanel: React.FC = () => {
               borderRadius: '0.625em',
               color: '#fff',
               fontSize: '0.875rem',
-              cursor: 'pointer',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+              cursor: 'pointer'
             }}
           />
         </div>
@@ -184,19 +176,19 @@ const LogsPanel: React.FC = () => {
           gap: '1em',
           alignItems: 'center'
         }}>
-          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Tipo
           </div>
-          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Mensaje
           </div>
-          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Usuario/Sistema
           </div>
-          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             IP Address
           </div>
-          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+          <div style={{ color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Fecha/Hora
           </div>
         </div>
@@ -254,16 +246,16 @@ const LogsPanel: React.FC = () => {
 
                 {/* Mensaje */}
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.25em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.25em' }}>
                     {log.message}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     {log.type}
                   </div>
                 </div>
 
                 {/* Usuario */}
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', wordBreak: 'break-all', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', wordBreak: 'break-all' }}>
                   {log.user}
                 </div>
 
@@ -271,7 +263,6 @@ const LogsPanel: React.FC = () => {
                 <div style={{ 
                   color: 'rgba(255,255,255,0.7)', 
                   fontSize: '0.7rem',
-                  fontFamily: 'monospace',
                   background: 'rgba(255,255,255,0.08)',
                   padding: '0.25em 0.5em',
                   borderRadius: '0.375em',
@@ -282,10 +273,10 @@ const LogsPanel: React.FC = () => {
 
                 {/* Fecha/Hora */}
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: '600', fontFamily: 'monospace' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: '600' }}>
                     {log.time}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', fontFamily: 'monospace' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem' }}>
                     {log.date}
                   </div>
                 </div>
@@ -309,7 +300,7 @@ const LogsPanel: React.FC = () => {
         flexWrap: 'wrap',
         gap: '1em'
       }}>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
           Mostrando 1-10 de 1,247 registros
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
@@ -329,8 +320,7 @@ const LogsPanel: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s ease',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
                 if (page !== '...' && page !== 1) {

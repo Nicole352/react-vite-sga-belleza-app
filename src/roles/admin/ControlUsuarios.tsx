@@ -433,8 +433,7 @@ const ControlUsuarios = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '0.375rem' : '0.625rem'
         }}>
           <Users size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Control de Usuarios
@@ -442,8 +441,7 @@ const ControlUsuarios = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Gestiona todos los usuarios del sistema
         </p>
@@ -799,7 +797,7 @@ const ControlUsuarios = () => {
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
@@ -908,14 +906,13 @@ const ControlUsuarios = () => {
 
             {/* Paginación */}
             {totalPages > 0 && (
-              <div style={{
+              <div className="pagination-container" style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
                 gap: isMobile ? '0.75rem' : '0',
                 padding: isMobile ? '16px' : '20px 1.5rem',
-                marginTop: isMobile ? '16px' : '90px',
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
                 borderRadius: '1rem',
@@ -2050,11 +2047,11 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
         }}>
           <div style={{ marginBottom: '0.75rem' }}>
             <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Usuario</div>
-            <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
+            <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
           </div>
           <div>
             <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Contrase�a Temporal</div>
-            <div style={{ fontFamily: 'monospace', fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
+            <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
           </div>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.25rem' }}>

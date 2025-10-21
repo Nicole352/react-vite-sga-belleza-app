@@ -398,8 +398,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  fontFamily: 'Montserrat, sans-serif'
+                  gap: '6px'
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
@@ -542,8 +541,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                         border: `1px solid ${theme.border}`,
                         borderRadius: '8px',
                         color: field.disabled ? theme.textMuted : theme.textPrimary,
-                        fontSize: '1rem',
-                        fontFamily: 'Montserrat, sans-serif'
+                        fontSize: '1rem'
                       }}
                     />
                   </div>

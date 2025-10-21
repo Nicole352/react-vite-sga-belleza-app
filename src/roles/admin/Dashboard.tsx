@@ -104,13 +104,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Administradores</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalAdministradores.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700' }}>
                 {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
               </span>
             </div>
@@ -142,13 +142,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Cursos Activos</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.cursosActivos.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeCursos >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeCursos >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeCursos >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeCursos >= 0 ? '+' : ''}${stats.porcentajeCursos}%`}
               </span>
             </div>
@@ -180,13 +180,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Matrículas Aceptadas</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.matriculasAceptadas.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeMatriculasAceptadas >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeMatriculasAceptadas >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeMatriculasAceptadas >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeMatriculasAceptadas >= 0 ? '+' : ''}${stats.porcentajeMatriculasAceptadas}%`}
               </span>
             </div>
@@ -218,13 +218,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Matrículas Pendientes</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.matriculasPendientes.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeMatriculasPendientes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeMatriculasPendientes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeMatriculasPendientes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeMatriculasPendientes >= 0 ? '+' : ''}${stats.porcentajeMatriculasPendientes}%`}
               </span>
             </div>
@@ -256,13 +256,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Estudiantes</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
               </span>
             </div>
@@ -294,13 +294,13 @@ const Dashboard = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Docentes</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalDocentes.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeDocentes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeDocentes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeDocentes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeDocentes >= 0 ? '+' : ''}${stats.porcentajeDocentes}%`}
               </span>
             </div>

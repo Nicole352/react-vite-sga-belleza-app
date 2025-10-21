@@ -268,8 +268,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 fontSize: '0.85rem',
                 resize: 'vertical',
                 outline: 'none',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit'
+                transition: 'all 0.2s ease'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#3b82f6';

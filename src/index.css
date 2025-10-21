@@ -1,3 +1,6 @@
+/* Importar Cormorant Garamond para títulos */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+
 html {
   /* Forzar scrollbar siempre visible para evitar cambios de layout */
   overflow-y: scroll;
@@ -21,4 +24,11 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Tipografía para títulos: Montserrat (igual que el contenido) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }

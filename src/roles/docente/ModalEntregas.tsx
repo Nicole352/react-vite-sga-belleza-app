@@ -404,8 +404,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             color: theme.textPrimary,
                             fontSize: '0.78rem',
                             resize: 'vertical',
-                            minHeight: '40px',
-                            fontFamily: 'inherit'
+                            minHeight: '40px'
                           }}
                           placeholder="Escribe un comentario..."
                         />

@@ -288,8 +288,7 @@ const AsignacionAula: React.FC = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '0.375rem' : '0.625rem'
         }}>
           <MapPin size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Asignación de Aulas
@@ -297,8 +296,7 @@ const AsignacionAula: React.FC = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Gestiona la asignación de aulas, horarios y profesores
         </p>
@@ -423,7 +421,6 @@ const AsignacionAula: React.FC = () => {
               borderRadius: '0.625em',
               color: '#fff',
               width: isSmallScreen ? '100%' : 'auto',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -889,14 +886,13 @@ const AsignacionAula: React.FC = () => {
 
       {/* Paginación */}
       {!loading && asignacionesFiltradas.length > 0 && (
-        <div style={{
+        <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',

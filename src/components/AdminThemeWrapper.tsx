@@ -45,7 +45,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           --theme-modal-bg: ${theme.modalBg};
         }
         
-        /* Aplicar estilos automáticamente a todos los elementos */
+        /* Colores para títulos */
         .admin-theme-wrapper h1,
         .admin-theme-wrapper h2,
         .admin-theme-wrapper h3,
@@ -55,6 +55,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           color: var(--theme-text-primary) !important;
         }
         
+        /* Colores para contenido general */
         .admin-theme-wrapper p,
         .admin-theme-wrapper span,
         .admin-theme-wrapper div {

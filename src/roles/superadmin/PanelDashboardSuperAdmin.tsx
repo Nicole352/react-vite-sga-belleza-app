@@ -102,13 +102,13 @@ const PanelDashboardSuperAdmin = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Usuarios</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalUsuarios.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeUsuarios >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeUsuarios >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeUsuarios >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeUsuarios >= 0 ? '+' : ''}${stats.porcentajeUsuarios}%`}
               </span>
             </div>
@@ -140,13 +140,13 @@ const PanelDashboardSuperAdmin = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Administradores</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalAdministradores.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeAdministradores >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeAdministradores >= 0 ? '+' : ''}${stats.porcentajeAdministradores}%`}
               </span>
             </div>
@@ -178,13 +178,13 @@ const PanelDashboardSuperAdmin = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Estudiantes Activos</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             {loading ? '...' : stats.totalEstudiantes.toLocaleString()}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color={stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: stats.porcentajeEstudiantes >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.7rem', fontWeight: '700', }}>
                 {loading ? '...' : `${stats.porcentajeEstudiantes >= 0 ? '+' : ''}${stats.porcentajeEstudiantes}%`}
               </span>
             </div>
@@ -216,13 +216,13 @@ const PanelDashboardSuperAdmin = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Ingresos Mensuales</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             $24,580
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <TrendingUp size={10} color="#22c55e" strokeWidth={2} />
-              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', }}>
                 +15%
               </span>
             </div>
@@ -254,13 +254,13 @@ const PanelDashboardSuperAdmin = () => {
             </div>
             <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Uptime del Sistema</h3>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+          <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
             99.9%
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
               <CheckCircle size={10} color="#22c55e" strokeWidth={2} />
-              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <span style={{ color: '#22c55e', fontSize: '0.7rem', fontWeight: '700', }}>
                 Operativo
               </span>
             </div>

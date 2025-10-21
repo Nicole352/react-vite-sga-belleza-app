@@ -417,3 +417,40 @@
     display: none !important;
   }
 }
+
+/* ============================================
+   PAGINATION SPACING
+   ============================================ */
+
+/* Reducir espacio entre contenido y paginación */
+.pagination-container {
+  margin-top: 1rem !important;
+  padding-top: 0.75rem !important;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 1024px) {
+  .pagination-container {
+    margin-top: 0.75rem !important;
+    padding-top: 0.5rem !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .pagination-container {
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Eliminar padding inferior del contenedor principal cuando hay paginación */
+.responsive-padding:has(.pagination-container:last-child) {
+  padding-bottom: 0 !important;
+}
+
+/* Alternativa: eliminar padding inferior del AdminThemeWrapper cuando termina con paginación */
+.admin-theme-wrapper > div:has(> .pagination-container:last-of-type) {
+  padding-bottom: 0 !important;
+}

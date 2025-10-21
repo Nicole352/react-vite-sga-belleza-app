@@ -182,7 +182,6 @@ const PanelAdministrativos = () => {
         style={{
           minHeight: '100vh',
           background: theme.background,
-          fontFamily: 'Montserrat, sans-serif',
           display: 'flex',
           fontSize: '0.8rem'
         }}

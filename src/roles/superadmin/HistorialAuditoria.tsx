@@ -299,7 +299,6 @@ const HistorialAuditoria: React.FC = () => {
         minHeight: '100vh',
         background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
         color: '#fff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
       }}>
         {/* Header */}
         <div style={{ marginBottom: '1em' }}>
@@ -311,7 +310,6 @@ const HistorialAuditoria: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.625rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
                 fontSize: '1.625rem',
                 fontWeight: '700'
               }}>
@@ -322,7 +320,6 @@ const HistorialAuditoria: React.FC = () => {
                 color: 'rgba(255,255,255,0.7)',
                 margin: 0,
                 fontSize: '0.85rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
               }}>
                 Registro completo de operaciones del sistema
               </p>
@@ -340,7 +337,6 @@ const HistorialAuditoria: React.FC = () => {
                 border: 'none',
                 borderRadius: '0.625em',
                 color: '#fff',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                 fontSize: '0.875rem',
                 fontWeight: '600',
                 cursor: 'pointer',
@@ -393,7 +389,7 @@ const HistorialAuditoria: React.FC = () => {
                 </div>
                 <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Registros</h3>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
                 {estadisticas.total.toLocaleString()}
               </p>
             </div>
@@ -421,7 +417,7 @@ const HistorialAuditoria: React.FC = () => {
                 </div>
                 <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Últimas 24h</h3>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
                 {estadisticas.actividadReciente.toLocaleString()}
               </p>
             </div>
@@ -449,7 +445,7 @@ const HistorialAuditoria: React.FC = () => {
                 </div>
                 <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Tablas Auditadas</h3>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
                 {estadisticas.porTabla.length.toLocaleString()}
               </p>
             </div>
@@ -477,7 +473,7 @@ const HistorialAuditoria: React.FC = () => {
                 </div>
                 <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Usuarios Activos</h3>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
                 {estadisticas.porUsuario.length.toLocaleString()}
               </p>
             </div>
@@ -500,7 +496,6 @@ const HistorialAuditoria: React.FC = () => {
               fontSize: '1rem',
               fontWeight: '600',
               margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
             }}>Filtros</h2>
           </div>
 
@@ -517,7 +512,6 @@ const HistorialAuditoria: React.FC = () => {
                 fontSize: '0.75rem',
                 fontWeight: '500',
                 marginBottom: '0.375em',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
               }}>
                 Búsqueda
               </label>
@@ -536,7 +530,6 @@ const HistorialAuditoria: React.FC = () => {
                     borderRadius: '0.625em',
                     color: '#fff',
                     fontSize: '0.875rem',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
                   }}
                 />
               </div>
@@ -544,7 +537,7 @@ const HistorialAuditoria: React.FC = () => {
 
             {/* Tabla */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
                 Tabla
               </label>
               <select
@@ -559,8 +552,7 @@ const HistorialAuditoria: React.FC = () => {
                   color: '#fff',
                   fontSize: '0.875rem',
                   cursor: 'pointer',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
               >
                 <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
                 {tablasDisponibles.map(tabla => (
@@ -571,7 +563,7 @@ const HistorialAuditoria: React.FC = () => {
 
             {/* Operación */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
                 Operación
               </label>
               <select
@@ -586,8 +578,7 @@ const HistorialAuditoria: React.FC = () => {
                   color: '#fff',
                   fontSize: '0.875rem',
                   cursor: 'pointer',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
               >
                 <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
                 <option value="INSERT" style={{ background: '#1a1a2e', color: '#fff' }}>INSERT</option>
@@ -598,7 +589,7 @@ const HistorialAuditoria: React.FC = () => {
 
             {/* ID Registro */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
                 ID Registro
               </label>
               <input
@@ -614,14 +605,13 @@ const HistorialAuditoria: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
               />
             </div>
 
             {/* Fecha Inicio */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
                 Fecha Inicio
               </label>
               <input
@@ -636,14 +626,13 @@ const HistorialAuditoria: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
               />
             </div>
 
             {/* Fecha Fin */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
                 Fecha Fin
               </label>
               <input
@@ -658,8 +647,7 @@ const HistorialAuditoria: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
               />
             </div>
 
@@ -682,8 +670,7 @@ const HistorialAuditoria: React.FC = () => {
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}
+                                  }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
                 }}
@@ -725,7 +712,7 @@ const HistorialAuditoria: React.FC = () => {
           ) : auditorias.length === 0 ? (
             <div style={{ padding: '3em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
               <FileText size={48} style={{ margin: '0 auto 1em', opacity: 0.5 }} />
-              <p style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>No se encontraron registros de auditoría</p>
+              <p style={{ }}>No se encontraron registros de auditoría</p>
             </div>
           ) : (
             <>
@@ -736,14 +723,14 @@ const HistorialAuditoria: React.FC = () => {
                       background: 'rgba(248, 113, 113, 0.15)',
                       borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)'
                     }}>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>ID</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Fecha/Hora</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Usuario</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Operación</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Tabla</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>ID Registro</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>IP</th>
-                      <th style={{ padding: '0.75em', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>Acciones</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>ID</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Fecha/Hora</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Usuario</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Operación</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Tabla</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>ID Registro</th>
+                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>IP</th>
+                      <th style={{ padding: '0.75em', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -762,18 +749,18 @@ const HistorialAuditoria: React.FC = () => {
                           e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                         }}
                       >
-                        <td style={{ padding: '0.75em', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', fontWeight: '600', fontFamily: 'monospace' }}>
+                        <td style={{ padding: '0.75em', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', fontWeight: '600' }}>
                           {auditoria.id_auditoria}
                         </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', }}>
                           {formatearFecha(auditoria.fecha_operacion)}
                         </td>
                         <td style={{ padding: '0.75em' }}>
                           <div>
-                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'rgba(255,255,255,0.95)', margin: '0 0 0.125em 0', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'rgba(255,255,255,0.95)', margin: '0 0 0.125em 0', }}>
                               {auditoria.usuario_nombre} {auditoria.usuario_apellido}
                             </p>
-                            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', margin: 0, fontFamily: 'monospace' }}>
+                            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>
                               @{auditoria.usuario_username}
                             </p>
                           </div>
@@ -795,18 +782,17 @@ const HistorialAuditoria: React.FC = () => {
                             border: `0.0625rem solid ${auditoria.operacion === 'INSERT' ? 'rgba(16, 185, 129, 0.3)' :
                               auditoria.operacion === 'UPDATE' ? 'rgba(245, 158, 11, 0.3)' :
                                 'rgba(239, 68, 68, 0.3)'}`,
-                            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                          }}>
+                                                      }}>
                             {auditoria.operacion}
                           </span>
                         </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', fontFamily: 'monospace' }}>
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>
                           {auditoria.tabla_afectada}
                         </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
+                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
                           #{auditoria.id_registro}
                         </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
+                        <td style={{ padding: '0.75em', fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)' }}>
                           {auditoria.ip_address}
                         </td>
                         <td style={{ padding: '0.75em', textAlign: 'center' }}>
@@ -825,8 +811,7 @@ const HistorialAuditoria: React.FC = () => {
                               fontWeight: '600',
                               cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                            }}
+                                                          }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
                               e.currentTarget.style.transform = 'scale(1.05)';
@@ -860,8 +845,7 @@ const HistorialAuditoria: React.FC = () => {
                 <div style={{
                   fontSize: '0.8rem',
                   color: 'rgba(255,255,255,0.7)',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                }}>
+                                  }}>
                   Mostrando {((paginaActual - 1) * limite) + 1} - {Math.min(paginaActual * limite, total)} de {total} registros
                 </div>
 
@@ -901,8 +885,7 @@ const HistorialAuditoria: React.FC = () => {
                     fontSize: '0.8rem',
                     fontWeight: '600',
                     color: 'rgba(255,255,255,0.9)',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
-                  }}>
+                                      }}>
                     Página {paginaActual} de {totalPaginas}
                   </span>
 

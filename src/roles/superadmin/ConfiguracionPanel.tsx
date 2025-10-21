@@ -10,7 +10,6 @@ const ConfiguracionPanel: React.FC = () => {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       color: '#fff',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
     }}>
       {/* Header */}
       <div style={{ marginBottom: '1em' }}>
@@ -20,7 +19,6 @@ const ConfiguracionPanel: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
           fontSize: '1.625rem',
           fontWeight: '700'
         }}>
@@ -30,8 +28,7 @@ const ConfiguracionPanel: React.FC = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: '0.85rem'
         }}>
           Configuraciones generales y perfil del Super Administrador
         </p>
@@ -66,8 +63,7 @@ const ConfiguracionPanel: React.FC = () => {
               color: 'rgba(255,255,255,0.95)', 
               fontSize: '1.125rem', 
               fontWeight: '700', 
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+              margin: 0
             }}>
               Perfil del Administrador
             </h2>
@@ -118,9 +114,7 @@ const ConfiguracionPanel: React.FC = () => {
               alignItems: 'center',
               gap: '0.375em',
               margin: '0 auto',
-              fontWeight: '600',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-              transition: 'all 0.2s ease'
+              fontWeight: '600'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
@@ -141,8 +135,7 @@ const ConfiguracionPanel: React.FC = () => {
                 fontSize: '0.75rem', 
                 fontWeight: '500', 
                 marginBottom: '0.375em', 
-                display: 'block',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                display: 'block'
               }}>
                 Nombre Completo
               </label>
@@ -157,8 +150,7 @@ const ConfiguracionPanel: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  transition: 'all 0.2s ease',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                  transition: 'all 0.2s ease'
                 }}
               />
             </div>
@@ -169,8 +161,7 @@ const ConfiguracionPanel: React.FC = () => {
                 fontSize: '0.75rem', 
                 fontWeight: '500', 
                 marginBottom: '0.375em', 
-                display: 'block',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                display: 'block'
               }}>
                 Email
               </label>
@@ -185,8 +176,7 @@ const ConfiguracionPanel: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  transition: 'all 0.2s ease',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                  transition: 'all 0.2s ease'
                 }}
               />
             </div>
@@ -197,8 +187,7 @@ const ConfiguracionPanel: React.FC = () => {
                 fontSize: '0.75rem', 
                 fontWeight: '500', 
                 marginBottom: '0.375em', 
-                display: 'block',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                display: 'block'
               }}>
                 Teléfono
               </label>
@@ -213,8 +202,7 @@ const ConfiguracionPanel: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  transition: 'all 0.2s ease',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                  transition: 'all 0.2s ease'
                 }}
               />
             </div>
@@ -231,7 +219,6 @@ const ConfiguracionPanel: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               boxShadow: '0 0.25rem 0.75em rgba(59, 130, 246, 0.3)',
               transition: 'all 0.2s ease'
             }}
@@ -275,8 +262,7 @@ const ConfiguracionPanel: React.FC = () => {
               color: 'rgba(255,255,255,0.95)', 
               fontSize: '1.125rem', 
               fontWeight: '700', 
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+              margin: 0
             }}>
               Seguridad
             </h2>
@@ -290,8 +276,7 @@ const ConfiguracionPanel: React.FC = () => {
                 fontSize: '0.75rem', 
                 fontWeight: '500', 
                 marginBottom: '0.375em', 
-                display: 'block',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+                display: 'block'
               }}>
                 Contraseña Actual
               </label>
@@ -306,7 +291,6 @@ const ConfiguracionPanel: React.FC = () => {
                   borderRadius: '0.625em',
                   color: '#fff',
                   fontSize: '0.875rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                   transition: 'all 0.2s'
                 }}
               />

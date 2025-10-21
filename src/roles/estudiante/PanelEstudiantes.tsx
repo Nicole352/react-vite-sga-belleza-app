@@ -236,7 +236,6 @@ const PanelEstudiantes = () => {
         style={{
           minHeight: '100vh',
           background: theme.background,
-          fontFamily: 'Montserrat, sans-serif',
           display: 'flex',
           fontSize: '0.8rem'
         }}
@@ -509,8 +508,7 @@ const PanelEstudiantes = () => {
                   fontSize: '1.8rem',
                   fontWeight: '700',
                   color: '#fff',
-                  margin: '0 0 0.75em 0',
-                  fontFamily: 'Montserrat, sans-serif'
+                  margin: '0 0 0.75em 0'
                 }}>
                   Restablecer Contraseña
                 </h2>
@@ -547,8 +545,7 @@ const PanelEstudiantes = () => {
                       border: '0.09375rem solid rgba(251, 191, 36, 0.3)',
                       borderRadius: '0.75em',
                       color: '#fff',
-                      fontSize: '1rem',
-                      fontFamily: 'Montserrat, sans-serif'
+                      fontSize: '1rem'
                     }}
                   />
                   <button
@@ -594,8 +591,7 @@ const PanelEstudiantes = () => {
                       border: '0.09375rem solid rgba(251, 191, 36, 0.3)',
                       borderRadius: '0.75em',
                       color: '#fff',
-                      fontSize: '1rem',
-                      fontFamily: 'Montserrat, sans-serif'
+                      fontSize: '1rem'
                     }}
                   />
                   <button
@@ -647,7 +643,6 @@ const PanelEstudiantes = () => {
                   fontWeight: '700',
                   cursor: resetLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s ease',
-                  fontFamily: 'Montserrat, sans-serif',
                   textTransform: 'uppercase',
                   letterSpacing: '0.03125em',
                   display: 'flex',

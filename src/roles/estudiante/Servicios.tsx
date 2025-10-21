@@ -159,7 +159,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               borderRadius: '0.5em',
               color: theme.textPrimary,
               fontSize: '0.85rem',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'sans-serif'
             }}
           />
         </div>
@@ -383,12 +383,11 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
             padding: '0.5em 0.75em',
             cursor: 'pointer',
             fontSize: '0.85rem',
-            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: '800',
             zIndex: 2001,
             display: 'flex',
             alignItems: 'center',
-            gap: '0.375em',
-            fontWeight: '800'
+            gap: '0.375em'
           }}
         >
           ✕ Cerrar

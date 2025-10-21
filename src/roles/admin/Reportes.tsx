@@ -700,7 +700,6 @@ const Reportes = () => {
                   fontWeight: '800', 
                   marginBottom: '0.25rem',
                   textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  fontFamily: 'Montserrat, sans-serif',
                   lineHeight: '1'
                 }}>
                   {metrica.valor}
@@ -932,7 +931,6 @@ const Reportes = () => {
                   fontWeight: '800', 
                   marginBottom: '0.25rem',
                   textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  fontFamily: 'Montserrat, sans-serif',
                   lineHeight: '1'
                 }}>
                   {metrica.valor}
@@ -1179,7 +1177,7 @@ const Reportes = () => {
                   color: '#fff',
                   fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.25rem',
                   textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  fontFamily: 'Montserrat, sans-serif'
+                  lineHeight: '1'
                 }}>
                   {metrica.valor}
                 </div>
@@ -1286,8 +1284,7 @@ const Reportes = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex', 
           alignItems: 'center', 
-          gap: isMobile ? '6px' : '0.625rem', 
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '6px' : '0.625rem'
         }}>
           <BarChart3 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Reportes y Estadísticas
@@ -1295,8 +1292,7 @@ const Reportes = () => {
         <p style={{ 
           color: 'rgba(255,255,255,0.7)', 
           margin: 0, 
-          fontSize: isMobile ? '0.75rem' : '0.85rem', 
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' 
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Análisis detallado del rendimiento académico y financiero
         </p>
@@ -1514,7 +1510,6 @@ const Reportes = () => {
                   border: 'none',
                   borderRadius: '0.625rem',
                   color: '#fff',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
                   fontSize: '0.8rem',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',

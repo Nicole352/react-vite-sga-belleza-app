@@ -217,7 +217,6 @@ const GestionAulas = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
       color: '#fff'
     }}>
@@ -228,8 +227,7 @@ const GestionAulas = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '0.375rem' : '0.625rem'
         }}>
           <Building2 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Aulas
@@ -237,8 +235,7 @@ const GestionAulas = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Administra las aulas y espacios físicos de la institución
         </p>
@@ -367,7 +364,6 @@ const GestionAulas = () => {
               border: 'none',
               borderRadius: '0.625em',
               color: '#fff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -384,7 +380,7 @@ const GestionAulas = () => {
       {/* Estadísticas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 45vw), 1fr))', gap: '0.75em', marginBottom: '1em' }}>
         <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem' }}>
             {totalCount}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
@@ -393,7 +389,7 @@ const GestionAulas = () => {
         </GlassEffect>
 
         <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem' }}>
             {aulasActivas}
           </div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
@@ -479,7 +475,7 @@ const GestionAulas = () => {
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       Código
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace' }}>
+                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
                       {aula.codigo_aula}
                     </div>
                   </div>
@@ -641,8 +637,7 @@ const GestionAulas = () => {
                         <div style={{
                           fontWeight: '600',
                           color: '#f87171',
-                          fontSize: '0.8rem',
-                          fontFamily: 'monospace'
+                          fontSize: '0.8rem'
                         }}>
                           {aula.codigo_aula}
                         </div>
@@ -753,8 +748,6 @@ const GestionAulas = () => {
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '1.25rem',
-          marginBottom: '1.5rem',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',
@@ -891,8 +884,7 @@ const GestionAulas = () => {
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+                gap: '0.5rem'
               }}>
                 <Building2 size={20} color={RedColorPalette.primary} />
                 Nueva Aula
@@ -1034,8 +1026,7 @@ const GestionAulas = () => {
                     background: 'rgba(255,255,255,0.08)',
                     color: '#fff',
                     fontSize: '0.95rem',
-                    resize: 'vertical',
-                    fontFamily: 'inherit'
+                    resize: 'vertical'
                   }}
                 />
               </div>
@@ -1212,8 +1203,7 @@ const GestionAulas = () => {
                 color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+                gap: '0.5rem'
               }}>
                 <Edit size={20} color={RedColorPalette.primary} />
                 Editar Aula
@@ -1368,7 +1358,6 @@ const GestionAulas = () => {
                     color: '#fff',
                     fontSize: '0.9rem',
                     resize: 'vertical',
-                    fontFamily: 'inherit',
                     transition: 'all 0.2s ease',
                   }}
                 />

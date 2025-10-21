@@ -183,8 +183,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       <div style={{
         padding: '2.5em',
         textAlign: 'center',
-        color: '#6b7280',
-        fontFamily: 'Montserrat, sans-serif'
+        color: '#6b7280'
       }}>
         <div style={{ fontSize: '1.1rem' }}>Cargando pagos mensuales...</div>
       </div>
@@ -198,7 +197,6 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
           minHeight: '100vh',
           backgroundColor: '#f9fafb',
           color: '#1f2937',
-          fontFamily: 'Montserrat, sans-serif',
           padding: '1.25em'
         }}
       >
@@ -229,7 +227,6 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
         minHeight: '150vh',
         backgroundColor: darkMode ? '#1a1a1a' : '#f9fafb',
         color: darkMode ? '#fff' : '#1f2937',
-        fontFamily: 'Montserrat, sans-serif',
         padding: '0.75em',
         paddingBottom: '5em'
       }}

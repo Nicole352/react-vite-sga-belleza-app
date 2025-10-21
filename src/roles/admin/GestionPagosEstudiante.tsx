@@ -401,8 +401,7 @@ const GestionPagosEstudiante = () => {
           margin: '0 0 0.375rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: isMobile ? '6px' : '0.625rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+          gap: isMobile ? '6px' : '0.625rem'
         }}>
           <DollarSign size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
           Gestión de Pagos {!isMobile && 'Mensuales'}
@@ -410,8 +409,7 @@ const GestionPagosEstudiante = () => {
         <p style={{
           color: 'rgba(255,255,255,0.7)',
           margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif'
+          fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
           Verifica y administra los pagos mensuales de los estudiantes
         </p>
@@ -496,8 +494,7 @@ const GestionPagosEstudiante = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                   <span style={{ 
                     color: pago.metodo_pago === 'efectivo' ? '#10b981' : '#3b82f6',
-                    fontSize: '0.7rem', 
-                    fontFamily: 'monospace',
+                    fontSize: '0.7rem',
                     background: pago.metodo_pago === 'efectivo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
                     border: pago.metodo_pago === 'efectivo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
                     padding: '3px 0.5rem',
@@ -554,7 +551,7 @@ const GestionPagosEstudiante = () => {
                 }}>
                   <div style={{ flex: '1 1 140px' }}>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>{estudiante.estudiante_cedula}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{estudiante.estudiante_cedula}</div>
                   </div>
 
                   {/* Selector de Curso */}
@@ -673,7 +670,6 @@ const GestionPagosEstudiante = () => {
                         borderRadius: '0.375rem',
                         fontSize: '0.8rem',
                         fontWeight: '600',
-                        fontFamily: 'monospace',
                         textAlign: 'center',
                         width: '100%'
                       }}>
@@ -1010,7 +1006,6 @@ const GestionPagosEstudiante = () => {
                     color: '#10b981',
                     fontSize: '1.75rem',
                     fontWeight: 800,
-                    fontFamily: 'monospace',
                     letterSpacing: '-1px'
                   }}>
                     {formatearMonto(selectedPago.monto)}
@@ -1048,8 +1043,7 @@ const GestionPagosEstudiante = () => {
                   <div style={{
                     color: '#3b82f6',
                     fontSize: '1.75rem',
-                    fontWeight: 800,
-                    fontFamily: 'monospace'
+                    fontWeight: 800
                   }}>
                     #{selectedPago.numero_cuota}
                   </div>
@@ -1161,7 +1155,6 @@ const GestionPagosEstudiante = () => {
                       <div style={{
                         color: 'rgba(255,255,255,0.6)',
                         fontSize: '0.9rem',
-                        fontFamily: 'monospace',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem'
@@ -1255,7 +1248,6 @@ const GestionPagosEstudiante = () => {
                           color: '#fbbf24',
                           fontSize: '1rem',
                           fontWeight: 700,
-                          fontFamily: 'monospace',
                           background: 'rgba(251, 191, 36, 0.1)',
                           padding: '8px 0.75rem',
                           borderRadius: '0.5rem',
@@ -1358,15 +1350,13 @@ const GestionPagosEstudiante = () => {
                       <div style={{
                         color: 'rgba(255,255,255,0.7)',
                         fontSize: '0.85rem',
-                        fontFamily: 'monospace',
                         marginBottom: '0.375rem'
                       }}>
                         ID: {selectedPago.admin_identificacion || selectedPago.verificado_por || 'N/A'}
                       </div>
                       <div style={{
                         color: 'rgba(255,255,255,0.6)',
-                        fontSize: '0.8rem',
-                        fontFamily: 'monospace'
+                        fontSize: '0.8rem'
                       }}>
                         {new Date(selectedPago.fecha_verificacion).toLocaleDateString('es-ES', {
                           day: '2-digit',
@@ -1528,7 +1518,6 @@ const GestionPagosEstudiante = () => {
                     margin: isMobile ? '4px 0 0 1.5rem' : '6px 0 0 1.75rem',
                     color: '#fbbf24',
                     fontSize: isMobile ? '0.75rem' : '0.85rem',
-                    fontFamily: 'monospace',
                     fontWeight: '600'
                   }}>
                     Número: {comprobanteNumero}
@@ -1646,14 +1635,13 @@ const GestionPagosEstudiante = () => {
 
       {/* Paginación */}
       {estudiantesFiltrados.length > 0 && (
-        <div style={{
+        <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          marginTop: isMobile ? '16px' : '90px',
           background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
           borderRadius: '1rem',
@@ -2130,17 +2118,16 @@ const GestionPagosEstudiante = () => {
                   padding: '0.75rem',
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   color: '#fff',
                   fontSize: '0.9rem',
-                  resize: 'vertical',
-                  fontFamily: 'Montserrat, sans-serif'
+                  resize: 'vertical'
                 }}
               />
               <div style={{
-                color: 'rgba(255,255,255,0.5)',
                 fontSize: '0.75rem',
-                marginTop: '0.25rem'
+                color: 'rgba(255,255,255,0.5)',
+                marginTop: '0.5rem'
               }}>
                 Este mensaje será visible para el estudiante
               </div>
