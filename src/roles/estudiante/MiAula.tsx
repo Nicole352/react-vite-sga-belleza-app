@@ -19,6 +19,7 @@ import {
   Star,
   Hand
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface MiAulaProps {
   darkMode: boolean;
@@ -65,15 +66,12 @@ interface UserData {
 const API_BASE = 'http://localhost:3000/api';
 
 const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [cursosMatriculados, setCursosMatriculados] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [showCalificaciones, setShowCalificaciones] = useState(false);
-  const [showCompaneros, setShowCompaneros] = useState(false);
-  const [calificaciones, setCalificaciones] = useState<Array<{ cursoId: number; cursoNombre: string; modulo?: string; tarea: string; nota: number }>>([]);
-  const [companeros, setCompaneros] = useState<Array<{ cursoId: number; cursoNombre: string; nombre: string; email?: string }>>([]);
 
   useEffect(() => {
     setIsVisible(true);
@@ -162,66 +160,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
   };
 
   const theme = getThemeColors();
-
-  // Cargar calificaciones por curso del estudiante autenticado
-  const fetchCalificaciones = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      if (!token) return;
-      if (!cursosMatriculados || cursosMatriculados.length === 0) {
-        setCalificaciones([]);
-        return;
-      }
-      const headers = { 'Authorization': `Bearer ${token}` } as any;
-      const all: Array<{ cursoId: number; cursoNombre: string; modulo?: string; tarea: string; nota: number }> = [];
-      for (const curso of cursosMatriculados) {
-        const res = await fetch(`${API_BASE}/calificaciones/estudiante/curso/${curso.id_curso}`, { headers });
-        if (!res.ok) continue;
-        const payload = await res.json();
-        const items = (payload?.calificaciones || []) as any[];
-        for (const it of items) {
-          const tareaNombreRaw = it.tarea_nombre ?? it.nombre_tarea ?? it.titulo ?? it.tarea ?? it.nombre ?? '';
-          const tareaNombre = String(tareaNombreRaw).trim().length > 0 ? String(tareaNombreRaw) : 'Actividad';
-          const notaNum = Number(it.nota ?? it.calificacion ?? it.puntaje ?? 0);
-          const moduloNombre = it.modulo_nombre ?? it.nombre_modulo ?? it.modulo ?? undefined;
-          all.push({ cursoId: curso.id_curso, cursoNombre: curso.nombre, modulo: moduloNombre ? String(moduloNombre) : undefined, tarea: String(tareaNombre), nota: isNaN(notaNum) ? 0 : notaNum });
-        }
-      }
-      setCalificaciones(all);
-    } catch (e) {
-      setCalificaciones([]);
-    }
-  };
-
-  // Cargar compañeros por curso del estudiante autenticado
-  const fetchCompaneros = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      if (!token) return;
-      if (!cursosMatriculados || cursosMatriculados.length === 0) {
-        setCompaneros([]);
-        return;
-      }
-      const headers = { 'Authorization': `Bearer ${token}` } as any;
-      const all: Array<{ cursoId: number; cursoNombre: string; nombre: string; email?: string }> = [];
-      for (const curso of cursosMatriculados) {
-        const res = await fetch(`${API_BASE}/cursos/${curso.id_curso}/estudiantes`, { headers });
-        if (!res.ok) continue;
-        const lista = await res.json();
-        const arr = (Array.isArray(lista?.estudiantes) ? lista.estudiantes : Array.isArray(lista) ? lista : []) as any[];
-        for (const est of arr) {
-          const composed = `${est.nombres ?? ''} ${est.apellidos ?? ''}`.trim();
-          const preferido = (est.nombre_completo ?? composed);
-          const nombre = (preferido && preferido.length > 0) ? preferido : (est.nombre ?? 'Estudiante');
-          const email = est.email ?? est.correo ?? undefined;
-          all.push({ cursoId: curso.id_curso, cursoNombre: curso.nombre, nombre, email });
-        }
-      }
-      setCompaneros(all);
-    } catch (e) {
-      setCompaneros([]);
-    }
-  };
 
   return (
     <div style={{
@@ -441,7 +379,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
             {cursosMatriculados.map((curso) => (
               <div
                 key={curso.id_curso}
-                onClick={() => window.location.href = `/panel/estudiante/curso/${curso.id_curso}`}
+                onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
                 style={{
                   padding: '0.875em',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
@@ -665,6 +603,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                     )}
 
                     <button
+                      onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
                       style={{
                         background: 'transparent',
                         color: theme.accent,
@@ -678,6 +617,14 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         alignItems: 'center',
                         gap: '6px',
                         transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = `${theme.accent}20`;
+                        e.currentTarget.style.borderColor = theme.accent;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.borderColor = `${theme.accent}30`;
                       }}
                     >
                       <Eye size={14} />
@@ -803,7 +750,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
-                onClick={() => { setShowCalificaciones(true); fetchCalificaciones(); }}
+                onClick={() => navigate('/panel/estudiante/calificaciones')}
                 style={{
                   background: 'transparent',
                   border: `1px solid ${theme.border}`,
@@ -823,7 +770,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
               </button>
               <button
-                onClick={() => { setShowCompaneros(true); fetchCompaneros(); }}
+                onClick={() => { /* Implementar funcionalidad de compañeros */ }}
                 style={{
                   background: 'transparent',
                   border: `1px solid ${theme.border}`,
@@ -844,106 +791,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               </button>
             </div>
           </div>
-
-          {/* Modal: Mis Calificaciones */}
-          {showCalificaciones && (
-            <div style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
-            }}>
-              <div style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                width: '100%', maxWidth: '720px', maxHeight: '80vh', overflow: 'auto', padding: '16px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h4 style={{ margin: 0, fontSize: '1rem', color: theme.textPrimary, fontWeight: 800 }}>Mis Calificaciones</h4>
-                  <button onClick={() => setShowCalificaciones(false)} style={{ border: 'none', background: 'transparent', color: theme.textSecondary, cursor: 'pointer' }}>✕</button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {calificaciones.length === 0 && (
-                    <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>No hay calificaciones disponibles.</div>
-                  )}
-                  {calificaciones.length > 0 && (
-                    <>
-                      <div style={{ display: 'grid', gap: '6px' }}>
-                        {calificaciones.map((c, idx) => (
-                          <div key={idx} style={{
-                            display: 'grid', gridTemplateColumns: '1.5fr 1.5fr 2.5fr 0.8fr',
-                            alignItems: 'center',
-                            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                            border: `1px solid ${theme.border}`,
-                            borderRadius: '8px',
-                            padding: '8px'
-                          }}>
-                            <div style={{ fontSize: '0.8rem', color: theme.textSecondary, fontWeight: 600 }}>{c.cursoNombre}</div>
-                            <div style={{ fontSize: '0.8rem', color: theme.textMuted }}>{c.modulo ?? 'Módulo'}</div>
-                            <div style={{ fontSize: '0.85rem', color: theme.textPrimary }}>Tarea: {c.tarea}</div>
-                            <div style={{ textAlign: 'right', fontWeight: 800, color: theme.accent }}>{c.nota.toFixed(1)}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ marginTop: '8px', textAlign: 'right', color: theme.textSecondary, fontSize: '0.9rem' }}>
-                        Promedio: <span style={{ color: theme.textPrimary, fontWeight: 800 }}>
-                          {(
-                            calificaciones.reduce((acc, it) => acc + (isNaN(it.nota) ? 0 : it.nota), 0) / calificaciones.length
-                          ).toFixed(2)}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal: Compañeros de Curso */}
-          {showCompaneros && (
-            <div style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
-            }}>
-              <div style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                width: '100%', maxWidth: '640px', maxHeight: '80vh', overflow: 'auto', padding: '16px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h4 style={{ margin: 0, fontSize: '1rem', color: theme.textPrimary, fontWeight: 800 }}>Compañeros de Curso</h4>
-                  <button onClick={() => setShowCompaneros(false)} style={{ border: 'none', background: 'transparent', color: theme.textSecondary, cursor: 'pointer' }}>✕</button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {companeros.length === 0 && (
-                    <div style={{ color: theme.textMuted, fontSize: '0.85rem' }}>No hay compañeros disponibles.</div>
-                  )}
-                  {companeros.length > 0 && (
-                    cursosMatriculados.map((curso) => (
-                      <div key={curso.id_curso} style={{ marginBottom: '8px' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: theme.textPrimary, marginBottom: '4px' }}>{curso.nombre}</div>
-                        <div style={{ display: 'grid', gap: '4px' }}>
-                          {companeros.filter(c => c.cursoId === curso.id_curso).map((cmp, i) => (
-                            <div key={i} style={{
-                              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                              border: `1px solid ${theme.border}`, borderRadius: '8px', padding: '6px'
-                            }}>
-                              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: 700 }}>{cmp.nombre}</span>
-                                <span style={{ color: theme.textMuted, fontSize: '0.75rem' }}>{curso.nombre}</span>
-                              </div>
-                              {cmp.email && <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>{cmp.email}</span>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
