@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu, X
+  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu, X, UserCircle
 } from 'lucide-react';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -20,6 +20,7 @@ import GestionPagosEstudiante from './GestionPagosEstudiante';
 import Reportes from './Reportes';
 import GestionTiposCurso from './GestionTiposCurso';
 import ControlUsuarios from './ControlUsuarios';
+import Perfil from './Perfil';
 
 const PanelAdministrativos = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
@@ -130,7 +131,8 @@ const PanelAdministrativos = () => {
     { id: 'control-usuarios', name: 'Control de Usuarios', icon: Users },
     { id: 'gestion-aulas', name: 'Gestión Aulas', icon: Building2 },
     { id: 'asignacion-aulas', name: 'Asignación Aula', icon: MapPin },
-    { id: 'reportes', name: 'Reportes', icon: FileText }
+    { id: 'reportes', name: 'Reportes', icon: FileText },
+    { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
   return (
@@ -475,6 +477,7 @@ const PanelAdministrativos = () => {
             {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
             {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
             {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
+            {activeTab === 'perfil' && <AdminThemeWrapper darkMode={darkMode}><Perfil /></AdminThemeWrapper>}
           </div>
         </div>
       </div>
