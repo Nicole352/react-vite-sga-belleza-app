@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Lock, LogOut, Sun, Moon } from 'lucide-react';
+import { Camera, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PerfilModal from './PerfilModal';
 
@@ -17,13 +17,11 @@ interface ProfileMenuProps {
     email?: string;
     username?: string;
   } | null;
-  onChangePassword?: () => void; // Opcional: callback para cambiar contraseña
   avatarColor?: string; // Opcional: color del avatar (default: rojo)
-  fotoPerfilUrl?: string | null; // URL de la foto de perfil
   onPhotoUpdated?: () => void; // Callback cuando se actualiza la foto
 }
 
-const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePassword, avatarColor = 'linear-gradient(135deg, #ef4444, #dc2626)', fotoPerfilUrl, onPhotoUpdated }: ProfileMenuProps) => {
+const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 'linear-gradient(135deg, #ef4444, #dc2626)', onPhotoUpdated }: ProfileMenuProps) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showPerfilModal, setShowPerfilModal] = useState(false);
   const [currentFotoUrl, setCurrentFotoUrl] = useState<string | null>(null);
@@ -264,41 +262,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
             <span>Cambiar foto de perfil</span>
           </div>
 
-          {/* Opción 2: Cambiar contraseña */}
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowProfileMenu(false);
-              if (onChangePassword) {
-                onChangePassword();
-              } else {
-                toast('Función de cambiar contraseña próximamente');
-              }
-            }}
-            style={{
-              padding: '12px 16px',
-              cursor: 'pointer',
-              color: theme.textPrimary,
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              borderBottom: `1px solid ${theme.border}`,
-              background: 'transparent'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}>
-            <Lock size={18} color={theme.textSecondary} />
-            <span>Cambiar contraseña</span>
-          </div>
-
-          {/* Opción 3: Modo Claro/Oscuro */}
+          {/* Opción 2: Modo Claro/Oscuro */}
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -345,7 +309,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, onChangePasswo
             <span>{darkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
           </div>
 
-          {/* Opción 4: Cerrar Sesión */}
+          {/* Opción 3: Cerrar Sesión */}
           <div
             onClick={(e) => {
               e.stopPropagation();
