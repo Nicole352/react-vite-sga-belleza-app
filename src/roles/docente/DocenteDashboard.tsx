@@ -5,15 +5,15 @@ import {
   Users, 
   Calendar, 
   Award, 
-  Hand, 
   Clock,
   TrendingUp,
   ChevronRight,
   GraduationCap,
   Target,
-  MapPin,
+  MapPin
 } from 'lucide-react';
 import ModalCalificaciones from './ModalCalificaciones';
+import { FaHandPaper } from 'react-icons/fa';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -50,6 +50,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const [showCalif, setShowCalif] = useState(false);
   const [cursoSelId, setCursoSelId] = useState<number | null>(null);
   const [cursoSelNombre, setCursoSelNombre] = useState<string>('');
+  const [showDropdownCursos, setShowDropdownCursos] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -174,7 +175,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               color: theme.textPrimary, 
               margin: '0 0 0.25em 0' 
             }}>
-              <Hand size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
+              <FaHandPaper size={18} style={{ display: 'inline', marginRight: '0.375em', verticalAlign: 'middle', transform: 'rotate(35deg)' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
             </h1>
             <p style={{ 
               color: theme.textSecondary, 
@@ -517,24 +518,121 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
-              <button onClick={() => { const c = cursos[0]; if (c) { setCursoSelId(c.id_curso); setCursoSelNombre(c.nombre); setShowCalif(true); } }} style={{
-                background: 'transparent',
-                border: `0.0625rem solid ${theme.border}`,
-                borderRadius: '0.5em',
-                padding: '0.625em',
-                color: theme.textSecondary,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5em',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                transition: 'all 0.3s ease'
-              }}>
-                <TrendingUp size={14} />
-                Calificaciones
-                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button onClick={() => setShowDropdownCursos(!showDropdownCursos)} style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: `0.0625rem solid ${theme.border}`,
+                  borderRadius: '0.5em',
+                  padding: '0.625em',
+                  color: theme.textSecondary,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5em',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <TrendingUp size={14} />
+                  Calificaciones
+                  <ChevronRight size={14} style={{ marginLeft: 'auto', transform: showDropdownCursos ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                </button>
+                
+                {showDropdownCursos && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '0.5em',
+                    background: darkMode ? '#1e293b' : '#ffffff',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5em',
+                    boxShadow: darkMode ? '0 0.5rem 1rem rgba(0,0,0,0.3)' : '0 0.5rem 1rem rgba(0,0,0,0.1)',
+                    zIndex: 1000,
+                    maxHeight: '300px',
+                    overflowY: 'auto'
+                  }}>
+                    {cursos.length === 0 ? (
+                      <div style={{
+                        padding: '1rem',
+                        textAlign: 'center',
+                        color: theme.textMuted,
+                        fontSize: '0.875rem'
+                      }}>
+                        No hay cursos
+                      </div>
+                    ) : (
+                      cursos.map((curso) => (
+                        <button
+                          key={curso.id_curso}
+                          onClick={() => {
+                            setCursoSelId(curso.id_curso);
+                            setCursoSelNombre(curso.nombre);
+                            setShowDropdownCursos(false);
+                            setShowCalif(true);
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            background: 'transparent',
+                            border: 'none',
+                            borderBottom: `1px solid ${theme.border}`,
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.25rem'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                          }}
+                        >
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                          }}>
+                            <span style={{
+                              background: `${theme.accent}20`,
+                              color: theme.accent,
+                              padding: '0.125rem 0.5rem',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.7rem',
+                              fontWeight: '600'
+                            }}>
+                              {curso.codigo_curso}
+                            </span>
+                            <span style={{
+                              color: theme.textPrimary,
+                              fontSize: '0.875rem',
+                              fontWeight: '600'
+                            }}>
+                              {curso.nombre}
+                            </span>
+                          </div>
+                          <div style={{
+                            color: theme.textMuted,
+                            fontSize: '0.75rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            paddingLeft: '0.5rem'
+                          }}>
+                            <Users size={12} />
+                            {curso.total_estudiantes} estudiantes
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
 
               <button onClick={() => navigate('/panel/docente/horario')} style={{
                 background: 'transparent',
@@ -577,6 +675,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           </div>
         </div>
       </div>
+      
       {showCalif && cursoSelId !== null && (
         <ModalCalificaciones
           isOpen={showCalif}
