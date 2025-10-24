@@ -355,7 +355,7 @@ const AdministradoresPanel: React.FC = () => {
         fd.append('email', email);
         if (telefono) fd.append('telefono', telefono);
         if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
-        // No enviar genero para evitar problemas de ENUM en la BD
+        if (genero) fd.append('genero', genero);
         if (direccion) fd.append('direccion', direccion);
         if (roleIdNum) fd.append('rolId', String(roleIdNum));
         if (roleName) fd.append('roleName', roleName);
@@ -378,7 +378,7 @@ const AdministradoresPanel: React.FC = () => {
           email,
           telefono,
           fecha_nacimiento: fecha_nacimiento || undefined,
-          // No enviar genero para evitar problemas de ENUM en la BD
+          genero: genero || undefined,
           direccion: direccion || undefined,
           rolId: roleIdNum,
           roleName: roleName || undefined,
