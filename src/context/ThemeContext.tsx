@@ -50,11 +50,23 @@ interface ThemeProviderProps {
 // Proveedor del tema
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Primero revisamos si hay un tema guardado en localStorage
     const storedTheme = localStorage.getItem('theme');
-    return (storedTheme as 'light' | 'dark') || 'light'; // Iniciar en modo claro por defecto
+    if (storedTheme) {
+      return storedTheme as 'light' | 'dark';
+    }
+    
+    // Si no hay tema guardado, revisamos la preferencia del sistema
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    
+    // Por defecto usamos el tema claro
+    return 'light';
   });
 
   useEffect(() => {
+    // Guardamos el tema seleccionado en localStorage
     localStorage.setItem('theme', theme);
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
@@ -104,6 +116,32 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     `;
 
     document.head.appendChild(style);
+    
+    // Escuchamos cambios en la preferencia del sistema
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Solo cambiamos automáticamente si no hay tema guardado en localStorage
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    // Usamos el evento adecuado según el navegador
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else {
+      // Para navegadores más antiguos
+      mediaQuery.addListener(handleChange);
+    }
+    
+    // Limpiamos el event listener cuando el componente se desmonte
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
   }, [theme]);
 
   const toggleTheme = () => {

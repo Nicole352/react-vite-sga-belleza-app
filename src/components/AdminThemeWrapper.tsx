@@ -38,6 +38,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           --theme-text-secondary: ${theme.textSecondary};
           --theme-text-muted: ${theme.textMuted};
           --theme-bg-content: ${theme.contentBg};
+          --theme-card-bg: ${theme.contentBg};
           --theme-border: ${theme.border};
           --theme-input-bg: ${theme.inputBg};
           --theme-input-border: ${theme.inputBorder};
