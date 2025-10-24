@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
-import { BookOpen, Users, Calendar, Lock, Eye, EyeOff, CheckCircle2, BarChart3, Settings, Menu } from 'lucide-react';
+import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
+import AdminThemeWrapper from '../../components/AdminThemeWrapper';
+import CambiarPasswordModal from '../../components/CambiarPasswordModal';
 
 // Importar componentes modulares
 import DocenteDashboard from './DocenteDashboard';
@@ -12,6 +14,7 @@ import MisEstudiantes from './MisEstudiantes';
 import MiHorario from './MiHorario';
 import MiPerfil from './MiPerfil';
 import DetalleCursoDocente from './DetalleCursoDocente';
+import TomarAsistencia from './TomarAsistencia';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -29,32 +32,31 @@ const PanelDocentes = () => {
 
   // Estados para modal de cambio de contraseña
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
-  const [passwordResetData, setPasswordResetData] = useState({ newPassword: '', confirmPassword: '' });
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetError, setResetError] = useState('');
+  const [isRequiredPasswordChange, setIsRequiredPasswordChange] = useState(false);
+  const [isFirstLogin, setIsFirstLogin] = useState(true);
   const [userData, setUserData] = useState<{ nombres?: string; apellidos?: string } | null>(null);
 
-  // Obtener datos del usuario
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = sessionStorage.getItem('auth_token');
-        if (!token) return;
+  // Función para obtener datos del usuario
+  const fetchUserData = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) return;
 
-        const response = await fetch(`${API_BASE}/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
-        }
-      } catch (error) {
-        console.error('Error obteniendo datos del usuario:', error);
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
       }
-    };
+    } catch (error) {
+      console.error('Error obteniendo datos del usuario:', error);
+    }
+  };
+
+  // Obtener datos del usuario al montar
+  useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -89,6 +91,8 @@ const PanelDocentes = () => {
         const data = await response.json();
         if (data.needs_password_reset) {
           setShowPasswordResetModal(true);
+          setIsRequiredPasswordChange(true);
+          setIsFirstLogin(data.is_first_login !== false); // true si es undefined o true
         }
       }
     } catch (error) {
@@ -96,50 +100,11 @@ const PanelDocentes = () => {
     }
   };
 
-  // Manejar cambio de contraseña
-  const handlePasswordReset = async () => {
-    if (passwordResetData.newPassword !== passwordResetData.confirmPassword) {
-      setResetError('Las contraseñas no coinciden');
-      return;
-    }
-    if (passwordResetData.newPassword.length < 6) {
-      setResetError('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
-    setResetLoading(true);
-    setResetError('');
-
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          newPassword: passwordResetData.newPassword,
-          confirmPassword: passwordResetData.confirmPassword
-        })
-      });
-
-      if (response.ok) {
-        setShowPasswordResetModal(false);
-        setPasswordResetData({ newPassword: '', confirmPassword: '' });
-        toast.success('Contraseña actualizada exitosamente', {
-          icon: <CheckCircle2 size={20} />,
-          duration: 4000,
-        });
-      } else {
-        const errorData = await response.json();
-        setResetError(errorData.error || 'Error al actualizar la contraseña');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setResetError('Error de conexión');
-    } finally {
-      setResetLoading(false);
+  // Manejar cierre del modal de contraseña
+  const handleClosePasswordModal = () => {
+    // Solo permitir cerrar si NO es cambio obligatorio
+    if (!isRequiredPasswordChange) {
+      setShowPasswordResetModal(false);
     }
   };
 
@@ -187,6 +152,7 @@ const PanelDocentes = () => {
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'cursos', name: 'Mis Cursos', icon: BookOpen },
     { id: 'estudiantes', name: 'Mis Estudiantes', icon: Users },
+    { id: 'asistencia', name: 'Asistencia', icon: ClipboardList },
     { id: 'horario', name: 'Mi Horario', icon: Calendar },
     { id: 'perfil', name: 'Mi Perfil', icon: Settings }
   ];
@@ -425,7 +391,7 @@ const PanelDocentes = () => {
                 toggleDarkMode={toggleDarkMode}
                 theme={theme}
                 userData={userData}
-                onChangePassword={() => setShowPasswordResetModal(true)}
+                onPhotoUpdated={() => fetchUserData()}
                 avatarColor="linear-gradient(135deg, #3b82f6, #2563eb)"
               />
             </div>
@@ -447,6 +413,7 @@ const PanelDocentes = () => {
                   {activeTab === 'dashboard' && <DocenteDashboard darkMode={darkMode} />}
                   {activeTab === 'cursos' && <MisCursos darkMode={darkMode} />}
                   {activeTab === 'estudiantes' && <MisEstudiantes darkMode={darkMode} />}
+                  {activeTab === 'asistencia' && <TomarAsistencia darkMode={darkMode} />}
                   {activeTab === 'horario' && <MiHorario darkMode={darkMode} />}
                   {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
                 </>
@@ -459,178 +426,16 @@ const PanelDocentes = () => {
         </div>
       </div>
 
-      {/* Modal de Cambio de Contraseña */}
-      {showPasswordResetModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10000,
-          backdropFilter: 'blur(0.5rem)'
-        }}>
-          <div style={{
-            background: darkMode ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            borderRadius: '1.25rem',
-            padding: '2em',
-            maxWidth: '31.25rem',
-            width: '90%',
-            boxShadow: '0 1.25rem 3.75rem rgba(0,0,0,0.4)',
-            border: `0.0625rem solid ${theme.border}`
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '1.5em' }}>
-              <div style={{
-                width: '5rem',
-                height: '5rem',
-                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1em',
-                boxShadow: `0 0.5rem 1.5rem ${theme.accent}40`
-              }}>
-                <Lock size={40} color="#fff" />
-              </div>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.8rem', fontWeight: '800', margin: '0 0 0.5em 0' }}>
-                Cambiar Contraseña
-              </h2>
-              <p style={{ color: theme.textMuted, fontSize: '0.95rem', margin: 0 }}>
-                Por seguridad, debes cambiar tu contraseña temporal
-              </p>
-            </div>
-
-            {resetError && (
-              <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '0.75em',
-                padding: '0.75em',
-                marginBottom: '1.25em',
-                color: '#ef4444',
-                fontSize: '0.9rem',
-                textAlign: 'center'
-              }}>
-                {resetError}
-              </div>
-            )}
-
-            <div style={{ marginBottom: '1.25em' }}>
-              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '0.5em' }}>
-                Nueva Contraseña
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showNewPassword ? 'text' : 'password'}
-                  value={passwordResetData.newPassword}
-                  onChange={(e) => setPasswordResetData({ ...passwordResetData, newPassword: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
-                  style={{
-                    width: '100%',
-                    padding: '0.875em 2.8em 0.875em 0.875em',
-                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `0.0625rem solid ${theme.border}`,
-                    borderRadius: '0.75em',
-                    color: theme.textPrimary,
-                    fontSize: '0.95rem'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '0.75em',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0.25em'
-                  }}
-                >
-                  {showNewPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
-                </button>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '1.5em' }}>
-              <label style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', display: 'block', marginBottom: '0.5em' }}>
-                Confirmar Contraseña
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={passwordResetData.confirmPassword}
-                  onChange={(e) => setPasswordResetData({ ...passwordResetData, confirmPassword: e.target.value })}
-                  placeholder="Repite la contraseña"
-                  style={{
-                    width: '100%',
-                    padding: '0.875em 2.8em 0.875em 0.875em',
-                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: `0.0625rem solid ${theme.border}`,
-                    borderRadius: '0.75em',
-                    color: theme.textPrimary,
-                    fontSize: '0.95rem'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '0.75em',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0.25em'
-                  }}
-                >
-                  {showConfirmPassword ? <EyeOff size={20} color={theme.textMuted} /> : <Eye size={20} color={theme.textMuted} />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              onClick={handlePasswordReset}
-              disabled={resetLoading}
-              style={{
-                width: '100%',
-                padding: '1em',
-                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
-                border: 'none',
-                borderRadius: '0.75em',
-                color: '#fff',
-                fontSize: '1rem',
-                fontWeight: '700',
-                cursor: resetLoading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5em',
-                boxShadow: `0 0.25rem 0.75rem ${theme.accent}40`,
-                opacity: resetLoading ? 0.7 : 1
-              }}
-            >
-              {resetLoading ? (
-                <>Actualizando...</>
-              ) : (
-                <>
-                  <CheckCircle2 size={20} />
-                  Cambiar Contraseña
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Modal de Cambiar Contraseña con AdminThemeWrapper */}
+      <AdminThemeWrapper darkMode={darkMode}>
+        <CambiarPasswordModal
+          isOpen={showPasswordResetModal}
+          onClose={handleClosePasswordModal}
+          isRequired={isRequiredPasswordChange}
+          isFirstLogin={isFirstLogin}
+          rol="docente"
+        />
+      </AdminThemeWrapper>
     </>
   );
 };
