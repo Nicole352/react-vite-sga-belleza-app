@@ -405,6 +405,7 @@ const PanelEstudiantes = () => {
                 avatarColor="linear-gradient(135deg, #f59e0b, #d97706)"
               />
             </div>
+
           </div>
 
           {/* Contenido de la sección activa */}

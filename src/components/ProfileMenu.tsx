@@ -16,6 +16,7 @@ interface ProfileMenuProps {
     apellidos?: string;
     email?: string;
     username?: string;
+    foto_perfil?: string; // Add this line
   } | null;
   avatarColor?: string; // Opcional: color del avatar (default: rojo)
   onPhotoUpdated?: () => void; // Callback cuando se actualiza la foto
@@ -32,6 +33,13 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
     const loadFoto = async () => {
       if (userData?.id_usuario) {
         try {
+          // First try to use foto_perfil from userData if available
+          if (userData.foto_perfil) {
+            setCurrentFotoUrl(userData.foto_perfil);
+            return;
+          }
+          
+          // Fallback to fetching from API
           const token = sessionStorage.getItem('auth_token');
           const response = await fetch(`http://localhost:3000/api/usuarios/${userData.id_usuario}/foto-perfil`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -44,12 +52,22 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
             setCurrentFotoUrl(null);
           }
         } catch (error) {
-          setCurrentFotoUrl(null);
+          // If there's an error, try to use foto_perfil from userData
+          if (userData.foto_perfil) {
+            setCurrentFotoUrl(userData.foto_perfil);
+          } else {
+            setCurrentFotoUrl(null);
+          }
         }
+      } else if (userData?.foto_perfil) {
+        // If we have userData but no id_usuario, still try to use foto_perfil
+        setCurrentFotoUrl(userData.foto_perfil);
+      } else {
+        setCurrentFotoUrl(null);
       }
     };
     loadFoto();
-  }, [userData?.id_usuario]);
+  }, [userData?.id_usuario, userData?.foto_perfil]);
 
   // Función para recargar la foto cuando se actualiza
   const handlePhotoUpdate = () => {

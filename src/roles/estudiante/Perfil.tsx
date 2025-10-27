@@ -27,6 +27,7 @@ interface EstudianteData {
   username: string;
   rol?: string;
   estado?: string;
+  foto_perfil?: string; // Add this line
 }
 
 const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
@@ -78,6 +79,9 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         // La foto viene en base64 directamente desde el backend
         if (data.foto_perfil) {
           setFotoUrl(data.foto_perfil);
+        } else {
+          // Clear fotoUrl if no foto_perfil data
+          setFotoUrl(null);
         }
         
         setFormData({
