@@ -222,7 +222,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
             return (
               <div
-                key={curso.id_curso}
+                key={`curso-${curso.id_curso}-${index}`}
                 style={{
                   background: theme.cardBg,
                   border: `0.0625rem solid ${theme.border}`,

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
 import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList } from 'lucide-react';
-import toast from 'react-hot-toast';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
@@ -15,6 +14,7 @@ import MiHorario from './MiHorario';
 import MiPerfil from './MiPerfil';
 import DetalleCursoDocente from './DetalleCursoDocente';
 import TomarAsistencia from './TomarAsistencia';
+import AnalisisEntregas from './AnalisisEntregas';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -421,6 +421,7 @@ const PanelDocentes = () => {
               <Route path="/estudiantes" element={<MisEstudiantes darkMode={darkMode} />} />
               <Route path="/horario" element={<MiHorario darkMode={darkMode} />} />
               <Route path="/curso/:id" element={<DetalleCursoDocente darkMode={darkMode} />} />
+              <Route path="/analisis-entregas/:id_tarea" element={<AnalisisEntregas />} />
             </Routes>
           </div>
         </div>

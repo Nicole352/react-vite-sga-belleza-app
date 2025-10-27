@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Plus, BookOpen, Calendar, 
   ChevronDown, ChevronUp, Trash2, FileText,
-  CheckCircle, Clock, AlertCircle, Hash
+  CheckCircle, Clock, AlertCircle, Eye, EyeOff, RefreshCw, Edit
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -17,19 +17,26 @@ interface Modulo {
   id_modulo: number;
   nombre: string;
   descripcion: string;
-  numero_orden: number;
   fecha_inicio: string | null;
   fecha_fin: string | null;
   estado: string;
   total_tareas: number;
+  promedios_publicados: boolean;
 }
 
 interface Tarea {
   id_tarea: number;
+  id_modulo?: number;
   titulo: string;
   descripcion: string;
+  instrucciones?: string;
   fecha_limite: string;
   nota_maxima: number;
+  nota_minima_aprobacion?: number;
+  ponderacion: number;
+  permite_archivo?: boolean;
+  tamano_maximo_mb?: number;
+  formatos_permitidos?: string;
   estado: string;
   total_entregas: number;
   entregas_calificadas: number;
@@ -67,9 +74,14 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
   const [loading, setLoading] = useState(true);
   const [showModalModulo, setShowModalModulo] = useState(false);
   const [showModalTarea, setShowModalTarea] = useState(false);
+  const [tareaEditar, setTareaEditar] = useState<Tarea | null>(null);
   const [showModalEntregas, setShowModalEntregas] = useState(false);
+  const [showModalConfirmCerrar, setShowModalConfirmCerrar] = useState(false);
+  const [showModalConfirmReabrir, setShowModalConfirmReabrir] = useState(false);
   const [moduloSeleccionado, setModuloSeleccionado] = useState<number | null>(null);
-  const [tareaSeleccionada, setTareaSeleccionada] = useState<{ id: number; nombre: string; nota_maxima: number } | null>(null);
+  const [moduloParaCerrar, setModuloParaCerrar] = useState<number | null>(null);
+  const [moduloParaReabrir, setModuloParaReabrir] = useState<number | null>(null);
+  const [tareaSeleccionada, setTareaSeleccionada] = useState<{ id: number; nombre: string; nota_maxima: number; ponderacion: number } | null>(null);
 
   useEffect(() => {
     console.log('Estado showModalEntregas cambió a:', showModalEntregas);
@@ -144,6 +156,13 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
 
   const handleCrearTarea = (id_modulo: number) => {
     setModuloSeleccionado(id_modulo);
+    setTareaEditar(null);
+    setShowModalTarea(true);
+  };
+
+  const handleEditarTarea = (tarea: Tarea) => {
+    setModuloSeleccionado(tarea.id_modulo || 0);
+    setTareaEditar(tarea);
     setShowModalTarea(true);
   };
 
@@ -162,6 +181,111 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
     } catch (error: any) {
       console.error('Error eliminando módulo:', error);
       toast.error(error.response?.data?.error || 'Error eliminando módulo');
+    }
+  };
+
+  const handleCerrarModulo = async (id_modulo: number) => {
+    setModuloParaCerrar(id_modulo);
+    setShowModalConfirmCerrar(true);
+  };
+
+  const confirmarCerrarModulo = async () => {
+    if (!moduloParaCerrar) return;
+
+    try {
+      setShowModalConfirmCerrar(false);
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        toast.error('No estás autenticado. Por favor, inicia sesión nuevamente.');
+        return;
+      }
+      
+      const response = await axios.put(`${API_BASE}/modulos/${moduloParaCerrar}/cerrar`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        toast.success(response.data.message || 'Módulo cerrado exitosamente');
+      } else {
+        toast.error(response.data.error || 'Error al cerrar el módulo');
+      }
+      
+      fetchModulos();
+      setModuloParaCerrar(null);
+    } catch (error: any) {
+      console.error('Error cerrando módulo:', error);
+      setModuloParaCerrar(null);
+      if (error.response) {
+        // El servidor respondió con un código de error
+        toast.error(error.response.data.error || `Error ${error.response.status}: ${error.response.statusText}`);
+      } else if (error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        toast.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+      } else {
+        // Algo pasó al configurar la solicitud
+        toast.error('Error al cerrar el módulo: ' + error.message);
+      }
+    }
+  };
+
+  const handleReabrirModulo = async (id_modulo: number) => {
+    setModuloParaReabrir(id_modulo);
+    setShowModalConfirmReabrir(true);
+  };
+
+  const confirmarReabrirModulo = async () => {
+    if (!moduloParaReabrir) return;
+
+    try {
+      setShowModalConfirmReabrir(false);
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        toast.error('No estás autenticado. Por favor, inicia sesión nuevamente.');
+        return;
+      }
+      
+      const response = await axios.put(`${API_BASE}/modulos/${moduloParaReabrir}/reabrir`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        toast.success(response.data.message || 'Módulo reabierto exitosamente');
+      } else {
+        toast.error(response.data.error || 'Error al reabrir el módulo');
+      }
+      
+      fetchModulos();
+      setModuloParaReabrir(null);
+    } catch (error: any) {
+      console.error('Error reabriendo módulo:', error);
+      setModuloParaReabrir(null);
+      if (error.response) {
+        // El servidor respondió con un código de error
+        toast.error(error.response.data.error || `Error ${error.response.status}: ${error.response.statusText}`);
+      } else if (error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        toast.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+      } else {
+        // Algo pasó al configurar la solicitud
+        toast.error('Error al reabrir el módulo: ' + error.message);
+      }
+    }
+  };
+
+  const handleTogglePromedios = async (id_modulo: number, publicados: boolean) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const endpoint = publicados ? 'ocultar-promedios' : 'publicar-promedios';
+      
+      await axios.put(`${API_BASE}/modulos/${id_modulo}/${endpoint}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success(publicados ? 'Promedios ocultados' : 'Promedios publicados');
+      fetchModulos();
+    } catch (error: any) {
+      console.error('Error toggling promedios:', error);
+      toast.error(error.response?.data?.error || 'Error al actualizar promedios');
     }
   };
 
@@ -222,7 +346,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
   return (
     <div style={{
       width: '100%',
-      minHeight: '100%',
+      minHeight: 'calc(100vh - 4rem)',
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -286,35 +410,67 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
               </p>
             </div>
 
-            <button
-              onClick={handleCrearModulo}
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                border: 'none',
-                borderRadius: '0.5em',
-                padding: '0.5em 0.875em',
-                color: '#fff',
-                fontWeight: '800',
-                fontSize: '0.9rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5em',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-0.0625rem)';
-                e.currentTarget.style.boxShadow = '0 0.3125rem 0.875rem rgba(59, 130, 246, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)';
-              }}
-            >
-              <Plus size={16} />
-              Crear Módulo
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => {
+                  fetchModulos();
+                  toast.success('Actualizado');
+                }}
+                style={{
+                  background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
+                  border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+                  borderRadius: '0.5em',
+                  padding: '0.5em 0.875em',
+                  color: '#10b981',
+                  fontWeight: '800',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5em',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)';
+                }}
+              >
+                <RefreshCw size={16} />
+                Actualizar
+              </button>
+              
+              <button
+                onClick={handleCrearModulo}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  padding: '0.5em 0.875em',
+                  color: '#fff',
+                  fontWeight: '800',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5em',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-0.0625rem)';
+                  e.currentTarget.style.boxShadow = '0 0.3125rem 0.875rem rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)';
+                }}
+              >
+                <Plus size={16} />
+                Crear Módulo
+              </button>
+            </div>
           </div>
         </div>
 
@@ -407,23 +563,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     {/* Contenido Principal */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      {/* Título y Badge */}
+                      {/* Título */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                        <div style={{
-                          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                          color: '#fff',
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          fontSize: '0.75rem',
-                          fontWeight: '800',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)'
-                        }}>
-                          <Hash size={12} />
-                          {modulo.numero_orden}
-                        </div>
                         <h3 style={{ 
                           color: theme.textPrimary, 
                           fontSize: '1rem', 
@@ -476,17 +617,54 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
 
                     {/* Botones de Acción */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                      {modulo.estado !== 'finalizado' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCrearTarea(modulo.id_modulo);
+                          }}
+                          style={{
+                            background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
+                            border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+                            borderRadius: '8px',
+                            padding: '6px 10px',
+                            color: '#10b981',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            fontWeight: '600',
+                            fontSize: '0.8rem'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)';
+                          }}
+                        >
+                          <Plus size={16} />
+                          Tarea
+                        </button>
+                      )}
+
+                      {/* Botón Publicar/Ocultar Promedios */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleCrearTarea(modulo.id_modulo);
+                          handleTogglePromedios(modulo.id_modulo, modulo.promedios_publicados);
                         }}
                         style={{
-                          background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
-                          border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+                          background: modulo.promedios_publicados 
+                            ? (darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)')
+                            : (darkMode ? 'rgba(156, 163, 175, 0.1)' : 'rgba(156, 163, 175, 0.08)'),
+                          border: modulo.promedios_publicados
+                            ? `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`
+                            : `1px solid ${darkMode ? 'rgba(156, 163, 175, 0.3)' : 'rgba(156, 163, 175, 0.2)'}`,
                           borderRadius: '8px',
                           padding: '6px 10px',
-                          color: '#10b981',
+                          color: modulo.promedios_publicados ? '#3b82f6' : '#9ca3af',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px',
@@ -496,15 +674,82 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                           fontSize: '0.8rem'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                          e.currentTarget.style.background = modulo.promedios_publicados 
+                            ? 'rgba(59, 130, 246, 0.15)' 
+                            : 'rgba(156, 163, 175, 0.15)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)';
+                          e.currentTarget.style.background = modulo.promedios_publicados
+                            ? (darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)')
+                            : (darkMode ? 'rgba(156, 163, 175, 0.1)' : 'rgba(156, 163, 175, 0.08)');
                         }}
+                        title={modulo.promedios_publicados ? 'Ocultar promedios' : 'Publicar promedios'}
                       >
-                        <Plus size={16} />
-                        Tarea
+                        {modulo.promedios_publicados ? <Eye size={16} /> : <EyeOff size={16} />}
+                        {modulo.promedios_publicados ? 'Visible' : 'Oculto'}
                       </button>
+
+                      {modulo.estado === 'finalizado' ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReabrirModulo(modulo.id_modulo);
+                          }}
+                          style={{
+                            background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                            border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                            borderRadius: '8px',
+                            padding: '6px 10px',
+                            color: '#3b82f6',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            fontWeight: '600',
+                            fontSize: '0.8rem'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)';
+                          }}
+                        >
+                          <FileText size={16} />
+                          Reabrir
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCerrarModulo(modulo.id_modulo);
+                          }}
+                          style={{
+                            background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)',
+                            border: `1px solid ${darkMode ? 'rgba(245, 158, 11, 0.3)' : 'rgba(245, 158, 11, 0.2)'}`,
+                            borderRadius: '8px',
+                            padding: '6px 10px',
+                            color: '#f59e0b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            fontWeight: '600',
+                            fontSize: '0.8rem'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)';
+                          }}
+                        >
+                          <FileText size={16} />
+                          Cerrar
+                        </button>
+                      )}
 
                       <button
                         onClick={(e) => {
@@ -611,7 +856,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                               setTareaSeleccionada({
                                 id: tarea.id_tarea,
                                 nombre: tarea.titulo,
-                                nota_maxima: tarea.nota_maxima
+                                nota_maxima: tarea.nota_maxima,
+                                ponderacion: tarea.ponderacion
                               });
                               setShowModalEntregas(true);
                             }}
@@ -629,7 +875,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                                 <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', flexWrap: 'wrap' }}>
                                   <span style={{ color: theme.textMuted, display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     <Clock size={12} />
-                                    Límite: {new Date(tarea.fecha_limite).toLocaleDateString()}
+                                    Límite: {new Date(tarea.fecha_limite).toLocaleDateString()} {new Date(tarea.fecha_limite).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                   </span>
                                   <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     <CheckCircle size={12} />
@@ -637,55 +883,125 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
                                   </span>
                                   <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     <AlertCircle size={12} />
-                                    Nota máx: {tarea.nota_maxima}
+                                    Nota: {tarea.nota_maxima} | Peso: {tarea.ponderacion}pts
                                   </span>
                                 </div>
                               </div>
                               
-                              {/* Botón Ver Entregas */}
-                              {tarea.total_entregas > 0 && (
+                              {/* Botones de acción */}
+                              <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                {/* Botón Ver Entregas */}
+                                {tarea.total_entregas > 0 && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Abriendo modal de entregas para tarea:', tarea.id_tarea);
+                                      setTareaSeleccionada({
+                                        id: tarea.id_tarea,
+                                        nombre: tarea.titulo,
+                                        nota_maxima: tarea.nota_maxima,
+                                        ponderacion: tarea.ponderacion
+                                      });
+                                      setShowModalEntregas(true);
+                                      console.log('Modal abierto:', true);
+                                    }}
+                                    style={{
+                                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                                      border: 'none',
+                                      borderRadius: '8px',
+                                      padding: '6px 10px',
+                                      color: '#fff',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      fontWeight: '700',
+                                      fontSize: '0.8rem',
+                                      boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.transform = 'translateY(-1px)';
+                                      e.currentTarget.style.boxShadow = '0 4px 10px rgba(59, 130, 246, 0.3)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.transform = 'translateY(0)';
+                                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
+                                    }}
+                                  >
+                                    <FileText size={13} />
+                                    Ver Entregas ({tarea.total_entregas})
+                                  </button>
+                                )}
+
+                                {/* Botón Editar (icono) */}
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    console.log('Abriendo modal de entregas para tarea:', tarea.id_tarea);
-                                    setTareaSeleccionada({
-                                      id: tarea.id_tarea,
-                                      nombre: tarea.titulo,
-                                      nota_maxima: tarea.nota_maxima
-                                    });
-                                    setShowModalEntregas(true);
-                                    console.log('Modal abierto:', true);
+                                    handleEditarTarea(tarea);
                                   }}
+                                  title="Editar tarea"
                                   style={{
-                                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                    border: 'none',
+                                    background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)',
+                                    border: `1px solid ${darkMode ? 'rgba(245, 158, 11, 0.3)' : 'rgba(245, 158, 11, 0.2)'}`,
                                     borderRadius: '8px',
-                                    padding: '6px 10px',
-                                    color: '#fff',
+                                    padding: '8px',
+                                    color: '#f59e0b',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
-                                    fontWeight: '700',
-                                    fontSize: '0.8rem',
-                                    marginTop: '6px',
-                                    boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
+                                    justifyContent: 'center',
                                     transition: 'all 0.2s ease'
                                   }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 10px rgba(59, 130, 246, 0.3)';
+                                    e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                                    e.currentTarget.style.transform = 'scale(1.1)';
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
+                                    e.currentTarget.style.background = darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)';
+                                    e.currentTarget.style.transform = 'scale(1)';
                                   }}
                                 >
-                                  <FileText size={13} />
-                                  Ver Entregas ({tarea.total_entregas})
+                                  <Edit size={16} />
                                 </button>
-                              )}
+
+                                {/* Botón Eliminar (icono) */}
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (window.confirm(`¿Estás seguro de eliminar la tarea "${tarea.titulo}"? Esta acción no se puede deshacer.`)) {
+                                      // TODO: Implementar eliminación de tarea
+                                      toast.error('Funcionalidad de eliminación pendiente');
+                                    }
+                                  }}
+                                  title="Eliminar tarea"
+                                  style={{
+                                    background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+                                    border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+                                    borderRadius: '8px',
+                                    padding: '8px',
+                                    color: '#ef4444',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                                    e.currentTarget.style.transform = 'scale(1.1)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                  }}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -710,13 +1026,18 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
 
       <ModalTarea
         isOpen={showModalTarea}
-        onClose={() => setShowModalTarea(false)}
+        onClose={() => {
+          setShowModalTarea(false);
+          setTareaEditar(null);
+        }}
         onSuccess={() => {
           if (moduloSeleccionado) {
             fetchTareasModulo(moduloSeleccionado);
           }
+          setTareaEditar(null);
         }}
         id_modulo={moduloSeleccionado || 0}
+        tareaEditar={tareaEditar}
         darkMode={darkMode}
       />
 
@@ -730,14 +1051,348 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({ darkMode = tr
         }}
         id_tarea={tareaSeleccionada?.id || 0}
         nombre_tarea={tareaSeleccionada?.nombre || ''}
-        nota_maxima={tareaSeleccionada?.nota_maxima || 20}
+        nota_maxima={tareaSeleccionada?.nota_maxima || 10}
+        ponderacion={tareaSeleccionada?.ponderacion || 1}
         darkMode={darkMode}
       />
+
+      {/* Modal de Confirmación - Cerrar Módulo */}
+      {showModalConfirmCerrar && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '1rem',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+          onClick={() => setShowModalConfirmCerrar(false)}
+        >
+          <div 
+            style={{
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              padding: '2rem',
+              maxWidth: '28rem',
+              width: '100%',
+              border: darkMode 
+                ? '1px solid rgba(59, 130, 246, 0.2)' 
+                : '1px solid rgba(59, 130, 246, 0.3)',
+              boxShadow: darkMode
+                ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+                : '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+              animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Icono de Alerta */}
+            <div style={{
+              width: '4rem',
+              height: '4rem',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.5rem',
+              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.4)',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}>
+              <AlertCircle size={32} style={{ color: '#fff' }} />
+            </div>
+
+            {/* Título */}
+            <h3 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: theme.textPrimary,
+              textAlign: 'center',
+              marginBottom: '0.75rem',
+              letterSpacing: '-0.01em',
+              lineHeight: '1.2'
+            }}>
+              ¿Cerrar este módulo?
+            </h3>
+
+            {/* Mensaje */}
+            <p style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '0.95rem',
+              color: theme.textSecondary,
+              textAlign: 'center',
+              lineHeight: '1.6',
+              marginBottom: '2rem'
+            }}>
+              Los estudiantes <strong style={{ color: theme.textPrimary }}>ya no podrán enviar tareas</strong> una vez que cierres este módulo. Esta acción puede revertirse más tarde.
+            </p>
+
+            {/* Botones */}
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setShowModalConfirmCerrar(false)}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                  border: darkMode 
+                    ? '1px solid rgba(255, 255, 255, 0.15)' 
+                    : '1px solid rgba(0, 0, 0, 0.1)',
+                  borderRadius: '12px',
+                  color: theme.textPrimary,
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '0.01em'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarCerrarModulo}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  letterSpacing: '0.01em'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                }}
+              >
+                Sí, cerrar módulo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación - Reabrir Módulo */}
+      {showModalConfirmReabrir && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '1rem',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+          onClick={() => setShowModalConfirmReabrir(false)}
+        >
+          <div 
+            style={{
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              padding: '2rem',
+              maxWidth: '28rem',
+              width: '100%',
+              border: darkMode 
+                ? '1px solid rgba(59, 130, 246, 0.2)' 
+                : '1px solid rgba(59, 130, 246, 0.3)',
+              boxShadow: darkMode
+                ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+                : '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+              animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Icono de Check */}
+            <div style={{
+              width: '4rem',
+              height: '4rem',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.5rem',
+              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.4)',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}>
+              <CheckCircle size={32} style={{ color: '#fff' }} />
+            </div>
+
+            {/* Título */}
+            <h3 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              color: theme.textPrimary,
+              textAlign: 'center',
+              marginBottom: '0.75rem',
+              letterSpacing: '-0.01em',
+              lineHeight: '1.2'
+            }}>
+              ¿Reabrir este módulo?
+            </h3>
+
+            {/* Mensaje */}
+            <p style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: '0.95rem',
+              color: theme.textSecondary,
+              textAlign: 'center',
+              lineHeight: '1.6',
+              marginBottom: '2rem'
+            }}>
+              Los estudiantes <strong style={{ color: theme.textPrimary }}>podrán enviar tareas nuevamente</strong> una vez que reabras este módulo.
+            </p>
+
+            {/* Botones */}
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setShowModalConfirmReabrir(false)}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                  border: darkMode 
+                    ? '1px solid rgba(255, 255, 255, 0.15)' 
+                    : '1px solid rgba(0, 0, 0, 0.1)',
+                  borderRadius: '12px',
+                  color: theme.textPrimary,
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '0.01em'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarReabrirModulo}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  letterSpacing: '0.01em'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                }}
+              >
+                Sí, reabrir módulo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.9;
+          }
         }
       `}</style>
     </div>

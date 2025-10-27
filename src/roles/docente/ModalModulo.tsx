@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Calendar, Hash, FileText } from 'lucide-react';
+import { X, Save, Calendar, FileText } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -25,7 +25,6 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    numero_orden: '',
     fecha_inicio: '',
     fecha_fin: '',
     estado: 'activo'
@@ -37,7 +36,6 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       setFormData({
         nombre: moduloEditar.nombre || '',
         descripcion: moduloEditar.descripcion || '',
-        numero_orden: moduloEditar.numero_orden?.toString() || '',
         fecha_inicio: moduloEditar.fecha_inicio ? moduloEditar.fecha_inicio.split('T')[0] : '',
         fecha_fin: moduloEditar.fecha_fin ? moduloEditar.fecha_fin.split('T')[0] : '',
         estado: moduloEditar.estado || 'activo'
@@ -46,7 +44,6 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       setFormData({
         nombre: '',
         descripcion: '',
-        numero_orden: '',
         fecha_inicio: '',
         fecha_fin: '',
         estado: 'activo'
@@ -69,19 +66,13 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       return;
     }
 
-    if (!formData.numero_orden) {
-      toast.error('El número de orden es obligatorio');
-      return;
-    }
-
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
 
       const dataToSend = {
         ...formData,
-        id_curso: parseInt(id_curso),
-        numero_orden: parseInt(formData.numero_orden)
+        id_curso: parseInt(id_curso)
       };
 
       if (moduloEditar) {
@@ -108,47 +99,98 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
   if (!isOpen) return null;
 
+  const inputStyle = {
+    width: '100%',
+    padding: '0.625em 0.75em',
+    background: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
+    border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+    borderRadius: '0.5em',
+    color: darkMode ? '#fff' : '#1e293b',
+    fontSize: '0.875rem',
+    outline: 'none',
+    transition: 'all 0.2s ease'
+  };
+
+  const labelStyle = {
+    color: darkMode ? 'rgba(255,255,255,0.9)' : '#374151',
+    display: 'block',
+    marginBottom: '0.375em',
+    fontWeight: '600' as const,
+    fontSize: '0.875rem'
+  };
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.6)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '1em',
-      backdropFilter: 'blur(0.375rem)'
-    }}>
-      <div style={{
-        background: darkMode
-          ? 'linear-gradient(135deg, rgba(26,26,46,0.98) 0%, rgba(22,33,62,0.98) 100%)'
-          : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
-        borderRadius: '0.75em',
-        padding: '1em',
-        maxWidth: '35rem',
-        width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        border: `0.0625rem solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
-        boxShadow: darkMode ? '0 1rem 3rem rgba(0,0,0,0.45)' : '0 1rem 3rem rgba(0,0,0,0.15)'
-      }}>
+    <div 
+      className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.75)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem',
+        backdropFilter: 'blur(8px)'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="modal-content"
+        style={{
+          position: 'relative',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
+            : '#ffffff',
+          border: darkMode
+            ? '1px solid rgba(59, 130, 246, 0.3)'
+            : '1px solid #e5e7eb',
+          borderRadius: '12px',
+          width: '55vw',
+          maxWidth: '55vw',
+          maxHeight: '92vh',
+          padding: '0.875rem 1.125rem',
+          margin: '0.5rem auto',
+          color: darkMode ? '#fff' : '#1e293b',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.7)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          animation: 'scaleIn 0.3s ease-out'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75em' }}>
-          <h3 style={{ color: darkMode ? '#fff' : '#1e293b', fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>
-            {moduloEditar ? 'Editar Módulo' : 'Crear Nuevo Módulo'}
-          </h3>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '10px',
+          paddingBottom: '8px',
+          borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileText size={20} style={{ color: '#3b82f6' }} />
+            <h3 style={{ 
+              margin: 0, 
+              fontSize: '1.05rem', 
+              fontWeight: '600', 
+              letterSpacing: '-0.01em',
+              color: darkMode ? '#fff' : '#1e293b'
+            }}>
+              {moduloEditar ? 'Editar Módulo' : 'Nuevo Módulo'}
+            </h3>
+          </div>
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '0.5em',
-              padding: '0.375em',
-              color: '#ef4444',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '8px',
+              padding: '6px',
+              color: darkMode ? '#fff' : '#64748b',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -156,236 +198,80 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
             }}
           >
             <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.75rem' }}>
           {/* Nombre */}
-          <div style={{ marginBottom: '0.75em' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '0.375em', fontWeight: '700', fontSize: '0.85rem' }}>
-              Nombre del Módulo *
-            </label>
-            <div style={{ position: 'relative' }}>
-              <FileText size={16} style={{ position: 'absolute', left: '0.625em', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                placeholder="Ej: Parcial 1, Unidad Básica, Módulo Introductorio"
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.625em 0.625em 0.625em 2.25em',
-                  background: '#fff',
-                  border: '0.0625rem solid #e2e8f0',
-                  borderRadius: '0.5em',
-                  color: '#1e293b',
-                  fontSize: '0.85rem',
-                  outline: 'none',
-                  transition: 'all 0.2s ease'
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 0 0 0.125rem rgba(59, 130, 246, 0.15)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#e2e8f0';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Número de Orden */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
-              Número de Orden *
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Hash size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6' }} />
-              <input
-                type="number"
-                name="numero_orden"
-                value={formData.numero_orden}
-                onChange={handleChange}
-                placeholder="1, 2, 3..."
-                min="1"
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px 10px 10px 36px',
-                  background: '#fff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  color: '#1e293b',
-                  fontSize: '0.85rem',
-                  outline: 'none',
-                  transition: 'all 0.2s ease'
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#e2e8f0';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px', marginLeft: '2px' }}>
-              Define el orden de visualización del módulo
-            </p>
+          <div>
+            <label style={labelStyle}>Nombre del Módulo *</label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              placeholder="Ej: Parcial 1, Unidad Básica, Módulo Introductorio"
+              required
+              style={inputStyle}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+            />
           </div>
 
           {/* Descripción */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
-              Descripción (opcional)
-            </label>
+          <div>
+            <label style={labelStyle}>Descripción (opcional)</label>
             <textarea
               name="descripcion"
               value={formData.descripcion}
               onChange={handleChange}
               placeholder="Describe brevemente el contenido de este módulo..."
               style={{
-                width: '100%',
+                ...inputStyle,
                 minHeight: '70px',
-                padding: '10px',
-                background: '#fff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                color: '#1e293b',
-                fontSize: '0.85rem',
-                resize: 'vertical',
-                outline: 'none',
-                transition: 'all 0.2s ease'
+                resize: 'vertical' as const
               }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e2e8f0';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
             />
           </div>
 
           {/* Fechas */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
-                Fecha Inicio (opcional)
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Calendar size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
-                <input
-                  type="date"
-                  name="fecha_inicio"
-                  value={formData.fecha_inicio}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '10px 10px 10px 36px',
-                    background: '#fff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    color: '#1e293b',
-                    fontSize: '0.85rem',
-                    outline: 'none',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
+              <label style={labelStyle}>Fecha Inicio (opcional)</label>
+              <input
+                type="date"
+                name="fecha_inicio"
+                value={formData.fecha_inicio}
+                onChange={handleChange}
+                style={inputStyle}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              />
             </div>
 
             <div>
-              <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
-                Fecha Fin (opcional)
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Calendar size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#3b82f6', pointerEvents: 'none' }} />
-                <input
-                  type="date"
-                  name="fecha_fin"
-                  value={formData.fecha_fin}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '10px 10px 10px 36px',
-                    background: '#fff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    color: '#1e293b',
-                    fontSize: '0.85rem',
-                    outline: 'none',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
+              <label style={labelStyle}>Fecha Fin (opcional)</label>
+              <input
+                type="date"
+                name="fecha_fin"
+                value={formData.fecha_fin}
+                onChange={handleChange}
+                style={inputStyle}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              />
             </div>
-          </div>
-
-          {/* Estado */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : '#475569', display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '0.85rem' }}>
-              Estado
-            </label>
-            <select
-              name="estado"
-              value={formData.estado}
-              onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                background: '#fff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                color: '#1e293b',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.15)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e2e8f0';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-              <option value="finalizado">Finalizado</option>
-            </select>
           </div>
 
           {/* Botones */}

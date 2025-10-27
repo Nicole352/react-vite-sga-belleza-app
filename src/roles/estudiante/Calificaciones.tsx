@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, FileText, Award, TrendingUp, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
+import { BookOpen, FileText, Award, TrendingUp, Calendar, ChevronDown, ChevronRight, BarChart3 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -14,9 +14,11 @@ interface Curso {
 interface Calificacion {
   id_calificacion: number;
   id_tarea: number;
+  id_modulo?: number;
   tarea_titulo: string; // Backend devuelve 'tarea_titulo'
   nota: number; // Backend devuelve 'nota'
   nota_maxima: number;
+  ponderacion?: number;
   fecha_calificacion: string;
   comentario_docente: string; // Backend devuelve 'comentario_docente'
   modulo_nombre: string;
@@ -24,10 +26,22 @@ interface Calificacion {
   resultado: string; // aprobado/reprobado
 }
 
+interface ModuloConPromedio {
+  id_modulo: number;
+  nombre: string;
+  orden: number;
+  promedio_ponderado: number;
+  total_tareas: number;
+  tareas_calificadas: number;
+  promedios_publicados: boolean;
+  calificaciones: Calificacion[];
+}
+
 interface CalificacionesPorCurso {
   curso: Curso;
   calificaciones: Calificacion[];
   promedio: number;
+  modulos: ModuloConPromedio[];
 }
 
 const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
@@ -100,10 +114,14 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
             const totalNotas = calificacionesValidas.reduce((sum: number, cal: Calificacion) => sum + cal.nota, 0);
             const promedio = calificacionesValidas.length > 0 ? totalNotas / calificacionesValidas.length : 0;
             
+            // Agrupar calificaciones por módulo y calcular promedio ponderado
+            const modulos = agruparPorModulo(calificaciones);
+            
             cursosConCalificacionesData.push({
               curso,
               calificaciones,
-              promedio
+              promedio,
+              modulos
             });
           }
         } catch (error) {
@@ -134,11 +152,56 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
   };
 
   const getGradeLabel = (grade: number) => {
-    if (grade >= 18) return 'Excelente';
-    if (grade >= 16) return 'Muy Bueno';
-    if (grade >= 14) return 'Bueno';
-    if (grade >= 11) return 'Regular';
+    if (grade >= 9) return 'Excelente';
+    if (grade >= 8) return 'Muy Bueno';
+    if (grade >= 7) return 'Aprobado';
+    if (grade >= 5) return 'Regular';
     return 'Insuficiente';
+  };
+
+  const getColorByGrade10 = (grade: number) => {
+    if (grade >= 9) return theme.success;
+    if (grade >= 7) return theme.warning;
+    return theme.danger;
+  };
+
+  // Agrupar calificaciones por módulo y calcular promedio ponderado
+  const agruparPorModulo = (calificaciones: Calificacion[]): ModuloConPromedio[] => {
+    const modulosMap = new Map<number, ModuloConPromedio>();
+    
+    calificaciones.forEach(cal => {
+      const idModulo = cal.id_modulo || 0;
+      if (!modulosMap.has(idModulo)) {
+        modulosMap.set(idModulo, {
+          id_modulo: idModulo,
+          nombre: cal.modulo_nombre,
+          orden: cal.modulo_orden,
+          promedio_ponderado: 0,
+          total_tareas: 0,
+          tareas_calificadas: 0,
+          promedios_publicados: (cal as any).promedios_publicados || false,
+          calificaciones: []
+        });
+      }
+      
+      const modulo = modulosMap.get(idModulo)!;
+      modulo.calificaciones.push(cal);
+      modulo.tareas_calificadas++;
+    });
+    
+    // Calcular promedio ponderado para cada módulo
+    modulosMap.forEach(modulo => {
+      const aportes = modulo.calificaciones.map(cal => {
+        const nota = parseFloat(cal.nota as any) || 0;
+        const notaMaxima = parseFloat(cal.nota_maxima as any) || 10;
+        const ponderacion = cal.ponderacion || 1;
+        return (nota / notaMaxima) * ponderacion;
+      });
+      
+      modulo.promedio_ponderado = aportes.reduce((sum, aporte) => sum + aporte, 0);
+    });
+    
+    return Array.from(modulosMap.values()).sort((a, b) => a.orden - b.orden);
   };
 
   if (loading) {
@@ -241,83 +304,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
       {/* Estadísticas generales */}
       {cursosConCalificaciones.length > 0 ? (
         <>
-          {/* Tarjeta destacada de promedio general */}
-          <div style={{
-            background: darkMode 
-              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1))'
-              : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.05))',
-            border: `2px solid ${theme.success}`,
-            borderRadius: '1rem',
-            padding: '1.5rem',
-            marginBottom: '1.5rem',
-            boxShadow: darkMode 
-              ? '0 8px 32px rgba(16, 185, 129, 0.2)'
-              : '0 8px 32px rgba(16, 185, 129, 0.15)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{
-                  width: '4rem',
-                  height: '4rem',
-                  background: `linear-gradient(135deg, ${theme.success}, #059669)`,
-                  borderRadius: '1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)'
-                }}>
-                  <TrendingUp size={28} color="#fff" />
-                </div>
-                <div>
-                  <h2 style={{
-                    color: theme.textPrimary,
-                    fontSize: '1.1rem',
-                    fontWeight: '700',
-                    margin: 0,
-                    marginBottom: '0.25rem'
-                  }}>
-                    Tu Promedio General
-                  </h2>
-                  <p style={{ 
-                    color: theme.textMuted, 
-                    margin: 0,
-                    fontSize: '0.9rem'
-                  }}>
-                    Rendimiento académico en todos tus cursos
-                  </p>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ 
-                  color: theme.success, 
-                  fontSize: '3rem', 
-                  fontWeight: '900',
-                  lineHeight: 1,
-                  marginBottom: '0.5rem'
-                }}>
-                  {(
-                    cursosConCalificaciones.reduce((sum, c) => sum + c.promedio, 0) / 
-                    cursosConCalificaciones.length
-                  ).toFixed(1)}
-                </div>
-                <div style={{
-                  display: 'inline-block',
-                  background: `${theme.success}20`,
-                  border: `1px solid ${theme.success}`,
-                  borderRadius: '0.5rem',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  color: theme.success
-                }}>
-                  {getGradeLabel(
-                    cursosConCalificaciones.reduce((sum, c) => sum + c.promedio, 0) / 
-                    cursosConCalificaciones.length
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* PROMEDIO GENERAL OCULTO - Se mostrará cuando el docente publique los promedios */}
 
           {/* Estadísticas adicionales */}
           <div style={{
@@ -435,7 +422,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {cursosConCalificaciones.map(({ curso, calificaciones, promedio }) => (
+          {cursosConCalificaciones.map(({ curso, calificaciones, promedio, modulos }) => (
             <div
               key={curso.id_curso}
               style={{
@@ -512,6 +499,80 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
               {/* Detalle de calificaciones */}
               {expandedCursos[curso.id_curso] && (
                 <div style={{ padding: '0 1.5rem 1.5rem' }}>
+                  {/* Mostrar promedios ponderados por módulo SI ESTÁN PUBLICADOS */}
+                  {modulos.filter(m => m.promedios_publicados).length > 0 && (
+                    <div style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <BarChart3 size={18} style={{ color: theme.accent }} />
+                        <h4 style={{
+                          color: theme.textPrimary,
+                          fontSize: '0.9rem',
+                          fontWeight: '700',
+                          margin: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          Promedios por Módulo
+                        </h4>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {modulos.filter(m => m.promedios_publicados).map((modulo) => (
+                          <div
+                            key={modulo.id_modulo}
+                            style={{
+                              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                              border: `1px solid ${getColorByGrade10(modulo.promedio_ponderado)}40`,
+                              borderRadius: '0.5rem',
+                              padding: '0.75rem 1rem',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <div>
+                              <div style={{
+                                color: theme.textPrimary,
+                                fontWeight: '600',
+                                fontSize: '0.95rem'
+                              }}>
+                                {modulo.nombre}
+                              </div>
+                              <div style={{
+                                color: theme.textMuted,
+                                fontSize: '0.75rem',
+                                marginTop: '0.125rem'
+                              }}>
+                                {modulo.tareas_calificadas} {modulo.tareas_calificadas === 1 ? 'tarea calificada' : 'tareas calificadas'}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{
+                                color: getColorByGrade10(modulo.promedio_ponderado),
+                                fontSize: '1.5rem',
+                                fontWeight: '900',
+                                lineHeight: 1
+                              }}>
+                                {modulo.promedio_ponderado.toFixed(1)}
+                              </div>
+                              <div style={{
+                                color: theme.textMuted,
+                                fontSize: '0.7rem',
+                                marginTop: '0.125rem'
+                              }}>
+                                Promedio
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   {calificaciones.length === 0 ? (
                     <div style={{
                       background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',

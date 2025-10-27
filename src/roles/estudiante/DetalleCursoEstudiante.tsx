@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, BookOpen, Calendar, FileText, Upload,
-  CheckCircle, ChevronDown, ChevronUp
+  CheckCircle, ChevronDown, ChevronUp, Edit, Trash2, AlertTriangle, X, FileType
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -13,7 +13,6 @@ interface Modulo {
   id_modulo: number;
   nombre: string;
   descripcion: string;
-  numero_orden: number;
   estado: string;
   total_tareas: number;
 }
@@ -54,6 +53,14 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
   const [modulosExpandidos, setModulosExpandidos] = useState<{ [key: number]: boolean }>({});
   const [loading, setLoading] = useState(true);
   const [uploadingTarea, setUploadingTarea] = useState<number | null>(null);
+  const [archivoPreview, setArchivoPreview] = useState<{
+    file: File;
+    id_tarea: number;
+    preview?: string;
+    tipo: 'entregar' | 'editar';
+    id_entrega?: number;
+    id_modulo?: number;
+  } | null>(null);
 
   const theme = {
     textPrimary: darkMode ? '#fff' : '#1e293b',
@@ -165,6 +172,90 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     } finally {
       setUploadingTarea(null);
     }
+  };
+
+  const handleDeleteEntrega = async (id_entrega: number, id_modulo: number) => {
+    if (!confirm('¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      await axios.delete(`${API_BASE}/entregas/${id_entrega}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Entrega eliminada exitosamente');
+      await fetchTareasModulo(id_modulo);
+    } catch (error: any) {
+      console.error('Error deleting entrega:', error);
+      toast.error(error.response?.data?.error || 'Error al eliminar la entrega');
+    }
+  };
+
+  const handleEditEntrega = async (id_entrega: number, id_modulo: number, file: File) => {
+    try {
+      setUploadingTarea(id_entrega);
+      const token = sessionStorage.getItem('auth_token');
+
+      const formData = new FormData();
+      formData.append('archivo', file);
+
+      await axios.put(`${API_BASE}/entregas/${id_entrega}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      toast.success('Entrega actualizada exitosamente');
+      await fetchTareasModulo(id_modulo);
+    } catch (error: any) {
+      console.error('Error updating entrega:', error);
+      toast.error(error.response?.data?.error || 'Error al actualizar la entrega');
+    } finally {
+      setUploadingTarea(null);
+    }
+  };
+
+  // Función para manejar la previsualización del archivo
+  const handleFileSelect = (file: File, id_tarea: number, tipo: 'entregar' | 'editar', id_entrega?: number, id_modulo?: number) => {
+    // Crear preview para imágenes y PDFs
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setArchivoPreview({
+        file,
+        id_tarea,
+        preview: reader.result as string,
+        tipo,
+        id_entrega,
+        id_modulo
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Función para confirmar la subida después de la previsualización
+  const confirmarSubida = async () => {
+    if (!archivoPreview) return;
+
+    if (archivoPreview.tipo === 'entregar') {
+      await handleFileUpload(archivoPreview.id_tarea, archivoPreview.file);
+    } else if (archivoPreview.tipo === 'editar' && archivoPreview.id_entrega && archivoPreview.id_modulo) {
+      await handleEditEntrega(archivoPreview.id_entrega, archivoPreview.id_modulo, archivoPreview.file);
+    }
+
+    setArchivoPreview(null);
+  };
+
+  // Función para verificar si una entrega es atrasada
+  const esEntregaAtrasada = (fecha_entrega: string, fecha_limite: string) => {
+    return new Date(fecha_entrega) > new Date(fecha_limite);
+  };
+
+  // Función para verificar si aún se puede entregar
+  const puedeEntregar = (fecha_limite: string) => {
+    return new Date() <= new Date(fecha_limite);
   };
 
   if (loading) {
@@ -335,10 +426,10 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                   {tarea.descripcion}
                                 </p>
                               )}
-                              <div style={{ display: 'flex', gap: '0.75em', fontSize: '0.8125rem', color: theme.textMuted }}>
+                              <div style={{ display: 'flex', gap: '0.75em', fontSize: '0.8125rem', color: theme.textMuted, flexWrap: 'wrap' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
                                   <Calendar size={13} />
-                                  {new Date(tarea.fecha_limite).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                  Límite: {new Date(tarea.fecha_limite).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })} {new Date(tarea.fecha_limite).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                 </span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
                                   <FileText size={13} />
@@ -380,6 +471,25 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                           {/* Subir archivo */}
                           {tarea.permite_archivo && !tarea.entrega && (
                             <div style={{ marginTop: '0.625em', paddingTop: '0.625em', borderTop: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.04)' : '#e5e7eb'}` }}>
+                              {/* Advertencia si pasó la fecha límite */}
+                              {!puedeEntregar(tarea.fecha_limite) && (
+                                <div style={{
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  borderRadius: '0.5em',
+                                  padding: '0.5em 0.75em',
+                                  marginBottom: '0.5em',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.5em'
+                                }}>
+                                  <AlertTriangle size={16} color="#ef4444" />
+                                  <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: '600' }}>
+                                    Fecha límite vencida - La entrega será marcada como atrasada
+                                  </span>
+                                </div>
+                              )}
+                              
                               <input
                                 type="file"
                                 accept={tarea.formatos_permitidos.split(',').map(f => `.${f}`).join(',')}
@@ -390,8 +500,9 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                       toast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`);
                                       return;
                                     }
-                                    handleFileUpload(tarea.id_tarea, file);
+                                    handleFileSelect(file, tarea.id_tarea, 'entregar');
                                   }
+                                  e.target.value = ''; // Limpiar input
                                 }}
                                 style={{ display: 'none' }}
                                 id={`file-${tarea.id_tarea}`}
@@ -426,7 +537,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                 }}
                               >
                                 <Upload size={15} />
-                                {uploadingTarea === tarea.id_tarea ? 'Subiendo...' : 'Subir Archivo'}
+                                {uploadingTarea === tarea.id_tarea ? 'Subiendo...' : 'Entregar Tarea'}
                               </label>
                               <p style={{ color: theme.textMuted, fontSize: '0.6875rem', margin: '0.375em 0 0 0' }}>
                                 Formatos: {tarea.formatos_permitidos.toUpperCase()} • Máx: {tarea.tamano_maximo_mb}MB
@@ -443,17 +554,114 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                               padding: '0.75em',
                               marginTop: '0.75em'
                             }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tarea.entrega.calificacion ? '0.5em' : '0' }}>
-                                <div>
-                                  <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: '0 0 0.25em 0' }}>
-                                    {tarea.entrega.archivo_nombre}
-                                  </p>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: tarea.entrega.calificacion ? '0.5em' : '0' }}>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.25em' }}>
+                                    <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: 0 }}>
+                                      {tarea.entrega.archivo_nombre}
+                                    </p>
+                                    {/* Badge ATRASADA */}
+                                    {esEntregaAtrasada(tarea.entrega.fecha_entrega, tarea.fecha_limite) && (
+                                      <span style={{
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                                        borderRadius: '0.25em',
+                                        padding: '0.125em 0.5em',
+                                        fontSize: '0.65rem',
+                                        fontWeight: '700',
+                                        color: '#ef4444',
+                                        textTransform: 'uppercase'
+                                      }}>
+                                        ATRASADA
+                                      </span>
+                                    )}
+                                  </div>
                                   <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
-                                    Entregado: {new Date(tarea.entrega.fecha_entrega).toLocaleDateString('es-ES')}
+                                    Entregado: {new Date(tarea.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(tarea.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                   </p>
                                 </div>
                                 <CheckCircle size={20} color="#10b981" />
                               </div>
+
+                              {/* Botones Editar y Eliminar (solo si NO está calificada) */}
+                              {!tarea.entrega.calificacion && (
+                                <div style={{ display: 'flex', gap: '0.5em', marginTop: '0.5em', paddingTop: '0.5em', borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+                                  {/* Botón Editar */}
+                                  <div>
+                                    <input
+                                      type="file"
+                                      accept={tarea.formatos_permitidos.split(',').map(f => `.${f}`).join(',')}
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          if (file.size > tarea.tamano_maximo_mb * 1024 * 1024) {
+                                            toast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`);
+                                            return;
+                                          }
+                                          handleFileSelect(file, tarea.id_tarea, 'editar', tarea.entrega!.id_entrega, modulo.id_modulo);
+                                        }
+                                        e.target.value = ''; // Limpiar input
+                                      }}
+                                      style={{ display: 'none' }}
+                                      id={`edit-file-${tarea.id_tarea}`}
+                                    />
+                                    <label
+                                      htmlFor={`edit-file-${tarea.id_tarea}`}
+                                      style={{
+                                        background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                                        borderRadius: '0.375em',
+                                        padding: '0.375em 0.75em',
+                                        color: '#3b82f6',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.375em',
+                                        fontWeight: '600',
+                                        fontSize: '0.75rem',
+                                        transition: 'all 0.2s ease'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)';
+                                      }}
+                                    >
+                                      <Edit size={14} />
+                                      Editar
+                                    </label>
+                                  </div>
+
+                                  {/* Botón Eliminar */}
+                                  <button
+                                    onClick={() => handleDeleteEntrega(tarea.entrega!.id_entrega, modulo.id_modulo)}
+                                    style={{
+                                      background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      borderRadius: '0.375em',
+                                      padding: '0.375em 0.75em',
+                                      color: '#ef4444',
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.375em',
+                                      fontWeight: '600',
+                                      fontSize: '0.75rem',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+                                    }}
+                                  >
+                                    <Trash2 size={14} />
+                                    Eliminar
+                                  </button>
+                                </div>
+                              )}
 
                               {/* Mostrar calificación si existe */}
                               {tarea.entrega.calificacion !== undefined && tarea.entrega.calificacion !== null && (
@@ -492,6 +700,217 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal de Previsualización */}
+      {archivoPreview && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1em',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{
+            background: darkMode ? 'rgba(26,26,46,0.98)' : '#ffffff',
+            borderRadius: '1em',
+            padding: '1.5em',
+            maxWidth: '50em',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1em' }}>
+              <h3 style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+                Vista Previa del Archivo
+              </h3>
+              <button
+                onClick={() => setArchivoPreview(null)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '0.5em',
+                  padding: '0.5em',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Información del archivo */}
+            <div style={{
+              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+              border: '1px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '0.75em',
+              padding: '1em',
+              marginBottom: '1.5em'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '0.5em' }}>
+                <FileText size={24} color="#fbbf24" />
+                <div>
+                  <p style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+                    {archivoPreview.file.name}
+                  </p>
+                  <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
+                    Tamaño: {(archivoPreview.file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Vista previa */}
+            <div style={{
+              background: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
+              borderRadius: '0.75em',
+              padding: '1em',
+              marginBottom: '1.5em',
+              minHeight: '20em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {archivoPreview.file.type.startsWith('image/') ? (
+                // Vista previa de imagen
+                <img
+                  src={archivoPreview.preview}
+                  alt="Preview"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '30em',
+                    borderRadius: '0.5em',
+                    objectFit: 'contain'
+                  }}
+                />
+              ) : archivoPreview.file.type === 'application/pdf' ? (
+                // Vista previa de PDF
+                <iframe
+                  src={archivoPreview.preview}
+                  style={{
+                    width: '100%',
+                    height: '30em',
+                    border: 'none',
+                    borderRadius: '0.5em'
+                  }}
+                  title="PDF Preview"
+                />
+              ) : (
+                // Icono para otros tipos de archivo
+                <div style={{ textAlign: 'center' }}>
+                  <FileType size={80} color={theme.textMuted} />
+                  <p style={{ color: theme.textMuted, marginTop: '1em' }}>
+                    No se puede previsualizar este tipo de archivo
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Botones */}
+            <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setArchivoPreview(null)}
+                style={{
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                  borderRadius: '0.5em',
+                  padding: '0.75em 1.5em',
+                  color: darkMode ? '#fff' : '#64748b',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarSubida}
+                disabled={uploadingTarea !== null}
+                style={{
+                  background: uploadingTarea !== null
+                    ? 'rgba(251, 191, 36, 0.6)'
+                    : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  padding: '0.75em 1.5em',
+                  color: darkMode ? '#000' : '#fff',
+                  fontWeight: '800',
+                  cursor: uploadingTarea !== null ? 'not-allowed' : 'pointer',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5em',
+                  boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)',
+                  transition: 'all 0.2s ease',
+                  opacity: uploadingTarea !== null ? 0.6 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (uploadingTarea === null) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(251, 191, 36, 0.4)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(251, 191, 36, 0.3)';
+                }}
+              >
+                {uploadingTarea !== null ? (
+                  <>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid rgba(0,0,0,0.3)',
+                      borderTop: '2px solid #000',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    Subiendo...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={18} />
+                    {archivoPreview.tipo === 'entregar' ? 'Confirmar y Entregar' : 'Confirmar y Actualizar'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
         </div>
       )}
     </div>

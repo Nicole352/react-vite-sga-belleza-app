@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
-  X, Download, User, Calendar, FileText, CheckCircle, AlertCircle, 
-  Search, Filter, Eye, Award, Clock, FileCheck, Users 
+  X, Eye, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar 
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -16,6 +16,7 @@ interface ModalEntregasProps {
   id_tarea: number;
   nombre_tarea: string;
   nota_maxima: number;
+  ponderacion: number;
   darkMode: boolean;
 }
 
@@ -33,25 +34,32 @@ interface Entrega {
   fecha_calificacion?: string;
 }
 
-const ModalEntregas: React.FC<ModalEntregasProps> = ({
-  isOpen,
+const ModalEntregas: React.FC<ModalEntregasProps> = ({ 
+  isOpen, 
   onClose,
   onSuccess,
   id_tarea,
   nombre_tarea,
   nota_maxima,
+  ponderacion,
   darkMode
 }) => {
+  const navigate = useNavigate();
   const [entregas, setEntregas] = useState<Entrega[]>([]);
-  const [filteredEntregas, setFilteredEntregas] = useState<Entrega[]>([]);
   const [loading, setLoading] = useState(false);
-  const [calificando, setCalificando] = useState<number | null>(null);
+  const [notaInput, setNotaInput] = useState<string>('');
+  const [comentarioInput, setComentarioInput] = useState<string>('');
+  const [entregaSeleccionada, setEntregaSeleccionada] = useState<Entrega | null>(null);
+  const [showCalificarModal, setShowCalificarModal] = useState(false);
+  const [archivoPreview, setArchivoPreview] = useState<{
+    entrega: Entrega;
+    url: string;
+    tipo: string;
+  } | null>(null);
   const [filtro, setFiltro] = useState<'todas' | 'pendientes' | 'calificadas'>('todas');
   const [busqueda, setBusqueda] = useState('');
-  const [showCalificarModal, setShowCalificarModal] = useState(false);
-  const [entregaSeleccionada, setEntregaSeleccionada] = useState<Entrega | null>(null);
-  const [notaInput, setNotaInput] = useState('');
-  const [comentarioInput, setComentarioInput] = useState('');
+  const [filteredEntregas, setFilteredEntregas] = useState<Entrega[]>([]);
+  const [calificando, setCalificando] = useState<number | null>(null);
 
   useEffect(() => {
     console.log('ModalEntregas - isOpen:', isOpen, 'id_tarea:', id_tarea);
@@ -91,35 +99,20 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       const response = await axios.get(`${API_BASE}/entregas/tarea/${id_tarea}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Respuesta de entregas:', response.data);
+      const data = response.data;
+      console.log('Respuesta de entregas:', data);
+      console.log('Primera entrega completa:', data.entregas[0]);
+      console.log('archivo_nombre de primera entrega:', data.entregas[0]?.archivo_nombre);
+      console.log('archivo_nombre_original de primera entrega:', data.entregas[0]?.archivo_nombre_original);
       
-      // Mapear los datos del backend al formato del frontend
-      let entregasFormateadas = (response.data.entregas || []).map((entrega: any) => ({
+      // Transformar datos si es necesario
+      const entregasConEstado = data.entregas.map((entrega: any) => ({
         ...entrega,
-        estudiante_identificacion: entrega.estudiante?.identificacion || entrega.estudiante_identificacion,
-        calificacion: entrega.nota, // Backend usa 'nota', frontend usa 'calificacion'
-        comentario: entrega.comentario_docente // Backend usa 'comentario_docente', frontend usa 'comentario'
+        estado: entrega.calificacion !== undefined && entrega.calificacion !== null ? 'calificado' : 'pendiente'
       }));
       
-      // Ordenar alfabéticamente por apellido y luego por nombre
-      entregasFormateadas = entregasFormateadas.sort((a: Entrega, b: Entrega) => {
-        const apellidoA = a.estudiante_apellido || '';
-        const apellidoB = b.estudiante_apellido || '';
-        const nombreA = a.estudiante_nombre || '';
-        const nombreB = b.estudiante_nombre || '';
-        
-        // Primero comparar por apellido
-        const apellidoComparison = apellidoA.localeCompare(apellidoB, 'es', { sensitivity: 'base' });
-        if (apellidoComparison !== 0) {
-          return apellidoComparison;
-        }
-        
-        // Si los apellidos son iguales, comparar por nombre
-        return nombreA.localeCompare(nombreB, 'es', { sensitivity: 'base' });
-      });
-      
-      setEntregas(entregasFormateadas);
-      console.log('Entregas establecidas:', entregasFormateadas);
+      setEntregas(entregasConEstado);
+      console.log('Entregas establecidas:', entregasConEstado);
     } catch (error) {
       console.error('Error fetching entregas:', error);
       toast.error('Error al cargar las entregas');
@@ -196,6 +189,116 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     }
   };
 
+  const handleVerArchivo = async (entrega: Entrega) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await axios.get(`${API_BASE}/entregas/${entrega.id_entrega}/archivo`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+
+      const contentType = response.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+
+      setArchivoPreview({
+        entrega,
+        url,
+        tipo: contentType
+      });
+    } catch (error) {
+      console.error('Error cargando archivo:', error);
+      toast.error('Error al cargar el archivo');
+    }
+  };
+
+  const handleDescargarDesdePreview = async () => {
+    if (!archivoPreview) return;
+
+    try {
+      const { entrega } = archivoPreview;
+      
+      // Limpiar nombres: quitar espacios, acentos y caracteres especiales
+      const limpiarNombre = (texto: string) => {
+        return texto
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+          .replace(/[^a-zA-Z0-9]/g, '_')    // Reemplazar caracteres especiales por _
+          .replace(/_+/g, '_')               // Reemplazar múltiples _ por uno solo
+          .replace(/^_|_$/g, '');            // Quitar _ al inicio y final
+      };
+      
+      const apellidoLimpio = limpiarNombre(entrega.estudiante_apellido);
+      const nombreLimpio = limpiarNombre(entrega.estudiante_nombre);
+      const tareaLimpia = limpiarNombre(nombre_tarea);
+      
+      // Obtener extensión del archivo original
+      // Si archivo_nombre es undefined, usar el mime type para determinar la extensión
+      let extension = 'jpg';
+      if (entrega.archivo_nombre && entrega.archivo_nombre !== 'undefined' && entrega.archivo_nombre !== 'undefined (1).jpg') {
+        extension = entrega.archivo_nombre.split('.').pop() || 'jpg';
+      } else {
+        // Determinar extensión desde el mime type
+        const mimeToExt: { [key: string]: string } = {
+          'image/jpeg': 'jpg',
+          'image/jpg': 'jpg',
+          'image/png': 'png',
+          'image/webp': 'webp',
+          'image/gif': 'gif',
+          'application/pdf': 'pdf',
+          'application/msword': 'doc',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
+        };
+        extension = mimeToExt[archivoPreview.tipo] || 'jpg';
+      }
+      
+      const nombrePersonalizado = `${apellidoLimpio}_${nombreLimpio}_${tareaLimpia}.${extension}`;
+
+      console.log('Nombre personalizado generado:', nombrePersonalizado);
+      console.log('Apellido limpio:', apellidoLimpio);
+      console.log('Nombre limpio:', nombreLimpio);
+      console.log('Tarea limpia:', tareaLimpia);
+      console.log('Extension:', extension);
+
+      // Crear un link directo al archivo con el token en el header
+      const token = sessionStorage.getItem('auth_token');
+      
+      // Fetch manual para tener más control
+      const response = await fetch(`${API_BASE}/entregas/${entrega.id_entrega}/archivo`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al descargar archivo');
+      }
+
+      const blob = await response.blob();
+      
+      // Crear URL y forzar descarga con el nombre correcto
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = nombrePersonalizado;
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }, 150);
+
+      toast.success('Archivo descargado exitosamente');
+    } catch (error) {
+      console.error('Error descargando archivo:', error);
+      toast.error('Error al descargar el archivo');
+    }
+  };
+
   const abrirModalCalificar = (entrega: Entrega) => {
     setEntregaSeleccionada(entrega);
     setNotaInput(entrega.calificacion?.toString() || '');
@@ -224,6 +327,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     modalBg: darkMode ? '#1a1a2e' : '#ffffff',
     textPrimary: darkMode ? '#fff' : '#1e293b',
     textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
+    textMuted: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(30,41,59,0.5)',
     border: darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
     inputBg: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
     inputBorder: darkMode ? 'rgba(255,255,255,0.1)' : '#d1d5db',
@@ -267,37 +371,79 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div>
-            <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: '0 0 0.5em 0' }}>
-              📚 Entregas de Tarea
-            </h2>
-            <p style={{ color: theme.textSecondary, fontSize: '1rem', margin: 0 }}>
-              {nombre_tarea}
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+            <FileText size={28} style={{ color: '#3b82f6' }} />
+            <div>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: '0 0 0.3em 0' }}>
+                Entregas de Tarea
+              </h2>
+              <p style={{ color: theme.textSecondary, fontSize: '1rem', margin: 0 }}>
+                {nombre_tarea}
+              </p>
+            </div>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: theme.textSecondary,
-              cursor: 'pointer',
-              padding: '0.5em',
-              borderRadius: '0.5em',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}
-          >
-            <X size={24} />
-          </button>
+          
+          <div style={{ display: 'flex', gap: '0.5em', alignItems: 'center' }}>
+            {/* Botón Ver Análisis Completo */}
+            <button
+              onClick={() => {
+                console.log('Navegando a análisis completo, id_tarea:', id_tarea);
+                onClose(); // Cerrar el modal primero
+                navigate(`/panel/docente/analisis-entregas/${id_tarea}`);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                border: 'none',
+                borderRadius: '0.5em',
+                padding: '0.625em 1em',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5em',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+              }}
+            >
+              <BarChart3 size={18} />
+              Ver Análisis Completo
+            </button>
+
+            {/* Botón Cerrar */}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                padding: '0.5em',
+                borderRadius: '0.5em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Estadísticas */}
@@ -653,10 +799,29 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         padding: '1em',
                         color: theme.textSecondary
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                          <FileText size={16} color={darkMode ? '#94a3b8' : '#64748b'} />
+                        <button
+                          onClick={() => handleVerArchivo(entrega)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
+                            color: theme.textSecondary,
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#3b82f6';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = theme.textSecondary;
+                          }}
+                        >
+                          <Eye size={16} />
                           {entrega.archivo_nombre}
-                        </div>
+                        </button>
                       </td>
                       <td style={{
                         padding: '1em',
@@ -726,24 +891,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         textAlign: 'center'
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5em' }}>
-                          <button
-                            onClick={() => handleDescargar(entrega.id_entrega, entrega.archivo_nombre)}
-                            style={{
-                              padding: '0.5em',
-                              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                              border: `1px solid ${theme.inputBorder}`,
-                              borderRadius: '0.375em',
-                              color: theme.textPrimary,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                            title="Descargar archivo"
-                          >
-                            <Download size={16} />
-                          </button>
-                          
+                          {/* Botón Calificar - PRIMERO */}
                           <button
                             onClick={() => abrirModalCalificar(entrega)}
                             style={{
@@ -752,16 +900,53 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                                 ? darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'
                                 : darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)',
                               border: `1px solid ${entrega.calificacion !== undefined && entrega.calificacion !== null ? '#3b82f6' : '#10b981'}`,
-                              borderRadius: '0.375em',
+                              borderRadius: '0.5em',
                               color: entrega.calificacion !== undefined && entrega.calificacion !== null ? '#3b82f6' : '#10b981',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center'
+                              justifyContent: 'center',
+                              transition: 'all 0.2s ease'
                             }}
-                            title={entrega.calificacion !== undefined && entrega.calificacion !== null ? "Editar calificación" : "Calificar"}
+                            title={entrega.calificacion !== undefined && entrega.calificacion !== null ? "Editar calificación" : "Calificar tarea"}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = 'scale(1.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
                           >
-                            <Award size={16} />
+                            {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
+                              <CheckCircle size={18} />
+                            ) : (
+                              <Award size={18} />
+                            )}
+                          </button>
+                          
+                          {/* Botón Descargar - SEGUNDO */}
+                          <button
+                            onClick={() => handleDescargar(entrega.id_entrega, entrega.archivo_nombre)}
+                            style={{
+                              padding: '0.5em',
+                              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                              border: `1px solid ${theme.inputBorder}`,
+                              borderRadius: '0.5em',
+                              color: theme.textPrimary,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.2s ease'
+                            }}
+                            title="Descargar archivo"
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = 'scale(1.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                          >
+                            <Download size={18} />
                           </button>
                         </div>
                       </td>
@@ -916,7 +1101,28 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               max={nota_maxima}
               step="0.1"
               value={notaInput}
-              onChange={(e) => setNotaInput(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Permitir campo vacío o valores válidos
+                if (value === '' || (parseFloat(value) >= 0 && parseFloat(value) <= nota_maxima)) {
+                  setNotaInput(value);
+                } else if (parseFloat(value) > nota_maxima) {
+                  // Si excede, establecer el máximo
+                  setNotaInput(nota_maxima.toString());
+                  toast.error(`La nota máxima es ${nota_maxima}`);
+                }
+              }}
+              onBlur={(e) => {
+                // Al perder el foco, validar y ajustar si es necesario
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value)) {
+                  if (value > nota_maxima) {
+                    setNotaInput(nota_maxima.toString());
+                  } else if (value < 0) {
+                    setNotaInput('0');
+                  }
+                }
+              }}
               style={{
                 width: '100%',
                 padding: '0.75em',
@@ -927,6 +1133,48 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 fontSize: '0.875rem'
               }}
             />
+            
+            {/* Mostrar cálculo del aporte ponderado */}
+            {notaInput && parseFloat(notaInput) >= 0 && (
+              <div style={{
+                marginTop: '0.75em',
+                padding: '0.75em',
+                background: darkMode 
+                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)'
+                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%)',
+                border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                borderRadius: '0.5em'
+              }}>
+                <div style={{ 
+                  color: '#3b82f6', 
+                  fontSize: '0.75rem', 
+                  fontWeight: '600',
+                  marginBottom: '0.25em',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  📊 Aporte Ponderado
+                </div>
+                <div style={{ 
+                  color: theme.textPrimary, 
+                  fontSize: '1.125rem',
+                  fontWeight: '700',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  {parseFloat(notaInput)}/{nota_maxima} × {ponderacion}pts = {' '}
+                  <span style={{ color: '#3b82f6' }}>
+                    {((parseFloat(notaInput) / nota_maxima) * ponderacion).toFixed(2)} puntos
+                  </span>
+                </div>
+                <div style={{ 
+                  color: theme.textSecondary, 
+                  fontSize: '0.75rem',
+                  marginTop: '0.25em'
+                }}>
+                  Este es el aporte de esta tarea al promedio del módulo
+                </div>
+              </div>
+            )}
           </div>
           
           <div>
@@ -1046,6 +1294,195 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       <div style={{ pointerEvents: 'auto' }}>
         {modalContent}
         {modalCalificar}
+        
+        {/* Modal de Previsualización de Archivo */}
+        {archivoPreview && createPortal(
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999999,
+            padding: '2em',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <div style={{
+              background: darkMode ? 'rgba(26,26,46,0.98)' : '#ffffff',
+              borderRadius: '1em',
+              padding: '2em',
+              maxWidth: '60em',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+            }}>
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5em' }}>
+                <h3 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
+                  {archivoPreview.entrega.estudiante_apellido} {archivoPreview.entrega.estudiante_nombre} - {nombre_tarea}
+                </h3>
+                <button
+                  onClick={() => {
+                    window.URL.revokeObjectURL(archivoPreview.url);
+                    setArchivoPreview(null);
+                  }}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '0.5em',
+                    padding: '0.5em',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Información del archivo */}
+              <div style={{
+                background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '0.75em',
+                padding: '1em',
+                marginBottom: '1.5em'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+                  <FileText size={24} color="#3b82f6" />
+                  <div>
+                    <p style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+                      {archivoPreview.entrega.archivo_nombre}
+                    </p>
+                    <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
+                      Entregado: {new Date(archivoPreview.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(archivoPreview.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vista previa */}
+              <div style={{
+                background: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
+                borderRadius: '0.75em',
+                padding: '1em',
+                marginBottom: '1.5em',
+                minHeight: '25em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {archivoPreview.tipo.startsWith('image/') ? (
+                  // Vista previa de imagen
+                  <img
+                    src={archivoPreview.url}
+                    alt="Preview"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '35em',
+                      borderRadius: '0.5em',
+                      objectFit: 'contain'
+                    }}
+                  />
+                ) : archivoPreview.tipo === 'application/pdf' ? (
+                  // Vista previa de PDF
+                  <iframe
+                    src={archivoPreview.url}
+                    style={{
+                      width: '100%',
+                      height: '35em',
+                      border: 'none',
+                      borderRadius: '0.5em'
+                    }}
+                    title="PDF Preview"
+                  />
+                ) : (
+                  // Icono para otros tipos de archivo
+                  <div style={{ textAlign: 'center' }}>
+                    <FileText size={80} color={theme.textMuted} />
+                    <p style={{ color: theme.textMuted, marginTop: '1em' }}>
+                      No se puede previsualizar este tipo de archivo
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Botones */}
+              <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => {
+                    window.URL.revokeObjectURL(archivoPreview.url);
+                    setArchivoPreview(null);
+                  }}
+                  style={{
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                    borderRadius: '0.5em',
+                    padding: '0.75em 1.5em',
+                    color: darkMode ? '#fff' : '#64748b',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                  }}
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={handleDescargarDesdePreview}
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    padding: '0.75em 1.5em',
+                    color: '#fff',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5em',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                  }}
+                >
+                  <Download size={18} />
+                  Descargar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import { FaCheckCircle, FaTimesCircle, FaClock, FaFileAlt, FaSave, FaCalendarAlt
 import { HiOutlineClipboardList } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
+import LoadingModal from '../../components/LoadingModal';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -31,6 +32,11 @@ interface RegistroAsistencia {
   id_estudiante: number;
   estado: 'presente' | 'ausente' | 'tardanza' | 'justificado';
   observaciones?: string;
+  documento_justificacion?: File | null;
+  documento_nombre_original?: string;
+  documento_preview?: string;
+  tiene_documento?: boolean;
+  documento_size_kb?: number;
 }
 
 const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
@@ -52,7 +58,20 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const [showRangoFechasModal, setShowRangoFechasModal] = useState(false);
   const [fechaInicio, setFechaInicio] = useState<string>('');
   const [fechaFin, setFechaFin] = useState<string>('');
-  
+  const [documentoJustificacion, setDocumentoJustificacion] = useState<File | null>(null);
+  const [documentoPreview, setDocumentoPreview] = useState<string | null>(null);
+  const [documentoNombre, setDocumentoNombre] = useState<string>('');
+  const [showVerDocumentoModal, setShowVerDocumentoModal] = useState(false);
+  const [documentoVisualizacion, setDocumentoVisualizacion] = useState<{
+    id_asistencia?: number;
+    estudiante: string;
+    motivo: string;
+    nombreArchivo: string;
+    tipoArchivo: string;
+    tamanoKB: number;
+  } | null>(null);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+
   const estudiantesPorPagina = 8;
 
   // Obtener ID del docente desde el token
@@ -72,7 +91,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           const docenteRes = await fetch(`${API_BASE}/docentes`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          
+
           if (docenteRes.ok) {
             const docentes = await docenteRes.json();
             const docente = docentes.find((d: any) => d.identificacion === data.identificacion);
@@ -118,20 +137,131 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        // Ordenar estudiantes por apellido alfabéticamente
-        const estudiantesOrdenados = (data.estudiantes || []).sort((a: Estudiante, b: Estudiante) => {
-          return a.apellido.localeCompare(b.apellido, 'es', { sensitivity: 'base' });
-        });
-        setEstudiantes(estudiantesOrdenados);
-        
-        // Cargar asistencia existente para esta fecha
-        await loadAsistenciaExistente(cursoId, fechaSeleccionada);
+        setEstudiantes(data.estudiantes || []);
+        setAsistencias(new Map());
+        setAsistenciaGuardada(false);
       }
     } catch (error) {
       console.error('Error cargando estudiantes:', error);
       toast.error('Error al cargar estudiantes');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleAsistencia = (idEstudiante: number, estado: 'presente' | 'ausente' | 'tardanza' | 'justificado') => {
+    setAsistencias((prev) => {
+      const nuevoEstado = {
+        id_estudiante: idEstudiante,
+        estado: estado,
+        observaciones: prev.get(idEstudiante)?.observaciones || '',
+        documento_justificacion: prev.get(idEstudiante)?.documento_justificacion || null,
+        documento_nombre_original: prev.get(idEstudiante)?.documento_nombre_original || '',
+        documento_preview: prev.get(idEstudiante)?.documento_preview || '',
+        tiene_documento: prev.get(idEstudiante)?.tiene_documento || false,
+        documento_size_kb: prev.get(idEstudiante)?.documento_size_kb || 0,
+      };
+      return new Map(prev).set(idEstudiante, nuevoEstado);
+    });
+  };
+
+  const handleObservacionesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setObservaciones(e.target.value);
+  };
+
+  const handleGuardarObservaciones = () => {
+    if (estudianteSeleccionado !== null) {
+      setAsistencias((prev) => {
+        const nuevoEstado = {
+          id_estudiante: estudianteSeleccionado,
+          estado: prev.get(estudianteSeleccionado)?.estado || 'ausente',
+          observaciones: observaciones,
+          documento_justificacion: prev.get(estudianteSeleccionado)?.documento_justificacion || null,
+          documento_nombre_original: prev.get(estudianteSeleccionado)?.documento_nombre_original || '',
+          documento_preview: prev.get(estudianteSeleccionado)?.documento_preview || '',
+          tiene_documento: prev.get(estudianteSeleccionado)?.tiene_documento || false,
+          documento_size_kb: prev.get(estudianteSeleccionado)?.documento_size_kb || 0,
+        };
+        return new Map(prev).set(estudianteSeleccionado, nuevoEstado);
+      });
+      setShowObservacionesModal(false);
+    }
+  };
+
+  const handleEliminarDocumento = () => {
+    if (estudianteSeleccionado !== null) {
+      setAsistencias((prev) => {
+        const nuevoEstado = {
+          id_estudiante: estudianteSeleccionado,
+          estado: prev.get(estudianteSeleccionado)?.estado || 'ausente',
+          observaciones: prev.get(estudianteSeleccionado)?.observaciones || '',
+          documento_justificacion: null,
+          documento_nombre_original: '',
+          documento_preview: '',
+          tiene_documento: false,
+          documento_size_kb: 0,
+        };
+        return new Map(prev).set(estudianteSeleccionado, nuevoEstado);
+      });
+    }
+  };
+
+  const generarExcel = () => {
+    const worksheetData = Array.from(asistencias.values()).map((asistencia) => ({
+      'ID Estudiante': asistencia.id_estudiante,
+      'Estado': asistencia.estado,
+      'Observaciones': asistencia.observaciones || '',
+      'Tiene Documento': asistencia.tiene_documento ? 'Sí' : 'No',
+      'Tamaño Documento (KB)': asistencia.documento_size_kb || 0,
+      'Nombre Documento Original': asistencia.documento_nombre_original || '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'asistencias.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  const handleShowObservaciones = (idEstudiante: number) => {
+    setEstudianteSeleccionado(idEstudiante);
+    setObservaciones(asistencias.get(idEstudiante)?.observaciones || '');
+    setShowObservacionesModal(true);
+  };
+
+  const handleShowRangoFechas = () => {
+    setShowRangoFechasModal(true);
+  };
+
+  const handleRangoFechasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.name === 'fechaInicio') {
+      setFechaInicio(e.target.value);
+    } else if (e.target.name === 'fechaFin') {
+      setFechaFin(e.target.value);
+    }
+  };
+
+  const handleGuardarRangoFechas = () => {
+    console.log('Fecha inicio:', fechaInicio);
+    console.log('Fecha fin:', fechaFin);
+    setShowRangoFechasModal(false);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= Math.ceil(estudiantes.length / estudiantesPorPagina)) {
+      setPaginaActual(newPage);
     }
   };
 
@@ -146,16 +276,26 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       if (response.ok) {
         const data = await response.json();
         const nuevasAsistencias = new Map<number, RegistroAsistencia>();
-        
+
         data.asistencias.forEach((a: any) => {
           nuevasAsistencias.set(a.id_estudiante, {
             id_estudiante: a.id_estudiante,
             estado: a.estado,
-            observaciones: a.observaciones
+            observaciones: a.observaciones || '',
+            tiene_documento: a.tiene_documento === 1,
+            documento_nombre_original: a.documento_nombre_original || '',
+            documento_size_kb: a.documento_size_kb || 0,
+            documento_justificacion: null,
+            documento_preview: ''
           });
         });
-        
+
         setAsistencias(nuevasAsistencias);
+
+        // Si hay asistencias guardadas, marcar como guardado
+        if (nuevasAsistencias.size > 0) {
+          setAsistenciaGuardada(true);
+        }
       }
     } catch (error) {
       console.error('Error cargando asistencia existente:', error);
@@ -183,11 +323,22 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     idEstudiante: number,
     estado: 'presente' | 'ausente' | 'tardanza' | 'justificado'
   ) => {
-    // Si es justificado, abrir modal
+    // Si es justificado, abrir modal con datos existentes si los hay
     if (estado === 'justificado') {
       setEstudianteSeleccionado(idEstudiante);
       const registroActual = asistencias.get(idEstudiante);
       setObservaciones(registroActual?.observaciones || '');
+
+      // Si ya tiene documento guardado, mostrar info
+      if (registroActual?.tiene_documento && registroActual?.documento_nombre_original) {
+        setDocumentoNombre(registroActual.documento_nombre_original);
+        // No podemos mostrar preview de documentos ya guardados en BD
+        setDocumentoPreview(null);
+      } else {
+        setDocumentoNombre('');
+        setDocumentoPreview(null);
+      }
+
       setShowObservacionesModal(true);
       return;
     }
@@ -208,14 +359,30 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       nuevasAsistencias.set(estudianteSeleccionado, {
         id_estudiante: estudianteSeleccionado,
         estado: 'justificado',
-        observaciones: observaciones.trim()
+        observaciones: observaciones.trim(),
+        documento_justificacion: documentoJustificacion || undefined,
+        documento_nombre_original: documentoNombre || undefined,
+        documento_preview: documentoPreview || undefined,
+        tiene_documento: documentoJustificacion ? true : false,
+        documento_size_kb: documentoJustificacion ? Math.round(documentoJustificacion.size / 1024) : 0
       });
       setAsistencias(nuevasAsistencias);
       setAsistenciaGuardada(false);
       setShowObservacionesModal(false);
       setEstudianteSeleccionado(null);
       setObservaciones('');
+      setDocumentoJustificacion(null);
+      setDocumentoPreview(null);
+      setDocumentoNombre('');
     }
+  };
+
+  const handleLoadingComplete = async () => {
+    // Recargar asistencia para ver los datos guardados
+    if (cursoSeleccionado) {
+      await loadAsistenciaExistente(cursoSeleccionado, fechaSeleccionada);
+    }
+    setShowLoadingModal(false);
   };
 
   const guardarAsistencia = async () => {
@@ -229,35 +396,219 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       return;
     }
 
+    // ✅ VALIDACIÓN: Verificar que todos los estudiantes tengan estado
+    const estudiantesSinEstado = estudiantes.filter(est => !asistencias.has(est.id_estudiante));
+    if (estudiantesSinEstado.length > 0) {
+      const nombres = estudiantesSinEstado.map(e => `${e.nombre} ${e.apellido}`).join(', ');
+      toast.error(`Aún falta registrar la asistencia de: ${nombres}`, { duration: 5000 });
+      return;
+    }
+
     setSaving(true);
     try {
       const token = sessionStorage.getItem('auth_token');
+
+      // Crear FormData para enviar archivos
+      const formData = new FormData();
+
+      // Agregar datos JSON como string
+      const datosAsistencia = {
+        id_curso: cursoSeleccionado,
+        id_docente: idDocente,
+        fecha: fechaSeleccionada,
+        asistencias: Array.from(asistencias.values()).map(registro => ({
+          id_estudiante: registro.id_estudiante,
+          estado: registro.estado,
+          observaciones: registro.observaciones || null,
+          tiene_documento: registro.tiene_documento || false,
+          documento_nombre_original: registro.documento_nombre_original || null,
+          documento_size_kb: registro.documento_size_kb || null
+        }))
+      };
+
+      formData.append('data', JSON.stringify(datosAsistencia));
+
+      // Agregar archivos de justificación si existen
+      asistencias.forEach((registro, idEstudiante) => {
+        if (registro.documento_justificacion) {
+          formData.append(`documento_${idEstudiante}`, registro.documento_justificacion);
+        }
+      });
+
       const response = await fetch(`${API_BASE}/asistencias`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id_curso: cursoSeleccionado,
-          id_docente: idDocente,
-          fecha: fechaSeleccionada,
-          asistencias: Array.from(asistencias.values())
-        })
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
       });
 
       if (response.ok) {
         toast.success('Asistencia guardada correctamente');
         setAsistenciaGuardada(true);
+        
+        // Mostrar modal de carga y recargar datos
+        setShowLoadingModal(true);
       } else {
-        throw new Error('Error al guardar');
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Error guardando asistencia');
       }
     } catch (error) {
       console.error('Error guardando asistencia:', error);
-      toast.error('Error al guardar asistencia');
+      toast.error('Error guardando asistencia');
     } finally {
       setSaving(false);
     }
+  };
+
+  const descargarDocumento = async (idAsistencia: number, nombreArchivo: string, nombreEstudiante?: string) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(
+        `${API_BASE}/asistencias/documento/${idAsistencia}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (!response.ok) {
+        toast.error('Error al descargar el documento');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      // Crear nombre descriptivo del archivo
+      let nombreDescarga = nombreArchivo || 'documento_adjunto';
+
+      if (nombreEstudiante) {
+        // Obtener extensión del archivo original
+        const extension = nombreArchivo.split('.').pop() || 'pdf';
+
+        // Separar apellidos y nombres
+        // Formato esperado: "Apellido1 Apellido2, Nombre1 Nombre2"
+        const partes = nombreEstudiante.split(',').map(p => p.trim());
+        let apellidos = partes[0] || '';
+        let nombres = partes[1] || '';
+
+        // Limpiar y normalizar apellidos (MAYÚSCULAS)
+        const apellidosLimpio = apellidos
+          .toUpperCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+          .replace(/\s+/g, '_') // Espacios a guiones bajos
+          .replace(/[^A-Z0-9_]/g, ''); // Solo letras, números y guiones bajos
+
+        // Limpiar y normalizar nombres (Capitalizado)
+        const nombresLimpio = nombres
+          .split(' ')
+          .map(n => n.charAt(0).toUpperCase() + n.slice(1).toLowerCase())
+          .join('_')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+          .replace(/[^A-Za-z0-9_]/g, ''); // Solo letras, números y guiones bajos
+
+        // Convertir fecha de YYYY-MM-DD a DD-MM-YYYY
+        const [year, month, day] = fechaSeleccionada.split('-');
+        const fechaFormateada = `${day}-${month}-${year}`;
+
+        // Crear nombre: Justificacion_APELLIDOS_Nombres_DD-MM-YYYY.extension
+        nombreDescarga = `Justificacion_${apellidosLimpio}_${nombresLimpio}_${fechaFormateada}.${extension}`;
+      }
+
+      a.href = url;
+      a.download = nombreDescarga;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Documento descargado correctamente');
+    } catch (error) {
+      console.error('Error descargando documento:', error);
+      toast.error('Error al descargar el documento');
+    }
+  };
+
+  const abrirModalVerDocumento = async (idEstudiante: number) => {
+    const estudiante = estudiantes.find(e => e.id_estudiante === idEstudiante);
+    const registro = asistencias.get(idEstudiante);
+
+    if (!estudiante || !registro || !registro.tiene_documento) {
+      toast.error('No hay documento para mostrar');
+      return;
+    }
+
+    // Buscar el id_asistencia en la base de datos
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(
+        `${API_BASE}/asistencias/curso/${cursoSeleccionado}/fecha/${fechaSeleccionada}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const asistenciaDB = data.asistencias.find((a: any) => a.id_estudiante === idEstudiante);
+
+        if (asistenciaDB && asistenciaDB.tiene_documento) {
+          setDocumentoVisualizacion({
+            id_asistencia: asistenciaDB.id_asistencia,
+            estudiante: `${estudiante.nombre} ${estudiante.apellido}`,
+            motivo: registro.observaciones || 'Sin motivo especificado',
+            nombreArchivo: registro.documento_nombre_original || 'documento',
+            tipoArchivo: asistenciaDB.documento_mime || 'application/octet-stream',
+            tamanoKB: registro.documento_size_kb || 0
+          });
+          setShowVerDocumentoModal(true);
+        } else {
+          toast.error('No se encontró el documento en la base de datos');
+        }
+      }
+    } catch (error) {
+      console.error('Error obteniendo información del documento:', error);
+      toast.error('Error al cargar información del documento');
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      setDocumentoJustificacion(file);
+      setDocumentoNombre(file.name);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setDocumentoPreview(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setDocumentoJustificacion(file);
+      setDocumentoNombre(file.name);
+
+      // Crear preview para imágenes
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setDocumentoPreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setDocumentoPreview(null);
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setDocumentoJustificacion(null);
+    setDocumentoPreview(null);
+    setDocumentoNombre('');
   };
 
   const contarEstados = () => {
@@ -278,7 +629,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     return { presentes, ausentes, tardanzas, justificados };
   };
 
-  const descargarExcel = () => {
+  const descargarExcel = async () => {
     if (!cursoSeleccionado || estudiantes.length === 0) {
       toast.error('Selecciona un curso con estudiantes primero');
       return;
@@ -303,8 +654,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const totalEstudiantes = estudiantes.length;
       const totalRegistrados = asistencias.size;
       const sinRegistrar = totalEstudiantes - totalRegistrados;
-      const porcentajeAsistencia = totalEstudiantes > 0 
-        ? ((stats.presentes / totalEstudiantes) * 100).toFixed(2) 
+      const porcentajeAsistencia = totalEstudiantes > 0
+        ? ((stats.presentes / totalEstudiantes) * 100).toFixed(2)
         : '0.00';
 
       const datosResumen = [
@@ -331,7 +682,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Agregar hoja de detalle
       const wsDetalle = XLSX.utils.json_to_sheet(datosDetalle);
-      
+
       // Ajustar anchos de columnas para la hoja de detalle
       wsDetalle['!cols'] = [
         { wch: 5 },  // N°
@@ -346,7 +697,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Agregar hoja de resumen
       const wsResumen = XLSX.utils.json_to_sheet(datosResumen);
-      
+
       // Ajustar anchos de columnas para la hoja de resumen
       wsResumen['!cols'] = [
         { wch: 30 }, // INFORMACIÓN
@@ -361,7 +712,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Descargar archivo
       XLSX.writeFile(wb, nombreArchivo);
-      
+
       toast.success('¡Excel descargado correctamente!');
     } catch (error) {
       console.error('Error generando Excel:', error);
@@ -387,7 +738,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
     try {
       const token = sessionStorage.getItem('auth_token');
-      
+
       // Obtener TODOS los registros de asistencia del rango
       const responseDetalle = await fetch(
         `${API_BASE}/asistencias/curso/${cursoSeleccionado}/rango?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`,
@@ -515,7 +866,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Descargar archivo
       XLSX.writeFile(wb, nombreArchivo);
-      
+
       toast.success('¡Reporte descargado correctamente!');
       setShowRangoFechasModal(false);
       setFechaInicio('');
@@ -799,7 +1150,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     borderRadius: '0.375rem',
                     border: 'none',
                     background: (!cursoSeleccionado || estudiantes.length === 0)
-                      ? 'rgba(128, 128, 128, 0.3)' 
+                      ? 'rgba(128, 128, 128, 0.3)'
                       : 'linear-gradient(135deg, #3b82f6, #2563eb)',
                     color: '#fff',
                     fontSize: '0.75rem',
@@ -837,7 +1188,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     borderRadius: '0.375rem',
                     border: 'none',
                     background: (!cursoSeleccionado || estudiantes.length === 0)
-                      ? 'rgba(128, 128, 128, 0.3)' 
+                      ? 'rgba(128, 128, 128, 0.3)'
                       : 'linear-gradient(135deg, #60a5fa, #3b82f6)',
                     color: '#fff',
                     fontSize: '0.75rem',
@@ -939,19 +1290,65 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                 }}>
                                   {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                                 </div>
-                                <div>
+                                <div style={{ flex: 1 }}>
                                   <div style={{
-                                    color: 'var(--docente-text-primary)',
-                                    fontWeight: '600',
-                                    fontSize: '0.875rem'
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
                                   }}>
-                                    {estudiante.apellido}, {estudiante.nombre}
+                                    <div style={{
+                                      color: 'var(--docente-text-primary)',
+                                      fontWeight: '600',
+                                      fontSize: '0.875rem'
+                                    }}>
+                                      {estudiante.apellido}, {estudiante.nombre}
+                                    </div>
+                                    {registro?.estado === 'justificado' && registro?.tiene_documento && (
+                                      <button
+                                        onClick={() => abrirModalVerDocumento(estudiante.id_estudiante)}
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '0.25rem',
+                                          padding: '0.125rem 0.375rem',
+                                          borderRadius: '0.25rem',
+                                          background: 'rgba(34, 197, 94, 0.15)',
+                                          border: '1px solid rgba(34, 197, 94, 0.3)',
+                                          fontSize: '0.65rem',
+                                          fontWeight: '600',
+                                          color: '#22c55e',
+                                          cursor: 'pointer',
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
+                                          e.currentTarget.style.transform = 'scale(1.05)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
+                                          e.currentTarget.style.transform = 'scale(1)';
+                                        }}
+                                        title="Ver documento justificativo"
+                                      >
+                                        <FaFileAlt size={8} />
+                                        DOC
+                                      </button>
+                                    )}
                                   </div>
                                   <div style={{
                                     color: 'var(--docente-text-muted)',
                                     fontSize: '0.75rem'
                                   }}>
                                     CI: {estudiante.cedula}
+                                    {registro?.observaciones && (
+                                      <span style={{
+                                        marginLeft: '0.5rem',
+                                        color: 'var(--docente-accent)',
+                                        fontStyle: 'italic'
+                                      }}>
+                                        • {registro.observaciones.substring(0, 30)}{registro.observaciones.length > 30 ? '...' : ''}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -969,8 +1366,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                     padding: '0.375rem 0.625rem',
                                     borderRadius: '0.375rem',
                                     border: 'none',
-                                    background: registro?.estado === 'presente' 
-                                      ? 'linear-gradient(135deg, #3b82f6, #2563eb)' 
+                                    background: registro?.estado === 'presente'
+                                      ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
                                       : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
                                     color: registro?.estado === 'presente' ? '#fff' : 'var(--docente-text-primary)',
                                     cursor: 'pointer',
@@ -1006,8 +1403,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                     padding: '0.375rem 0.625rem',
                                     borderRadius: '0.375rem',
                                     border: 'none',
-                                    background: registro?.estado === 'ausente' 
-                                      ? 'linear-gradient(135deg, #60a5fa, #3b82f6)' 
+                                    background: registro?.estado === 'ausente'
+                                      ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
                                       : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
                                     color: registro?.estado === 'ausente' ? '#fff' : 'var(--docente-text-primary)',
                                     cursor: 'pointer',
@@ -1043,8 +1440,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                     padding: '0.375rem 0.625rem',
                                     borderRadius: '0.375rem',
                                     border: 'none',
-                                    background: registro?.estado === 'tardanza' 
-                                      ? 'linear-gradient(135deg, #93c5fd, #60a5fa)' 
+                                    background: registro?.estado === 'tardanza'
+                                      ? 'linear-gradient(135deg, #93c5fd, #60a5fa)'
                                       : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
                                     color: registro?.estado === 'tardanza' ? '#fff' : 'var(--docente-text-primary)',
                                     cursor: 'pointer',
@@ -1080,8 +1477,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                     padding: '0.375rem 0.625rem',
                                     borderRadius: '0.375rem',
                                     border: 'none',
-                                    background: registro?.estado === 'justificado' 
-                                      ? 'linear-gradient(135deg, #2563eb, #1e40af)' 
+                                    background: registro?.estado === 'justificado'
+                                      ? 'linear-gradient(135deg, #2563eb, #1e40af)'
                                       : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
                                     color: registro?.estado === 'justificado' ? '#fff' : 'var(--docente-text-primary)',
                                     cursor: 'pointer',
@@ -1195,8 +1592,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                               height: '2.5rem',
                               borderRadius: '0.5rem',
                               border: numero === paginaActual ? 'none' : '1px solid var(--docente-border)',
-                              background: numero === paginaActual 
-                                ? 'linear-gradient(135deg, #3b82f6, #2563eb)' 
+                              background: numero === paginaActual
+                                ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
                                 : 'transparent',
                               color: numero === paginaActual ? '#fff' : 'var(--docente-text-primary)',
                               fontSize: '0.875rem',
@@ -1277,11 +1674,11 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                       padding: '0.5rem 1rem',
                       borderRadius: '0.375rem',
                       border: 'none',
-                      background: asistencias.size === 0 
-                        ? 'rgba(128, 128, 128, 0.3)' 
+                      background: asistencias.size === 0
+                        ? 'rgba(128, 128, 128, 0.3)'
                         : asistenciaGuardada
-                        ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-                        : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                          ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
+                          : 'linear-gradient(135deg, #3b82f6, #2563eb)',
                       color: '#fff',
                       fontSize: '0.75rem',
                       fontWeight: '600',
@@ -1290,9 +1687,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.375rem',
                       transition: 'all 0.2s',
-                      boxShadow: asistencias.size > 0 
-                        ? (asistenciaGuardada 
-                          ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)' 
+                      boxShadow: asistencias.size > 0
+                        ? (asistenciaGuardada
+                          ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
                           : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)')
                         : 'none',
                       opacity: saving ? 0.7 : (asistencias.size === 0 ? 0.6 : 1)
@@ -1300,7 +1697,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     onMouseEnter={(e) => {
                       if (asistencias.size > 0 && !saving) {
                         e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = asistenciaGuardada 
+                        e.currentTarget.style.boxShadow = asistenciaGuardada
                           ? '0 0.25rem 0.75rem rgba(96, 165, 250, 0.25)'
                           : '0 0.25rem 0.75rem rgba(59, 130, 246, 0.25)';
                       }
@@ -1315,11 +1712,11 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     }}
                   >
                     <FaSave size={12} />
-                    {saving 
-                      ? 'Guardando...' 
-                      : asistenciaGuardada 
-                      ? `✓ Guardado (${asistencias.size})`
-                      : `Guardar (${asistencias.size})`}
+                    {saving
+                      ? 'Guardando...'
+                      : asistenciaGuardada
+                        ? `✓ Guardado (${asistencias.size})`
+                        : `Guardar (${asistencias.size})`}
                   </button>
                 </div>
               </div>
@@ -1456,6 +1853,206 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               }}
             />
 
+            {/* File Upload Section */}
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              border: '1px dashed var(--docente-border)',
+              borderRadius: '0.5rem',
+              background: 'var(--docente-input-bg)'
+            }}>
+              <label style={{
+                display: 'block',
+                fontSize: '0.8125rem',
+                fontWeight: '600',
+                color: 'var(--docente-text-secondary)',
+                marginBottom: '0.5rem'
+              }}>
+                Adjuntar Documento (Opcional)
+              </label>
+
+              {/* Mostrar documento nuevo (preview) */}
+              {documentoPreview ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.5rem',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  borderRadius: '0.375rem',
+                  border: '1px solid rgba(59, 130, 246, 0.3)'
+                }}>
+                  {documentoPreview.startsWith('data:image') ? (
+                    <img
+                      src={documentoPreview}
+                      alt="Preview"
+                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '0.25rem' }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '0.25rem',
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontWeight: '600',
+                      fontSize: '0.75rem'
+                    }}>
+                      PDF
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '0.8125rem',
+                      fontWeight: '600',
+                      color: 'var(--docente-text-primary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {documentoNombre}
+                    </div>
+                    <div style={{
+                      fontSize: '0.7rem',
+                      color: 'var(--docente-text-muted)',
+                      marginTop: '0.125rem'
+                    }}>
+                      Nuevo archivo
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleRemoveFile}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--docente-text-muted)',
+                      cursor: 'pointer',
+                      fontSize: '1.25rem',
+                      lineHeight: '1',
+                      padding: '0.125rem',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--docente-accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--docente-text-muted)';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : documentoNombre && estudianteSeleccionado && asistencias.get(estudianteSeleccionado)?.tiene_documento ? (
+                /* Mostrar documento ya guardado en BD */
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.5rem',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  borderRadius: '0.375rem',
+                  border: '1px solid rgba(34, 197, 94, 0.3)'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '0.25rem',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: '600',
+                    fontSize: '0.75rem'
+                  }}>
+                    <FaFileAlt size={16} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '0.8125rem',
+                      fontWeight: '600',
+                      color: 'var(--docente-text-primary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {documentoNombre}
+                    </div>
+                    <div style={{
+                      fontSize: '0.7rem',
+                      color: 'var(--docente-text-muted)',
+                      marginTop: '0.125rem'
+                    }}>
+                      ✓ Documento guardado ({asistencias.get(estudianteSeleccionado)?.documento_size_kb || 0} KB)
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowObservacionesModal(false);
+                      if (estudianteSeleccionado) {
+                        abrirModalVerDocumento(estudianteSeleccionado);
+                      }
+                    }}
+                    style={{
+                      padding: '0.375rem 0.625rem',
+                      borderRadius: '0.375rem',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    Ver
+                  </button>
+                </div>
+              ) : (
+                <label style={{
+                  display: 'block',
+                  padding: '0.75rem',
+                  border: '1px dashed var(--docente-border)',
+                  borderRadius: '0.375rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
+                }}>
+                  <input
+                    type="file"
+                    onChange={handleDocumentoChange}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    style={{ display: 'none' }}
+                  />
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: 'var(--docente-text-muted)'
+                  }}>
+                    <FaFileAlt size={20} />
+                    <span style={{ fontSize: '0.8125rem' }}>
+                      Haz clic para seleccionar un archivo o arrastra y suelta
+                    </span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                      PDF, JPG, PNG, DOC (Máx. 5MB)
+                    </span>
+                  </div>
+                </label>
+              )}
+            </div>
+
             <div style={{
               display: 'flex',
               gap: '0.75rem',
@@ -1467,6 +2064,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   setShowObservacionesModal(false);
                   setEstudianteSeleccionado(null);
                   setObservaciones('');
+                  setDocumentoJustificacion(null);
+                  setDocumentoNombre('');
+                  setDocumentoPreview(null);
                 }}
                 style={{
                   padding: '0.625rem 1.25rem',
@@ -1717,6 +2317,411 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 <FaFileExcel size={14} />
                 Descargar Reporte
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Visualización de Documento */}
+      {showVerDocumentoModal && documentoVisualizacion && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          backdropFilter: 'blur(8px)',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: darkMode
+              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            borderRadius: '1rem',
+            border: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)',
+            padding: '0',
+            width: '100%',
+            maxWidth: '550px',
+            boxShadow: darkMode
+              ? '0 1rem 2.5rem rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(59, 130, 246, 0.1)'
+              : '0 1rem 2.5rem rgba(59, 130, 246, 0.15), 0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden'
+          }}>
+            {/* Header con gradiente azul */}
+            <div style={{
+              background: darkMode
+                ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
+                : 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
+              padding: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(59, 130, 246, 0.2)'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.625rem'
+              }}>
+                <div style={{
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '0.625rem',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                }}>
+                  <FaFileAlt size={16} color="#fff" />
+                </div>
+                <h3 style={{
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  color: '#fff',
+                  margin: 0,
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                  Documento Justificativo
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowVerDocumentoModal(false);
+                  setDocumentoVisualizacion(null);
+                }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  lineHeight: '1',
+                  padding: '0.25rem',
+                  borderRadius: '0.375rem',
+                  width: '1.75rem',
+                  height: '1.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.transform = 'rotate(90deg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.transform = 'rotate(0deg)';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div style={{ padding: '1rem' }}>
+              {/* Información del Estudiante */}
+              <div style={{
+                padding: '0.875rem',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)'
+                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.12) 100%)',
+                border: darkMode
+                  ? '1px solid rgba(59, 130, 246, 0.3)'
+                  : '1px solid rgba(59, 130, 246, 0.2)',
+                borderRadius: '0.75rem',
+                marginBottom: '0.875rem',
+                boxShadow: darkMode
+                  ? '0 2px 8px rgba(59, 130, 246, 0.1)'
+                  : '0 2px 8px rgba(59, 130, 246, 0.08)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem'
+                }}>
+                  <div style={{
+                    width: '2.5rem',
+                    height: '2.5rem',
+                    borderRadius: '0.625rem',
+                    background: darkMode
+                      ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '0.875rem',
+                    boxShadow: darkMode
+                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
+                      : '0 2px 8px rgba(59, 130, 246, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}>
+                    {documentoVisualizacion.estudiante.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '700',
+                      color: darkMode ? '#e0e7ff' : '#1e40af',
+                      marginBottom: '0.1875rem'
+                    }}>
+                      {documentoVisualizacion.estudiante}
+                    </div>
+                    <div style={{
+                      fontSize: '0.7rem',
+                      color: darkMode ? '#93c5fd' : '#3b82f6',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}>
+                      <FaCalendarAlt size={10} />
+                      {fechaSeleccionada.split('-').reverse().join('/')}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '0.75rem',
+                  background: darkMode
+                    ? 'rgba(0, 0, 0, 0.3)'
+                    : 'rgba(255, 255, 255, 0.7)',
+                  borderRadius: '0.625rem',
+                  border: darkMode
+                    ? '1px solid rgba(59, 130, 246, 0.2)'
+                    : '1px solid rgba(59, 130, 246, 0.15)'
+                }}>
+                  <div style={{
+                    fontSize: '0.65rem',
+                    fontWeight: '700',
+                    color: darkMode ? '#93c5fd' : '#2563eb',
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}>
+                    <div style={{
+                      width: '3px',
+                      height: '3px',
+                      borderRadius: '50%',
+                      background: darkMode ? '#60a5fa' : '#3b82f6'
+                    }} />
+                    Motivo de Justificación
+                  </div>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: darkMode ? '#e0e7ff' : '#1e293b',
+                    lineHeight: '1.5',
+                    fontWeight: '500'
+                  }}>
+                    {documentoVisualizacion.motivo}
+                  </div>
+                </div>
+              </div>
+
+              {/* Previsualización del Documento */}
+              <div style={{
+                padding: '0.875rem',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)'
+                  : 'linear-gradient(135deg, rgba(147, 197, 253, 0.15) 0%, rgba(191, 219, 254, 0.2) 100%)',
+                border: darkMode
+                  ? '1px solid rgba(96, 165, 250, 0.25)'
+                  : '1px solid rgba(147, 197, 253, 0.3)',
+                borderRadius: '0.75rem',
+                marginBottom: '0.875rem',
+                boxShadow: darkMode
+                  ? '0 2px 8px rgba(96, 165, 250, 0.08)'
+                  : '0 2px 8px rgba(147, 197, 253, 0.12)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{
+                    width: '3.5rem',
+                    height: '3.5rem',
+                    borderRadius: '0.75rem',
+                    background: darkMode
+                      ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
+                      : 'linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    flexShrink: 0,
+                    boxShadow: darkMode
+                      ? '0 4px 12px rgba(30, 64, 175, 0.4)'
+                      : '0 4px 12px rgba(96, 165, 250, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}>
+                    <FaFileAlt size={24} />
+                    <div style={{
+                      fontSize: '0.5625rem',
+                      fontWeight: '700',
+                      marginTop: '0.25rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'DOC'}
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '0.8rem',
+                      fontWeight: '700',
+                      color: darkMode ? '#e0e7ff' : '#1e40af',
+                      marginBottom: '0.375rem',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {documentoVisualizacion.nombreArchivo}
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        padding: '0.1875rem 0.5rem',
+                        borderRadius: '0.3125rem',
+                        background: darkMode
+                          ? 'rgba(59, 130, 246, 0.2)'
+                          : 'rgba(59, 130, 246, 0.15)',
+                        fontSize: '0.7rem',
+                        fontWeight: '600',
+                        color: darkMode ? '#93c5fd' : '#2563eb'
+                      }}>
+                        <FaFileAlt size={9} />
+                        {documentoVisualizacion.tamanoKB} KB
+                      </div>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.1875rem 0.5rem',
+                        borderRadius: '0.3125rem',
+                        background: darkMode
+                          ? 'rgba(96, 165, 250, 0.2)'
+                          : 'rgba(147, 197, 253, 0.2)',
+                        fontSize: '0.7rem',
+                        fontWeight: '600',
+                        color: darkMode ? '#bfdbfe' : '#1e40af'
+                      }}>
+                        {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'ARCHIVO'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de Acción */}
+              <div style={{
+                display: 'flex',
+                gap: '0.625rem',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={() => {
+                    setShowVerDocumentoModal(false);
+                    setDocumentoVisualizacion(null);
+                  }}
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    borderRadius: '0.625rem',
+                    border: darkMode
+                      ? '1px solid rgba(148, 163, 184, 0.3)'
+                      : '1px solid rgba(203, 213, 225, 0.5)',
+                    background: darkMode
+                      ? 'rgba(51, 65, 85, 0.5)'
+                      : 'rgba(248, 250, 252, 0.8)',
+                    color: darkMode ? '#cbd5e1' : '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = darkMode
+                      ? 'rgba(71, 85, 105, 0.6)'
+                      : 'rgba(241, 245, 249, 1)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode
+                      ? 'rgba(51, 65, 85, 0.5)'
+                      : 'rgba(248, 250, 252, 0.8)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Cerrar
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (documentoVisualizacion.id_asistencia) {
+                      descargarDocumento(
+                        documentoVisualizacion.id_asistencia,
+                        documentoVisualizacion.nombreArchivo,
+                        documentoVisualizacion.estudiante
+                      );
+                    }
+                  }}
+                  style={{
+                    padding: '0.625rem 1.5rem',
+                    borderRadius: '0.625rem',
+                    border: 'none',
+                    background: darkMode
+                      ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: darkMode
+                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
+                      : '0 2px 8px rgba(59, 130, 246, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 4px 12px rgba(37, 99, 235, 0.5)'
+                      : '0 4px 12px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
+                      : '0 2px 8px rgba(59, 130, 246, 0.3)';
+                  }}
+                >
+                  <FaFileAlt size={12} />
+                  Descargar Documento
+                </button>
+              </div>
             </div>
           </div>
         </div>

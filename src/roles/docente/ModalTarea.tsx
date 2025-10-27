@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, FileText } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -26,8 +26,9 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     titulo: '',
     descripcion: '',
     instrucciones: '',
-    nota_maxima: '20',
-    nota_minima_aprobacion: '14',
+    nota_maxima: '10',
+    nota_minima_aprobacion: '7',
+    ponderacion: '1',
     fecha_limite: '',
     permite_archivo: true,
     tamano_maximo_mb: '5',
@@ -35,29 +36,78 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     estado: 'activo'
   });
   const [loading, setLoading] = useState(false);
+  const [sumaPonderaciones, setSumaPonderaciones] = useState(0);
+  const [tareasDelModulo, setTareasDelModulo] = useState<any[]>([]);
+
+  // Cargar tareas del módulo para validar ponderaciones
+  useEffect(() => {
+    if (isOpen && id_modulo) {
+      fetchTareasModulo();
+    }
+  }, [isOpen, id_modulo]);
+
+  const fetchTareasModulo = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await axios.get(`${API_BASE}/tareas/modulo/${id_modulo}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const tareas = response.data.tareas || [];
+      setTareasDelModulo(tareas);
+      
+      // Calcular suma de ponderaciones (excluyendo la tarea actual si está editando)
+      const suma = tareas
+        .filter((t: any) => tareaEditar ? t.id_tarea !== tareaEditar.id_tarea : true)
+        .reduce((acc: number, t: any) => acc + (parseFloat(t.ponderacion) || 0), 0);
+      setSumaPonderaciones(suma);
+    } catch (error) {
+      console.error('Error cargando tareas:', error);
+    }
+  };
 
   useEffect(() => {
     if (tareaEditar) {
+      // Al editar, si la fecha existe, mantener la fecha pero poner hora 23:59 por defecto
+      let fechaLimite = '';
+      if (tareaEditar.fecha_limite) {
+        const fecha = new Date(tareaEditar.fecha_limite);
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        // Siempre poner 23:59 como hora por defecto al editar
+        fechaLimite = `${year}-${month}-${day}T23:59`;
+      }
+      
       setFormData({
         titulo: tareaEditar.titulo || '',
         descripcion: tareaEditar.descripcion || '',
         instrucciones: tareaEditar.instrucciones || '',
-        nota_maxima: tareaEditar.nota_maxima?.toString() || '20',
-        nota_minima_aprobacion: tareaEditar.nota_minima_aprobacion?.toString() || '14',
-        fecha_limite: tareaEditar.fecha_limite ? tareaEditar.fecha_limite.split('T')[0] : '',
+        nota_maxima: tareaEditar.nota_maxima?.toString() || '10',
+        nota_minima_aprobacion: tareaEditar.nota_minima_aprobacion?.toString() || '7',
+        ponderacion: tareaEditar.ponderacion?.toString() || '1',
+        fecha_limite: fechaLimite,
         permite_archivo: tareaEditar.permite_archivo !== false,
         tamano_maximo_mb: tareaEditar.tamano_maximo_mb?.toString() || '5',
         formatos_permitidos: tareaEditar.formatos_permitidos || 'pdf,jpg,jpeg,png,webp',
         estado: tareaEditar.estado || 'activo'
       });
     } else {
+      // Fecha por defecto: hoy a las 23:59 (Ecuador UTC-5)
+      const hoy = new Date();
+      // Convertir a hora local de Ecuador
+      const year = hoy.getFullYear();
+      const month = String(hoy.getMonth() + 1).padStart(2, '0');
+      const day = String(hoy.getDate()).padStart(2, '0');
+      const fechaDefault = `${year}-${month}-${day}T23:59`; // formato: YYYY-MM-DDTHH:mm
+      
       setFormData({
         titulo: '',
         descripcion: '',
         instrucciones: '',
-        nota_maxima: '20',
-        nota_minima_aprobacion: '14',
-        fecha_limite: '',
+        nota_maxima: '10',
+        nota_minima_aprobacion: '7',
+        ponderacion: '1',
+        fecha_limite: fechaDefault,
         permite_archivo: true,
         tamano_maximo_mb: '5',
         formatos_permitidos: 'pdf,jpg,jpeg,png,webp',
@@ -96,6 +146,15 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
       return;
     }
 
+    // Validar suma de ponderaciones
+    const ponderacionActual = parseFloat(formData.ponderacion);
+    const sumaTotal = sumaPonderaciones + ponderacionActual;
+    
+    if (sumaTotal > 10) {
+      toast.error(`La suma de ponderaciones (${sumaTotal.toFixed(2)}) excede el máximo de 10 puntos del módulo`);
+      return;
+    }
+
     // Validar que la fecha límite sea futura
     const fechaLimite = new Date(formData.fecha_limite);
     const hoy = new Date();
@@ -115,6 +174,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
         id_modulo,
         nota_maxima: parseFloat(formData.nota_maxima),
         nota_minima_aprobacion: parseFloat(formData.nota_minima_aprobacion),
+        ponderacion: parseFloat(formData.ponderacion),
         tamano_maximo_mb: parseInt(formData.tamano_maximo_mb)
       };
 
@@ -164,55 +224,77 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.6)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '1em',
-      backdropFilter: 'blur(0.375rem)'
-    }}>
-      <div style={{
-        background: darkMode 
-          ? 'rgba(26,26,46,0.98)'
-          : '#ffffff',
-        borderRadius: '0.75em',
-        padding: '1em',
-        maxWidth: '35rem',
-        width: '100%',
-        maxHeight: '85vh',
-        overflowY: 'auto',
-        border: darkMode 
-          ? '0.0625rem solid rgba(255,255,255,0.1)' 
-          : '0.0625rem solid #e5e7eb',
-        boxShadow: darkMode 
-          ? '0 1rem 3rem rgba(0,0,0,0.4)' 
-          : '0 1rem 3rem rgba(0,0,0,0.15)'
-      }}>
+    <div 
+      className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.75)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem',
+        backdropFilter: 'blur(8px)'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="modal-content"
+        style={{
+          position: 'relative',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
+            : '#ffffff',
+          border: darkMode
+            ? '1px solid rgba(59, 130, 246, 0.3)'
+            : '1px solid #e5e7eb',
+          borderRadius: '12px',
+          width: '55vw',
+          maxWidth: '55vw',
+          maxHeight: '92vh',
+          padding: '0.875rem 1.125rem',
+          margin: '0.5rem auto',
+          color: darkMode ? '#fff' : '#1e293b',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.7)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          animation: 'scaleIn 0.3s ease-out'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75em' }}>
-          <h3 style={{ 
-            color: darkMode ? '#fff' : '#1e293b', 
-            fontSize: '1.1rem', 
-            fontWeight: '800', 
-            margin: 0 
-          }}>
-            {tareaEditar ? 'Editar Tarea' : 'Crear Nueva Tarea'}
-          </h3>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '10px',
+          paddingBottom: '8px',
+          borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileText size={20} style={{ color: '#3b82f6' }} />
+            <h3 style={{ 
+              margin: 0, 
+              fontSize: '1.05rem', 
+              fontWeight: '600', 
+              letterSpacing: '-0.01em',
+              color: darkMode ? '#fff' : '#1e293b'
+            }}>
+              {tareaEditar ? 'Editar Tarea' : 'Nueva Tarea'}
+            </h3>
+          </div>
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '0.5em',
-              padding: '0.375em',
-              color: '#ef4444',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '8px',
+              padding: '6px',
+              color: darkMode ? '#fff' : '#64748b',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -220,22 +302,22 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
             }}
           >
             <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.75em' }}>
-          {/* Título */}
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.75rem' }}>
+          {/* Título - Ancho completo */}
           <div>
-            <label style={labelStyle}>
-              Título de la Tarea *
-            </label>
+            <label style={labelStyle}>Título de la Tarea *</label>
             <input
               type="text"
               name="titulo"
@@ -244,65 +326,52 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               placeholder="Ej: Práctica de Maquillaje Social"
               required
               style={inputStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
-              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
             />
           </div>
 
-          {/* Descripción */}
-          <div>
-            <label style={labelStyle}>
-              Descripción Breve (opcional)
-            </label>
-            <textarea
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              placeholder="Describe brevemente la tarea..."
-              style={{
-                ...inputStyle,
-                minHeight: '56px',
-                resize: 'vertical' as const
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
-              }}
-            />
+          {/* Fila: Descripción e Instrucciones en 2 columnas */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            {/* Descripción */}
+            <div>
+              <label style={labelStyle}>Descripción Breve (opcional)</label>
+              <textarea
+                name="descripcion"
+                value={formData.descripcion}
+                onChange={handleChange}
+                placeholder="Describe brevemente la tarea..."
+                style={{
+                  ...inputStyle,
+                  minHeight: '70px',
+                  resize: 'vertical' as const
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              />
+            </div>
+
+            {/* Instrucciones */}
+            <div>
+              <label style={labelStyle}>Instrucciones Detalladas (opcional)</label>
+              <textarea
+                name="instrucciones"
+                value={formData.instrucciones}
+                onChange={handleChange}
+                placeholder="Instrucciones paso a paso para completar la tarea..."
+                style={{
+                  ...inputStyle,
+                  minHeight: '70px',
+                  resize: 'vertical' as const
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              />
+            </div>
           </div>
 
-          {/* Instrucciones */}
-          <div>
-            <label style={labelStyle}>
-              Instrucciones Detalladas (opcional)
-            </label>
-            <textarea
-              name="instrucciones"
-              value={formData.instrucciones}
-              onChange={handleChange}
-              placeholder="Instrucciones paso a paso para completar la tarea..."
-              style={{
-                ...inputStyle,
-                minHeight: '84px',
-                resize: 'vertical' as const
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
-              }}
-            />
-          </div>
-
-          {/* Calificación */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {/* Calificación y Ponderación */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
             <div>
               <label style={labelStyle}>
                 Nota Máxima *
@@ -313,7 +382,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 value={formData.nota_maxima}
                 onChange={handleChange}
                 min="1"
-                max="100"
+                max="10"
                 step="0.01"
                 required
                 style={inputStyle}
@@ -324,11 +393,14 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                   e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
                 }}
               />
+              <p style={{ color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(107,114,128,0.8)', fontSize: '0.7rem', marginTop: '4px' }}>
+                Sobre 10 puntos
+              </p>
             </div>
 
             <div>
               <label style={labelStyle}>
-                Nota Mínima Aprobación *
+                Nota Mínima *
               </label>
               <input
                 type="number"
@@ -336,7 +408,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 value={formData.nota_minima_aprobacion}
                 onChange={handleChange}
                 min="1"
-                max="100"
+                max="10"
                 step="0.01"
                 required
                 style={inputStyle}
@@ -347,58 +419,128 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                   e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
                 }}
               />
+              <p style={{ color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(107,114,128,0.8)', fontSize: '0.7rem', marginTop: '4px' }}>
+                Para aprobar
+              </p>
             </div>
-          </div>
 
-          {/* Fecha Límite */}
-          <div>
-            <label style={labelStyle}>
-              Fecha Límite de Entrega *
-            </label>
-            <input
-              type="date"
-              name="fecha_limite"
-              value={formData.fecha_limite}
-              onChange={handleChange}
-              required
-              style={inputStyle}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
-              }}
-            />
-          </div>
-
-          {/* Configuración de Archivos */}
-          <div style={{
-            background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)',
-            border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
-            borderRadius: '10px',
-            padding: '10px'
-          }}>
-            <h4 style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '700', marginBottom: '10px' }}>
-              📎 Configuración de Archivos
-            </h4>
-
-            <div style={{ marginBottom: '10px' }}>
-              <label style={{ color: darkMode ? '#fff' : '#374151', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  name="permite_archivo"
-                  checked={formData.permite_archivo}
-                  onChange={handleChange}
-                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                />
-                <span style={{ fontSize: '0.85rem' }}>Permitir entrega de archivos</span>
+            <div>
+              <label style={labelStyle}>
+                Ponderación *
               </label>
+              <input
+                type="number"
+                name="ponderacion"
+                value={formData.ponderacion}
+                onChange={handleChange}
+                min="0.01"
+                max="10"
+                step="0.01"
+                required
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                }}
+              />
+              <p style={{ color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(107,114,128,0.8)', fontSize: '0.7rem', marginTop: '4px' }}>
+                Peso en puntos
+              </p>
+            </div>
+          </div>
+
+          {/* Advertencia de suma de ponderaciones */}
+          {formData.ponderacion && parseFloat(formData.ponderacion) > 0 && (
+            <div style={{
+              padding: '0.75em',
+              background: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10
+                ? darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'
+                : darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+              border: `1px solid ${(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '#ef4444' : '#3b82f6'}`,
+              borderRadius: '0.5em',
+              marginTop: '0.75em'
+            }}>
+              <div style={{ 
+                color: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '#ef4444' : '#3b82f6',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                marginBottom: '0.25em',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '⚠️ ADVERTENCIA' : '✅ SUMA DE PONDERACIONES'}
+              </div>
+              <div style={{ 
+                color: darkMode ? '#fff' : '#1e293b',
+                fontSize: '0.875rem',
+                fontWeight: '600'
+              }}>
+                Tareas existentes: {sumaPonderaciones.toFixed(2)} pts + Esta tarea: {parseFloat(formData.ponderacion).toFixed(2)} pts = {' '}
+                <span style={{ 
+                  color: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '#ef4444' : '#10b981',
+                  fontWeight: '700'
+                }}>
+                  {(sumaPonderaciones + parseFloat(formData.ponderacion)).toFixed(2)}/10 pts
+                </span>
+              </div>
+              {(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 && (
+                <div style={{ 
+                  color: '#ef4444',
+                  fontSize: '0.75rem',
+                  marginTop: '0.25em'
+                }}>
+                  ¡La suma excede el máximo de 10 puntos! Reduce la ponderación.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Fila: Fecha y Configuración de Archivos en 2 columnas */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            {/* Fecha y Hora Límite */}
+            <div>
+              <label style={labelStyle}>Fecha y Hora Límite de Entrega *</label>
+              <input
+                type="datetime-local"
+                name="fecha_limite"
+                value={formData.fecha_limite}
+                onChange={handleChange}
+                required
+                style={inputStyle}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              />
             </div>
 
-            {formData.permite_archivo && (
-              <>
-                <div style={{ marginBottom: '10px' }}>
-                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '6px', fontSize: '0.8rem' }}>
+            {/* Configuración de Archivos */}
+            <div style={{
+              background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)',
+              border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
+              borderRadius: '10px',
+              padding: '10px'
+            }}>
+              <h4 style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '700', marginBottom: '8px' }}>
+                📎 Configuración de Archivos
+              </h4>
+
+              <div style={{ marginBottom: formData.permite_archivo ? '8px' : '0' }}>
+                <label style={{ color: darkMode ? '#fff' : '#374151', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    name="permite_archivo"
+                    checked={formData.permite_archivo}
+                    onChange={handleChange}
+                    style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '0.8rem' }}>Permitir entrega de archivos</span>
+                </label>
+              </div>
+
+              {formData.permite_archivo && (
+                <div>
+                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '4px', fontSize: '0.75rem' }}>
                     Tamaño Máximo (MB)
                   </label>
                   <input
@@ -408,54 +550,11 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                     onChange={handleChange}
                     min="1"
                     max="50"
-                    style={inputStyle}
+                    style={{...inputStyle, fontSize: '0.8rem', padding: '0.5em 0.65em'}}
                   />
                 </div>
-
-                <div>
-                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '6px', fontSize: '0.8rem' }}>
-                    Formatos Permitidos
-                  </label>
-                  <input
-                    type="text"
-                    name="formatos_permitidos"
-                    value={formData.formatos_permitidos}
-                    onChange={handleChange}
-                    placeholder="pdf,jpg,jpeg,png,webp"
-                    style={inputStyle}
-                  />
-                  <p style={{ color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(107,114,128,0.8)', fontSize: '0.75rem', marginTop: '4px' }}>
-                    Separar por comas. Ej: pdf,jpg,png
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Estado */}
-          <div>
-            <label style={labelStyle}>
-              Estado
-            </label>
-            <select
-              name="estado"
-              value={formData.estado}
-              onChange={handleChange}
-              style={{
-                ...inputStyle,
-                cursor: 'pointer'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
-              }}
-            >
-              <option value="activo" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Activo</option>
-              <option value="inactivo" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Inactivo</option>
-              <option value="finalizado" style={{ background: darkMode ? '#1a1a2e' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Finalizado</option>
-            </select>
+              )}
+            </div>
           </div>
 
           {/* Botones */}
