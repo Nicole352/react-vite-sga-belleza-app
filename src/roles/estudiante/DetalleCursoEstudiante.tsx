@@ -441,13 +441,13 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                             {/* Estado de la entrega */}
                             {tarea.entrega ? (
                               <div style={{
-                                background: tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.08)',
-                                border: `0.0625rem solid ${tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
+                                background: tarea.entrega.calificacion ? 'rgba(217, 119, 6, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+                                border: `0.0625rem solid ${tarea.entrega.calificacion ? 'rgba(217, 119, 6, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
                                 borderRadius: '0.375em',
                                 padding: '0.25em 0.625em',
                                 fontSize: '0.6875rem',
                                 fontWeight: '600',
-                                color: tarea.entrega.calificacion ? '#10b981' : '#3b82f6',
+                                color: tarea.entrega.calificacion ? '#d97706' : '#f59e0b',
                                 whiteSpace: 'nowrap' as const
                               }}>
                                 {tarea.entrega.calificacion ? 'Calificado' : 'Entregado'}
@@ -548,8 +548,8 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                           {/* Archivo entregado */}
                           {tarea.entrega && (
                             <div style={{
-                              background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-                              border: '0.0625rem solid rgba(16, 185, 129, 0.2)',
+                              background: darkMode ? 'rgba(217, 119, 6, 0.1)' : 'rgba(217, 119, 6, 0.05)',
+                              border: '0.0625rem solid rgba(217, 119, 6, 0.2)',
                               borderRadius: '0.5em',
                               padding: '0.75em',
                               marginTop: '0.75em'
@@ -580,7 +580,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                     Entregado: {new Date(tarea.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(tarea.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                   </p>
                                 </div>
-                                <CheckCircle size={20} color="#10b981" />
+                                <CheckCircle size={20} color="#d97706" />
                               </div>
 
                               {/* Botones Editar y Eliminar (solo si NO está calificada) */}
@@ -608,11 +608,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                     <label
                                       htmlFor={`edit-file-${tarea.id_tarea}`}
                                       style={{
-                                        background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-                                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                                        background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)',
+                                        border: '1px solid rgba(245, 158, 11, 0.3)',
                                         borderRadius: '0.375em',
                                         padding: '0.375em 0.75em',
-                                        color: '#3b82f6',
+                                        color: '#f59e0b',
                                         cursor: 'pointer',
                                         display: 'inline-flex',
                                         alignItems: 'center',
@@ -622,10 +622,10 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                         transition: 'all 0.2s ease'
                                       }}
                                       onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                                        e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)';
                                       }}
                                       onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)';
+                                        e.currentTarget.style.background = darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)';
                                       }}
                                     >
                                       <Edit size={14} />
@@ -666,11 +666,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                               {/* Mostrar calificación si existe */}
                               {tarea.entrega.calificacion !== undefined && tarea.entrega.calificacion !== null && (
                                 <div style={{
-                                  borderTop: '0.0625rem solid rgba(16, 185, 129, 0.2)',
+                                  borderTop: '0.0625rem solid rgba(217, 119, 6, 0.2)',
                                   paddingTop: '0.5em',
                                   marginTop: '0.5em'
                                 }}>
-                                  <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '700', margin: '0 0 0.25em 0' }}>
+                                  <p style={{ color: '#d97706', fontSize: '0.875rem', fontWeight: '700', margin: '0 0 0.25em 0' }}>
                                     Calificación: {tarea.entrega.calificacion}/{tarea.nota_maxima}
                                   </p>
                                   {tarea.entrega.comentarios && (

@@ -5,7 +5,7 @@ import { HiOutlineShieldCheck } from 'react-icons/hi';
 import { UserCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:3000';
 
 interface PerfilProps {
   darkMode: boolean;
@@ -28,6 +28,7 @@ interface EstudianteData {
   rol?: string;
   estado?: string;
   foto_perfil?: string; // Add this line
+  contacto_emergencia?: string; // Add this line
 }
 
 const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
@@ -66,7 +67,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         return;
       }
       
-      const response = await fetch(`${API_BASE}/auth/me`, {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -75,7 +76,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         console.log('Datos del estudiante cargados:', data);
         console.log('Username del estudiante:', data.username);
         setEstudiante(data);
-        
+      
         // La foto viene en base64 directamente desde el backend
         if (data.foto_perfil) {
           setFotoUrl(data.foto_perfil);
@@ -83,7 +84,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
           // Clear fotoUrl if no foto_perfil data
           setFotoUrl(null);
         }
-        
+      
         setFormData({
           nombres: data.nombres || data.nombre || '',
           apellidos: data.apellidos || data.apellido || '',
@@ -92,7 +93,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
           direccion: data.direccion || '',
           fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
           genero: data.genero || '',
-          identificacion: data.identificacion || data.cedula || ''
+          identificacion: data.identificacion || data.cedula || '',
+          contacto_emergencia: data.contacto_emergencia || '' // Add this line
         });
       } else {
         console.error('Failed to fetch profile:', response.status);
@@ -107,13 +109,14 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
   };
 
   // Función eliminada - la foto ahora se carga directamente en fetchPerfil()
+  
 
   const handleSave = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
       if (!token || !estudiante) return;
 
-      const response = await fetch(`${API_BASE}/usuarios/mi-perfil`, {
+      const response = await fetch(`${API_BASE}/api/usuarios/mi-perfil`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -153,7 +156,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE.replace('/api', '')}/api/usuarios/cambiar-password`, {
+      const response = await fetch(`${API_BASE}/api/usuarios/cambiar-password`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -803,6 +806,45 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                     </div>
                   </div>
                 )}
+
+                {/* Contacto de Emergencia */}
+                <div>
+                  <label style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
+                    Contacto de Emergencia
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={formData.contacto_emergencia || ''}
+                      onChange={(e) => setFormData({ ...formData, contacto_emergencia: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        background: theme.inputBg,
+                        border: `1px solid ${theme.border}`,
+                        borderRadius: '0.5rem',
+                        color: theme.textPrimary,
+                        fontSize: '0.8125rem'
+                      }}
+                      placeholder="Teléfono de emergencia"
+                    />
+                  ) : (
+                    <div style={{
+                      padding: '0.5rem 0.75rem',
+                      background: theme.inputBg,
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5rem',
+                      color: theme.textPrimary,
+                      fontSize: '0.8125rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <FaPhone size={14} color={theme.textMuted} />
+                      {formData.contacto_emergencia || 'No especificado'}
+                    </div>
+                  )}
+                </div>
 
                 {/* Género */}
                 {formData.genero && (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
@@ -230,7 +230,17 @@ const GestionPagosEstudiante = () => {
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
-      const id_usuario = 1; // TODO: Obtener del contexto
+      
+      // Obtener el ID del usuario desde el endpoint /api/auth/me
+      const meRes = await fetch(`${API_BASE}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const userData = await meRes.json();
+      const id_usuario = userData.id_usuario;
+      
+      if (!id_usuario) {
+        throw new Error('No se pudo obtener el ID del usuario');
+      }
 
       // Verificar todas las cuotas seleccionadas
       for (const id_pago of cuotasAVerificar) {
@@ -285,7 +295,17 @@ const GestionPagosEstudiante = () => {
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
-      const id_usuario = 1; // TODO: Obtener del contexto
+      
+      // Obtener el ID del usuario desde el endpoint /api/auth/me
+      const meRes = await fetch(`${API_BASE}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const userData = await meRes.json();
+      const id_usuario = userData.id_usuario;
+      
+      if (!id_usuario) {
+        throw new Error('No se pudo obtener el ID del usuario');
+      }
 
       const res = await fetch(`${API_BASE}/api/admin/pagos/${pagoARechazar.id_pago}/rechazar`, {
         method: 'PUT',
@@ -428,8 +448,8 @@ const GestionPagosEstudiante = () => {
         <div className="responsive-filters">
           <div style={{
             position: 'relative',
-            flex: 1,
-            minWidth: isSmallScreen ? 'auto' : '17.5rem',
+            flex: isSmallScreen ? '1 1 100%' : '1 1 auto',
+            minWidth: isSmallScreen ? 'auto' : '22rem',
             width: isSmallScreen ? '100%' : 'auto'
           }}>
             <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
@@ -466,6 +486,53 @@ const GestionPagosEstudiante = () => {
               ]}
             />
           </div>
+          <button 
+            onClick={async () => {
+              try {
+                const response = await fetch(`${API_BASE}/api/pagos-mensuales/reporte/excel`);
+                if (!response.ok) throw new Error('Error descargando reporte');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Reporte_Pagos_${new Date().toISOString().split('T')[0]}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              } catch (error) {
+                console.error('Error:', error);
+                toast.error('Error al descargar el reporte');
+              }
+            }}
+            style={{ 
+              padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', 
+              fontSize: '0.8rem', 
+              borderRadius: '0.5rem', 
+              border: '1px solid rgba(220, 38, 38, 0.3)', 
+              background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))', 
+              color: '#ef4444', 
+              cursor: 'pointer', 
+              width: isSmallScreen ? '100%' : 'auto', 
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.375rem',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.25))';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <Sheet size={16} />
+            Descargar Excel
+          </button>
         </div>
       </div>
 
@@ -494,16 +561,16 @@ const GestionPagosEstudiante = () => {
               <div style={{ marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                   <span style={{ 
-                    color: pago.metodo_pago === 'efectivo' ? '#10b981' : '#3b82f6',
+                    color: pago.metodo_pago === 'efectivo' ? '#10b981' : (!pago.numero_comprobante ? '#f59e0b' : '#3b82f6'),
                     fontSize: '0.7rem',
-                    background: pago.metodo_pago === 'efectivo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                    border: pago.metodo_pago === 'efectivo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
+                    background: pago.metodo_pago === 'efectivo' ? 'rgba(16, 185, 129, 0.1)' : (!pago.numero_comprobante ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)'),
+                    border: pago.metodo_pago === 'efectivo' ? '1px solid rgba(16, 185, 129, 0.3)' : (!pago.numero_comprobante ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)'),
                     padding: '3px 0.5rem',
                     borderRadius: '0.3125rem',
                     fontWeight: 600,
                     textTransform: 'uppercase'
                   }}>
-                    {pago.metodo_pago === 'efectivo' ? '💵 Efectivo' : '🏦 Transferencia'}
+                    {pago.metodo_pago === 'efectivo' ? '💵 Efectivo' : (!pago.numero_comprobante ? '⏳ En Espera' : '🏦 Transferencia')}
                   </span>
                   <span style={{
                     display: 'flex',

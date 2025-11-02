@@ -10,7 +10,8 @@ import {
   ChevronRight,
   GraduationCap,
   Target,
-  MapPin
+  MapPin,
+  BarChart3
 } from 'lucide-react';
 import ModalCalificaciones from './ModalCalificaciones';
 import { FaHandPaper } from 'react-icons/fa';
@@ -39,6 +40,7 @@ interface CursoResumen {
   fecha_fin: string;
   aula_nombre?: string;
   aula_ubicacion?: string;
+  estado?: 'activo' | 'finalizado' | 'planificado' | 'cancelado';
 }
 
 const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
@@ -46,17 +48,28 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
+  const [filteredCursos, setFilteredCursos] = useState<CursoResumen[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCalif, setShowCalif] = useState(false);
   const [cursoSelId, setCursoSelId] = useState<number | null>(null);
   const [cursoSelNombre, setCursoSelNombre] = useState<string>('');
   const [showDropdownCursos, setShowDropdownCursos] = useState(false);
+  const [activeTab, setActiveTab] = useState<'activos' | 'finalizados'>('activos');
 
   useEffect(() => {
     setIsVisible(true);
     fetchUserData();
     fetchCursos();
   }, []);
+
+  useEffect(() => {
+    // Filter courses based on active tab
+    if (activeTab === 'activos') {
+      setFilteredCursos(cursos.filter(curso => (curso.estado || 'activo') === 'activo'));
+    } else {
+      setFilteredCursos(cursos.filter(curso => curso.estado === 'finalizado'));
+    }
+  }, [cursos, activeTab]);
 
   const fetchUserData = async () => {
     try {
@@ -214,7 +227,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
               <BookOpen size={12} color={theme.accent} />
               <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
-              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.length}</span>
+              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.filter(c => (c.estado || 'activo') === 'activo').length}</span>
             </div>
           </div>
 
@@ -260,7 +273,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1em' }}>
-        {/* Panel principal - Mis Cursos Activos */}
+        {/* Panel principal - Mis Cursos con Tabs */}
         <div style={{
           background: theme.cardBg,
           border: `0.0625rem solid ${theme.border}`,
@@ -269,176 +282,258 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           backdropFilter: 'blur(1.25rem)',
           boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
         }}>
-        <h2 style={{ 
-          fontSize: '1.2rem', 
-          fontWeight: '700', 
-          color: theme.textPrimary, 
-          margin: '0 0 1em 0' 
-        }}>
-          Mis Cursos Activos
-        </h2>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '2.5em' }}>
-            <div style={{ 
-              fontSize: '1.1rem', 
-              color: theme.textSecondary,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.75em'
+          <div style={{ marginBottom: '1em' }}>
+            <h2 style={{ 
+              fontSize: '1.2rem', 
+              fontWeight: '700', 
+              color: theme.textPrimary, 
+              margin: '0 0 0.5em 0' 
             }}>
+              Mis Cursos
+            </h2>
+            
+            {/* Tabs para filtrar cursos */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.5rem', 
+              borderBottom: `1px solid ${theme.border}`,
+              paddingBottom: '0.75rem'
+            }}>
+              <button
+                onClick={() => setActiveTab('activos')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: activeTab === 'activos' 
+                    ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+                    : darkMode 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  color: activeTab === 'activos' ? '#fff' : theme.textSecondary,
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'activos') {
+                    e.currentTarget.style.background = darkMode 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'rgba(0, 0, 0, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'activos') {
+                    e.currentTarget.style.background = darkMode 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(0, 0, 0, 0.05)';
+                  }
+                }}
+              >
+                Cursos Activos
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('finalizados')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: activeTab === 'finalizados' 
+                    ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+                    : darkMode 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  color: activeTab === 'finalizados' ? '#fff' : theme.textSecondary,
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  if (activeTab !== 'finalizados') {
+                    e.currentTarget.style.background = darkMode 
+                      ? 'rgba(255, 255, 255, 0.1)' 
+                      : 'rgba(0, 0, 0, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeTab !== 'finalizados') {
+                    e.currentTarget.style.background = darkMode 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(0, 0, 0, 0.05)';
+                  }
+                }}
+              >
+                Cursos Finalizados
+              </button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '2.5em' }}>
               <div style={{
                 width: '1.25rem',
                 height: '1.25rem',
                 border: `0.125rem solid ${theme.textMuted}`,
                 borderTop: `0.125rem solid ${theme.accent}`,
                 borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 1em'
               }} />
-              Cargando cursos...
+              <p style={{ color: theme.textSecondary, fontSize: '1.1rem' }}>Cargando cursos...</p>
             </div>
-          </div>
-        ) : cursos.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '3.75em 1.25em'
-          }}>
-            <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '1em', opacity: 0.5 }} />
-            <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
-              No tienes cursos asignados
-            </h3>
-            <p style={{ color: theme.textMuted, margin: 0 }}>
-              Contacta con el administrador para más información
-            </p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: '0.75em' }}>
-            {cursos.map((curso) => (
-              <div
-                key={curso.id_curso}
-                onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
-                style={{
-                  padding: '0.875em',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '1em',
-                  border: `0.0625rem solid ${theme.border}`,
-                  transition: 'all 0.3s ease', 
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
-                  e.currentTarget.style.borderColor = theme.accent;
-                  e.currentTarget.style.transform = 'translateY(-0.125rem)';
-                  e.currentTarget.style.boxShadow = darkMode 
-                    ? '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.4)' 
-                    : '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
-                  e.currentTarget.style.borderColor = theme.border;
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.625em' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.375em' }}>
-                      <div style={{
-                        background: `${theme.accent}20`,
-                        color: theme.accent,
-                        padding: '0.1875em 0.625em',
-                        borderRadius: '1em',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}>
-                        {curso.codigo_curso}
+          ) : filteredCursos.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '3.75em 1.25em'
+            }}>
+              <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '1em', opacity: 0.5 }} />
+              <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
+                {activeTab === 'activos' 
+                  ? 'No tienes cursos activos' 
+                  : 'No tienes cursos finalizados'}
+              </h3>
+              <p style={{ color: theme.textMuted, margin: 0 }}>
+                {activeTab === 'activos' 
+                  ? 'Tus cursos activos aparecerán aquí cuando se asignen' 
+                  : 'Tus cursos finalizados aparecerán aquí cuando se completen'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '0.75em' }}>
+              {filteredCursos.map((curso) => (
+                <div
+                  key={curso.id_curso}
+                  onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
+                  style={{
+                    padding: '0.875em',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                    borderRadius: '1em',
+                    border: `0.0625rem solid ${theme.border}`,
+                    transition: 'all 0.3s ease', 
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+                    e.currentTarget.style.borderColor = theme.accent;
+                    e.currentTarget.style.transform = 'translateY(-0.125rem)';
+                    e.currentTarget.style.boxShadow = darkMode 
+                      ? '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.4)' 
+                      : '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
+                    e.currentTarget.style.borderColor = theme.border;
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.625em' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.375em' }}>
+                        <div style={{
+                          background: `${theme.accent}20`,
+                          color: theme.accent,
+                          padding: '0.1875em 0.625em',
+                          borderRadius: '1em',
+                          fontSize: '0.75rem',
+                          fontWeight: '600'
+                        }}>
+                          {curso.codigo_curso}
+                        </div>
+                        <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
+                          {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
+                        </span>
                       </div>
-                      <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
-                        {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
-                      </span>
-                    </div>
-                    <h3 style={{ 
-                      fontSize: '1.1rem', 
-                      fontWeight: '700', 
-                      color: theme.textPrimary, 
-                      margin: '0 0 0.5em 0' 
-                    }}>
-                      {curso.nombre}
-                    </h3>
+                      <h3 style={{ 
+                        fontSize: '1.1rem', 
+                        fontWeight: '700', 
+                        color: theme.textPrimary, 
+                        margin: '0 0 0.5em 0' 
+                      }}>
+                        {curso.nombre}
+                      </h3>
 
-                    {/* Información del aula */}
-                    {curso.aula_nombre && (
+                      {/* Información del aula */}
+                      {curso.aula_nombre && (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.5em',
+                          color: theme.textMuted,
+                          fontSize: '0.9rem',
+                          marginBottom: '0.5em'
+                        }}>
+                          <MapPin size={16} color={theme.success} />
+                          <span><strong style={{ color: theme.textPrimary }}>{curso.aula_nombre}</strong>{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}</span>
+                        </div>
+                      )}
+
                       <div style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '0.5em',
+                        gap: '0.375em',
                         color: theme.textMuted,
-                        fontSize: '0.9rem',
-                        marginBottom: '0.5em'
+                        fontSize: '0.8rem'
                       }}>
-                        <MapPin size={16} color={theme.success} />
-                        <span><strong style={{ color: theme.textPrimary }}>{curso.aula_nombre}</strong>{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}</span>
+                        <Users size={12} />
+                        <span>{curso.total_estudiantes} estudiantes matriculados</span>
                       </div>
-                    )}
+                    </div>
 
                     <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '0.375em',
-                      color: theme.textMuted,
-                      fontSize: '0.8rem'
+                      textAlign: 'right',
+                      minWidth: '6.25rem'
                     }}>
-                      <Users size={12} />
-                      <span>{curso.total_estudiantes} estudiantes matriculados</span>
-                    </div>
-                  </div>
-
-                  <div style={{ 
-                    textAlign: 'right',
-                    minWidth: '6.25rem'
-                  }}>
-                    <div style={{ 
-                      fontSize: '1.4rem', 
-                      fontWeight: '800', 
-                      color: theme.accent,
-                      lineHeight: 1
-                    }}>
-                      {curso.total_estudiantes}
-                    </div>
-                    <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
-                      de {curso.capacidad_maxima}
-                    </div>
-                    
-                    {/* Barra de progreso */}
-                    <div style={{ 
-                      width: '100%', 
-                      height: '0.375em', 
-                      background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                      borderRadius: '0.25em',
-                      overflow: 'hidden',
-                      marginTop: '0.375em'
-                    }}>
-                      <div style={{
-                        width: `${(curso.total_estudiantes / curso.capacidad_maxima) * 100}%`,
-                        height: '100%',
-                        background: `linear-gradient(90deg, ${theme.accent}, ${theme.accent}dd)`,
-                        borderRadius: '0.25em'
-                      }} />
-                    </div>
-                    <div style={{ 
-                      color: theme.textMuted, 
-                      fontSize: '0.7rem', 
-                      marginTop: '0.1875em' 
-                    }}>
-                      {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
+                      <div style={{ 
+                        fontSize: '1.4rem', 
+                        fontWeight: '800', 
+                        color: theme.accent,
+                        lineHeight: 1
+                      }}>
+                        {curso.total_estudiantes}
+                      </div>
+                      <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                        de {curso.capacidad_maxima}
+                      </div>
+                      
+                      {/* Barra de progreso */}
+                      <div style={{ 
+                        width: '100%', 
+                        height: '0.375em', 
+                        background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                        borderRadius: '0.25em',
+                        overflow: 'hidden',
+                        marginTop: '0.375em'
+                      }}>
+                        <div style={{
+                          width: `${(curso.total_estudiantes / curso.capacidad_maxima) * 100}%`,
+                          height: '100%',
+                          background: `linear-gradient(90deg, ${theme.accent}, ${theme.accent}dd)`,
+                          borderRadius: '0.25em'
+                        }} />
+                      </div>
+                      <div style={{ 
+                        color: theme.textMuted, 
+                        fontSize: '0.7rem', 
+                        marginTop: '0.1875em' 
+                      }}>
+                        {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Panel lateral */}
@@ -457,7 +552,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
-              {cursos.slice(0, 2).map((curso, index) => (
+              {cursos.filter(c => (c.estado || 'activo') === 'activo').slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
                   padding: '0.5em',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
@@ -491,7 +586,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                 </div>
               ))}
               
-              {cursos.length === 0 && (
+              {cursos.filter(c => (c.estado || 'activo') === 'activo').length === 0 && (
                 <div style={{
                   padding: '0.75em',
                   textAlign: 'center',
@@ -504,7 +599,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </div>
           </div>
 
-          {/* Acceso Rápido */}
+          {/* Acceso Rápido - Only change the Calificaciones button to navigate to Calificaciones.tsx */}
           <div style={{
             background: theme.cardBg,
             border: `0.0625rem solid ${theme.border}`,
@@ -519,7 +614,8 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
               <div style={{ position: 'relative' }}>
-                <button onClick={() => setShowDropdownCursos(!showDropdownCursos)} style={{
+                {/* Changed this button to navigate to Calificaciones.tsx instead of showing dropdown */}
+                <button onClick={() => navigate('/panel/docente/calificaciones')} style={{
                   width: '100%',
                   background: 'transparent',
                   border: `0.0625rem solid ${theme.border}`,
@@ -536,102 +632,8 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                 }}>
                   <TrendingUp size={14} />
                   Calificaciones
-                  <ChevronRight size={14} style={{ marginLeft: 'auto', transform: showDropdownCursos ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                  <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
                 </button>
-                
-                {showDropdownCursos && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    marginTop: '0.5em',
-                    background: darkMode ? '#1e293b' : '#ffffff',
-                    border: `1px solid ${theme.border}`,
-                    borderRadius: '0.5em',
-                    boxShadow: darkMode ? '0 0.5rem 1rem rgba(0,0,0,0.3)' : '0 0.5rem 1rem rgba(0,0,0,0.1)',
-                    zIndex: 1000,
-                    maxHeight: '300px',
-                    overflowY: 'auto'
-                  }}>
-                    {cursos.length === 0 ? (
-                      <div style={{
-                        padding: '1rem',
-                        textAlign: 'center',
-                        color: theme.textMuted,
-                        fontSize: '0.875rem'
-                      }}>
-                        No hay cursos
-                      </div>
-                    ) : (
-                      cursos.map((curso) => (
-                        <button
-                          key={curso.id_curso}
-                          onClick={() => {
-                            setCursoSelId(curso.id_curso);
-                            setCursoSelNombre(curso.nombre);
-                            setShowDropdownCursos(false);
-                            setShowCalif(true);
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            background: 'transparent',
-                            border: 'none',
-                            borderBottom: `1px solid ${theme.border}`,
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.25rem'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                          }}
-                        >
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                          }}>
-                            <span style={{
-                              background: `${theme.accent}20`,
-                              color: theme.accent,
-                              padding: '0.125rem 0.5rem',
-                              borderRadius: '0.25rem',
-                              fontSize: '0.7rem',
-                              fontWeight: '600'
-                            }}>
-                              {curso.codigo_curso}
-                            </span>
-                            <span style={{
-                              color: theme.textPrimary,
-                              fontSize: '0.875rem',
-                              fontWeight: '600'
-                            }}>
-                              {curso.nombre}
-                            </span>
-                          </div>
-                          <div style={{
-                            color: theme.textMuted,
-                            fontSize: '0.75rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            paddingLeft: '0.5rem'
-                          }}>
-                            <Users size={12} />
-                            {curso.total_estudiantes} estudiantes
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
               </div>
 
               <button onClick={() => navigate('/panel/docente/horario')} style={{

@@ -27,6 +27,8 @@ interface FormData {
   genero: '' | 'masculino' | 'femenino' | 'otro';
   montoMatricula: number;
   horarioPreferido: '' | 'matutino' | 'vespertino';
+  // Nuevo campo de contacto de emergencia
+  contactoEmergencia: string;
 }
 
 interface FormErrors {
@@ -66,7 +68,8 @@ import {
   Clock,
   Ban,
   BookOpen,
-  Hash
+  Hash,
+  Phone
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
@@ -231,13 +234,14 @@ const Pago: React.FC = () => {
     email: '',
     telefono: '',
     cedula: '',
-    pasaporte: '',
     tipoDocumento: '',
     fechaNacimiento: '',
     direccion: '',
     genero: '',
-    montoMatricula: curso?.precio || 0,
-    horarioPreferido: ''
+    montoMatricula: curso.precio,
+    horarioPreferido: '',
+    // Inicialización del contacto de emergencia
+    contactoEmergencia: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -252,6 +256,22 @@ const Pago: React.FC = () => {
   // Estados para pago en efectivo
   const [numeroComprobanteEfectivo, setNumeroComprobanteEfectivo] = useState('');
   const [recibidoPor, setRecibidoPor] = useState('');
+
+  // Establecer fecha de hoy automáticamente cuando se selecciona transferencia
+  useEffect(() => {
+    if (selectedPayment === 'transferencia') {
+      // Obtener fecha actual en zona horaria de Ecuador (UTC-5)
+      const now = new Date();
+      // Convertir a hora de Ecuador usando toLocaleString
+      const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+      const year = ecuadorDate.getFullYear();
+      const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
+      const day = String(ecuadorDate.getDate()).padStart(2, '0');
+      const today = `${year}-${month}-${day}`;
+      setFechaTransferencia(today);
+      console.log('Fecha Ecuador establecida:', today);
+    }
+  }, [selectedPayment]);
 
   // Estados para estudiante existente
   const [estudianteExistente, setEstudianteExistente] = useState<any>(null);
@@ -806,29 +826,29 @@ const Pago: React.FC = () => {
     }
   };
 
-  // Función para limpiar el número de comprobante al quitar archivo
-  const limpiarDatosComprobante = () => {
-    setNumeroComprobante('');
-  };
+// Función para limpiar el número de comprobante al quitar archivo
+const limpiarDatosComprobante = () => {
+setNumeroComprobante('');
+};
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Bloqueo por estado/cupos desde backend
-    if (isBlocked) {
-      alert(notFoundOrNoCourse
-        ? 'No existe cursos disponibles.'
-        : 'La matrícula para este curso está cerrada o no hay cupos disponibles.'
-      );
-      return;
-    }
-    if (!formData.tipoDocumento) {
-      alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
-      return;
-    }
-    if (!formData.horarioPreferido) {
-      alert('Selecciona el horario preferido (Matutino o Vespertino).');
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+e.preventDefault();
+// Bloqueo por estado/cupos desde backend
+if (isBlocked) {
+  alert(notFoundOrNoCourse
+    ? 'No existe cursos disponibles.'
+    : 'La matrícula para este curso está cerrada o no hay cupos disponibles.'
+  );
+  return;
+}
+if (!formData.tipoDocumento) {
+  alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
+  return;
+}
+if (!formData.horarioPreferido) {
+  alert('Selecciona el horario preferido (Matutino o Vespertino).');
+  return;
+}
 
     // VALIDAR SI HAY CUPOS DISPONIBLES PARA EL HORARIO SELECCIONADO
     const cuposParaHorario = cuposDisponibles.find(
@@ -1004,6 +1024,9 @@ const Pago: React.FC = () => {
         if (estudianteExistente) {
           body.append('id_estudiante_existente', String(estudianteExistente.id_usuario));
         }
+        
+        // Agregar contacto de emergencia
+        if (formData.contactoEmergencia) body.append('contacto_emergencia', formData.contactoEmergencia);
 
         // Para debug - convertir FormData a objeto
         debugInfo = {
@@ -1049,6 +1072,10 @@ const Pago: React.FC = () => {
         if (estudianteExistente) {
           debugInfo.id_estudiante_existente = estudianteExistente.id_usuario;
         }
+
+        // Agregar contacto de emergencia a los datos enviados
+        debugInfo.contacto_emergencia = formData.contactoEmergencia;
+        
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2369,7 +2396,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   direccion: '',
                                   genero: '',
                                   montoMatricula: curso?.precio || 0,
-                                  horarioPreferido: ''
+                                  horarioPreferido: '',
+                                  contactoEmergencia: ''
                                 });
                                 setErrors({});
                                 setDocumentoIdentificacion(null);
@@ -2415,7 +2443,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   direccion: '',
                                   genero: '',
                                   montoMatricula: curso?.precio || 0,
-                                  horarioPreferido: ''
+                                  horarioPreferido: '',
+                                  contactoEmergencia: ''
                                 });
                                 setErrors({});
                                 setDocumentoIdentificacion(null);
@@ -2739,6 +2768,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               />
                             </div>
 
+                            {/* Primera fila: Género y Email */}
                             <div className="form-row" style={{
                               display: 'grid',
                               gridTemplateColumns: '1fr 1fr',
@@ -2779,15 +2809,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   <option value="otro">Otro</option>
                                 </select>
                               </div>
-                            </div>
-
-                            <div className="form-row" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '20px',
-                              animation: 'scaleFade 1.2s ease-in-out',
-                              animationDelay: '240ms'
-                            }}>
                               <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '240ms' }}>
                                 <label style={{
                                   display: 'block',
@@ -2831,7 +2852,18 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   </div>
                                 )}
                               </div>
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
+                            </div>
+
+                            {/* Segunda fila: Teléfono y Contacto de Emergencia */}
+                            <div className="form-row" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '20px',
+                              marginBottom: '20px',
+                              animation: 'scaleFade 1.2s ease-in-out',
+                              animationDelay: '280ms'
+                            }}>
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '280ms' }}>
                                 <label style={{
                                   display: 'block',
                                   marginBottom: '8px',
@@ -2893,7 +2925,81 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   </div>
                                 )}
                               </div>
+                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
+                                <label style={{
+                                  display: 'block',
+                                  marginBottom: '8px',
+                                  fontWeight: '600',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}>
+                                  Contacto de Emergencia *
+                                </label>
+                                <input
+                                  type="tel"
+                                  required
+                                  inputMode="tel"
+                                  pattern="^09[0-9]{8}$"
+                                  maxLength={10}
+                                  minLength={10}
+                                  title="Teléfono de contacto de emergencia: 10 dígitos y empieza con 09"
+                                  value={formData.contactoEmergencia}
+                                  onChange={(e) => {
+                                    const val = (e.target as HTMLInputElement).value;
+                                    const filtered = val.replace(/\D/g, '');
+                                    setFormData({ ...formData, contactoEmergencia: filtered });
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: '2px solid rgba(251, 191, 36, 0.2)',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    transition: 'border-color 0.3s ease',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                    color: theme === 'dark' ? '#fff' : '#1f2937'
+                                  }}
+                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                                />
+                                {/* Validación de contacto de emergencia */}
+                                {formData.contactoEmergencia && formData.contactoEmergencia === formData.telefono && (
+                                  <div style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '8px',
+                                    padding: '12px',
+                                    marginTop: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    animation: 'shake 0.5s ease-in-out'
+                                  }}>
+                                    <AlertCircle size={18} color="#ef4444" />
+                                    <p style={{
+                                      color: '#ef4444',
+                                      fontSize: '0.85rem',
+                                      margin: 0,
+                                      fontWeight: '500',
+                                      lineHeight: '1.4'
+                                    }}>
+                                      ⚠️ El contacto de emergencia no puede ser igual a tu número de teléfono.
+                                      <br />
+                                      <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Por favor ingresa un número diferente para emergencias.</span>
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
 
+                            {/* Fila del Monto a Pagar */}
+                            <div className="form-row" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '20px',
+                              marginBottom: '20px',
+                              animation: 'scaleFade 1.2s ease-in-out',
+                              animationDelay: '340ms'
+                            }}>
                               {/* Campo Monto a Pagar */}
                               <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
                                 <label style={{
@@ -3126,6 +3232,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     <p style={{
                                       color: '#999',
                                       fontSize: '0.75rem'
+
                                     }}>
                                       PDF, JPG, PNG, WEBP (Máx. 5MB)
                                     </p>
@@ -3654,17 +3761,45 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 value={fechaTransferencia}
                                 onChange={(e) => setFechaTransferencia(e.target.value)}
                                 required
-                                max={new Date().toISOString().split('T')[0]}
+                                min={(() => {
+                                  const now = new Date();
+                                  const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+                                  const year = ecuadorDate.getFullYear();
+                                  const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
+                                  const day = String(ecuadorDate.getDate()).padStart(2, '0');
+                                  return `${year}-${month}-${day}`;
+                                })()}
+                                max={(() => {
+                                  const now = new Date();
+                                  const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+                                  const year = ecuadorDate.getFullYear();
+                                  const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
+                                  const day = String(ecuadorDate.getDate()).padStart(2, '0');
+                                  return `${year}-${month}-${day}`;
+                                })()}
+                                readOnly
                                 style={{
                                   width: '100%',
                                   padding: '12px 16px',
                                   borderRadius: '12px',
                                   border: '1px solid rgba(255, 255, 255, 0.2)',
                                   background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontSize: '1rem'
+                                  color: theme === 'dark' ? '#ffffff !important' : '#1f2937',
+                                  fontSize: '1rem',
+                                  cursor: 'not-allowed',
+                                  opacity: 1,
+                                  WebkitTextFillColor: theme === 'dark' ? '#ffffff' : '#1f2937',
+                                  colorScheme: theme === 'dark' ? 'dark' : 'light'
                                 }}
                               />
+                              <p style={{
+                                fontSize: '0.75rem',
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(31, 41, 55, 0.5)',
+                                marginTop: '4px',
+                                fontStyle: 'italic'
+                              }}>
+                                La fecha se establece automáticamente al día de hoy
+                              </p>
                             </div>
                           </div>
 
@@ -3678,19 +3813,22 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               fontWeight: '500'
                             }}>
                               Número de comprobante *
-                              <span style={{
-                                color: '#ef4444',
-                                fontSize: '0.8rem',
-                                marginLeft: '8px'
-                              }}>
-                                (Debe ser único - no se puede repetir)
-                              </span>
                             </label>
                             <input
                               type="text"
                               value={numeroComprobante}
-                              onChange={(e) => setNumeroComprobante(e.target.value.toUpperCase())}
-                              placeholder="Ej: 123456789, ABC-123-XYZ"
+                              onChange={(e) => {
+                                // Solo permitir números
+                                const value = e.target.value.replace(/\D/g, '');
+                                setNumeroComprobante(value);
+                              }}
+                              onKeyPress={(e) => {
+                                // Prevenir entrada de caracteres no numéricos
+                                if (!/[0-9]/.test(e.key)) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              placeholder="Ej: 123456789"
                               required
                               style={{
                                 width: '100%',
@@ -3710,7 +3848,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               lineHeight: 1.4
                             }}>
                               Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
-                              <strong style={{ color: '#fbbf24' }}> Este número debe ser único y no se puede repetir.</strong>
                             </p>
                           </div>
                         </div>
@@ -4077,8 +4214,18 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               <input
                                 type="text"
                                 value={numeroComprobanteEfectivo}
-                                onChange={(e) => setNumeroComprobanteEfectivo(e.target.value.toUpperCase())}
-                                placeholder="Ej: 001-001-000123456"
+                                onChange={(e) => {
+                                  // Solo permitir números
+                                  const value = e.target.value.replace(/\D/g, '');
+                                  setNumeroComprobanteEfectivo(value);
+                                }}
+                                onKeyPress={(e) => {
+                                  // Prevenir entrada de caracteres no numéricos
+                                  if (!/[0-9]/.test(e.key)) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                placeholder="Ej: 123456789"
                                 required
                                 style={{
                                   width: '100%',

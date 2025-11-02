@@ -55,8 +55,11 @@ const PanelAdministrativos = () => {
         if (response.ok) {
           const data = await response.json();
           console.log('👤 Datos del usuario recibidos:', data);
-          console.log('📝 Nombres:', data.nombres);
-          console.log('📝 Apellidos:', data.apellidos);
+          // Handle both nombre/nombres and apellido/apellidos for compatibility
+          const nombres = data.nombres || data.nombre || '';
+          const apellidos = data.apellidos || data.apellido || '';
+          console.log('📝 Nombres:', nombres);
+          console.log('📝 Apellidos:', apellidos);
           console.log('📝 Todas las propiedades:', Object.keys(data));
           setUserData(data);
         } else {

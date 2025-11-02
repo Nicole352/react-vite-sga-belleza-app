@@ -178,7 +178,8 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                 background: theme.cardBg,
                 border: `0.0625rem solid ${theme.border}`,
                 borderRadius: '0.75em',
-                padding: '1em',
+                padding: '2rem',
+                minHeight: '20rem',
                 backdropFilter: 'blur(0.625rem)',
                 boxShadow: darkMode ? '0 0.75rem 1.5rem rgba(0, 0, 0, 0.25)' : '0 0.75rem 1.5rem rgba(0, 0, 0, 0.08)',
                 transition: 'all 0.2s ease',
@@ -364,7 +365,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        backgroundColor: darkMode ? '#1a1a1a' : '#f9fafb',
         zIndex: 2000,
         overflowY: 'auto',
         overflowX: 'hidden'
@@ -394,7 +395,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
         </button>
         
         {/* Componente de Pagos Mensuales a pantalla completa */}
-        <div style={{ width: '100%', minHeight: '100%' }}>
+        <div style={{ width: '100%', minHeight: '100vh' }}>
           <PagosMenuales darkMode={darkMode} />
         </div>
       </div>

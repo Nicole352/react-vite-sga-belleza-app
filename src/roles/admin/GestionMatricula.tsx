@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight, Lock
+  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight, Lock, Sheet
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -465,7 +465,56 @@ const GestionMatricula = () => {
                 ]}
               />
             </div>
-            <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto', fontWeight: '600' }}>Refrescar</button>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
+              <button 
+                onClick={async () => {
+                  try {
+                    const response = await fetch(`${API_BASE}/api/solicitudes/reporte/excel`);
+                    if (!response.ok) throw new Error('Error descargando reporte');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Reporte_Matriculas_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                  } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al descargar el reporte');
+                  }
+                }}
+                style={{ 
+                  padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', 
+                  fontSize: '0.8rem', 
+                  borderRadius: '0.5rem', 
+                  border: '1px solid rgba(220, 38, 38, 0.3)', 
+                  background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))', 
+                  color: '#ef4444', 
+                  cursor: 'pointer', 
+                  width: isSmallScreen ? '100%' : 'auto', 
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.375rem',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.25))';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <Sheet size={16} />
+                Descargar Excel
+              </button>
+              <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto', fontWeight: '600' }}>Refrescar</button>
+            </div>
           </div>
         </div>
         {/* Counters + Pagination */}
@@ -1018,6 +1067,11 @@ const GestionMatricula = () => {
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Dirección</div>
                 <div style={{ color: '#fff' }}>{selected.direccion_solicitante || '-'}</div>
+              </div>
+              {/* Added emergency contact display */}
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Contacto de Emergencia</div>
+                <div style={{ color: '#fff' }}>{(selected as any).contacto_emergencia || '-'}</div>
               </div>
               <div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Solicitud</div>

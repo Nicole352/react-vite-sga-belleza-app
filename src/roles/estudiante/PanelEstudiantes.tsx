@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, UserCircle, Settings, Menu
+  BookOpen, UserCircle, Settings, Menu, Calendar
 } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
@@ -14,6 +14,7 @@ import Servicios from './Servicios';
 import Perfil from './Perfil';
 import Calificaciones from './Calificaciones';
 import DetalleCursoEstudiante from './DetalleCursoEstudiante';
+import MiHorario from './MiHorario';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -154,6 +155,7 @@ const PanelEstudiantes = () => {
 
   const tabs = [
     { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
+    { id: 'mi-horario', name: 'Mi Horario', icon: Calendar },
     { id: 'calificaciones', name: 'Calificaciones', icon: Settings },
     { id: 'servicios', name: 'Servicios', icon: Settings },
     { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
@@ -414,8 +416,8 @@ const PanelEstudiantes = () => {
             backdropFilter: 'blur(1.25rem)',
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '2em',
-            minHeight: '37.5rem',
+            padding: '1.5rem',
+            minHeight: 'calc(100vh - 4rem)',
             boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             <Routes>
@@ -424,6 +426,7 @@ const PanelEstudiantes = () => {
                 element={
                   <>
                     {activeTab === 'mi-aula' && <MiAula darkMode={darkMode} />}
+                    {activeTab === 'mi-horario' && <MiHorario darkMode={darkMode} />}
                     {activeTab === 'calificaciones' && <Calificaciones darkMode={darkMode} />}
                     {activeTab === 'servicios' && <Servicios darkMode={darkMode} />}
                     {activeTab === 'perfil' && <Perfil darkMode={darkMode} />}

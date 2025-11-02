@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Calendar, Clock, MapPin, AlertCircle, BarChart3, Eye, ChevronRight } from 'lucide-react';
-import ModalCalificaciones from './ModalCalificaciones';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -28,17 +27,23 @@ interface Curso {
 const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
   const navigate = useNavigate();
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [filteredCursos, setFilteredCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [modalCalificaciones, setModalCalificaciones] = useState<{ isOpen: boolean; cursoId: number; cursoNombre: string }>({
-    isOpen: false,
-    cursoId: 0,
-    cursoNombre: ''
-  });
+  const [activeTab, setActiveTab] = useState<'activos' | 'finalizados'>('activos');
 
   useEffect(() => {
     fetchMisCursos();
   }, []);
+
+  useEffect(() => {
+    // Filter courses based on active tab
+    if (activeTab === 'activos') {
+      setFilteredCursos(cursos.filter(curso => curso.estado === 'activo'));
+    } else {
+      setFilteredCursos(cursos.filter(curso => curso.estado === 'finalizado'));
+    }
+  }, [cursos, activeTab]);
 
   const fetchMisCursos = async () => {
     try {
@@ -150,66 +155,117 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         </p>
       </div>
 
-      {/* Estadísticas (ultra-compactas) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(7.5rem, 1fr))',
-        gap: '0.375em',
-        marginBottom: '1em'
+      {/* Tabs para filtrar cursos */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '0.5rem', 
+        marginBottom: '1rem',
+        borderBottom: `1px solid ${theme.border}`,
+        paddingBottom: '0.75rem'
       }}>
-        <div style={{
-          background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-          border: `0.0625rem solid ${theme.accent}30`,
-          borderRadius: '0.625em',
-          padding: '0.375em'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-            <BookOpen size={12} color={theme.accent} />
-            <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
-            <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.length}</span>
-          </div>
-        </div>
-
-        <div style={{
-          background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-          border: `0.0625rem solid ${theme.success}30`,
-          borderRadius: '0.625em',
-          padding: '0.375em'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-            <Users size={12} color={theme.success} />
-            <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Total Estudiantes:</span>
-            <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>{cursos.reduce((acc, curso) => acc + curso.total_estudiantes, 0)}</span>
-          </div>
-        </div>
+        <button
+          onClick={() => setActiveTab('activos')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: activeTab === 'activos' 
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+              : darkMode 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'rgba(0, 0, 0, 0.05)',
+            border: 'none',
+            borderRadius: '0.5rem',
+            color: activeTab === 'activos' ? '#fff' : theme.textSecondary,
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'activos') {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(0, 0, 0, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'activos') {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'rgba(0, 0, 0, 0.05)';
+            }
+          }}
+        >
+          Cursos Activos
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('finalizados')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: activeTab === 'finalizados' 
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+              : darkMode 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'rgba(0, 0, 0, 0.05)',
+            border: 'none',
+            borderRadius: '0.5rem',
+            color: activeTab === 'finalizados' ? '#fff' : theme.textSecondary,
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'finalizados') {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(0, 0, 0, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'finalizados') {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : 'rgba(0, 0, 0, 0.05)';
+            }
+          }}
+        >
+          Cursos Finalizados
+        </button>
       </div>
 
-      {/* Grid de Cursos Tipo Pinterest */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(20rem, 1fr))',
-        gap: '1em',
-        flex: 1
-      }}>
-        {cursos.length === 0 ? (
-          <div style={{
-            gridColumn: '1 / -1',
-            background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '60px 20px',
-            textAlign: 'center'
-          }}>
-            <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '16px', opacity: 0.5 }} />
-            <h3 style={{ color: theme.textPrimary, margin: '0 0 8px 0' }}>
-              No tienes cursos asignados
-            </h3>
-            <p style={{ color: theme.textMuted, margin: 0 }}>
-              Contacta con el administrador para más información
-            </p>
-          </div>
-        ) : (
-          cursos.map((curso, index) => {
+      {/* Lista de Cursos */}
+      {filteredCursos.length === 0 ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '3em 1em',
+          background: theme.cardBg,
+          border: `0.0625rem solid ${theme.border}`,
+          borderRadius: '1em',
+          backdropFilter: 'blur(1.25rem)',
+          boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
+        }}>
+          <BookOpen size={48} style={{ margin: '0 auto 1em', color: theme.textMuted, opacity: 0.5 }} />
+          <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
+            {activeTab === 'activos' 
+              ? 'No tienes cursos activos' 
+              : 'No tienes cursos finalizados'}
+          </h3>
+          <p style={{ color: theme.textMuted, margin: 0 }}>
+            {activeTab === 'activos' 
+              ? 'Tus cursos activos aparecerán aquí' 
+              : 'Tus cursos finalizados aparecerán aquí'}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(21.875rem, 1fr))', gap: '1.25em' }}>
+          {filteredCursos.map((curso, index) => {
             const coloresGradiente = [
               ['#3b82f6', '#2563eb'],
               ['#10b981', '#059669'],
@@ -502,11 +558,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setModalCalificaciones({
-                          isOpen: true,
-                          cursoId: curso.id_curso,
-                          cursoNombre: curso.nombre
-                        });
+                        navigate(`/panel/docente/calificaciones/${curso.id_curso}`);
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = color1;
@@ -523,18 +575,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
-
-      {/* Modal de Calificaciones */}
-      <ModalCalificaciones
-        isOpen={modalCalificaciones.isOpen}
-        onClose={() => setModalCalificaciones({ isOpen: false, cursoId: 0, cursoNombre: '' })}
-        cursoId={modalCalificaciones.cursoId}
-        cursoNombre={modalCalificaciones.cursoNombre}
-        darkMode={darkMode}
-      />
+          })}
+        </div>
+      )}
     </div>
   );
 };

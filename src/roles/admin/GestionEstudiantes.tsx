@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard
+  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard, Download, FileText, Shield, Sheet
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
@@ -11,6 +11,14 @@ import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
 // Tipos
+interface Curso {
+  id_curso: number;
+  nombre: string;
+  codigo_curso: string;
+  horario: string;
+  estado: string;
+}
+
 interface Estudiante {
   id_usuario: number;
   identificacion: string;
@@ -25,6 +33,13 @@ interface Estudiante {
   estado: 'activo' | 'inactivo' | 'pendiente';
   fecha_registro: string;
   fecha_ultima_conexion?: string;
+  // Nuevos campos de documentos y contacto
+  contacto_emergencia?: string;
+  tipo_documento?: 'ecuatoriano' | 'extranjero';
+  tiene_documento_identificacion?: boolean;
+  tiene_documento_estatus_legal?: boolean;
+  id_solicitud?: number; // Para descargar documentos
+  cursos?: Curso[]; // Cursos inscritos
 }
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -224,29 +239,78 @@ const GestionEstudiantes = () => {
             </div>
           </div>
 
-          {/* Botón Refrescar */}
-          <button 
-            onClick={fetchEstudiantes}
-            disabled={loading}
-            style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-              background: loading ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
-              border: 'none',
-              borderRadius: '0.625rem',
-              color: '#fff',
-              fontSize: '0.8rem',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
-              width: isSmallScreen ? '100%' : 'auto'
-            }}
-          >
-            {loading ? 'Cargando...' : 'Refrescar'}
-          </button>
+          {/* Botones Excel y Refrescar */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
+            <button 
+              onClick={async () => {
+                try {
+                  const response = await fetch(`${API_BASE}/api/estudiantes/reporte/excel`);
+                  if (!response.ok) throw new Error('Error descargando reporte');
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `Reporte_Estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } catch (error) {
+                  console.error('Error:', error);
+                  alert('Error al descargar el reporte');
+                }
+              }}
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))',
+                border: '1px solid rgba(220, 38, 38, 0.3)',
+                borderRadius: '0.625rem',
+                color: '#ef4444',
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                width: isSmallScreen ? '100%' : 'auto'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.25))';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Sheet size={16} />
+              Descargar Excel
+            </button>
+            <button 
+              onClick={fetchEstudiantes}
+              disabled={loading}
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                background: loading ? 'rgba(239, 68, 68, 0.3)' : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+                border: 'none',
+                borderRadius: '0.625rem',
+                color: '#fff',
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+                width: isSmallScreen ? '100%' : 'auto'
+              }}
+            >
+              {loading ? 'Cargando...' : 'Refrescar'}
+            </button>
+          </div>
         </div>
       </GlassEffect>
 
@@ -618,25 +682,20 @@ const GestionEstudiantes = () => {
                     borderTop: index > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none',
                     transition: 'background-color 0.2s'
                   }}>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ 
-                          width: 40, 
-                          height: 40, 
-                          borderRadius: '50%', 
-                          background: 'rgba(239, 68, 68, 0.15)', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center' 
-                        }}>
-                          <User size={18} color={RedColorPalette.primary} />
-                        </div>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <UserAvatar
+                          nombre={estudiante.nombre}
+                          apellido={estudiante.apellido}
+                          userId={estudiante.id_usuario}
+                          size={2.25}
+                        />
                         <div>
                           <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.9rem' }}>
                             {estudiante.nombre} {estudiante.apellido}
                           </div>
                           {estudiante.telefono && (
-                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>
+                            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>
                               {estudiante.telefono}
                             </div>
                           )}
@@ -858,7 +917,8 @@ const GestionEstudiantes = () => {
               display: 'grid', 
               gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', 
               gap: isMobile ? 10 : 12,
-              columnGap: isSmallScreen ? 0 : 16
+              columnGap: isSmallScreen ? 0 : 16,
+              marginBottom: isMobile ? 16 : 20
             }}>
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
@@ -928,6 +988,57 @@ const GestionEstudiantes = () => {
                   <div style={{ color: '#fff', textTransform: 'capitalize', fontSize: '0.9rem' }}>{selectedEstudiante.genero}</div>
                 </div>
               )}
+              
+              {/* Cursos Inscritos */}
+              {selectedEstudiante.cursos && selectedEstudiante.cursos.length > 0 && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 6, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.75rem' }}>
+                    <GraduationCap size={13} style={{ color: '#f87171' }} />
+                    Cursos Inscritos
+                  </label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {selectedEstudiante.cursos.map((curso) => (
+                      <div
+                        key={curso.id_curso}
+                        style={{
+                          padding: isMobile ? '8px 10px' : '8px 12px',
+                          background: 'rgba(248, 113, 113, 0.1)',
+                          border: '1px solid rgba(248, 113, 113, 0.3)',
+                          borderRadius: isMobile ? 6 : 8,
+                          display: 'flex',
+                          flexDirection: isSmallScreen ? 'column' : 'row',
+                          justifyContent: 'space-between',
+                          alignItems: isSmallScreen ? 'flex-start' : 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <div>
+                          <div style={{ color: '#f87171', fontWeight: '600', fontSize: isMobile ? '0.8rem' : '0.85rem' }}>
+                            {curso.nombre}
+                          </div>
+                          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: isMobile ? '0.7rem' : '0.75rem', marginTop: '2px' }}>
+                            {curso.codigo_curso} • {curso.horario}
+                          </div>
+                        </div>
+                        <span style={{
+                          display: 'inline-flex',
+                          padding: '3px 8px',
+                          borderRadius: '9999px',
+                          fontSize: isMobile ? '0.65rem' : '0.7rem',
+                          fontWeight: '600',
+                          textTransform: 'capitalize',
+                          background: curso.estado === 'activo' ? 'rgba(220, 38, 38, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                          border: curso.estado === 'activo' ? '1px solid rgba(220, 38, 38, 0.4)' : '1px solid rgba(239, 68, 68, 0.4)',
+                          color: curso.estado === 'activo' ? '#dc2626' : '#ef4444'
+                        }}>
+                          {curso.estado}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {selectedEstudiante.direccion && (
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
@@ -970,7 +1081,153 @@ const GestionEstudiantes = () => {
                 </label>
                 <div style={{ color: '#fff', fontSize: '0.9rem' }}>{formatDate(selectedEstudiante.fecha_registro)}</div>
               </div>
+              {selectedEstudiante.contacto_emergencia && (
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: 'rgba(255,255,255,0.9)', fontWeight: 500, fontSize: '0.8rem' }}>
+                    <Phone size={14} style={{ color: '#ef4444' }} />
+                    Contacto de Emergencia
+                  </label>
+                  <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '600' }}>
+                    {selectedEstudiante.contacto_emergencia}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Sección de Documentos - Solo muestra el que corresponde */}
+            {(selectedEstudiante.tiene_documento_identificacion || selectedEstudiante.tiene_documento_estatus_legal) && (
+              <div style={{
+                marginTop: isMobile ? 12 : 16,
+                padding: isMobile ? 10 : 12,
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: isMobile ? 8 : 10
+              }}>
+                <h4 style={{
+                  margin: 0,
+                  marginBottom: isMobile ? 8 : 10,
+                  fontSize: isMobile ? '0.8rem' : '0.85rem',
+                  fontWeight: '600',
+                  color: '#ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <FileText size={14} />
+                  Documentos del Estudiante
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: selectedEstudiante.tipo_documento === 'extranjero' ? (isSmallScreen ? '1fr' : '1fr 1fr') : '1fr',
+                  gap: isMobile ? 6 : 8
+                }}>
+                  {/* Ecuatoriano: solo cédula */}
+                  {selectedEstudiante.tipo_documento === 'ecuatoriano' && selectedEstudiante.tiene_documento_identificacion && (
+                    <a
+                      href={`${API_BASE}/api/solicitudes/${selectedEstudiante.id_solicitud}/documento-identificacion`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: isMobile ? '8px 12px' : '10px 14px',
+                        background: 'rgba(220, 38, 38, 0.12)',
+                        border: '1px solid rgba(220, 38, 38, 0.3)',
+                        borderRadius: isMobile ? 6 : 8,
+                        color: '#dc2626',
+                        fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.2)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.12)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <Download size={14} />
+                      Ver Cédula
+                    </a>
+                  )}
+                  {/* Extranjero: pasaporte Y estatus legal */}
+                  {selectedEstudiante.tipo_documento === 'extranjero' && selectedEstudiante.tiene_documento_identificacion && (
+                    <a
+                      href={`${API_BASE}/api/solicitudes/${selectedEstudiante.id_solicitud}/documento-identificacion`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: isMobile ? '8px 12px' : '10px 14px',
+                        background: 'rgba(220, 38, 38, 0.12)',
+                        border: '1px solid rgba(220, 38, 38, 0.3)',
+                        borderRadius: isMobile ? 6 : 8,
+                        color: '#dc2626',
+                        fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.2)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(220, 38, 38, 0.12)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <Download size={14} />
+                      Ver Pasaporte
+                    </a>
+                  )}
+                  {selectedEstudiante.tipo_documento === 'extranjero' && selectedEstudiante.tiene_documento_estatus_legal && (
+                    <a
+                      href={`${API_BASE}/api/solicitudes/${selectedEstudiante.id_solicitud}/documento-estatus-legal`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: isMobile ? '8px 12px' : '10px 14px',
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: isMobile ? 6 : 8,
+                        color: '#ef4444',
+                        fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        textDecoration: 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <Shield size={14} />
+                      Ver Estatus Legal
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Botón Cerrar */}
             <div style={{ 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
-import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList } from 'lucide-react';
+import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList, Award } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
@@ -15,6 +15,8 @@ import MiPerfil from './MiPerfil';
 import DetalleCursoDocente from './DetalleCursoDocente';
 import TomarAsistencia from './TomarAsistencia';
 import AnalisisEntregas from './AnalisisEntregas';
+import CalificacionesCurso from './CalificacionesCurso';
+import Calificaciones from './Calificaciones';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -36,7 +38,7 @@ const PanelDocentes = () => {
   const [isFirstLogin, setIsFirstLogin] = useState(true);
   const [userData, setUserData] = useState<{ nombres?: string; apellidos?: string } | null>(null);
 
-  // Función para obtener datos del usuario
+  // Obtener datos del usuario
   const fetchUserData = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
@@ -48,7 +50,14 @@ const PanelDocentes = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setUserData(data);
+        console.log('Datos del usuario docente:', data);
+        // Handle both nombre/nombres and apellido/apellidos for compatibility
+        const userDataWithNames = {
+          ...data,
+          nombres: data.nombres || data.nombre || '',
+          apellidos: data.apellidos || data.apellido || ''
+        };
+        setUserData(userDataWithNames);
       }
     } catch (error) {
       console.error('Error obteniendo datos del usuario:', error);
@@ -153,6 +162,7 @@ const PanelDocentes = () => {
     { id: 'cursos', name: 'Mis Cursos', icon: BookOpen },
     { id: 'estudiantes', name: 'Mis Estudiantes', icon: Users },
     { id: 'asistencia', name: 'Asistencia', icon: ClipboardList },
+    { id: 'calificaciones', name: 'Calificaciones', icon: Award },
     { id: 'horario', name: 'Mi Horario', icon: Calendar },
     { id: 'perfil', name: 'Mi Perfil', icon: Settings }
   ];
@@ -268,7 +278,11 @@ const PanelDocentes = () => {
                   key={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);
-                    navigate('/panel/docente');
+                    if (tab.id === 'calificaciones') {
+                      navigate('/panel/docente/calificaciones');
+                    } else {
+                      navigate('/panel/docente');
+                    }
                   }}
                   title={sidebarCollapsed ? tab.name : ''}
                   style={{
@@ -414,6 +428,7 @@ const PanelDocentes = () => {
                   {activeTab === 'cursos' && <MisCursos darkMode={darkMode} />}
                   {activeTab === 'estudiantes' && <MisEstudiantes darkMode={darkMode} />}
                   {activeTab === 'asistencia' && <TomarAsistencia darkMode={darkMode} />}
+                  {activeTab === 'calificaciones' && <Calificaciones darkMode={darkMode} />}
                   {activeTab === 'horario' && <MiHorario darkMode={darkMode} />}
                   {activeTab === 'perfil' && <MiPerfil darkMode={darkMode} />}
                 </>
@@ -422,6 +437,8 @@ const PanelDocentes = () => {
               <Route path="/horario" element={<MiHorario darkMode={darkMode} />} />
               <Route path="/curso/:id" element={<DetalleCursoDocente darkMode={darkMode} />} />
               <Route path="/analisis-entregas/:id_tarea" element={<AnalisisEntregas />} />
+              <Route path="/calificaciones" element={<Calificaciones darkMode={darkMode} />} />
+              <Route path="/calificaciones/:id" element={<CalificacionesCurso darkMode={darkMode} />} />
             </Routes>
           </div>
         </div>

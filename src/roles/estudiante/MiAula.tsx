@@ -59,6 +59,8 @@ interface UserData {
   id_usuario: number;
   nombre: string;
   apellido: string;
+  nombres?: string;
+  apellidos?: string;
   email: string;
   rol: string;
 }
@@ -201,7 +203,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               color: theme.textPrimary,
               margin: '0 0 0.25em 0'
             }}>
-              <Hand size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}!
+              <Hand size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos || ''}` : (userData?.nombre ? `, ${userData.nombre} ${userData.apellido || ''}` : '')}!
             </h1>
             <p style={{
               color: theme.textSecondary,
@@ -232,61 +234,62 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         {/* Estadísticas rápidas (ultra-compactas, una sola línea) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(min(7.5rem, 90vw), 1fr))', gap: '0.375em' }}>
           <div style={{
-            background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-            border: `0.0625rem solid ${theme.success}30`,
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Target size={12} color={theme.success} />
-              <span style={{ color: theme.success, fontSize: '0.7rem', fontWeight: '700' }}>Progreso General:</span>
-              <span style={{ color: theme.success, fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.length > 0 ?
-                  Math.round(cursosMatriculados.reduce((acc, curso) => acc + curso.progreso, 0) / cursosMatriculados.length) : 0}%
-              </span>
-            </div>
-          </div>
-
-          <div style={{
-            background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-            border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <BookOpen size={12} color="#3b82f6" />
-              <span style={{ color: '#3b82f6', fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
-            </div>
-          </div>
-
-          <div style={{
-            background: darkMode ? `rgba(251, 191, 36, 0.1)` : `rgba(251, 191, 36, 0.05)`,
+            background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
             border: `0.0625rem solid ${theme.accent}30`,
             borderRadius: '0.625em',
             padding: '0.375em'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Star size={12} color={theme.accent} />
-              <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
+              <Target size={12} color={theme.accent} />
+              <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Progreso General:</span>
               <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.length > 0 ?
-                  (cursosMatriculados.reduce((acc, curso) => acc + curso.calificacion, 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+                {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.progreso !== undefined && curso.progreso !== null) ?
+                  Math.round(cursosMatriculados.reduce((acc, curso) => acc + (curso.progreso || 0), 0) / cursosMatriculados.length) : 0}%
               </span>
             </div>
           </div>
 
           <div style={{
-            background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
-            border: '0.0625rem solid rgba(139, 92, 246, 0.3)',
+            background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
+            border: '0.0625rem solid rgba(245, 158, 11, 0.3)',
             borderRadius: '0.625em',
             padding: '0.375em'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Award size={12} color="#8b5cf6" />
-              <span style={{ color: '#8b5cf6', fontSize: '0.7rem', fontWeight: '700' }}>Tareas Pendientes:</span>
-              <span style={{ color: '#8b5cf6', fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.reduce((acc, curso) => acc + curso.tareasPendientes, 0)}
+              <BookOpen size={12} color="#f59e0b" />
+              <span style={{ color: '#f59e0b', fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
+              <span style={{ color: '#f59e0b', fontSize: '0.9rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
+            </div>
+          </div>
+
+          <div style={{
+            background: darkMode ? `rgba(217, 119, 6, 0.1)` : `rgba(217, 119, 6, 0.05)`,
+            border: `0.0625rem solid rgba(217, 119, 6, 0.3)`,
+            borderRadius: '0.625em',
+            padding: '0.375em'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
+              <Star size={12} color="#d97706" />
+              <span style={{ color: '#d97706', fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
+              <span style={{ color: '#d97706', fontSize: '0.9rem', fontWeight: '800' }}>
+                {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.calificacion !== undefined && curso.calificacion !== null) ?
+                  (cursosMatriculados.reduce((acc, curso) => acc + (curso.calificacion || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+              </span>
+            </div>
+          </div>
+
+          <div style={{
+            background: darkMode ? 'rgba(184, 134, 11, 0.1)' : 'rgba(184, 134, 11, 0.05)',
+            border: '0.0625rem solid rgba(184, 134, 11, 0.3)',
+            borderRadius: '0.625em',
+            padding: '0.375em'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
+              <Award size={12} color="#b8860b" />
+              <span style={{ color: '#b8860b', fontSize: '0.7rem', fontWeight: '700' }}>Tareas Pendientes:</span>
+              <span style={{ color: '#b8860b', fontSize: '0.9rem', fontWeight: '800' }}>
+                {cursosMatriculados.length > 0 ?
+                  cursosMatriculados.reduce((acc, curso) => acc + (curso.tareasPendientes || 0), 0) : 0}
               </span>
             </div>
           </div>
@@ -298,12 +301,12 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         <div style={{
           background: theme.cardBg,
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '1.25rem',
-          padding: '0.75em',
+          borderRadius: '1rem',
+          padding: '0.625em',
           backdropFilter: 'blur(1.25rem)',
           boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
         }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 12px 0' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.625em 0' }}>
             Mis Cursos en Progreso
           </h2>
 
@@ -381,256 +384,334 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 key={curso.id_curso}
                 onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
                 style={{
-                  padding: '0.875em',
+                  padding: '0.5em',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '1em',
+                  borderRadius: '0.75em',
                   border: `0.0625rem solid ${theme.border}`,
                   transition: 'all 0.3s ease',
                   cursor: 'pointer'
                 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.625em' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5em' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.375em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.2em' }}>
                       <div style={{
-                        background: `${theme.success}20`,
-                        color: theme.success,
-                        padding: '0.1875em 0.625em',
-                        borderRadius: '1em',
-                        fontSize: '0.75rem',
+                        background: darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.15)',
+                        color: theme.accent,
+                        padding: '0.2em 0.625em',
+                        borderRadius: '0.75em',
+                        fontSize: '0.7rem',
                         fontWeight: '600'
                       }}>
                         {curso.codigo_curso || `CURSO-${curso.id_curso}`}
                       </div>
-                      <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
-                        {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
-                      </span>
                     </div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.textPrimary, margin: '0 0 0.2em 0', lineHeight: '1.2' }}>
                       {curso.nombre || 'Curso sin nombre'}
                     </h3>
-
-                    {/* Información del curso en grid profesional */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: '0.5em',
-                      marginBottom: '0.625em',
-                      padding: '0.5em',
-                      background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
-                      borderRadius: '0.75em',
-                      border: `0.0625rem solid ${theme.border}`
-                    }}>
-                      {/* Docente */}
-                      {curso.docente?.nombre_completo && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                            <GraduationCap size={16} color="#3b82f6" />
-                            <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03125em' }}>
-                              Docente
-                            </span>
-                          </div>
-                          <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600', lineHeight: '1.3' }}>
-                            {curso.docente.nombre_completo}
-                          </div>
-                          {curso.docente.titulo && (
-                            <div style={{ color: theme.textMuted, fontSize: '0.75rem', fontStyle: 'italic' }}>
-                              {curso.docente.titulo}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Aula */}
-                      {curso.aula?.nombre && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                            <MapPin size={16} color={theme.success} />
-                            <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03125em' }}>
-                              Aula
-                            </span>
-                          </div>
-                          <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
-                            {curso.aula.nombre}
-                          </div>
-                          {curso.aula.ubicacion && (
-                            <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
-                              <MapPin size={12} style={{ display: 'inline', marginRight: '0.25em' }} /> {curso.aula.ubicacion}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Horario */}
-                      {curso.horario?.hora_inicio && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25em' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                            <Clock size={16} color={theme.accent} />
-                            <span style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03125em' }}>
-                              Horario
-                            </span>
-                          </div>
-                          <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
-                            {curso.horario.hora_inicio?.substring(0, 5)} - {curso.horario.hora_fin?.substring(0, 5)}
-                          </div>
-                          {curso.horario.dias && (
-                            <div style={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '0.25em',
-                              marginTop: '0.125em'
-                            }}>
-                              {curso.horario.dias.split(',').map((dia: string, idx: number) => (
-                                <span key={idx} style={{
-                                  padding: '0.125em 0.375em',
-                                  background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.1)',
-                                  color: theme.accent,
-                                  fontSize: '0.7rem',
-                                  fontWeight: '600',
-                                  borderRadius: '0.25em',
-                                  border: `0.0625rem solid ${theme.accent}30`
-                                }}>
-                                  {dia.trim()}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.375em' }}>
+                    <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3em' }}>
                       <Calendar size={12} />
-                      Próxima clase: {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      Inicio: {curso.fecha_inicio ? new Date(curso.fecha_inicio).toLocaleDateString() : 'Fecha por definir'}
                     </p>
                   </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.375em' }}>
-                      <Star size={14} color={theme.accent} />
-                      <span style={{ color: theme.accent, fontSize: '0.95rem', fontWeight: '600' }}>
-                        {curso.calificacion}/10
+                  <div style={{ textAlign: 'right', marginLeft: '0.5em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.2em' }}>
+                      <Star size={12} color={theme.accent} />
+                      <span style={{ color: theme.accent, fontSize: '0.8rem', fontWeight: '600' }}>
+                        {curso.calificacion !== undefined && curso.calificacion !== null ? curso.calificacion.toFixed(1) : '0.0'}/10
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: theme.textMuted }}>
-                      Progreso: {curso.progreso}%
+                    <div style={{ fontSize: '0.7rem', color: theme.textMuted }}>
+                      Progreso: {curso.progreso !== undefined && curso.progreso !== null ? Math.round(curso.progreso) : 0}%
                     </div>
                   </div>
                 </div>
 
-                {/* Barra de progreso */}
-                <div style={{ marginBottom: '0.625em' }}>
-                  <div style={{
-                    width: '100%',
-                    height: '0.375em',
-                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                    borderRadius: '0.25em',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${curso.progreso}%`,
-                      height: '100%',
-                      background: `linear-gradient(90deg, ${theme.success}, ${theme.success}dd)`,
-                      borderRadius: '0.25em',
-                      transition: 'width 0.3s ease'
-                    }} />
+                {/* Información del curso en grid profesional */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '0.5em',
+                  marginBottom: '0.5em'
+                }}>
+                  {/* Docente */}
+                  {curso.docente?.nombre_completo && (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '0.3em',
+                      padding: '0.375em',
+                      background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.06)',
+                      borderRadius: '0.5em',
+                      border: `0.0625rem solid ${theme.accent}25`
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+                        <GraduationCap size={12} color={theme.accent} />
+                        <span style={{ 
+                          background: theme.accent,
+                          color: '#fff',
+                          fontSize: '0.6rem', 
+                          fontWeight: '700', 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '0.03em',
+                          padding: '0.125em 0.35em',
+                          borderRadius: '0.25em',
+                          display: 'inline-block'
+                        }}>
+                          Docente
+                        </span>
+                      </div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600', lineHeight: '1.3' }}>
+                        {curso.docente.nombre_completo}
+                      </div>
+                      {curso.docente.titulo && (
+                        <div style={{ color: theme.textMuted, fontSize: '0.7rem', fontStyle: 'italic' }}>
+                          {curso.docente.titulo}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Aula */}
+                  {curso.aula?.nombre && (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '0.3em',
+                      padding: '0.375em',
+                      background: darkMode ? 'rgba(245, 158, 11, 0.08)' : 'rgba(245, 158, 11, 0.06)',
+                      borderRadius: '0.5em',
+                      border: `0.0625rem solid rgba(245, 158, 11, 0.25)`
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+                        <MapPin size={12} color="#f59e0b" />
+                        <span style={{ 
+                          background: '#f59e0b',
+                          color: '#fff',
+                          fontSize: '0.6rem', 
+                          fontWeight: '700', 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '0.03em',
+                          padding: '0.125em 0.35em',
+                          borderRadius: '0.25em',
+                          display: 'inline-block'
+                        }}>
+                          Aula
+                        </span>
+                      </div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600' }}>
+                        {curso.aula.nombre}
+                      </div>
+                      {curso.aula.ubicacion && (
+                        <div style={{ color: theme.textMuted, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+                          <MapPin size={10} /> {curso.aula.ubicacion}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Horario */}
+                  {curso.horario?.hora_inicio && (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '0.3em',
+                      padding: '0.375em',
+                      background: darkMode ? 'rgba(217, 119, 6, 0.08)' : 'rgba(217, 119, 6, 0.06)',
+                      borderRadius: '0.5em',
+                      border: `0.0625rem solid rgba(217, 119, 6, 0.25)`
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
+                        <Clock size={12} color="#d97706" />
+                        <span style={{ 
+                          background: '#d97706',
+                          color: '#fff',
+                          fontSize: '0.6rem', 
+                          fontWeight: '700', 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '0.03em',
+                          padding: '0.125em 0.35em',
+                          borderRadius: '0.25em',
+                          display: 'inline-block'
+                        }}>
+                          Horario
+                        </span>
+                      </div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600', marginBottom: '0.2em' }}>
+                        {curso.horario.hora_inicio?.substring(0, 5)} - {curso.horario.hora_fin?.substring(0, 5)}
+                      </div>
+                      {curso.horario.dias && (
+                        <div style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '0.25em'
+                        }}>
+                          {curso.horario.dias.split(',').map((dia: string, idx: number) => (
+                            <span key={idx} style={{
+                              padding: '0.15em 0.4em',
+                              background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.12)',
+                              color: theme.accent,
+                              fontSize: '0.65rem',
+                              fontWeight: '600',
+                              borderRadius: '0.25em',
+                              border: `0.0625rem solid ${theme.accent}30`,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {dia.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Progreso del curso y tareas */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3em', marginBottom: '0.5em' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', marginBottom: '0.2em' }}>
+                        <span style={{ color: theme.textMuted, fontWeight: '500' }}>Progreso</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                          <span style={{ color: theme.textPrimary, fontWeight: '600', fontSize: '0.7rem' }}>
+                            {curso.progreso !== undefined && curso.progreso !== null ? `${Math.round(curso.progreso)}%` : '0%'}
+                          </span>
+                          <span style={{
+                            padding: '0.125em 0.35em',
+                            background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.12)',
+                            borderRadius: '0.25em',
+                            border: `0.0625rem solid ${theme.accent}30`,
+                            color: theme.accent,
+                            fontSize: '0.65rem',
+                            fontWeight: '700'
+                          }}>
+                            {curso.calificacion !== undefined && curso.calificacion !== null ? curso.calificacion.toFixed(1) : '0.0'}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{
+                        height: '0.4em',
+                        background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                        borderRadius: '0.2em',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          height: '100%',
+                          width: `${curso.progreso !== undefined && curso.progreso !== null ? curso.progreso : 0}%`,
+                          background: `linear-gradient(90deg, ${theme.accent}, #f59e0b)`,
+                          borderRadius: '0.2em'
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Estado de tareas */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', fontSize: '0.7rem' }}>
+                    <CheckCircle size={11} color={curso.tareasPendientes === 0 ? '#f59e0b' : theme.warning} />
+                    <span style={{
+                      color: curso.tareasPendientes === 0 ? '#f59e0b' : theme.warning,
+                      fontWeight: '600'
+                    }}>
+                      {curso.tareasPendientes === 0 ? 'Al día con las tareas' : `${curso.tareasPendientes} tareas pendientes`}
+                    </span>
                   </div>
                 </div>
 
                 {/* Acciones */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                    {curso.tareasPendientes > 0 ? (
-                      <>
-                        <AlertCircle size={14} color={theme.warning} />
-                        <span style={{ color: theme.warning, fontSize: '0.85rem', fontWeight: '600' }}>
-                          {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} pendiente{curso.tareasPendientes > 1 ? 's' : ''}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle size={14} color={theme.success} />
-                        <span style={{ color: theme.success, fontSize: '0.85rem', fontWeight: '600' }}>
-                          Al día con las tareas
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '0.5em' }}>
-                    {curso.tareasPendientes > 0 ? (
-                      <button
-                        onClick={() => {
-                          console.log('Subir tarea para curso:', curso.nombre);
-                        }}
-                        style={{
-                          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '0.5em',
-                          padding: '0.375em 0.75em',
-                          fontSize: '0.85rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        <Upload size={14} />
-                        Subir Tarea
-                      </button>
-                    ) : (
-                      <button
-                        style={{
-                          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          padding: '6px 12px',
-                          fontSize: '0.85rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        <Play size={14} />
-                        Continuar
-                      </button>
-                    )}
-
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4em' }}>
+                  {curso.tareasPendientes > 0 ? (
                     <button
-                      onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
+                      onClick={() => {
+                        console.log('Subir tarea para curso:', curso.nombre);
+                      }}
                       style={{
-                        background: 'transparent',
-                        color: theme.accent,
-                        border: `1px solid ${theme.accent}30`,
-                        borderRadius: '8px',
-                        padding: '6px 12px',
-                        fontSize: '0.85rem',
+                        background: `linear-gradient(135deg, ${theme.accent}, #f59e0b)`,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '0.5em',
+                        padding: '0.4em 0.75em',
+                        fontSize: '0.8rem',
                         fontWeight: '600',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        transition: 'all 0.3s ease'
+                        gap: '0.4em',
+                        transition: 'all 0.3s ease',
+                        boxShadow: `0 0.25rem 0.5rem ${theme.accent}30`
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = `${theme.accent}20`;
-                        e.currentTarget.style.borderColor = theme.accent;
+                        e.currentTarget.style.transform = 'translateY(-0.125em)';
+                        e.currentTarget.style.boxShadow = `0 0.5rem 1rem ${theme.accent}40`;
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.borderColor = `${theme.accent}30`;
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = `0 0.25rem 0.5rem ${theme.accent}30`;
                       }}
                     >
-                      <Eye size={14} />
-                      Ver Detalles
+                      <Upload size={14} />
+                      Subir Tarea
                     </button>
-                  </div>
+                  ) : (
+                    <button
+                      style={{
+                        background: `linear-gradient(135deg, ${theme.accent}, #f59e0b)`,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '0.5em',
+                        padding: '0.4em 0.75em',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4em',
+                        transition: 'all 0.3s ease',
+                        boxShadow: `0 0.25rem 0.5rem ${theme.accent}30`
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-0.125em)';
+                        e.currentTarget.style.boxShadow = `0 0.5rem 1rem ${theme.accent}40`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = `0 0.25rem 0.5rem ${theme.accent}30`;
+                      }}
+                    >
+                      <Play size={14} />
+                      Continuar
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
+                    style={{
+                      background: 'transparent',
+                      color: theme.accent,
+                      border: `1px solid ${theme.accent}30`,
+                      borderRadius: '0.5em',
+                      padding: '0.4em 0.75em',
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4em',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = `${theme.accent}20`;
+                      e.currentTarget.style.borderColor = theme.accent;
+                      e.currentTarget.style.transform = 'translateY(-0.125em)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.borderColor = `${theme.accent}30`;
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <Eye size={14} />
+                    Ver Detalles
+                  </button>
                 </div>
               </div>
             ))}
@@ -665,7 +746,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                       width: '5px',
                       height: '5px',
                       borderRadius: '50%',
-                      background: index === 0 ? theme.success : '#3b82f6'
+                      background: index === 0 ? theme.accent : '#f59e0b'
                     }} />
                     <span style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
                       {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

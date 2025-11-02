@@ -224,24 +224,36 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
   return (
     <div
       style={{
-        minHeight: '150vh',
+        minHeight: '100%',
         backgroundColor: darkMode ? '#1a1a1a' : '#f9fafb',
         color: darkMode ? '#fff' : '#1f2937',
-        padding: '0.75em',
-        paddingBottom: '5em'
+        padding: '1rem',
+        paddingBottom: '2rem'
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '0.5em' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.25em' }}>
-          <CreditCard size={16} style={{ color: '#3b82f6' }} />
-          <h1 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
-            Gestión de Pagos
-          </h1>
+      <div style={{ marginBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+          <div style={{
+            width: '2rem',
+            height: '2rem',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            borderRadius: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <CreditCard size={16} style={{ color: '#fff' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
+              Gestión de Pagos
+            </h1>
+            <p style={{ fontSize: '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
+              Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
+            </p>
+          </div>
         </div>
-        <p style={{ fontSize: '0.8rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
-          Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
-        </p>
       </div>
 
       {/* Info compacta */}
@@ -249,8 +261,8 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
         background: darkMode ? 'rgba(255,255,255,0.05)' : '#ffffff',
         border: darkMode ? '0.0625rem solid rgba(255,255,255,0.15)' : '0.0625rem solid #e5e7eb',
         borderRadius: '0.625em',
-        padding: '0.5em',
-        marginBottom: '0.5em',
+        padding: '0.75rem',
+        marginBottom: '0.75rem',
         display: 'grid',
         gridTemplateColumns: '1fr auto',
         alignItems: 'center',
@@ -289,14 +301,14 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, minmax(min(6.875rem, 90vw), 1fr))',
-          gap: '0.375em',
-          marginBottom: '0.5em'
+          gap: '0.5rem',
+          marginBottom: '0.75rem'
         }}>
           <div style={{
             backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
             border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
             borderRadius: '0.5em',
-            padding: '0.375em',
+            padding: '0.625rem',
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#3b82f6', marginBottom: '0.125em' }}>
