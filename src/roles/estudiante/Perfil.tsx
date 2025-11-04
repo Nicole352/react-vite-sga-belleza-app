@@ -4,6 +4,8 @@ import { IoMdClose } from 'react-icons/io';
 import { HiOutlineShieldCheck } from 'react-icons/hi';
 import { UserCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -32,6 +34,7 @@ interface EstudianteData {
 }
 
 const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [activeTab, setActiveTab] = useState<'info' | 'password'>('info');
   const [estudiante, setEstudiante] = useState<EstudianteData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,8 +76,12 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Datos del estudiante cargados:', data);
+        console.log('📊 Datos del estudiante cargados:', data);
+        console.log('📞 Contacto de emergencia:', data.contacto_emergencia);
+        console.log('🔑 Todas las propiedades:', Object.keys(data));
         console.log('Username del estudiante:', data.username);
+        console.log('Contacto de emergencia:', data.contacto_emergencia);
+        console.log('Todas las propiedades:', Object.keys(data));
         setEstudiante(data);
       
         // La foto viene en base64 directamente desde el backend
@@ -94,7 +101,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
           fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
           genero: data.genero || '',
           identificacion: data.identificacion || data.cedula || '',
-          contacto_emergencia: data.contacto_emergencia || '' // Add this line
+          contacto_emergencia: data.contacto_emergencia || data.contactoEmergencia || data.telefono_emergencia || ''
         });
       } else {
         console.error('Failed to fetch profile:', response.status);
@@ -116,13 +123,28 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       const token = sessionStorage.getItem('auth_token');
       if (!token || !estudiante) return;
 
+      // Limpiar datos: convertir undefined a null o cadena vacía
+      const cleanedData = {
+        nombres: formData.nombres || '',
+        apellidos: formData.apellidos || '',
+        email: formData.email || '',
+        telefono: formData.telefono || '',
+        direccion: formData.direccion || '',
+        fecha_nacimiento: formData.fecha_nacimiento || null,
+        genero: formData.genero || '',
+        identificacion: formData.identificacion || '',
+        contacto_emergencia: formData.contacto_emergencia || ''
+      };
+
+      console.log('📤 Datos a enviar:', cleanedData);
+
       const response = await fetch(`${API_BASE}/api/usuarios/mi-perfil`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(cleanedData)
       });
 
       if (response.ok) {
@@ -255,21 +277,19 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header con ícono */}
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ 
-            fontSize: '1.125rem', 
-            fontWeight: '700', 
+          <h2 className="responsive-title" style={{ 
             color: theme.textPrimary, 
             margin: '0 0 0.375rem 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.625rem'
+            gap: isMobile ? '0.5rem' : '0.625rem'
           }}>
-            <UserCircle size={26} color={theme.accent} />
+            <UserCircle size={isMobile ? 20 : 26} color="#f59e0b" />
             Mi Perfil
           </h2>
-          <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
             Gestiona tu información personal y seguridad
           </p>
         </div>
@@ -317,7 +337,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             padding: '0.625rem 1.25rem',
             background: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'info' ? `2px solid ${theme.accent}` : '2px solid transparent',
+            borderBottom: activeTab === 'info' ? '2px solid #f59e0b' : '2px solid transparent',
             color: activeTab === 'info' ? theme.textPrimary : theme.textMuted,
             fontSize: '0.8125rem',
             fontWeight: '600',
@@ -336,7 +356,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             padding: '0.625rem 1.25rem',
             background: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'password' ? `2px solid ${theme.accent}` : '2px solid transparent',
+            borderBottom: activeTab === 'password' ? '2px solid #f59e0b' : '2px solid transparent',
             color: activeTab === 'password' ? theme.textPrimary : theme.textMuted,
             fontSize: '0.8125rem',
             fontWeight: '600',
@@ -354,7 +374,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       {/* Contenido de los tabs */}
       {activeTab === 'info' && (
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 2fr', gap: isMobile ? '0.75rem' : '1rem', flex: 1 }}>
             {/* Card de perfil (izquierda) */}
             <div style={{
               background: theme.cardBg,
@@ -580,7 +600,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             }}>
               <h3 style={{ 
                 color: theme.textPrimary, 
-                fontSize: '0.875rem', 
+                fontSize: isMobile ? '0.8rem' : '0.875rem', 
                 fontWeight: '700', 
                 margin: '0 0 1rem 0',
                 textTransform: 'uppercase',
@@ -590,7 +610,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 INFORMACIÓN PERSONAL
               </h3>
 
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <div className="responsive-grid-2" style={{ gap: '0.75rem' }}>
                 {/* Nombres */}
                 <div>
                   <label style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
@@ -847,11 +867,30 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 </div>
 
                 {/* Género */}
-                {formData.genero && (
-                  <div>
-                    <label style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
-                      Género
-                    </label>
+                <div>
+                  <label style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
+                    Género
+                  </label>
+                  {isEditing ? (
+                    <select
+                      value={formData.genero || ''}
+                      onChange={(e) => setFormData({ ...formData, genero: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        background: theme.inputBg,
+                        border: `1px solid ${theme.border}`,
+                        borderRadius: '0.5rem',
+                        color: theme.textPrimary,
+                        fontSize: '0.8125rem'
+                      }}
+                    >
+                      <option value="">Seleccionar...</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Femenino">Femenino</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  ) : (
                     <div style={{
                       padding: '0.5rem 0.75rem',
                       background: theme.inputBg,
@@ -864,10 +903,10 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       gap: '0.5rem'
                     }}>
                       <FaVenusMars size={14} color={theme.textMuted} />
-                      {formData.genero.charAt(0).toUpperCase() + formData.genero.slice(1)}
+                      {formData.genero ? (formData.genero.charAt(0).toUpperCase() + formData.genero.slice(1)) : 'No especificado'}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>

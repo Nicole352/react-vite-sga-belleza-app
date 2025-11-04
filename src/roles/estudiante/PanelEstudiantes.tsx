@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, UserCircle, Settings, Menu, Calendar
+  BookOpen, UserCircle, Settings, Menu, Calendar, X
 } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
-import AdminThemeWrapper from '../../components/AdminThemeWrapper';
+import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
 import CambiarPasswordModal from '../../components/CambiarPasswordModal';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 // Importar componentes modulares
 import MiAula from './MiAula';
@@ -20,6 +22,7 @@ const API_BASE = 'http://localhost:3000/api';
 
 const PanelEstudiantes = () => {
   const navigate = useNavigate();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [activeTab, setActiveTab] = useState('mi-aula');
   const [darkMode, setDarkMode] = useState(() => {
     // Cargar preferencia guardada o usar modo claro por defecto
@@ -30,6 +33,7 @@ const PanelEstudiantes = () => {
     const saved = localStorage.getItem('estudiante-sidebar-collapsed');
     return saved !== null ? JSON.parse(saved) : false;
   });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Estados para modal de cambio de contraseña
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
@@ -202,56 +206,99 @@ const PanelEstudiantes = () => {
           fontSize: '0.8rem'
         }}
       >
+        {/* Overlay para móvil */}
+        {isSmallScreen && mobileMenuOpen && (
+          <div
+            data-modal-overlay="true"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 999,
+              transition: 'opacity 0.3s ease'
+            }}
+          />
+        )}
+
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '4.5rem' : '16rem',
+          width: isSmallScreen ? '16rem' : (sidebarCollapsed ? '4.5rem' : '16rem'),
           background: theme.sidebarBg,
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '0 1em 1em 0',
-          padding: sidebarCollapsed ? '0.625em 0.375em 1.25em 0.375em' : '0.625em 1em 1.25em 1em',
+          borderRadius: isSmallScreen ? '0' : '0 1em 1em 0',
+          padding: (isSmallScreen || !sidebarCollapsed) ? '0.625em 1em 1.25em 1em' : '0.625em 0.375em 1.25em 0.375em',
           position: 'fixed',
           height: '100vh',
-          left: '0',
+          left: isSmallScreen ? (mobileMenuOpen ? '0' : '-16rem') : '0',
           top: 0,
           zIndex: 1000,
           boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
           transition: 'all 0.3s ease',
-          overflowY: 'hidden',
+          overflowY: isSmallScreen ? 'auto' : 'hidden',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Botón hamburguesa */}
-          <button
-            onClick={toggleSidebar}
-            style={{
-              position: 'absolute',
-              top: '1rem',
-              right: sidebarCollapsed ? '50%' : '1rem',
-              transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-              width: '2.25rem',
-              height: '2.25rem',
-              borderRadius: '0.5rem',
-              border: `0.0625rem solid ${theme.border}`,
-              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
-              color: theme.accent,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-              zIndex: 10
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)';
-              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)';
-              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
-            }}
-          >
-            <Menu size={20} />
-          </button>
+          {/* Botón hamburguesa - Desktop */}
+          {!isSmallScreen && (
+            <button
+              onClick={toggleSidebar}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: sidebarCollapsed ? '50%' : '1rem',
+                transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
+                border: `0.0625rem solid ${theme.border}`,
+                background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
+                color: theme.accent,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)';
+                e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)';
+                e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
+              }}
+            >
+              <Menu size={20} />
+            </button>
+          )}
+
+          {/* Botón cerrar - Móvil */}
+          {isSmallScreen && (
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
+                border: `0.0625rem solid ${theme.border}`,
+                background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
+                color: theme.accent,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease',
+                zIndex: 10
+              }}
+            >
+              <X size={20} />
+            </button>
+          )}
+
           {/* Header del Sidebar - Solo Logo */}
           <div style={{
             display: 'flex',
@@ -261,9 +308,9 @@ const PanelEstudiantes = () => {
             paddingBottom: '0.25rem',
             borderBottom: `0.0625rem solid ${theme.border}`,
             paddingTop: '0',
-            marginTop: sidebarCollapsed ? '3rem' : '0'
+            marginTop: (isSmallScreen || !sidebarCollapsed) ? '0' : '3rem'
           }}>
-            {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
+            {(isSmallScreen || !sidebarCollapsed) && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
 
           {/* Navegación del Sidebar */}
@@ -280,17 +327,18 @@ const PanelEstudiantes = () => {
                     // Siempre volver a la ruta base del panel al cambiar de sección
                     navigate('/panel/estudiante');
                     setActiveTab(tab.id);
+                    if (isSmallScreen) setMobileMenuOpen(false);
                     // Forzar scroll al inicio al cambiar de sección
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  title={sidebarCollapsed ? tab.name : ''}
+                  title={(sidebarCollapsed && !isSmallScreen) ? tab.name : ''}
                   style={{
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                    justifyContent: (sidebarCollapsed && !isSmallScreen) ? 'center' : 'flex-start',
                     gap: '0.625em',
-                    padding: sidebarCollapsed ? '0.75em 0.5em' : '0.75em 1em',
+                    padding: (sidebarCollapsed && !isSmallScreen) ? '0.75em 0.5em' : '0.75em 1em',
                     marginBottom: '0.375em',
                     borderRadius: '0.75em',
                     border: 'none',
@@ -322,7 +370,7 @@ const PanelEstudiantes = () => {
                   }}
                 >
                   <IconComponent size={18} style={{ flexShrink: 0 }} />
-                  {!sidebarCollapsed && <span>{tab.name}</span>}
+                  {(isSmallScreen || !sidebarCollapsed) && <span>{tab.name}</span>}
                 </button>
               );
             })}
@@ -332,12 +380,12 @@ const PanelEstudiantes = () => {
 
         {/* Contenido Principal */}
         <div style={{
-          marginLeft: sidebarCollapsed ? '4.375rem' : '17.5rem',
+          marginLeft: isSmallScreen ? '0' : (sidebarCollapsed ? '4.375rem' : '17.5rem'),
           flex: 1,
-          padding: '1.25rem',
+          padding: isMobile ? '0.75em' : '1.25rem',
           minHeight: '100vh',
           transition: 'margin-left 0.3s ease',
-          width: 'auto',
+          width: isSmallScreen ? '100%' : 'auto',
           maxWidth: '100%',
           overflowX: 'hidden',
           overflowY: 'auto'
@@ -359,6 +407,29 @@ const PanelEstudiantes = () => {
           }}>
             {/* Información del módulo activo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+              {/* Botón hamburguesa móvil */}
+              {isSmallScreen && (
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  style={{
+                    width: '2.5rem',
+                    height: '2.5rem',
+                    borderRadius: '0.625em',
+                    border: `0.0625rem solid ${theme.border}`,
+                    background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.08)',
+                    color: theme.accent,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    flexShrink: 0
+                  }}
+                >
+                  <Menu size={20} />
+                </button>
+              )}
+
               <div style={{
                 width: '3rem',
                 height: '3rem',
@@ -416,8 +487,8 @@ const PanelEstudiantes = () => {
             backdropFilter: 'blur(1.25rem)',
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '1.25rem',
-            padding: '1.5rem',
-            minHeight: 'calc(100vh - 4rem)',
+            padding: isMobile ? '1em' : '2em',
+            minHeight: '37.5rem',
             boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
           }}>
             <Routes>
@@ -425,21 +496,21 @@ const PanelEstudiantes = () => {
                 index
                 element={
                   <>
-                    {activeTab === 'mi-aula' && <MiAula darkMode={darkMode} />}
-                    {activeTab === 'mi-horario' && <MiHorario darkMode={darkMode} />}
-                    {activeTab === 'calificaciones' && <Calificaciones darkMode={darkMode} />}
-                    {activeTab === 'servicios' && <Servicios darkMode={darkMode} />}
-                    {activeTab === 'perfil' && <Perfil darkMode={darkMode} />}
+                    {activeTab === 'mi-aula' && <EstudianteThemeWrapper darkMode={darkMode}><MiAula darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'mi-horario' && <EstudianteThemeWrapper darkMode={darkMode}><MiHorario darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'calificaciones' && <EstudianteThemeWrapper darkMode={darkMode}><Calificaciones darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'servicios' && <EstudianteThemeWrapper darkMode={darkMode}><Servicios darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'perfil' && <EstudianteThemeWrapper darkMode={darkMode}><Perfil darkMode={darkMode} /></EstudianteThemeWrapper>}
                   </>
                 }
               />
-              <Route path="curso/:id" element={<DetalleCursoEstudiante darkMode={darkMode} />} />
+              <Route path="curso/:id" element={<EstudianteThemeWrapper darkMode={darkMode}><DetalleCursoEstudiante darkMode={darkMode} /></EstudianteThemeWrapper>} />
             </Routes>
           </div>
         </div>
 
-        {/* Modal de Cambiar Contraseña con AdminThemeWrapper */}
-        <AdminThemeWrapper darkMode={darkMode}>
+        {/* Modal de Cambiar Contraseña con EstudianteThemeWrapper */}
+        <EstudianteThemeWrapper darkMode={darkMode}>
           <CambiarPasswordModal
             isOpen={showPasswordResetModal}
             onClose={handleClosePasswordModal}
@@ -447,7 +518,7 @@ const PanelEstudiantes = () => {
             isFirstLogin={isFirstLogin}
             rol="estudiante"
           />
-        </AdminThemeWrapper>
+        </EstudianteThemeWrapper>
       </div>
     </>
   );
