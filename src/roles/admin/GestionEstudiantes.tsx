@@ -7,6 +7,8 @@ import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -49,6 +51,7 @@ const GestionEstudiantes = () => {
   
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
@@ -63,6 +66,7 @@ const GestionEstudiantes = () => {
   const fetchEstudiantes = async () => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
       setError(null);
       
       const params = new URLSearchParams();
@@ -91,8 +95,19 @@ const GestionEstudiantes = () => {
       setError(err.message || 'Error cargando estudiantes');
     } finally {
       setLoading(false);
+      // Cerrar modal después de un pequeño delay para que se vea
+      setTimeout(() => setShowLoadingModal(false), 300);
     }
   };
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      await fetchEstudiantes();
+    },
+    interval: 30000, // 30 segundos
+    dependencies: [page, limit, searchTerm]
+  });
 
   useEffect(() => {
     fetchEstudiantes();
@@ -1263,6 +1278,16 @@ const GestionEstudiantes = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando datos..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
+      />
     </div>
   );
 };

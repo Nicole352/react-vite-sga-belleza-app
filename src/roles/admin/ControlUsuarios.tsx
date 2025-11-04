@@ -3,6 +3,8 @@ import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap
 import toast from 'react-hot-toast';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -132,6 +134,7 @@ const ControlUsuarios = () => {
   const [deberes, setDeberes] = useState<any[]>([]);
   const [filtroAcciones, setFiltroAcciones] = useState<'todas' | 'administrativas' | 'academicas'>('todas');
   const [loadingModal, setLoadingModal] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
 
   // Modal de confirmación
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -141,6 +144,16 @@ const ControlUsuarios = () => {
   const [showCredencialesModal, setShowCredencialesModal] = useState(false);
   const [credenciales, setCredenciales] = useState<{ username: string, password_temporal: string } | null>(null);
 
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      await cargarUsuarios();
+      await cargarStats();
+    },
+    interval: 30000, // 30 segundos
+    dependencies: [search, rolFilter, estadoFilter, page]
+  });
+
   useEffect(() => {
     cargarUsuarios();
     cargarStats();
@@ -149,6 +162,7 @@ const ControlUsuarios = () => {
   const cargarUsuarios = async () => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
       setError('');
       const token = sessionStorage.getItem('auth_token');
       const response = await fetch(
@@ -199,6 +213,8 @@ const ControlUsuarios = () => {
       setError(err.message || 'Error al cargar usuarios');
     } finally {
       setLoading(false);
+      // Cerrar modal después de un pequeño delay para que se vea
+      setTimeout(() => setShowLoadingModal(false), 300);
     }
   };
 
@@ -1064,6 +1080,16 @@ const ControlUsuarios = () => {
           setShowCredencialesModal(false);
           setCredenciales(null);
         }}
+      />
+
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando datos..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
       />
     </div >
   );

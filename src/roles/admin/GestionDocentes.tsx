@@ -8,6 +8,8 @@ import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -37,6 +39,7 @@ const GestionDocentes = () => {
 
   const [docentes, setDocentes] = useState<Docente[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedDocente, setSelectedDocente] = useState<Docente | null>(null);
@@ -54,6 +57,7 @@ const GestionDocentes = () => {
   const fetchDocentes = async () => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
       setError(null);
 
       const params = new URLSearchParams();
@@ -81,8 +85,19 @@ const GestionDocentes = () => {
       setError(err.message || 'Error cargando docentes');
     } finally {
       setLoading(false);
+      // Cerrar modal después de un pequeño delay para que se vea
+      setTimeout(() => setShowLoadingModal(false), 300);
     }
   };
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      await fetchDocentes();
+    },
+    interval: 30000, // 30 segundos
+    dependencies: [page, limit, searchTerm]
+  });
 
   useEffect(() => {
     fetchDocentes();
@@ -1522,6 +1537,16 @@ const GestionDocentes = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando datos..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
+      />
     </div>
   );
 };
