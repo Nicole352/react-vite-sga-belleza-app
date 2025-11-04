@@ -315,9 +315,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   z-index: 99999;
-  padding: 0;
+  padding-top: 2rem;
   backdrop-filter: blur(8px);
   background: rgba(0, 0, 0, 0.65);
   overflow-y: auto;
@@ -328,16 +330,16 @@
 /* Contenido del modal - Base */
 .modal-content {
   position: relative;
-  background: var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%));
-  border: 1px solid var(--admin-border, rgba(239, 68, 68, 0.3));
+  background: var(--admin-bg-secondary, var(--docente-bg-secondary, linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)));
+  border: 1px solid var(--admin-border, var(--docente-border, rgba(59, 130, 246, 0.2)));
   border-radius: 12px;
   width: 60vw;
   max-width: 60vw;
   max-height: 90vh;
   padding: 1rem 1.5rem;
   margin: 1rem auto;
-  color: var(--admin-text-primary, #fff);
-  box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.7);
+  color: var(--admin-text-primary, var(--docente-text-primary, #1e293b));
+  box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   overflow-x: hidden;
   animation: scaleIn 0.3s ease-out;
@@ -380,6 +382,26 @@
   .modal-content button {
     font-size: 0.85rem;
     padding: 9px 12px;
+  }
+  
+  /* FORZAR UNA COLUMNA EN MÓVIL - Todos los grids */
+  .modal-content div[style*="display: grid"],
+  .modal-content div[style*="display:grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Forzar flex-direction column en flex containers */
+  .modal-content div[style*="display: flex"][style*="gap"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  /* Excepciones: mantener flex-row para headers y botones */
+  .modal-content > div:first-child,
+  .modal-content > div:last-child,
+  .modal-content button[style*="display: flex"] {
+    flex-direction: row !important;
   }
   
   .responsive-modal {
