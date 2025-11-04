@@ -22,8 +22,13 @@ import toast from "react-hot-toast";
 import ModalModulo from "./ModalModulo";
 import ModalTarea from "./ModalTarea";
 import ModalEntregas from "./ModalEntregas";
+import LoadingModal from "../../components/LoadingModal";
+import DocenteThemeWrapper from "../../components/DocenteThemeWrapper";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import { useBreakpoints } from "../../hooks/useMediaQuery";
+import "../../styles/responsive.css";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface Modulo {
   id_modulo: number;
@@ -66,11 +71,41 @@ interface DetalleCursoDocenteProps {
 }
 
 const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
-  darkMode = true,
+  darkMode: darkModeProp,
 }) => {
   const { id } = useParams<{ id: string }>();
   const id_curso = id;
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const navigate = useNavigate();
+  
+  // Obtener darkMode del localStorage o usar el prop
+  const [darkMode, setDarkMode] = useState(() => {
+    if (darkModeProp !== undefined) return darkModeProp;
+    const saved = localStorage.getItem('docente-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Escuchar cambios en el tema
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('docente-dark-mode');
+      setDarkMode(saved !== null ? JSON.parse(saved) : true);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También escuchar cambios directos en el mismo tab
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('docente-dark-mode');
+      const currentMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(currentMode);
+    }, 100);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Tema adaptativo
   const theme = {
@@ -78,7 +113,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     textSecondary: darkMode ? "rgba(255,255,255,0.8)" : "rgba(30,41,59,0.8)",
     textMuted: darkMode ? "rgba(255,255,255,0.6)" : "rgba(30,41,59,0.6)",
     border: darkMode ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.3)",
-    cardBg: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+    cardBg: darkMode ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.9)",
     accent: "#3b82f6",
   };
   const [curso, setCurso] = useState<Curso | null>(null);
@@ -122,7 +157,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
   const fetchCursoData = async () => {
     try {
       const token = sessionStorage.getItem("auth_token");
-      const response = await axios.get(`${API_BASE}/cursos/${id_curso}`, {
+      const response = await axios.get(`${API_BASE}/api/cursos/${id_curso}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCurso(response.data);
@@ -137,7 +172,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       setLoading(true);
       const token = sessionStorage.getItem("auth_token");
       const response = await axios.get(
-        `${API_BASE}/modulos/curso/${id_curso}`,
+        `${API_BASE}/api/modulos/curso/${id_curso}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -155,7 +190,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     try {
       const token = sessionStorage.getItem("auth_token");
       const response = await axios.get(
-        `${API_BASE}/tareas/modulo/${id_modulo}`,
+        `${API_BASE}/api/tareas/modulo/${id_modulo}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -169,6 +204,25 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       toast.error("Error cargando tareas");
     }
   };
+
+  // Función para refrescar todos los datos
+  const refreshAllData = async () => {
+    await fetchCursoData();
+    await fetchModulos();
+    // Refrescar tareas de módulos expandidos
+    const expandedModules = Object.keys(modulosExpandidos).filter(
+      (key) => modulosExpandidos[parseInt(key)]
+    );
+    for (const id_modulo of expandedModules) {
+      await fetchTareasModulo(parseInt(id_modulo));
+    }
+  };
+
+  // Auto-refresh con modal de carga azul
+  const { isRefreshing } = useAutoRefresh({
+    onRefresh: refreshAllData,
+    interval: 30000 // 30 segundos
+  });
 
   const toggleModulo = (id_modulo: number) => {
     const isExpanded = modulosExpandidos[id_modulo];
@@ -210,7 +264,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 
     try {
       const token = sessionStorage.getItem("auth_token");
-      await axios.delete(`${API_BASE}/modulos/${id_modulo}`, {
+      await axios.delete(`${API_BASE}/api/modulos/${id_modulo}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Módulo eliminado exitosamente");
@@ -240,7 +294,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       }
 
       const response = await axios.put(
-        `${API_BASE}/modulos/${moduloParaCerrar}/cerrar`,
+        `${API_BASE}/api/modulos/${moduloParaCerrar}/cerrar`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -295,7 +349,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       }
 
       const response = await axios.put(
-        `${API_BASE}/modulos/${moduloParaReabrir}/reabrir`,
+        `${API_BASE}/api/modulos/${moduloParaReabrir}/reabrir`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -340,7 +394,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       const endpoint = publicados ? "ocultar-promedios" : "publicar-promedios";
 
       await axios.put(
-        `${API_BASE}/modulos/${id_modulo}/${endpoint}`,
+        `${API_BASE}/api/modulos/${id_modulo}/${endpoint}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -425,23 +479,9 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        minHeight: "calc(100vh - 4rem)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Header */}
+    <>
+    <div>
+      {/* Header */}
         <div
           style={{
             background: darkMode
@@ -675,7 +715,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               <div
                 key={modulo.id_modulo}
                 style={{
-                  background: darkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
+                  background: theme.cardBg,
                   borderRadius: "0.75em",
                   border: darkMode
                     ? "0.0625rem solid rgba(255,255,255,0.08)"
@@ -1423,85 +1463,60 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             ))}
           </div>
         )}
-      </div>
 
-      {/* Modales */}
-      <ModalModulo
-        isOpen={showModalModulo}
-        onClose={() => setShowModalModulo(false)}
-        onSuccess={fetchModulos}
-        id_curso={id_curso || ""}
-        darkMode={darkMode}
-      />
+      {/* Modales envueltos con DocenteThemeWrapper */}
+      <DocenteThemeWrapper darkMode={darkMode}>
+        <ModalModulo
+          isOpen={showModalModulo}
+          onClose={() => setShowModalModulo(false)}
+          onSuccess={fetchModulos}
+          id_curso={id_curso || ""}
+          darkMode={darkMode}
+        />
 
-      <ModalTarea
-        isOpen={showModalTarea}
-        onClose={() => {
-          setShowModalTarea(false);
-          setTareaEditar(null);
-        }}
-        onSuccess={() => {
-          if (moduloSeleccionado) {
-            fetchTareasModulo(moduloSeleccionado);
-          }
-          setTareaEditar(null);
-        }}
-        id_modulo={moduloSeleccionado || 0}
-        tareaEditar={tareaEditar}
-        darkMode={darkMode}
-      />
+        <ModalTarea
+          isOpen={showModalTarea}
+          onClose={() => {
+            setShowModalTarea(false);
+            setTareaEditar(null);
+          }}
+          onSuccess={() => {
+            if (moduloSeleccionado) {
+              fetchTareasModulo(moduloSeleccionado);
+            }
+            setTareaEditar(null);
+          }}
+          id_modulo={moduloSeleccionado || 0}
+          tareaEditar={tareaEditar}
+          darkMode={darkMode}
+        />
 
-      <ModalEntregas
-        isOpen={showModalEntregas}
-        onClose={() => setShowModalEntregas(false)}
-        onSuccess={() => {
-          if (moduloSeleccionado) {
-            fetchTareasModulo(moduloSeleccionado);
-          }
-        }}
-        id_tarea={tareaSeleccionada?.id || 0}
-        nombre_tarea={tareaSeleccionada?.nombre || ""}
-        nota_maxima={tareaSeleccionada?.nota_maxima || 10}
-        ponderacion={tareaSeleccionada?.ponderacion || 1}
-        darkMode={darkMode}
-      />
+        <ModalEntregas
+          isOpen={showModalEntregas}
+          onClose={() => setShowModalEntregas(false)}
+          onSuccess={() => {
+            if (moduloSeleccionado) {
+              fetchTareasModulo(moduloSeleccionado);
+            }
+          }}
+          id_tarea={tareaSeleccionada?.id || 0}
+          nombre_tarea={tareaSeleccionada?.nombre || ""}
+          nota_maxima={tareaSeleccionada?.nota_maxima || 10}
+          ponderacion={tareaSeleccionada?.ponderacion || 1}
+          darkMode={darkMode}
+        />
+      </DocenteThemeWrapper>
 
       {/* Modal de Confirmación - Cerrar Módulo */}
       {showModalConfirmCerrar && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999,
-            padding: "1rem",
-            animation: "fadeIn 0.2s ease-out",
-          }}
+          className="modal-overlay"
           onClick={() => setShowModalConfirmCerrar(false)}
         >
           <div
+            className="modal-content"
             style={{
-              background: darkMode
-                ? "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)"
-                : "linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)",
-              backdropFilter: "blur(20px)",
-              borderRadius: "20px",
-              padding: "2rem",
               maxWidth: "28rem",
-              width: "100%",
-              border: darkMode
-                ? "1px solid rgba(59, 130, 246, 0.2)"
-                : "1px solid rgba(59, 130, 246, 0.3)",
-              boxShadow: darkMode
-                ? "0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.1)"
-                : "0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)",
               animation: "scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
             onClick={(e) => e.stopPropagation()}
@@ -1642,40 +1657,13 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       {/* Modal de Confirmación - Reabrir Módulo */}
       {showModalConfirmReabrir && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999,
-            padding: "1rem",
-            animation: "fadeIn 0.2s ease-out",
-          }}
+          className="modal-overlay"
           onClick={() => setShowModalConfirmReabrir(false)}
         >
           <div
+            className="modal-content"
             style={{
-              background: darkMode
-                ? "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)"
-                : "linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)",
-              backdropFilter: "blur(20px)",
-              borderRadius: "20px",
-              padding: "2rem",
-              maxWidth: "28rem",
-              width: "100%",
-              border: darkMode
-                ? "1px solid rgba(59, 130, 246, 0.2)"
-                : "1px solid rgba(59, 130, 246, 0.3)",
-              boxShadow: darkMode
-                ? "0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.1)"
-                : "0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)",
-              animation: "scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              maxWidth: "28rem"
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1848,7 +1836,19 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
           }
         }
       `}</style>
+
     </div>
+
+    {/* Modal de carga con autorefresh */}
+    <DocenteThemeWrapper darkMode={darkMode}>
+      <LoadingModal 
+        isOpen={isRefreshing}
+        message="Actualizando datos del curso..."
+        darkMode={darkMode}
+        colorTheme="blue"
+      />
+    </DocenteThemeWrapper>
+    </>
   );
 };
 

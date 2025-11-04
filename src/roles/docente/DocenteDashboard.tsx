@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import ModalCalificaciones from './ModalCalificaciones';
 import { FaHandPaper } from 'react-icons/fa';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface DocenteDashboardProps {
   darkMode: boolean;
@@ -45,6 +47,7 @@ interface CursoResumen {
 
 const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const navigate = useNavigate();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [isVisible, setIsVisible] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
@@ -76,7 +79,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       const token = sessionStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${API_BASE}/auth/me`, {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -98,7 +101,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       
       if (!token) return;
 
-      const response = await fetch(`${API_BASE}/docentes/mis-cursos`, {
+      const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -217,7 +220,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
 
         {/* Estadísticas rápidas - 4 tarjetas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(7.5rem, 1fr))', gap: '0.375em' }}>
+        <div className="responsive-grid-4" style={{ gap: '0.375em' }}>
           <div style={{
             background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
             border: `0.0625rem solid ${theme.accent}30`,
@@ -272,7 +275,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1em' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '3fr 1fr', gap: '1em' }}>
         {/* Panel principal - Mis Cursos con Tabs */}
         <div style={{
           background: theme.cardBg,
