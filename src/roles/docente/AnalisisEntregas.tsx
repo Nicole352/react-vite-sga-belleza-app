@@ -7,7 +7,7 @@ import {
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface Entrega {
   id_entrega: number;
@@ -43,12 +43,12 @@ const AnalisisEntregas: React.FC = () => {
       const token = sessionStorage.getItem('auth_token');
       
       // Obtener entregas
-      const responseEntregas = await axios.get(`${API_BASE}/entregas/tarea/${id_tarea}`, {
+      const responseEntregas = await axios.get(`${API_BASE}/api/entregas/tarea/${id_tarea}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       // Obtener info de la tarea (incluye módulo y curso)
-      const responseTarea = await axios.get(`${API_BASE}/tareas/${id_tarea}`, {
+      const responseTarea = await axios.get(`${API_BASE}/api/tareas/${id_tarea}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface Curso {
   id_curso: number;
@@ -33,7 +34,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/docentes/mis-cursos`, {
+      const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -79,7 +80,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
     <div>
       {/* Header */}
       <div style={{
-        background: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+        background: theme.cardBg,
         border: `1px solid ${theme.border}`,
         borderRadius: '1rem',
         padding: '1.5rem',
@@ -253,7 +254,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         </div>
       ) : filteredCursos.length === 0 ? (
         <div style={{
-          background: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+          background: theme.cardBg,
           border: `1px solid ${theme.border}`,
           borderRadius: '1rem',
           padding: '3rem',
@@ -271,9 +272,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         </div>
       ) : (
         <div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          <div className="responsive-grid-auto" style={{
             gap: '1rem'
           }}>
             {filteredCursos.map((curso) => (

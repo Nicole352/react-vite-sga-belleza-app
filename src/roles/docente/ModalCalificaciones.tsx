@@ -11,7 +11,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface ModalCalificacionesProps {
   isOpen: boolean;
@@ -157,7 +157,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
       // Obtener tareas del curso
       const tareasResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/tareas`,
+        `${API_BASE}/api/cursos/${cursoId}/tareas`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -176,7 +176,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
       // Obtener estudiantes del curso
       const estudiantesResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/estudiantes`,
+        `${API_BASE}/api/cursos/${cursoId}/estudiantes`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -195,7 +195,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
       // Obtener calificaciones
       const calificacionesResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/calificaciones`,
+        `${API_BASE}/api/cursos/${cursoId}/calificaciones`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -214,7 +214,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
       // Obtener calificaciones completas con promedios por módulo y global
       const calificacionesCompletasResponse = await fetch(
-        `${API_BASE}/calificaciones/curso/${cursoId}/completo`,
+        `${API_BASE}/api/calificaciones/curso/${cursoId}/completo`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -235,11 +235,11 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
             setPesoPorModulo(datosCompletos.peso_por_modulo || 0);
           }
         } catch (err) {
-          console.error("❌ Error parseando calificaciones completas:", err);
+          console.error("-Error parseando calificaciones completas:", err);
         }
       } else {
         console.error(
-          "❌ Error en respuesta del servidor:",
+          "-Error en respuesta del servidor:",
           calificacionesCompletasResponse.status,
         );
       }
@@ -606,35 +606,14 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
   return (
     <div
+      className="modal-overlay"
       onClick={onClose}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: theme.bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 999999,
-        backdropFilter: "blur(4px)",
-        padding: "1rem",
-      }}
     >
       <div
+        className="modal-content responsive-modal"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: theme.modalBg,
-          borderRadius: "0.75rem",
-          width: "100%",
-          maxWidth: "75rem",
-          maxHeight: "calc(100vh - 2rem)",
-          overflow: "hidden",
-          boxShadow: darkMode
-            ? "0 1.25rem 2.5rem rgba(0,0,0,0.5)"
-            : "0 1.25rem 2.5rem rgba(0,0,0,0.15)",
-          border: `1px solid ${theme.border}`,
+          maxWidth: "75rem"
         }}
       >
         {/* Header con estilo del admin */}

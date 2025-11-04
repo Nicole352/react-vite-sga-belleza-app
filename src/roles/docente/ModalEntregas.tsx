@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import LoadingModal from '../../components/LoadingModal';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface ModalEntregasProps {
   isOpen: boolean;
@@ -61,6 +63,42 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   const [filteredEntregas, setFilteredEntregas] = useState<Entrega[]>([]);
   const [calificando, setCalificando] = useState<number | null>(null);
 
+  const fetchEntregas = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem('auth_token');
+      console.log('Fetching entregas para tarea:', id_tarea);
+      const response = await axios.get(`${API_BASE}/api/entregas/tarea/${id_tarea}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = response.data;
+      console.log('Respuesta de entregas:', data);
+      console.log('Primera entrega completa:', data.entregas[0]);
+      console.log('archivo_nombre de primera entrega:', data.entregas[0]?.archivo_nombre);
+      console.log('archivo_nombre_original de primera entrega:', data.entregas[0]?.archivo_nombre_original);
+      
+      // Transformar datos si es necesario
+      const entregasConEstado = data.entregas.map((entrega: any) => ({
+        ...entrega,
+        estado: entrega.calificacion !== undefined && entrega.calificacion !== null ? 'calificado' : 'pendiente'
+      }));
+      
+      setEntregas(entregasConEstado);
+      console.log('Entregas establecidas:', entregasConEstado);
+    } catch (error) {
+      console.error('Error fetching entregas:', error);
+      toast.error('Error al cargar las entregas');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-refresh con modal de carga azul
+  const { isRefreshing } = useAutoRefresh({
+    onRefresh: fetchEntregas,
+    interval: isOpen ? 30000 : 0 // 30 segundos solo cuando está abierto
+  });
+
   useEffect(() => {
     console.log('ModalEntregas - isOpen:', isOpen, 'id_tarea:', id_tarea);
     if (isOpen && id_tarea) {
@@ -91,36 +129,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     setFilteredEntregas(result);
   }, [entregas, filtro, busqueda]);
 
-  const fetchEntregas = async () => {
-    try {
-      setLoading(true);
-      const token = sessionStorage.getItem('auth_token');
-      console.log('Fetching entregas para tarea:', id_tarea);
-      const response = await axios.get(`${API_BASE}/entregas/tarea/${id_tarea}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = response.data;
-      console.log('Respuesta de entregas:', data);
-      console.log('Primera entrega completa:', data.entregas[0]);
-      console.log('archivo_nombre de primera entrega:', data.entregas[0]?.archivo_nombre);
-      console.log('archivo_nombre_original de primera entrega:', data.entregas[0]?.archivo_nombre_original);
-      
-      // Transformar datos si es necesario
-      const entregasConEstado = data.entregas.map((entrega: any) => ({
-        ...entrega,
-        estado: entrega.calificacion !== undefined && entrega.calificacion !== null ? 'calificado' : 'pendiente'
-      }));
-      
-      setEntregas(entregasConEstado);
-      console.log('Entregas establecidas:', entregasConEstado);
-    } catch (error) {
-      console.error('Error fetching entregas:', error);
-      toast.error('Error al cargar las entregas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCalificar = async (id_entrega: number) => {
     const nota = parseFloat(notaInput || '0');
     const comentario = comentarioInput || '';
@@ -134,7 +142,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       setCalificando(id_entrega);
       const token = sessionStorage.getItem('auth_token');
       
-      await axios.post(`${API_BASE}/entregas/${id_entrega}/calificar`, {
+      await axios.post(`${API_BASE}/api/entregas/${id_entrega}/calificar`, {
         nota,
         comentario_docente: comentario
       }, {
@@ -161,7 +169,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   const handleDescargar = async (id_entrega: number, archivo_nombre: string) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await axios.get(`${API_BASE}/entregas/${id_entrega}/archivo`, {
+      const response = await axios.get(`${API_BASE}/api/entregas/${id_entrega}/archivo`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       });
@@ -192,7 +200,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   const handleVerArchivo = async (entrega: Entrega) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await axios.get(`${API_BASE}/entregas/${entrega.id_entrega}/archivo`, {
+      const response = await axios.get(`${API_BASE}/api/entregas/${entrega.id_entrega}/archivo`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       });
@@ -264,7 +272,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       const token = sessionStorage.getItem('auth_token');
       
       // Fetch manual para tener más control
-      const response = await fetch(`${API_BASE}/entregas/${entrega.id_entrega}/archivo`, {
+      const response = await fetch(`${API_BASE}/api/entregas/${entrega.id_entrega}/archivo`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -338,30 +346,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   const modalContent = (
     <div 
+      className="modal-overlay"
       onClick={onClose}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: theme.bg,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 999999,
-        backdropFilter: 'blur(0.375rem)'
+        zIndex: 999999
       }}>
       <div 
+        className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: theme.modalBg,
-          borderRadius: '0.75em',
-          width: '95%',
-          maxWidth: '75rem',
-          maxHeight: '90vh',
-          overflow: 'hidden',
-          boxShadow: darkMode ? '0 1rem 3rem rgba(0,0,0,0.45)' : '0 1rem 3rem rgba(0,0,0,0.18)'
+          maxWidth: '75rem'
         }}>
         {/* Header */}
         <div style={{
@@ -1487,7 +1481,17 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     </>
   );
   
-  return createPortal(modalWithPointerEvents, modalRoot);
+  return (
+    <>
+      {createPortal(modalWithPointerEvents, modalRoot)}
+      <LoadingModal 
+        isOpen={isRefreshing}
+        message="Actualizando entregas..."
+        darkMode={darkMode}
+        colorTheme="blue"
+      />
+    </>
+  );
 };
 
 export default ModalEntregas;

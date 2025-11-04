@@ -13,7 +13,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface ModalCalificacionesProps {
   darkMode: boolean;
@@ -154,7 +154,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // Obtener información del curso
       const cursoResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}`,
+        `${API_BASE}/api/cursos/${cursoId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -166,7 +166,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // Obtener tareas del curso
       const tareasResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/tareas`,
+        `${API_BASE}/api/cursos/${cursoId}/tareas`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -185,7 +185,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // Obtener estudiantes del curso
       const estudiantesResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/estudiantes`,
+        `${API_BASE}/api/cursos/${cursoId}/estudiantes`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -204,7 +204,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // Obtener calificaciones
       const calificacionesResponse = await fetch(
-        `${API_BASE}/cursos/${cursoId}/calificaciones`,
+        `${API_BASE}/api/cursos/${cursoId}/calificaciones`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -223,7 +223,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // Obtener calificaciones completas con promedios por módulo y global
       const calificacionesCompletasResponse = await fetch(
-        `${API_BASE}/calificaciones/curso/${cursoId}/completo`,
+        `${API_BASE}/api/calificaciones/curso/${cursoId}/completo`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -244,11 +244,11 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             setPesoPorModulo(datosCompletos.peso_por_modulo || 0);
           }
         } catch (err) {
-          console.error("❌ Error parseando calificaciones completas:", err);
+          console.error("-Error parseando calificaciones completas:", err);
         }
       } else {
         console.error(
-          "❌ Error en respuesta del servidor:",
+          "-Error en respuesta del servidor:",
           calificacionesCompletasResponse.status,
         );
       }
