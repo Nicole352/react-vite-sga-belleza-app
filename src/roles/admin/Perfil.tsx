@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaVenusMars, FaLock, FaKey, FaCheckCircle, FaEye, FaEyeSlash, FaUserTie } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaVenusMars, FaLock, FaCheckCircle, FaEye, FaEyeSlash, FaUserTie } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { HiOutlineShieldCheck } from 'react-icons/hi';
 import { UserCircle } from 'lucide-react';
 import { RedColorPalette } from '../../utils/colorMapper';
 import toast from 'react-hot-toast';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -23,6 +25,7 @@ interface UserProfile {
 }
 
 const Perfil = () => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [activeTab, setActiveTab] = useState<'info' | 'password'>('info');
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<UserProfile | null>(null);
@@ -196,21 +199,19 @@ const Perfil = () => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header con ícono */}
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ 
-            fontSize: '1.125rem', 
-            fontWeight: '700', 
+          <h2 className="responsive-title" style={{ 
             color: 'var(--admin-text-primary)', 
             margin: '0 0 0.375rem 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.625rem'
+            gap: isMobile ? '0.5rem' : '0.625rem'
           }}>
-            <UserCircle size={26} color={RedColorPalette.primary} />
+            <UserCircle size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
             Mi Perfil
           </h2>
-          <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--admin-text-muted)', fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
             Gestiona tu información personal y seguridad
           </p>
         </div>
@@ -295,7 +296,7 @@ const Perfil = () => {
       {/* Contenido de los tabs */}
       {activeTab === 'info' && (
         <form onSubmit={handleUpdateProfile}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 2fr', gap: isMobile ? '0.75rem' : '1rem', flex: 1 }}>
             {/* Card de perfil (izquierda) */}
             <div style={{
               background: 'var(--theme-card-bg)',
@@ -511,7 +512,7 @@ const Perfil = () => {
             }}>
               <h3 style={{ 
                 color: 'var(--admin-text-primary)', 
-                fontSize: '0.875rem', 
+                fontSize: isMobile ? '0.8rem' : '0.875rem', 
                 fontWeight: '700', 
                 margin: '0 0 1rem 0',
                 textTransform: 'uppercase',
@@ -521,7 +522,7 @@ const Perfil = () => {
                 INFORMACIÓN PERSONAL
               </h3>
 
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <div className="responsive-grid-2" style={{ gap: '0.75rem' }}>
                 {/* Nombres */}
                 <div>
                   <label style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>

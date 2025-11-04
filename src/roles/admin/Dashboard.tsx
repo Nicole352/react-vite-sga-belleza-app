@@ -7,6 +7,8 @@ import {
 import GlassEffect from '../../components/GlassEffect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 
 const Dashboard = () => {
@@ -26,6 +28,7 @@ const Dashboard = () => {
     porcentajeMatriculasPendientes: 0
   });
   const [loading, setLoading] = useState(true);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const API_BASE = 'http://localhost:3000/api';
 
   // Cargar estadísticas reales
@@ -34,6 +37,8 @@ const Dashboard = () => {
 
     const loadStats = async () => {
       try {
+        setLoading(true);
+        setShowLoadingModal(true);
         const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
 
         if (!token) {
@@ -59,6 +64,8 @@ const Dashboard = () => {
       } finally {
         if (isMounted) {
           setLoading(false);
+          // Cerrar modal después de un pequeño delay para que se vea
+          setTimeout(() => setShowLoadingModal(false), 300);
         }
       }
     };
@@ -70,6 +77,28 @@ const Dashboard = () => {
       isMounted = false;
     };
   }, []); // Array de dependencias vacío para que solo se ejecute una vez
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/users/admin-stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Error en auto-refresh:', error);
+      }
+    },
+    interval: 30000, // 30 segundos
+    dependencies: []
+  });
 
   return (
     <div>
@@ -444,6 +473,16 @@ const Dashboard = () => {
           })}
         </div>
       </div>
+
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando estadísticas..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
+      />
     </div>
   );
 };

@@ -63,10 +63,10 @@ const PanelAdministrativos = () => {
           console.log('📝 Todas las propiedades:', Object.keys(data));
           setUserData(data);
         } else {
-          console.error('❌ Error en respuesta:', response.status);
+          console.error('-Error en respuesta:', response.status);
         }
       } catch (error) {
-        console.error('❌ Error obteniendo datos del usuario:', error);
+        console.error('-Error obteniendo datos del usuario:', error);
       }
     };
     fetchUserData();
