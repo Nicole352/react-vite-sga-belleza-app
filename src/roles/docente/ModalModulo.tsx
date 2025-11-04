@@ -3,7 +3,7 @@ import { X, Save, Calendar, FileText } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface ModalModuloProps {
   isOpen: boolean;
@@ -76,12 +76,12 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
       };
 
       if (moduloEditar) {
-        await axios.put(`${API_BASE}/modulos/${moduloEditar.id_modulo}`, dataToSend, {
+        await axios.put(`${API_BASE}/api/modulos/${moduloEditar.id_modulo}`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Módulo actualizado exitosamente');
       } else {
-        await axios.post(`${API_BASE}/modulos`, dataToSend, {
+        await axios.post(`${API_BASE}/api/modulos`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Módulo creado exitosamente');
@@ -122,43 +122,12 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
   return (
     <div 
       className="modal-overlay"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.75)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '1rem',
-        backdropFilter: 'blur(8px)'
-      }}
       onClick={onClose}
     >
       <div 
-        className="modal-content"
+        className="modal-content responsive-modal"
         style={{
-          position: 'relative',
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
-            : '#ffffff',
-          border: darkMode
-            ? '1px solid rgba(59, 130, 246, 0.3)'
-            : '1px solid #e5e7eb',
-          borderRadius: '12px',
-          width: '55vw',
-          maxWidth: '55vw',
-          maxHeight: '92vh',
-          padding: '0.875rem 1.125rem',
-          margin: '0.5rem auto',
-          color: darkMode ? '#fff' : '#1e293b',
-          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.7)',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          animation: 'scaleIn 0.3s ease-out'
+          maxWidth: '55rem'
         }}
         onClick={(e) => e.stopPropagation()}
       >
