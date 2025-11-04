@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import '../styles/responsive.css';
 
 interface LoadingModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface LoadingModalProps {
   darkMode?: boolean;
   duration?: number; // Duración en milisegundos
   onComplete?: () => void; // Callback cuando termine el tiempo
+  colorTheme?: 'yellow' | 'red' | 'blue'; // Tema de color: amarillo (default), rojo o azul
 }
 
 const LoadingModal: React.FC<LoadingModalProps> = ({ 
@@ -14,8 +16,35 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
   message = 'Actualizando datos...', 
   darkMode = false,
   duration = 2000,
-  onComplete 
+  onComplete,
+  colorTheme = 'yellow' // Default amarillo para mantener compatibilidad
 }) => {
+  // Definir colores según el tema
+  const colors = colorTheme === 'red' ? {
+    spinnerBg: darkMode
+      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%)'
+      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.2) 100%)',
+    spinnerColor: darkMode ? '#ef4444' : '#dc2626',
+    progressBar: darkMode
+      ? 'linear-gradient(90deg, #ef4444, #f87171)'
+      : 'linear-gradient(90deg, #dc2626, #ef4444)'
+  } : colorTheme === 'blue' ? {
+    spinnerBg: darkMode
+      ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)'
+      : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.2) 100%)',
+    spinnerColor: darkMode ? '#3b82f6' : '#2563eb',
+    progressBar: darkMode
+      ? 'linear-gradient(90deg, #3b82f6, #60a5fa)'
+      : 'linear-gradient(90deg, #2563eb, #3b82f6)'
+  } : {
+    spinnerBg: darkMode
+      ? 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(202, 138, 4, 0.1) 100%)'
+      : 'linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(234, 179, 8, 0.2) 100%)',
+    spinnerColor: darkMode ? '#eab308' : '#ca8a04',
+    progressBar: darkMode
+      ? 'linear-gradient(90deg, #eab308, #facc15)'
+      : 'linear-gradient(90deg, #ca8a04, #eab308)'
+  };
   useEffect(() => {
     if (isOpen && onComplete && duration > 0) {
       const timer = setTimeout(() => {
@@ -29,48 +58,30 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      backdropFilter: 'blur(4px)',
-      animation: 'fadeIn 0.2s ease-in-out'
-    }}>
-      <div style={{
-        background: darkMode 
-          ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' 
-          : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-        borderRadius: '1rem',
-        border: darkMode 
-          ? '1px solid rgba(148, 163, 184, 0.2)' 
-          : '1px solid rgba(203, 213, 225, 0.3)',
-        padding: '2rem',
-        minWidth: '300px',
-        maxWidth: '400px',
-        boxShadow: darkMode 
-          ? '0 1.5rem 3rem rgba(0, 0, 0, 0.5)' 
-          : '0 1.5rem 3rem rgba(0, 0, 0, 0.15)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1.25rem',
-        animation: 'scaleIn 0.3s ease-out'
-      }}>
+    <div className="modal-overlay">
+      <div 
+        className="modal-content"
+        style={{
+          width: 'auto',
+          maxWidth: '400px',
+          minWidth: '300px',
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.25rem',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' 
+            : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+          color: darkMode ? '#fff' : '#1e293b'
+        }}
+      >
         {/* Spinner animado */}
         <div style={{
           width: '3.5rem',
           height: '3.5rem',
           borderRadius: '50%',
-          background: darkMode
-            ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)'
-            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 197, 253, 0.2) 100%)',
+          background: colors.spinnerBg,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -80,7 +91,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         }}>
           <Loader2 
             size={32} 
-            color={darkMode ? '#60a5fa' : '#3b82f6'}
+            color={colors.spinnerColor}
             style={{
               animation: 'spin 1s linear infinite'
             }}
@@ -120,9 +131,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         }}>
           <div style={{
             height: '100%',
-            background: darkMode
-              ? 'linear-gradient(90deg, #3b82f6, #60a5fa)'
-              : 'linear-gradient(90deg, #3b82f6, #2563eb)',
+            background: colors.progressBar,
             borderRadius: '2px',
             animation: `progress ${duration}ms linear forwards`,
             transformOrigin: 'left'

@@ -4,6 +4,8 @@ import { Camera, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PerfilModal from './PerfilModal';
 
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
+
 interface ProfileMenuProps {
   darkMode: boolean;
   toggleDarkMode: () => void;
@@ -41,7 +43,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
           
           // Fallback to fetching from API
           const token = sessionStorage.getItem('auth_token');
-          const response = await fetch(`http://localhost:3000/api/usuarios/${userData.id_usuario}/foto-perfil`, {
+          const response = await fetch(`${API_BASE}/api/usuarios/${userData.id_usuario}/foto-perfil`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
@@ -49,10 +51,11 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
             const url = URL.createObjectURL(blob);
             setCurrentFotoUrl(url);
           } else {
+            // 404 means no photo exists, which is normal - don't log error
             setCurrentFotoUrl(null);
           }
         } catch (error) {
-          // If there's an error, try to use foto_perfil from userData
+          // Silently handle errors - user simply doesn't have a photo
           if (userData.foto_perfil) {
             setCurrentFotoUrl(userData.foto_perfil);
           } else {
@@ -75,7 +78,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
       const loadFoto = async () => {
         try {
           const token = sessionStorage.getItem('auth_token');
-          const response = await fetch(`http://localhost:3000/api/usuarios/${userData.id_usuario}/foto-perfil?t=${Date.now()}`, {
+          const response = await fetch(`${API_BASE}/api/usuarios/${userData.id_usuario}/foto-perfil?t=${Date.now()}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
@@ -112,7 +115,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
       
       // Llamar al endpoint de logout
       if (token) {
-        await fetch('http://localhost:3000/api/auth/logout', {
+        await fetch(`${API_BASE}/api/auth/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
