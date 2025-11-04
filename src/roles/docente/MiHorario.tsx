@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { MapPin } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface MiHorarioProps {
   darkMode: boolean;
@@ -19,6 +21,7 @@ interface Horario {
 }
 
 const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +41,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/docentes/mi-horario`, {
+      const response = await fetch(`${API_BASE}/api/docentes/mi-horario`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -121,31 +124,31 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ marginBottom: '0.625em' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.125em 0' }}>
+      <div style={{ marginBottom: isMobile ? '0.5em' : '0.625em' }}>
+        <h2 className="responsive-title" style={{ color: theme.textPrimary, margin: '0 0 0.125em 0' }}>
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8rem', margin: 0 }}>
           Visualiza tu calendario de clases
         </p>
       </div>
 
       {/* Tabla de Horario Tipo Calendario */}
-      <div style={{
+      <div className="responsive-table-container" style={{
         background: theme.cardBg,
         border: `0.0625rem solid ${theme.border}`,
         borderRadius: '1em',
-        padding: '0.75em',
+        padding: isMobile ? '0.5em' : '0.75em',
         backdropFilter: 'blur(1.25rem)',
         boxShadow: darkMode ? '0 0.625rem 1.875rem rgba(0, 0, 0, 0.3)' : '0 0.625rem 1.875rem rgba(0, 0, 0, 0.1)',
         overflowX: 'auto',
         flex: 1
       }}>
-        <div style={{ minWidth: '56.25rem' }}>
+        <div style={{ minWidth: isMobile ? '40rem' : '56.25rem' }}>
           {/* Header con días de la semana */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
             gap: '0.125em',
             marginBottom: '0.125em'
           }}>
@@ -182,7 +185,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
           {/* Grid de horarios */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
             gap: '0.125em',
             position: 'relative'
           }}>
@@ -193,12 +196,12 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                   key={hora}
                   style={{
                     height: '1.875rem',
-                    padding: '0.25em',
+                    padding: isMobile ? '0.125em' : '0.25em',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
                     color: theme.textMuted,
-                    fontSize: '0.75rem',
+                    fontSize: isMobile ? '0.65rem' : '0.75rem',
                     fontWeight: '600'
                   }}
                 >

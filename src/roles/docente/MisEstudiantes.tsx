@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Users, Search, Mail, Phone, Award, Star, Calendar, BookOpen } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface MisEstudiantesProps {
   darkMode: boolean;
@@ -25,6 +27,7 @@ interface Estudiante {
 }
 
 const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,7 +48,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/docentes/mis-estudiantes`, {
+      const response = await fetch(`${API_BASE}/api/docentes/mis-estudiantes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -146,7 +149,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       </div>
 
       {/* Estadísticas (ultra-compactas, una sola línea) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(7.5rem, 1fr))', gap: '0.375em', marginBottom: '0.75em' }}>
+      <div className="responsive-grid-4" style={{ gap: '0.375em', marginBottom: '0.75em' }}>
         <div style={{ background: `linear-gradient(135deg, #3b82f6, #2563eb)`, borderRadius: '0.625em', padding: '0.375em' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
             <Users size={12} />
@@ -178,7 +181,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       </div>
 
       {/* Filtros */}
-      <div style={{ marginBottom: '1em', display: 'grid', gridTemplateColumns: '1fr 12rem 12rem', gap: '0.625em' }}>
+      <div className="responsive-filters" style={{ marginBottom: '1em', gap: '0.625em' }}>
         <div style={{ position: 'relative' }}>
           <Search
             size={20}
@@ -292,7 +295,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
             {/* Filas de estudiantes */}
             <div style={{ display: 'grid', gap: '0.375em' }}>
-              {estudiantesFiltrados.map((estudiante, index) => {
+              {estudiantesFiltrados.map((estudiante) => {
                 // Determine status color
                 let statusColor = theme.textMuted;
                 let statusBg = 'rgba(156, 163, 175, 0.2)';
@@ -328,7 +331,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
                 return (
                   <div
-                    key={estudiante.id_usuario}
+                    key={`${estudiante.id_usuario}-${estudiante.codigo_curso}`}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '2fr 1fr 1.5fr 1fr 1fr 1fr',

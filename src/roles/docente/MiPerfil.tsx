@@ -4,8 +4,10 @@ import { IoMdClose } from 'react-icons/io';
 import { HiOutlineShieldCheck } from 'react-icons/hi';
 import { UserCircle, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface MiPerfilProps {
   darkMode: boolean;
@@ -29,6 +31,7 @@ interface DocenteData {
 }
 
 const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [activeTab, setActiveTab] = useState<'info' | 'password'>('info');
   const [docente, setDocente] = useState<DocenteData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +61,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
       
-      const response = await fetch(`${API_BASE}/auth/me`, {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -92,13 +95,13 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   const loadFoto = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/auth/me`, {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (response.ok) {
         const data = await response.json();
-        const fotoResponse = await fetch(`${API_BASE.replace('/api', '')}/api/usuarios/${data.id_usuario}/foto-perfil`, {
+        const fotoResponse = await fetch(`${API_BASE}/api/usuarios/${data.id_usuario}/foto-perfil`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -130,7 +133,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       const namesKey = `${docente.nombres} ${docente.apellidos}`.trim().toLowerCase();
       
       try {
-        const res1 = await fetch(`${API_BASE}/docentes?search=${encodeURIComponent(ident)}`, {
+        const res1 = await fetch(`${API_BASE}/api/docentes?search=${encodeURIComponent(ident)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res1.ok) {
@@ -144,7 +147,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       
       if (!id_docente && docente.username) {
         try {
-          const res2 = await fetch(`${API_BASE}/docentes?search=${encodeURIComponent(docente.username)}`, {
+          const res2 = await fetch(`${API_BASE}/api/docentes?search=${encodeURIComponent(docente.username)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res2.ok) {
@@ -158,7 +161,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       }
       
       if (!id_docente) {
-        const res3 = await fetch(`${API_BASE}/docentes?limit=1000`, {
+        const res3 = await fetch(`${API_BASE}/api/docentes?limit=1000`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res3.ok) throw new Error('No se pudo obtener la lista de docentes');
@@ -176,7 +179,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       }
       if (!ident.trim()) {
         try {
-          const resU = await fetch(`${API_BASE}/usuarios/${docente.id_usuario}`, {
+          const resU = await fetch(`${API_BASE}/api/usuarios/${docente.id_usuario}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (resU.ok) {
@@ -188,7 +191,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       }
       if (!ident.trim() && id_docente) {
         try {
-          const resD = await fetch(`${API_BASE}/docentes/${id_docente}`);
+          const resD = await fetch(`${API_BASE}/api/docentes/${id_docente}`);
           if (resD.ok) {
             const dataD = await resD.json();
             const identDoc = dataD?.docente?.identificacion || dataD?.identificacion;
@@ -201,7 +204,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       }
       if (!id_docente) throw new Error('No se encontró el ID del docente (verifica tu identificación)');
 
-      const response = await fetch(`${API_BASE}/docentes/${id_docente}`, {
+      const response = await fetch(`${API_BASE}/api/docentes/${id_docente}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -249,7 +252,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE.replace('/api', '')}/api/usuarios/cambiar-password`, {
+      const response = await fetch(`${API_BASE}/api/usuarios/cambiar-password`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -297,21 +300,19 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header con ícono */}
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ 
-            fontSize: '1.125rem', 
-            fontWeight: '700', 
+          <h2 className="responsive-title" style={{ 
             color: 'var(--docente-text-primary)', 
             margin: '0 0 0.375rem 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.625rem'
+            gap: isMobile ? '0.5rem' : '0.625rem'
           }}>
-            <UserCircle size={26} color="#3b82f6" />
+            <UserCircle size={isMobile ? 20 : 26} color="#3b82f6" />
             Mi Perfil
           </h2>
-          <p style={{ color: 'var(--docente-text-muted)', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--docente-text-muted)', fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
             Gestiona tu información personal y seguridad
           </p>
         </div>
@@ -396,7 +397,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       {/* Contenido de los tabs */}
       {activeTab === 'info' && (
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 2fr', gap: '1rem', flex: 1 }}>
             {/* Card de perfil (izquierda) */}
             <div style={{
               background: 'var(--theme-card-bg)',
@@ -610,7 +611,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             }}>
               <h3 style={{ 
                 color: 'var(--docente-text-primary)', 
-                fontSize: '0.875rem', 
+                fontSize: isMobile ? '0.8rem' : '0.875rem', 
                 fontWeight: '700', 
                 margin: '0 0 1rem 0',
                 textTransform: 'uppercase',
@@ -620,7 +621,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 INFORMACIÓN PERSONAL
               </h3>
 
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
+              <div className="responsive-grid-2" style={{ gap: '0.75rem' }}>
                 {/* Nombres */}
                 <div>
                   <label style={{ color: 'var(--docente-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
