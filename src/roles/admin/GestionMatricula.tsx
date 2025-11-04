@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import LoadingModal from '../../components/LoadingModal';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 type Solicitud = {
@@ -40,6 +42,7 @@ const GestionMatricula = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [filterEstado, setFilterEstado] = useState<'todos' | Solicitud['estado']>('pendiente');
   const [tipos, setTipos] = useState<Array<{ id_tipo_curso: number; nombre: string; codigo?: string }>>([]);
   const [filterTipo, setFilterTipo] = useState<number | 'todos'>('todos');
@@ -96,6 +99,7 @@ const GestionMatricula = () => {
   const fetchSolicitudes = async () => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
       setError(null);
       // Construir query dinámicamente: si es "todos", no enviar estado para traer todas
       const params = new URLSearchParams();
@@ -119,6 +123,16 @@ const GestionMatricula = () => {
       setLoading(false);
     }
   };
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      await fetchSolicitudes();
+      await fetchCounters();
+    },
+    interval: 30000, // 30 segundos
+    dependencies: [filterEstado, filterTipo, page, limit]
+  });
 
   useEffect(() => {
     fetchSolicitudes();
@@ -241,6 +255,7 @@ const GestionMatricula = () => {
       if (approvalData?.id_estudiante_existente) {
         // CASO: Estudiante existente - Solo se creó matrícula
         toast.success(
+<<<<<<< Updated upstream
           <div style={{ lineHeight: '1.6' }}>
             <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 size={20} />
@@ -256,6 +271,9 @@ const GestionMatricula = () => {
               </div>
             </div>
           </div>,
+=======
+          `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
+>>>>>>> Stashed changes
           {
             duration: 6000,
             style: {
@@ -350,9 +368,9 @@ const GestionMatricula = () => {
         toast('Observaciones agregadas', {
           icon: <FileCheck size={20} />,
           style: {
-            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
-            border: '0.0625rem solid rgba(251, 191, 36, 0.4)',
-            color: '#fbbf24',
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+            border: '0.0625rem solid rgba(239, 68, 68, 0.4)',
+            color: '#ef4444',
             backdropFilter: 'blur(0.625rem)',
           },
         });
@@ -535,7 +553,7 @@ const GestionMatricula = () => {
             }}>Rechazado: {counters.rechazado}</span>
             <span style={{
               padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24'
+              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
             }}>Observaciones: {counters.observaciones}</span>
           </div>
           {/* Pagination */}
@@ -621,15 +639,15 @@ const GestionMatricula = () => {
                     textTransform: 'uppercase',
                     background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
                       sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                        sol.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                        sol.estado === 'observaciones' ? 'rgba(239, 68, 68, 0.15)' :
                           'rgba(156, 163, 175, 0.15)',
                     border: sol.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
                       sol.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                        sol.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                        sol.estado === 'observaciones' ? '1px solid rgba(239, 68, 68, 0.3)' :
                           '1px solid rgba(156, 163, 175, 0.3)',
                     color: sol.estado === 'aprobado' ? '#10b981' :
                       sol.estado === 'rechazado' ? '#ef4444' :
-                        sol.estado === 'observaciones' ? '#fbbf24' :
+                        sol.estado === 'observaciones' ? '#ef4444' :
                           '#9ca3af'
                   }}>
                     {sol.estado}
@@ -688,9 +706,9 @@ const GestionMatricula = () => {
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Número Comprobante</div>
                     {sol.numero_comprobante ? (
                       <div style={{
-                        background: 'rgba(251, 191, 36, 0.1)',
-                        border: '1px solid rgba(251, 191, 36, 0.3)',
-                        color: '#fbbf24',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444',
                         padding: '4px 0.5rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
@@ -1105,7 +1123,7 @@ const GestionMatricula = () => {
                     gap: '0.5rem',
                     textTransform: 'capitalize'
                   }}>
-                    <Clock size={16} color="#fbbf24" />
+                    <Clock size={16} color="#ef4444" />
                     {selected.horario_preferido}
                   </div>
                 </div>
@@ -1126,13 +1144,13 @@ const GestionMatricula = () => {
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
                       <div style={{
-                        color: '#fbbf24',
+                        color: '#ef4444',
                         fontWeight: '600',
                         fontSize: '0.95rem',
-                        background: 'rgba(251, 191, 36, 0.1)',
+                        background: 'rgba(239, 68, 68, 0.1)',
                         padding: '4px 0.5rem',
                         borderRadius: '0.375rem',
-                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                        border: '1px solid rgba(239, 68, 68, 0.3)'
                       }}>
                         {selected.numero_comprobante}
                       </div>
@@ -1172,13 +1190,13 @@ const GestionMatricula = () => {
                     <div>
                       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
                       <div style={{
-                        color: '#fbbf24',
+                        color: '#ef4444',
                         fontWeight: '600',
                         fontSize: '0.95rem',
-                        background: 'rgba(251, 191, 36, 0.1)',
+                        background: 'rgba(239, 68, 68, 0.1)',
                         padding: '4px 0.5rem',
                         borderRadius: '0.375rem',
-                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                        border: '1px solid rgba(239, 68, 68, 0.3)'
                       }}>
                         {selected.numero_comprobante}
                       </div>
@@ -1214,15 +1232,15 @@ const GestionMatricula = () => {
                   textTransform: 'capitalize',
                   background: selected.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
                     selected.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                      selected.estado === 'observaciones' ? 'rgba(251, 191, 36, 0.15)' :
+                      selected.estado === 'observaciones' ? 'rgba(239, 68, 68, 0.15)' :
                         'rgba(156, 163, 175, 0.15)',
                   border: selected.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
                     selected.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                      selected.estado === 'observaciones' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                      selected.estado === 'observaciones' ? '1px solid rgba(239, 68, 68, 0.3)' :
                         '1px solid rgba(156, 163, 175, 0.3)',
                   color: selected.estado === 'aprobado' ? '#10b981' :
                     selected.estado === 'rechazado' ? '#ef4444' :
-                      selected.estado === 'observaciones' ? '#fbbf24' :
+                      selected.estado === 'observaciones' ? '#ef4444' :
                         '#9ca3af'
                 }}>
                   {selected.estado}
@@ -1421,7 +1439,7 @@ const GestionMatricula = () => {
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <span>
-                          {selected.estado === 'aprobado' ? <CheckCircle2 size={28} color="#10b981" /> : selected.estado === 'rechazado' ? <XCircle size={28} color="#ef4444" /> : <AlertCircle size={28} color="#f59e0b" />}
+                          {selected.estado === 'aprobado' ? <CheckCircle2 size={28} color="#10b981" /> : selected.estado === 'rechazado' ? <XCircle size={28} color="#ef4444" /> : <AlertCircle size={28} color="#ef4444" />}
                         </span>
                         <div style={{ textAlign: 'left' }}>
                           <h4 style={{
@@ -1538,7 +1556,7 @@ const GestionMatricula = () => {
                 {comprobanteNumero && (
                   <p style={{
                     margin: '6px 0 0 1.75rem',
-                    color: '#fbbf24',
+                    color: '#ef4444',
                     fontSize: '0.85rem',
                     fontWeight: '600'
                   }}>
@@ -1797,7 +1815,7 @@ const GestionMatricula = () => {
                   gap: '0.5rem',
                   textTransform: 'capitalize'
                 }}>
-                  <Clock size={16} color="#fbbf24" />
+                  <Clock size={16} color="#ef4444" />
                   {(approvalData?.horario_preferido && approvalData.horario_preferido.trim()) || 'No especificado'}
                 </div>
               </div>
@@ -1907,6 +1925,16 @@ const GestionMatricula = () => {
           </div>
         </div>
       )}
+      
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando datos..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
+      />
     </div>
   );
 };

@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import LoadingModal from '../../components/LoadingModal';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -52,7 +54,9 @@ const GestionPagosEstudiante = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [estudiantes, setEstudiantes] = useState<EstudianteAgrupado[]>([]);
-  const [loading, setLoading] = useState(true); const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
   const [filtroPrioridad, setFiltroPrioridad] = useState<string>('pendientes_primero');
   const [selectedPago, setSelectedPago] = useState<Pago | null>(null);
@@ -75,6 +79,16 @@ const GestionPagosEstudiante = () => {
   // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh({
+    onRefresh: async () => {
+      await loadData();
+    },
+    interval: 30000, // 30 segundos
+    dependencies: [filtroEstado]
+  });
+
   useEffect(() => {
     loadData();
   }, [filtroEstado]);
@@ -105,9 +119,9 @@ const GestionPagosEstudiante = () => {
   }, [estudiantes]);
 
   const loadData = async () => {
-
     try {
       setLoading(true);
+      setShowLoadingModal(true);
       const token = sessionStorage.getItem('auth_token');
 
       const params = new URLSearchParams();
@@ -2030,6 +2044,16 @@ const GestionPagosEstudiante = () => {
           to { transform: rotate(360deg); }
         }
       `}</style>
+
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={showLoadingModal}
+        message="Actualizando datos..."
+        darkMode={true}
+        duration={500}
+        onComplete={() => setShowLoadingModal(false)}
+        colorTheme="red"
+      />
     </div>
   );
 };
