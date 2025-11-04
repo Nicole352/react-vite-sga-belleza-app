@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { X, Upload, AlertCircle, CheckCircle, Info, CreditCard, Building } from 'lucide-react';
+import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -20,6 +23,7 @@ interface ModalPagoMensualidadProps {
 }
 
 const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onClose, onSuccess, darkMode = false }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [metodoPago, setMetodoPago] = useState<'transferencia' | 'efectivo'>('transferencia');
   const [montoPagar, setMontoPagar] = useState<string>(cuota.monto.toString());
   const [numeroComprobante, setNumeroComprobante] = useState('');
@@ -178,35 +182,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.6)',
-      backdropFilter: 'blur(0.375rem)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1em',
-      overflowY: 'auto'
-    }}>
-      <div style={{
+    <EstudianteThemeWrapper darkMode={darkMode}>
+      <div className="modal-overlay">
+      <div className="modal-content responsive-modal" style={{
         background: theme.modalBg,
-        borderRadius: '0.75em',
-        width: '100%',
-        maxWidth: '34rem',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        padding: '1.25em',
-        position: 'relative',
         border: `0.0625rem solid ${theme.border}`,
-        boxShadow: darkMode
-          ? '0 1.25rem 3rem rgba(0, 0, 0, 0.5)'
-          : '0 1.25rem 3rem rgba(0, 0, 0, 0.2)',
-        margin: 'auto'
+        padding: isMobile ? '1em' : '1.25em'
       }}>
         {/* Botón cerrar */}
         <button
@@ -744,6 +725,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         `}</style>
       </div>
     </div>
+    </EstudianteThemeWrapper>
   );
 };
 

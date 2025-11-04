@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Eye, XCircle, CreditCard } from 'lucide-react';
 import ModalPagoMensualidad from './ModalPagoMensualidad';
+import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -49,6 +52,7 @@ interface PagosMenualesProps {
 }
 
 const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [cursosConPagos, setCursosConPagos] = useState<CursoConPagos[]>([]);
   const [resumenPagos, setResumenPagos] = useState<ResumenPagos | null>(null);
   const [loading, setLoading] = useState(true);
@@ -246,10 +250,10 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
             <CreditCard size={16} style={{ color: '#fff' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: '1rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
+            <h1 style={{ fontSize: isMobile ? '0.9rem' : '1rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
               Gestión de Pagos
             </h1>
-            <p style={{ fontSize: '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
+            <p style={{ fontSize: isMobile ? '0.7rem' : '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
               Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
             </p>
           </div>
@@ -298,9 +302,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
       {/* Resumen de pagos */}
       {resumenPagos && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, minmax(min(6.875rem, 90vw), 1fr))',
+        <div className="responsive-grid-4" style={{
           gap: '0.5rem',
           marginBottom: '0.75rem'
         }}>
@@ -360,7 +362,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
       {/* Cursos con pagos pendientes */}
       <div id="cursos-pagos" style={{ marginBottom: '0.75em' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5em', color: darkMode ? '#fff' : '#1f2937' }}>
+        <h2 style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '800', marginBottom: '0.5em', color: darkMode ? '#fff' : '#1f2937' }}>
           Cursos con Pagos Pendientes
         </h2>
 
@@ -422,7 +424,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 90vw), 1fr))', gap: '0.375em' }}>
+                <div className="responsive-grid-auto" style={{ gap: '0.375em' }}>
                   <div>
                     <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Cuotas Pendientes</div>
                     <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#f59e0b' }}>
@@ -459,7 +461,8 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
       {/* Modal de cuotas */}
       {showCuotasModal && selectedMatricula && (
-        <div style={{
+        <EstudianteThemeWrapper darkMode={darkMode}>
+          <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -656,6 +659,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
             </div>
           </div>
         </div>
+        </EstudianteThemeWrapper>
       )}
 
       {/* Modal de pago */}
