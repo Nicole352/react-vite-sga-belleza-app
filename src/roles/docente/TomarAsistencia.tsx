@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import LoadingModal from '../../components/LoadingModal';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface TomarAsistenciaProps {
   darkMode: boolean;
@@ -81,14 +81,14 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         const token = sessionStorage.getItem('auth_token');
         if (!token) return;
 
-        const response = await fetch(`${API_BASE}/auth/me`, {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
           const data = await response.json();
           // Buscar el id_docente en la tabla docentes usando la cédula
-          const docenteRes = await fetch(`${API_BASE}/docentes`, {
+          const docenteRes = await fetch(`${API_BASE}/api/docentes`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
 
@@ -113,7 +113,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const loadCursos = async (docenteId: number) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/asistencias/cursos-docente/${docenteId}`, {
+      const response = await fetch(`${API_BASE}/api/asistencias/cursos-docente/${docenteId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -131,7 +131,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     setLoading(true);
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/asistencias/estudiantes/${cursoId}`, {
+      const response = await fetch(`${API_BASE}/api/asistencias/estudiantes/${cursoId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -269,7 +269,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     try {
       const token = sessionStorage.getItem('auth_token');
       const response = await fetch(
-        `${API_BASE}/asistencias/curso/${cursoId}/fecha/${fecha}`,
+        `${API_BASE}/api/asistencias/curso/${cursoId}/fecha/${fecha}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -435,7 +435,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         }
       });
 
-      const response = await fetch(`${API_BASE}/asistencias`, {
+      const response = await fetch(`${API_BASE}/api/asistencias`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -463,7 +463,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     try {
       const token = sessionStorage.getItem('auth_token');
       const response = await fetch(
-        `${API_BASE}/asistencias/documento/${idAsistencia}`,
+        `${API_BASE}/api/asistencias/documento/${idAsistencia}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -542,7 +542,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     try {
       const token = sessionStorage.getItem('auth_token');
       const response = await fetch(
-        `${API_BASE}/asistencias/curso/${cursoSeleccionado}/fecha/${fechaSeleccionada}`,
+        `${API_BASE}/api/asistencias/curso/${cursoSeleccionado}/fecha/${fechaSeleccionada}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -741,7 +741,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Obtener TODOS los registros de asistencia del rango
       const responseDetalle = await fetch(
-        `${API_BASE}/asistencias/curso/${cursoSeleccionado}/rango?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`,
+        `${API_BASE}/api/asistencias/curso/${cursoSeleccionado}/rango?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 

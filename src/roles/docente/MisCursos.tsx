@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Calendar, Clock, MapPin, AlertCircle, BarChart3, Eye, ChevronRight } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface MisCursosProps {
   darkMode: boolean;
@@ -26,6 +28,7 @@ interface Curso {
 
 const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
   const navigate = useNavigate();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [filteredCursos, setFilteredCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +58,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/docentes/mis-cursos`, {
+      const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -264,7 +267,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(21.875rem, 1fr))', gap: '1.25em' }}>
+        <div className="responsive-grid-auto" style={{ gap: '1.25em' }}>
           {filteredCursos.map((curso, index) => {
             const coloresGradiente = [
               ['#3b82f6', '#2563eb'],
