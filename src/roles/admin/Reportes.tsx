@@ -1166,83 +1166,6 @@ const Reportes = () => {
       }
 
       return (
-<<<<<<< Updated upstream
-        <div style={{ display: 'grid', gap: isMobile ? '16px' : '1.5rem', width: '100%' }}>
-          {/* Métricas principales */}
-          <div className="metricas-scroll" style={{ 
-            display: isMobile ? 'flex' : 'grid',
-            flexWrap: isMobile ? 'nowrap' : undefined,
-            gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
-            gap: isMobile ? '10px' : '0.75rem',
-            width: isMobile ? 'calc(100% + 2rem)' : '100%',
-            overflowX: isMobile ? 'scroll' : 'visible',
-            overflowY: 'hidden',
-            paddingBottom: isMobile ? '8px' : '0',
-            WebkitOverflowScrolling: 'touch',
-            marginLeft: isMobile ? '-16px' : '0',
-            marginRight: isMobile ? '-16px' : '0',
-            paddingLeft: isMobile ? '16px' : '0',
-            paddingRight: isMobile ? '16px' : '0'
-          }}>
-            {[
-              { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes || 0, color: '#3b82f6', icono: Users },
-              { titulo: 'Activos', valor: estadisticas.activos || 0, color: '#10b981', icono: CheckCircle2 },
-              { titulo: 'Aprobados', valor: estadisticas.aprobados || 0, color: '#8b5cf6', icono: TrendingUp },
-              { titulo: 'Retirados', valor: estadisticas.retirados || 0, color: '#ef4444', icono: AlertCircle }
-            ].map((metrica, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                  border: `2px solid ${metrica.color}40`,
-                  borderRadius: '0.625rem', 
-                  padding: isMobile ? '14px 0.625rem' : '20px 1rem',
-                  textAlign: 'center',
-                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: isMobile ? '90px' : '7.5rem',
-                  width: isMobile ? '140px' : 'auto',
-                  minWidth: isMobile ? '140px' : 'auto',
-                  boxSizing: 'border-box',
-                  flexShrink: 0
-                }}
-              >
-                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))', flexShrink: 0 }} />
-                <div style={{
-                  color: '#fff',
-                  fontSize: isMobile ? '1.4rem' : '1.8rem', 
-                  fontWeight: '800', 
-                  marginBottom: '0.25rem',
-                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  lineHeight: '1'
-                }}>
-                  {metrica.valor}
-                </div>
-                <div style={{
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                  fontWeight: '600', 
-                  letterSpacing: '0.3px',
-                  textTransform: 'uppercase',
-                  lineHeight: '1.2',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: isMobile ? 'normal' : 'nowrap'
-                }}>
-                  {metrica.titulo}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Lista de estudiantes */}
-          {datosReporte.length > 0 && (
-            <div>
-=======
         <div style={{ 
           display: 'grid', 
           gap: isMobile ? '16px' : '1.5rem', 
@@ -1376,7 +1299,6 @@ const Reportes = () => {
               overflowY: isMobile ? 'visible' : 'auto',
               paddingRight: isMobile ? '0' : '0.5rem'
             }}>
->>>>>>> Stashed changes
               <h4 style={{
                 color: '#fff',
                 fontSize: '0.95rem',
@@ -1393,157 +1315,21 @@ const Reportes = () => {
                   background: 'rgba(239, 68, 68, 0.1)',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '0.5rem',
-                  padding: '8px 0.75rem',
+                  padding: '0.5rem',
                   marginBottom: '0.75rem',
                   color: '#ef4444',
-<<<<<<< Updated upstream
-                  fontSize: '0.75rem',
-=======
                   fontSize: '0.7rem',
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                   textAlign: 'center',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.375rem'
                 }}>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                  <span>👉</span>
-                  <span>Desliza horizontalmente para ver toda la tabla</span>
-                  <span>👈</span>
-                </div>
-              )}
-              
-              <div 
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                  border: '2px solid rgba(59, 130, 246, 0.3)',
-                  borderRadius: isMobile ? 12 : 16,
-                  boxShadow: '0 0.25rem 1.25rem rgba(59, 130, 246, 0.1)',
-                  overflow: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  maxWidth: '100%'
-                }}
-              >
-                <table style={{ 
-                  width: '100%', 
-                  borderCollapse: 'collapse', 
-                  minWidth: isMobile ? '700px' : '100%',
-                  tableLayout: 'auto'
-                }}>
-                  <thead>
-                    <tr style={{
-                      borderBottom: '2px solid rgba(59, 130, 246, 0.3)',
-                      background: 'rgba(59, 130, 246, 0.1)'
-                    }}>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#60a5fa',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Nombre</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#60a5fa',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Curso</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#60a5fa',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Estado</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#60a5fa',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Fecha Inscripción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {datosReporte.slice(0, 10).map((estudiante, idx) => (
-                      <tr key={idx} style={{
-                        borderBottom: '1px solid rgba(255,255,255,0.1)',
-                        transition: 'background 0.2s ease'
-                      }}>
-                        <td style={{
-                          padding: '16px 0.75rem',
-                          color: '#fff',
-                          fontSize: '0.95rem',
-                          fontWeight: '500'
-                        }}>
-                          {estudiante.nombre} {estudiante.apellido}
-                        </td>
-                        <td style={{
-                          padding: '16px 0.75rem',
-                          color: 'rgba(255,255,255,0.85)',
-                          fontSize: '0.9rem'
-                        }}>
-                          {estudiante.nombre_curso}
-                        </td>
-                        <td style={{ padding: '0.75rem', fontSize: '0.85rem' }}>
-                          <span style={{
-                            padding: '4px 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            background: estudiante.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.2)' :
-                              estudiante.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.2)' :
-                                'rgba(59, 130, 246, 0.2)',
-                            color: estudiante.estado_academico === 'aprobado' ? '#10b981' :
-                              estudiante.estado_academico === 'reprobado' ? '#ef4444' :
-                                '#3b82f6'
-                          }}>
-                            {estudiante.estado_academico?.toUpperCase()}
-                          </span>
-                        </td>
-                        <td style={{
-                          padding: '16px 0.75rem',
-                          color: 'rgba(255,255,255,0.85)',
-                          fontSize: '0.9rem'
-                        }}>
-                          {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {datosReporte.length > 10 && (
-                  <div style={{ padding: isMobile ? '12px' : '1rem' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0, textAlign: 'center' }}>
-                      Mostrando 10 de {datosReporte.length} estudiantes. Descarga el reporte completo en PDF o Excel.
-                    </p>
-=======
                   <TrendingUp size={14} />
                   Desliza horizontalmente
                 </div>
               )}
               
-=======
-                  <TrendingUp size={14} />
-                  Desliza horizontalmente
-                </div>
-              )}
-              
->>>>>>> Stashed changes
               {/* Cards en grid compacto */}
               <div 
                 style={{
@@ -1644,10 +1430,16 @@ const Reportes = () => {
                         })}
                       </div>
                     </div>
->>>>>>> Stashed changes
                   </div>
-                )}
+                ))}
               </div>
+              {datosReporte.length > 10 && (
+                <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0 }}>
+                    Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1656,86 +1448,18 @@ const Reportes = () => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem', width: '100%' }}>
-          {/* Métricas principales */}
-          <div className="metricas-scroll" style={{ 
-            display: isMobile ? 'flex' : 'grid',
-            flexWrap: isMobile ? 'nowrap' : undefined,
-            gridTemplateColumns: isMobile ? 'none' : 'repeat(4, 1fr)',
-            gap: isMobile ? '10px' : '0.75rem',
-            width: isMobile ? 'calc(100% + 2rem)' : '100%',
-            overflowX: isMobile ? 'scroll' : 'visible',
-            overflowY: 'hidden',
-            paddingBottom: isMobile ? '8px' : '0',
-            WebkitOverflowScrolling: 'touch',
-            marginLeft: isMobile ? '-16px' : '0',
-            marginRight: isMobile ? '-16px' : '0',
-            paddingLeft: isMobile ? '16px' : '0',
-            paddingRight: isMobile ? '16px' : '0'
-          }}>
-            {[
-              { titulo: 'Ingresos Totales', valor: `$${parseFloat(estadisticas.ingresos_totales || 0).toLocaleString()}`, color: '#10b981', icono: DollarSign },
-              { titulo: 'Pagos Verificados', valor: estadisticas.pagos_verificados || 0, color: '#3b82f6', icono: CheckCircle2 },
-              { titulo: 'Pagos Pendientes', valor: estadisticas.pagos_pendientes || 0, color: '#f59e0b', icono: AlertCircle },
-              { titulo: 'Total Pagos', valor: estadisticas.total_pagos || 0, color: '#8b5cf6', icono: TrendingUp }
-            ].map((metrica, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                  border: `2px solid ${metrica.color}40`,
-                  borderRadius: '0.625rem', 
-                  padding: isMobile ? '14px 0.625rem' : '20px 1rem',
-                  textAlign: 'center',
-                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: isMobile ? '90px' : '7.5rem',
-                  width: isMobile ? '140px' : 'auto',
-                  minWidth: isMobile ? '140px' : 'auto',
-                  boxSizing: 'border-box',
-                  flexShrink: 0
-                }}
-              >
-                <metrica.icono size={isMobile ? 24 : 32} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))', flexShrink: 0 }} />
-                <div style={{
-                  color: '#fff',
-                  fontSize: isMobile ? '1.2rem' : '1.5rem', 
-                  fontWeight: '800', 
-                  marginBottom: '0.25rem',
-                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  lineHeight: '1'
-                }}>
-                  {metrica.valor}
-                </div>
-                <div style={{
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                  fontWeight: '600', 
-                  letterSpacing: '0.3px',
-                  textTransform: 'uppercase',
-                  lineHeight: '1.2',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: isMobile ? 'normal' : 'nowrap'
-                }}>
-                  {metrica.titulo}
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <div style={{ 
+          display: 'grid', 
+          gap: isMobile ? '12px' : '1rem', 
+          width: '100%', 
+          maxWidth: '100%'
+        }}>
           {/* Lista de pagos */}
           {datosReporte.length > 0 && (
             <div style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '10px' : '0.75rem',
-              padding: isMobile ? '12px' : '1rem',
-              boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)'
+              maxHeight: '60vh',
+              overflowY: 'auto',
+              paddingRight: '0.5rem'
             }}>
               <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Detalle de Pagos ({datosReporte.length})
@@ -1762,91 +1486,6 @@ const Reportes = () => {
                 </div>
               )}
               
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              <div 
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                  border: '2px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: isMobile ? 10 : 12,
-                  boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)',
-                  overflow: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  maxWidth: '100%'
-                }}
-              >
-                <table style={{ 
-                  width: '100%', 
-                  borderCollapse: 'collapse', 
-                  minWidth: isMobile ? '800px' : '100%',
-                  tableLayout: 'auto'
-                }}>
-                  <thead>
-                    <tr style={{
-                      borderBottom: '2px solid rgba(16, 185, 129, 0.3)',
-                      background: 'rgba(16, 185, 129, 0.1)'
-                    }}>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#10b981',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Estudiante</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#10b981',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Curso</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#10b981',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Monto</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#10b981',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Fecha</th>
-                      <th style={{
-                        padding: '10px 0.5rem',
-                        textAlign: 'left',
-                        color: '#10b981',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {datosReporte.slice(0, 10).map((pago, idx) => (
-                      <tr key={idx} style={{
-                        borderBottom: '1px solid rgba(255,255,255,0.1)',
-                        transition: 'background 0.2s ease'
-                      }}>
-                        <td style={{
-                          padding: '10px 0.5rem',
-                          color: '#fff',
-                          fontSize: '0.8rem',
-                          fontWeight: '500'
-=======
-=======
->>>>>>> Stashed changes
               {/* Cards en grid compacto */}
               <div 
                 style={{
@@ -1955,65 +1594,20 @@ const Reportes = () => {
                           color: pago.estado_pago === 'verificado' ? '#10b981' :
                             pago.estado_pago === 'pagado' ? '#3b82f6' :
                               '#ef4444'
->>>>>>> Stashed changes
                         }}>
-                          {pago.nombre_estudiante} {pago.apellido_estudiante}
-                        </td>
-                        <td style={{
-                          padding: '10px 0.5rem',
-                          color: 'rgba(255,255,255,0.85)',
-                          fontSize: '0.75rem'
-                        }}>
-                          {pago.nombre_curso}
-                        </td>
-                        <td style={{
-                          padding: '10px 0.5rem',
-                          color: '#10b981',
-                          fontSize: '0.8rem',
-                          fontWeight: '600'
-                        }}>
-                          ${parseFloat(pago.monto).toFixed(2)}
-                        </td>
-                        <td style={{
-                          padding: '10px 0.5rem',
-                          color: 'rgba(255,255,255,0.85)',
-                          fontSize: '0.75rem'
-                        }}>
-                          {pago.fecha_pago
-                            ? new Date(pago.fecha_pago).toLocaleDateString('es-ES')
-                            : pago.fecha_vencimiento
-                              ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES')
-                              : 'N/A'
-                          }
-                        </td>
-                        <td style={{ padding: '10px 0.5rem', fontSize: '0.75rem' }}>
-                          <span style={{
-                            padding: '4px 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
-                              pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
-                                'rgba(239, 68, 68, 0.2)',
-                            color: pago.estado_pago === 'verificado' ? '#10b981' :
-                              pago.estado_pago === 'pagado' ? '#3b82f6' :
-                                '#ef4444'
-                          }}>
-                            {pago.estado_pago?.toUpperCase()}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          {pago.estado_pago?.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
                 {datosReporte.length > 10 && (
-                  <div style={{ padding: isMobile ? '12px' : '1rem' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', margin: 0, textAlign: 'center' }}>
-                      Mostrando 10 de {datosReporte.length} pagos. Descarga el reporte completo en PDF o Excel.
+                  <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0 }}>
+                      Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
                     </p>
                   </div>
                 )}
-              </div>
             </div>
           )}
         </div>
@@ -2022,72 +1616,18 @@ const Reportes = () => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem', width: '100%' }}>
-          {/* Métricas principales */}
-          <div className="metricas-scroll" style={{ 
-            display: isMobile ? 'flex' : 'grid',
-            flexWrap: isMobile ? 'nowrap' : undefined,
-            gridTemplateColumns: isMobile ? 'none' : 'repeat(3, 1fr)',
-            gap: isMobile ? '10px' : '0.75rem',
-            width: isMobile ? 'calc(100% + 2rem)' : '100%',
-            overflowX: isMobile ? 'scroll' : 'visible',
-            overflowY: 'hidden',
-            paddingBottom: isMobile ? '8px' : '0',
-            WebkitOverflowScrolling: 'touch',
-            marginLeft: isMobile ? '-16px' : '0',
-            marginRight: isMobile ? '-16px' : '0',
-            paddingLeft: isMobile ? '16px' : '0',
-            paddingRight: isMobile ? '16px' : '0'
-          }}>
-            {[
-              { titulo: 'Total Cursos', valor: estadisticas.total_cursos || 0, color: '#10b981', icono: BookOpen },
-              { titulo: 'Cursos Activos', valor: estadisticas.cursos_activos || 0, color: '#3b82f6', icono: CheckCircle2 },
-              { titulo: 'Total Estudiantes', valor: estadisticas.total_estudiantes_inscritos || 0, color: '#f59e0b', icono: Users }
-            ].map((metrica, idx) => (
-              <GlassEffect
-                key={idx}
-                variant="card"
-                tint="neutral"
-                intensity="light"
-                                style={{
-                  background: `linear-gradient(135deg, ${metrica.color}15 0%, ${metrica.color}05 100%)`,
-                  border: `2px solid ${metrica.color}40`,
-                  borderRadius: '0.625rem', padding: isMobile ? '10px 0.5rem' : '0.75rem',
-                  textAlign: 'center',
-                  boxShadow: `0 0.25rem 1.25rem ${metrica.color}20`,
-                  width: isMobile ? '140px' : 'auto',
-                  minWidth: isMobile ? '140px' : 'auto',
-                  flexShrink: 0
-                }}
-              >
-                <metrica.icono size={28} color={metrica.color} style={{ marginBottom: '0.375rem', filter: 'drop-shadow(0 0.125rem 0.5rem rgba(0,0,0,0.3))' }} />
-                <div style={{
-                  color: '#fff',
-                  fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.25rem',
-                  textShadow: '0 0.125rem 0.625rem rgba(0,0,0,0.5)',
-                  lineHeight: '1'
-                }}>
-                  {metrica.valor}
-                </div>
-                <div style={{
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.7rem', fontWeight: '600', letterSpacing: '0.5px',
-                  textTransform: 'uppercase'
-                }}>
-                  {metrica.titulo}
-                </div>
-              </GlassEffect>
-            ))}
-          </div>
-
+        <div style={{ 
+          display: 'grid', 
+          gap: isMobile ? '12px' : '1rem', 
+          width: '100%', 
+          maxWidth: '100%'
+        }}>
           {/* Lista de cursos */}
           {datosReporte.length > 0 && (
             <div style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: isMobile ? '10px' : '0.75rem',
-              padding: isMobile ? '12px' : '1rem',
-              boxShadow: '0 0.25rem 1.25rem rgba(16, 185, 129, 0.1)'
+              maxHeight: isMobile ? 'auto' : '60vh',
+              overflowY: isMobile ? 'visible' : 'auto',
+              paddingRight: isMobile ? '0' : '0.5rem'
             }}>
               <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Cursos Disponibles ({datosReporte.length})
@@ -2165,7 +1705,12 @@ const Reportes = () => {
   return (
     <>
       <style>{scrollbarStyles}</style>
-      <div>
+      <div style={{
+        width: '100%',
+        maxWidth: '100%',
+        overflowX: 'hidden',
+        overflowY: 'auto'
+      }}>
         <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
         <h2 className="responsive-title" style={{
           color: 'rgba(255,255,255,0.95)', 
@@ -2479,9 +2024,10 @@ const Reportes = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
             backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
             borderRadius: isMobile ? '12px' : '1.25rem', 
-            padding: isMobile ? '16px' : '2rem',
-            overflowX: 'hidden',
-            overflowY: 'auto'
+            padding: isMobile ? '12px' : '2rem',
+            overflow: 'visible',
+            width: '100%',
+            boxSizing: 'border-box'
           }}>
             <div style={{ marginBottom: '1rem' }}>
               <h3 style={{ 

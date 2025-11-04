@@ -254,61 +254,35 @@ const GestionMatricula = () => {
       // Notificación de éxito - diferente según si es estudiante nuevo o existente
       if (approvalData?.id_estudiante_existente) {
         // CASO: Estudiante existente - Solo se creó matrícula
+        // Usar los datos de approvalData ya que son los de la solicitud original
         toast.success(
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-          <div style={{ lineHeight: '1.6' }}>
-            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={20} />
-              Matrícula aprobada exitosamente
-            </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
-              <div><strong>Estudiante:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
-              <div><strong>Usuario:</strong> {data.estudiante.username}</div>
-              <div style={{ marginTop: '0.375rem', padding: '0.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '0.375rem', border: '0.0625rem solid rgba(59, 130, 246, 0.3)' }}>
-                <div style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '600' }}>
-                  El estudiante usará sus credenciales existentes
-                </div>
-              </div>
-            </div>
-          </div>,
-=======
           `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
->>>>>>> Stashed changes
-=======
-          `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
->>>>>>> Stashed changes
           {
-            duration: 6000,
-            style: {
-              minWidth: '26.25rem',
-            },
-            icon: <CheckCircle2 size={24} />,
+            duration: 4000,
+            icon: <CheckCircle2 size={20} />,
           }
         );
       } else {
         // CASO: Estudiante nuevo - Se creó usuario + matrícula
         toast.success(
-          <div style={{ lineHeight: '1.6' }}>
-            <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={20} />
+          <div style={{ fontSize: '0.875rem' }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.375rem' }}>
               Estudiante creado exitosamente
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
-              <div><strong>Nombre:</strong> {data.estudiante.nombre} {data.estudiante.apellido}</div>
-              <div><strong>Usuario:</strong> {data.estudiante.username}</div>
-              <div><strong>Email:</strong> {data.estudiante.email}</div>
-              <div style={{ marginTop: '0.375rem', color: '#fbbf24', fontWeight: '600' }}>
-                <strong>Contraseña:</strong> {data.estudiante.password_temporal}
-              </div>
+            <div style={{ fontSize: '0.8125rem', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.5rem', alignItems: 'baseline' }}>
+              <span style={{ fontWeight: '600' }}>Nombre:</span>
+              <span>{data.estudiante.nombre} {data.estudiante.apellido}</span>
+              <span style={{ fontWeight: '600' }}>Usuario:</span>
+              <span>{data.estudiante.username}</span>
+              <span style={{ fontWeight: '600' }}>Email:</span>
+              <span>{data.estudiante.email}</span>
+              <span style={{ fontWeight: '600' }}>Contraseña:</span>
+              <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{data.estudiante.password_temporal}</span>
             </div>
           </div>,
           {
-            duration: 8000,
-            style: {
-              minWidth: '26.25rem',
-            },
-            icon: <CheckCircle2 size={24} />,
+            duration: 7000,
+            icon: <CheckCircle2 size={20} />,
           }
         );
       }
