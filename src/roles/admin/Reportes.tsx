@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Download, BarChart3, Users, BookOpen, DollarSign,
   Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
-  History, Clock, User
+  History, Clock, User, Calendar, Search, ArrowUpDown, ArrowUp, ArrowDown,
+  Percent, Award, Target
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassEffect from '../../components/GlassEffect';
@@ -77,6 +78,19 @@ const Reportes = () => {
   const [filtroCurso, setFiltroCurso] = useState('');
   const [filtroTipoPago, setFiltroTipoPago] = useState('todos');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('todos');
+  
+  // Nuevos filtros para cursos
+  const [filtroEstadoCursoReporte, setFiltroEstadoCursoReporte] = useState('todos');
+  const [filtroOcupacionCurso, setFiltroOcupacionCurso] = useState('todos');
+  const [filtroHorarioCurso, setFiltroHorarioCurso] = useState('todos');
+  
+  // Nuevos filtros para financiero
+  const [filtroRangoMonto, setFiltroRangoMonto] = useState('todos');
+  const [filtroMetodoPago, setFiltroMetodoPago] = useState('todos');
+  const [filtroMesEspecifico, setFiltroMesEspecifico] = useState('todos');
+  const [filtroCursoFinanciero, setFiltroCursoFinanciero] = useState('');
+  const [filtroEstadoCursoFinanciero, setFiltroEstadoCursoFinanciero] = useState('todos');
+  const [filtroHorarioFinanciero, setFiltroHorarioFinanciero] = useState('todos');
 
   // Estados de datos
   const [datosReporte, setDatosReporte] = useState<DatosReporte | null>(null);
@@ -94,6 +108,16 @@ const Reportes = () => {
   const [historialReportes, setHistorialReportes] = useState<any[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
   const [filtroTipoHistorial, setFiltroTipoHistorial] = useState('todos');
+
+  // Nuevos estados para mejoras
+  const [filtroHorario, setFiltroHorario] = useState<'todos' | 'matutino' | 'vespertino'>('todos');
+  const [filtroTipoCurso, setFiltroTipoCurso] = useState('todos');
+  const [filtroEstadoCurso, setFiltroEstadoCurso] = useState<'todos' | 'activo' | 'finalizado' | 'cancelado'>('todos');
+  const [busquedaRapida, setBusquedaRapida] = useState('');
+  const [ordenamiento, setOrdenamiento] = useState<'nombre' | 'fecha' | 'monto' | 'capacidad'>('fecha');
+  const [ordenAscendente, setOrdenAscendente] = useState(false);
+  const [compararPeriodos, setCompararPeriodos] = useState(false);
+  const [datosReportePrevio, setDatosReportePrevio] = useState<DatosReporte | null>(null);
 
   const reportesDisponibles = [
     {
@@ -127,7 +151,7 @@ const Reportes = () => {
       cargarCursosParaFiltro();
       cargarPeriodosDisponibles();
     } else {
-      console.error('❌ No hay token disponible');
+      console.error('-No hay token disponible');
     }
   }, []);
 
@@ -149,7 +173,7 @@ const Reportes = () => {
       console.log('📅 Iniciando carga de períodos...');
       const token = sessionStorage.getItem('auth_token');
       if (!token) {
-        console.error('❌ No hay token disponible para cargar períodos');
+        console.error('-No hay token disponible para cargar períodos');
         return;
       }
 
@@ -163,7 +187,7 @@ const Reportes = () => {
       console.log('📡 Status de respuesta:', response.status);
 
       if (response.status === 401) {
-        console.error('❌ Token inválido o expirado al cargar períodos');
+        console.error('-Token inválido o expirado al cargar períodos');
         return;
       }
 
@@ -359,13 +383,19 @@ const Reportes = () => {
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
           if (filtroCurso) params.append('idCurso', filtroCurso);
           break;
-        case 'financiero':
-          url = `${API_BASE}/reportes/financiero`;
-          if (filtroTipoPago !== 'todos') params.append('tipoPago', filtroTipoPago);
-          if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
-          break;
         case 'cursos':
           url = `${API_BASE}/reportes/cursos`;
+          if (filtroEstadoCursoReporte !== 'todos') params.append('estado', filtroEstadoCursoReporte);
+          if (filtroOcupacionCurso !== 'todos') params.append('ocupacion', filtroOcupacionCurso);
+          if (filtroHorarioCurso !== 'todos') params.append('horario', filtroHorarioCurso);
+          break;
+        case 'financiero':
+          url = `${API_BASE}/reportes/financiero`;
+          if (filtroCursoFinanciero) params.append('idCurso', filtroCursoFinanciero);
+          if (filtroEstadoCursoFinanciero !== 'todos') params.append('estadoCurso', filtroEstadoCursoFinanciero);
+          if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
+          if (filtroMetodoPago !== 'todos') params.append('metodoPago', filtroMetodoPago);
+          if (filtroHorarioFinanciero !== 'todos') params.append('horario', filtroHorarioFinanciero);
           break;
         default:
           throw new Error('Tipo de reporte no válido');
@@ -426,19 +456,25 @@ const Reportes = () => {
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
           if (filtroCurso) params.append('idCurso', filtroCurso);
           break;
-        case 'financiero':
-          // Usar ruta v2 para Excel (con historial), ruta normal para PDF
-          url = formato === 'excel'
-            ? `${API_BASE}/reportes/financiero/excel-v2`
-            : `${API_BASE}/reportes/financiero/${formato}`;
-          if (filtroTipoPago !== 'todos') params.append('tipoPago', filtroTipoPago);
-          if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
-          break;
         case 'cursos':
           // Usar ruta v2 para Excel (con historial), ruta normal para PDF
           url = formato === 'excel'
             ? `${API_BASE}/reportes/cursos/excel-v2`
             : `${API_BASE}/reportes/cursos/${formato}`;
+          if (filtroEstadoCursoReporte !== 'todos') params.append('estado', filtroEstadoCursoReporte);
+          if (filtroOcupacionCurso !== 'todos') params.append('ocupacion', filtroOcupacionCurso);
+          if (filtroHorarioCurso !== 'todos') params.append('horario', filtroHorarioCurso);
+          break;
+        case 'financiero':
+          // Usar ruta v2 para Excel (con historial), ruta normal para PDF
+          url = formato === 'excel'
+            ? `${API_BASE}/reportes/financiero/excel-v2`
+            : `${API_BASE}/reportes/financiero/${formato}`;
+          if (filtroCursoFinanciero) params.append('idCurso', filtroCursoFinanciero);
+          if (filtroEstadoCursoFinanciero !== 'todos') params.append('estadoCurso', filtroEstadoCursoFinanciero);
+          if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
+          if (filtroMetodoPago !== 'todos') params.append('metodoPago', filtroMetodoPago);
+          if (filtroHorarioFinanciero !== 'todos') params.append('horario', filtroHorarioFinanciero);
           break;
         default:
           alert(`${formato.toUpperCase()} no disponible para este tipo de reporte`);
@@ -469,24 +505,152 @@ const Reportes = () => {
 
       // Mostrar mensaje de éxito con trazabilidad
       if (formato === 'excel') {
-        toast.success('✅ Reporte descargado y guardado en historial', {
-          duration: 3000,
-          style: {
-            background: '#10b981',
-            color: '#fff',
-            fontWeight: '600'
-          }
+        toast.success('Reporte descargado y guardado en historial', {
+          icon: <CheckCircle2 size={20} />
+        });
+      } else {
+        toast.success('Reporte descargado exitosamente', {
+          icon: <CheckCircle2 size={20} />
         });
       }
     } catch (error) {
       console.error(`Error descargando ${formato}:`, error);
-      toast.error(`Error al descargar el ${formato.toUpperCase()}`, {
-        duration: 3000
-      });
+      toast.error(`Error al descargar el ${formato.toUpperCase()}`);
     } finally {
       setDescargando(false);
     }
   };
+
+  // Procesar y filtrar datos con useMemo para optimizar
+  const datosProcesados = useMemo(() => {
+    if (!datosReporte) return [];
+    
+    let datos = [...datosReporte];
+    
+    // Aplicar búsqueda rápida
+    if (busquedaRapida.trim()) {
+      const busqueda = busquedaRapida.toLowerCase();
+      datos = datos.filter((item: any) => {
+        const nombre = `${item.nombre || item.nombre_estudiante || item.nombre_curso || ''} ${item.apellido || item.apellido_estudiante || ''}`.toLowerCase();
+        const curso = (item.nombre_curso || '').toLowerCase();
+        return nombre.includes(busqueda) || curso.includes(busqueda);
+      });
+    }
+    
+    // Filtros para CURSOS
+    if (tipoReporte === 'cursos') {
+      // Filtro por estado del curso
+      if (filtroEstadoCursoReporte !== 'todos') {
+        datos = datos.filter((item: any) => item.estado?.toLowerCase() === filtroEstadoCursoReporte);
+      }
+      
+      // Filtro por ocupación
+      if (filtroOcupacionCurso !== 'todos') {
+        datos = datos.filter((item: any) => {
+          const ocupacion = parseFloat(item.porcentaje_ocupacion || 0);
+          if (filtroOcupacionCurso === 'lleno') return ocupacion >= 80;
+          if (filtroOcupacionCurso === 'medio') return ocupacion >= 40 && ocupacion < 80;
+          if (filtroOcupacionCurso === 'bajo') return ocupacion < 40;
+          return true;
+        });
+      }
+      
+      // Filtro por horario
+      if (filtroHorarioCurso !== 'todos') {
+        datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorarioCurso);
+      }
+    }
+    
+    // Filtros para FINANCIERO
+    if (tipoReporte === 'financiero') {
+      // Filtro por método de pago
+      if (filtroMetodoPago !== 'todos') {
+        datos = datos.filter((item: any) => item.metodo_pago?.toLowerCase() === filtroMetodoPago);
+      }
+      
+      // Filtro por horario
+      if (filtroHorarioFinanciero !== 'todos') {
+        datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorarioFinanciero);
+      }
+    }
+    
+    // Aplicar filtro de horario para estudiantes
+    if (tipoReporte === 'estudiantes' && filtroHorario !== 'todos') {
+      datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorario);
+    }
+    
+    // Aplicar ordenamiento
+    datos.sort((a: any, b: any) => {
+      let comparacion = 0;
+      
+      if (ordenamiento === 'nombre') {
+        const nombreA = `${a.nombre || a.nombre_estudiante || a.nombre_curso || ''} ${a.apellido || a.apellido_estudiante || ''}`;
+        const nombreB = `${b.nombre || b.nombre_estudiante || b.nombre_curso || ''} ${b.apellido || b.apellido_estudiante || ''}`;
+        comparacion = nombreA.localeCompare(nombreB);
+      } else if (ordenamiento === 'fecha') {
+        const fechaA = new Date(a.fecha_inscripcion || a.fecha_pago || a.fecha_vencimiento || a.fecha_inicio || 0).getTime();
+        const fechaB = new Date(b.fecha_inscripcion || b.fecha_pago || b.fecha_vencimiento || b.fecha_inicio || 0).getTime();
+        comparacion = fechaB - fechaA; // Más reciente primero por defecto
+      } else if (ordenamiento === 'monto' && tipoReporte === 'financiero') {
+        comparacion = parseFloat(b.monto || 0) - parseFloat(a.monto || 0); // Mayor primero por defecto
+      } else if (ordenamiento === 'capacidad' && tipoReporte === 'cursos') {
+        comparacion = parseInt(b.capacidad_maxima || 0) - parseInt(a.capacidad_maxima || 0); // Mayor primero por defecto
+      }
+      
+      return ordenAscendente ? -comparacion : comparacion;
+    });
+    
+    return datos;
+  }, [datosReporte, busquedaRapida, filtroHorario, ordenamiento, ordenAscendente, tipoReporte, 
+      filtroEstadoCursoReporte, filtroOcupacionCurso, filtroHorarioCurso, filtroMetodoPago, filtroHorarioFinanciero]);
+
+  // Calcular estadísticas mejoradas
+  const estadisticasCalculadas = useMemo(() => {
+    if (!datosProcesados || datosProcesados.length === 0) return null;
+    
+    if (tipoReporte === 'estudiantes') {
+      const total = datosProcesados.length;
+      const aprobados = datosProcesados.filter((e: any) => e.estado_academico === 'aprobado').length;
+      const tasaAprobacion = total > 0 ? ((aprobados / total) * 100).toFixed(1) : '0';
+      
+      return {
+        total,
+        aprobados,
+        tasaAprobacion,
+        enCurso: datosProcesados.filter((e: any) => !e.estado_academico || e.estado_academico === 'en_curso').length,
+        reprobados: datosProcesados.filter((e: any) => e.estado_academico === 'reprobado').length
+      };
+    } else if (tipoReporte === 'financiero') {
+      const total = datosProcesados.length;
+      const ingresoTotal = datosProcesados.reduce((sum: number, p: any) => sum + parseFloat(p.monto || 0), 0);
+      const promedio = total > 0 ? ingresoTotal / total : 0;
+      const verificados = datosProcesados.filter((p: any) => p.estado === 'verificado').length;
+      
+      return {
+        total,
+        ingresoTotal,
+        promedio,
+        verificados,
+        pendientes: datosProcesados.filter((p: any) => p.estado === 'pendiente' || p.estado === 'pagado').length
+      };
+    } else if (tipoReporte === 'cursos') {
+      const total = datosProcesados.length;
+      const capacidadTotal = datosProcesados.reduce((sum: number, c: any) => sum + parseInt(c.capacidad_maxima || 0), 0);
+      const capacidadPromedio = total > 0 ? Math.round(capacidadTotal / total) : 0;
+      const activos = datosProcesados.filter((c: any) => c.estado === 'activo').length;
+      const finalizados = datosProcesados.filter((c: any) => c.estado === 'finalizado').length;
+      
+      return {
+        total,
+        capacidadPromedio,
+        activos,
+        finalizados,
+        cancelados: datosProcesados.filter((c: any) => c.estado === 'cancelado').length
+      };
+    }
+    
+    return null;
+  }, [datosProcesados, tipoReporte]);
 
   // Renderizar filtros específicos
   const renderFiltrosEspecificos = () => {
@@ -566,6 +730,86 @@ const Reportes = () => {
       );
     }
 
+    if (tipoReporte === 'cursos') {
+      return (
+        <>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
+            <select
+              value={filtroEstadoCursoReporte}
+              onChange={(e) => setFiltroEstadoCursoReporte(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los estados</option>
+              <option value="activo">Activos</option>
+              <option value="finalizado">Finalizados</option>
+              <option value="cancelado">Cancelados</option>
+            </select>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Ocupación:</label>
+            <select
+              value={filtroOcupacionCurso}
+              onChange={(e) => setFiltroOcupacionCurso(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todas las ocupaciones</option>
+              <option value="lleno">Llenos (80-100%)</option>
+              <option value="medio">Media ocupación (40-79%)</option>
+              <option value="bajo">Baja ocupación (0-39%)</option>
+            </select>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+            <select
+              value={filtroHorarioCurso}
+              onChange={(e) => setFiltroHorarioCurso(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los horarios</option>
+              <option value="matutino">Matutino</option>
+              <option value="vespertino">Vespertino</option>
+            </select>
+          </div>
+        </>
+      );
+    }
+
     if (tipoReporte === 'financiero') {
       return (
         <>
@@ -576,22 +820,41 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Tipo Pago:</label>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Curso:</label>
             <select
-              value={filtroTipoPago}
-              onChange={(e) => setFiltroTipoPago(e.target.value)}
+              value={filtroCursoFinanciero}
+              onChange={(e) => setFiltroCursoFinanciero(e.target.value)}
               style={{
                 padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem'
+                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '18.75rem',
+                width: isMobile ? '100%' : 'auto'
               }}
             >
-              <option value="todos">Todos</option>
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="tarjeta">Tarjeta</option>
+              <option value="">Todos los cursos</option>
+              {cursosFiltrados.map((curso: Curso) => {
+                const formatearFecha = (fecha: string): string => {
+                  if (!fecha) return '';
+                  const [año, mes, dia] = fecha.split('T')[0].split('-');
+                  const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                  const mesNombre = meses[parseInt(mes) - 1];
+                  return `${parseInt(dia)} ${mesNombre} ${año}`;
+                };
+
+                const fechaInicio = formatearFecha(curso.fecha_inicio);
+                const fechaFin = formatearFecha(curso.fecha_fin);
+                const periodo = fechaInicio && fechaFin ? ` (${fechaInicio} - ${fechaFin})` : '';
+                const horario = curso.horario ? ` - ${curso.horario.charAt(0).toUpperCase() + curso.horario.slice(1)}` : '';
+
+                return (
+                  <option key={curso.id_curso} value={curso.id_curso}>
+                    {curso.nombre}{horario}{periodo}
+                  </option>
+                );
+              })}
             </select>
           </div>
+          
           <div style={{ 
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
@@ -599,7 +862,31 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado Curso:</label>
+            <select
+              value={filtroEstadoCursoFinanciero}
+              onChange={(e) => setFiltroEstadoCursoFinanciero(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los estados</option>
+              <option value="activo">Activos</option>
+              <option value="finalizado">Finalizados</option>
+            </select>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado Pago:</label>
             <select
               value={filtroEstadoPago}
               onChange={(e) => setFiltroEstadoPago(e.target.value)}
@@ -610,16 +897,245 @@ const Reportes = () => {
                 color: '#fff', fontSize: '0.9rem'
               }}
             >
-              <option value="todos">Todos</option>
-              <option value="verificado">Completados</option>
+              <option value="todos">Todos los estados</option>
+              <option value="verificado">Verificados</option>
+              <option value="pagado">Pagados</option>
               <option value="pendiente">Pendientes</option>
               <option value="vencido">Vencidos</option>
+            </select>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Método:</label>
+            <select
+              value={filtroMetodoPago}
+              onChange={(e) => setFiltroMetodoPago(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los métodos</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center', 
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+            <select
+              value={filtroHorarioFinanciero}
+              onChange={(e) => setFiltroHorarioFinanciero(e.target.value)}
+              style={{
+                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                color: '#fff', fontSize: '0.9rem',
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los horarios</option>
+              <option value="matutino">Matutino</option>
+              <option value="vespertino">Vespertino</option>
             </select>
           </div>
         </>
       );
     }
 
+    return null;
+  };
+
+  // Renderizar tarjetas de resumen
+  const renderTarjetasResumen = () => {
+    if (!estadisticasCalculadas) return null;
+    
+    if (tipoReporte === 'estudiantes') {
+      return (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Users size={28} color="#ef4444" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Estudiantes</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <CheckCircle2 size={28} color="#10b981" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>{estadisticasCalculadas.tasaAprobacion}%</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Tasa Aprobación</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Target size={28} color="#3b82f6" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>{estadisticasCalculadas.enCurso}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>En Curso</div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (tipoReporte === 'financiero') {
+      return (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <DollarSign size={28} color="#10b981" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>${estadisticasCalculadas.ingresoTotal.toFixed(2)}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Ingresos Totales</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <BarChart3 size={28} color="#ef4444" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Pagos</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Award size={28} color="#3b82f6" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>${estadisticasCalculadas.promedio.toFixed(2)}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Promedio</div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (tipoReporte === 'cursos') {
+      return (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <BookOpen size={28} color="#ef4444" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Cursos</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <CheckCircle2 size={28} color="#10b981" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>{estadisticasCalculadas.activos}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Cursos Activos</div>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '0.625rem',
+            padding: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Users size={28} color="#3b82f6" />
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>{estadisticasCalculadas.capacidadPromedio}</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Capacidad Promedio</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return null;
   };
 
@@ -650,6 +1166,7 @@ const Reportes = () => {
       }
 
       return (
+<<<<<<< Updated upstream
         <div style={{ display: 'grid', gap: isMobile ? '16px' : '1.5rem', width: '100%' }}>
           {/* Métricas principales */}
           <div className="metricas-scroll" style={{ 
@@ -725,6 +1242,141 @@ const Reportes = () => {
           {/* Lista de estudiantes */}
           {datosReporte.length > 0 && (
             <div>
+=======
+        <div style={{ 
+          display: 'grid', 
+          gap: isMobile ? '16px' : '1.5rem', 
+          width: '100%', 
+          maxWidth: '100%'
+        }}>
+          {/* Tarjetas de resumen */}
+          {renderTarjetasResumen()}
+          
+          {/* Controles de búsqueda y ordenamiento */}
+          {datosReporte.length > 0 && (
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              gap: '0.75rem',
+              marginBottom: '1rem',
+              alignItems: isMobile ? 'stretch' : 'center'
+            }}>
+              {/* Búsqueda rápida */}
+              <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? 'auto' : '250px' }}>
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre o curso..."
+                  value={busquedaRapida}
+                  onChange={(e) => setBusquedaRapida(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 0.75rem 8px 2.5rem',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.85rem'
+                  }}
+                />
+              </div>
+              
+              {/* Ordenamiento */}
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    if (ordenamiento === 'nombre') {
+                      setOrdenAscendente(!ordenAscendente);
+                    } else {
+                      setOrdenamiento('nombre');
+                      setOrdenAscendente(true);
+                    }
+                  }}
+                  style={{
+                    padding: '8px 0.75rem',
+                    background: ordenamiento === 'nombre' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
+                    border: ordenamiento === 'nombre' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    fontWeight: ordenamiento === 'nombre' ? '600' : '400'
+                  }}
+                >
+                  {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                  Nombre
+                </button>
+                
+                <button
+                  onClick={() => {
+                    if (ordenamiento === 'fecha') {
+                      setOrdenAscendente(!ordenAscendente);
+                    } else {
+                      setOrdenamiento('fecha');
+                      setOrdenAscendente(false);
+                    }
+                  }}
+                  style={{
+                    padding: '8px 0.75rem',
+                    background: ordenamiento === 'fecha' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
+                    border: ordenamiento === 'fecha' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    fontWeight: ordenamiento === 'fecha' ? '600' : '400'
+                  }}
+                >
+                  {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                  Fecha
+                </button>
+                
+                {tipoReporte === 'financiero' && (
+                  <button
+                    onClick={() => {
+                      if (ordenamiento === 'monto') {
+                        setOrdenAscendente(!ordenAscendente);
+                      } else {
+                        setOrdenamiento('monto');
+                        setOrdenAscendente(false);
+                      }
+                    }}
+                    style={{
+                      padding: '8px 0.75rem',
+                      background: ordenamiento === 'monto' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
+                      border: ordenamiento === 'monto' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      fontWeight: ordenamiento === 'monto' ? '600' : '400'
+                    }}
+                  >
+                    {ordenamiento === 'monto' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                    Monto
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Lista de estudiantes */}
+          {datosProcesados.length > 0 && (
+            <div style={{
+              maxHeight: isMobile ? 'auto' : '60vh',
+              overflowY: isMobile ? 'visible' : 'auto',
+              paddingRight: isMobile ? '0' : '0.5rem'
+            }}>
+>>>>>>> Stashed changes
               <h4 style={{
                 color: '#fff',
                 fontSize: '0.95rem',
@@ -732,7 +1384,7 @@ const Reportes = () => {
                 marginBottom: '0.75rem',
                 textShadow: '0 0.125rem 0.25rem rgba(0,0,0,0.5)'
               }}>
-                Estudiantes Matriculados ({datosReporte.length})
+                Estudiantes Matriculados ({datosProcesados.length})
               </h4>
               
               {/* Indicador de scroll en móvil */}
@@ -744,13 +1396,18 @@ const Reportes = () => {
                   padding: '8px 0.75rem',
                   marginBottom: '0.75rem',
                   color: '#ef4444',
+<<<<<<< Updated upstream
                   fontSize: '0.75rem',
+=======
+                  fontSize: '0.7rem',
+>>>>>>> Stashed changes
                   textAlign: 'center',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.375rem'
                 }}>
+<<<<<<< Updated upstream
                   <span>👉</span>
                   <span>Desliza horizontalmente para ver toda la tabla</span>
                   <span>👈</span>
@@ -870,6 +1527,113 @@ const Reportes = () => {
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0, textAlign: 'center' }}>
                       Mostrando 10 de {datosReporte.length} estudiantes. Descarga el reporte completo en PDF o Excel.
                     </p>
+=======
+                  <TrendingUp size={14} />
+                  Desliza horizontalmente
+                </div>
+              )}
+              
+              {/* Cards en grid compacto */}
+              <div 
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '0.5rem'
+                }}
+              >
+                {datosProcesados.map((estudiante, idx) => (
+                  <div key={idx} style={{
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '0.5rem',
+                    padding: '0.625rem 0.75rem',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.375rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)';
+                  }}
+                  >
+                    {/* Nombre */}
+                    <div style={{
+                      color: '#fff',
+                      fontSize: '0.8125rem',
+                      fontWeight: '600',
+                      lineHeight: '1.2',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {estudiante.nombre} {estudiante.apellido}
+                    </div>
+                    
+                    {/* Curso */}
+                    <div style={{
+                      color: 'rgba(255,255,255,0.7)',
+                      fontSize: '0.7rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      overflow: 'hidden'
+                    }}>
+                      <BookOpen size={11} color="rgba(255,255,255,0.6)" />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {estudiante.nombre_curso}
+                      </span>
+                    </div>
+                    
+                    {/* Estado y Fecha en la misma línea */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem'
+                    }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.125rem 0.375rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.625rem',
+                        fontWeight: '700',
+                        background: estudiante.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
+                          estudiante.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.15)' :
+                            'rgba(239, 68, 68, 0.1)',
+                        border: estudiante.estado_academico === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                          estudiante.estado_academico === 'reprobado' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                            '1px solid rgba(239, 68, 68, 0.2)',
+                        color: estudiante.estado_academico === 'aprobado' ? '#10b981' :
+                          estudiante.estado_academico === 'reprobado' ? '#ef4444' :
+                            '#ef4444',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {estudiante.estado_academico?.toUpperCase() || 'ACTIVO'}
+                      </div>
+                      
+                      <div style={{
+                        color: 'rgba(255,255,255,0.5)',
+                        fontSize: '0.65rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        <Calendar size={10} color="rgba(255,255,255,0.5)" />
+                        {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES', { 
+                          day: '2-digit', 
+                          month: '2-digit', 
+                          year: '2-digit' 
+                        })}
+                      </div>
+                    </div>
+>>>>>>> Stashed changes
                   </div>
                 )}
               </div>
@@ -982,12 +1746,12 @@ const Reportes = () => {
                   justifyContent: 'center',
                   gap: '0.375rem'
                 }}>
-                  <span>👉</span>
+                  <TrendingUp size={14} />
                   <span>Desliza horizontalmente para ver toda la tabla</span>
-                  <span>👈</span>
                 </div>
               )}
               
+<<<<<<< Updated upstream
               <div 
                 style={{
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
@@ -1068,6 +1832,116 @@ const Reportes = () => {
                           color: '#fff',
                           fontSize: '0.8rem',
                           fontWeight: '500'
+=======
+              {/* Cards en grid compacto */}
+              <div 
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '0.5rem'
+                }}
+              >
+                {datosProcesados.map((pago, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)',
+                        border: '1px solid rgba(239, 68, 68, 0.25)',
+                        borderRadius: '0.5rem',
+                        padding: '0.625rem 0.75rem',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.375rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)';
+                      }}
+                    >
+                      {/* Nombre */}
+                      <div style={{
+                        fontSize: '0.8125rem',
+                        fontWeight: '600',
+                        color: '#fff',
+                        lineHeight: '1.2',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {pago.nombre_estudiante} {pago.apellido_estudiante}
+                      </div>
+                      
+                      {/* Curso */}
+                      <div style={{
+                        fontSize: '0.7rem',
+                        color: 'rgba(255,255,255,0.7)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375rem',
+                        overflow: 'hidden'
+                      }}>
+                        <BookOpen size={11} color="rgba(255,255,255,0.6)" />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {pago.nombre_curso}
+                        </span>
+                      </div>
+                      
+                      {/* Monto y Fecha en la misma línea */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.5rem'
+                      }}>
+                        <div style={{
+                          fontSize: '0.875rem',
+                          fontWeight: '700',
+                          color: '#10b981',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <DollarSign size={14} color="#10b981" />
+                          ${parseFloat(pago.monto).toFixed(2)}
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '0.65rem',
+                          color: 'rgba(255,255,255,0.5)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <Calendar size={10} color="rgba(255,255,255,0.5)" />
+                          {pago.fecha_pago
+                            ? new Date(pago.fecha_pago).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                            : pago.fecha_vencimiento
+                              ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                              : 'N/A'
+                          }
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
+                            pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
+                              'rgba(239, 68, 68, 0.2)',
+                          color: pago.estado_pago === 'verificado' ? '#10b981' :
+                            pago.estado_pago === 'pagado' ? '#3b82f6' :
+                              '#ef4444'
+>>>>>>> Stashed changes
                         }}>
                           {pago.nombre_estudiante} {pago.apellido_estudiante}
                         </td>
@@ -1353,83 +2227,84 @@ const Reportes = () => {
           {/* Selector de Tipo de Reporte */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', 
-            gap: '0.75rem', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))', 
+            gap: '0.625rem', 
             marginBottom: '1rem' 
           }}>
             {reportesDisponibles.map(reporte => {
               const isSelected = tipoReporte === reporte.id;
+              const IconComponent = reporte.icono;
               
-              const cardContent = (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                    <reporte.icono size={24} color={isSelected ? '#fff' : '#ef4444'} />
+              return (
+                <div
+                  key={reporte.id}
+                  onClick={() => {
+                    setTipoReporte(reporte.id);
+                    setDatosReporte(null);
+                    setEstadisticas(null);
+                    // Resetear filtros específicos
+                    setFiltroEstadoCursoReporte('todos');
+                    setFiltroOcupacionCurso('todos');
+                    setFiltroHorarioCurso('todos');
+                    setFiltroMetodoPago('todos');
+                    setFiltroEstadoEstudiante('todos');
+                    setFiltroCurso('');
+                    setFiltroEstadoPago('todos');
+                    setFiltroCursoFinanciero('');
+                    setFiltroEstadoCursoFinanciero('todos');
+                    setFiltroHorarioFinanciero('todos');
+                    setBusquedaRapida('');
+                  }}
+                  style={{
+                    background: isSelected 
+                      ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                      : 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+                    border: isSelected 
+                      ? '2px solid #ef4444' 
+                      : '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.625rem',
+                    padding: isMobile ? '0.75rem' : '0.875rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isSelected 
+                      ? '0 0.25rem 1rem rgba(239, 68, 68, 0.4)' 
+                      : '0 0.125rem 0.5rem rgba(0, 0, 0, 0.3)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                    <IconComponent size={20} color={isSelected ? '#fff' : '#ef4444'} />
                     <div style={{
                       color: '#fff',
-                      fontSize: '1rem',
-                      fontWeight: '600'
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      lineHeight: '1.2'
                     }}>
                       {reporte.titulo}
                     </div>
                   </div>
                   <div style={{
-                    color: isSelected ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.7)',
-                    fontSize: '0.8rem'
+                    color: isSelected ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)',
+                    fontSize: '0.75rem',
+                    lineHeight: '1.3'
                   }}>
                     {reporte.descripcion}
                   </div>
-                </>
-              );
-
-              if (isSelected) {
-                return (
-                  <div
-                    key={reporte.id}
-                    className="reporte-card-selected"
-                    onClick={() => {
-                      setTipoReporte(reporte.id);
-                      setDatosReporte(null);
-                      setEstadisticas(null);
-                    }}
-                    style={{
-                      background: '#ef4444',
-                      backgroundColor: '#ef4444',
-                      backgroundImage: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                      border: '2px solid #ef4444',
-                      borderRadius: isMobile ? '10px' : '0.75rem',
-              padding: isMobile ? '12px' : '1rem',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0 0.5rem 1.5rem rgba(239, 68, 68, 0.5)',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {cardContent}
-                  </div>
-                );
-              }
-
-              return (
-                <GlassEffect
-                  key={reporte.id}
-                  variant="card"
-                  tint="neutral"
-                  intensity="light"
-                                    onClick={() => {
-                    setTipoReporte(reporte.id);
-                    setDatosReporte(null);
-                    setEstadisticas(null);
-                  }}
-                  style={{
-                    padding: '1rem',
-                    cursor: 'pointer',
-                    textAlign: 'left'
-                  }}
-                >
-                  {cardContent}
-                </GlassEffect>
+                </div>
               );
             })}
           </div>
@@ -1494,6 +2369,26 @@ const Reportes = () => {
 
                 {/* Filtros específicos */}
                 {renderFiltrosEspecificos()}
+                
+                {/* Nuevo: Filtro por Horario (solo para estudiantes) */}
+                {tipoReporte === 'estudiantes' && (
+                  <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '0.5rem', flex: isMobile ? '1' : 'initial' }}>
+                    <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+                    <select
+                      value={filtroHorario}
+                      onChange={(e) => setFiltroHorario(e.target.value as any)}
+                      style={{
+                        padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
+                        color: '#fff', fontSize: '0.9rem', width: isMobile ? '100%' : 'auto'
+                      }}
+                    >
+                      <option value="todos">Todos</option>
+                      <option value="matutino">Matutino</option>
+                      <option value="vespertino">Vespertino</option>
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Botón Ver Reporte */}

@@ -571,7 +571,7 @@ const GestionCursos = () => {
           let msg = 'No se pudo crear el curso';
           try { 
             const j = await res.json(); 
-            console.log('❌ Error del servidor:', j);
+            console.log('-Error del servidor:', j);
             if (j?.error) msg = j.error; 
           } catch {}
           throw new Error(msg);
