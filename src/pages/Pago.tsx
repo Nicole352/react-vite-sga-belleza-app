@@ -481,7 +481,7 @@ const Pago: React.FC = () => {
             console.log('✅ Tipo detectado por similitud:', tipoCursoEncontrado);
             setTipoCursoId(tipoCursoEncontrado.id_tipo_curso);
           } else {
-            console.log('❌ No se pudo resolver el tipo para card:', cursoKey);
+            console.log('-No se pudo resolver el tipo para card:', cursoKey);
           }
         }
         console.log('============================');
@@ -526,7 +526,7 @@ const Pago: React.FC = () => {
       const res = await fetch(`${API_BASE}/cursos/disponibles`);
 
       if (!res.ok) {
-        console.error('❌ Error en respuesta de cupos:', res.status);
+        console.error('-Error en respuesta de cupos:', res.status);
         if (loadingToast) toast.error('Error al cargar cupos disponibles', { id: loadingToast });
         return cuposCache.current?.data || [];
       }
@@ -575,7 +575,7 @@ const Pago: React.FC = () => {
 
       return cupos;
     } catch (err) {
-      console.error('❌ Error cargando cupos:', err);
+      console.error('-Error cargando cupos:', err);
       if (loadingToast) toast.error('Error de conexión con el servidor', { id: loadingToast });
       return cuposCache.current?.data || [];
     }

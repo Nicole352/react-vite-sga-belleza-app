@@ -17,6 +17,7 @@ import {
   Lock
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import LoadingModal from '../components/LoadingModal';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -44,16 +45,23 @@ const AulaVirtual = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
+    
+    // Función para forzar un retraso mínimo
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     try {
       const isEmail = formData.identifier.includes('@');
       const payload = isEmail
         ? { email: formData.identifier.trim(), password: formData.password }
         : { username: formData.identifier.trim(), password: formData.password };
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      // Ejecutar la petición y el retraso en paralelo
+      const [res] = await Promise.all([
+        fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }),
+        delay(1000) // Forzar 1 segundo de espera
+      ]);
       if (!res.ok) {
         const txt = await res.text();
         throw new Error(txt || 'Credenciales inválidas');
@@ -943,18 +951,19 @@ const AulaVirtual = () => {
                       className="login-button"
                       disabled={isLoading}
                     >
-                      {isLoading ? (
-                        <>
-                          <div className="loading-spinner" />
-                          Iniciando Sesión...
-                        </>
-                      ) : (
-                        <>
-                          Ingresar
-                          <ArrowRight size={18} />
-                        </>
-                      )}
+                      <>
+                        Ingresar
+                        <ArrowRight size={18} />
+                      </>
                     </button>
+                    
+                    <LoadingModal
+                      isOpen={isLoading}
+                      message="Iniciando sesión"
+                      darkMode={theme === 'dark'}
+                      duration={2000}
+                      onComplete={() => setIsLoading(false)}
+                    />
                   </div>
                 </div>
               </form>
@@ -963,6 +972,17 @@ const AulaVirtual = () => {
         </div>
 
       </div>
+      
+      {/* Modal de carga */}
+      <LoadingModal
+        isOpen={isLoading}
+        message="Iniciando sesión..."
+        darkMode={theme === 'dark'}
+        duration={1000}
+        onComplete={() => {
+          // No hacer nada aquí, el estado se maneja en el handleSubmit
+        }}
+      />
     </>
   );
 };
