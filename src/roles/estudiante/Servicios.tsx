@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Search, CheckCircle, Clock, Mail } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 // Importar el componente de Pagos Mensuales
 import PagosMenuales from './PagosMenuales';
@@ -9,6 +11,7 @@ interface ServiciosProps {
 }
 
 const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [isVisible, setIsVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showPagosMenuales, setShowPagosMenuales] = useState(false);
@@ -166,7 +169,7 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       </div>
 
       {/* Servicios */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(18.75rem, 90vw), 1fr))', gap: '0.75em' }}>
+      <div className="responsive-grid-auto" style={{ gap: '0.75em' }}>
         {filteredServices.map((service) => {
           const Icon = service.icon;
           const statusColor = getStatusColor(service.status);

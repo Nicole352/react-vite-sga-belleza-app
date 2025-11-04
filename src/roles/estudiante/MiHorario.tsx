@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Clock } from 'lucide-react';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -20,6 +22,7 @@ interface Horario {
 }
 
 const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -182,7 +185,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
           {/* Header con días de la semana */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
             gap: '0.125em',
             marginBottom: '0.125em'
           }}>
@@ -219,7 +222,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
           {/* Grid de horarios */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '5rem repeat(7, 1fr)',
+            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
             gap: '0.125em',
             position: 'relative'
           }}>

@@ -20,6 +20,8 @@ import {
   Hand
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 interface MiAulaProps {
   darkMode: boolean;
@@ -69,6 +71,7 @@ const API_BASE = 'http://localhost:3000/api';
 
 const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
   const navigate = useNavigate();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [isVisible, setIsVisible] = useState(false);
   const [cursosMatriculados, setCursosMatriculados] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -232,7 +235,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         </div>
 
         {/* Estadísticas rápidas (ultra-compactas, una sola línea) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(min(7.5rem, 90vw), 1fr))', gap: '0.375em' }}>
+        <div className="responsive-grid-4" style={{ gap: '0.375em' }}>
           <div style={{
             background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
             border: `0.0625rem solid ${theme.accent}30`,
@@ -296,17 +299,24 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2em', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isSmallScreen ? '1fr' : '2fr 1fr', 
+        gap: isMobile ? '1em' : '2em', 
+        flex: 1, 
+        overflow: 'hidden', 
+        minHeight: 0 
+      }}>
         {/* Panel principal - Cursos en progreso */}
         <div style={{
           background: theme.cardBg,
           border: `0.0625rem solid ${theme.border}`,
           borderRadius: '1rem',
-          padding: '0.625em',
+          padding: isMobile ? '0.5em' : '0.625em',
           backdropFilter: 'blur(1.25rem)',
           boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
         }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.625em 0' }}>
+          <h2 style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.625em 0' }}>
             Mis Cursos en Progreso
           </h2>
 
@@ -428,9 +438,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 </div>
 
                 {/* Información del curso en grid profesional */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                <div className="responsive-grid-3" style={{
                   gap: '0.5em',
                   marginBottom: '0.5em'
                 }}>
@@ -618,7 +626,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 </div>
 
                 {/* Acciones */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4em' }}>
+                <div className="responsive-button-group" style={{ justifyContent: 'flex-end', gap: '0.4em' }}>
                   {curso.tareasPendientes > 0 ? (
                     <button
                       onClick={() => {
