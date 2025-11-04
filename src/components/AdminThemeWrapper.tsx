@@ -16,7 +16,7 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
     inputBg: 'rgba(255,255,255,0.1)',
     inputBorder: 'rgba(255,255,255,0.2)',
     hoverBg: 'rgba(255,255,255,0.05)',
-    modalBg: 'rgba(0,0,0,0.7)'
+    modalBg: 'rgba(0,0,0,0.92)'
   } : {
     textPrimary: '#1e293b',
     textSecondary: 'rgba(30,41,59,0.8)',
@@ -133,18 +133,39 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         /* Backgrounds de contenedores - más específico */
         .admin-theme-wrapper div[style*="background: linear-gradient(135deg, rgba(0,0,0,0.9)"],
         .admin-theme-wrapper div[style*="background: linear-gradient(135deg, rgba(0,0,0,0.95)"] {
-          background: var(--theme-bg-content) !important;
+          background: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(26,26,46,0.98) 100%)' : 'var(--theme-bg-content)'} !important;
         }
         
-        /* Modales - Control total del fondo */
+        /* Modales - Control total del fondo del overlay */
         .admin-theme-wrapper div[data-modal-overlay="true"] {
           background: var(--theme-modal-bg) !important;
         }
         
-        /* Aplicar también a modales con position fixed */
+        /* Overlay del modal con clase modal-overlay */
+        .admin-theme-wrapper .modal-overlay {
+          background: ${darkMode ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.65)'} !important;
+        }
+        
+        /* Contenido del modal con clase modal-content */
+        .admin-theme-wrapper .modal-content {
+          background: ${darkMode ? 'rgba(17, 17, 17, 0.98)' : 'rgba(255, 255, 255, 0.98)'} !important;
+          backdrop-filter: blur(10px) !important;
+          border: 1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'} !important;
+          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+        }
+        
+        /* Aplicar también a modales con position fixed (overlay) */
         .admin-theme-wrapper div[style*="position: fixed"][style*="zIndex: 9999"],
         .admin-theme-wrapper div[style*="position: fixed"][style*="z-index: 9999"] {
           background: var(--theme-modal-bg) !important;
+        }
+        
+        /* Contenido del modal - hacer opaco */
+        .admin-theme-wrapper div[style*="position: fixed"] > div[style*="background"],
+        .admin-theme-wrapper div[style*="position: fixed"] div[style*="borderRadius"],
+        .admin-theme-wrapper div[style*="position: fixed"] div[style*="border-radius"] {
+          background: ${darkMode ? 'rgba(17,17,17,0.98)' : 'rgba(255,255,255,0.98)'} !important;
+          backdrop-filter: blur(10px) !important;
         }
         
         /* Bordes - Forzar color rojo en todos los bordes */
@@ -235,11 +256,17 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         
         /* Backgrounds oscuros específicos */
         .admin-theme-wrapper [style*="background: linear-gradient(135deg, rgba(0,0,0"]:not(.reporte-card-selected) {
-          background: var(--theme-bg-content) !important;
+          background: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(26,26,46,0.98) 100%)' : 'var(--theme-bg-content)'} !important;
         }
         
         .admin-theme-wrapper [style*="background: rgba(0,0,0"]:not(.reporte-card-selected) {
-          background: var(--theme-bg-content) !important;
+          background: ${darkMode ? 'rgba(17,17,17,0.98)' : 'var(--theme-bg-content)'} !important;
+        }
+        
+        /* Forzar opacidad en contenedores de modales */
+        .admin-theme-wrapper div[style*="background: rgba(17,17,17"],
+        .admin-theme-wrapper div[style*="background: rgba(26,26,26"] {
+          background: ${darkMode ? 'rgba(17,17,17,0.98)' : 'rgba(255,255,255,0.98)'} !important;
         }
         
         /* Excepción para cards de reportes seleccionadas - FORZAR ROJO */
