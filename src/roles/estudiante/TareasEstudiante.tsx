@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -42,6 +44,7 @@ interface Curso {
 const TareasEstudiante: React.FC = () => {
   const { id_curso } = useParams<{ id_curso: string }>();
   const navigate = useNavigate();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const [curso, setCurso] = useState<Curso | null>(null);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [modulosAgrupados, setModulosAgrupados] = useState<ModuloAgrupado[]>([]);

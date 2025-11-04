@@ -6,6 +6,10 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import LoadingModal from '../../components/LoadingModal';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -44,9 +48,18 @@ interface DetalleCursoEstudianteProps {
   darkMode: boolean;
 }
 
-const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMode }) => {
+const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMode: darkModeProp }) => {
   const { id } = useParams<{ id: string }>();
+  const { isMobile, isSmallScreen } = useBreakpoints();
   const navigate = useNavigate();
+  
+  // Obtener darkMode del localStorage o usar el prop (igual que docente)
+  const [darkMode, setDarkMode] = useState(() => {
+    if (darkModeProp !== undefined) return darkModeProp;
+    const saved = localStorage.getItem('estudiante-dark-mode');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+
   const [curso, setCurso] = useState<any>(null);
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [tareasPorModulo, setTareasPorModulo] = useState<{ [key: number]: Tarea[] }>({});
@@ -62,6 +75,28 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     id_modulo?: number;
   } | null>(null);
 
+  // Escuchar cambios en el tema (igual que docente)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('estudiante-dark-mode');
+      setDarkMode(saved !== null ? JSON.parse(saved) : false);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También escuchar cambios directos en el mismo tab
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('estudiante-dark-mode');
+      const currentMode = saved !== null ? JSON.parse(saved) : false;
+      setDarkMode(currentMode);
+    }, 100);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
   const theme = {
     textPrimary: darkMode ? '#fff' : '#1e293b',
     textSecondary: darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(30,41,59,0.8)',
@@ -70,6 +105,20 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     cardBg: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
     accent: '#fbbf24'
   };
+
+  // Función para refrescar todos los datos
+  const refreshAllData = async () => {
+    if (id) {
+      await fetchCursoData();
+      await fetchModulos();
+    }
+  };
+
+  // Auto-refresh con modal de carga dorado
+  const { isRefreshing } = useAutoRefresh({
+    onRefresh: refreshAllData,
+    interval: 30000 // 30 segundos
+  });
 
   useEffect(() => {
     if (id) {
@@ -311,7 +360,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
           <div>
             <h1 style={{
               color: theme.textPrimary,
-              fontSize: '1.5rem',
+              fontSize: isMobile ? '1.25rem' : '1.5rem',
               fontWeight: '700',
               margin: '0 0 0.25em 0',
               letterSpacing: '-0.01em'
@@ -913,6 +962,14 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
           `}</style>
         </div>
       )}
+
+      {/* Modal de carga con autorefresh */}
+      <LoadingModal 
+        isOpen={isRefreshing}
+        message="Actualizando datos del curso..."
+        darkMode={darkMode}
+        colorTheme="yellow"
+      />
     </div>
   );
 };

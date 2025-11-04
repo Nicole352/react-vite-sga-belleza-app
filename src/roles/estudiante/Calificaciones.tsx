@@ -9,6 +9,8 @@ import {
   ChevronRight,
   BarChart3,
 } from "lucide-react";
+import LoadingModal from "../../components/LoadingModal";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 
 const API_BASE = "http://localhost:3000/api";
 
@@ -53,7 +55,14 @@ interface CalificacionesPorCurso {
   modulos: ModuloConPromedio[];
 }
 
-const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
+const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModeProp }) => {
+  // Obtener darkMode del localStorage o usar el prop
+  const [darkMode, setDarkMode] = useState(() => {
+    if (darkModeProp !== undefined) return darkModeProp;
+    const saved = localStorage.getItem('estudiante-dark-mode');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+
   const [cursosConCalificaciones, setCursosConCalificaciones] = useState<
     CalificacionesPorCurso[]
   >([]);
@@ -69,6 +78,28 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
     Record<number, boolean>
   >({});
 
+  // Escuchar cambios en el tema (igual que docente)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('estudiante-dark-mode');
+      setDarkMode(saved !== null ? JSON.parse(saved) : false);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También escuchar cambios directos en el mismo tab
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('estudiante-dark-mode');
+      const currentMode = saved !== null ? JSON.parse(saved) : false;
+      setDarkMode(currentMode);
+    }, 100);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
   const theme = {
     textPrimary: darkMode ? "#fff" : "#1e293b",
     textSecondary: darkMode ? "rgba(255,255,255,0.8)" : "rgba(30,41,59,0.8)",
@@ -80,10 +111,6 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
     warning: "#f59e0b",
     danger: "#ef4444",
   };
-
-  useEffect(() => {
-    fetchCalificaciones();
-  }, []);
 
   const fetchCalificaciones = async () => {
     try {
@@ -170,6 +197,16 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
       setLoading(false);
     }
   };
+
+  // Auto-refresh con modal de carga dorado
+  const { isRefreshing } = useAutoRefresh({
+    onRefresh: fetchCalificaciones,
+    interval: 30000 // 30 segundos
+  });
+
+  useEffect(() => {
+    fetchCalificaciones();
+  }, []);
 
   const toggleCurso = async (cursoId: number) => {
     const isExpanding = !expandedCursos[cursoId];
@@ -1159,6 +1196,14 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
           )}
         </div>
       )}
+
+      {/* Modal de carga con autorefresh */}
+      <LoadingModal 
+        isOpen={isRefreshing}
+        message="Actualizando calificaciones..."
+        darkMode={darkMode}
+        colorTheme="yellow"
+      />
     </div>
   );
 };
