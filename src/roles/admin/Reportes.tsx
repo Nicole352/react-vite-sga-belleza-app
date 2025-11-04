@@ -1400,6 +1400,9 @@ const Reportes = () => {
                   fontSize: '0.75rem',
 =======
                   fontSize: '0.7rem',
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                   textAlign: 'center',
                   display: 'flex',
@@ -1407,6 +1410,7 @@ const Reportes = () => {
                   justifyContent: 'center',
                   gap: '0.375rem'
                 }}>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
                   <span>👉</span>
                   <span>Desliza horizontalmente para ver toda la tabla</span>
@@ -1533,6 +1537,13 @@ const Reportes = () => {
                 </div>
               )}
               
+=======
+                  <TrendingUp size={14} />
+                  Desliza horizontalmente
+                </div>
+              )}
+              
+>>>>>>> Stashed changes
               {/* Cards en grid compacto */}
               <div 
                 style={{
@@ -1752,6 +1763,7 @@ const Reportes = () => {
               )}
               
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               <div 
                 style={{
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
@@ -1833,6 +1845,8 @@ const Reportes = () => {
                           fontSize: '0.8rem',
                           fontWeight: '500'
 =======
+=======
+>>>>>>> Stashed changes
               {/* Cards en grid compacto */}
               <div 
                 style={{

@@ -256,6 +256,7 @@ const GestionMatricula = () => {
         // CASO: Estudiante existente - Solo se creó matrícula
         toast.success(
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <div style={{ lineHeight: '1.6' }}>
             <div style={{ fontWeight: '700', fontSize: '1.05rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 size={20} />
@@ -271,6 +272,9 @@ const GestionMatricula = () => {
               </div>
             </div>
           </div>,
+=======
+          `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
+>>>>>>> Stashed changes
 =======
           `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
 >>>>>>> Stashed changes
