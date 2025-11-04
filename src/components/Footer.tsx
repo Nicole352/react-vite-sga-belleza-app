@@ -21,7 +21,7 @@ const Footer = () => {
     borderTop: `2px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
     boxShadow: `0 8px 32px ${theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
     color: theme === 'dark' ? 'white' : '#1a1a1a',
-    padding: '60px 0 30px',
+    padding: 'clamp(30px, 8vw, 60px) 0 clamp(20px, 5vw, 30px)',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: "'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
@@ -33,7 +33,7 @@ const Footer = () => {
     marginBottom: '0',
     marginTop: '-40px',
     fontFamily: "'Montserrat', sans-serif",
-    fontSize: '15px',
+    fontSize: 'clamp(12px, 2.5vw, 15px)',
     maxWidth: '300px',
     textAlign: 'justify',
   };
@@ -43,7 +43,7 @@ const Footer = () => {
     alignItems: 'center',
     gap: '12px',
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
-    fontSize: '14px',
+    fontSize: 'clamp(11px, 2.2vw, 14px)',
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: '400',
     flexWrap: 'wrap',
@@ -55,7 +55,7 @@ const Footer = () => {
   };
 
   const sectionTitleStyle: CSSProperties = {
-    fontSize: '18px',
+    fontSize: 'clamp(16px, 3vw, 18px)',
     fontWeight: '600',
     color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
     marginBottom: '0',
@@ -66,7 +66,7 @@ const Footer = () => {
   const linkStyle: CSSProperties = {
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     textDecoration: 'none',
-    fontSize: '15px',
+    fontSize: 'clamp(13px, 2.5vw, 15px)',
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: '400',
     transition: 'all 0.3s ease',
@@ -104,7 +104,7 @@ const Footer = () => {
 
   const copyrightStyle: CSSProperties = {
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
-    fontSize: '14px',
+    fontSize: 'clamp(10px, 2vw, 14px)',
     fontFamily: "'Montserrat', sans-serif",
     display: 'flex',
     alignItems: 'center',
@@ -125,7 +125,7 @@ const Footer = () => {
     border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(214, 158, 46, 0.3)'}`,
     borderRadius: '20px',
     color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
-    fontSize: '13px',
+    fontSize: 'clamp(10px, 2vw, 13px)',
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: '500',
     whiteSpace: 'nowrap',
@@ -149,14 +149,14 @@ const Footer = () => {
       <div style={{
         maxWidth: '100%',
         margin: '0',
-        padding: '0 5%',
+        padding: '0 clamp(16px, 5vw, 5%)',
         position: 'relative',
         zIndex: 1,
       }} className="footer-container">
         {/* Main Footer Content */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
           gap: '40px',
           marginBottom: '30px',
           alignItems: 'start',
@@ -180,8 +180,8 @@ const Footer = () => {
                 src="https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png"
                 alt="Jessica Vélez - Escuela de Esteticistas"
                 style={{
-                  height: '200px',
-                  width: '200px',
+                  height: 'clamp(120px, 25vw, 200px)',
+                  width: 'clamp(120px, 25vw, 200px)',
                   borderRadius: '50%',
                   filter: 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.3))',
                   transition: 'all 0.3s ease',
@@ -352,7 +352,7 @@ const Footer = () => {
             <h3 style={sectionTitleStyle}>Síguenos</h3>
             <p style={{
               color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(26, 26, 26, 0.7)',
-              fontSize: '14px',
+              fontSize: 'clamp(12px, 2.2vw, 14px)',
               fontFamily: "'Montserrat', sans-serif",
               lineHeight: '1.5',
               marginTop: '14px',
@@ -479,43 +479,9 @@ const Footer = () => {
       <style>{`
         /* BREAKPOINTS RESPONSIVOS COMPLETOS */
 
-        /* Extra Large Desktop (1400px+) */
-        @media (min-width: 1400px) {
-          .footer-container {
-            padding: 0 8% !important;
-          }
-
-          .footer-main {
-            grid-template-columns: 1fr 1fr 1fr 1fr !important;
-            gap: 50px !important;
-          }
-
-          .footer-description {
-            max-width: 300px !important;
-            font-size: 16px !important;
-          }
-        }
-
-        /* Large Desktop (1200px - 1399px) */
-        @media (max-width: 1399px) and (min-width: 1200px) {
-          .footer-container {
-            padding: 0 6% !important;
-          }
-
-          .footer-main {
-            grid-template-columns: 1fr 1fr 1fr 1fr !important;
-            gap: 35px !important;
-          }
-        }
-
         /* Medium Desktop (992px - 1199px) */
         @media (max-width: 1199px) and (min-width: 992px) {
-          .footer-container {
-            padding: 0 4% !important;
-          }
-
           .footer-main {
-            grid-template-columns: 1fr 1fr !important;
             gap: 30px !important;
           }
 
@@ -523,26 +489,11 @@ const Footer = () => {
             grid-column: 1 / -1 !important;
             text-align: center !important;
           }
-
-          .footer-description {
-            max-width: 280px !important;
-            font-size: 15px !important;
-          }
-
-          .footer-logo {
-            height: 190px !important;
-            width: 190px !important;
-          }
         }
 
         /* Small Desktop/Large Tablet (768px - 991px) */
         @media (max-width: 991px) and (min-width: 768px) {
-          .footer-container {
-            padding: 0 4% !important;
-          }
-
           .footer-main {
-            grid-template-columns: 1fr 1fr !important;
             gap: 30px !important;
             text-align: left !important;
           }
@@ -567,11 +518,6 @@ const Footer = () => {
             max-width: none !important;
           }
 
-          .footer-logo {
-            height: 170px !important;
-            width: 170px !important;
-          }
-
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
@@ -582,14 +528,6 @@ const Footer = () => {
 
         /* Tablet Portrait (481px - 767px) */
         @media (max-width: 767px) and (min-width: 481px) {
-          footer {
-            padding: 40px 0 20px !important;
-          }
-
-          .footer-container {
-            padding: 0 4% !important;
-          }
-
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 25px !important;
@@ -602,14 +540,8 @@ const Footer = () => {
             gap: 16px !important;
           }
 
-          .footer-logo {
-            height: 150px !important;
-            width: 150px !important;
-          }
-
           .footer-description {
             max-width: 90% !important;
-            font-size: 14px !important;
             text-align: center !important;
             line-height: 1.6 !important;
             margin: 0 auto !important;
@@ -622,12 +554,10 @@ const Footer = () => {
 
           .contact-item {
             justify-content: center !important;
-            font-size: 14px !important;
             gap: 10px !important;
           }
 
           .social-description {
-            font-size: 13px !important;
             margin-bottom: 16px !important;
           }
 
@@ -650,28 +580,18 @@ const Footer = () => {
           }
 
           .copyright {
-            font-size: 13px !important;
             justify-content: center !important;
             width: 100% !important;
             line-height: 1.5 !important;
           }
 
           .certification-badge {
-            font-size: 12px !important;
             padding: 6px 12px !important;
           }
         }
 
         /* Mobile Large (376px - 480px) */
         @media (max-width: 480px) and (min-width: 376px) {
-          footer {
-            padding: 30px 0 20px !important;
-          }
-
-          .footer-container {
-            padding: 0 5% !important;
-          }
-
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
@@ -684,13 +604,7 @@ const Footer = () => {
             gap: 12px !important;
           }
 
-          .footer-logo {
-            height: 130px !important;
-            width: 130px !important;
-          }
-
           .footer-description {
-            font-size: 13px !important;
             line-height: 1.5 !important;
             max-width: 95% !important;
             margin: 0 auto !important;
@@ -703,7 +617,6 @@ const Footer = () => {
           }
 
           .contact-item {
-            font-size: 13px !important;
             flex-direction: row !important;
             align-items: center !important;
             justify-content: center !important;
@@ -711,7 +624,6 @@ const Footer = () => {
           }
 
           .social-description {
-            font-size: 12px !important;
             margin-bottom: 12px !important;
           }
 
@@ -740,27 +652,17 @@ const Footer = () => {
           }
 
           .copyright {
-            font-size: 11px !important;
             line-height: 1.4 !important;
             justify-content: center !important;
           }
 
           .certification-badge {
-            font-size: 10px !important;
             padding: 5px 10px !important;
           }
         }
 
         /* Mobile Small (320px - 375px) */
         @media (max-width: 375px) {
-          footer {
-            padding: 25px 0 15px !important;
-          }
-
-          .footer-container {
-            padding: 0 4% !important;
-          }
-
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 18px !important;
@@ -773,13 +675,7 @@ const Footer = () => {
             gap: 10px !important;
           }
 
-          .footer-logo {
-            height: 130px !important;
-            width: 130px !important;
-          }
-
           .footer-description {
-            font-size: 12px !important;
             line-height: 1.4 !important;
             max-width: 100% !important;
             text-align: center !important;
@@ -791,7 +687,6 @@ const Footer = () => {
           }
 
           .contact-item {
-            font-size: 11px !important;
             gap: 6px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
@@ -803,7 +698,6 @@ const Footer = () => {
           }
 
           .social-description {
-            font-size: 11px !important;
             margin-bottom: 10px !important;
           }
 
@@ -834,13 +728,11 @@ const Footer = () => {
           .copyright {
             flex-direction: column !important;
             gap: 4px !important;
-            font-size: 10px !important;
             line-height: 1.3 !important;
             justify-content: center !important;
           }
 
           .certification-badge {
-            font-size: 9px !important;
             padding: 4px 8px !important;
           }
 
@@ -852,14 +744,6 @@ const Footer = () => {
 
         /* Extra Small Mobile (< 320px) */
         @media (max-width: 319px) {
-          footer {
-            padding: 20px 0 12px !important;
-          }
-
-          .footer-container {
-            padding: 0 3% !important;
-          }
-
           .footer-main {
             grid-template-columns: 1fr !important;
             gap: 15px !important;
@@ -872,13 +756,7 @@ const Footer = () => {
             gap: 8px !important;
           }
 
-          .footer-logo {
-            height: 115px !important;
-            width: 115px !important;
-          }
-
           .footer-description {
-            font-size: 11px !important;
             line-height: 1.3 !important;
             max-width: 100% !important;
             text-align: center !important;
@@ -890,7 +768,6 @@ const Footer = () => {
           }
 
           .contact-item {
-            font-size: 10px !important;
             gap: 4px !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
@@ -902,7 +779,6 @@ const Footer = () => {
           }
 
           .social-description {
-            font-size: 10px !important;
             margin-bottom: 8px !important;
           }
 
@@ -933,13 +809,11 @@ const Footer = () => {
           .copyright {
             flex-direction: column !important;
             gap: 3px !important;
-            font-size: 9px !important;
             line-height: 1.2 !important;
             justify-content: center !important;
           }
 
           .certification-badge {
-            font-size: 8px !important;
             padding: 3px 6px !important;
           }
 

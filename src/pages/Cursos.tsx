@@ -584,6 +584,22 @@ const Cursos = () => {
             .proximamente-title { font-size: 1.8rem !important; }
             .proximamente-subtitle { font-size: 1.2rem !important; }
             .proximamente-desc { font-size: 0.95rem !important; }
+            
+            .curso-card {
+              height: auto !important;
+              min-height: 420px !important;
+            }
+          }
+          
+          @media (max-width: 768px) {
+            .curso-card {
+              border-radius: 24px !important;
+            }
+            
+            .thumbnail-container {
+              height: 240px !important;
+              border-radius: 24px 24px 0 0 !important;
+            }
           }
         `}
       </style>
@@ -596,7 +612,7 @@ const Cursos = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '168px',
+          paddingTop: 'clamp(120px, 20vw, 168px)',
           paddingBottom: '0px'
         }}
       >
@@ -622,7 +638,7 @@ const Cursos = () => {
           style={{
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 24px',
+            padding: '0 clamp(16px, 4vw, 24px)',
             position: 'relative',
             zIndex: 1
           }}
@@ -641,7 +657,7 @@ const Cursos = () => {
             <h1
               className="gradient-text"
               style={{
-                fontSize: '4rem',
+                fontSize: 'clamp(2.5rem, 8vw, 4rem)',
                 fontWeight: '800',
                 color: '#1a1a1a',
                 marginBottom: '24px',
@@ -659,23 +675,26 @@ const Cursos = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '12px',
-                fontSize: '1.4rem',
+                fontSize: 'clamp(1rem, 3vw, 1.4rem)',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 marginBottom: '16px',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif',
+                flexWrap: 'wrap',
+                padding: '0 16px'
               }}
             >
               <Sparkles size={24} color="#fbbf24" />
-              <span>Elige el curso que más te inspire y comienza tu transformación profesional</span>
+              <span style={{ textAlign: 'center' }}>Elige el curso que más te inspire y comienza tu transformación profesional</span>
             </div>
             <p
               style={{
-                fontSize: '1.1rem',
+                fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                 maxWidth: '600px',
                 margin: '0 auto 32px',
                 lineHeight: 1.6,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif',
+                padding: '0 16px'
               }}
             >
               Programas diseñados por expertos de la industria con certificados profesionales
@@ -687,7 +706,7 @@ const Cursos = () => {
             data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
               gap: '40px',
               marginBottom: '40px'
             }}
@@ -702,7 +721,7 @@ const Cursos = () => {
             data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(360px, 460px))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 460px))',
               gap: '40px',
               marginBottom: '100px',
               justifyContent: 'center'
