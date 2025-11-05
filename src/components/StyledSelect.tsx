@@ -18,13 +18,17 @@ type StyledSelectProps = {
 const getBaseStyle = (darkMode: boolean = true): React.CSSProperties => ({
   width: '100%',
   padding: '12px',
-  background: darkMode ? 'rgba(17,17,17,0.9)' : 'rgba(255,255,255,0.9)',
+  background: darkMode ? '#1a1a2e' : 'rgba(255,255,255,0.9)',
   border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)',
   borderRadius: 10,
   color: darkMode ? '#fff' : '#1e293b',
   fontSize: '14px',
-  fontFamily: 'inherit'
-});
+  fontFamily: 'inherit',
+  colorScheme: darkMode ? 'dark' : 'light',
+  WebkitAppearance: 'none',
+  MozAppearance: 'none',
+  appearance: 'none'
+} as React.CSSProperties);
 
 export const StyledSelect: React.FC<StyledSelectProps> = ({
   name,
@@ -55,8 +59,8 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
           value="" 
           disabled 
           style={{ 
-            background: darkMode ? '#111' : '#f8f9fa', 
-            color: darkMode ? '#bbb' : '#6b7280' 
+            background: darkMode ? '#1a1a2e' : '#f8f9fa', 
+            color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280' 
           }}
         >
           {placeholder}
@@ -67,7 +71,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
           key={opt.value} 
           value={opt.value} 
           style={{ 
-            background: darkMode ? '#111' : '#fff', 
+            background: darkMode ? '#1a1a2e' : '#fff', 
             color: darkMode ? '#fff' : '#1e293b',
             padding: '8px'
           }}

@@ -534,7 +534,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '8px 12px',
-                color: darkMode ? '#fff' : '#64748b',
+                color: darkMode ? 'rgba(255,255,255,0.8)' : '#64748b',
                 fontWeight: '700',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.5 : 1,
@@ -543,10 +543,12 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               onMouseEnter={(e) => {
                 if (!loading) {
                   e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : '#f8fafc';
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : '#fff';
               }}
             >
               Cancelar
@@ -567,7 +569,18 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 3px 10px rgba(239, 68, 68, 0.25)'
+                boxShadow: loading ? 'none' : '0 3px 10px rgba(239, 68, 68, 0.25)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 5px 14px rgba(239, 68, 68, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 3px 10px rgba(239, 68, 68, 0.25)';
               }}
             >
               {loading ? (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import DocenteThemeWrapper from '../../components/DocenteThemeWrapper';
 import '../../styles/responsive.css';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -52,12 +53,13 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
     }
   };
 
+  // Usar CSS variables del DocenteThemeWrapper
   const theme = {
-    textPrimary: darkMode ? '#fff' : '#1e293b',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(30,41,59,0.8)',
-    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(30,41,59,0.6)',
-    border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-    cardBg: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+    textPrimary: 'var(--theme-text-primary)',
+    textSecondary: 'var(--theme-text-secondary)',
+    textMuted: 'var(--theme-text-muted)',
+    border: 'var(--theme-border)',
+    cardBg: 'var(--theme-card-bg)',
     accent: '#3b82f6',
     success: '#10b981',
     warning: '#f59e0b',
@@ -77,6 +79,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
   });
 
   return (
+    <DocenteThemeWrapper darkMode={darkMode}>
     <div>
       {/* Header */}
       <div style={{
@@ -128,9 +131,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
             padding: '0.5rem 1rem',
             background: activeTab === 'activos' 
               ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-              : darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)',
+              : 'var(--theme-input-bg)',
             border: 'none',
             borderRadius: '0.5rem',
             color: activeTab === 'activos' ? '#fff' : theme.textSecondary,
@@ -144,16 +145,12 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
           }}
           onMouseEnter={(e) => {
             if (activeTab !== 'activos') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.background = 'var(--theme-hover-bg)';
             }
           }}
           onMouseLeave={(e) => {
             if (activeTab !== 'activos') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.background = 'var(--theme-input-bg)';
             }
           }}
         >
@@ -166,9 +163,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
             padding: '0.5rem 1rem',
             background: activeTab === 'finalizados' 
               ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-              : darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)',
+              : 'var(--theme-input-bg)',
             border: 'none',
             borderRadius: '0.5rem',
             color: activeTab === 'finalizados' ? '#fff' : theme.textSecondary,
@@ -182,16 +177,12 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
           }}
           onMouseEnter={(e) => {
             if (activeTab !== 'finalizados') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.background = 'var(--theme-hover-bg)';
             }
           }}
           onMouseLeave={(e) => {
             if (activeTab !== 'finalizados') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.background = 'var(--theme-input-bg)';
             }
           }}
         >
@@ -226,7 +217,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         </div>
       ) : error ? (
         <div style={{
-          background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)',
+          background: 'rgba(239, 68, 68, 0.1)',
           border: `1px solid ${theme.danger}50`,
           borderRadius: '0.75rem',
           padding: '2rem',
@@ -289,9 +280,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-5px)';
-                  e.currentTarget.style.boxShadow = darkMode 
-                    ? '0 10px 25px rgba(0,0,0,0.3)' 
-                    : '0 10px 25px rgba(0,0,0,0.1)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.2)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -335,6 +324,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         </div>
       )}
     </div>
+    </DocenteThemeWrapper>
   );
 };
 

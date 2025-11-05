@@ -667,13 +667,17 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               📋 No hay entregas que coincidan con los filtros
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto', maxHeight: '60vh', overflowY: 'auto' }}>
               <table style={{ 
                 width: '100%', 
                 borderCollapse: 'collapse',
                 fontSize: '0.875rem'
               }}>
-                <thead>
+                <thead style={{
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10
+                }}>
                   <tr style={{
                     background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
                     borderBottom: `2px solid ${theme.border}`
@@ -682,10 +686,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       padding: '1em',
                       textAlign: 'left',
                       color: theme.textPrimary,
-                      fontWeight: '700',
-                      position: 'sticky',
-                      left: 0,
-                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
+                      fontWeight: '700'
                     }}>
                       Estudiante
                     </th>

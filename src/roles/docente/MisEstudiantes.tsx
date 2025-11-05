@@ -180,13 +180,18 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="responsive-filters" style={{ marginBottom: '1em', gap: '0.625em' }}>
+      {/* Filtros - Una sola fila con búsqueda grande y filtros pequeños */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr',
+        gap: '0.625em', 
+        marginBottom: '1em' 
+      }}>
         <div style={{ position: 'relative' }}>
           <Search
-            size={20}
+            size={18}
             color={theme.textMuted}
-            style={{ position: 'absolute', left: '1em', top: '50%', transform: 'translateY(-50%)' }}
+            style={{ position: 'absolute', left: '0.875em', top: '50%', transform: 'translateY(-50%)' }}
           />
           <input
             type="text"
@@ -195,13 +200,17 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.625em 0.75em 0.625em 2.75em',
+              padding: '0.625em 0.75em 0.625em 2.5em',
               background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
               border: `0.0625rem solid ${theme.border}`,
               borderRadius: '0.625em',
               color: theme.textPrimary,
-              fontSize: '0.9rem'
+              fontSize: '0.875rem',
+              outline: 'none',
+              transition: 'all 0.2s ease'
             }}
+            onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
+            onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
           />
         </div>
         <select
@@ -214,8 +223,13 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '0.625em',
             color: theme.textPrimary,
-            fontSize: '0.9rem'
+            fontSize: '0.8125rem',
+            outline: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
+          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
         >
           <option value="">Todos los cursos</option>
           {cursosUnicos.map(c => (
@@ -232,8 +246,13 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             border: `0.0625rem solid ${theme.border}`,
             borderRadius: '0.625em',
             color: theme.textPrimary,
-            fontSize: '0.9rem'
+            fontSize: '0.8125rem',
+            outline: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
+          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
         >
           <option value="todos">Todos los estados</option>
           <option value="activos">Cursos Activos</option>

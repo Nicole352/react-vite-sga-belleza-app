@@ -480,7 +480,13 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 
   return (
     <>
-    <div>
+    <div style={{
+      maxWidth: '100%',
+      width: '100%',
+      padding: isMobile ? '0.75rem' : '1rem',
+      boxSizing: 'border-box',
+      overflowX: 'hidden'
+    }}>
       {/* Header */}
         <div
           style={{
@@ -489,7 +495,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               : "linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%)",
             backdropFilter: "blur(0.625rem)",
             borderRadius: "0.875em",
-            padding: "1em",
+            padding: isMobile ? "0.75em" : "1em",
             marginBottom: "1em",
             border: `0.0625rem solid ${theme.border}`,
           }}
@@ -533,15 +539,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "flex-start",
-              flexWrap: "wrap",
+              alignItems: isMobile ? "stretch" : "flex-start",
+              flexDirection: isMobile ? "column" : "row",
               gap: "0.75em",
             }}
           >
-            <div>
+            <div style={{ flex: 1 }}>
               <h1
                 style={{
-                  fontSize: "1.25rem",
+                  fontSize: isMobile ? "1.1rem" : "1.25rem",
                   fontWeight: "800",
                   color: theme.textPrimary,
                   marginBottom: "0.375em",
@@ -550,16 +556,21 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                   gap: "0.625em",
                 }}
               >
-                <BookOpen size={18} style={{ color: theme.accent }} />
+                <BookOpen size={isMobile ? 16 : 18} style={{ color: theme.accent }} />
                 {curso?.nombre}
               </h1>
-              <p style={{ color: theme.textMuted, fontSize: "0.85rem" }}>
+              <p style={{ color: theme.textMuted, fontSize: isMobile ? "0.8rem" : "0.85rem" }}>
                 Código: {curso?.codigo_curso} • {curso?.total_estudiantes || 0}{" "}
                 estudiantes matriculados
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.5rem',
+              flexDirection: isMobile ? 'column' : 'row',
+              width: isMobile ? '100%' : 'auto'
+            }}>
               <button
                 onClick={() => {
                   fetchModulos();
@@ -571,15 +582,17 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                     : "rgba(16, 185, 129, 0.08)",
                   border: `1px solid ${darkMode ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.2)"}`,
                   borderRadius: "0.5em",
-                  padding: "0.5em 0.875em",
+                  padding: isMobile ? "0.625em 0.875em" : "0.5em 0.875em",
                   color: "#10b981",
                   fontWeight: "800",
-                  fontSize: "0.9rem",
+                  fontSize: isMobile ? "0.85rem" : "0.9rem",
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: "0.5em",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(16, 185, 129, 0.15)";
@@ -590,7 +603,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                     : "rgba(16, 185, 129, 0.08)";
                 }}
               >
-                <RefreshCw size={16} />
+                <RefreshCw size={isMobile ? 14 : 16} />
                 Actualizar
               </button>
 
@@ -601,16 +614,18 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                     "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                   border: "none",
                   borderRadius: "0.5em",
-                  padding: "0.5em 0.875em",
+                  padding: isMobile ? "0.625em 0.875em" : "0.5em 0.875em",
                   color: "#fff",
                   fontWeight: "800",
-                  fontSize: "0.9rem",
+                  fontSize: isMobile ? "0.85rem" : "0.9rem",
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: "0.5em",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
                   boxShadow: "0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)",
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-0.0625rem)";
@@ -623,7 +638,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                     "0 0.1875rem 0.625rem rgba(59, 130, 246, 0.25)";
                 }}
               >
-                <Plus size={16} />
+                <Plus size={isMobile ? 14 : 16} />
                 Crear Módulo
               </button>
             </div>
@@ -743,7 +758,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                 {/* Header del Módulo */}
                 <div
                   style={{
-                    padding: "14px 16px",
+                    padding: isMobile ? "12px" : "14px 16px",
                     cursor: "pointer",
                     transition: "background 0.2s ease",
                   }}
@@ -754,7 +769,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "flex-start",
-                      gap: "12px",
+                      flexDirection: isMobile ? "column" : "row",
+                      gap: isMobile ? "10px" : "12px",
                     }}
                   >
                     {/* Contenido Principal */}
@@ -866,6 +882,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                         alignItems: "center",
                         gap: "6px",
                         flexShrink: 0,
+                        flexWrap: "wrap",
+                        width: isMobile ? "100%" : "auto",
                       }}
                     >
                       {modulo.estado !== "finalizado" && (
@@ -1176,7 +1194,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                 ? "1px solid rgba(255,255,255,0.1)"
                                 : "1px solid #e5e7eb",
                               borderRadius: "10px",
-                              padding: "12px",
+                              padding: isMobile ? "10px" : "12px",
                               cursor: "pointer",
                               transition: "all 0.3s ease",
                               boxShadow: darkMode
@@ -1220,14 +1238,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "flex-start",
-                                gap: "10px",
+                                flexDirection: isMobile ? "column" : "row",
+                                gap: isMobile ? "8px" : "10px",
                               }}
                             >
-                              <div style={{ flex: 1 }}>
+                              <div style={{ flex: 1, width: isMobile ? "100%" : "auto" }}>
                                 <h4
                                   style={{
                                     color: theme.textPrimary,
-                                    fontSize: "0.95rem",
+                                    fontSize: isMobile ? "0.9rem" : "0.95rem",
                                     fontWeight: "800",
                                     marginBottom: "6px",
                                   }}
@@ -1306,9 +1325,11 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                 style={{
                                   display: "flex",
                                   gap: "6px",
-                                  marginTop: "6px",
+                                  marginTop: isMobile ? "0" : "6px",
                                   flexWrap: "wrap",
                                   alignItems: "center",
+                                  width: isMobile ? "100%" : "auto",
+                                  justifyContent: isMobile ? "flex-start" : "flex-end"
                                 }}
                               >
                                 {/* Botón Ver Entregas */}

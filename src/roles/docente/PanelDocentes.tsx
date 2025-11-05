@@ -193,6 +193,21 @@ const PanelDocentes = () => {
           background: var(--docente-input-bg) !important;
           border: 0.0625rem solid var(--docente-input-border) !important;
           color: var(--docente-text-primary) !important;
+          color-scheme: ${darkMode ? 'dark' : 'light'};
+        }
+        
+        .docente-panel input[type="date"],
+        .docente-panel input[type="datetime-local"] {
+          color-scheme: ${darkMode ? 'dark' : 'light'};
+        }
+        
+        .docente-panel select {
+          color-scheme: ${darkMode ? 'dark' : 'light'};
+        }
+        
+        .docente-panel select option {
+          background: ${darkMode ? '#1a1a2e' : '#fff'} !important;
+          color: ${darkMode ? '#fff' : '#1e293b'} !important;
         }
       `}</style>
 

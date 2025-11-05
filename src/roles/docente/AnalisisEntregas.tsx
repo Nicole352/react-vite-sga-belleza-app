@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Users, TrendingUp, Award, Clock, FileCheck, 
-  Download, BarChart3, PieChart, Target, AlertCircle, CheckCircle2
+  Download, BarChart3, PieChart, Target
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -23,13 +24,38 @@ interface Entrega {
 const AnalisisEntregas: React.FC = () => {
   const { id_tarea } = useParams();
   const navigate = useNavigate();
-  const [darkMode] = useState(() => {
+  const { isMobile, isSmallScreen } = useBreakpoints();
+  const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('docente-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [loading, setLoading] = useState(true);
   const [entregas, setEntregas] = useState<Entrega[]>([]);
   const [tareaInfo, setTareaInfo] = useState<any>(null);
+
+  // Escuchar cambios en el tema
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('docente-dark-mode');
+      setDarkMode(saved !== null ? JSON.parse(saved) : true);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También escuchar cambios directos en el mismo tab
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('docente-dark-mode');
+      const currentMode = saved !== null ? JSON.parse(saved) : true;
+      if (currentMode !== darkMode) {
+        setDarkMode(currentMode);
+      }
+    }, 100);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [darkMode]);
 
   useEffect(() => {
     if (id_tarea) {
@@ -115,13 +141,27 @@ const AnalisisEntregas: React.FC = () => {
 
   const stats = calcularEstadisticas();
 
-  const theme = {
-    bg: darkMode ? '#0f172a' : '#f8fafc',
-    cardBg: darkMode ? 'rgba(30, 41, 59, 0.95)' : '#ffffff',
-    textPrimary: darkMode ? '#fff' : '#1e293b',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-    border: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)',
-    accent: '#3b82f6'
+  // Usar el mismo patrón de colores que DocenteDashboard
+  const theme = darkMode ? {
+    bg: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+    textPrimary: '#fff',
+    textSecondary: 'rgba(255,255,255,0.8)',
+    textMuted: 'rgba(255,255,255,0.7)',
+    cardBg: 'rgba(255, 255, 255, 0.05)',
+    border: 'rgba(59, 130, 246, 0.2)',
+    accent: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b'
+  } : {
+    bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+    textPrimary: '#1e293b',
+    textSecondary: 'rgba(30,41,59,0.8)',
+    textMuted: 'rgba(30,41,59,0.7)',
+    cardBg: 'rgba(255, 255, 255, 0.8)',
+    border: 'rgba(59, 130, 246, 0.2)',
+    accent: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b'
   };
 
   if (loading) {
@@ -152,19 +192,19 @@ const AnalisisEntregas: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: `linear-gradient(135deg, ${darkMode ? '#0f172a' : '#f8fafc'} 0%, ${darkMode ? '#1e293b' : '#e2e8f0'} 100%)`,
-      padding: '2rem'
+      padding: isMobile ? '0.75rem' : isSmallScreen ? '1rem' : '2rem',
+      maxWidth: '100%',
+      overflowX: 'hidden',
+      boxSizing: 'border-box'
     }}>
       {/* Header */}
       <div style={{
-        background: darkMode 
-          ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)'
-          : '#ffffff',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        marginBottom: '2rem',
+        background: theme.cardBg,
+        borderRadius: isMobile ? '12px' : '16px',
+        padding: isMobile ? '1rem' : '1.5rem',
+        marginBottom: isMobile ? '1rem' : '2rem',
         border: `1px solid ${theme.border}`,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+        boxShadow: darkMode ? 'none' : '0 4px 20px rgba(0, 0, 0, 0.1)'
       }}>
         <button
           onClick={() => navigate(-1)}
@@ -193,19 +233,32 @@ const AnalisisEntregas: React.FC = () => {
           Volver
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <BarChart3 size={40} style={{ color: theme.accent }} />
+        <div style={{ 
+          display: 'flex', 
+          alignItems: isMobile ? 'stretch' : 'center', 
+          justifyContent: 'space-between', 
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '1rem' : '0',
+          width: '100%' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem' }}>
+            <BarChart3 size={isMobile ? 28 : 40} style={{ color: theme.accent, flexShrink: 0 }} />
             <div>
               <h1 style={{ 
                 color: theme.textPrimary, 
-                fontSize: '2rem', 
+                fontSize: isMobile ? '1.25rem' : '2rem', 
                 fontWeight: '800', 
-                margin: '0 0 0.5rem 0' 
+                margin: '0 0 0.25rem 0',
+                lineHeight: '1.2'
               }}>
                 Análisis Completo de Entregas
               </h1>
-              <p style={{ color: theme.textSecondary, fontSize: '1.1rem', margin: 0 }}>
+              <p style={{ 
+                color: theme.textSecondary, 
+                fontSize: isMobile ? '0.875rem' : '1.1rem', 
+                margin: 0,
+                lineHeight: '1.4'
+              }}>
                 {tareaInfo?.titulo || 'Cargando...'}
               </p>
             </div>
@@ -258,16 +311,18 @@ const AnalisisEntregas: React.FC = () => {
               background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
               border: 'none',
               borderRadius: '8px',
-              padding: '0.5rem 1rem',
+              padding: isMobile ? '0.625rem 1rem' : '0.5rem 1rem',
               color: '#fff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.5rem',
               fontWeight: '600',
-              fontSize: '0.875rem',
+              fontSize: isMobile ? '0.8125rem' : '0.875rem',
               boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: isMobile ? '100%' : 'auto'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -287,17 +342,17 @@ const AnalisisEntregas: React.FC = () => {
       {/* Tarjetas de Estadísticas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem'
+        gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: isMobile ? '0.75rem' : '1rem',
+        marginBottom: isMobile ? '1rem' : '1.5rem'
       }}>
         {/* Total Estudiantes */}
         <div style={{
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)'
             : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-          borderRadius: '12px',
-          padding: '1rem',
+          borderRadius: isMobile ? '10px' : '12px',
+          padding: isMobile ? '0.875rem' : '1rem',
           border: `1px solid ${theme.border}`,
           boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1)'
         }}>
@@ -319,8 +374,8 @@ const AnalisisEntregas: React.FC = () => {
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(14, 165, 233, 0.1) 100%)'
             : 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%)',
-          borderRadius: '12px',
-          padding: '1rem',
+          borderRadius: isMobile ? '10px' : '12px',
+          padding: isMobile ? '0.875rem' : '1rem',
           border: `1px solid rgba(6, 182, 212, 0.2)`,
           boxShadow: '0 2px 8px rgba(6, 182, 212, 0.1)'
         }}>
@@ -329,11 +384,11 @@ const AnalisisEntregas: React.FC = () => {
               <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
                 Calificadas
               </p>
-              <h2 style={{ color: '#06b6d4', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: darkMode ? '#06b6d4' : '#0891b2', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
                 {stats.calificadas}
               </h2>
             </div>
-            <FileCheck size={24} style={{ color: '#06b6d4', opacity: 0.7 }} />
+            <FileCheck size={24} style={{ color: darkMode ? '#06b6d4' : '#0891b2', opacity: 0.7 }} />
           </div>
         </div>
 
@@ -342,8 +397,8 @@ const AnalisisEntregas: React.FC = () => {
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)'
             : 'linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
-          borderRadius: '12px',
-          padding: '1rem',
+          borderRadius: isMobile ? '10px' : '12px',
+          padding: isMobile ? '0.875rem' : '1rem',
           border: `1px solid rgba(96, 165, 250, 0.2)`,
           boxShadow: '0 2px 8px rgba(96, 165, 250, 0.1)'
         }}>
@@ -352,11 +407,11 @@ const AnalisisEntregas: React.FC = () => {
               <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
                 Pendientes
               </p>
-              <h2 style={{ color: '#60a5fa', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: darkMode ? '#60a5fa' : '#2563eb', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
                 {stats.pendientes}
               </h2>
             </div>
-            <Clock size={24} style={{ color: '#60a5fa', opacity: 0.7 }} />
+            <Clock size={24} style={{ color: darkMode ? '#60a5fa' : '#2563eb', opacity: 0.7 }} />
           </div>
         </div>
 
@@ -365,8 +420,8 @@ const AnalisisEntregas: React.FC = () => {
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.1) 100%)'
             : 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
-          borderRadius: '12px',
-          padding: '1rem',
+          borderRadius: isMobile ? '10px' : '12px',
+          padding: isMobile ? '0.875rem' : '1rem',
           border: `1px solid rgba(99, 102, 241, 0.2)`,
           boxShadow: '0 2px 8px rgba(99, 102, 241, 0.1)'
         }}>
@@ -375,7 +430,7 @@ const AnalisisEntregas: React.FC = () => {
               <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
                 Promedio General
               </p>
-              <h2 style={{ color: '#6366f1', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: darkMode ? '#6366f1' : '#4f46e5', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
                 {stats.promedio}
               </h2>
             </div>
@@ -387,15 +442,15 @@ const AnalisisEntregas: React.FC = () => {
       {/* Gráficos y Detalles */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem'
+        gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: isMobile ? '1rem' : '1.5rem',
+        marginBottom: isMobile ? '1rem' : '2rem'
       }}>
         {/* Progreso de Calificación */}
         <div style={{
           background: theme.cardBg,
-          borderRadius: '16px',
-          padding: '1.5rem',
+          borderRadius: isMobile ? '12px' : '16px',
+          padding: isMobile ? '1rem' : '1.5rem',
           border: `1px solid ${theme.border}`,
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
         }}>
@@ -433,30 +488,30 @@ const AnalisisEntregas: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
             <div style={{
               background: darkMode ? 'rgba(6, 182, 212, 0.1)' : 'rgba(6, 182, 212, 0.05)',
-              borderRadius: '12px',
-              padding: '1rem',
+              borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '0.875rem' : '1rem',
               border: '1px solid rgba(6, 182, 212, 0.2)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <TrendingUp size={18} style={{ color: '#06b6d4' }} />
-                <span style={{ color: theme.textSecondary, fontSize: '0.85rem' }}>Nota Máxima</span>
+                <TrendingUp size={isMobile ? 16 : 18} style={{ color: darkMode ? '#06b6d4' : '#0891b2' }} />
+                <span style={{ color: theme.textSecondary, fontSize: isMobile ? '0.8rem' : '0.85rem' }}>Nota Máxima</span>
               </div>
-              <p style={{ color: '#06b6d4', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <p style={{ color: darkMode ? '#06b6d4' : '#0891b2', fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: '800', margin: 0 }}>
                 {stats.notaMaxima.toFixed(2)}
               </p>
             </div>
 
             <div style={{
               background: darkMode ? 'rgba(96, 165, 250, 0.1)' : 'rgba(96, 165, 250, 0.05)',
-              borderRadius: '12px',
-              padding: '1rem',
+              borderRadius: isMobile ? '10px' : '12px',
+              padding: isMobile ? '0.875rem' : '1rem',
               border: '1px solid rgba(96, 165, 250, 0.2)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Award size={18} style={{ color: '#60a5fa' }} />
-                <span style={{ color: theme.textSecondary, fontSize: '0.85rem' }}>Nota Mínima</span>
+                <Award size={isMobile ? 16 : 18} style={{ color: darkMode ? '#60a5fa' : '#2563eb' }} />
+                <span style={{ color: theme.textSecondary, fontSize: isMobile ? '0.8rem' : '0.85rem' }}>Nota Mínima</span>
               </div>
-              <p style={{ color: '#60a5fa', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <p style={{ color: darkMode ? '#60a5fa' : '#2563eb', fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: '800', margin: 0 }}>
                 {stats.notaMinima.toFixed(2)}
               </p>
             </div>
@@ -466,8 +521,8 @@ const AnalisisEntregas: React.FC = () => {
         {/* Estado de Entregas */}
         <div style={{
           background: theme.cardBg,
-          borderRadius: '16px',
-          padding: '1.5rem',
+          borderRadius: isMobile ? '12px' : '16px',
+          padding: isMobile ? '1rem' : '1.5rem',
           border: `1px solid ${theme.border}`,
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
         }}>
@@ -613,10 +668,15 @@ const AnalisisEntregas: React.FC = () => {
         </div>
       </div>
 
-      {/* Animación de spin */}
+      {/* Animaciones y transiciones */}
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        
+        /* Transiciones suaves para cambios de tema */
+        * {
+          transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
       `}</style>
     </div>

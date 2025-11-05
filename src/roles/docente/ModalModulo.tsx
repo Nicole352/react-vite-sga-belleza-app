@@ -250,11 +250,11 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               onClick={onClose}
               disabled={loading}
               style={{
-                background: '#fff',
-                border: '0.0625rem solid #e2e8f0',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                border: darkMode ? '0.0625rem solid rgba(255,255,255,0.1)' : '0.0625rem solid #e2e8f0',
                 borderRadius: '0.5em',
                 padding: '0.5em 0.75em',
-                color: '#64748b',
+                color: darkMode ? 'rgba(255,255,255,0.8)' : '#64748b',
                 fontWeight: '700',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.5 : 1,
@@ -263,13 +263,13 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
-                  e.currentTarget.style.borderColor = '#cbd5e1';
-                  e.currentTarget.style.color = '#475569';
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : '#f8fafc';
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#e2e8f0';
-                e.currentTarget.style.color = '#64748b';
+                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0';
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : '#fff';
               }}
             >
               Cancelar
