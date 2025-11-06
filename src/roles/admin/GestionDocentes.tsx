@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Lock, Info, Grid, List, ChevronLeft, ChevronRight, IdCard
+  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, CheckCircle2, Lock, Info, Grid, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -693,18 +693,14 @@ const GestionDocentes = () => {
                     >
                       <td style={{ padding: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                          <div style={{
-                            width: '2em',
-                            height: '2em',
-                            borderRadius: '0.5em',
-                            background: 'rgba(248, 113, 113, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '0.0625rem solid rgba(248, 113, 113, 0.3)'
-                          }}>
-                            <User size={14} color="#f87171" />
-                          </div>
+                          <UserAvatar
+                            userId={docente.id_usuario || docente.id_docente}
+                            nombre={docente.nombres}
+                            apellido={docente.apellidos}
+                            size={2}
+                            showBorder={true}
+                            borderColor="rgba(239, 68, 68, 0.3)"
+                          />
                           <div>
                             <div style={{ fontWeight: '600', color: '#fff', fontSize: '0.85rem' }}>
                               {docente.nombres} {docente.apellidos}

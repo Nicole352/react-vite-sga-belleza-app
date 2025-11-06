@@ -378,7 +378,8 @@ const PanelAdministrativos = () => {
           transition: 'margin-left 0.3s ease',
           width: isSmallScreen ? '100%' : 'auto',
           maxWidth: '100%',
-          overflowX: 'hidden'
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}>
           {/* Navbar */}
           <div style={{
@@ -396,7 +397,7 @@ const PanelAdministrativos = () => {
             zIndex: 2
           }}>
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1em', flex: 1, minWidth: 0 }}>
               {/* Botón hamburguesa móvil */}
               {isSmallScreen && (
                 <button
@@ -459,7 +460,7 @@ const PanelAdministrativos = () => {
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative', flexShrink: 0 }}>
               {/* Campana de notificaciones */}
               <NotificationBell
                 notificaciones={notificaciones}

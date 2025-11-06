@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PerfilModal from './PerfilModal';
+import { useBreakpoints } from '../hooks/useMediaQuery';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -29,6 +30,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
   const [showPerfilModal, setShowPerfilModal] = useState(false);
   const [currentFotoUrl, setCurrentFotoUrl] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoints();
 
   // Cargar foto de perfil al montar y cuando userData cambie
   useEffect(() => {
@@ -164,8 +166,8 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
           setShowProfileMenu(!showProfileMenu);
         }}
         style={{
-          width: '44px',
-          height: '44px',
+          width: isMobile ? '2.25rem' : '2.75rem',
+          height: isMobile ? '2.25rem' : '2.75rem',
           background: currentFotoUrl ? 'transparent' : avatarColor,
           borderRadius: '50%',
           display: 'flex',
