@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
+import {
   Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard, Download, FileText, Shield, Sheet
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -7,7 +7,6 @@ import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
@@ -48,7 +47,7 @@ const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:300
 
 const GestionEstudiantes = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
-  
+
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(false);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
@@ -68,18 +67,18 @@ const GestionEstudiantes = () => {
       setLoading(true);
       setShowLoadingModal(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', String(limit));
       if (searchTerm) params.set('search', searchTerm);
-      
+
       const response = await fetch(`${API_BASE}/api/estudiantes?${params.toString()}`);
-      
+
       if (!response.ok) {
         throw new Error('Error cargando estudiantes');
       }
-      
+
       const data = await response.json();
       const headerVal = response.headers.get('X-Total-Count');
       const totalHeader = headerVal !== null ? Number(headerVal) : NaN;
@@ -99,15 +98,6 @@ const GestionEstudiantes = () => {
       setTimeout(() => setShowLoadingModal(false), 300);
     }
   };
-
-  // Auto-refresh cada 30 segundos
-  useAutoRefresh({
-    onRefresh: async () => {
-      await fetchEstudiantes();
-    },
-    interval: 30000, // 30 segundos
-    dependencies: [page, limit, searchTerm]
-  });
 
   useEffect(() => {
     fetchEstudiantes();

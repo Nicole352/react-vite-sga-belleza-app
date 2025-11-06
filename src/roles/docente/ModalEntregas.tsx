@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { 
-  X, Eye, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar 
+import {
+  X, Eye, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import LoadingModal from '../../components/LoadingModal';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import { useSocket } from '../../hooks/useSocket';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -76,13 +75,12 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       console.log('Primera entrega completa:', data.entregas[0]);
       console.log('archivo_nombre de primera entrega:', data.entregas[0]?.archivo_nombre);
       console.log('archivo_nombre_original de primera entrega:', data.entregas[0]?.archivo_nombre_original);
-      
-      // Transformar datos si es necesario
+
       const entregasConEstado = data.entregas.map((entrega: any) => ({
         ...entrega,
         estado: entrega.calificacion !== undefined && entrega.calificacion !== null ? 'calificado' : 'pendiente'
       }));
-      
+
       setEntregas(entregasConEstado);
       console.log('Entregas establecidas:', entregasConEstado);
     } catch (error) {
@@ -93,10 +91,20 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     }
   };
 
-  // Auto-refresh con modal de carga azul
-  const { isRefreshing } = useAutoRefresh({
-    onRefresh: fetchEntregas,
-    interval: isOpen ? 30000 : 0 // 30 segundos solo cuando está abierto
+  useSocket({
+    'entrega_nueva': (data: any) => {
+      console.log('📥 Nueva entrega recibida:', data);
+      if (data.id_tarea === id_tarea) {
+        toast.success('Nueva entrega recibida');
+        fetchEntregas();
+      }
+    },
+    'tarea_calificada': (data: any) => {
+      console.log('✅ Tarea calificada:', data);
+      if (data.id_tarea === id_tarea) {
+        fetchEntregas();
+      }
+    }
   });
 
   useEffect(() => {
@@ -1485,12 +1493,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   return (
     <>
       {createPortal(modalWithPointerEvents, modalRoot)}
-      <LoadingModal 
-        isOpen={isRefreshing}
-        message="Actualizando entregas..."
-        darkMode={darkMode}
-        colorTheme="blue"
-      />
     </>
   );
 };

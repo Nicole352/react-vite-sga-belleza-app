@@ -9,8 +9,8 @@ import {
   ChevronRight,
   BarChart3,
 } from "lucide-react";
-import LoadingModal from "../../components/LoadingModal";
-import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import toast from "react-hot-toast";
+import { useSocket } from "../../hooks/useSocket";
 
 const API_BASE = "http://localhost:3000/api";
 
@@ -68,6 +68,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   >([]);
   const [loading, setLoading] = useState(true);
   const [expandedCursos, setExpandedCursos] = useState<Record<number, boolean>>(
+    {},
+  );
+  const [expandedModulos, setExpandedModulos] = useState<Record<string, boolean>>(
     {},
   );
   const [error, setError] = useState("");
@@ -198,10 +201,38 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
     }
   };
 
-  // Auto-refresh con modal de carga dorado
-  const { isRefreshing } = useAutoRefresh({
-    onRefresh: fetchCalificaciones,
-    interval: 30000 // 30 segundos
+  // Escuchar eventos de WebSocket para actualizaciones en tiempo real
+  useSocket({
+    calificacion_actualizada: (data: any) => {
+      console.log("📊 [WebSocket Estudiante] Calificación actualizada:", data);
+      
+      toast.success(`✅ Nueva calificación disponible`, {
+        duration: 4000,
+      });
+      
+      // Recargar calificaciones
+      fetchCalificaciones();
+    },
+    entrega_calificada: (data: any) => {
+      console.log("📝 [WebSocket Estudiante] Entrega calificada:", data);
+      
+      toast.success(`📝 Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, {
+        duration: 5000,
+      });
+      
+      // Recargar calificaciones
+      fetchCalificaciones();
+    },
+    promedio_actualizado: (data: any) => {
+      console.log("📈 [WebSocket Estudiante] Promedio actualizado:", data);
+      
+      toast.success(`📈 Promedio actualizado`, {
+        duration: 3000,
+      });
+      
+      // Recargar calificaciones
+      fetchCalificaciones();
+    },
   });
 
   useEffect(() => {
@@ -220,6 +251,14 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
     if (isExpanding && !promediosGlobales[cursoId]) {
       await fetchPromedioGlobal(cursoId);
     }
+  };
+
+  const toggleModulo = (cursoId: number, moduloId: number) => {
+    const key = `${cursoId}-${moduloId}`;
+    setExpandedModulos((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   const fetchPromedioGlobal = async (cursoId: number) => {
@@ -1009,184 +1048,275 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                           marginTop: "1rem",
                         }}
                       >
-                        {calificaciones.map((calificacion) => (
-                          <div
-                            key={calificacion.id_calificacion}
-                            style={{
-                              background: darkMode
-                                ? "rgba(255,255,255,0.03)"
-                                : "rgba(0,0,0,0.02)",
-                              border: `1px solid ${theme.border}`,
-                              borderRadius: "0.75rem",
-                              padding: "1rem",
-                            }}
-                          >
+                        {/* Agrupar por módulos */}
+                        {modulos.map((modulo) => {
+                          const moduloKey = `${curso.id_curso}-${modulo.id_modulo}`;
+                          const isModuloExpanded = expandedModulos[moduloKey] || false;
+                          
+                          return (
                             <div
+                              key={modulo.id_modulo}
                               style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "flex-start",
-                                marginBottom: "0.5rem",
+                                background: darkMode
+                                  ? "rgba(255,255,255,0.03)"
+                                  : "rgba(0,0,0,0.02)",
+                                border: `1px solid ${theme.border}`,
+                                borderRadius: "0.75rem",
+                                overflow: "hidden",
+                                transition: "all 0.3s ease",
                               }}
                             >
-                              <div>
-                                <h4
-                                  style={{
-                                    color: theme.textPrimary,
-                                    fontSize: "1rem",
-                                    fontWeight: "600",
-                                    margin: 0,
-                                  }}
-                                >
-                                  {calificacion.tarea_titulo}
-                                </h4>
-                                <p
-                                  style={{
-                                    color: theme.textMuted,
-                                    margin: "0.25rem 0 0 0",
-                                    fontSize: "0.9rem",
-                                  }}
-                                >
-                                  {calificacion.modulo_nombre}
-                                </p>
-                              </div>
+                              {/* Header del Módulo */}
                               <div
+                                onClick={() => toggleModulo(curso.id_curso, modulo.id_modulo)}
                                 style={{
-                                  background:
-                                    getColorByGrade(
-                                      parseFloat(calificacion.nota as any) || 0,
-                                    ) + "20",
-                                  border: `1px solid ${getColorByGrade(parseFloat(calificacion.nota as any) || 0)}30`,
-                                  borderRadius: "0.5rem",
-                                  padding: "0.25rem 0.75rem",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    color: getColorByGrade(
-                                      parseFloat(calificacion.nota as any) || 0,
-                                    ),
-                                    fontWeight: "700",
-                                    fontSize: "1.1rem",
-                                  }}
-                                >
-                                  {(
-                                    parseFloat(calificacion.nota as any) || 0
-                                  ).toFixed(1)}
-                                </span>
-                                <span
-                                  style={{
-                                    color: theme.textMuted,
-                                    marginLeft: "0.25rem",
-                                    fontSize: "0.9rem",
-                                  }}
-                                >
-                                  /
-                                  {parseFloat(
-                                    calificacion.nota_maxima as any,
-                                  ) || 20}
-                                </span>
-                              </div>
-                            </div>
-
-                            {calificacion.comentario_docente && (
-                              <div
-                                style={{
-                                  background: darkMode
-                                    ? "rgba(255,255,255,0.02)"
-                                    : "rgba(0,0,0,0.01)",
-                                  border: `1px solid ${theme.border}`,
-                                  borderRadius: "0.5rem",
-                                  padding: "0.75rem",
-                                  marginTop: "0.75rem",
-                                }}
-                              >
-                                <p
-                                  style={{
-                                    color: theme.textSecondary,
-                                    margin: 0,
-                                    fontStyle: "italic",
-                                  }}
-                                >
-                                  "{calificacion.comentario_docente}"
-                                </p>
-                              </div>
-                            )}
-
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginTop: "0.75rem",
-                                paddingTop: "0.75rem",
-                                borderTop: `1px solid ${theme.border}`,
-                              }}
-                            >
-                              <div
-                                style={{
+                                  padding: "1rem",
+                                  cursor: "pointer",
                                   display: "flex",
+                                  justifyContent: "space-between",
                                   alignItems: "center",
-                                  gap: "0.5rem",
+                                  background: darkMode
+                                    ? "rgba(251, 191, 36, 0.08)"
+                                    : "rgba(251, 191, 36, 0.05)",
+                                  borderBottom: isModuloExpanded 
+                                    ? `1px solid ${theme.border}` 
+                                    : "none",
                                 }}
                               >
-                                <Calendar
-                                  size={16}
-                                  style={{ color: theme.textMuted }}
-                                />
-                                <span
-                                  style={{
-                                    color: theme.textMuted,
-                                    fontSize: "0.85rem",
-                                  }}
-                                >
-                                  {new Date(
-                                    calificacion.fecha_calificacion,
-                                  ).toLocaleDateString("es-ES")}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  background:
-                                    getColorByGrade(
-                                      ((parseFloat(calificacion.nota as any) ||
-                                        0) /
-                                        (parseFloat(
-                                          calificacion.nota_maxima as any,
-                                        ) || 20)) *
-                                        20,
-                                    ) + "20",
-                                  borderRadius: "0.5rem",
-                                  padding: "0.25rem 0.5rem",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    color: getColorByGrade(
-                                      ((parseFloat(calificacion.nota as any) ||
-                                        0) /
-                                        (parseFloat(
-                                          calificacion.nota_maxima as any,
-                                        ) || 20)) *
-                                        20,
-                                    ),
-                                    fontSize: "0.8rem",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  {getGradeLabel(
-                                    ((parseFloat(calificacion.nota as any) ||
-                                      0) /
-                                      (parseFloat(
-                                        calificacion.nota_maxima as any,
-                                      ) || 20)) *
-                                      20,
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                  {isModuloExpanded ? (
+                                    <ChevronDown size={20} style={{ color: theme.accent }} />
+                                  ) : (
+                                    <ChevronRight size={20} style={{ color: theme.accent }} />
                                   )}
-                                </span>
+                                  <div>
+                                    <h4
+                                      style={{
+                                        color: theme.textPrimary,
+                                        fontSize: "1rem",
+                                        fontWeight: "700",
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {modulo.nombre}
+                                    </h4>
+                                    <p
+                                      style={{
+                                        color: theme.textMuted,
+                                        margin: "0.25rem 0 0 0",
+                                        fontSize: "0.85rem",
+                                      }}
+                                    >
+                                      {modulo.tareas_calificadas}{" "}
+                                      {modulo.tareas_calificadas === 1
+                                        ? "tarea calificada"
+                                        : "tareas calificadas"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                  <div
+                                    style={{
+                                      color: getColorByGrade10(modulo.promedio_ponderado),
+                                      fontSize: "1.5rem",
+                                      fontWeight: "900",
+                                      lineHeight: 1,
+                                    }}
+                                  >
+                                    {modulo.promedio_ponderado.toFixed(1)}
+                                  </div>
+                                  <div
+                                    style={{
+                                      color: theme.textMuted,
+                                      fontSize: "0.7rem",
+                                      marginTop: "0.125rem",
+                                    }}
+                                  >
+                                    Promedio
+                                  </div>
+                                </div>
                               </div>
+
+                              {/* Tareas del Módulo (expandible) */}
+                              {isModuloExpanded && (
+                                <div style={{ padding: "0.5rem" }}>
+                                  {modulo.calificaciones.map((calificacion) => (
+                                    <div
+                                      key={calificacion.id_calificacion}
+                                      style={{
+                                        background: darkMode
+                                          ? "rgba(255,255,255,0.02)"
+                                          : "rgba(255,255,255,0.5)",
+                                        border: `1px solid ${theme.border}`,
+                                        borderRadius: "0.5rem",
+                                        padding: "0.875rem",
+                                        marginBottom: "0.5rem",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          alignItems: "flex-start",
+                                          marginBottom: "0.5rem",
+                                        }}
+                                      >
+                                        <div style={{ flex: 1 }}>
+                                          <h5
+                                            style={{
+                                              color: theme.textPrimary,
+                                              fontSize: "0.95rem",
+                                              fontWeight: "600",
+                                              margin: 0,
+                                            }}
+                                          >
+                                            {calificacion.tarea_titulo}
+                                          </h5>
+                                        </div>
+                                        <div
+                                          style={{
+                                            background:
+                                              getColorByGrade(
+                                                parseFloat(calificacion.nota as any) || 0,
+                                              ) + "20",
+                                            border: `1px solid ${getColorByGrade(parseFloat(calificacion.nota as any) || 0)}30`,
+                                            borderRadius: "0.5rem",
+                                            padding: "0.25rem 0.75rem",
+                                            marginLeft: "0.5rem",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: getColorByGrade(
+                                                parseFloat(calificacion.nota as any) || 0,
+                                              ),
+                                              fontWeight: "700",
+                                              fontSize: "1rem",
+                                            }}
+                                          >
+                                            {(
+                                              parseFloat(calificacion.nota as any) || 0
+                                            ).toFixed(1)}
+                                          </span>
+                                          <span
+                                            style={{
+                                              color: theme.textMuted,
+                                              marginLeft: "0.25rem",
+                                              fontSize: "0.85rem",
+                                            }}
+                                          >
+                                            /
+                                            {parseFloat(
+                                              calificacion.nota_maxima as any,
+                                            ) || 20}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      {calificacion.comentario_docente && (
+                                        <div
+                                          style={{
+                                            background: darkMode
+                                              ? "rgba(255,255,255,0.02)"
+                                              : "rgba(0,0,0,0.01)",
+                                            border: `1px solid ${theme.border}`,
+                                            borderRadius: "0.5rem",
+                                            padding: "0.625rem",
+                                            marginTop: "0.5rem",
+                                          }}
+                                        >
+                                          <p
+                                            style={{
+                                              color: theme.textSecondary,
+                                              margin: 0,
+                                              fontStyle: "italic",
+                                              fontSize: "0.85rem",
+                                            }}
+                                          >
+                                            "{calificacion.comentario_docente}"
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          alignItems: "center",
+                                          marginTop: "0.625rem",
+                                          paddingTop: "0.625rem",
+                                          borderTop: `1px solid ${theme.border}`,
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.5rem",
+                                          }}
+                                        >
+                                          <Calendar
+                                            size={14}
+                                            style={{ color: theme.textMuted }}
+                                          />
+                                          <span
+                                            style={{
+                                              color: theme.textMuted,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            {new Date(
+                                              calificacion.fecha_calificacion,
+                                            ).toLocaleDateString("es-ES")}
+                                          </span>
+                                        </div>
+                                        <div
+                                          style={{
+                                            background:
+                                              getColorByGrade(
+                                                ((parseFloat(calificacion.nota as any) ||
+                                                  0) /
+                                                  (parseFloat(
+                                                    calificacion.nota_maxima as any,
+                                                  ) || 20)) *
+                                                  20,
+                                              ) + "20",
+                                            borderRadius: "0.5rem",
+                                            padding: "0.2rem 0.5rem",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: getColorByGrade(
+                                                ((parseFloat(calificacion.nota as any) ||
+                                                  0) /
+                                                  (parseFloat(
+                                                    calificacion.nota_maxima as any,
+                                                  ) || 20)) *
+                                                  20,
+                                              ),
+                                              fontSize: "0.75rem",
+                                              fontWeight: "600",
+                                            }}
+                                          >
+                                            {getGradeLabel(
+                                              ((parseFloat(calificacion.nota as any) ||
+                                                0) /
+                                                (parseFloat(
+                                                  calificacion.nota_maxima as any,
+                                                ) || 20)) *
+                                                20,
+                                            )}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -1196,14 +1326,6 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
           )}
         </div>
       )}
-
-      {/* Modal de carga con autorefresh */}
-      <LoadingModal 
-        isOpen={isRefreshing}
-        message="Actualizando calificaciones..."
-        darkMode={darkMode}
-        colorTheme="yellow"
-      />
     </div>
   );
 };

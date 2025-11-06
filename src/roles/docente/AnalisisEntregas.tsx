@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -56,6 +57,35 @@ const AnalisisEntregas: React.FC = () => {
       clearInterval(interval);
     };
   }, [darkMode]);
+
+  // 🔥 WebSocket: Escuchar nuevas entregas en tiempo real
+  useSocket({
+    'entrega_nueva': (data: any) => {
+      console.log('🎯 [WebSocket Docente] Nueva entrega recibida:', data);
+      
+      // Verificar si la entrega es de la tarea actual
+      if (data.id_tarea === parseInt(id_tarea || '0')) {
+        toast.success(`📥 Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, {
+          duration: 5000,
+        });
+        
+        // Recargar las entregas para mostrar la nueva
+        fetchData();
+      }
+    },
+    'entrega_actualizada': (data: any) => {
+      console.log('🎯 [WebSocket Docente] Entrega actualizada:', data);
+      
+      // Si es de esta tarea, recargar
+      if (data.id_tarea === parseInt(id_tarea || '0')) {
+        toast.success(`✏️ ${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, {
+          duration: 4000,
+        });
+        
+        fetchData();
+      }
+    }
+  });
 
   useEffect(() => {
     if (id_tarea) {

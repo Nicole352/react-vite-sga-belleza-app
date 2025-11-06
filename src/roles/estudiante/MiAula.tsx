@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 import '../../styles/responsive.css';
 
 interface MiAulaProps {
@@ -77,6 +78,33 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userData, setUserData] = useState<UserData | null>(null);
+
+  // Configurar eventos de WebSocket
+  const socketEvents = {
+    'nueva_tarea_asignada': (data: any) => {
+      console.log('📝 Nueva tarea asignada:', data);
+      // Recargar cursos para actualizar contador de tareas pendientes
+      fetchCursosMatriculados();
+    },
+    'tarea_calificada': (data: any) => {
+      console.log('⭐ Tarea calificada:', data);
+      // Recargar cursos para actualizar progreso y calificación
+      fetchCursosMatriculados();
+    },
+    'progreso_actualizado': (data: any) => {
+      console.log('📊 Progreso actualizado:', data);
+      // Recargar cursos
+      fetchCursosMatriculados();
+    },
+    'tarea_entregada': (data: any) => {
+      console.log('✅ Tarea entregada:', data);
+      // Recargar cursos
+      fetchCursosMatriculados();
+    }
+  };
+
+  // Inicializar WebSocket con userId del usuario actual
+  useSocket(socketEvents, userData?.id_usuario);
 
   useEffect(() => {
     setIsVisible(true);
@@ -783,46 +811,6 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
               )}
             </div>
           </div>
-
-          {/* Notificaciones */}
-          {cursosMatriculados.some(curso => curso.tareasPendientes > 0) && (
-            <div style={{
-              background: theme.cardBg,
-              border: `1px solid ${theme.border}`,
-              borderRadius: '20px',
-              padding: '12px',
-              backdropFilter: 'blur(20px)',
-              boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
-            }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
-                Notificaciones
-              </h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {cursosMatriculados.filter(curso => curso.tareasPendientes > 0).map((curso) => (
-                  <div key={curso.id_curso} style={{
-                    padding: '10px',
-                    background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
-                    borderRadius: '12px',
-                    border: `1px solid ${theme.warning}30`
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                      <AlertCircle size={14} color={theme.warning} />
-                      <span style={{ color: theme.warning, fontSize: '0.85rem', fontWeight: '600' }}>
-                        Tarea Pendiente
-                      </span>
-                    </div>
-                    <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: 0 }}>
-                      {curso.tareasPendientes} tarea{curso.tareasPendientes > 1 ? 's' : ''} - {curso.nombre}
-                    </p>
-                    <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: '2px 0 0 0' }}>
-                      Pendiente desde hoy
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Acceso rápido */}
           <div style={{

@@ -378,29 +378,29 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
           onClick={() => setShowPagosMenuales(false)}
           style={{
             position: 'fixed',
-            top: '0.75em',
-            right: '0.75em',
-            background: 'rgba(255, 255, 255, 0.1)',
-            border: '0.0625rem solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '0.5em',
-            color: '#fff',
-            padding: '0.5em 0.75em',
+            top: '1rem',
+            right: '1rem',
+            background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            border: `0.0625rem solid ${darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}`,
+            borderRadius: '0.5rem',
+            color: darkMode ? '#fff' : '#1f2937',
+            padding: '0.5rem 0.75rem',
             cursor: 'pointer',
             fontSize: '0.85rem',
-            fontWeight: '800',
+            fontWeight: '700',
             zIndex: 2001,
             display: 'flex',
             alignItems: 'center',
-            gap: '0.375em'
+            gap: '0.375rem',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
           }}
         >
           ✕ Cerrar
         </button>
         
-        {/* Componente de Pagos Mensuales a pantalla completa */}
-        <div style={{ width: '100%', minHeight: '100vh' }}>
-          <PagosMenuales darkMode={darkMode} />
-        </div>
+        {/* Componente de Pagos Mensuales */}
+        <PagosMenuales darkMode={darkMode} />
       </div>
     )}
   </div>

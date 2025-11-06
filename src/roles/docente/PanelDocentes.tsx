@@ -3,9 +3,11 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList, Award, X } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
+import NotificationBell from '../../components/NotificationBell';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import CambiarPasswordModal from '../../components/CambiarPasswordModal';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useNotifications } from '../../hooks/useNotifications';
 import '../../styles/responsive.css';
 
 // Importar componentes modulares
@@ -35,6 +37,9 @@ const PanelDocentes = () => {
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Hook de notificaciones con WebSocket
+  const { notificaciones, limpiarNotificaciones } = useNotifications('docente');
 
   // Estados para modal de cambio de contraseña
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
@@ -485,6 +490,13 @@ const PanelDocentes = () => {
 
             {/* Iconos del lado derecho */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+              <NotificationBell
+                notificaciones={notificaciones}
+                onLimpiar={limpiarNotificaciones}
+                darkMode={darkMode}
+                bellColor="linear-gradient(135deg, #3b82f6, #2563eb)"
+                iconColor="#ffffff"
+              />
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}

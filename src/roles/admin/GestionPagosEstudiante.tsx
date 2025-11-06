@@ -4,14 +4,14 @@ import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
 const API_BASE = 'http://localhost:3000';
 
-interface Pago {
+  interface Pago {
   id_pago: number;
   numero_cuota: number;
   monto: number;
@@ -35,22 +35,22 @@ interface Pago {
   id_curso: number;
   modalidad_pago?: 'mensual' | 'clases';
   numero_clases?: number;
-  precio_por_clase?: number;
+precio_por_clase?: number;
 }
 
-interface EstudianteAgrupado {
+  interface EstudianteAgrupado {
   estudiante_cedula: string;
   estudiante_nombre: string;
   estudiante_apellido: string;
-  cursos: {
+    cursos: {
     id_curso: number;
     curso_nombre: string;
     codigo_matricula: string;
-    pagos: Pago[];
-  }[];
+  pagos: Pago[];
+}[];
 }
 
-const GestionPagosEstudiante = () => {
+  const GestionPagosEstudiante = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [estudiantes, setEstudiantes] = useState<EstudianteAgrupado[]>([]);
@@ -70,52 +70,49 @@ const GestionPagosEstudiante = () => {
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [showVerificacionModal, setShowVerificacionModal] = useState(false);
   const [pagoAVerificar, setPagoAVerificar] = useState<Pago | null>(null);
-  const [cuotasAVerificar, setCuotasAVerificar] = useState<number[]>([]);
-
-  // Estados para selectores por tarjeta
+const [cuotasAVerificar, setCuotasAVerificar] = useState<number[]>([]);
+  
   const [selectedCurso, setSelectedCurso] = useState<{ [key: string]: number }>({});
-  const [selectedCuota, setSelectedCuota] = useState<{ [key: string]: number }>({});
-
-  // Estados de paginación
+const [selectedCuota, setSelectedCuota] = useState<{ [key: string]: number }>({});
+  
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+const itemsPerPage = 10;
+  
+    // Trigger to refetch data when socket notifies of changes.
+  const [socketTrigger, setSocketTrigger] = useState(0);
 
-  // Auto-refresh cada 30 segundos
-  useAutoRefresh({
-    onRefresh: async () => {
-      await loadData();
-    },
-    interval: 30000, // 30 segundos
-    dependencies: [filtroEstado]
-  });
-
-  useEffect(() => {
-    loadData();
-  }, [filtroEstado]);
-
-  // Inicializar selectores automáticamente con pagos pendientes
-  useEffect(() => {
-    if (estudiantes.length > 0) {
-      const nuevosSelectores: { [key: string]: number } = {};
-
+  useSocket({
+    'nuevo_pago': (data: any) => {
+      console.log('🔔 Nuevo pago recibido:', data);
+toast.success('Nuevo pago registrado');
+      setSocketTrigger(prev => prev + 1);
+        }
+          });
+          
+            useEffect(() => {
+          loadData();
+            }, [filtroEstado, socketTrigger]);
+            
+              useEffect(() => {
+            if (estudiantes.length > 0) {
+          const nuevosSelectores: { [key: string]: number } = {};
+        
       estudiantes.forEach(est => {
-        est.cursos.forEach(curso => {
-          // Buscar primero pagos en estado 'pagado' (pendientes de verificar)
-          const pagoPendiente = curso.pagos.find(p => p.estado === 'pagado');
-          if (pagoPendiente) {
-            nuevosSelectores[est.estudiante_cedula] = pagoPendiente.id_pago;
-          } else {
-            // Si no hay pagados, buscar el primero no verificado
-            const pagoNoVerificado = curso.pagos.find(p => p.estado !== 'verificado');
-            if (pagoNoVerificado) {
-              nuevosSelectores[est.estudiante_cedula] = pagoNoVerificado.id_pago;
-            }
-          }
-        });
-      });
-
-      setSelectedCuota(nuevosSelectores);
-    }
+est.cursos.forEach(curso => {
+      const pagoPendiente = curso.pagos.find(p => p.estado === 'pagado');
+    if (pagoPendiente) {
+  nuevosSelectores[est.estudiante_cedula] = pagoPendiente.id_pago;
+  } else {
+  const pagoNoVerificado = curso.pagos.find(p => p.estado !== 'verificado');
+  if (pagoNoVerificado) {
+  nuevosSelectores[est.estudiante_cedula] = pagoNoVerificado.id_pago;
+  }
+  }
+  });
+  });
+  
+  setSelectedCuota(nuevosSelectores);
+  }
   }, [estudiantes]);
 
   const loadData = async () => {

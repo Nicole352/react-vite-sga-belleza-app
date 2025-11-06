@@ -8,7 +8,6 @@ import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
@@ -89,15 +88,6 @@ const GestionDocentes = () => {
       setTimeout(() => setShowLoadingModal(false), 300);
     }
   };
-
-  // Auto-refresh cada 30 segundos
-  useAutoRefresh({
-    onRefresh: async () => {
-      await fetchDocentes();
-    },
-    interval: 30000, // 30 segundos
-    dependencies: [page, limit, searchTerm]
-  });
 
   useEffect(() => {
     fetchDocentes();

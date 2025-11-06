@@ -6,11 +6,11 @@ import toast from 'react-hot-toast';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
-type Solicitud = {
+  type Solicitud = {
   id_solicitud: number;
   codigo_solicitud: string;
   identificacion_solicitante?: string;
@@ -25,18 +25,17 @@ type Solicitud = {
   id_curso: number;
   monto_matricula: number;
   metodo_pago: 'transferencia' | 'efectivo' | 'payphone';
-  // Nuevos campos del comprobante
   numero_comprobante?: string;
   banco_comprobante?: string;
   fecha_transferencia?: string;
   id_estudiante_existente?: number | null;
   estado: 'pendiente' | 'aprobado' | 'rechazado' | 'observaciones';
-  fecha_solicitud: string;
+fecha_solicitud: string;
 };
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
-const GestionMatricula = () => {
+  const GestionMatricula = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,101 +58,101 @@ const GestionMatricula = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
-  const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
-
-  const fetchCursos = async () => {
-    try {
+const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
+  
+    useSocket({
+      'nueva_solicitud': (data: any) => {
+      console.log('🔔 Nueva solicitud recibida:', data);
+      toast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`);
+      fetchSolicitudes();
+      fetchCounters();
+        },
+        'solicitud_actualizada': (data: any) => {
+        console.log('🔔 Solicitud actualizada:', data);
+      fetchSolicitudes();
+    fetchCounters();
+  }
+});
+  
+    const fetchCursos = async () => {
+      try {
       const res = await fetch(`${API_BASE}/api/cursos?limit=100`);
       if (!res.ok) return;
-      const data = await res.json();
+        const data = await res.json();
       const cursosList = Array.isArray(data) ? data : [];
       setCursos(cursosList.map((c: any) => ({
-        id_curso: c.id_curso,
-        nombre: c.nombre,
-        estado: c.estado
-      })));
-    } catch { }
-  };
-
-  // Contadores agregados independientes del filtro de estado
-  const fetchCounters = async () => {
+      id_curso: c.id_curso,
+      nombre: c.nombre,
+      estado: c.estado
+        })));
+        } catch { }
+        };
+        
+      const fetchCounters = async () => {
     try {
-      const params = new URLSearchParams();
-      params.set('aggregate', 'by_estado');
-      if (filterTipo !== 'todos') {
-        params.set('tipo', String(filterTipo));
+  const params = new URLSearchParams();
+params.set('aggregate', 'by_estado');
+  if (filterTipo !== 'todos') {
+    params.set('tipo', String(filterTipo));
       }
       const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
       if (!res.ok) return;
       const data = await res.json();
-      // Validar y aplicar defaults
       setCounters({
         pendiente: Number(data?.pendiente || 0),
-        aprobado: Number(data?.aprobado || 0),
-        rechazado: Number(data?.rechazado || 0),
-        observaciones: Number(data?.observaciones || 0),
+      aprobado: Number(data?.aprobado || 0),
+      rechazado: Number(data?.rechazado || 0),
+      observaciones: Number(data?.observaciones || 0),
       });
-    } catch { }
-  };
-
-  const fetchSolicitudes = async () => {
-    try {
+        } catch { }
+      };
+      
+      const fetchSolicitudes = async () => {
+      try {
       setLoading(true);
       setShowLoadingModal(true);
       setError(null);
-      // Construir query dinámicamente: si es "todos", no enviar estado para traer todas
-      const params = new URLSearchParams();
+    const params = new URLSearchParams();
       if (filterEstado !== 'todos') {
-        params.set('estado', filterEstado);
+    params.set('estado', filterEstado);
       }
-      params.set('limit', String(limit));
-      params.set('page', String(page));
-      if (filterTipo !== 'todos') {
-        params.set('tipo', String(filterTipo));
-      }
-      const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
-      if (!res.ok) throw new Error('No se pudo cargar solicitudes');
-      const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
-      setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
-      const data = await res.json();
-      setSolicitudes(data);
-    } catch (e: any) {
-      setError(e.message || 'Error cargando solicitudes');
+    params.set('limit', String(limit));
+  params.set('page', String(page));
+if (filterTipo !== 'todos') {
+  params.set('tipo', String(filterTipo));
+    }
+    const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
+  if (!res.ok) throw new Error('No se pudo cargar solicitudes');
+const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
+  setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
+    const data = await res.json();
+  setSolicitudes(data);
+} catch (e: any) {
+  setError(e.message || 'Error cargando solicitudes');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Auto-refresh cada 30 segundos
-  useAutoRefresh({
-    onRefresh: async () => {
-      await fetchSolicitudes();
-      await fetchCounters();
-    },
-    interval: 30000, // 30 segundos
-    dependencies: [filterEstado, filterTipo, page, limit]
-  });
-
-  useEffect(() => {
+      }
+      };
+      
+      useEffect(() => {
     fetchSolicitudes();
-    fetchCursos();
-  }, [filterEstado, filterTipo, page, limit]);
-
-  // Cargar counters al inicio y cuando cambia el tipo (no depende del estado)
+  fetchCursos();
+}, [filterEstado, filterTipo, page, limit]);
+  
   useEffect(() => {
-    fetchCounters();
+  fetchCounters();
   }, [filterTipo]);
-
+  
   const fetchTipos = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/tipos-cursos?estado=activo&limit=200`);
-      if (!res.ok) return; // opcional
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : [];
-      setTipos(list.map((t: any) => ({ id_tipo_curso: t.id_tipo_curso, nombre: t.nombre, codigo: t.codigo })));
-    } catch { }
+  try {
+  const res = await fetch(`${API_BASE}/api/tipos-cursos?estado=activo&limit=200`);
+  if (!res.ok) return;
+  const data = await res.json();
+  const list = Array.isArray(data) ? data : [];
+  setTipos(list.map((t: any) => ({ id_tipo_curso: t.id_tipo_curso, nombre: t.nombre, codigo: t.codigo })));
+  } catch { }
   };
-
+  
   useEffect(() => { fetchTipos(); }, []);
 
   const openModal = async (id: number) => {

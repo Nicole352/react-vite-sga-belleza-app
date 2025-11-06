@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
+import NotificationBell from '../../components/NotificationBell';
+import { useNotifications } from '../../hooks/useNotifications';
 import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
 import CambiarPasswordModal from '../../components/CambiarPasswordModal';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
@@ -46,7 +48,18 @@ const PanelEstudiantes = () => {
     apellido?: string;
     apellido_paterno?: string;
     nombre_completo?: string;
+    id_usuario?: number;
   } | null>(null);
+
+  // Hook de notificaciones
+  const {
+    notificaciones,
+    marcarLeida,
+    marcarTodasLeidas,
+  } = useNotifications({
+    rol: 'estudiante',
+    userId: userData?.id_usuario,
+  });
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
@@ -470,6 +483,15 @@ const PanelEstudiantes = () => {
 
             {/* Iconos del lado derecho */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+              {/* Campana de notificaciones */}
+              <NotificationBell
+                notificaciones={notificaciones}
+                onMarcarLeida={marcarLeida}
+                onMarcarTodasLeidas={marcarTodasLeidas}
+                darkMode={darkMode}
+                accentColor="linear-gradient(135deg, #f59e0b, #d97706)"
+              />
+              
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}

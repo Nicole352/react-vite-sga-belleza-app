@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import LoadingModal from '../../components/LoadingModal';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import { useSocket } from '../../hooks/useSocket';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -114,10 +113,63 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     }
   };
 
-  // Auto-refresh con modal de carga dorado
-  const { isRefreshing } = useAutoRefresh({
-    onRefresh: refreshAllData,
-    interval: 30000 // 30 segundos
+  useSocket({
+    'modulo_creado': (data: any) => {
+      console.log('📚 Nuevo módulo disponible:', data);
+      
+      // Solo mostrar notificación si es del curso actual
+      if (data.id_curso === parseInt(id || '0')) {
+        toast.success(`📚 Nuevo módulo disponible: ${data.nombre}`, {
+          duration: 5000,
+        });
+        fetchModulos();
+      }
+    },
+    'tarea_creada': (data: any) => {
+      console.log('📝 Nueva tarea asignada:', data);
+      
+      // Mostrar notificación
+      toast.success(`📝 Nueva tarea: ${data.titulo}`, {
+        duration: 5000,
+      });
+      
+      // Recargar módulos para actualizar contador
+      fetchModulos();
+      
+      // Si el módulo está expandido, recargar tareas
+      if (modulosExpandidos[data.id_modulo]) {
+        fetchTareasModulo(data.id_modulo);
+      }
+    },
+    'tarea_calificada': (data: any) => {
+      console.log('✅ Tarea calificada:', data);
+      
+      // Obtener el ID del usuario actual desde sessionStorage
+      const authData = sessionStorage.getItem('auth_data');
+      if (authData) {
+        try {
+          const userData = JSON.parse(authData);
+          const currentUserId = userData.id_usuario;
+          
+          // Solo mostrar notificación si es para este estudiante
+          if (data.id_estudiante === currentUserId) {
+            toast.success(`🎓 Tu tarea ha sido calificada: ${data.nota} puntos`, {
+              duration: 6000,
+            });
+          }
+        } catch (error) {
+          console.error('Error al parsear auth_data:', error);
+        }
+      }
+      
+      // Recargar módulos y tareas expandidas
+      fetchModulos();
+      Object.keys(modulosExpandidos).forEach(id_modulo => {
+        if (modulosExpandidos[parseInt(id_modulo)]) {
+          fetchTareasModulo(parseInt(id_modulo));
+        }
+      });
+    }
   });
 
   useEffect(() => {
@@ -963,13 +1015,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
         </div>
       )}
 
-      {/* Modal de carga con autorefresh */}
-      <LoadingModal 
-        isOpen={isRefreshing}
-        message="Actualizando datos del curso..."
-        darkMode={darkMode}
-        colorTheme="yellow"
-      />
     </div>
   );
 };

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, Edit, Trash2, Plus, DollarSign, FileText, CreditCard, Building2, ChevronLeft, ChevronRight, User, History, Zap, UserX, Ban, UserPlus, ToggleRight, ToggleLeft, Lock, Unlock } from 'lucide-react';
+import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, Lock, Unlock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
-import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
@@ -43,7 +42,6 @@ interface Usuario {
 
 interface Sesion {
   id_sesion: string;
-  ip_address: string;
   user_agent: string;
   fecha_inicio: string;
   fecha_expiracion: string;
@@ -52,14 +50,16 @@ interface Sesion {
 }
 
 interface Accion {
-  id_auditoria: number;
-  tabla_afectada: string;
-  operacion: 'INSERT' | 'UPDATE' | 'DELETE';
-  id_registro: number;
+  id_auditoria?: number;
+  tabla_afectada?: string;
+  operacion?: 'INSERT' | 'UPDATE' | 'DELETE';
+  id_registro?: number;
   descripcion?: string;
-  detalles?: string;
-  ip_address: string;
-  fecha_operacion: string;
+  detalles?: string | any;
+  fecha_operacion?: string;
+  // Nuevo formato detallado
+  tipo_accion?: string;
+  fecha_hora?: string;
 }
 
 interface Pago {
@@ -132,7 +132,6 @@ const ControlUsuarios = () => {
   const [acciones, setAcciones] = useState<Accion[]>([]);
   const [pagos, setPagos] = useState<any[]>([]);
   const [deberes, setDeberes] = useState<any[]>([]);
-  const [filtroAcciones, setFiltroAcciones] = useState<'todas' | 'administrativas' | 'academicas'>('todas');
   const [loadingModal, setLoadingModal] = useState(false);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
 
@@ -143,16 +142,6 @@ const ControlUsuarios = () => {
   // Modal de credenciales
   const [showCredencialesModal, setShowCredencialesModal] = useState(false);
   const [credenciales, setCredenciales] = useState<{ username: string, password_temporal: string } | null>(null);
-
-  // Auto-refresh cada 30 segundos
-  useAutoRefresh({
-    onRefresh: async () => {
-      await cargarUsuarios();
-      await cargarStats();
-    },
-    interval: 30000, // 30 segundos
-    dependencies: [search, rolFilter, estadoFilter, page]
-  });
 
   useEffect(() => {
     cargarUsuarios();
@@ -319,21 +308,21 @@ const ControlUsuarios = () => {
         setSesiones([]);
       }
 
-      // Cargar acciones desde la tabla auditoria_sistema
+      // Cargar historial detallado desde auditoria (administrativas y académicas)
       try {
-        const accionesRes = await fetch(`${API_BASE}/usuarios/${usuario.id_usuario}/acciones?limit=20`, {
+        const historialRes = await fetch(`${API_BASE}/auditoria/usuario/${usuario.id_usuario}/historial-detallado?tipo=todas&limite=50`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (accionesRes.ok) {
-          const accionesData = await accionesRes.json();
-          console.log('?? Acciones recibidas:', accionesData);
-          setAcciones(accionesData.acciones || []);
+        if (historialRes.ok) {
+          const historialData = await historialRes.json();
+          console.log('📋 Historial detallado recibido:', historialData);
+          setAcciones(historialData.data?.acciones || []);
         } else {
-          console.error('? Error al cargar acciones:', accionesRes.status);
+          console.error('❌ Error al cargar historial:', historialRes.status);
           setAcciones([]);
         }
       } catch (err) {
-        console.error('? Error en fetch de acciones:', err);
+        console.error('❌ Error en fetch de historial:', err);
         setAcciones([]);
       }
 
@@ -385,6 +374,41 @@ const ControlUsuarios = () => {
       setDeberes([]);
     } finally {
       setLoadingModal(false);
+    }
+  };
+
+  const cargarAccionesDetalladas = async (tipo: 'todas' | 'administrativas' | 'academicas') => {
+    if (!usuarioSeleccionado) return;
+    
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const historialRes = await fetch(`${API_BASE}/auditoria/usuario/${usuarioSeleccionado.id_usuario}/historial-detallado?tipo=${tipo}&limite=50`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (historialRes.ok) {
+        const historialData = await historialRes.json();
+        console.log('📋 Historial detallado recibido:', historialData);
+        
+        // Parsear detalles si es string JSON
+        const accionesParsed = (historialData.data?.acciones || []).map((accion: any) => {
+          if (typeof accion.detalles === 'string') {
+            try {
+              accion.detalles = JSON.parse(accion.detalles);
+            } catch (e) {
+              console.warn('⚠️ No se pudo parsear detalles:', accion.detalles);
+            }
+          }
+          return accion;
+        });
+        
+        setAcciones(accionesParsed);
+      } else {
+        console.error('❌ Error al cargar historial:', historialRes.status);
+        setAcciones([]);
+      }
+    } catch (err) {
+      console.error('❌ Error en fetch de historial:', err);
+      setAcciones([]);
     }
   };
 
@@ -1052,6 +1076,7 @@ const ControlUsuarios = () => {
         loadingModal={loadingModal}
         onClose={() => setShowModal(false)}
         onChangeTab={setTabActiva}
+        onRecargarAcciones={cargarAccionesDetalladas}
         formatFecha={formatFecha}
         getRolColor={getRolColor}
         getEstadoColor={getEstadoColor}
@@ -1110,6 +1135,7 @@ interface ModalDetalleProps {
   loadingModal: boolean;
   onClose: () => void;
   onChangeTab: (tab: 'info' | 'sesiones' | 'acciones') => void;
+  onRecargarAcciones: (tipo: 'todas' | 'administrativas' | 'academicas') => Promise<void>;
   formatFecha: (fecha: string | null) => string;
   getRolColor: (rol: string) => string;
   getEstadoColor: (estado: string) => string;
@@ -1126,12 +1152,20 @@ const ModalDetalle = ({
   loadingModal,
   onClose,
   onChangeTab,
+  onRecargarAcciones,
   formatFecha,
   getRolColor,
   getEstadoColor
 }: ModalDetalleProps) => {
   // Estado local para filtro de acciones
   const [filtroAcciones, setFiltroAcciones] = React.useState<'todas' | 'administrativas' | 'academicas'>('todas');
+
+  // Recargar acciones cuando cambie el filtro
+  React.useEffect(() => {
+    if (show && usuario) {
+      onRecargarAcciones(filtroAcciones);
+    }
+  }, [filtroAcciones]);
 
   // Verificación temprana
   if (!show || !usuario) return null;
@@ -1739,88 +1773,324 @@ const ModalDetalle = ({
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {acciones
-                      .filter(accion => {
-                        if (filtroAcciones === 'todas') return true;
-                        if (filtroAcciones === 'administrativas') {
-                          // Acciones administrativas: usuarios, contraseñas, fotos, configuración
-                          const tablasAdmin = ['usuarios', 'roles', 'configuracion', 'sesiones'];
-                          const esAdmin = tablasAdmin.includes(accion.tabla_afectada?.toLowerCase() || '');
-                          const esPassword = accion.descripcion?.toLowerCase().includes('contraseña') || 
-                                           accion.descripcion?.toLowerCase().includes('password');
-                          const esFoto = accion.descripcion?.toLowerCase().includes('foto') || 
-                                         accion.descripcion?.toLowerCase().includes('perfil');
-                          return esAdmin || esPassword || esFoto;
+                    {acciones.length === 0 ? (
+                      <div style={{
+                        padding: '2rem',
+                        textAlign: 'center',
+                        color: 'rgba(255,255,255,0.5)',
+                        fontSize: '0.875rem'
+                      }}>
+                        No hay acciones registradas
+                      </div>
+                    ) : (
+                      acciones.map((accion, index) => {
+                        // Determinar icono y color según tipo de acción
+                        let iconoConfig = { icono: Activity, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Acción' };
+                        
+                        const tipoAccion = accion.tipo_accion?.toLowerCase() || '';
+                        
+                        if (tipoAccion.includes('contraseña') || tipoAccion.includes('password')) {
+                          iconoConfig = { icono: Lock, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Contraseña' };
+                        } else if (tipoAccion.includes('foto') || tipoAccion.includes('perfil')) {
+                          iconoConfig = { icono: UserCircle, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)', label: 'Foto Perfil' };
+                        } else if (tipoAccion.includes('pago')) {
+                          iconoConfig = { icono: DollarSign, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Pago' };
+                        } else if (tipoAccion.includes('tarea') || tipoAccion.includes('entrega')) {
+                          iconoConfig = { icono: FileText, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)', label: 'Tarea' };
+                        } else if (tipoAccion.includes('calificación') || tipoAccion.includes('nota')) {
+                          iconoConfig = { icono: CheckCircle, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Calificación' };
+                        } else if (tipoAccion.includes('módulo')) {
+                          iconoConfig = { icono: BookOpen, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Módulo' };
+                        } else if (tipoAccion.includes('matrícula') || tipoAccion.includes('inscripción')) {
+                          iconoConfig = { icono: GraduationCap, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)', label: 'Matrícula' };
                         }
-                        if (filtroAcciones === 'academicas') {
-                          // Acciones académicas: cursos, matrículas, pagos, deberes, calificaciones
-                          const tablasAcademicas = ['cursos', 'matriculas', 'pagos', 'deberes', 'calificaciones', 'asistencias', 'tipos_cursos'];
-                          return tablasAcademicas.includes(accion.tabla_afectada?.toLowerCase() || '');
-                        }
-                        return true;
-                      })
-                      .map((accion) => {
-                        // Determinar icono y color según operación
-                        const operacionConfig = {
-                          'INSERT': { icono: Plus, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Creación' },
-                          'UPDATE': { icono: Edit, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Actualización' },
-                          'DELETE': { icono: Trash2, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.2)', label: 'Eliminación' }
-                        }[accion.operacion] || { icono: Activity, color: 'rgba(255,255,255,0.7)', bg: 'rgba(100, 116, 139, 0.2)', label: accion.operacion };
 
                         return (
-                          <div key={accion.id_auditoria} style={{
+                          <div key={`accion-${index}`} style={{
                             padding: '1.25rem',
-                            borderRadius: '0.75rem',
-                            border: `1px solid ${operacionConfig.color}40`,
-                            backgroundColor: 'rgba(255,255,255,0.05)',
-                            transition: 'all 0.3s ease'
+                            borderRadius: '0.875rem',
+                            border: `2px solid ${iconoConfig.color}30`,
+                            backgroundColor: `${iconoConfig.color}05`,
+                            transition: 'all 0.3s ease',
+                            boxShadow: `0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px ${iconoConfig.color}20`,
+                            position: 'relative',
+                            overflow: 'hidden'
                           }}>
+                            {/* Barra lateral de color */}
+                            <div style={{
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              width: '4px',
+                              backgroundColor: iconoConfig.color,
+                              boxShadow: `0 0 12px ${iconoConfig.color}80`
+                            }}></div>
+                            
                             <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
                                 <div style={{
-                                  width: '2.5rem',
-                                  height: '2.5rem',
-                                  borderRadius: '0.625rem',
-                                  backgroundColor: operacionConfig.color,
+                                  width: '2.75rem',
+                                  height: '2.75rem',
+                                  borderRadius: '0.75rem',
+                                  backgroundColor: iconoConfig.color,
                                   display: 'flex',
                                   alignItems: 'center',
-                                  justifyContent: 'center'
+                                  justifyContent: 'center',
+                                  boxShadow: `0 4px 12px ${iconoConfig.color}60`,
+                                  border: '2px solid rgba(255,255,255,0.1)'
                                 }}>
-                                  {React.createElement(operacionConfig.icono, { size: 20, color: '#fff' })}
+                                  {React.createElement(iconoConfig.icono, { size: 22, color: '#fff', strokeWidth: 2.5 })}
                                 </div>
-                                <div>
-                                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
-                                    {accion.descripcion || operacionConfig.label}
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ 
+                                    fontSize: '0.875rem', 
+                                    fontWeight: '700', 
+                                    color: 'rgba(255,255,255,0.98)', 
+                                    marginBottom: '0.35rem',
+                                    letterSpacing: '0.3px'
+                                  }}>
+                                    {(() => {
+                                      // Generar descripción más rica según el tipo
+                                      const detalles = accion.detalles || {};
+                                      
+                                      if (accion.tipo_accion === 'pago' && detalles.curso) {
+                                        return `💰 Pago Cuota #${detalles.cuota || ''} - ${detalles.curso}`;
+                                      } else if (accion.tipo_accion === 'cambio_perfil' && detalles.cambio_realizado) {
+                                        return `🔄 ${detalles.cambio_realizado}`;
+                                      } else if (accion.tipo_accion === 'tarea_subida' && detalles.tarea) {
+                                        return `📝 ${detalles.tarea}`;
+                                      } else if (accion.tipo_accion === 'calificacion' && detalles.nota) {
+                                        return `⭐ Calificación: ${detalles.nota}/10 - ${detalles.tarea || ''}`;
+                                      } else if (accion.tipo_accion === 'matricula' && detalles.curso) {
+                                        return `🎓 Matriculado en ${detalles.curso}`;
+                                      }
+                                      
+                                      return accion.descripcion || accion.tipo_accion;
+                                    })()}
                                   </div>
-                                  <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: '600' }}>
-                                    {accion.detalles || `Tabla: ${accion.tabla_afectada}`}
-                                  </div>
+                                  {accion.tipo_accion && (
+                                    <div style={{ 
+                                      fontSize: '0.7rem', 
+                                      color: 'rgba(255,255,255,0.5)', 
+                                      fontWeight: '500',
+                                      fontStyle: 'italic',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.5rem'
+                                    }}>
+                                      <span>{accion.tipo_accion.replace(/_/g, ' ').toUpperCase()}</span>
+                                      {accion.detalles?.tipo && (
+                                        <>
+                                          <span>•</span>
+                                          <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+                                            {accion.detalles.tipo}
+                                          </span>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <span style={{
-                                padding: '4px 0.75rem',
-                                borderRadius: '0.375rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
-                                backgroundColor: operacionConfig.bg,
-                                color: operacionConfig.color
+                                padding: '6px 0.875rem',
+                                borderRadius: '0.5rem',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
+                                backgroundColor: iconoConfig.bg,
+                                color: iconoConfig.color,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                boxShadow: `0 2px 8px ${iconoConfig.color}40`
                               }}>
-                                {operacionConfig.label}
+                                {iconoConfig.label}
                               </span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem', fontSize: '0.75rem' }}>
+                            {/* Detalles adicionales */}
+                            {accion.detalles && typeof accion.detalles === 'object' && Object.keys(accion.detalles).length > 0 && (
+                              <div style={{ 
+                                marginTop: '1rem', 
+                                padding: '1rem',
+                                backgroundColor: 'rgba(255,255,255,0.04)',
+                                borderRadius: '0.625rem',
+                                fontSize: '0.75rem',
+                                color: 'rgba(255,255,255,0.7)',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                              }}>
+                                <div style={{
+                                  fontSize: '0.7rem',
+                                  fontWeight: '700',
+                                  color: 'rgba(255,255,255,0.6)',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '1px',
+                                  marginBottom: '0.75rem',
+                                  paddingBottom: '0.5rem',
+                                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.5rem'
+                                }}>
+                                  <Activity size={14} color="rgba(255,255,255,0.6)" />
+                                  Información Detallada
+                                </div>
+                                <div style={{ 
+                                  display: 'grid', 
+                                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                                  gap: '0.5rem' 
+                                }}>
+                                  {Object.entries(accion.detalles)
+                                    .filter(([key]) => key !== 'password_changed' && key !== 'id' && key !== 'password') // Filtrar campos no útiles
+                                    .map(([key, value]) => {
+                                      // Formatear etiquetas
+                                      const labels: Record<string, string> = {
+                                        'curso': '📚 Curso',
+                                        'codigo_curso': '🎫 Código',
+                                        'cuota': '💳 Cuota',
+                                        'monto': '💰 Monto',
+                                        'metodo_pago': '💵 Método de Pago',
+                                        'estado': '📊 Estado',
+                                        'fecha_pago': '📅 Fecha de Pago',
+                                        'fecha_verificacion': '✅ Verificado',
+                                        'fecha_vencimiento': '⏰ Vencimiento',
+                                        'numero_comprobante': '🧾 Comprobante',
+                                        'banco_comprobante': '🏦 Banco',
+                                        'cambio_realizado': '🔄 Cambio',
+                                        'tipo': '📋 Categoría',
+                                        'email_anterior': '📧 Email Anterior',
+                                        'email_nuevo': '📧 Email Nuevo',
+                                        'telefono_anterior': '📞 Teléfono Anterior',
+                                        'telefono_nuevo': '📞 Teléfono Nuevo',
+                                        'tarea': '📝 Tarea',
+                                        'modulo': '📖 Módulo',
+                                        'fecha_entrega': '📅 Entregado',
+                                        'archivo': '📎 Archivo',
+                                        'nota': '⭐ Nota',
+                                        'comentario': '💬 Comentario',
+                                        'fecha_calificacion': '📅 Calificado',
+                                        'codigo_matricula': '🎫 Código',
+                                        'monto_matricula': '💰 Matrícula',
+                                        'fecha_matricula': '📅 Fecha',
+                                        'estudiante': '👤 Estudiante',
+                                        'fecha_limite': '⏰ Límite',
+                                        'descripcion': '📄 Descripción',
+                                        'fecha_inicio': '📅 Inicio'
+                                      };
+                                      const label = labels[key] || key;
+                                      
+                                      // Formatear valores
+                                      let displayValue = value;
+                                      let valorColor = 'rgba(255,255,255,0.95)';
+                                      let iconoEmoji = '';
+                                      
+                                      if (value === null || value === undefined || value === '') {
+                                        return null; // No mostrar valores vacíos
+                                      }
+                                      
+                                      if (typeof value === 'number' && key.includes('monto')) {
+                                        displayValue = `$${value.toFixed(2)}`;
+                                        valorColor = '#10b981'; // Verde para dinero
+                                        iconoEmoji = '💰';
+                                      } else if (key.includes('fecha') && value) {
+                                        displayValue = new Date(value as string).toLocaleDateString('es-EC', {
+                                          day: '2-digit',
+                                          month: 'short',
+                                          year: 'numeric',
+                                          hour: value.toString().includes('T') ? '2-digit' : undefined,
+                                          minute: value.toString().includes('T') ? '2-digit' : undefined
+                                        });
+                                        iconoEmoji = '📅';
+                                      } else if (key === 'nota') {
+                                        const notaNum = Number(value);
+                                        displayValue = `${value}/10`;
+                                        valorColor = notaNum >= 7 ? '#10b981' : notaNum >= 5 ? '#f59e0b' : '#ef4444';
+                                        iconoEmoji = notaNum >= 7 ? '⭐' : notaNum >= 5 ? '📊' : '❌';
+                                      } else if (key === 'estado') {
+                                        const estado = String(value).toLowerCase();
+                                        if (estado === 'pagado' || estado === 'verificado' || estado === 'activa') {
+                                          valorColor = '#10b981';
+                                          iconoEmoji = '✅';
+                                        } else if (estado === 'pendiente') {
+                                          valorColor = '#f59e0b';
+                                          iconoEmoji = '⏳';
+                                        } else {
+                                          valorColor = '#ef4444';
+                                          iconoEmoji = '❌';
+                                        }
+                                      } else if (key.includes('metodo_pago')) {
+                                        iconoEmoji = '💳';
+                                      } else if (key.includes('cuota')) {
+                                        iconoEmoji = '🔢';
+                                        valorColor = '#3b82f6';
+                                      }
+                                      
+                                      return (
+                                        <div key={key} style={{ 
+                                          padding: '0.65rem 0.75rem',
+                                          backgroundColor: 'rgba(255,255,255,0.03)',
+                                          borderRadius: '0.5rem',
+                                          border: '1px solid rgba(255,255,255,0.08)',
+                                          transition: 'all 0.2s ease',
+                                          cursor: 'default'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
+                                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
+                                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                                        }}
+                                        >
+                                          <div style={{ 
+                                            fontSize: '0.65rem', 
+                                            color: 'rgba(255,255,255,0.5)',
+                                            marginBottom: '0.35rem',
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.5px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.25rem'
+                                          }}>
+                                            {iconoEmoji && <span>{iconoEmoji}</span>}
+                                            {label.replace(/^[^\s]+\s/, '')} {/* Remover emoji del label si ya tenemos uno */}
+                                          </div>
+                                          <div style={{ 
+                                            color: valorColor,
+                                            fontWeight: '600',
+                                            fontSize: '0.875rem',
+                                            letterSpacing: '0.2px',
+                                            wordBreak: 'break-word'
+                                          }}>
+                                            {typeof displayValue === 'object' 
+                                              ? JSON.stringify(displayValue) 
+                                              : String(displayValue)}
+                                          </div>
+                                        </div>
+                                      );
+                                    })
+                                    .filter(Boolean) // Remover elementos null
+                                  }
+                                </div>
+                              </div>
+                            )}
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.75rem', marginTop: '0.75rem' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
                                 <Calendar size={16} color="#ef4444" />
                                 <div>
-                                  <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>Fecha de Operación</div>
-                                  <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>{formatFecha(accion.fecha_operacion)}</div>
+                                  <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>Fecha</div>
+                                  <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>
+                                    {formatFecha(accion.fecha_hora || accion.fecha_operacion || '')}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         );
-                      })}
+                      })
+                    )}
                   </div>
                 </>
               )}

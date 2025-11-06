@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import ModalPromocion from '../components/ModalPromocion';
 
 // Interfaces para tipado
 interface CursoInfo {
@@ -280,6 +281,13 @@ const Pago: React.FC = () => {
   // Estados para solicitudes pendientes
   const [solicitudPendiente, setSolicitudPendiente] = useState<any>(null);
   const [tieneSolicitudPendiente, setTieneSolicitudPendiente] = useState(false);
+
+  // Estados para el modal de promociones
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [promocionesDisponibles, setPromocionesDisponibles] = useState<any[]>([]);
+  const [loadingPromo, setLoadingPromo] = useState(false);
+  const [solicitudCreada, setSolicitudCreada] = useState<any>(null); // Guardar datos de la solicitud creada
+  const [promocionSeleccionadaId, setPromocionSeleccionadaId] = useState<number | null>(null); // ID de la promoción aceptada
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -1028,6 +1036,12 @@ if (!formData.horarioPreferido) {
         // Agregar contacto de emergencia
         if (formData.contactoEmergencia) body.append('contacto_emergencia', formData.contactoEmergencia);
 
+        // Agregar promoción seleccionada si existe
+        if (promocionSeleccionadaId) {
+          body.append('id_promocion_seleccionada', String(promocionSeleccionadaId));
+          console.log('📦 Enviando promoción seleccionada:', promocionSeleccionadaId);
+        }
+
         // Para debug - convertir FormData a objeto
         debugInfo = {
           identificacion_solicitante: documento.toUpperCase(),
@@ -1075,6 +1089,12 @@ if (!formData.horarioPreferido) {
 
         // Agregar contacto de emergencia a los datos enviados
         debugInfo.contacto_emergencia = formData.contactoEmergencia;
+
+        // Agregar promoción seleccionada si existe
+        if (promocionSeleccionadaId) {
+          debugInfo.id_promocion_seleccionada = promocionSeleccionadaId;
+          console.log('📦 Enviando promoción seleccionada (JSON):', promocionSeleccionadaId);
+        }
         
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
@@ -1127,6 +1147,63 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       }
       const data = await response.json();
       if (data?.codigo_solicitud) setCodigoSolicitud(data.codigo_solicitud);
+      
+      // Guardar datos de la solicitud creada
+      setSolicitudCreada(data);
+      
+      console.log('📋 Solicitud creada:', data);
+      console.log('🎯 Tipo de curso seleccionado:', tipoCursoId);
+      
+      // Verificar si hay promociones disponibles para este tipo de curso
+      try {
+        const promosResponse = await fetch(`${API_BASE}/promociones/activas`);
+        console.log('📡 Response promociones:', promosResponse.status);
+        
+        if (promosResponse.ok) {
+          const todasPromos = await promosResponse.json();
+          console.log('🎁 Total promociones activas:', todasPromos.length, todasPromos);
+          
+          // Filtrar promociones que apliquen al tipo de curso actual
+          // Las promociones ahora tienen id_curso_principal (el que el estudiante paga)
+          const cursosResponse = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
+          console.log('📚 Response cursos del tipo:', cursosResponse.status);
+          
+          if (cursosResponse.ok) {
+            const cursosDelTipo = await cursosResponse.json();
+            console.log('📚 Cursos del tipo', tipoCursoId, ':', cursosDelTipo);
+            
+            const idsCursos = cursosDelTipo
+              .filter((c: any) => c.estado === 'activo')
+              .map((c: any) => c.id_curso);
+            
+            console.log('✅ IDs de cursos activos:', idsCursos);
+            
+            // Filtrar promociones cuyo id_curso_principal esté en la lista
+            const promosAplicables = todasPromos.filter((promo: any) => {
+              const aplica = idsCursos.includes(promo.id_curso_principal);
+              console.log(`  🔍 Promo "${promo.nombre_promocion}" (id_curso_principal: ${promo.id_curso_principal}) → ${aplica ? '✅ APLICA' : '❌ NO APLICA'}`);
+              return aplica;
+            });
+            
+            console.log('🎁 Promociones aplicables:', promosAplicables.length, promosAplicables);
+            
+            if (promosAplicables.length > 0) {
+              setPromocionesDisponibles(promosAplicables);
+              setShowPromoModal(true);
+              console.log('✅ showPromoModal establecido a TRUE');
+              // NO mostrar success ni redirigir aún
+              return;
+            } else {
+              console.log('⚠️ No hay promociones aplicables para este tipo de curso');
+            }
+          }
+        }
+      } catch (promoError) {
+        console.error('❌ Error al verificar promociones:', promoError);
+        // Si falla la verificación de promos, continuar normal
+      }
+      
+      // Si no hay promociones o hubo error, mostrar success
       setShowSuccess(true);
       setTimeout(() => {
         navigate('/cursos');
@@ -1135,6 +1212,78 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       console.error(error);
       alert('No se pudo enviar la solicitud. Intenta nuevamente.');
     }
+  };
+
+  // Manejar cuando el estudiante acepta una promoción
+  const handleAceptarPromocion = async (id_promocion: number) => {
+    if (!solicitudCreada) {
+      toast.error('Error: no se encontró la solicitud creada');
+      return;
+    }
+
+    setLoadingPromo(true);
+    
+    try {
+      const promoSeleccionada = promocionesDisponibles.find(p => p.id_promocion === id_promocion);
+      
+      // Guardar el ID de la promoción seleccionada
+      setPromocionSeleccionadaId(id_promocion);
+      console.log('✅ Promoción guardada en estado:', id_promocion);
+      
+      // ACTUALIZAR LA SOLICITUD EN EL BACKEND
+      const id_solicitud = solicitudCreada.id_solicitud || solicitudCreada.insertId;
+      
+      const response = await fetch(`${API_BASE}/solicitudes/${id_solicitud}/promocion`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_promocion_seleccionada: id_promocion })
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo actualizar la promoción en la solicitud');
+      }
+
+      console.log('✅ Solicitud actualizada con promoción en el backend');
+      
+      // Mostrar mensaje de éxito
+      console.log('Promoción seleccionada:', {
+        id_promocion,
+        id_solicitud: solicitudCreada.id_solicitud || solicitudCreada.codigo_solicitud,
+        nombre_promocion: promoSeleccionada?.nombre_promocion
+      });
+      
+      const beneficioTexto = promoSeleccionada?.modalidad_pago === 'clases'
+        ? `${promoSeleccionada?.clases_gratis} ${promoSeleccionada?.clases_gratis === 1 ? 'clase gratis' : 'clases gratis'}`
+        : `${promoSeleccionada?.meses_gratis} ${promoSeleccionada?.meses_gratis === 1 ? 'mes gratis' : 'meses gratis'}`;
+      
+      toast.success(
+        `¡Genial! Has seleccionado la promoción "${promoSeleccionada?.nombre_promocion}". ` +
+        `Cuando tu solicitud sea aprobada, se aplicarán ${beneficioTexto} automáticamente.`,
+        { duration: 6000 }
+      );
+      
+      // Cerrar modal y mostrar success
+      setShowPromoModal(false);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/cursos');
+      }, 3000);
+    } catch (error: any) {
+      console.error('Error al procesar promoción:', error);
+      toast.error(error.message || 'No se pudo procesar la promoción');
+    } finally {
+      setLoadingPromo(false);
+    }
+  };
+
+  // Manejar cuando el estudiante rechaza las promociones
+  const handleRechazarPromocion = () => {
+    toast('Continuando sin promoción', { icon: 'ℹ️' });
+    setShowPromoModal(false);
+    setShowSuccess(true);
+    setTimeout(() => {
+      navigate('/cursos');
+    }, 3000);
   };
 
   const PaymentCard: React.FC<PaymentCardProps> = ({ title, icon, description, isSelected, onClick }) => (
@@ -4388,6 +4537,16 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
         <Footer />
       </div>
+
+      {/* Modal de Promociones - se muestra después de crear la solicitud exitosamente */}
+      <ModalPromocion
+        isOpen={showPromoModal}
+        onClose={() => {}} // No permitir cerrar con X, debe decidir
+        promociones={promocionesDisponibles}
+        onAceptar={handleAceptarPromocion}
+        onRechazar={handleRechazarPromocion}
+        loading={loadingPromo}
+      />
     </>
   );
 };

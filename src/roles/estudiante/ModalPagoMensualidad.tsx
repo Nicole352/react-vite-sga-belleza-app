@@ -183,11 +183,31 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
   return (
     <EstudianteThemeWrapper darkMode={darkMode}>
-      <div className="modal-overlay">
+      <div className="modal-overlay" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: isMobile ? '1rem' : '1.5rem',
+        paddingTop: isMobile ? '2rem' : '2.5rem'
+      }}>
       <div className="modal-content responsive-modal" style={{
         background: theme.modalBg,
         border: `0.0625rem solid ${theme.border}`,
-        padding: isMobile ? '1em' : '1.25em'
+        padding: isMobile ? '1rem' : '1.25rem',
+        borderRadius: '0.75rem',
+        width: isMobile ? '95%' : '550px',
+        maxWidth: '550px',
+        maxHeight: isMobile ? '85vh' : '75vh',
+        overflowY: 'auto',
+        position: 'relative',
+        boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)'
       }}>
         {/* Botón cerrar */}
         <button
@@ -215,31 +235,31 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         </button>
 
         {/* Header */}
-        <div style={{ marginBottom: '1.25em', paddingRight: '2.5em' }}>
+        <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', paddingRight: '2.5rem' }}>
           <h2 style={{
             color: theme.textPrimary,
-            fontSize: '1.125rem',
-            fontWeight: '800',
-            margin: '0 0 0.375em 0',
+            fontSize: isMobile ? '0.95rem' : '1rem',
+            fontWeight: '700',
+            margin: '0 0 0.375rem 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5em'
+            gap: '0.5rem'
           }}>
             <div style={{
-              width: '2.25em',
-              height: '2.25em',
+              width: isMobile ? '1.75rem' : '2rem',
+              height: isMobile ? '1.75rem' : '2rem',
               background: 'linear-gradient(135deg, #10b981, #059669)',
-              borderRadius: '0.625em',
+              borderRadius: '0.5rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <CreditCard size={18} color="#fff" />
+              <CreditCard size={isMobile ? 14 : 16} color="#fff" />
             </div>
             Pagar Mensualidad
           </h2>
-          <div style={{ color: theme.textMuted, fontSize: '0.8rem', marginLeft: '2.75em', fontWeight: '600' }}>
+          <div style={{ color: theme.textMuted, fontSize: isMobile ? '0.7rem' : '0.75rem', marginLeft: isMobile ? '2.25rem' : '2.5rem', fontWeight: '500' }}>
             {cuota.curso_nombre} • Cuota {cuota.numero_cuota}
           </div>
         </div>
@@ -247,25 +267,30 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Información de la cuota */}
         <div style={{
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
-          border: `0.0625rem solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
-          borderRadius: '0.625em',
-          padding: '0.875em',
-          marginBottom: '1em'
+          border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+          borderRadius: '0.625rem',
+          padding: isMobile ? '0.75rem' : '0.875rem',
+          marginBottom: isMobile ? '0.75rem' : '0.875rem'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75em', marginBottom: '0.75em' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', 
+            gap: isMobile ? '0.625rem' : '0.75rem', 
+            marginBottom: isMobile ? '0.625rem' : '0.75rem' 
+          }}>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.7rem', marginBottom: '0.25em', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Monto de la Cuota
               </div>
-              <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '800' }}>
-                ${formatearMonto(cuota.monto)}
+              <div style={{ color: '#10b981', fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: '700' }}>
+                {formatearMonto(cuota.monto)}
               </div>
             </div>
             <div>
-              <div style={{ color: theme.textMuted, fontSize: '0.7rem', marginBottom: '0.25em', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Vencimiento
               </div>
-              <div style={{ color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '700' }}>
+              <div style={{ color: theme.textPrimary, fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '600' }}>
                 {formatearFecha(cuota.fecha_vencimiento)}
               </div>
             </div>
@@ -276,9 +301,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.8rem',
-              fontWeight: '800',
-              marginBottom: '0.375em'
+              fontSize: isMobile ? '0.7rem' : '0.75rem',
+              fontWeight: '700',
+              marginBottom: '0.375rem'
             }}>
               Monto a Pagar *
             </label>
@@ -291,13 +316,13 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               required
               style={{
                 width: '100%',
-                padding: '0.625em 0.875em',
+                padding: isMobile ? '0.5rem 0.625rem' : '0.625rem 0.75rem',
                 background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
-                border: `0.0625rem solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
-                borderRadius: '0.5em',
+                border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                borderRadius: '0.5rem',
                 color: theme.textPrimary,
-                fontSize: '1rem',
-                fontWeight: '800',
+                fontSize: isMobile ? '0.9rem' : '0.95rem',
+                fontWeight: '700',
                 outline: 'none',
                 transition: 'all 0.2s ease'
               }}
@@ -320,17 +345,17 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
           {/* Método de pago */}
-          <div style={{ marginBottom: '1em' }}>
+          <div style={{ marginBottom: isMobile ? '0.75rem' : '0.875rem' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
-              fontSize: '0.8rem',
-              fontWeight: '800',
-              marginBottom: '0.5em'
+              fontSize: isMobile ? '0.7rem' : '0.75rem',
+              fontWeight: '700',
+              marginBottom: '0.5rem'
             }}>
               Método de Pago *
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625em' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.625rem' }}>
               {[
                 { value: 'transferencia', label: 'Transferencia', icon: Building },
                 { value: 'efectivo', label: 'Efectivo', icon: CreditCard }
@@ -343,16 +368,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     type="button"
                     onClick={() => setMetodoPago(metodo.value as any)}
                     style={{
-                      padding: '0.75em',
+                      padding: isMobile ? '0.625rem' : '0.75rem',
                       background: isSelected
                         ? 'linear-gradient(135deg, #10b981, #059669)'
                         : theme.inputBg,
                       color: isSelected ? '#fff' : theme.textPrimary,
-                      border: `0.0625rem solid ${isSelected ? '#10b981' : theme.inputBorder}`,
-                      borderRadius: '0.5em',
+                      border: `1px solid ${isSelected ? '#10b981' : theme.inputBorder}`,
+                      borderRadius: '0.5rem',
                       cursor: 'pointer',
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
+                      fontSize: isMobile ? '0.8rem' : '0.85rem',
+                      fontWeight: '700',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
@@ -654,20 +679,26 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           )}
 
           {/* Botones */}
-          <div style={{ display: 'flex', gap: '0.625em', justifyContent: 'flex-end', marginTop: '1.25em' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column-reverse' : 'row',
+            gap: '0.625rem', 
+            justifyContent: 'flex-end', 
+            marginTop: isMobile ? '1rem' : '1.25rem' 
+          }}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
               style={{
-                padding: '0.75em 1.25em',
+                padding: isMobile ? '0.625rem' : '0.625rem 1rem',
                 background: theme.inputBg,
                 color: theme.textPrimary,
-                border: `0.0625rem solid ${theme.border}`,
-                borderRadius: '0.5em',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '0.5rem',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: '800',
+                fontSize: isMobile ? '0.85rem' : '0.8rem',
+                fontWeight: '700',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => !loading && (e.currentTarget.style.background = theme.hoverBg)}
@@ -679,28 +710,29 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               type="submit"
               disabled={loading}
               style={{
-                padding: '0.75em 1.5em',
+                padding: isMobile ? '0.75rem' : '0.625rem 1.25rem',
                 background: loading ? 'rgba(16, 185, 129, 0.5)' : 'linear-gradient(135deg, #10b981, #059669)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '0.5em',
+                borderRadius: '0.5rem',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: '800',
+                fontSize: isMobile ? '0.9rem' : '0.8rem',
+                fontWeight: '700',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.375em',
-                boxShadow: loading ? 'none' : '0 0.25rem 0.625rem rgba(16, 185, 129, 0.3)',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: loading ? 'none' : '0 4px 10px rgba(16, 185, 129, 0.3)',
                 transition: 'all 0.2s ease'
               }}
             >
               {loading ? (
                 <>
                   <div style={{
-                    width: '0.875em',
-                    height: '0.875em',
-                    border: '0.125rem solid rgba(255,255,255,0.3)',
-                    borderTop: '0.125rem solid #fff',
+                    width: '0.875rem',
+                    height: '0.875rem',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTop: '2px solid #fff',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }} />

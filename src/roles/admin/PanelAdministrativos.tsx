@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import {
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu, X, UserCircle
+  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu, X, UserCircle, Gift
 } from 'lucide-react';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
+import NotificationBell from '../../components/NotificationBell';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
 // Importar componentes modulares
 import Dashboard from './Dashboard';
 import GestionCursos from './GestionCursos';
+import GestionPromociones from './GestionPromociones';
 import GestionMatricula from './GestionMatricula';
 import GestionEstudiantes from './GestionEstudiantes';
 import GestionDocentes from './GestionDocentes';
@@ -36,7 +39,17 @@ const PanelAdministrativos = () => {
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string } | null>(null);
+  const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string; id_usuario?: number } | null>(null);
+
+  // Hook de notificaciones
+  const {
+    notificaciones,
+    marcarLeida,
+    marcarTodasLeidas,
+  } = useNotifications({
+    rol: 'admin',
+    userId: userData?.id_usuario,
+  });
 
   // Obtener datos del usuario
   useEffect(() => {
@@ -127,6 +140,7 @@ const PanelAdministrativos = () => {
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'tipos', name: 'Tipos de Curso', icon: BookOpen },
     { id: 'cursos', name: 'Gestión Cursos', icon: BookOpen },
+    { id: 'promociones', name: 'Promociones', icon: Gift },
     { id: 'matricula', name: 'Gestión Matrícula', icon: GraduationCap },
     { id: 'estudiantes', name: 'Gestión Estudiantes', icon: Users },
     { id: 'pagos', name: 'Gestión de Pagos', icon: DollarSign },
@@ -450,6 +464,15 @@ const PanelAdministrativos = () => {
 
             {/* Iconos del lado derecho */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+              {/* Campana de notificaciones */}
+              <NotificationBell
+                notificaciones={notificaciones}
+                onMarcarLeida={marcarLeida}
+                onMarcarTodasLeidas={marcarTodasLeidas}
+                darkMode={darkMode}
+                accentColor="#ef4444"
+              />
+              
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}
@@ -473,6 +496,7 @@ const PanelAdministrativos = () => {
             {activeTab === 'tipos' && <AdminThemeWrapper darkMode={darkMode}><GestionTiposCurso /></AdminThemeWrapper>}
             {activeTab === 'estudiantes' && <AdminThemeWrapper darkMode={darkMode}><GestionEstudiantes /></AdminThemeWrapper>}
             {activeTab === 'cursos' && <AdminThemeWrapper darkMode={darkMode}><GestionCursos /></AdminThemeWrapper>}
+            {activeTab === 'promociones' && <AdminThemeWrapper darkMode={darkMode}><GestionPromociones /></AdminThemeWrapper>}
             {activeTab === 'matricula' && <AdminThemeWrapper darkMode={darkMode}><GestionMatricula /></AdminThemeWrapper>}
             {activeTab === 'docentes' && <AdminThemeWrapper darkMode={darkMode}><GestionDocentes /></AdminThemeWrapper>}
             {activeTab === 'control-usuarios' && <AdminThemeWrapper darkMode={darkMode}><ControlUsuarios /></AdminThemeWrapper>}

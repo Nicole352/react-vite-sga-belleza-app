@@ -12,6 +12,8 @@ import {
   FileSpreadsheet,
   ArrowLeft,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { useSocket } from "../../hooks/useSocket";
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -146,6 +148,40 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
     setFilteredEstudiantes(result);
   }, [estudiantes, busqueda, filtro]);
+
+  // Escuchar eventos de WebSocket para actualizaciones en tiempo real
+  useSocket({
+    calificacion_actualizada: (data: any) => {
+      console.log("📊 [WebSocket Docente] Calificación actualizada:", data);
+      
+      // Verificar si la calificación pertenece a este curso
+      if (data.id_curso === cursoId) {
+        toast.success(`✅ Calificación actualizada`, {
+          duration: 3000,
+        });
+        
+        // Recargar todas las calificaciones
+        fetchCalificaciones();
+      }
+    },
+    entrega_calificada: (data: any) => {
+      console.log("📝 [WebSocket Docente] Entrega calificada:", data);
+      
+      // Verificar si la entrega pertenece a este curso
+      if (data.id_curso === cursoId) {
+        const nombreEstudiante = data.estudiante_nombre && data.estudiante_apellido
+          ? `${data.estudiante_nombre} ${data.estudiante_apellido}`
+          : 'Estudiante';
+        
+        toast.success(`📝 ${nombreEstudiante} - Calificación registrada`, {
+          duration: 4000,
+        });
+        
+        // Recargar calificaciones
+        fetchCalificaciones();
+      }
+    },
+  });
 
   const fetchCalificaciones = async () => {
     try {

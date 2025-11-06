@@ -22,9 +22,8 @@ import toast from "react-hot-toast";
 import ModalModulo from "./ModalModulo";
 import ModalTarea from "./ModalTarea";
 import ModalEntregas from "./ModalEntregas";
-import LoadingModal from "../../components/LoadingModal";
 import DocenteThemeWrapper from "../../components/DocenteThemeWrapper";
-import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import { useSocket } from "../../hooks/useSocket";
 import { useBreakpoints } from "../../hooks/useMediaQuery";
 import "../../styles/responsive.css";
 
@@ -209,7 +208,6 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
   const refreshAllData = async () => {
     await fetchCursoData();
     await fetchModulos();
-    // Refrescar tareas de módulos expandidos
     const expandedModules = Object.keys(modulosExpandidos).filter(
       (key) => modulosExpandidos[parseInt(key)]
     );
@@ -218,10 +216,74 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     }
   };
 
-  // Auto-refresh con modal de carga azul
-  const { isRefreshing } = useAutoRefresh({
-    onRefresh: refreshAllData,
-    interval: 30000 // 30 segundos
+  // Escuchar eventos en tiempo real vía socket (módulos, tareas, entregas)
+  useSocket({
+    modulo_creado: (data: any) => {
+      console.log("📚 Nuevo módulo creado:", data);
+      if (data.id_curso === parseInt(id_curso || "0")) {
+        toast.success(`📚 Nuevo módulo: ${data.nombre}`, {
+          duration: 4000,
+        });
+        fetchModulos();
+      }
+    },
+    tarea_creada: (data: any) => {
+      console.log("📝 Nueva tarea creada:", data);
+      
+      toast.success(`📝 Nueva tarea: ${data.titulo}`, {
+        duration: 4000,
+      });
+      
+      // Actualizar contadores y lista de módulos
+      fetchModulos();
+      
+      // Si el módulo está expandido, recargar sus tareas
+      if (modulosExpandidos[data.id_modulo]) {
+        fetchTareasModulo(data.id_modulo);
+      }
+    },
+    entrega_nueva: (data: any) => {
+      console.log("🎯 [WebSocket Docente] Nueva entrega recibida:", data);
+      
+      // Mostrar notificación con nombre del estudiante
+      const nombreEstudiante = data.entrega?.estudiante_nombre && data.entrega?.estudiante_apellido
+        ? `${data.entrega.estudiante_nombre} ${data.entrega.estudiante_apellido}`
+        : 'Un estudiante';
+      
+      toast.success(`📥 ${nombreEstudiante} entregó una tarea`, {
+        duration: 5000,
+      });
+      
+      // Recargar módulos para actualizar contadores
+      fetchModulos();
+      
+      // Si el módulo está expandido, recargar sus tareas inmediatamente
+      if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
+        console.log(`🔄 Recargando tareas del módulo ${data.id_modulo}`);
+        fetchTareasModulo(data.id_modulo);
+      }
+    },
+    entrega_actualizada: (data: any) => {
+      console.log("🎯 [WebSocket Docente] Entrega actualizada:", data);
+      
+      // Mostrar notificación
+      const nombreEstudiante = data.entrega?.estudiante_nombre && data.entrega?.estudiante_apellido
+        ? `${data.entrega.estudiante_nombre} ${data.entrega.estudiante_apellido}`
+        : 'Un estudiante';
+      
+      toast.success(`✏️ ${nombreEstudiante} actualizó su entrega`, {
+        duration: 4000,
+      });
+      
+      // Recargar módulos y tareas
+      fetchModulos();
+      
+      // Si el módulo está expandido, recargar sus tareas inmediatamente
+      if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
+        console.log(`🔄 Recargando tareas del módulo ${data.id_modulo}`);
+        fetchTareasModulo(data.id_modulo);
+      }
+    },
   });
 
   const toggleModulo = (id_modulo: number) => {
@@ -231,7 +293,6 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       [id_modulo]: !isExpanded,
     }));
 
-    // Si se está expandiendo y no tiene tareas cargadas, cargarlas
     if (!isExpanded && !tareasPorModulo[id_modulo]) {
       fetchTareasModulo(id_modulo);
     }
@@ -1859,16 +1920,6 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       `}</style>
 
     </div>
-
-    {/* Modal de carga con autorefresh */}
-    <DocenteThemeWrapper darkMode={darkMode}>
-      <LoadingModal 
-        isOpen={isRefreshing}
-        message="Actualizando datos del curso..."
-        darkMode={darkMode}
-        colorTheme="blue"
-      />
-    </DocenteThemeWrapper>
     </>
   );
 };
