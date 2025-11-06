@@ -61,7 +61,7 @@ const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:300
 const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
   
     useSocket({
-      'nueva_solicitud': (data: any) => {
+      'nueva_solicitud_matricula': (data: any) => {
       console.log('🔔 Nueva solicitud recibida:', data);
       toast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`);
       fetchSolicitudes();

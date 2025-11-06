@@ -51,15 +51,11 @@ const PanelEstudiantes = () => {
     id_usuario?: number;
   } | null>(null);
 
-  // Hook de notificaciones
-  const {
+  // Hook de notificaciones con WebSocket
+  const { 
     notificaciones,
-    marcarLeida,
-    marcarTodasLeidas,
-  } = useNotifications({
-    rol: 'estudiante',
-    userId: userData?.id_usuario,
-  });
+    marcarTodasLeidas
+  } = useNotifications('estudiante');
 
   // Guardar preferencia de modo cuando cambie
   useEffect(() => {
@@ -486,10 +482,9 @@ const PanelEstudiantes = () => {
               {/* Campana de notificaciones */}
               <NotificationBell
                 notificaciones={notificaciones}
-                onMarcarLeida={marcarLeida}
                 onMarcarTodasLeidas={marcarTodasLeidas}
                 darkMode={darkMode}
-                accentColor="linear-gradient(135deg, #f59e0b, #d97706)"
+                bellColor="linear-gradient(135deg, #f59e0b, #d97706)"
               />
               
               <ProfileMenu

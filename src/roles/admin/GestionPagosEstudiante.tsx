@@ -84,10 +84,29 @@ const itemsPerPage = 10;
   useSocket({
     'nuevo_pago': (data: any) => {
       console.log('🔔 Nuevo pago recibido:', data);
-toast.success('Nuevo pago registrado');
+      toast.success('Nuevo pago registrado');
       setSocketTrigger(prev => prev + 1);
-        }
-          });
+    },
+    'nuevo_pago_pendiente': (data: any) => {
+      console.log('💰 Nuevo pago pendiente:', data);
+      toast.success(`Nuevo pago de ${data.estudiante_nombre} - Cuota #${data.numero_cuota}`);
+      setSocketTrigger(prev => prev + 1);
+    },
+    'pago_verificado': (data: any) => {
+      console.log('✅ Pago verificado recibido vía socket:', data);
+      toast.success(`Pago verificado exitosamente (Cuota #${data.numero_cuota || ''})`, {
+        icon: <CheckCircle2 size={20} />,
+      });
+      setSocketTrigger(prev => prev + 1);
+    },
+    'pago_rechazado': (data: any) => {
+      console.log('❌ Pago rechazado recibido vía socket:', data);
+      toast.error(`Pago rechazado (Cuota #${data.numero_cuota || ''})`, {
+        icon: <XCircle size={20} />,
+      });
+      setSocketTrigger(prev => prev + 1);
+    }
+  });
           
             useEffect(() => {
           loadData();
@@ -161,6 +180,7 @@ est.cursos.forEach(curso => {
       });
     } finally {
       setLoading(false);
+      setShowLoadingModal(false);
     }
   };
 

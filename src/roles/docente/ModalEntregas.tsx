@@ -92,10 +92,11 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   };
 
   useSocket({
-    'entrega_nueva': (data: any) => {
+    'tarea_entregada_docente': (data: any) => {
       console.log('📥 Nueva entrega recibida:', data);
       if (data.id_tarea === id_tarea) {
-        toast.success('Nueva entrega recibida');
+        const nombreEstudiante = data.estudiante_nombre || 'Un estudiante';
+        toast.success(`Nueva entrega de ${nombreEstudiante}`);
         fetchEntregas();
       }
     },

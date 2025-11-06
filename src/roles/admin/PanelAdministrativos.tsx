@@ -41,15 +41,11 @@ const PanelAdministrativos = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string; id_usuario?: number } | null>(null);
 
-  // Hook de notificaciones
-  const {
+  // Hook de notificaciones con WebSocket
+  const { 
     notificaciones,
-    marcarLeida,
-    marcarTodasLeidas,
-  } = useNotifications({
-    rol: 'admin',
-    userId: userData?.id_usuario,
-  });
+    marcarTodasLeidas
+  } = useNotifications('admin');
 
   // Obtener datos del usuario
   useEffect(() => {
@@ -76,7 +72,7 @@ const PanelAdministrativos = () => {
           console.log('📝 Todas las propiedades:', Object.keys(data));
           setUserData(data);
         } else {
-          console.error('-Error en respuesta:', response.status);
+          console.error('Error en respuesta:', response.status);
         }
       } catch (error) {
         console.error('-Error obteniendo datos del usuario:', error);
@@ -467,10 +463,9 @@ const PanelAdministrativos = () => {
               {/* Campana de notificaciones */}
               <NotificationBell
                 notificaciones={notificaciones}
-                onMarcarLeida={marcarLeida}
                 onMarcarTodasLeidas={marcarTodasLeidas}
                 darkMode={darkMode}
-                accentColor="#ef4444"
+                bellColor="linear-gradient(135deg, #ef4444, #dc2626)"
               />
               
               <ProfileMenu

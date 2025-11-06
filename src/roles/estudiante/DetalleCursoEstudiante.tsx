@@ -114,22 +114,22 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
   };
 
   useSocket({
-    'modulo_creado': (data: any) => {
+    'nuevo_modulo': (data: any) => {
       console.log('📚 Nuevo módulo disponible:', data);
       
       // Solo mostrar notificación si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
-        toast.success(`📚 Nuevo módulo disponible: ${data.nombre}`, {
+        toast.success(`📚 Nuevo módulo disponible: ${data.nombre_modulo}`, {
           duration: 5000,
         });
         fetchModulos();
       }
     },
-    'tarea_creada': (data: any) => {
+    'nueva_tarea': (data: any) => {
       console.log('📝 Nueva tarea asignada:', data);
       
-      // Mostrar notificación
-      toast.success(`📝 Nueva tarea: ${data.titulo}`, {
+      // Mostrar notificación con información completa
+      toast.success(`📝 Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, {
         duration: 5000,
       });
       
@@ -137,7 +137,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       fetchModulos();
       
       // Si el módulo está expandido, recargar tareas
-      if (modulosExpandidos[data.id_modulo]) {
+      if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
         fetchTareasModulo(data.id_modulo);
       }
     },

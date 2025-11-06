@@ -39,7 +39,10 @@ const PanelDocentes = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hook de notificaciones con WebSocket
-  const { notificaciones, limpiarNotificaciones } = useNotifications('docente');
+  const { 
+    notificaciones,
+    marcarTodasLeidas
+  } = useNotifications('docente');
 
   // Estados para modal de cambio de contraseña
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
@@ -492,10 +495,9 @@ const PanelDocentes = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
               <NotificationBell
                 notificaciones={notificaciones}
-                onLimpiar={limpiarNotificaciones}
+                onMarcarTodasLeidas={marcarTodasLeidas}
                 darkMode={darkMode}
                 bellColor="linear-gradient(135deg, #3b82f6, #2563eb)"
-                iconColor="#ffffff"
               />
               <ProfileMenu
                 darkMode={darkMode}

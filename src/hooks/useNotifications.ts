@@ -1,207 +1,233 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSocket } from './useSocket';
+﻿import { useState, useEffect, useCallback } from "react";
+import { useSocket } from "./useSocket";
 
 export interface Notificacion {
   id: string;
-  tipo: 'modulo' | 'tarea' | 'pago' | 'calificacion' | 'matricula' | 'general';
+  tipo: "modulo" | "tarea" | "pago" | "calificacion" | "matricula" | "general";
   titulo: string;
   mensaje: string;
   leida: boolean;
   fecha: Date;
+  fechaLeida?: Date;
   link?: string;
   data?: any;
 }
 
-type RolUsuario = 'admin' | 'docente' | 'estudiante';
+type RolUsuario = "admin" | "docente" | "estudiante";
 
 export const useNotifications = (rol: RolUsuario) => {
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => {
-    // Cargar notificaciones del localStorage al iniciar
     const saved = localStorage.getItem(`notificaciones_${rol}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         return parsed.map((n: any) => ({
           ...n,
-          fecha: new Date(n.fecha)
+          fecha: new Date(n.fecha),
+          fechaLeida: n.fechaLeida ? new Date(n.fechaLeida) : undefined
         }));
       } catch (error) {
-        console.error('Error parsing saved notifications:', error);
+        console.error("Error parsing saved notifications:", error);
         return [];
       }
     }
     return [];
   });
 
-  // Guardar notificaciones en localStorage cuando cambien
   useEffect(() => {
     localStorage.setItem(`notificaciones_${rol}`, JSON.stringify(notificaciones));
   }, [notificaciones, rol]);
 
-  const agregarNotificacion = useCallback((notif: Omit<Notificacion, 'id' | 'leida' | 'fecha'>) => {
-    const nueva: Notificacion = {
-      ...notif,
-      id: `${Date.now()}-${Math.random()}`,
-      leida: false,
-      fecha: new Date()
-    };
+  const agregarNotificacion = useCallback(
+    (notif: Omit<Notificacion, "id" | "leida" | "fecha">) => {
+      const nueva: Notificacion = {
+        ...notif,
+        id: `${Date.now()}-${Math.random()}`,
+        leida: false,
+        fecha: new Date()
+      };
+      setNotificaciones((prev) => [nueva, ...prev].slice(0, 50));
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(notif.titulo, {
+          body: notif.mensaje,
+          icon: "/logo.png"
+        });
+      }
+    },
+    []
+  );
 
-    setNotificaciones(prev => [nueva, ...prev].slice(0, 50)); // Mantener máximo 50 notificaciones
-
-    // Mostrar notificación del navegador si tiene permisos
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(notif.titulo, {
-        body: notif.mensaje,
-        icon: '/logo.png',
-        badge: '/logo.png'
-      });
-    }
-  }, []);
-
-  const limpiarNotificaciones = useCallback(() => {
-    setNotificaciones([]);
-  }, []);
-
-  const marcarComoLeida = useCallback((id: string) => {
-    setNotificaciones(prev =>
-      prev.map(n => (n.id === id ? { ...n, leida: true } : n))
+  const marcarTodasLeidas = useCallback(() => {
+    const ahora = new Date();
+    setNotificaciones((prev) =>
+      prev.map((n) => ({
+        ...n,
+        leida: true,
+        fechaLeida: ahora
+      }))
     );
+    
+    setTimeout(() => {
+      setNotificaciones([]);
+    }, 2000);
   }, []);
 
-  // Solicitar permisos de notificaciones del navegador
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
+    const intervalo = setInterval(() => {
+      const ahora = new Date();
+      setNotificaciones((prev) =>
+        prev.filter((n) => {
+          if (!n.leida) return true;
+          
+          if (n.fechaLeida) {
+            const diffMinutos = (ahora.getTime() - n.fechaLeida.getTime()) / (1000 * 60);
+            return diffMinutos < 60;
+          }
+          
+          return true;
+        })
+      );
+    }, 60000);
+
+    return () => clearInterval(intervalo);
+  }, []);
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
 
-  // Configurar eventos de WebSocket según el rol
   const events: { [key: string]: (data: any) => void } = {};
 
-  if (rol === 'admin') {
-    // Eventos para admin
-    events.nueva_solicitud = (data: any) => {
+  if (rol === "admin") {
+    events.nueva_solicitud_matricula = (data: any) =>
       agregarNotificacion({
-        tipo: 'matricula',
-        titulo: 'Nueva solicitud de matrícula',
-        mensaje: `${data.nombre_solicitante} ${data.apellido_solicitante} ha enviado una solicitud`,
-        link: '/admin/matriculas',
+        tipo: "matricula",
+        titulo: "📋 Nueva solicitud de matrícula",
+        mensaje: `${data.nombre_solicitante} ${data.apellido_solicitante} solicita ${data.curso}`,
+        link: "/admin/matriculas",
+        data
+      });
+
+    events.matriculas_pendientes = (data: any) =>
+      agregarNotificacion({
+        tipo: "matricula",
+        titulo: "⏳ Matrículas pendientes",
+        mensaje: data.mensaje,
+        link: "/admin/matriculas",
+        data
+      });
+
+    events.nuevo_pago_pendiente = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
+      agregarNotificacion({
+        tipo: "pago",
+        titulo: "💰 Nuevo pago pendiente",
+        mensaje: `${data.estudiante_nombre}${curso} - Cuota #${data.numero_cuota}`,
+        link: "/admin/pagos",
         data
       });
     };
-  } else if (rol === 'docente') {
-    // Eventos para docente
-    events.tarea_entregada = (data: any) => {
+  } else if (rol === "docente") {
+    events.tarea_entregada_docente = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
       agregarNotificacion({
-        tipo: 'tarea',
-        titulo: 'Nueva tarea entregada',
-        mensaje: `${data.estudiante_nombre} ha entregado la tarea "${data.tarea_titulo}"`,
+        tipo: "tarea",
+        titulo: "📝 Tarea entregada",
+        mensaje: `${data.estudiante_nombre} entregó "${data.tarea_titulo}"${curso}`,
         link: `/docente/tareas/${data.id_tarea}`,
         data
       });
     };
-  } else if (rol === 'estudiante') {
-    // Eventos para estudiante
-    
-    // 1. Nuevo módulo creado por docente
+
+    events.tareas_por_calificar = (data: any) =>
+      agregarNotificacion({
+        tipo: "tarea",
+        titulo: "⭐ Tareas por calificar",
+        mensaje: data.mensaje,
+        link: `/docente/tareas/${data.id_tarea}`,
+        data
+      });
+  } else if (rol === "estudiante") {
     events.nuevo_modulo = (data: any) => {
+      const docente = data.docente_nombre ? ` (${data.docente_nombre})` : '';
       agregarNotificacion({
-        tipo: 'modulo',
-        titulo: '📚 Nuevo módulo disponible',
-        mensaje: `El docente ha agregado el módulo "${data.nombre_modulo}" en ${data.curso_nombre}`,
-        link: `/estudiante/curso/${data.id_curso}`,
+        tipo: "modulo",
+        titulo: "📚 Nuevo módulo disponible",
+        mensaje: `${data.nombre_modulo} - ${data.curso_nombre}${docente}`,
+        link: `/estudiante/cursos/${data.id_curso}`,
         data
       });
     };
 
-    // 2. Nueva tarea asignada
     events.nueva_tarea = (data: any) => {
+      const fechaEntrega = new Date(data.fecha_entrega);
+      const fechaFormateada = fechaEntrega.toLocaleDateString('es-ES', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+      const horaFormateada = fechaEntrega.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false
+      });
+      
+      const curso = data.curso_nombre || 'tu curso';
+      const docente = data.docente_nombre ? ` (${data.docente_nombre})` : '';
+      
       agregarNotificacion({
-        tipo: 'tarea',
-        titulo: '📝 Nueva tarea asignada',
-        mensaje: `Tienes una nueva tarea: "${data.titulo_tarea}" - Vence: ${new Date(data.fecha_entrega).toLocaleDateString('es-ES')}`,
-        link: `/estudiante/curso/${data.id_curso}`,
+        tipo: "tarea",
+        titulo: "📝 Nueva tarea asignada",
+        mensaje: `${data.titulo_tarea} - ${curso}${docente} - Fecha límite: ${fechaFormateada} a las ${horaFormateada}`,
+        link: "/estudiante/tareas",
         data
       });
     };
 
-    // 3. Pago verificado por admin
-    events.pago_verificado_estudiante = (data: any) => {
-      agregarNotificacion({
-        tipo: 'pago',
-        titulo: '✅ Pago verificado',
-        mensaje: `Tu pago de la cuota #${data.numero_cuota} ha sido verificado exitosamente`,
-        link: '/estudiante/servicios',
-        data
-      });
-    };
-
-    // Fallback para evento broadcast
-    events.pago_verificado = (data: any) => {
-      // Solo si coincide con el usuario actual
-      const token = sessionStorage.getItem('auth_token');
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          if (data.id_estudiante === payload.id_usuario) {
-            agregarNotificacion({
-              tipo: 'pago',
-              titulo: '✅ Pago verificado',
-              mensaje: `Tu pago de la cuota #${data.numero_cuota} ha sido verificado exitosamente`,
-              link: '/estudiante/servicios',
-              data
-            });
-          }
-        } catch (error) {
-          console.error('Error decodificando token:', error);
-        }
-      }
-    };
-
-    // 4. Tarea calificada por docente
     events.tarea_calificada = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
+      const docente = data.docente_nombre ? ` (${data.docente_nombre})` : '';
       agregarNotificacion({
-        tipo: 'calificacion',
-        titulo: '⭐ Tarea calificada',
-        mensaje: `Tu tarea "${data.tarea_titulo}" ha sido calificada: ${data.nota}/20`,
-        link: `/estudiante/curso/${data.id_curso}`,
+        tipo: "calificacion",
+        titulo: "⭐ Tarea calificada",
+        mensaje: `${data.tarea_titulo}${curso}${docente} - Nota: ${data.nota}`,
+        link: "/estudiante/tareas",
         data
       });
     };
 
-    // 5. Módulo actualizado
-    events.modulo_actualizado = (data: any) => {
+    events.pago_verificado_estudiante = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
+      const admin = data.admin_nombre ? ` (verificado por ${data.admin_nombre})` : '';
       agregarNotificacion({
-        tipo: 'modulo',
-        titulo: '🔄 Módulo actualizado',
-        mensaje: `El módulo "${data.nombre_modulo}" ha sido actualizado en ${data.curso_nombre}`,
-        link: `/estudiante/curso/${data.id_curso}`,
+        tipo: "pago",
+        titulo: "✅ Pago verificado",
+        mensaje: `Cuota #${data.numero_cuota}${curso} - Monto: S/${data.monto}${admin}`,
+        link: "/estudiante/pagos",
         data
       });
     };
+
+    events.matricula_aprobada = (data: any) =>
+      agregarNotificacion({
+        tipo: "matricula",
+        titulo: "🎉 Matrícula aprobada",
+        mensaje: `¡Bienvenido a ${data.curso_nombre}!`,
+        link: "/estudiante/cursos",
+        data
+      });
   }
 
-  // Obtener userId del token
-  const [userId, setUserId] = useState<number | undefined>(undefined);
-  useEffect(() => {
-    const token = sessionStorage.getItem('auth_token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUserId(payload.id_usuario);
-      } catch (error) {
-        console.error('Error decodificando token:', error);
-      }
-    }
-  }, []);
+  // Conectar socket con los eventos definidos
+  useSocket(events);
 
-  // Usar el hook useSocket con los eventos configurados
-  useSocket(events, userId);
+  const noLeidas = notificaciones.filter((n) => !n.leida).length;
 
   return {
     notificaciones,
-    agregarNotificacion,
-    limpiarNotificaciones,
-    marcarComoLeida
+    noLeidas,
+    marcarTodasLeidas
   };
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import toast from 'react-hot-toast';
 import {
   BookOpen,
   Calendar,
@@ -81,13 +81,21 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
 
   // Configurar eventos de WebSocket
   const socketEvents = {
-    'nueva_tarea_asignada': (data: any) => {
+    'nueva_tarea': (data: any) => {
       console.log('📝 Nueva tarea asignada:', data);
+      toast.success(`📝 Nueva tarea: ${data.titulo_tarea}`);
       // Recargar cursos para actualizar contador de tareas pendientes
+      fetchCursosMatriculados();
+    },
+    'nuevo_modulo': (data: any) => {
+      console.log('📚 Nuevo módulo disponible:', data);
+      toast.success(`📚 Nuevo módulo: ${data.nombre_modulo}`);
+      // Recargar cursos para actualizar información
       fetchCursosMatriculados();
     },
     'tarea_calificada': (data: any) => {
       console.log('⭐ Tarea calificada:', data);
+      toast.success(`✅ Tarea calificada con ${data.nota} puntos`);
       // Recargar cursos para actualizar progreso y calificación
       fetchCursosMatriculados();
     },

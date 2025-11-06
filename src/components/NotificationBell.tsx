@@ -1,339 +1,398 @@
-import React, { useState } from 'react';
-import { Bell, X, CheckCircle, FileText, DollarSign, BookOpen } from 'lucide-react';
+﻿import React, { useState } from "react";
+import { Bell, CheckCheck, X } from "lucide-react";
+import { useBreakpoints } from "../hooks/useMediaQuery";
 
 interface Notificacion {
   id: string;
-  tipo: 'modulo' | 'tarea' | 'pago' | 'calificacion' | 'matricula' | 'general';
+  tipo: "modulo" | "tarea" | "pago" | "calificacion" | "matricula" | "general";
   titulo: string;
   mensaje: string;
   leida: boolean;
   fecha: Date;
   link?: string;
-  data?: any;
 }
 
 interface NotificationBellProps {
   notificaciones: Notificacion[];
-  onLimpiar: () => void;
+  onMarcarTodasLeidas: () => void;
   darkMode?: boolean;
-  bellColor?: string;
-  iconColor?: string;
+  bellColor?: string; // Color del gradiente para el botón de campana
 }
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ 
   notificaciones, 
-  onLimpiar, 
+  onMarcarTodasLeidas, 
   darkMode = false,
-  bellColor = 'linear-gradient(135deg, #f59e0b, #d97706)',
-  iconColor = '#ffffff'
+  bellColor = "linear-gradient(135deg, #ef4444, #dc2626)" // Rojo por defecto (admin)
 }) => {
   const [mostrarPanel, setMostrarPanel] = useState(false);
-
+  const { isMobile, isTablet } = useBreakpoints();
+  
   const noLeidas = notificaciones.filter(n => !n.leida).length;
+  const notificacionesRecientes = notificaciones.slice(0, 10);
 
-  const getIcono = (tipo: string) => {
-    switch (tipo) {
-      case 'modulo': return <BookOpen size={18} color="#f59e0b" />;
-      case 'tarea': return <FileText size={18} color="#3b82f6" />;
-      case 'pago': return <DollarSign size={18} color="#10b981" />;
-      case 'calificacion': return <CheckCircle size={18} color="#8b5cf6" />;
-      default: return <Bell size={18} color="#f59e0b" />;
+  // Determinar ancho del panel según dispositivo
+  const getModalWidth = () => {
+    if (isMobile) return "calc(100vw - 2rem)"; // Móvil: casi pantalla completa
+    if (isTablet) return "380px"; // Tablet: mediano
+    return "450px"; // PC: grande
+  };
+
+  // Determinar posición del panel
+  const getModalPosition = () => {
+    if (isMobile) {
+      return {
+        position: "fixed" as const,
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        right: "auto"
+      };
     }
+    // En PC/Tablet: posición fija con más espacio desde arriba
+    return {
+      position: "fixed" as const,
+      top: "5rem",
+      right: "1rem",
+      left: "auto",
+      transform: "none"
+    };
   };
 
   const formatearFecha = (fecha: Date) => {
-    const ahora = new Date();
-    const diff = ahora.getTime() - new Date(fecha).getTime();
+    const diff = Date.now() - new Date(fecha).getTime();
     const minutos = Math.floor(diff / 60000);
+    if (minutos < 1) return "Ahora";
+    if (minutos < 60) return `Hace ${minutos} min`;
     const horas = Math.floor(minutos / 60);
-    const dias = Math.floor(horas / 24);
-
-    if (minutos < 1) return 'Ahora';
-    if (minutos < 60) return `Hace ${minutos}m`;
     if (horas < 24) return `Hace ${horas}h`;
-    return `Hace ${dias}d`;
+    return `Hace ${Math.floor(horas / 24)}d`;
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Botón de campana */}
+    <div style={{ position: "relative", zIndex: 99999 }}>
       <button
         onClick={() => setMostrarPanel(!mostrarPanel)}
         style={{
-          position: 'relative',
-          width: '2.5rem',
-          height: '2.5rem',
-          borderRadius: '50%',
-          border: 'none',
+          position: "relative",
+          width: isMobile ? "2.25rem" : "2.75rem",
+          height: isMobile ? "2.25rem" : "2.75rem",
+          borderRadius: "50%",
+          border: "none",
           background: bellColor,
-          color: iconColor,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.3s ease',
-          boxShadow: noLeidas > 0 ? '0 0 20px rgba(251, 191, 36, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.1)'
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: noLeidas > 0 ? "0 0 1.25rem rgba(0, 0, 0, 0.3)" : "0 0.125rem 0.5rem rgba(0,0,0,0.15)",
+          transition: "all 0.3s ease"
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+          e.currentTarget.style.transform = "scale(1.1)";
+          e.currentTarget.style.boxShadow = "0 0.25rem 1.25rem rgba(0, 0, 0, 0.4)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = noLeidas > 0 ? '0 0 20px rgba(251, 191, 36, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = noLeidas > 0 ? "0 0 1.25rem rgba(0, 0, 0, 0.3)" : "0 0.125rem 0.5rem rgba(0,0,0,0.15)";
         }}
       >
-        <Bell size={20} color={iconColor} />
+        <Bell size={isMobile ? 18 : 22} color="#fff" />
         {noLeidas > 0 && (
           <span style={{
-            position: 'absolute',
-            top: '-4px',
-            right: '-4px',
-            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-            color: '#fff',
-            borderRadius: '50%',
-            width: '20px',
-            height: '20px',
-            fontSize: '0.7rem',
-            fontWeight: '700',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
-            animation: noLeidas > 0 ? 'pulse 2s infinite' : 'none'
+            position: "absolute",
+            top: "-0.375rem",
+            right: "-0.375rem",
+            background: "#fbbf24",
+            color: "#000",
+            borderRadius: "50%",
+            width: isMobile ? "1.25rem" : "1.375rem",
+            height: isMobile ? "1.25rem" : "1.375rem",
+            fontSize: isMobile ? "0.7rem" : "0.75rem",
+            fontWeight: "700",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "0.125rem solid #fff",
+            boxShadow: "0 0.125rem 0.5rem rgba(0,0,0,0.2)",
+            animation: "pulse 2s infinite"
           }}>
-            {noLeidas > 9 ? '9+' : noLeidas}
+            {noLeidas > 9 ? "9+" : noLeidas}
           </span>
         )}
       </button>
 
-      {/* Panel de notificaciones */}
       {mostrarPanel && (
         <>
-          {/* Overlay para cerrar al hacer clic fuera */}
-          <div
-            onClick={() => setMostrarPanel(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 998
-            }}
+          <div 
+            onClick={() => setMostrarPanel(false)} 
+            style={{ 
+              position: "fixed", 
+              top: 0, 
+              left: 0, 
+              right: 0, 
+              bottom: 0, 
+              zIndex: 99998, 
+              background: isMobile ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.1)" 
+            }} 
           />
-          
-          {/* Panel */}
           <div style={{
-            position: 'absolute',
-            top: 'calc(100% + 10px)',
-            right: 0,
-            width: '380px',
-            maxWidth: '90vw',
-            maxHeight: '500px',
-            background: darkMode ? 'rgba(30, 41, 59, 0.98)' : 'rgba(255, 255, 255, 0.98)',
-            border: darkMode ? '1px solid rgba(251, 191, 36, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: '1rem',
-            boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(10px)',
-            zIndex: 999,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
+            ...getModalPosition(),
+            width: getModalWidth(),
+            maxWidth: isMobile ? "none" : "28rem",
+            maxHeight: isMobile ? "90vh" : "calc(100vh - 7rem)",
+            background: darkMode ? "#1e293b" : "#ffffff",
+            border: "0.0625rem solid rgba(0,0,0,0.08)",
+            borderRadius: isMobile ? "1.25rem" : "1rem",
+            boxShadow: isMobile 
+              ? "0 1.5625rem 4.375rem rgba(0,0,0,0.3)" 
+              : "0 1.25rem 3.75rem rgba(0,0,0,0.2), 0 0 0.0625rem rgba(0,0,0,0.15)",
+            zIndex: 99999,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            animation: isMobile ? "scaleIn 0.2s ease-out" : "slideDown 0.2s ease-out"
           }}>
-            {/* Header */}
-            <div style={{
-              padding: '1rem 1.25rem',
-              borderBottom: darkMode ? '1px solid rgba(251, 191, 36, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: darkMode ? 'rgba(251, 191, 36, 0.05)' : 'rgba(251, 191, 36, 0.03)'
+            {/* Header responsive */}
+            <div style={{ 
+              padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem", 
+              background: darkMode ? "#0f172a" : "#f8fafc",
+              borderBottom: `0.0625rem solid ${darkMode ? "#334155" : "#e2e8f0"}`,
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center",
+              flexWrap: isMobile ? "wrap" : "nowrap",
+              gap: isMobile ? "0.75rem" : "0"
             }}>
-              <div>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: '1rem',
-                  fontWeight: '700',
-                  color: darkMode ? '#fff' : '#1f2937',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+              <div style={{ flex: isMobile ? "1 1 100%" : "1" }}>
+                <h3 style={{ 
+                  margin: 0, 
+                  fontSize: isMobile ? "0.9rem" : "0.95rem", 
+                  fontWeight: "600", 
+                  color: darkMode ? "#f1f5f9" : "#1e293b", 
+                  letterSpacing: "-0.01em" 
                 }}>
-                  <Bell size={18} color="#f59e0b" />
                   Notificaciones
                 </h3>
                 {noLeidas > 0 && (
-                  <p style={{
-                    margin: 0,
-                    fontSize: '0.75rem',
-                    color: '#f59e0b',
-                    marginTop: '0.25rem',
-                    fontWeight: '600'
+                  <p style={{ 
+                    margin: "0.25rem 0 0 0", 
+                    fontSize: isMobile ? "0.7rem" : "0.75rem", 
+                    color: darkMode ? "#94a3b8" : "#64748b" 
                   }}>
-                    {noLeidas} {noLeidas === 1 ? 'nueva' : 'nuevas'}
+                    Tienes {noLeidas} {noLeidas === 1 ? 'notificación nueva' : 'notificaciones nuevas'}
                   </p>
                 )}
               </div>
-              {notificaciones.length > 0 && (
+              
+              <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "0.5rem",
+                width: isMobile ? "100%" : "auto",
+                justifyContent: isMobile ? "flex-end" : "flex-start"
+              }}>
+                {noLeidas > 0 && (
+                  <button 
+                    onClick={() => {
+                      onMarcarTodasLeidas();
+                      setMostrarPanel(false);
+                    }} 
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: isMobile ? "0.5rem 0.75rem" : "0.5rem 0.875rem",
+                      background: bellColor,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "0.5rem",
+                      cursor: "pointer",
+                      fontSize: isMobile ? "0.75rem" : "0.8rem",
+                      fontWeight: "500",
+                      boxShadow: "0 0.125rem 0.5rem rgba(0, 0, 0, 0.25)",
+                      transition: "all 0.2s ease",
+                      flex: isMobile ? "1" : "0"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-0.0625rem)";
+                      e.currentTarget.style.boxShadow = "0 0.25rem 0.75rem rgba(0, 0, 0, 0.35)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 0.125rem 0.5rem rgba(0, 0, 0, 0.25)";
+                    }}
+                  >
+                    <CheckCheck size={isMobile ? 13 : 14} />
+                    {isMobile ? "Leídas" : "Marcar leídas"}
+                  </button>
+                )}
+                
+                {/* Botón de cerrar (X) */}
                 <button
-                  onClick={() => {
-                    onLimpiar();
-                    setMostrarPanel(false);
-                  }}
+                  onClick={() => setMostrarPanel(false)}
                   style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    padding: '0.5rem',
-                    borderRadius: '0.375rem',
-                    transition: 'all 0.2s'
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "2rem",
+                    height: "2rem",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: "0.5rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    color: darkMode ? "#94a3b8" : "#64748b",
+                    flexShrink: 0
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                    e.currentTarget.style.background = darkMode ? "#334155" : "#e2e8f0";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.background = "transparent";
                   }}
                 >
-                  Limpiar todo
+                  <X size={18} />
                 </button>
-              )}
+              </div>
             </div>
 
-            {/* Lista de notificaciones */}
-            <div style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: '0.5rem'
+            <div style={{ 
+              overflowY: "auto", 
+              flex: 1, 
+              background: darkMode ? "#1e293b" : "#ffffff",
+              WebkitOverflowScrolling: "touch" // Smooth scroll en móvil
             }}>
               {notificaciones.length === 0 ? (
-                <div style={{
-                  padding: '3rem 1.5rem',
-                  textAlign: 'center',
-                  color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)'
+                <div style={{ 
+                  padding: isMobile ? "3rem 1.5rem" : "4rem 2rem", 
+                  textAlign: "center", 
+                  color: darkMode ? "#64748b" : "#94a3b8" 
                 }}>
-                  <Bell size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '600' }}>
-                    No tienes notificaciones
+                  <Bell size={isMobile ? 48 : 56} style={{ margin: "0 auto", opacity: 0.3, strokeWidth: 1.5 }} />
+                  <p style={{ 
+                    marginTop: "1.25rem", 
+                    fontSize: isMobile ? "0.9rem" : "0.95rem", 
+                    fontWeight: "500" 
+                  }}>
+                    No hay notificaciones
                   </p>
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem' }}>
-                    Te avisaremos cuando haya algo nuevo
+                  <p style={{ 
+                    marginTop: "0.5rem", 
+                    fontSize: isMobile ? "0.75rem" : "0.8rem", 
+                    opacity: 0.7 
+                  }}>
+                    Cuando recibas notificaciones aparecerán aquí
                   </p>
                 </div>
               ) : (
-                notificaciones.map((notif) => (
-                  <div
-                    key={notif.id}
-                    onClick={() => {
-                      if (notif.link) {
-                        window.location.href = notif.link;
-                        setMostrarPanel(false);
-                      }
-                    }}
-                    style={{
-                      padding: '0.875rem',
-                      margin: '0.5rem',
-                      borderRadius: '0.75rem',
-                      background: !notif.leida
-                        ? (darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.05)')
-                        : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
-                      border: !notif.leida
-                        ? (darkMode ? '1px solid rgba(251, 191, 36, 0.2)' : '1px solid rgba(251, 191, 36, 0.15)')
-                        : (darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)'),
-                      cursor: notif.link ? 'pointer' : 'default',
-                      transition: 'all 0.2s',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (notif.link) {
-                        e.currentTarget.style.transform = 'translateX(-2px)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateX(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    {!notif.leida && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '0.875rem',
-                        right: '0.875rem',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: '#f59e0b',
-                        boxShadow: '0 0 8px rgba(251, 191, 36, 0.5)'
-                      }} />
-                    )}
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <div style={{
-                        flexShrink: 0,
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '0.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
-                      }}>
-                        {getIcono(notif.tipo)}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h4 style={{
-                          margin: 0,
-                          fontSize: '0.85rem',
-                          fontWeight: '700',
-                          color: darkMode ? '#fff' : '#1f2937',
-                          marginBottom: '0.25rem'
-                        }}>
-                          {notif.titulo}
-                        </h4>
-                        <p style={{
-                          margin: 0,
-                          fontSize: '0.8rem',
-                          color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
-                          lineHeight: '1.4',
-                          wordBreak: 'break-word'
-                        }}>
-                          {notif.mensaje}
-                        </p>
-                        <span style={{
-                          fontSize: '0.7rem',
-                          color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)',
-                          marginTop: '0.375rem',
-                          display: 'block'
-                        }}>
-                          {formatearFecha(notif.fecha)}
-                        </span>
+                <>
+                  {notificacionesRecientes.map((notif) => (
+                    <div
+                      key={notif.id}
+                      style={{
+                        padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem",
+                        borderBottom: `0.0625rem solid ${darkMode ? "#334155" : "#f1f5f9"}`,
+                        cursor: "default",
+                        background: !notif.leida 
+                          ? (darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(150, 150, 150, 0.05)") 
+                          : "transparent",
+                        transition: "all 0.15s ease",
+                        position: "relative"
+                      }}
+                    >
+                      <div style={{ display: "flex", gap: isMobile ? "0.75rem" : "1rem", alignItems: "start" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}> {/* minWidth: 0 para permitir text-overflow */}
+                          <div style={{ 
+                            fontSize: isMobile ? "0.825rem" : "0.875rem",
+                            fontWeight: notif.leida ? "500" : "600", 
+                            color: darkMode ? "#f1f5f9" : "#1e293b", 
+                            marginBottom: "0.375rem",
+                            lineHeight: "1.4",
+                            wordBreak: "break-word"
+                          }}>
+                            {notif.titulo}
+                          </div>
+                          <div style={{ 
+                            fontSize: isMobile ? "0.75rem" : "0.8rem", 
+                            color: darkMode ? "#cbd5e1" : "#64748b",
+                            lineHeight: "1.5",
+                            marginBottom: "0.5rem",
+                            wordBreak: "break-word"
+                          }}>
+                            {notif.mensaje}
+                          </div>
+                          <div style={{ 
+                            fontSize: isMobile ? "0.675rem" : "0.7rem", 
+                            color: darkMode ? "#64748b" : "#94a3b8",
+                            fontWeight: "500"
+                          }}>
+                            {formatearFecha(notif.fecha)}
+                          </div>
+                        </div>
+                        {!notif.leida && (
+                          <span style={{ 
+                            width: isMobile ? "0.5rem" : "0.625rem", 
+                            height: isMobile ? "0.5rem" : "0.625rem", 
+                            borderRadius: "50%", 
+                            background: bellColor,
+                            flexShrink: 0,
+                            marginTop: "0.25rem",
+                            boxShadow: "0 0 0 0.1875rem rgba(0, 0, 0, 0.08)"
+                          }} />
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                  {notificaciones.length > 10 && (
+                    <div style={{
+                      padding: isMobile ? "0.875rem 1.25rem" : "1rem 1.5rem",
+                      textAlign: "center",
+                      fontSize: isMobile ? "0.75rem" : "0.8rem",
+                      color: darkMode ? "#94a3b8" : "#64748b",
+                      fontWeight: "500",
+                      background: darkMode ? "#0f172a" : "#f8fafc",
+                      borderTop: `0.0625rem solid ${darkMode ? "#334155" : "#e2e8f0"}`
+                    }}>
+                      Y {notificaciones.length - 10} notificación{notificaciones.length - 10 !== 1 ? 'es' : ''} más
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
+
+          <style>{`
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateY(-0.625rem);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+              }
+            }
+            @keyframes pulse {
+              0%, 100% {
+                transform: scale(1);
+              }
+              50% {
+                transform: scale(1.05);
+              }
+            }
+          `}</style>
         </>
       )}
-
-      {/* Estilos de animación */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.9;
-          }
-        }
-      `}</style>
     </div>
   );
 };

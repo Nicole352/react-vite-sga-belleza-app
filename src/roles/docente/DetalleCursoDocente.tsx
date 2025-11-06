@@ -227,28 +227,35 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
         fetchModulos();
       }
     },
-    tarea_creada: (data: any) => {
+    nueva_tarea: (data: any) => {
       console.log("📝 Nueva tarea creada:", data);
       
-      toast.success(`📝 Nueva tarea: ${data.titulo}`, {
+      toast.success(`📝 Nueva tarea: ${data.titulo_tarea}`, {
         duration: 4000,
       });
       
-      // Actualizar contadores y lista de módulos
+      // Actualizar contadores y lista de módulos inmediatamente
       fetchModulos();
       
+      // Hacer un segundo fetch después de 200ms para asegurar datos actualizados
+      setTimeout(() => {
+        fetchModulos();
+      }, 200);
+      
       // Si el módulo está expandido, recargar sus tareas
-      if (modulosExpandidos[data.id_modulo]) {
+      if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
         fetchTareasModulo(data.id_modulo);
+        // También recargar después de 200ms
+        setTimeout(() => {
+          fetchTareasModulo(data.id_modulo);
+        }, 200);
       }
     },
-    entrega_nueva: (data: any) => {
+    tarea_entregada_docente: (data: any) => {
       console.log("🎯 [WebSocket Docente] Nueva entrega recibida:", data);
       
       // Mostrar notificación con nombre del estudiante
-      const nombreEstudiante = data.entrega?.estudiante_nombre && data.entrega?.estudiante_apellido
-        ? `${data.entrega.estudiante_nombre} ${data.entrega.estudiante_apellido}`
-        : 'Un estudiante';
+      const nombreEstudiante = data.estudiante_nombre || 'Un estudiante';
       
       toast.success(`📥 ${nombreEstudiante} entregó una tarea`, {
         duration: 5000,
@@ -1563,6 +1570,9 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             setTareaEditar(null);
           }}
           onSuccess={() => {
+            // Actualizar lista de módulos para refrescar contadores
+            fetchModulos();
+            // Si hay un módulo seleccionado, actualizar sus tareas
             if (moduloSeleccionado) {
               fetchTareasModulo(moduloSeleccionado);
             }
