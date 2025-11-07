@@ -93,17 +93,11 @@ const itemsPerPage = 10;
       setSocketTrigger(prev => prev + 1);
     },
     'pago_verificado': (data: any) => {
-      console.log('✅ Pago verificado recibido vía socket:', data);
-      toast.success(`Pago verificado exitosamente (Cuota #${data.numero_cuota || ''})`, {
-        icon: <CheckCircle2 size={20} />,
-      });
+      console.log('✅ Pago verificado:', data);
       setSocketTrigger(prev => prev + 1);
     },
     'pago_rechazado': (data: any) => {
-      console.log('❌ Pago rechazado recibido vía socket:', data);
-      toast.error(`Pago rechazado (Cuota #${data.numero_cuota || ''})`, {
-        icon: <XCircle size={20} />,
-      });
+      console.log('❌ Pago rechazado:', data);
       setSocketTrigger(prev => prev + 1);
     }
   });
