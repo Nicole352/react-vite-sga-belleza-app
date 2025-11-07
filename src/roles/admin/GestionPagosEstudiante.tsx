@@ -237,7 +237,17 @@ est.cursos.forEach(curso => {
   };
 
   const openComprobanteModal = (pago: Pago) => {
-    const url = `${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante`;
+    // Obtener el token de autenticación
+    const token = sessionStorage.getItem('auth_token');
+    
+    // Agregar el token como parámetro de query para que funcione con <img>
+    const url = `${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante?token=${token}`;
+    
+    console.log('🖼️ Abriendo modal de comprobante:', {
+      id_pago: pago.id_pago,
+      numero_comprobante: pago.numero_comprobante,
+      url: url.replace(token || '', '***TOKEN***') // Ocultar token en logs
+    });
     setComprobanteUrl(url);
     setComprobanteNumero(pago.numero_comprobante || 'N/A');
     setShowComprobanteModal(true);
@@ -976,7 +986,7 @@ est.cursos.forEach(curso => {
       </div>
 
 
-      {/* Modal de detalle PREMIUM */}
+      {/* Modal de detalle MEJORADO */}
       {showModal && selectedPago && (
         <div
           className="modal-overlay"
@@ -985,34 +995,63 @@ est.cursos.forEach(curso => {
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '900px',
+              background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+            }}
           >
-            {/* Header */}
+            {/* Header Premium */}
             <div style={{
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              margin: '-1rem -1.5rem 1.5rem -1.5rem',
+              padding: '1.25rem 1.5rem',
+              borderRadius: '12px 12px 0 0',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '0.75rem',
-              paddingBottom: '0.75rem',
-              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
-                <h3 style={{
-                  margin: 0,
-                  fontSize: isMobile ? '1rem' : '1.1rem',
-                  fontWeight: '600',
-                  color: '#fff'
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
-                  Detalle del Pago
-                </h3>
+                  <FileText size={24} style={{ color: '#fff' }} />
+                </div>
+                <div>
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: '#fff',
+                    letterSpacing: '-0.02em'
+                  }}>
+                    Detalle del Pago
+                  </h3>
+                  <p style={{
+                    margin: '2px 0 0 0',
+                    fontSize: '0.85rem',
+                    color: 'rgba(255,255,255,0.9)',
+                    fontWeight: '500'
+                  }}>
+                    {selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'} #{selectedPago.numero_cuota} - {selectedPago.curso_nombre}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.3)',
                   borderRadius: '8px',
-                  padding: '6px',
+                  padding: '8px',
                   color: '#fff',
                   cursor: 'pointer',
                   display: 'flex',
@@ -1021,15 +1060,15 @@ est.cursos.forEach(curso => {
                   transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.25)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
@@ -1044,29 +1083,40 @@ est.cursos.forEach(curso => {
               }}>
                 {/* Monto */}
                 <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+                  borderRadius: '12px',
+                  padding: '1rem',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
+                  transition: 'all 0.3s ease'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.625rem',
+                    marginBottom: '0.5rem'
                   }}>
-                    <DollarSign size={16} style={{ color: '#10b981' }} />
+                    <div style={{
+                      background: 'rgba(16, 185, 129, 0.2)',
+                      borderRadius: '8px',
+                      padding: '6px',
+                      display: 'flex'
+                    }}>
+                      <DollarSign size={18} style={{ color: '#10b981' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'rgba(255,255,255,0.7)',
                       fontSize: '0.75rem',
                       fontWeight: '600',
-                      textTransform: 'uppercase'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>Monto</span>
                   </div>
                   <div style={{
                     color: '#10b981',
-                    fontSize: '1rem',
-                    fontWeight: '700'
+                    fontSize: '1.5rem',
+                    fontWeight: '800',
+                    fontFamily: 'Montserrat, sans-serif'
                   }}>
                     {formatearMonto(selectedPago.monto)}
                   </div>
@@ -1074,29 +1124,39 @@ est.cursos.forEach(curso => {
 
                 {/* Cuota/Clase */}
                 <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+                  borderRadius: '12px',
+                  padding: '1rem',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.1)'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.625rem',
+                    marginBottom: '0.5rem'
                   }}>
-                    <Calendar size={16} style={{ color: '#3b82f6' }} />
+                    <div style={{
+                      background: 'rgba(59, 130, 246, 0.2)',
+                      borderRadius: '8px',
+                      padding: '6px',
+                      display: 'flex'
+                    }}>
+                      <Calendar size={18} style={{ color: '#3b82f6' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'rgba(255,255,255,0.7)',
                       fontSize: '0.75rem',
                       fontWeight: '600',
-                      textTransform: 'uppercase'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>{selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}</span>
                   </div>
                   <div style={{
                     color: '#3b82f6',
-                    fontSize: '1rem',
-                    fontWeight: '700'
+                    fontSize: '1.5rem',
+                    fontWeight: '800',
+                    fontFamily: 'Montserrat, sans-serif'
                   }}>
                     #{selectedPago.numero_cuota}
                   </div>
@@ -1104,36 +1164,45 @@ est.cursos.forEach(curso => {
 
                 {/* Estado */}
                 <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
+                  borderRadius: '12px',
+                  padding: '1rem',
+                  border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.3)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                  boxShadow: `0 4px 12px ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.1)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)'}`
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.625rem',
+                    marginBottom: '0.5rem'
                   }}>
-                    <BarChart3 size={16} style={{ color: '#fbbf24' }} />
+                    <div style={{
+                      background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                      borderRadius: '8px',
+                      padding: '6px',
+                      display: 'flex'
+                    }}>
+                      <BarChart3 size={18} style={{ color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'rgba(255,255,255,0.7)',
                       fontSize: '0.75rem',
                       fontWeight: '600',
-                      textTransform: 'uppercase'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>Estado</span>
                   </div>
                   <span style={{
                     display: 'inline-block',
-                    padding: '4px 0.5rem',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.75rem',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.85rem',
                     fontWeight: '700',
                     textTransform: 'uppercase',
-                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' :
-                      selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' :
-                      selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444'
+                    letterSpacing: '0.05em',
+                    background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444',
+                    border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.3)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
                   }}>
                     {selectedPago.estado}
                   </span>
@@ -1309,6 +1378,80 @@ est.cursos.forEach(curso => {
                 </div>
               )}
 
+              {/* Comprobante de Pago - Imagen */}
+              {selectedPago.numero_comprobante && (
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  marginTop: '1rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <Download size={18} style={{ color: '#10b981' }} />
+                    <span style={{
+                      color: '#10b981',
+                      fontSize: '0.9rem',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Comprobante de Pago</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'flex-start',
+                    background: 'rgba(0,0,0,0.3)',
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    maxHeight: '500px',
+                    overflow: 'auto'
+                  }}>
+                    <img
+                      src={`${API_BASE}/api/admin/pagos/${selectedPago.id_pago}/comprobante?token=${sessionStorage.getItem('auth_token')}`}
+                      alt="Comprobante de pago"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        objectFit: 'contain',
+                        borderRadius: '0.375rem'
+                      }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentNode as HTMLElement;
+                        if (parent && !parent.querySelector('.error-msg')) {
+                          const errorDiv = document.createElement('div');
+                          errorDiv.className = 'error-msg';
+                          errorDiv.innerHTML = `
+                            <div style="text-align: center; color: rgba(255,255,255,0.6);">
+                              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+                              <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">No se pudo cargar el comprobante</p>
+                              <button onclick="window.open('${API_BASE}/api/admin/pagos/${selectedPago.id_pago}/comprobante?token=${sessionStorage.getItem('auth_token')}', '_blank')" style="
+                                background: rgba(16, 185, 129, 0.15);
+                                border: 1px solid rgba(16, 185, 129, 0.3);
+                                color: #10b981;
+                                padding: 0.5rem 1rem;
+                                border-radius: 0.375rem;
+                                cursor: pointer;
+                                font-size: 0.85rem;
+                                font-weight: 600;
+                              ">Abrir en nueva pestaña</button>
+                            </div>
+                          `;
+                          parent.appendChild(errorDiv);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Botón de cierre */}
               <div style={{
                 display: 'flex',
@@ -1354,9 +1497,10 @@ est.cursos.forEach(curso => {
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
-              maxWidth: '50rem',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              maxWidth: '500px',
+              width: '90%'
             }}
           >
             {/* Header */}
@@ -1426,29 +1570,49 @@ est.cursos.forEach(curso => {
               background: 'rgba(255,255,255,0.05)',
               borderRadius: '0.75rem',
               padding: '1rem',
-              overflow: 'hidden'
+              overflow: 'auto',
+              maxHeight: '60vh'
             }}>
               <img
                 src={comprobanteUrl}
                 alt="Comprobante de pago"
                 style={{
                   maxWidth: '100%',
-                  maxHeight: '100%',
+                  height: 'auto',
                   objectFit: 'contain',
                   borderRadius: '0.5rem'
                 }}
+                onLoad={(e) => {
+                  console.log('✅ Imagen del comprobante cargada correctamente');
+                }}
                 onError={(e) => {
+                  console.error('❌ Error al cargar imagen del comprobante:', comprobanteUrl);
                   (e.target as HTMLImageElement).style.display = 'none';
-                  const errorDiv = document.createElement('div');
-                  errorDiv.innerHTML = `
-                    <div style="text-align: center; color: rgba(255,255,255,0.7);">
-                      <p>No se pudo cargar la imagen del comprobante</p>
-                      <a href="${comprobanteUrl}" target="_blank" style="color: #10b981; text-decoration: underline;">
-                        Abrir en nueva pestaña
-                      </a>
-                    </div>
-                  `;
-                  (e.target as HTMLImageElement).parentNode?.appendChild(errorDiv);
+                  const parent = (e.target as HTMLImageElement).parentNode as HTMLElement;
+                  if (parent && !parent.querySelector('.error-message')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.innerHTML = `
+                      <div style="text-align: center; color: rgba(255,255,255,0.7); padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600;">No se pudo cargar la imagen del comprobante</p>
+                        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem;">El archivo puede estar dañado o no ser una imagen válida</p>
+                        <a href="${comprobanteUrl}" target="_blank" rel="noopener noreferrer" style="
+                          color: #10b981; 
+                          text-decoration: none;
+                          background: rgba(16, 185, 129, 0.15);
+                          border: 1px solid rgba(16, 185, 129, 0.3);
+                          padding: 0.5rem 1rem;
+                          border-radius: 0.5rem;
+                          display: inline-block;
+                          transition: all 0.2s ease;
+                        " onmouseover="this.style.background='rgba(16, 185, 129, 0.25)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.15)'">
+                          Intentar abrir en nueva pestaña
+                        </a>
+                      </div>
+                    `;
+                    parent.appendChild(errorDiv);
+                  }
                 }}
               />
             </div>
