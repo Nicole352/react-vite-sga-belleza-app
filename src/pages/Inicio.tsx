@@ -9,6 +9,7 @@ import {
   Heart
 } from 'lucide-react';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { gsap } from 'gsap';
@@ -363,6 +364,10 @@ const PaginaInicio: React.FC = () => {
           </div>
         </div>
       </section>
+      
+      {/* ChatBot flotante */}
+      <ChatBot />
+      
       <Footer />
 
       <style>{`
