@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader2 } from 'lucide-react';
 import '../styles/responsive.css';
 
@@ -57,11 +58,30 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="modal-overlay">
+  return createPortal(
+    <div 
+      className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        backdropFilter: 'blur(8px)',
+        background: 'rgba(0, 0, 0, 0.65)',
+        padding: '1rem'
+      }}
+    >
       <div 
         className="modal-content"
         style={{
+          position: 'relative',
           width: 'auto',
           maxWidth: '400px',
           minWidth: '300px',
@@ -71,9 +91,18 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           alignItems: 'center',
           gap: '1.25rem',
           background: darkMode 
-            ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' 
+            ? 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))'
             : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-          color: darkMode ? '#fff' : '#1e293b'
+          border: darkMode 
+            ? '1px solid var(--admin-border, rgba(255,255,255,0.1))'
+            : '1px solid rgba(203, 213, 225, 0.3)',
+          borderRadius: '12px',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+          color: darkMode 
+            ? 'var(--admin-text-primary, #fff)'
+            : '#1f2937',
+          animation: 'scaleIn 0.3s ease-out',
+          margin: 'auto'
         }}
       >
         {/* Spinner animado */}
@@ -86,8 +115,8 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: darkMode
-            ? '0 0.5rem 1.5rem rgba(59, 130, 246, 0.2)'
-            : '0 0.5rem 1.5rem rgba(59, 130, 246, 0.15)'
+            ? `0 0.5rem 1.5rem ${colorTheme === 'red' ? 'rgba(239, 68, 68, 0.2)' : colorTheme === 'blue' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(234, 179, 8, 0.2)'}`
+            : `0 0.5rem 1.5rem ${colorTheme === 'red' ? 'rgba(239, 68, 68, 0.15)' : colorTheme === 'blue' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(234, 179, 8, 0.15)'}`
         }}>
           <Loader2 
             size={32} 
@@ -105,14 +134,18 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           <div style={{
             fontSize: '1rem',
             fontWeight: '600',
-            color: darkMode ? '#e2e8f0' : '#1e293b',
+            color: darkMode 
+              ? 'var(--admin-text-primary, #e2e8f0)'
+              : '#1f2937',
             marginBottom: '0.375rem'
           }}>
             {message}
           </div>
           <div style={{
             fontSize: '0.8125rem',
-            color: darkMode ? '#94a3b8' : '#64748b',
+            color: darkMode 
+              ? 'var(--admin-text-secondary, #94a3b8)'
+              : '#6b7280',
             fontWeight: '500'
           }}>
             Por favor espera un momento
@@ -124,7 +157,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           width: '100%',
           height: '4px',
           background: darkMode 
-            ? 'rgba(148, 163, 184, 0.2)' 
+            ? 'var(--admin-input-bg, rgba(148, 163, 184, 0.2))'
             : 'rgba(203, 213, 225, 0.3)',
           borderRadius: '2px',
           overflow: 'hidden'
@@ -178,7 +211,8 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 };
 

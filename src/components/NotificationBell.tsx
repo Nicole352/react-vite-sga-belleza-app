@@ -1,5 +1,17 @@
 ﻿import React, { useState, useEffect, useRef } from "react";
-import { Bell, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  AlertCircle,
+  Bell,
+  BellDot,
+  CheckSquare,
+  ClipboardList,
+  CreditCard,
+  GraduationCap,
+  Layers,
+  Star,
+  X
+} from "lucide-react";
 import { useBreakpoints } from "../hooks/useMediaQuery";
 
 interface Notificacion {
@@ -18,6 +30,52 @@ interface NotificationBellProps {
   darkMode?: boolean;
   bellColor?: string; // Color del gradiente para el botón de campana
 }
+
+const iconByTipo: Record<Notificacion["tipo"], LucideIcon> = {
+  modulo: Layers,
+  tarea: CheckSquare,
+  pago: CreditCard,
+  calificacion: Star,
+  matricula: GraduationCap,
+  general: BellDot
+};
+
+const iconPaletteByTipo: Record<Notificacion["tipo"], {
+  light: { bg: string; border: string; color: string };
+  dark: { bg: string; border: string; color: string };
+}> = {
+  modulo: {
+    light: { bg: "rgba(14, 165, 233, 0.12)", border: "1px solid rgba(14, 165, 233, 0.18)", color: "#0284c7" },
+    dark: { bg: "rgba(14, 165, 233, 0.22)", border: "1px solid rgba(14, 165, 233, 0.28)", color: "#38bdf8" }
+  },
+  tarea: {
+    light: { bg: "rgba(34, 197, 94, 0.12)", border: "1px solid rgba(34, 197, 94, 0.18)", color: "#16a34a" },
+    dark: { bg: "rgba(34, 197, 94, 0.22)", border: "1px solid rgba(34, 197, 94, 0.28)", color: "#4ade80" }
+  },
+  pago: {
+    light: { bg: "rgba(249, 115, 22, 0.12)", border: "1px solid rgba(249, 115, 22, 0.18)", color: "#ea580c" },
+    dark: { bg: "rgba(249, 115, 22, 0.22)", border: "1px solid rgba(249, 115, 22, 0.28)", color: "#fb923c" }
+  },
+  calificacion: {
+    light: { bg: "rgba(251, 191, 36, 0.14)", border: "1px solid rgba(251, 191, 36, 0.18)", color: "#d97706" },
+    dark: { bg: "rgba(251, 191, 36, 0.24)", border: "1px solid rgba(251, 191, 36, 0.28)", color: "#facc15" }
+  },
+  matricula: {
+    light: { bg: "rgba(59, 130, 246, 0.12)", border: "1px solid rgba(59, 130, 246, 0.18)", color: "#2563eb" },
+    dark: { bg: "rgba(59, 130, 246, 0.22)", border: "1px solid rgba(59, 130, 246, 0.28)", color: "#60a5fa" }
+  },
+  general: {
+    light: { bg: "rgba(148, 163, 184, 0.12)", border: "1px solid rgba(148, 163, 184, 0.18)", color: "#475569" },
+    dark: { bg: "rgba(148, 163, 184, 0.22)", border: "1px solid rgba(148, 163, 184, 0.28)", color: "#cbd5f9" }
+  }
+};
+
+const sanitizeNotificationText = (text: string) =>
+  text
+    // Remueve emojis para que solo se muestre el texto en el panel
+    .replace(/[\p{Extended_Pictographic}\u2600-\u27BF\uFE0F]+/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ 
   notificaciones, 
@@ -355,63 +413,86 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                 </div>
               ) : (
                 <>
-                  {notificacionesRecientes.map((notif) => (
-                    <div
-                      key={notif.id}
-                      style={{
-                        padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem",
-                        borderBottom: `0.0625rem solid ${darkMode ? "#334155" : "#f1f5f9"}`,
-                        cursor: "default",
-                        background: !notif.leida 
-                          ? (darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(150, 150, 150, 0.05)") 
-                          : "transparent",
-                        transition: "all 0.15s ease",
-                        position: "relative"
-                      }}
-                    >
-                      <div style={{ display: "flex", gap: isMobile ? "0.75rem" : "1rem", alignItems: "start" }}>
-                        <div style={{ flex: 1, minWidth: 0 }}> {/* minWidth: 0 para permitir text-overflow */}
-                          <div style={{ 
-                            fontSize: isMobile ? "0.825rem" : "0.875rem",
-                            fontWeight: notif.leida ? "500" : "600", 
-                            color: darkMode ? "#f1f5f9" : "#1e293b", 
-                            marginBottom: "0.375rem",
-                            lineHeight: "1.4",
-                            wordBreak: "break-word"
-                          }}>
-                            {notif.titulo}
+                  {notificacionesRecientes.map((notif) => {
+                    const IconComponent = iconByTipo[notif.tipo] ?? AlertCircle;
+                    const palette = iconPaletteByTipo[notif.tipo] ?? iconPaletteByTipo.general;
+                    const iconVisual = darkMode ? palette.dark : palette.light;
+                    const tituloLimpio = sanitizeNotificationText(notif.titulo) || notif.titulo;
+                    const mensajeLimpio = sanitizeNotificationText(notif.mensaje) || notif.mensaje;
+
+                    return (
+                      <div
+                        key={notif.id}
+                        style={{
+                          padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem",
+                          borderBottom: `0.0625rem solid ${darkMode ? "#334155" : "#f1f5f9"}`,
+                          cursor: "default",
+                          background: !notif.leida 
+                            ? (darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(150, 150, 150, 0.05)") 
+                            : "transparent",
+                          transition: "all 0.15s ease",
+                          position: "relative"
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: isMobile ? "0.75rem" : "1rem", alignItems: "flex-start" }}>
+                          <div
+                            style={{
+                              width: isMobile ? "2.25rem" : "2.5rem",
+                              height: isMobile ? "2.25rem" : "2.5rem",
+                              borderRadius: "0.75rem",
+                              background: iconVisual.bg,
+                              border: iconVisual.border,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0
+                            }}
+                          >
+                            <IconComponent size={isMobile ? 18 : 20} color={iconVisual.color} strokeWidth={1.65} />
                           </div>
-                          <div style={{ 
-                            fontSize: isMobile ? "0.75rem" : "0.8rem", 
-                            color: darkMode ? "#cbd5e1" : "#64748b",
-                            lineHeight: "1.5",
-                            marginBottom: "0.5rem",
-                            wordBreak: "break-word"
-                          }}>
-                            {notif.mensaje}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ 
+                              fontSize: isMobile ? "0.825rem" : "0.875rem",
+                              fontWeight: notif.leida ? "500" : "600", 
+                              color: darkMode ? "#f1f5f9" : "#1e293b", 
+                              marginBottom: "0.375rem",
+                              lineHeight: "1.4",
+                              wordBreak: "break-word"
+                            }}>
+                              {tituloLimpio}
+                            </div>
+                            <div style={{ 
+                              fontSize: isMobile ? "0.75rem" : "0.8rem", 
+                              color: darkMode ? "#cbd5e1" : "#64748b",
+                              lineHeight: "1.5",
+                              marginBottom: "0.5rem",
+                              wordBreak: "break-word"
+                            }}>
+                              {mensajeLimpio}
+                            </div>
+                            <div style={{ 
+                              fontSize: isMobile ? "0.675rem" : "0.7rem", 
+                              color: darkMode ? "#64748b" : "#94a3b8",
+                              fontWeight: "500"
+                            }}>
+                              {formatearFecha(notif.fecha)}
+                            </div>
                           </div>
-                          <div style={{ 
-                            fontSize: isMobile ? "0.675rem" : "0.7rem", 
-                            color: darkMode ? "#64748b" : "#94a3b8",
-                            fontWeight: "500"
-                          }}>
-                            {formatearFecha(notif.fecha)}
-                          </div>
+                          {!notif.leida && (
+                            <span style={{ 
+                              width: isMobile ? "0.5rem" : "0.625rem", 
+                              height: isMobile ? "0.5rem" : "0.625rem", 
+                              borderRadius: "50%", 
+                              background: bellColor,
+                              flexShrink: 0,
+                              marginTop: "0.25rem",
+                              boxShadow: "0 0 0 0.1875rem rgba(0, 0, 0, 0.08)"
+                            }} />
+                          )}
                         </div>
-                        {!notif.leida && (
-                          <span style={{ 
-                            width: isMobile ? "0.5rem" : "0.625rem", 
-                            height: isMobile ? "0.5rem" : "0.625rem", 
-                            borderRadius: "50%", 
-                            background: bellColor,
-                            flexShrink: 0,
-                            marginTop: "0.25rem",
-                            boxShadow: "0 0 0 0.1875rem rgba(0, 0, 0, 0.08)"
-                          }} />
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {notificaciones.length > 10 && (
                     <div style={{
                       padding: isMobile ? "0.875rem 1.25rem" : "1rem 1.5rem",

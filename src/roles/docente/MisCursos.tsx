@@ -146,14 +146,14 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ marginBottom: '1.25em' }}>
         <h2 style={{
-          fontSize: '1.25rem',
-          fontWeight: '800',
+          fontSize: '1.5rem',
+          fontWeight: '700',
           color: theme.textPrimary,
-          margin: '0 0 0.25em 0'
+          margin: '0 0 0.375rem 0'
         }}>
           Mis Cursos Asignados
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
           Gestiona tus cursos y estudiantes
         </p>
       </div>

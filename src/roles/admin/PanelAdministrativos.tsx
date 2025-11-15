@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react';
 import {
-  Users, BookOpen, MapPin, BarChart3, GraduationCap, UserCheck, FileText, Building2, DollarSign, Menu, X, UserCircle, Gift
+  BarChart3,
+  Layers,
+  NotebookPen,
+  Gift,
+  ClipboardCheck,
+  GraduationCap,
+  CreditCard,
+  UserCog,
+  ShieldCheck,
+  Building2,
+  MapPin,
+  FilePieChart,
+  Menu,
+  UserCircle,
+  X
 } from 'lucide-react';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -134,17 +148,17 @@ const PanelAdministrativos = () => {
 
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
-    { id: 'tipos', name: 'Tipos de Curso', icon: BookOpen },
-    { id: 'cursos', name: 'Gestión Cursos', icon: BookOpen },
+    { id: 'tipos', name: 'Tipos de Curso', icon: Layers },
+    { id: 'cursos', name: 'Gestión Cursos', icon: NotebookPen },
     { id: 'promociones', name: 'Promociones', icon: Gift },
-    { id: 'matricula', name: 'Gestión Matrícula', icon: GraduationCap },
-    { id: 'estudiantes', name: 'Gestión Estudiantes', icon: Users },
-    { id: 'pagos', name: 'Gestión de Pagos', icon: DollarSign },
-    { id: 'docentes', name: 'Gestión Docentes', icon: UserCheck },
-    { id: 'control-usuarios', name: 'Control de Usuarios', icon: Users },
+    { id: 'matricula', name: 'Gestión Matrícula', icon: ClipboardCheck },
+    { id: 'estudiantes', name: 'Gestión Estudiantes', icon: GraduationCap },
+    { id: 'pagos', name: 'Gestión de Pagos', icon: CreditCard },
+    { id: 'docentes', name: 'Gestión Docentes', icon: UserCog },
+    { id: 'control-usuarios', name: 'Control de Usuarios', icon: ShieldCheck },
     { id: 'gestion-aulas', name: 'Gestión Aulas', icon: Building2 },
     { id: 'asignacion-aulas', name: 'Asignación Aula', icon: MapPin },
-    { id: 'reportes', name: 'Reportes', icon: FileText },
+    { id: 'reportes', name: 'Reportes', icon: FilePieChart },
     { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
@@ -228,7 +242,7 @@ const PanelAdministrativos = () => {
           top: 0,
           zIndex: 1000,
           boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowY: isSmallScreen ? 'auto' : 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -252,7 +266,7 @@ const PanelAdministrativos = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 10
               }}
               onMouseEnter={(e) => {
@@ -286,7 +300,7 @@ const PanelAdministrativos = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 10
               }}
             >
@@ -341,9 +355,9 @@ const PanelAdministrativos = () => {
                     fontWeight: '500',
                     letterSpacing: '0.05em',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
+                    transition: 'background 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'left',
-                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)' : 'none',
+                    boxShadow: activeTab === tab.id ? '0 0.25rem 0.75rem rgba(239, 68, 68, 0.15)' : 'none',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden'
                   }}
@@ -375,7 +389,7 @@ const PanelAdministrativos = () => {
           flex: 1,
           padding: isMobile ? '0.75em' : '1.25rem',
           minHeight: '100vh',
-          transition: 'margin-left 0.3s ease',
+          transition: 'margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           width: isSmallScreen ? '100%' : 'auto',
           maxWidth: '100%',
           overflowX: 'hidden',
@@ -413,7 +427,7 @@ const PanelAdministrativos = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                     flexShrink: 0
                   }}
                 >
@@ -499,8 +513,8 @@ const PanelAdministrativos = () => {
             {activeTab === 'gestion-aulas' && <AdminThemeWrapper darkMode={darkMode}><GestionAulas /></AdminThemeWrapper>}
             {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
             {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
-            {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes /></AdminThemeWrapper>}
-            {activeTab === 'perfil' && <AdminThemeWrapper darkMode={darkMode}><Perfil /></AdminThemeWrapper>}
+            {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes darkMode={darkMode} /></AdminThemeWrapper>}
+            {activeTab === 'perfil' && <AdminThemeWrapper darkMode={darkMode}><Perfil darkMode={darkMode} /></AdminThemeWrapper>}
           </div>
         </div>
       </div>

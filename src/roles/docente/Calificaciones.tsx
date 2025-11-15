@@ -82,39 +82,22 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
     <DocenteThemeWrapper darkMode={darkMode}>
     <div>
       {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '1rem',
-        padding: '1.5rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{
-            width: '3.5rem',
-            height: '3.5rem',
-            background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
-            borderRadius: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <BookOpen size={24} color="#fff" />
-          </div>
-          <div>
-            <h1 style={{
-              color: theme.textPrimary,
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              margin: 0
-            }}>
-              Calificaciones
-            </h1>
-            <p style={{ color: theme.textMuted, margin: '0.25rem 0 0 0' }}>
-              Selecciona un curso para ver las calificaciones de los estudiantes
-            </p>
-          </div>
-        </div>
+      <div style={{ marginBottom: '1rem' }}>
+        <h1 style={{
+          color: theme.textPrimary,
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          margin: '0 0 0.375rem 0'
+        }}>
+          Calificaciones
+        </h1>
+        <p style={{ 
+          color: theme.textMuted, 
+          fontSize: '0.8125rem',
+          margin: 0 
+        }}>
+          Selecciona un curso para ver las calificaciones de los estudiantes
+        </p>
       </div>
 
       {/* Tabs for filtering courses */}

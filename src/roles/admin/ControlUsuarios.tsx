@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, Lock, Unlock } from 'lucide-react';
-import toast from 'react-hot-toast';
+import type { CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
+import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, Lock, Unlock, ArrowLeftRight, Hash, CreditCard, Building, RefreshCcw, Tag, Mail, Phone, Paperclip, Star, MessageSquare, Timer, AlignLeft, Info, FileSignature, type LucideIcon } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import LoadingModal from '../../components/LoadingModal';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
+
+type CSSPropertiesWithVars = CSSProperties & Record<string, string | number>;
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -62,37 +67,6 @@ interface Accion {
   fecha_hora?: string;
 }
 
-interface Pago {
-  id_pago: number;
-  numero_cuota: number;
-  monto: number;
-  fecha_pago: string;
-  metodo_pago: string;
-  numero_comprobante: string;
-  banco_comprobante?: string;
-  recibido_por?: string;
-  estado: string;
-  observaciones?: string;
-  curso_nombre: string;
-  curso_codigo: string;
-}
-
-interface Deber {
-  id_entrega: number;
-  fecha_entrega: string;
-  calificacion?: number;
-  comentario_docente?: string;
-  estado: string;
-  archivo_nombre: string;
-  archivo_size_kb: number;
-  deber_titulo: string;
-  deber_descripcion?: string;
-  deber_fecha_limite: string;
-  curso_nombre: string;
-  curso_codigo: string;
-  docente_nombre?: string;
-}
-
 interface Stats {
   totalUsuarios: number;
   usuariosActivos: number;
@@ -104,6 +78,80 @@ interface Stats {
 
 const ControlUsuarios = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
+
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('admin-dark-mode');
+      const newMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(prev => (prev === newMode ? prev : newMode));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const pick = (light: string, dark: string) => (darkMode ? dark : light);
+
+  const textPrimaryColor = pick('#0f172a', 'rgba(255,255,255,0.98)');
+  const textSecondaryColor = pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)');
+  const textMutedColor = pick('rgba(100,116,139,0.7)', 'rgba(148,163,184,0.65)');
+
+  const statsCardBg = pick(
+    'linear-gradient(135deg, rgba(255,255,255,0.94) 0%, rgba(248,250,252,0.9) 100%)',
+    'rgba(255,255,255,0.03)'
+  );
+  const statsCardBorder = pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)');
+
+  const filterInputBg = pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.1)');
+  const filterInputBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.18)');
+  const filterInputText = pick('#0f172a', 'rgba(255,255,255,0.95)');
+  const filterIconColor = pick('rgba(100,116,139,0.6)', 'rgba(226,232,240,0.6)');
+
+  const tableContainerBg = pick(
+    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+  );
+  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
+  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
+  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
+  const tableHeaderText = pick('#9f1239', '#ffffff');
+  const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
+  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+
+  const paginationSurface = pick(
+    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+  );
+  const paginationBorder = pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.25)');
+  const paginationText = pick('rgba(30,41,59,0.85)', 'rgba(226,232,240,0.8)');
+  const paginationButtonBg = pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.1)');
+  const paginationButtonBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.2)');
+  const paginationButtonText = pick('rgba(30,41,59,0.85)', '#f8fafc');
+  const paginationButtonDisabledBg = pick('rgba(226,232,240,0.6)', 'rgba(255,255,255,0.05)');
+  const paginationButtonDisabledText = pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.3)');
+  const activePageBg = pick(
+    `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
+    `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
+  );
+  const activePageBorder = pick('rgba(239,68,68,0.3)', 'rgba(239,68,68,0.4)');
+  const inactivePageBg = pick('rgba(226,232,240,0.9)', 'rgba(255,255,255,0.08)');
+  const inactivePageBorder = pick('rgba(148,163,184,0.45)', 'rgba(255,255,255,0.15)');
+
+  const rootStyles: CSSPropertiesWithVars = {
+    color: textPrimaryColor,
+    '--admin-text-primary': textPrimaryColor,
+    '--admin-text-secondary': textSecondaryColor,
+    '--admin-text-muted': textMutedColor,
+    '--admin-input-bg': filterInputBg,
+    '--admin-input-border': filterInputBorder,
+    '--admin-input-text': filterInputText,
+    '--admin-card-bg': tableContainerBg,
+    '--admin-border': pick('rgba(15,23,42,0.1)', 'rgba(255,255,255,0.08)')
+  };
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -130,8 +178,8 @@ const ControlUsuarios = () => {
   const [tabActiva, setTabActiva] = useState<'info' | 'sesiones' | 'acciones'>('info');
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
   const [acciones, setAcciones] = useState<Accion[]>([]);
-  const [pagos, setPagos] = useState<any[]>([]);
-  const [deberes, setDeberes] = useState<any[]>([]);
+  const [, setPagos] = useState<any[]>([]);
+  const [, setDeberes] = useState<any[]>([]);
   const [loadingModal, setLoadingModal] = useState(false);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
 
@@ -443,9 +491,9 @@ const ControlUsuarios = () => {
       await cargarStats();
       setShowConfirmModal(false);
       setAccionConfirmar(null);
-      toast.success(`Usuario ${accionConfirmar.tipo === 'activar' ? 'activado' : 'desactivado'} correctamente`);
+      showToast.success(`Usuario ${accionConfirmar.tipo === 'activar' ? 'activado' : 'desactivado'} correctamente`, darkMode);
     } catch (err: any) {
-      toast.error(err.message || 'Error al cambiar estado del usuario');
+      showToast.error(err?.message || 'Error al cambiar estado del usuario', darkMode);
     }
   };
 
@@ -473,36 +521,21 @@ const ControlUsuarios = () => {
       setShowConfirmModal(false);
       setAccionConfirmar(null);
       setShowCredencialesModal(true);
-      toast.success('Contraseña reseteada correctamente');
+      showToast.success('Contraseña reseteada correctamente', darkMode);
     } catch (err: any) {
-      toast.error(err.message || 'Error al resetear contraseña');
+      showToast.error(err?.message || 'Error al resetear contraseña', darkMode);
       setShowConfirmModal(false);
       setAccionConfirmar(null);
     }
   };
 
   return (
-    <div>
+    <div style={rootStyles}>
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem'
-        }}>
-          <Users size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
-          Control de Usuarios
-        </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Gestiona todos los usuarios del sistema
-        </p>
-      </div>
+      <AdminSectionHeader
+        title="Control de Usuarios"
+        subtitle="Gestiona todos los usuarios del sistema"
+      />
 
       {/* Estadísticas - Compactas y horizontales */}
       <div style={{
@@ -513,8 +546,8 @@ const ControlUsuarios = () => {
       }}>
         {/* Total Usuarios */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -534,8 +567,8 @@ const ControlUsuarios = () => {
             <Users size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Total</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Total</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.totalUsuarios}
             </div>
           </div>
@@ -543,8 +576,8 @@ const ControlUsuarios = () => {
 
         {/* Activos */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -564,8 +597,8 @@ const ControlUsuarios = () => {
             <UserCheck size={16} color="#10b981" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Activos</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Activos</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.usuariosActivos}
             </div>
           </div>
@@ -573,8 +606,8 @@ const ControlUsuarios = () => {
 
         {/* Inactivos */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -594,8 +627,8 @@ const ControlUsuarios = () => {
             <Power size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Inactivos</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Inactivos</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.usuariosInactivos}
             </div>
           </div>
@@ -603,8 +636,8 @@ const ControlUsuarios = () => {
 
         {/* Admins */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -624,8 +657,8 @@ const ControlUsuarios = () => {
             <Shield size={16} color="#ef4444" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Admins</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Admins</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.totalAdministradores}
             </div>
           </div>
@@ -633,8 +666,8 @@ const ControlUsuarios = () => {
 
         {/* Docentes */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -654,8 +687,8 @@ const ControlUsuarios = () => {
             <UserCheck size={16} color="#3b82f6" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Docentes</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Docentes</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.totalDocentes}
             </div>
           </div>
@@ -663,8 +696,8 @@ const ControlUsuarios = () => {
 
         {/* Estudiantes */}
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: statsCardBg,
+          border: `1px solid ${statsCardBorder}`,
           borderRadius: '0.625rem',
           padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
           transition: 'all 0.2s ease',
@@ -684,8 +717,8 @@ const ControlUsuarios = () => {
             <GraduationCap size={16} color="#22c55e" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Estudiantes</div>
-            <div style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Estudiantes</div>
+            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : stats.totalEstudiantes}
             </div>
           </div>
@@ -712,7 +745,7 @@ const ControlUsuarios = () => {
               transform: 'translateY(-50%)',
               width: '1.25rem',
               height: '1.25rem',
-              color: 'rgba(255,255,255,0.5)'
+              color: filterIconColor
             }} />
             <input
               type="text"
@@ -726,10 +759,10 @@ const ControlUsuarios = () => {
                 width: '100%',
                 padding: '0.625em 0.75em 0.625em 2.5em',
                 borderRadius: '0.5em',
-                border: '0.0625rem solid #e2e8f0',
-                backgroundColor: 'rgba(255,255,255,0.1)',
+                border: `0.0625rem solid ${filterInputBorder}`,
+                backgroundColor: filterInputBg,
                 fontSize: '0.9rem',
-                color: 'rgba(255,255,255,0.95)'
+                color: filterInputText
               }}
             />
           </div>
@@ -743,10 +776,11 @@ const ControlUsuarios = () => {
             style={{
               padding: '0.625em 1em',
               borderRadius: '0.5em',
-              border: '0.0625rem solid #e2e8f0',
-              backgroundColor: 'rgba(255,255,255,0.1)',
+              border: `0.0625rem solid ${filterInputBorder}`,
+              backgroundColor: filterInputBg,
               fontSize: '0.9rem',
               cursor: 'pointer',
+              color: filterInputText,
               width: isMobile ? '100%' : 'auto'
             }}
           >
@@ -765,10 +799,10 @@ const ControlUsuarios = () => {
             style={{
               padding: '0.625em 1em',
               borderRadius: '0.5em',
-              border: '0.0625rem solid #e2e8f0',
-              backgroundColor: 'rgba(255,255,255,0.1)',
+              border: `0.0625rem solid ${filterInputBorder}`,
+              backgroundColor: filterInputBg,
               fontSize: '0.9rem',
-              color: 'rgba(255,255,255,0.95)',
+              color: filterInputText,
               cursor: 'pointer',
               width: isMobile ? '100%' : 'auto'
             }}
@@ -803,12 +837,12 @@ const ControlUsuarios = () => {
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
+                background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
+                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
                 marginBottom: '0.75rem',
-                color: '#ef4444',
+                color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
                 fontSize: '0.75rem',
                 textAlign: 'center',
                 display: 'flex',
@@ -816,53 +850,53 @@ const ControlUsuarios = () => {
                 justifyContent: 'center',
                 gap: '0.375rem'
               }}>
-                <span>??</span>
+                <ArrowLeftRight size={16} strokeWidth={2.25} />
                 <span>Desliza horizontalmente para ver toda la tabla</span>
-                <span>??</span>
+                <ArrowLeftRight size={16} strokeWidth={2.25} />
               </div>
             )}
 
             <div className="responsive-table-container" style={{
               overflowX: 'auto',
               borderRadius: isMobile ? '12px' : '1rem',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+              border: `1px solid ${tableBorder}`,
+              background: tableContainerBg,
               marginBottom: isMobile ? '12px' : '1.5rem'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{
-                  borderBottom: '1px solid rgba(248, 113, 113, 0.3)',
-                  background: 'rgba(248, 113, 113, 0.15)'
+                  borderBottom: `1px solid ${tableHeaderBorder}`,
+                  background: tableHeaderBg
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Email</th>
-                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: '#fff', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Email</th>
+                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usuarios.map((usuario) => (
                     <tr key={usuario.id_usuario} style={{
-                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      borderBottom: `1px solid ${tableRowDivider}`,
                       transition: 'all 0.2s ease'
                     }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: textPrimaryColor, fontWeight: 600 }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontWeight: '600', color: '#fff', marginBottom: '0.1875rem', fontSize: '0.8rem' }}>
+                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.1875rem', fontSize: '0.8rem' }}>
                           {usuario.nombre} {usuario.apellido}
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)' }}>{usuario.cedula}</div>
+                        <div style={{ fontSize: '0.7rem', color: textMutedColor }}>{usuario.cedula}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
@@ -870,7 +904,7 @@ const ControlUsuarios = () => {
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>{usuario.email || '-'}</div>
+                        <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
@@ -878,7 +912,7 @@ const ControlUsuarios = () => {
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                        <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
@@ -974,12 +1008,12 @@ const ControlUsuarios = () => {
                 alignItems: isMobile ? 'stretch' : 'center',
                 gap: isMobile ? '0.75rem' : '0',
                 padding: isMobile ? '16px' : '20px 1.5rem',
-                background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                background: paginationSurface,
+                border: `1px solid ${paginationBorder}`,
                 borderRadius: '1rem',
               }}>
                 <div style={{
-                  color: 'rgba(255,255,255,0.7)',
+                  color: paginationText,
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   textAlign: isMobile ? 'center' : 'left'
                 }}>
@@ -1000,10 +1034,10 @@ const ControlUsuarios = () => {
                       justifyContent: 'center',
                       gap: isMobile ? '4px' : '0.375rem',
                       padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                      background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      background: page === 1 ? paginationButtonDisabledBg : paginationButtonBg,
+                      border: `1px solid ${paginationButtonBorder}`,
                       borderRadius: '0.625rem',
-                      color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                      color: page === 1 ? paginationButtonDisabledText : paginationButtonText,
                       fontSize: isMobile ? '0.8rem' : '0.9rem',
                       fontWeight: 600,
                       cursor: page === 1 ? 'not-allowed' : 'pointer',
@@ -1020,10 +1054,10 @@ const ControlUsuarios = () => {
                       onClick={() => setPage(pageNum)}
                       style={{
                         padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                        background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
-                        border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
+                        background: page === pageNum ? activePageBg : inactivePageBg,
+                        border: page === pageNum ? `1px solid ${activePageBorder}` : `1px solid ${inactivePageBorder}`,
                         borderRadius: '0.625rem',
-                        color: '#fff',
+                        color: page === pageNum ? '#ffffff' : paginationButtonText,
                         fontSize: isMobile ? '0.8rem' : '0.9rem',
                         fontWeight: 600,
                         cursor: 'pointer',
@@ -1043,10 +1077,10 @@ const ControlUsuarios = () => {
                       justifyContent: 'center',
                       gap: isMobile ? '4px' : '0.375rem',
                       padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                      background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      background: page === totalPages ? paginationButtonDisabledBg : paginationButtonBg,
+                      border: `1px solid ${paginationButtonBorder}`,
                       borderRadius: '0.625rem',
-                      color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                      color: page === totalPages ? paginationButtonDisabledText : paginationButtonText,
                       fontSize: isMobile ? '0.8rem' : '0.9rem',
                       fontWeight: 600,
                       cursor: page === totalPages ? 'not-allowed' : 'pointer',
@@ -1071,8 +1105,6 @@ const ControlUsuarios = () => {
         tabActiva={tabActiva}
         sesiones={sesiones}
         acciones={acciones}
-        pagos={pagos}
-        deberes={deberes}
         loadingModal={loadingModal}
         onClose={() => setShowModal(false)}
         onChangeTab={setTabActiva}
@@ -1080,6 +1112,7 @@ const ControlUsuarios = () => {
         formatFecha={formatFecha}
         getRolColor={getRolColor}
         getEstadoColor={getEstadoColor}
+        darkMode={darkMode}
       />
 
       <ModalConfirmacion
@@ -1111,7 +1144,7 @@ const ControlUsuarios = () => {
       <LoadingModal
         isOpen={showLoadingModal}
         message="Actualizando datos..."
-        darkMode={true}
+        darkMode={darkMode}
         duration={500}
         onComplete={() => setShowLoadingModal(false)}
         colorTheme="red"
@@ -1130,8 +1163,6 @@ interface ModalDetalleProps {
   tabActiva: 'info' | 'sesiones' | 'acciones';
   sesiones: Sesion[];
   acciones: Accion[];
-  pagos: Pago[];
-  deberes: Deber[];
   loadingModal: boolean;
   onClose: () => void;
   onChangeTab: (tab: 'info' | 'sesiones' | 'acciones') => void;
@@ -1139,6 +1170,7 @@ interface ModalDetalleProps {
   formatFecha: (fecha: string | null) => string;
   getRolColor: (rol: string) => string;
   getEstadoColor: (estado: string) => string;
+  darkMode: boolean;
 }
 
 const ModalDetalle = ({
@@ -1147,15 +1179,14 @@ const ModalDetalle = ({
   tabActiva,
   sesiones,
   acciones,
-  pagos,
-  deberes,
   loadingModal,
   onClose,
   onChangeTab,
   onRecargarAcciones,
   formatFecha,
   getRolColor,
-  getEstadoColor
+  getEstadoColor,
+  darkMode
 }: ModalDetalleProps) => {
   // Estado local para filtro de acciones
   const [filtroAcciones, setFiltroAcciones] = React.useState<'todas' | 'administrativas' | 'academicas'>('todas');
@@ -1170,31 +1201,189 @@ const ModalDetalle = ({
   // Verificación temprana
   if (!show || !usuario) return null;
 
-  // Verificar si el usuario es estudiante
-  const esEstudiante = usuario.nombre_rol?.toLowerCase() === 'estudiante';
+  const theme = {
+    modalBackground: darkMode
+      ? 'linear-gradient(135deg, rgba(15,16,28,0.96) 0%, rgba(26,28,44,0.96) 100%)'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%)',
+    modalBorder: darkMode ? 'rgba(239,68,68,0.24)' : 'rgba(248,113,113,0.32)',
+    modalShadow: darkMode ? '0 20px 60px -12px rgba(0,0,0,0.6)' : '0 28px 48px -18px rgba(15,23,42,0.22)',
+    textPrimary: darkMode ? 'rgba(255,255,255,0.95)' : '#0f172a',
+    textSecondary: darkMode ? 'rgba(226,232,240,0.72)' : 'rgba(71,85,105,0.88)',
+    textMuted: darkMode ? 'rgba(148,163,184,0.65)' : 'rgba(100,116,139,0.75)',
+    divider: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.22)',
+    surface: darkMode ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
+    surfaceBorder: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.22)',
+    surfaceMuted: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.04)',
+    accentRed: darkMode ? '#fca5a5' : '#dc2626',
+    accentYellow: darkMode ? '#fbbf24' : '#b45309',
+    accentYellowSoft: darkMode ? 'rgba(251,191,36,0.12)' : 'rgba(253,230,138,0.25)',
+    accentRedSoft: darkMode ? 'rgba(248,113,113,0.16)' : 'rgba(254,202,202,0.6)',
+    sessionActiveBorder: darkMode ? 'rgba(16,185,129,0.55)' : 'rgba(5,150,105,0.35)',
+    sessionInactiveBorder: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(203,213,225,0.5)',
+    overlay: darkMode ? 'rgba(6,7,12,0.72)' : 'rgba(15,23,42,0.35)'
+  };
 
-  // Debug: Log para verificar datos
-  console.log('?? Modal - Datos recibidos:', {
-    esEstudiante,
-    pagosLength: pagos?.length || 0,
-    deberesLength: deberes?.length || 0,
-    tabActiva
-  });
-  
-  // DEBUG: Verificar foto en modal (simplificado)
-  const tieneF = !!usuario.foto_perfil;
-  const esString = typeof usuario.foto_perfil === 'string';
-  console.log('🖼️ Avatar:', usuario.nombre, '- Foto:', tieneF ? '✅' : '❌', '- Tipo:', esString ? 'string' : typeof usuario.foto_perfil);
+  const baseCardStyle: CSSProperties = {
+    background: theme.surface,
+    padding: '0.75rem 0.9rem',
+    borderRadius: '0.625rem',
+    border: `1px solid ${theme.surfaceBorder}`
+  };
 
-  return (
+  const tabItems: Array<{ id: 'info' | 'sesiones' | 'acciones'; label: string; icon: LucideIcon }> = [
+    { id: 'info', label: 'Información General', icon: User },
+    { id: 'sesiones', label: 'Últimas Sesiones', icon: History },
+    { id: 'acciones', label: 'Últimas Acciones', icon: Zap }
+  ];
+
+  const labelStyle: CSSProperties = {
+    fontSize: '0.65rem',
+    color: theme.textSecondary,
+    marginBottom: '0.25rem',
+    fontWeight: '600',
+    letterSpacing: '0.02em'
+  };
+
+  const valueStyle: CSSProperties = {
+    fontSize: '0.75rem',
+    color: theme.textPrimary,
+    fontWeight: '500'
+  };
+
+  const metricValueStyle: CSSProperties = {
+    fontSize: '1.1rem',
+    fontWeight: '700',
+    color: theme.accentRed,
+    letterSpacing: '0.01em'
+  };
+
+  const chipTextStyle: CSSProperties = {
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    lineHeight: '1.2'
+  };
+
+  const filtroOptions: Array<{ key: 'todas' | 'administrativas' | 'academicas'; label: string; icon: LucideIcon; activeColor: string }> = [
+    { key: 'todas', label: 'Todas', icon: Zap, activeColor: '#ef4444' },
+    { key: 'administrativas', label: 'Administrativas', icon: Shield, activeColor: '#f59e0b' },
+    { key: 'academicas', label: 'Académicas', icon: GraduationCap, activeColor: '#3b82f6' }
+  ];
+
+  const getAccionDescripcion = (accion: Accion) => {
+    const detalles = accion.detalles && typeof accion.detalles === 'object' ? accion.detalles : {};
+    switch (accion.tipo_accion) {
+      case 'pago':
+        if (detalles.curso) {
+          const cuota = detalles.cuota ? ` #${detalles.cuota}` : '';
+          return `Pago de cuota${cuota} - ${detalles.curso}`.trim();
+        }
+        return 'Registro de pago';
+      case 'cambio_perfil':
+        if (detalles.cambio_realizado) {
+          return String(detalles.cambio_realizado);
+        }
+        return 'Actualización de perfil';
+      case 'tarea_subida':
+        if (detalles.tarea) {
+          return `Entrega de tarea: ${detalles.tarea}`;
+        }
+        return 'Entrega de tarea';
+      case 'calificacion':
+        if (detalles.nota) {
+          return `Calificación registrada: ${detalles.nota}/10${detalles.tarea ? ` - ${detalles.tarea}` : ''}`;
+        }
+        return 'Calificación registrada';
+      case 'matricula':
+        if (detalles.curso) {
+          return `Matrícula en ${detalles.curso}`;
+        }
+        return 'Matrícula registrada';
+      case 'modulo':
+        if (detalles.modulo) {
+          return `Actualización de módulo: ${detalles.modulo}`;
+        }
+        return 'Actualización de módulo';
+      default:
+        if (accion.descripcion) {
+          return accion.descripcion;
+        }
+        return accion.tipo_accion ? accion.tipo_accion.replace(/_/g, ' ') : 'Acción registrada';
+    }
+  };
+
+  const detalleConfig: Record<string, { label: string; icon: LucideIcon; accent?: string }> = {
+    curso: { label: 'Curso', icon: BookOpen },
+    codigo_curso: { label: 'Código', icon: Hash },
+    cuota: { label: 'Cuota', icon: Hash },
+    monto: { label: 'Monto', icon: DollarSign, accent: '#10b981' },
+    metodo_pago: { label: 'Método de pago', icon: CreditCard },
+    estado: { label: 'Estado', icon: AlertCircle },
+    fecha_pago: { label: 'Fecha de pago', icon: Calendar },
+    fecha_verificacion: { label: 'Verificación', icon: CheckCircle },
+    fecha_vencimiento: { label: 'Fecha de vencimiento', icon: Timer },
+    numero_comprobante: { label: 'Comprobante', icon: FileSignature },
+    banco_comprobante: { label: 'Banco', icon: Building },
+    cambio_realizado: { label: 'Cambio realizado', icon: RefreshCcw },
+    tipo: { label: 'Categoría', icon: Tag },
+    email_anterior: { label: 'Email anterior', icon: Mail },
+    email_nuevo: { label: 'Email nuevo', icon: Mail },
+    telefono_anterior: { label: 'Teléfono anterior', icon: Phone },
+    telefono_nuevo: { label: 'Teléfono nuevo', icon: Phone },
+    tarea: { label: 'Tarea', icon: FileText },
+    modulo: { label: 'Módulo', icon: BookOpen },
+    fecha_entrega: { label: 'Fecha de entrega', icon: Calendar },
+    archivo: { label: 'Archivo', icon: Paperclip },
+    nota: { label: 'Nota', icon: Star },
+    comentario: { label: 'Comentario', icon: MessageSquare },
+    fecha_calificacion: { label: 'Fecha de calificación', icon: Calendar },
+    codigo_matricula: { label: 'Código matrícula', icon: Hash },
+    monto_matricula: { label: 'Monto matrícula', icon: DollarSign, accent: '#10b981' },
+    fecha_matricula: { label: 'Fecha matrícula', icon: Calendar },
+    estudiante: { label: 'Estudiante', icon: User },
+    fecha_limite: { label: 'Fecha límite', icon: Timer },
+    descripcion: { label: 'Descripción', icon: AlignLeft },
+    fecha_inicio: { label: 'Fecha de inicio', icon: Calendar }
+  };
+
+  return createPortal(
     <div
       onClick={onClose}
       className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '1rem',
+        backdropFilter: 'blur(8px)',
+        background: theme.overlay,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollBehavior: 'smooth'
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="modal-content"
         style={{
+          position: 'relative',
+          background: theme.modalBackground,
+          border: `1px solid ${theme.modalBorder}`,
+          borderRadius: '12px',
+          width: '92vw',
+          maxWidth: '1000px',
+          maxHeight: '85vh',
+          margin: 'auto',
+          color: theme.textPrimary,
+          boxShadow: theme.modalShadow,
+          animation: 'scaleIn 0.3s ease-out',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -1206,19 +1395,19 @@ const ModalDetalle = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '1rem 1.25rem',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: 'none'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
             <div style={{
               width: '2.5rem',
               height: '2.5rem',
               borderRadius: '50%',
-              background: usuario.foto_perfil ? 'transparent' : 'rgba(239, 68, 68, 0.15)',
+              background: usuario.foto_perfil ? theme.surface : theme.accentRedSoft,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              border: usuario.foto_perfil ? '2px solid rgba(239, 68, 68, 0.3)' : 'none'
+              border: usuario.foto_perfil ? `2px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(248,113,113,0.45)'}` : 'none'
             }}>
               {usuario.foto_perfil ? (
                 <img 
@@ -1231,7 +1420,7 @@ const ModalDetalle = ({
                   }}
                 />
               ) : (
-                <div style={{ color: '#ef4444', fontWeight: '700', fontSize: '0.875rem' }}>
+                <div style={{ color: theme.accentRed, fontWeight: '700', fontSize: '0.875rem' }}>
                   {usuario.nombre.charAt(0)}{usuario.apellido.charAt(0)}
                 </div>
               )}
@@ -1240,7 +1429,7 @@ const ModalDetalle = ({
               <h2 style={{
                 fontSize: '1rem',
                 fontWeight: '600',
-                color: '#fff',
+                color: theme.textPrimary,
                 margin: 0,
                 marginBottom: '0.125rem',
                 letterSpacing: '-0.01em'
@@ -1249,7 +1438,7 @@ const ModalDetalle = ({
               </h2>
               <p style={{
                 fontSize: '0.75rem',
-                color: 'rgba(255,255,255,0.6)',
+                color: theme.textSecondary,
                 margin: 0
               }}>
                 {usuario.username || usuario.email}
@@ -1259,11 +1448,11 @@ const ModalDetalle = ({
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)',
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(148,163,184,0.35)'}`,
               borderRadius: '0.5rem',
               padding: '0.375rem',
-              color: '#fff',
+              color: theme.textPrimary,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -1271,12 +1460,12 @@ const ModalDetalle = ({
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+              e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(254,226,226,0.9)';
+              e.currentTarget.style.borderColor = darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(248,113,113,0.45)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)';
+              e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(148,163,184,0.35)';
             }}
           >
             <X style={{ width: '1.125rem', height: '1.125rem' }} />
@@ -1284,182 +1473,159 @@ const ModalDetalle = ({
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-          <button
-            onClick={() => onChangeTab('info')}
-            style={{
-              flex: 1,
-              padding: '0.625rem 1rem',
-              fontWeight: '600',
-              fontSize: '0.8rem',
-              border: 'none',
-              backgroundColor: 'transparent',
-              color: tabActiva === 'info' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-              borderBottom: tabActiva === 'info' ? '2px solid #ef4444' : '2px solid transparent',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              marginBottom: '-1px'
-            }}
-            onMouseEnter={(e) => {
-              if (tabActiva !== 'info') e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-            }}
-            onMouseLeave={(e) => {
-              if (tabActiva !== 'info') e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
-            }}
-          >
-            <User style={{ width: '1rem', height: '1rem', display: 'inline', marginRight: '0.5rem' }} />
-            Información General
-          </button>
-          <button
-            onClick={() => onChangeTab('sesiones')}
-            style={{
-              flex: 1,
-              padding: '0.625rem 1rem',
-              fontWeight: '600',
-              fontSize: '0.8rem',
-              border: 'none',
-              backgroundColor: 'transparent',
-              color: tabActiva === 'sesiones' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-              borderBottom: tabActiva === 'sesiones' ? '2px solid #ef4444' : '2px solid transparent',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              marginBottom: '-1px'
-            }}
-            onMouseEnter={(e) => {
-              if (tabActiva !== 'sesiones') e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-            }}
-            onMouseLeave={(e) => {
-              if (tabActiva !== 'sesiones') e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
-            }}
-          >
-            <History style={{ width: '1rem', height: '1rem', display: 'inline', marginRight: '0.5rem' }} />
-            Últimas Sesiones
-          </button>
-          <button
-            onClick={() => onChangeTab('acciones')}
-            style={{
-              flex: 1,
-              padding: '0.625rem 1rem',
-              fontWeight: '600',
-              fontSize: '0.8rem',
-              border: 'none',
-              backgroundColor: 'transparent',
-              color: tabActiva === 'acciones' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-              borderBottom: tabActiva === 'acciones' ? '2px solid #ef4444' : '2px solid transparent',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              marginBottom: '-1px'
-            }}
-            onMouseEnter={(e) => {
-              if (tabActiva !== 'acciones') e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-            }}
-            onMouseLeave={(e) => {
-              if (tabActiva !== 'acciones') e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
-            }}
-          >
-            <Zap style={{ width: '1rem', height: '1rem', display: 'inline', marginRight: '0.5rem' }} />
-            Últimas Acciones
-          </button>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.4rem',
+            padding: '0.45rem',
+            borderRadius: '0.9rem',
+            backgroundColor: darkMode ? 'rgba(15,23,42,0.28)' : 'rgba(236,240,244,0.85)',
+            border: 'none',
+            boxShadow: 'none',
+            marginInline: '1.25rem'
+          }}
+        >
+          {tabItems.map(({ id, label, icon: Icon }) => {
+            const isActive = tabActiva === id;
+            return (
+              <button
+                key={id}
+                onClick={() => onChangeTab(id)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '0.65rem',
+                  border: 'none',
+                  backgroundColor: isActive
+                    ? (darkMode ? 'rgba(255,255,255,0.12)' : '#ffffff')
+                    : 'transparent',
+                  color: isActive ? '#dc2626' : theme.textSecondary,
+                  fontWeight: isActive ? 700 : 600,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.color = theme.textPrimary;
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.color = theme.textSecondary;
+                }}
+              >
+                <Icon style={{ width: '0.95rem', height: '0.95rem', color: 'currentColor' }} />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Contenido */}
-        <div style={{ padding: '1.25rem', overflowY: 'auto', flex: 1, backgroundColor: 'transparent' }}>
+        <div style={{ padding: '1rem 1.3rem 1.25rem', overflowY: 'auto', flex: 1, backgroundColor: 'transparent' }}>
           {tabActiva === 'info' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Información Básica */}
               <div style={{
-                backgroundColor: 'rgba(255,255,255,0.05)',
-                padding: '1rem',
-                borderRadius: '0.625rem',
-                border: '1px solid rgba(255,255,255,0.1)'
+                ...baseCardStyle,
+                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(243,244,246,0.9)',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.14)' : 'rgba(148,163,184,0.28)'}`
               }}>
                 <h3 style={{
                   fontSize: '0.875rem',
                   fontWeight: '700',
-                  color: 'rgba(255,255,255,0.95)',
-                  marginBottom: '0.75rem',
+                  color: theme.textSecondary,
+                  marginBottom: '0.5rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem'
                 }}>
-                  <UserCircle style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+                  <UserCircle style={{ width: '1rem', height: '1rem', color: theme.textSecondary }} />
                   Información Básica
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.6rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>CÉDULA</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.cedula}</div>
+                    <div style={labelStyle}>CÉDULA</div>
+                    <div style={valueStyle}>{usuario.cedula}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ROL</div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
+                    <div style={labelStyle}>ROL</div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}
+                      style={chipTextStyle}
+                    >
                       {usuario.nombre_rol}
                     </span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>EMAIL</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.email || '-'}</div>
+                    <div style={labelStyle}>EMAIL</div>
+                    <div style={valueStyle}>{usuario.email || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>TELÉFONO</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{usuario.telefono || '-'}</div>
+                    <div style={labelStyle}>TELÉFONO</div>
+                    <div style={valueStyle}>{usuario.telefono || '-'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ESTADO</div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
+                    <div style={labelStyle}>ESTADO</div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}
+                      style={chipTextStyle}
+                    >
                       {usuario.estado}
                     </span>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem', fontWeight: '600' }}>ÚLTIMA CONEXIÓN</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                    <div style={labelStyle}>ÚLTIMA CONEXIÓN</div>
+                    <div style={valueStyle}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                   </div>
                 </div>
               </div>
 
               {/* Trazabilidad del Sistema */}
               <div style={{
-                backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                padding: '1rem',
-                borderRadius: '0.625rem',
-                border: '1px solid rgba(251, 191, 36, 0.3)'
+                ...baseCardStyle,
+                background: theme.accentYellowSoft,
+                border: `1px solid ${darkMode ? 'rgba(251,191,36,0.28)' : 'rgba(217,119,6,0.28)'}`
               }}>
                 <h3 style={{
                   fontSize: '0.875rem',
                   fontWeight: '700',
-                  color: '#fbbf24',
-                  marginBottom: '0.75rem',
+                  color: theme.accentYellow,
+                  marginBottom: '0.5rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem'
                 }}>
-                  <Shield style={{ width: '1rem', height: '1rem', color: '#f59e0b' }} />
+                  <Shield style={{ width: '1rem', height: '1rem', color: theme.accentYellow }} />
                   Trazabilidad del Sistema
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.6rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CREADO POR</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
+                    <div style={{ ...labelStyle, color: darkMode ? 'rgba(251,191,36,0.78)' : 'rgba(180,83,9,0.75)' }}>CREADO POR</div>
+                    <div style={valueStyle}>
                       {usuario.creado_por || 'Sistema'}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.65rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>FECHA DE CREACIÓN</div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
+                    <div style={{ ...labelStyle, color: darkMode ? 'rgba(251,191,36,0.78)' : 'rgba(180,83,9,0.75)' }}>FECHA DE CREACIÓN</div>
+                    <div style={valueStyle}>
                       {formatFecha(usuario.fecha_creacion || usuario.fecha_registro)}
                     </div>
                   </div>
                   {usuario.modificado_por && (
                     <>
                       <div>
-                        <div style={{ fontSize: '0.65rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>MODIFICADO POR</div>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
+                        <div style={{ ...labelStyle, color: darkMode ? 'rgba(251,191,36,0.78)' : 'rgba(180,83,9,0.75)' }}>MODIFICADO POR</div>
+                        <div style={valueStyle}>
                           {usuario.modificado_por}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.65rem', color: 'rgba(251, 191, 36, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>ÚLTIMA MODIFICACIÓN</div>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
+                        <div style={{ ...labelStyle, color: darkMode ? 'rgba(251,191,36,0.78)' : 'rgba(180,83,9,0.75)' }}>ÚLTIMA MODIFICACIÓN</div>
+                        <div style={valueStyle}>
                           {formatFecha(usuario.fecha_modificacion || null)}
                         </div>
                       </div>
@@ -1471,40 +1637,39 @@ const ModalDetalle = ({
               {/* Información Académica - ESTUDIANTES */}
               {usuario.nombre_rol?.toLowerCase() === 'estudiante' && (
                 <div style={{
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '1rem',
-                  borderRadius: '0.625rem',
-                  border: '1px solid rgba(239, 68, 68, 0.3)'
+                  ...baseCardStyle,
+                  background: darkMode ? 'rgba(239,68,68,0.14)' : 'rgba(254,226,226,0.82)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.32)' : 'rgba(248,113,113,0.3)'}`
                 }}>
                   <h3 style={{
                     fontSize: '0.875rem',
                     fontWeight: '700',
-                    color: '#f87171',
-                    marginBottom: '0.75rem',
+                    color: theme.accentRed,
+                    marginBottom: '0.5rem',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'
                   }}>
-                    <BookOpen style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+                    <BookOpen style={{ width: '1rem', height: '1rem', color: theme.accentRed }} />
                     Información Académica
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CURSOS MATRICULADOS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(185,28,28,0.75)' }}>CURSOS MATRICULADOS</div>
+                      <div style={metricValueStyle}>
                         {usuario.cursos_matriculados || 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS COMPLETADOS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.pagos_completados || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(21,128,61,0.8)' }}>PAGOS COMPLETADOS</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#34d399' : '#047857' }}>
+                        {usuario.pagos_completados ?? 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS PENDIENTES</div>
-                      <div style={{ fontSize: '1.25rem', color: '#ef4444', fontWeight: '700' }}>
-                        {usuario.pagos_pendientes || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(190,24,93,0.85)' }}>PAGOS PENDIENTES</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#f97316' : '#be123c' }}>
+                        {usuario.pagos_pendientes ?? 0}
                       </div>
                     </div>
                   </div>
@@ -1514,34 +1679,33 @@ const ModalDetalle = ({
               {/* Información Académica - DOCENTES */}
               {usuario.nombre_rol?.toLowerCase() === 'docente' && (
                 <div style={{
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '1rem',
-                  borderRadius: '0.625rem',
-                  border: '1px solid rgba(239, 68, 68, 0.3)'
+                  ...baseCardStyle,
+                  background: darkMode ? 'rgba(239,68,68,0.14)' : 'rgba(254,226,226,0.82)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.32)' : 'rgba(248,113,113,0.3)'}`
                 }}>
                   <h3 style={{
                     fontSize: '0.875rem',
                     fontWeight: '700',
-                    color: '#f87171',
-                    marginBottom: '0.75rem',
+                    color: theme.accentRed,
+                    marginBottom: '0.5rem',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'
                   }}>
-                    <BookOpen style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+                    <BookOpen style={{ width: '1rem', height: '1rem', color: theme.accentRed }} />
                     Información Académica
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.6rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>CURSOS ASIGNADOS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.cursos_asignados || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(185,28,28,0.75)' }}>CURSOS ASIGNADOS</div>
+                      <div style={metricValueStyle}>
+                        {usuario.cursos_asignados ?? 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>ESTUDIANTES ACTIVOS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.estudiantes_activos || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(15,118,110,0.85)' }}>ESTUDIANTES ACTIVOS</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#38bdf8' : '#0f766e' }}>
+                        {usuario.estudiantes_activos ?? 0}
                       </div>
                     </div>
                   </div>
@@ -1551,40 +1715,39 @@ const ModalDetalle = ({
               {/* Actividad del Sistema - ADMIN */}
               {usuario.nombre_rol?.toLowerCase() === 'administrativo' && (
                 <div style={{
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  padding: '1rem',
-                  borderRadius: '0.625rem',
-                  border: '1px solid rgba(239, 68, 68, 0.3)'
+                  ...baseCardStyle,
+                  background: darkMode ? 'rgba(239,68,68,0.14)' : 'rgba(254,226,226,0.82)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.32)' : 'rgba(248,113,113,0.3)'}`
                 }}>
                   <h3 style={{
                     fontSize: '0.875rem',
                     fontWeight: '700',
-                    color: '#f87171',
-                    marginBottom: '0.75rem',
+                    color: theme.accentRed,
+                    marginBottom: '0.5rem',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'
                   }}>
-                    <Activity style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+                    <Activity style={{ width: '1rem', height: '1rem', color: theme.accentRed }} />
                     Actividad del Sistema
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>MATRÍCULAS APROBADAS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.matriculas_aprobadas || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(190,24,93,0.85)' }}>MATRÍCULAS APROBADAS</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#f472b6' : '#be123c' }}>
+                        {usuario.matriculas_aprobadas ?? 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>PAGOS VERIFICADOS</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.pagos_verificados || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(22,101,52,0.85)' }}>PAGOS VERIFICADOS</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#34d399' : '#15803d' }}>
+                        {usuario.pagos_verificados ?? 0}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(239, 68, 68, 0.7)', marginBottom: '0.25rem', fontWeight: '600' }}>TOTAL ACCIONES</div>
-                      <div style={{ fontSize: '1.25rem', color: '#f87171', fontWeight: '700' }}>
-                        {usuario.total_acciones || 0}
+                      <div style={{ ...labelStyle, color: darkMode ? 'rgba(252,165,165,0.95)' : 'rgba(190,24,93,0.85)' }}>TOTAL ACCIONES</div>
+                      <div style={{ ...metricValueStyle, color: darkMode ? '#f97316' : '#f97316' }}>
+                        {usuario.total_acciones ?? 0}
                       </div>
                     </div>
                   </div>
@@ -1609,9 +1772,9 @@ const ModalDetalle = ({
                 </div>
               ) : sesiones.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px 0' }}>
-                  <Clock style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: 'rgba(255,255,255,0.3)' }} />
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>No hay sesiones registradas para este usuario</p>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '0.5rem' }}>Las sesiones aparecerán cuando el usuario inicie sesión</p>
+                  <Clock style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: theme.textMuted }} />
+                  <p style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>No hay sesiones registradas para este usuario</p>
+                  <p style={{ color: theme.textMuted, fontSize: '0.75rem', marginTop: '0.5rem' }}>Las sesiones aparecerán cuando el usuario inicie sesión</p>
                 </div>
               ) : (
                 sesiones.map((sesion) => {
@@ -1627,8 +1790,10 @@ const ModalDetalle = ({
                     <div key={sesion.id_sesion} style={{
                       padding: '0.875rem',
                       borderRadius: '0.625rem',
-                      border: `1px solid ${sesion.activa ? '#10b981' : 'rgba(255,255,255,0.1)'}`,
-                      backgroundColor: sesion.activa ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${sesion.activa ? theme.sessionActiveBorder : theme.sessionInactiveBorder}`,
+                      background: sesion.activa
+                        ? (darkMode ? 'rgba(16,185,129,0.16)' : 'rgba(187,247,208,0.55)')
+                        : theme.surface,
                       transition: 'all 0.3s ease'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
@@ -1637,18 +1802,20 @@ const ModalDetalle = ({
                             width: '2rem',
                             height: '2rem',
                             borderRadius: '0.5rem',
-                            backgroundColor: sesion.activa ? '#10b981' : 'rgba(255,255,255,0.2)',
+                            backgroundColor: sesion.activa ? '#10b981' : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.15)'),
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
                           }}>
-                            {sesion.activa ? <CheckCircle size={16} color="#fff" /> : <XCircle size={16} color="#fff" />}
+                            {sesion.activa
+                              ? <CheckCircle size={16} color="#fff" />
+                              : <XCircle size={16} color={darkMode ? theme.accentRed : '#dc2626'} />}
                           </div>
                           <div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'rgba(255,255,255,0.95)', marginBottom: '0.25rem' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: theme.textPrimary, marginBottom: '0.25rem' }}>
                               {sesion.activa ? 'Sesión Activa' : 'Sesión Finalizada'}
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                            <div style={{ fontSize: '0.7rem', color: theme.textSecondary, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               {esMovil ? <Monitor size={14} /> : <Globe size={14} />}
                               <span>{esMovil ? 'Móvil' : 'Escritorio'} · {navegador}</span>
                             </div>
@@ -1659,28 +1826,30 @@ const ModalDetalle = ({
                           borderRadius: '0.375rem',
                           fontSize: '0.7rem',
                           fontWeight: '600',
-                          backgroundColor: sesion.activa ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.1)',
-                          color: sesion.activa ? '#10b981' : 'rgba(255,255,255,0.7)'
+                          backgroundColor: sesion.activa
+                            ? (darkMode ? 'rgba(16,185,129,0.22)' : 'rgba(16,185,129,0.18)')
+                            : (darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(148,163,184,0.18)'),
+                          color: sesion.activa ? '#047857' : theme.textSecondary
                         }}>
                           ID: {sesion.id_sesion.substring(0, 8)}...
                         </span>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'rgba(255,255,255,0.6)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: theme.textSecondary }}>
                           <Calendar size={14} color="#ef4444" />
                           <div>
-                            <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)' }}>Inicio de Sesión</div>
-                            <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)', fontSize: '0.7rem' }}>{formatFecha(sesion.fecha_inicio)}</div>
+                            <div style={{ fontSize: '0.625rem', color: theme.textMuted }}>Inicio de Sesión</div>
+                            <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.7rem' }}>{formatFecha(sesion.fecha_inicio)}</div>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'rgba(255,255,255,0.6)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: theme.textSecondary }}>
                           <Clock size={14} color={sesion.activa ? '#10b981' : '#ef4444'} />
                           <div>
-                            <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)' }}>
+                            <div style={{ fontSize: '0.625rem', color: theme.textMuted }}>
                               {sesion.activa ? 'Expira' : 'Cerró Sesión'}
                             </div>
-                            <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)', fontSize: '0.7rem' }}>
+                            <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.7rem' }}>
                               {sesion.activa ? formatFecha(sesion.fecha_expiracion) : formatFecha(sesion.fecha_cierre || sesion.fecha_expiracion)}
                             </div>
                           </div>
@@ -1691,11 +1860,11 @@ const ModalDetalle = ({
                         marginTop: '0.5rem',
                         padding: '0.5rem',
                         borderRadius: '0.375rem',
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.1)'
+                        backgroundColor: theme.surfaceMuted,
+                        border: `1px solid ${theme.surfaceBorder}`
                       }}>
-                        <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem' }}>User Agent:</div>
-                        <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', wordBreak: 'break-all', lineHeight: '1.3' }}>{sesion.user_agent}</div>
+                        <div style={{ fontSize: '0.625rem', color: theme.textMuted, marginBottom: '0.25rem' }}>User Agent:</div>
+                        <div style={{ fontSize: '0.65rem', color: theme.textSecondary, wordBreak: 'break-all', lineHeight: '1.3' }}>{sesion.user_agent}</div>
                       </div>
                     </div>
                   );
@@ -1722,54 +1891,40 @@ const ModalDetalle = ({
                 <>
                   {/* Filtro de Acciones */}
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => setFiltroAcciones('todas')}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        border: filtroAcciones === 'todas' ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.2)',
-                        background: filtroAcciones === 'todas' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
-                        color: filtroAcciones === 'todas' ? '#ef4444' : 'rgba(255,255,255,0.7)',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      Todas
-                    </button>
-                    <button
-                      onClick={() => setFiltroAcciones('administrativas')}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        border: filtroAcciones === 'administrativas' ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.2)',
-                        background: filtroAcciones === 'administrativas' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255,255,255,0.05)',
-                        color: filtroAcciones === 'administrativas' ? '#f59e0b' : 'rgba(255,255,255,0.7)',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      🔧 Administrativas
-                    </button>
-                    <button
-                      onClick={() => setFiltroAcciones('academicas')}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        border: filtroAcciones === 'academicas' ? '2px solid #3b82f6' : '1px solid rgba(255,255,255,0.2)',
-                        background: filtroAcciones === 'academicas' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)',
-                        color: filtroAcciones === 'academicas' ? '#3b82f6' : 'rgba(255,255,255,0.7)',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      📚 Académicas
-                    </button>
+                    {filtroOptions.map((option) => {
+                      const isActive = filtroAcciones === option.key;
+                      const borderColor = isActive
+                        ? option.activeColor
+                        : darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(148,163,184,0.35)';
+                      const backgroundColor = isActive
+                        ? (darkMode ? `${option.activeColor}33` : `${option.activeColor}1f`)
+                        : (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)');
+                      const textColor = isActive ? option.activeColor : theme.textSecondary;
+
+                      return (
+                        <button
+                          key={option.key}
+                          onClick={() => setFiltroAcciones(option.key)}
+                          style={{
+                            padding: '0.45rem 0.85rem',
+                            borderRadius: '0.5rem',
+                            border: `1.5px solid ${borderColor}`,
+                            background: backgroundColor,
+                            color: textColor,
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
+                          }}
+                        >
+                          {React.createElement(option.icon, { size: 14, strokeWidth: 2.25 })}
+                          {option.label}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1777,46 +1932,104 @@ const ModalDetalle = ({
                       <div style={{
                         padding: '2rem',
                         textAlign: 'center',
-                        color: 'rgba(255,255,255,0.5)',
+                        color: theme.textSecondary,
                         fontSize: '0.875rem'
                       }}>
                         No hay acciones registradas
                       </div>
                     ) : (
                       acciones.map((accion, index) => {
-                        // Determinar icono y color según tipo de acción
-                        let iconoConfig = { icono: Activity, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Acción' };
-                        
-                        const tipoAccion = accion.tipo_accion?.toLowerCase() || '';
-                        
+                        const detalles = accion.detalles && typeof accion.detalles === 'object' ? accion.detalles : {};
+                        let iconoConfig = {
+                          icono: Activity,
+                          color: '#0ea5e9',
+                          surface: darkMode ? 'rgba(14,165,233,0.18)' : 'rgba(191,219,254,0.55)',
+                          border: darkMode ? 'rgba(14,165,233,0.34)' : 'rgba(59,130,246,0.25)',
+                          badgeBg: darkMode ? 'rgba(14,165,233,0.22)' : 'rgba(191,219,254,0.32)',
+                          label: 'Acción'
+                        };
+
+                        const tipoAccion = (accion.tipo_accion || '').toLowerCase();
+
                         if (tipoAccion.includes('contraseña') || tipoAccion.includes('password')) {
-                          iconoConfig = { icono: Lock, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Contraseña' };
+                          iconoConfig = {
+                            icono: Lock,
+                            color: '#f59e0b',
+                            surface: darkMode ? 'rgba(245,158,11,0.22)' : 'rgba(253,230,138,0.55)',
+                            border: darkMode ? 'rgba(245,158,11,0.32)' : 'rgba(251,191,36,0.35)',
+                            badgeBg: darkMode ? 'rgba(245,158,11,0.18)' : 'rgba(253,230,138,0.5)',
+                            label: 'Contraseña'
+                          };
                         } else if (tipoAccion.includes('foto') || tipoAccion.includes('perfil')) {
-                          iconoConfig = { icono: UserCircle, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)', label: 'Foto Perfil' };
+                          iconoConfig = {
+                            icono: UserCircle,
+                            color: '#8b5cf6',
+                            surface: darkMode ? 'rgba(139,92,246,0.22)' : 'rgba(221,214,254,0.55)',
+                            border: darkMode ? 'rgba(139,92,246,0.28)' : 'rgba(167,139,250,0.35)',
+                            badgeBg: darkMode ? 'rgba(139,92,246,0.2)' : 'rgba(196,181,253,0.45)',
+                            label: 'Perfil'
+                          };
                         } else if (tipoAccion.includes('pago')) {
-                          iconoConfig = { icono: DollarSign, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Pago' };
+                          iconoConfig = {
+                            icono: DollarSign,
+                            color: '#10b981',
+                            surface: darkMode ? 'rgba(16,185,129,0.22)' : 'rgba(187,247,208,0.6)',
+                            border: darkMode ? 'rgba(16,185,129,0.35)' : 'rgba(16,185,129,0.28)',
+                            badgeBg: darkMode ? 'rgba(16,185,129,0.22)' : 'rgba(134,239,172,0.5)',
+                            label: 'Pago'
+                          };
                         } else if (tipoAccion.includes('tarea') || tipoAccion.includes('entrega')) {
-                          iconoConfig = { icono: FileText, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.2)', label: 'Tarea' };
+                          iconoConfig = {
+                            icono: FileText,
+                            color: '#2563eb',
+                            surface: darkMode ? 'rgba(37,99,235,0.2)' : 'rgba(191,219,254,0.55)',
+                            border: darkMode ? 'rgba(37,99,235,0.32)' : 'rgba(37,99,235,0.24)',
+                            badgeBg: darkMode ? 'rgba(37,99,235,0.22)' : 'rgba(191,219,254,0.45)',
+                            label: 'Tarea'
+                          };
                         } else if (tipoAccion.includes('calificación') || tipoAccion.includes('nota')) {
-                          iconoConfig = { icono: CheckCircle, color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)', label: 'Calificación' };
+                          iconoConfig = {
+                            icono: CheckCircle,
+                            color: '#22c55e',
+                            surface: darkMode ? 'rgba(34,197,94,0.22)' : 'rgba(187,247,208,0.6)',
+                            border: darkMode ? 'rgba(34,197,94,0.28)' : 'rgba(134,239,172,0.35)',
+                            badgeBg: darkMode ? 'rgba(34,197,94,0.2)' : 'rgba(187,247,208,0.45)',
+                            label: 'Calificación'
+                          };
                         } else if (tipoAccion.includes('módulo')) {
-                          iconoConfig = { icono: BookOpen, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)', label: 'Módulo' };
+                          iconoConfig = {
+                            icono: BookOpen,
+                            color: '#f97316',
+                            surface: darkMode ? 'rgba(249,115,22,0.22)' : 'rgba(254,215,170,0.6)',
+                            border: darkMode ? 'rgba(249,115,22,0.32)' : 'rgba(248,153,102,0.35)',
+                            badgeBg: darkMode ? 'rgba(249,115,22,0.2)' : 'rgba(254,215,170,0.45)',
+                            label: 'Módulo'
+                          };
                         } else if (tipoAccion.includes('matrícula') || tipoAccion.includes('inscripción')) {
-                          iconoConfig = { icono: GraduationCap, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.2)', label: 'Matrícula' };
+                          iconoConfig = {
+                            icono: GraduationCap,
+                            color: '#8b5cf6',
+                            surface: darkMode ? 'rgba(139,92,246,0.22)' : 'rgba(221,214,254,0.55)',
+                            border: darkMode ? 'rgba(139,92,246,0.28)' : 'rgba(167,139,250,0.35)',
+                            badgeBg: darkMode ? 'rgba(139,92,246,0.2)' : 'rgba(196,181,253,0.45)',
+                            label: 'Matrícula'
+                          };
                         }
+
+                        const descripcion = getAccionDescripcion(accion);
+                        const tipoAccionTexto = accion.tipo_accion ? accion.tipo_accion.replace(/_/g, ' ').toUpperCase() : null;
 
                         return (
                           <div key={`accion-${index}`} style={{
-                            padding: '1.25rem',
-                            borderRadius: '0.875rem',
-                            border: `2px solid ${iconoConfig.color}30`,
-                            backgroundColor: `${iconoConfig.color}05`,
+                            padding: '1.1rem',
+                            borderRadius: '0.85rem',
+                            border: `1.5px solid ${iconoConfig.border}`,
+                            background: iconoConfig.surface,
                             transition: 'all 0.3s ease',
-                            boxShadow: `0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px ${iconoConfig.color}20`,
+                            boxShadow: `0 12px 28px -18px ${iconoConfig.color}55`,
                             position: 'relative',
                             overflow: 'hidden'
                           }}>
-                            {/* Barra lateral de color */}
                             <div style={{
                               position: 'absolute',
                               left: 0,
@@ -1824,266 +2037,197 @@ const ModalDetalle = ({
                               bottom: 0,
                               width: '4px',
                               backgroundColor: iconoConfig.color,
-                              boxShadow: `0 0 12px ${iconoConfig.color}80`
+                              opacity: 0.85
                             }}></div>
-                            
-                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+
+                            <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '0.9rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
                                 <div style={{
-                                  width: '2.75rem',
-                                  height: '2.75rem',
-                                  borderRadius: '0.75rem',
+                                  width: '2.6rem',
+                                  height: '2.6rem',
+                                  borderRadius: '0.7rem',
                                   backgroundColor: iconoConfig.color,
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  boxShadow: `0 4px 12px ${iconoConfig.color}60`,
-                                  border: '2px solid rgba(255,255,255,0.1)'
+                                  boxShadow: `0 10px 24px -16px ${iconoConfig.color}aa`
                                 }}>
-                                  {React.createElement(iconoConfig.icono, { size: 22, color: '#fff', strokeWidth: 2.5 })}
+                                  {React.createElement(iconoConfig.icono, { size: 20, color: '#fff', strokeWidth: 2.5 })}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ 
-                                    fontSize: '0.875rem', 
-                                    fontWeight: '700', 
-                                    color: 'rgba(255,255,255,0.98)', 
-                                    marginBottom: '0.35rem',
-                                    letterSpacing: '0.3px'
+                                <div>
+                                  <div style={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700,
+                                    color: theme.textPrimary,
+                                    marginBottom: '0.3rem',
+                                    letterSpacing: '0.015em'
                                   }}>
-                                    {(() => {
-                                      // Generar descripción más rica según el tipo
-                                      const detalles = accion.detalles || {};
-                                      
-                                      if (accion.tipo_accion === 'pago' && detalles.curso) {
-                                        return `💰 Pago Cuota #${detalles.cuota || ''} - ${detalles.curso}`;
-                                      } else if (accion.tipo_accion === 'cambio_perfil' && detalles.cambio_realizado) {
-                                        return `🔄 ${detalles.cambio_realizado}`;
-                                      } else if (accion.tipo_accion === 'tarea_subida' && detalles.tarea) {
-                                        return `📝 ${detalles.tarea}`;
-                                      } else if (accion.tipo_accion === 'calificacion' && detalles.nota) {
-                                        return `⭐ Calificación: ${detalles.nota}/10 - ${detalles.tarea || ''}`;
-                                      } else if (accion.tipo_accion === 'matricula' && detalles.curso) {
-                                        return `🎓 Matriculado en ${detalles.curso}`;
-                                      }
-                                      
-                                      return accion.descripcion || accion.tipo_accion;
-                                    })()}
+                                    {descripcion}
                                   </div>
-                                  {accion.tipo_accion && (
-                                    <div style={{ 
-                                      fontSize: '0.7rem', 
-                                      color: 'rgba(255,255,255,0.5)', 
-                                      fontWeight: '500',
-                                      fontStyle: 'italic',
+                                  {tipoAccionTexto && (
+                                    <div style={{
+                                      fontSize: '0.7rem',
+                                      color: theme.textSecondary,
+                                      fontWeight: 500,
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: '0.5rem'
+                                      gap: '0.45rem'
                                     }}>
-                                      <span>{accion.tipo_accion.replace(/_/g, ' ').toUpperCase()}</span>
-                                      {accion.detalles?.tipo && (
-                                        <>
-                                          <span>•</span>
-                                          <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-                                            {accion.detalles.tipo}
-                                          </span>
-                                        </>
+                                      <span>{tipoAccionTexto}</span>
+                                      {detalles?.tipo && (
+                                        <span style={{ color: theme.textMuted }}>• {detalles.tipo}</span>
                                       )}
                                     </div>
                                   )}
                                 </div>
                               </div>
                               <span style={{
-                                padding: '6px 0.875rem',
+                                padding: '0.45rem 0.85rem',
                                 borderRadius: '0.5rem',
                                 fontSize: '0.7rem',
-                                fontWeight: '700',
-                                backgroundColor: iconoConfig.bg,
+                                fontWeight: 700,
+                                background: iconoConfig.badgeBg,
                                 color: iconoConfig.color,
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.5px',
-                                boxShadow: `0 2px 8px ${iconoConfig.color}40`
+                                letterSpacing: '0.05em'
                               }}>
                                 {iconoConfig.label}
                               </span>
                             </div>
 
-                            {/* Detalles adicionales */}
-                            {accion.detalles && typeof accion.detalles === 'object' && Object.keys(accion.detalles).length > 0 && (
-                              <div style={{ 
-                                marginTop: '1rem', 
-                                padding: '1rem',
-                                backgroundColor: 'rgba(255,255,255,0.04)',
-                                borderRadius: '0.625rem',
-                                fontSize: '0.75rem',
-                                color: 'rgba(255,255,255,0.7)',
-                                border: '1px solid rgba(255,255,255,0.1)'
+                            {Object.keys(detalles).length > 0 && (
+                              <div style={{
+                                marginTop: '0.85rem',
+                                padding: '0.9rem',
+                                background: theme.surfaceMuted,
+                                borderRadius: '0.6rem',
+                                border: `1px solid ${theme.surfaceBorder}`
                               }}>
                                 <div style={{
                                   fontSize: '0.7rem',
-                                  fontWeight: '700',
-                                  color: 'rgba(255,255,255,0.6)',
+                                  fontWeight: 700,
+                                  color: theme.textSecondary,
                                   textTransform: 'uppercase',
-                                  letterSpacing: '1px',
-                                  marginBottom: '0.75rem',
-                                  paddingBottom: '0.5rem',
-                                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                  letterSpacing: '0.08em',
+                                  marginBottom: '0.65rem',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '0.5rem'
+                                  gap: '0.45rem'
                                 }}>
-                                  <Activity size={14} color="rgba(255,255,255,0.6)" />
+                                  <Activity size={14} color={theme.textSecondary} />
                                   Información Detallada
                                 </div>
-                                <div style={{ 
-                                  display: 'grid', 
-                                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                                  gap: '0.5rem' 
+                                <div style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                  gap: '0.55rem'
                                 }}>
-                                  {Object.entries(accion.detalles)
-                                    .filter(([key]) => key !== 'password_changed' && key !== 'id' && key !== 'password') // Filtrar campos no útiles
+                                  {Object.entries(detalles)
+                                    .filter(([key]) => key !== 'password_changed' && key !== 'id' && key !== 'password')
                                     .map(([key, value]) => {
-                                      // Formatear etiquetas
-                                      const labels: Record<string, string> = {
-                                        'curso': '📚 Curso',
-                                        'codigo_curso': '🎫 Código',
-                                        'cuota': '💳 Cuota',
-                                        'monto': '💰 Monto',
-                                        'metodo_pago': '💵 Método de Pago',
-                                        'estado': '📊 Estado',
-                                        'fecha_pago': '📅 Fecha de Pago',
-                                        'fecha_verificacion': '✅ Verificado',
-                                        'fecha_vencimiento': '⏰ Vencimiento',
-                                        'numero_comprobante': '🧾 Comprobante',
-                                        'banco_comprobante': '🏦 Banco',
-                                        'cambio_realizado': '🔄 Cambio',
-                                        'tipo': '📋 Categoría',
-                                        'email_anterior': '📧 Email Anterior',
-                                        'email_nuevo': '📧 Email Nuevo',
-                                        'telefono_anterior': '📞 Teléfono Anterior',
-                                        'telefono_nuevo': '📞 Teléfono Nuevo',
-                                        'tarea': '📝 Tarea',
-                                        'modulo': '📖 Módulo',
-                                        'fecha_entrega': '📅 Entregado',
-                                        'archivo': '📎 Archivo',
-                                        'nota': '⭐ Nota',
-                                        'comentario': '💬 Comentario',
-                                        'fecha_calificacion': '📅 Calificado',
-                                        'codigo_matricula': '🎫 Código',
-                                        'monto_matricula': '💰 Matrícula',
-                                        'fecha_matricula': '📅 Fecha',
-                                        'estudiante': '👤 Estudiante',
-                                        'fecha_limite': '⏰ Límite',
-                                        'descripcion': '📄 Descripción',
-                                        'fecha_inicio': '📅 Inicio'
+                                      const normalizedKey = key.toLowerCase();
+                                      const config = detalleConfig[normalizedKey] || {
+                                        label: key.replace(/_/g, ' '),
+                                        icon: Info
                                       };
-                                      const label = labels[key] || key;
-                                      
-                                      // Formatear valores
-                                      let displayValue = value;
-                                      let valorColor = 'rgba(255,255,255,0.95)';
-                                      let iconoEmoji = '';
-                                      
+
                                       if (value === null || value === undefined || value === '') {
-                                        return null; // No mostrar valores vacíos
+                                        return null;
                                       }
-                                      
-                                      if (typeof value === 'number' && key.includes('monto')) {
+
+                                      let displayValue: any = value;
+                                      let valorColor = theme.textPrimary;
+
+                                      if (typeof value === 'number' && normalizedKey.includes('monto')) {
                                         displayValue = `$${value.toFixed(2)}`;
-                                        valorColor = '#10b981'; // Verde para dinero
-                                        iconoEmoji = '💰';
-                                      } else if (key.includes('fecha') && value) {
-                                        displayValue = new Date(value as string).toLocaleDateString('es-EC', {
+                                        valorColor = darkMode ? '#34d399' : '#047857';
+                                      } else if (normalizedKey.includes('fecha')) {
+                                        displayValue = new Date(String(value)).toLocaleDateString('es-EC', {
                                           day: '2-digit',
                                           month: 'short',
                                           year: 'numeric',
-                                          hour: value.toString().includes('T') ? '2-digit' : undefined,
-                                          minute: value.toString().includes('T') ? '2-digit' : undefined
+                                          hour: String(value).includes('T') ? '2-digit' : undefined,
+                                          minute: String(value).includes('T') ? '2-digit' : undefined
                                         });
-                                        iconoEmoji = '📅';
-                                      } else if (key === 'nota') {
+                                        valorColor = theme.textPrimary;
+                                      } else if (normalizedKey === 'nota') {
                                         const notaNum = Number(value);
-                                        displayValue = `${value}/10`;
-                                        valorColor = notaNum >= 7 ? '#10b981' : notaNum >= 5 ? '#f59e0b' : '#ef4444';
-                                        iconoEmoji = notaNum >= 7 ? '⭐' : notaNum >= 5 ? '📊' : '❌';
-                                      } else if (key === 'estado') {
+                                        displayValue = `${notaNum}/10`;
+                                        valorColor = notaNum >= 7 ? (darkMode ? '#34d399' : '#047857') : notaNum >= 5 ? '#f59e0b' : '#ef4444';
+                                      } else if (normalizedKey === 'estado') {
                                         const estado = String(value).toLowerCase();
-                                        if (estado === 'pagado' || estado === 'verificado' || estado === 'activa') {
-                                          valorColor = '#10b981';
-                                          iconoEmoji = '✅';
+                                        if (['pagado', 'verificado', 'activa', 'completado'].includes(estado)) {
+                                          valorColor = darkMode ? '#34d399' : '#047857';
                                         } else if (estado === 'pendiente') {
                                           valorColor = '#f59e0b';
-                                          iconoEmoji = '⏳';
                                         } else {
                                           valorColor = '#ef4444';
-                                          iconoEmoji = '❌';
                                         }
-                                      } else if (key.includes('metodo_pago')) {
-                                        iconoEmoji = '💳';
-                                      } else if (key.includes('cuota')) {
-                                        iconoEmoji = '🔢';
-                                        valorColor = '#3b82f6';
                                       }
-                                      
+
                                       return (
-                                        <div key={key} style={{ 
-                                          padding: '0.65rem 0.75rem',
-                                          backgroundColor: 'rgba(255,255,255,0.03)',
-                                          borderRadius: '0.5rem',
-                                          border: '1px solid rgba(255,255,255,0.08)',
-                                          transition: 'all 0.2s ease',
-                                          cursor: 'default'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
-                                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
-                                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                                        }}
+                                        <div
+                                          key={key}
+                                          style={{
+                                            padding: '0.6rem 0.7rem',
+                                            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(248,250,252,0.85)',
+                                            borderRadius: '0.5rem',
+                                            border: `1px solid ${theme.surfaceBorder}`,
+                                            transition: 'all 0.2s ease'
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.96)';
+                                            e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.16)' : 'rgba(148,163,184,0.45)';
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(248,250,252,0.85)';
+                                            e.currentTarget.style.borderColor = theme.surfaceBorder;
+                                          }}
                                         >
-                                          <div style={{ 
-                                            fontSize: '0.65rem', 
-                                            color: 'rgba(255,255,255,0.5)',
-                                            marginBottom: '0.35rem',
-                                            fontWeight: '700',
+                                          <div style={{
+                                            fontSize: '0.65rem',
+                                            color: theme.textMuted,
+                                            marginBottom: '0.3rem',
+                                            fontWeight: 600,
                                             textTransform: 'uppercase',
-                                            letterSpacing: '0.5px',
+                                            letterSpacing: '0.05em',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '0.25rem'
+                                            gap: '0.3rem'
                                           }}>
-                                            {iconoEmoji && <span>{iconoEmoji}</span>}
-                                            {label.replace(/^[^\s]+\s/, '')} {/* Remover emoji del label si ya tenemos uno */}
+                                            {React.createElement(config.icon, { size: 13, color: config.accent || theme.textSecondary })}
+                                            {config.label}
                                           </div>
-                                          <div style={{ 
+                                          <div style={{
                                             color: valorColor,
-                                            fontWeight: '600',
-                                            fontSize: '0.875rem',
-                                            letterSpacing: '0.2px',
+                                            fontWeight: 600,
+                                            fontSize: '0.85rem',
+                                            letterSpacing: '0.015em',
                                             wordBreak: 'break-word'
                                           }}>
-                                            {typeof displayValue === 'object' 
-                                              ? JSON.stringify(displayValue) 
-                                              : String(displayValue)}
+                                            {typeof displayValue === 'object' ? JSON.stringify(displayValue) : String(displayValue)}
                                           </div>
                                         </div>
                                       );
                                     })
-                                    .filter(Boolean) // Remover elementos null
-                                  }
+                                    .filter(Boolean)}
                                 </div>
                               </div>
                             )}
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.75rem', marginTop: '0.75rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)' }}>
-                                <Calendar size={16} color="#ef4444" />
-                                <div>
-                                  <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>Fecha</div>
-                                  <div style={{ fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>
-                                    {formatFecha(accion.fecha_hora || accion.fecha_operacion || '')}
-                                  </div>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              fontSize: '0.75rem',
+                              marginTop: '0.75rem',
+                              color: theme.textSecondary
+                            }}>
+                              <Calendar size={16} color={theme.accentRed} />
+                              <div>
+                                <div style={{ fontSize: '0.65rem', color: theme.textMuted }}>Fecha</div>
+                                <div style={{ fontWeight: 600, color: theme.textPrimary }}>
+                                  {formatFecha(accion.fecha_hora || accion.fecha_operacion || '')}
                                 </div>
                               </div>
                             </div>
@@ -2098,7 +2242,21 @@ const ModalDetalle = ({
           )}
         </div>
       </div>
-    </div>
+      {/* Animaciones CSS */}
+      <style>{`
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
+    </div>,
+    document.body
   );
 };
 
@@ -2142,23 +2300,51 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
     }
   };
 
-  return (
+  return createPortal(
     <div
       onClick={onCancel}
       className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '1rem',
+        backdropFilter: 'blur(8px)',
+        background: 'rgba(0, 0, 0, 0.65)',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollBehavior: 'smooth'
+      }}
     >
       <div 
         onClick={(e) => e.stopPropagation()}
         className="modal-content"
         style={{
+          position: 'relative',
+          background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '12px',
           maxWidth: '31.25rem',
+          padding: '1.5rem',
+          margin: 'auto',
+          color: 'var(--admin-text-primary, #fff)',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+          animation: 'scaleIn 0.3s ease-out'
         }}
       >
         <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
           {getTitulo()}
         </h3>
-        <p style={{ marginBottom: '1.25rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
-          {getMensaje()}<strong style={{ color: '#fff' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
+        <p style={{ marginBottom: '1.25rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontSize: '0.95rem' }}>
+          {getMensaje()}<strong style={{ color: 'var(--admin-text-primary, #fff)' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
         </p>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
@@ -2167,9 +2353,9 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
               flex: 1,
               padding: '10px 1rem',
               borderRadius: '0.5rem',
-              border: '1px solid rgba(255,255,255,0.2)',
+              border: '1px solid var(--admin-border, rgba(255,255,255,0.2))',
               background: 'rgba(255,255,255,0.05)',
-              color: '#fff',
+              color: 'var(--admin-text-primary, #fff)',
               cursor: 'pointer',
               fontSize: '0.9rem',
               fontWeight: '600',
@@ -2199,7 +2385,21 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
           </button>
         </div>
       </div>
-    </div>
+      {/* Animaciones CSS */}
+      <style>{`
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
+    </div>,
+    document.body
   );
 };
 
@@ -2212,23 +2412,50 @@ interface ModalCredencialesProps {
 const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesProps) => {
   if (!show || !credenciales) return null;
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '1rem',
+        backdropFilter: 'blur(8px)',
+        background: 'rgba(0, 0, 0, 0.65)',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollBehavior: 'smooth'
+      }}
     >
       <div 
         onClick={(e) => e.stopPropagation()}
         className="modal-content"
         style={{
-          maxWidth: '31.25rem',
+          position: 'relative',
+          background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
           border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: '12px',
+          maxWidth: '31.25rem',
+          padding: '1.5rem',
+          margin: 'auto',
+          color: 'var(--admin-text-primary, #fff)',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+          animation: 'scaleIn 0.3s ease-out'
         }}
       >
         <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
           🔐 Contraseña Reseteada
         </h3>
-        <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
+        <p style={{ marginBottom: '1rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontSize: '0.95rem' }}>
           Las nuevas credenciales son:
         </p>
         <div style={{
@@ -2239,15 +2466,15 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
           border: '1px solid rgba(59, 130, 246, 0.3)',
         }}>
           <div style={{ marginBottom: '0.75rem' }}>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Usuario</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', marginBottom: '0.25rem' }}>Usuario</div>
             <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>Contraseña Temporal</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', marginBottom: '0.25rem' }}>Contraseña Temporal</div>
             <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
           </div>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.25rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', marginBottom: '1.25rem' }}>
           ⚠️ El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
         </p>
         <button
@@ -2268,7 +2495,21 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
           Cerrar
         </button>
       </div>
-    </div>
+      {/* Animaciones CSS */}
+      <style>{`
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
+    </div>,
+    document.body
   );
 };
 

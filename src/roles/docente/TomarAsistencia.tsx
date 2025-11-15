@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaCheckCircle, FaTimesCircle, FaClock, FaFileAlt, FaSave, FaCalendarAlt, FaChalkboardTeacher, FaUsers, FaFileExcel } from 'react-icons/fa';
-import { HiOutlineClipboardList } from 'react-icons/hi';
-import toast from 'react-hot-toast';
+import { ClipboardList } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import LoadingModal from '../../components/LoadingModal';
+import { showToast } from '../../config/toastConfig';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -71,6 +72,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     tamanoKB: number;
   } | null>(null);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [documentoPreviewUrl, setDocumentoPreviewUrl] = useState<string | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   const estudiantesPorPagina = 8;
 
@@ -103,7 +106,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         }
       } catch (error) {
         console.error('Error obteniendo datos del docente:', error);
-        toast.error('Error al cargar datos del docente');
+        showToast.error('Error al cargar datos del docente', darkMode);
       }
     };
 
@@ -123,7 +126,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       }
     } catch (error) {
       console.error('Error cargando cursos:', error);
-      toast.error('Error al cargar cursos');
+      showToast.error('Error al cargar cursos', darkMode);
     }
   };
 
@@ -143,7 +146,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       }
     } catch (error) {
       console.error('Error cargando estudiantes:', error);
-      toast.error('Error al cargar estudiantes');
+      showToast.error('Error al cargar estudiantes', darkMode);
     } finally {
       setLoading(false);
     }
@@ -387,12 +390,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
   const guardarAsistencia = async () => {
     if (!cursoSeleccionado || !idDocente) {
-      toast.error('Selecciona un curso primero');
+      showToast.error('Selecciona un curso primero', darkMode);
       return;
     }
 
     if (asistencias.size === 0) {
-      toast.error('Marca al menos un estudiante');
+      showToast.error('Marca al menos un estudiante', darkMode);
       return;
     }
 
@@ -400,7 +403,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     const estudiantesSinEstado = estudiantes.filter(est => !asistencias.has(est.id_estudiante));
     if (estudiantesSinEstado.length > 0) {
       const nombres = estudiantesSinEstado.map(e => `${e.nombre} ${e.apellido}`).join(', ');
-      toast.error(`Aún falta registrar la asistencia de: ${nombres}`, { duration: 5000 });
+      showToast.error(`Aún falta registrar la asistencia de: ${nombres}`, darkMode);
       return;
     }
 
@@ -442,18 +445,18 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       });
 
       if (response.ok) {
-        toast.success('Asistencia guardada correctamente');
+        showToast.success('Asistencia guardada correctamente', darkMode);
         setAsistenciaGuardada(true);
         
         // Mostrar modal de carga y recargar datos
         setShowLoadingModal(true);
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Error guardando asistencia');
+        showToast.error(errorData.error || 'Error guardando asistencia', darkMode);
       }
     } catch (error) {
       console.error('Error guardando asistencia:', error);
-      toast.error('Error guardando asistencia');
+      showToast.error('Error guardando asistencia', darkMode);
     } finally {
       setSaving(false);
     }
@@ -470,7 +473,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       );
 
       if (!response.ok) {
-        toast.error('Error al descargar el documento');
+        showToast.error('Error al descargar el documento', darkMode);
         return;
       }
 
@@ -522,10 +525,47 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('Documento descargado correctamente');
+      showToast.success('Documento descargado correctamente', darkMode);
     } catch (error) {
       console.error('Error descargando documento:', error);
-      toast.error('Error al descargar el documento');
+      showToast.error('Error al descargar el documento', darkMode);
+    }
+  };
+
+  const cargarVistaPrevia = async (idAsistencia: number) => {
+    setLoadingPreview(true);
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(
+        `${API_BASE}/api/asistencias/documento/${idAsistencia}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (!response.ok) {
+        showToast.error('Error al cargar la vista previa', darkMode);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      setDocumentoPreviewUrl(url);
+    } catch (error) {
+      console.error('Error cargando vista previa:', error);
+      showToast.error('Error al cargar la vista previa', darkMode);
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  const cerrarModalDocumento = () => {
+    setShowVerDocumentoModal(false);
+    setDocumentoVisualizacion(null);
+    // Limpiar la URL de vista previa para liberar memoria
+    if (documentoPreviewUrl) {
+      window.URL.revokeObjectURL(documentoPreviewUrl);
+      setDocumentoPreviewUrl(null);
     }
   };
 
@@ -534,7 +574,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     const registro = asistencias.get(idEstudiante);
 
     if (!estudiante || !registro || !registro.tiene_documento) {
-      toast.error('No hay documento para mostrar');
+      showToast.error('No hay documento para mostrar', darkMode);
       return;
     }
 
@@ -560,13 +600,15 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             tamanoKB: registro.documento_size_kb || 0
           });
           setShowVerDocumentoModal(true);
+          // Cargar vista previa del documento
+          cargarVistaPrevia(asistenciaDB.id_asistencia);
         } else {
-          toast.error('No se encontró el documento en la base de datos');
+          showToast.error('No se encontró el documento en la base de datos', darkMode);
         }
       }
     } catch (error) {
       console.error('Error obteniendo información del documento:', error);
-      toast.error('Error al cargar información del documento');
+      showToast.error('Error al cargar información del documento', darkMode);
     }
   };
 
@@ -631,7 +673,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
   const descargarExcel = async () => {
     if (!cursoSeleccionado || estudiantes.length === 0) {
-      toast.error('Selecciona un curso con estudiantes primero');
+      showToast.error('Selecciona un curso con estudiantes primero', darkMode);
       return;
     }
 
@@ -713,26 +755,36 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Descargar archivo
       XLSX.writeFile(wb, nombreArchivo);
 
-      toast.success('¡Excel descargado correctamente!');
+      showToast.success('¡Excel descargado correctamente!', darkMode);
     } catch (error) {
       console.error('Error generando Excel:', error);
-      toast.error('Error al generar el archivo Excel');
+      showToast.error('Error al generar el archivo Excel', darkMode);
     }
   };
 
   const descargarExcelRango = async () => {
     if (!cursoSeleccionado || !idDocente) {
-      toast.error('Selecciona un curso primero');
+      showToast.error('Selecciona un curso primero', darkMode);
       return;
     }
 
     if (!fechaInicio || !fechaFin) {
-      toast.error('Selecciona el rango de fechas');
+      // Cerrar modal primero
+      setShowRangoFechasModal(false);
+      // Mostrar notificación después de un pequeño delay
+      setTimeout(() => {
+        showToast.error('Selecciona el rango de fechas', darkMode);
+      }, 100);
       return;
     }
 
     if (new Date(fechaInicio) > new Date(fechaFin)) {
-      toast.error('La fecha de inicio debe ser anterior a la fecha fin');
+      // Cerrar modal primero
+      setShowRangoFechasModal(false);
+      // Mostrar notificación después de un pequeño delay
+      setTimeout(() => {
+        showToast.error('La fecha de inicio debe ser anterior a la fecha fin', darkMode);
+      }, 100);
       return;
     }
 
@@ -753,7 +805,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const registros = dataDetalle.asistencias || [];
 
       if (registros.length === 0) {
-        toast.error('No hay registros de asistencia en este rango de fechas');
+        showToast.error('No hay registros de asistencia en este rango de fechas', darkMode);
         return;
       }
 
@@ -867,13 +919,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Descargar archivo
       XLSX.writeFile(wb, nombreArchivo);
 
-      toast.success('¡Reporte descargado correctamente!');
+      showToast.success('¡Reporte descargado correctamente!', darkMode);
       setShowRangoFechasModal(false);
       setFechaInicio('');
       setFechaFin('');
     } catch (error) {
       console.error('Error generando reporte:', error);
-      toast.error('Error al generar el reporte');
+      showToast.error('Error al generar el reporte', darkMode);
     }
   };
 
@@ -893,42 +945,22 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   return (
     <div style={{ padding: '0' }}>
       {/* Header */}
-      <div style={{
-        marginBottom: '1rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem'
-      }}>
-        <div style={{
-          width: '2.75rem',
-          height: '2.75rem',
-          borderRadius: '0.75rem',
-          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 0.25rem 0.75rem rgba(59, 130, 246, 0.3)'
+      <div style={{ marginBottom: '1rem' }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: 'var(--docente-text-primary)',
+          margin: '0 0 0.375rem 0'
         }}>
-          <HiOutlineClipboardList size={22} color="#fff" />
-        </div>
-        <div>
-          <h2 style={{
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            color: 'var(--docente-text-primary)',
-            margin: 0,
-            letterSpacing: '0.02em'
-          }}>
-            Tomar Asistencia
-          </h2>
-          <p style={{
-            color: 'var(--docente-text-muted)',
-            fontSize: '0.75rem',
-            margin: '0.125rem 0 0 0'
-          }}>
-            Registra la asistencia de tus estudiantes
-          </p>
-        </div>
+          Tomar Asistencia
+        </h2>
+        <p style={{
+          color: 'var(--docente-text-muted)',
+          fontSize: '0.8125rem',
+          margin: 0
+        }}>
+          Registra la asistencia de tus estudiantes
+        </p>
       </div>
 
       {/* Selectores */}
@@ -1220,140 +1252,158 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </div>
 
               {/* Tabla de estudiantes */}
-              <div style={{
-                background: 'var(--docente-bg-secondary)',
-                backdropFilter: 'blur(1.25rem)',
-                border: '1px solid var(--docente-border)',
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                boxShadow: darkMode ? '0 0.5rem 2rem rgba(0, 0, 0, 0.3)' : '0 0.5rem 2rem rgba(0, 0, 0, 0.1)'
+              <div style={{ 
+                overflowX: 'auto',
+                background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                borderRadius: '0.75rem',
+                boxShadow: darkMode 
+                  ? '0 2px 12px rgba(0, 0, 0, 0.3)' 
+                  : '0 2px 12px rgba(0, 0, 0, 0.08)'
               }}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{
-                        background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                        borderBottom: '1px solid var(--docente-border)'
-                      }}>
-                        <th style={{
-                          padding: '1rem',
-                          textAlign: 'left',
-                          color: 'var(--docente-text-muted)',
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}>
-                          Estudiante
-                        </th>
-                        <th style={{
-                          padding: '1rem',
-                          textAlign: 'center',
-                          color: 'var(--docente-text-muted)',
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em'
-                        }}>
-                          Asistencia
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {estudiantesActuales.map((estudiante, index) => {
-                        const registro = asistencias.get(estudiante.id_estudiante);
-                        return (
-                          <tr
-                            key={estudiante.id_estudiante}
-                            style={{
-                              borderBottom: index < estudiantesActuales.length - 1 ? '1px solid var(--docente-border)' : 'none',
-                              transition: 'all 0.2s'
-                            }}
-                          >
-                            <td style={{ padding: '0.75rem' }}>
+                {/* Header de la tabla */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1.5fr',
+                  gap: '0.75rem',
+                  padding: '0.75rem 1rem',
+                  background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+                  borderBottom: `1px solid var(--docente-border)`,
+                  fontWeight: '700',
+                  fontSize: '0.7rem',
+                  color: darkMode ? 'var(--docente-accent)' : '#1e40af',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  <div>Estudiante</div>
+                  <div style={{ textAlign: 'center' }}>Asistencia</div>
+                </div>
+
+                {/* Filas de estudiantes */}
+                <div style={{ padding: '0.5rem 1rem 1rem 1rem' }}>
+                  {estudiantesActuales.map((estudiante, index) => {
+                    const registro = asistencias.get(estudiante.id_estudiante);
+                    return (
+                      <div
+                        key={estudiante.id_estudiante}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '2fr 1.5fr',
+                          gap: '0.75rem',
+                          padding: '0.75rem 0.5rem',
+                          background: index % 2 === 0
+                            ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
+                            : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'),
+                          borderRadius: '0.375rem',
+                          alignItems: 'center',
+                          transition: 'all 0.2s ease',
+                          cursor: 'default'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = index % 2 === 0
+                            ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
+                            : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)');
+                        }}
+                      >
+                        {/* Columna: Estudiante */}
+                        <div>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.625em',
+                            minWidth: 0
+                          }}>
+                            <div style={{
+                              width: '1.75rem',
+                              height: '1.75rem',
+                              borderRadius: '50%',
+                              background: 'linear-gradient(135deg, var(--docente-accent), #2563eb)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#fff',
+                              fontWeight: '800',
+                              fontSize: '0.625rem',
+                              flexShrink: 0
+                            }}>
+                              {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.75rem'
+                                gap: '0.5rem',
+                                flexWrap: 'wrap'
                               }}>
                                 <div style={{
-                                  width: '2rem',
-                                  height: '2rem',
-                                  borderRadius: '0.5rem',
-                                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#fff',
-                                  fontWeight: '700',
-                                  fontSize: '0.75rem'
+                                  color: 'var(--docente-text-primary)',
+                                  fontWeight: '600',
+                                  fontSize: '0.875rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
                                 }}>
-                                  {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
+                                  {estudiante.apellido}, {estudiante.nombre}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem'
-                                  }}>
-                                    <div style={{
-                                      color: 'var(--docente-text-primary)',
+                                {registro?.estado === 'justificado' && registro?.tiene_documento && (
+                                  <button
+                                    onClick={() => abrirModalVerDocumento(estudiante.id_estudiante)}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.25rem',
+                                      padding: '0.125rem 0.375rem',
+                                      borderRadius: '0.25rem',
+                                      background: 'rgba(34, 197, 94, 0.15)',
+                                      border: '1px solid rgba(34, 197, 94, 0.3)',
+                                      fontSize: '0.65rem',
                                       fontWeight: '600',
-                                      fontSize: '0.875rem'
-                                    }}>
-                                      {estudiante.apellido}, {estudiante.nombre}
-                                    </div>
-                                    {registro?.estado === 'justificado' && registro?.tiene_documento && (
-                                      <button
-                                        onClick={() => abrirModalVerDocumento(estudiante.id_estudiante)}
-                                        style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '0.25rem',
-                                          padding: '0.125rem 0.375rem',
-                                          borderRadius: '0.25rem',
-                                          background: 'rgba(34, 197, 94, 0.15)',
-                                          border: '1px solid rgba(34, 197, 94, 0.3)',
-                                          fontSize: '0.65rem',
-                                          fontWeight: '600',
-                                          color: '#22c55e',
-                                          cursor: 'pointer',
-                                          transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
-                                          e.currentTarget.style.transform = 'scale(1.05)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
-                                          e.currentTarget.style.transform = 'scale(1)';
-                                        }}
-                                        title="Ver documento justificativo"
-                                      >
-                                        <FaFileAlt size={8} />
-                                        DOC
-                                      </button>
-                                    )}
-                                  </div>
-                                  <div style={{
-                                    color: 'var(--docente-text-muted)',
-                                    fontSize: '0.75rem'
-                                  }}>
-                                    CI: {estudiante.cedula}
-                                    {registro?.observaciones && (
-                                      <span style={{
-                                        marginLeft: '0.5rem',
-                                        color: 'var(--docente-accent)',
-                                        fontStyle: 'italic'
-                                      }}>
-                                        • {registro.observaciones.substring(0, 30)}{registro.observaciones.length > 30 ? '...' : ''}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
+                                      color: '#22c55e',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s',
+                                      flexShrink: 0
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
+                                      e.currentTarget.style.transform = 'scale(1.05)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
+                                      e.currentTarget.style.transform = 'scale(1)';
+                                    }}
+                                    title="Ver documento justificativo"
+                                  >
+                                    <FaFileAlt size={8} />
+                                    DOC
+                                  </button>
+                                )}
                               </div>
-                            </td>
-                            <td style={{ padding: '0.75rem' }}>
+                              <div style={{
+                                color: 'var(--docente-text-muted)',
+                                fontSize: '0.75rem',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                CI: {estudiante.cedula}
+                                {registro?.observaciones && (
+                                  <span style={{
+                                    marginLeft: '0.5rem',
+                                    color: 'var(--docente-accent)',
+                                    fontStyle: 'italic'
+                                  }}>
+                                    • {registro.observaciones.substring(0, 30)}{registro.observaciones.length > 30 ? '...' : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Columna: Asistencia */}
+                        <div>
                               <div style={{
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -1508,13 +1558,11 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                   J
                                 </button>
                               </div>
-                            </td>
-                          </tr>
+                            </div>
+                          </div>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
 
                 {/* Paginación */}
                 {totalPaginas > 1 && (
@@ -1659,8 +1707,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     </div>
                   </div>
                 )}
+              </div>
 
-                {/* Botón Guardar Asistencia */}
+              {/* Botón Guardar Asistencia */}
                 <div style={{
                   padding: '1rem',
                   borderTop: '1px solid var(--docente-border)',
@@ -1719,7 +1768,6 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         : `Guardar (${asistencias.size})`}
                   </button>
                 </div>
-              </div>
             </>
           ) : (
             <div style={{
@@ -1745,7 +1793,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           borderRadius: '1rem',
           border: '2px dashed var(--docente-border)'
         }}>
-          <HiOutlineClipboardList size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+          <ClipboardList size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
           <p style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>
             Selecciona un curso para comenzar
           </p>
@@ -1756,7 +1804,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       )}
 
       {/* Modal de Observaciones para Justificación */}
-      {showObservacionesModal && (
+      {showObservacionesModal && createPortal(
         <div style={{
           position: 'fixed',
           top: 0,
@@ -1767,8 +1815,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(4px)'
+          zIndex: 99999,
+          backdropFilter: 'blur(8px)',
+          animation: 'fadeIn 0.2s ease-out'
         }}>
           <div style={{
             background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
@@ -1777,7 +1826,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             padding: '1.5rem',
             width: '90%',
             maxWidth: '500px',
-            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)'
+            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+            animation: 'scaleIn 0.2s ease-out'
           }}>
             <div style={{
               display: 'flex',
@@ -2120,11 +2170,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de Rango de Fechas */}
-      {showRangoFechasModal && (
+      {showRangoFechasModal && createPortal(
         <div style={{
           position: 'fixed',
           top: 0,
@@ -2135,8 +2186,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999,
-          backdropFilter: 'blur(4px)'
+          zIndex: 99999,
+          backdropFilter: 'blur(8px)',
+          animation: 'fadeIn 0.2s ease-out'
         }}>
           <div style={{
             background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
@@ -2145,7 +2197,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             padding: '1.5rem',
             width: '90%',
             maxWidth: '500px',
-            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)'
+            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+            animation: 'scaleIn 0.2s ease-out'
           }}>
             <div style={{
               display: 'flex',
@@ -2319,11 +2372,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de Visualización de Documento */}
-      {showVerDocumentoModal && documentoVisualizacion && (
+      {showVerDocumentoModal && documentoVisualizacion && createPortal(
         <div style={{
           position: 'fixed',
           top: 0,
@@ -2334,91 +2388,57 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999,
+          zIndex: 99999,
           backdropFilter: 'blur(8px)',
-          padding: '1rem'
+          padding: '1rem',
+          animation: 'fadeIn 0.2s ease-out'
         }}>
           <div style={{
-            background: darkMode
-              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
             borderRadius: '1rem',
-            border: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)',
-            padding: '0',
-            width: '100%',
-            maxWidth: '550px',
-            boxShadow: darkMode
-              ? '0 1rem 2.5rem rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(59, 130, 246, 0.1)'
-              : '0 1rem 2.5rem rgba(59, 130, 246, 0.15), 0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
+            border: `1px solid var(--docente-border)`,
+            padding: '1.5rem',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+            animation: 'scaleIn 0.2s ease-out'
           }}>
-            {/* Header con gradiente azul */}
             <div style={{
-              background: darkMode
-                ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
-                : 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-              padding: '1rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(59, 130, 246, 0.2)'
+              marginBottom: '1rem'
             }}>
-              <div style={{
+              <h3 style={{
+                fontSize: '1.125rem',
+                fontWeight: '700',
+                color: 'var(--docente-text-primary)',
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.625rem'
+                gap: '0.5rem'
               }}>
-                <div style={{
-                  width: '2rem',
-                  height: '2rem',
-                  borderRadius: '0.625rem',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.3)'
-                }}>
-                  <FaFileAlt size={16} color="#fff" />
-                </div>
-                <h3 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: '700',
-                  color: '#fff',
-                  margin: 0,
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }}>
-                  Documento Justificativo
-                </h3>
-              </div>
+                <FaFileAlt size={18} color="var(--docente-accent)" />
+                Documento Justificativo
+              </h3>
               <button
-                onClick={() => {
-                  setShowVerDocumentoModal(false);
-                  setDocumentoVisualizacion(null);
-                }}
+                onClick={cerrarModalDocumento}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: '#fff',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--docente-text-muted)',
                   cursor: 'pointer',
-                  fontSize: '1.25rem',
+                  fontSize: '1.5rem',
                   lineHeight: '1',
                   padding: '0.25rem',
-                  borderRadius: '0.375rem',
-                  width: '1.75rem',
-                  height: '1.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.color = 'var(--docente-text-primary)';
                   e.currentTarget.style.transform = 'rotate(90deg)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.color = 'var(--docente-text-muted)';
                   e.currentTarget.style.transform = 'rotate(0deg)';
                 }}
               >
@@ -2426,22 +2446,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </button>
             </div>
 
-            {/* Contenido del modal */}
-            <div style={{ padding: '1rem' }}>
               {/* Información del Estudiante */}
               <div style={{
                 padding: '0.875rem',
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)'
-                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.12) 100%)',
-                border: darkMode
-                  ? '1px solid rgba(59, 130, 246, 0.3)'
-                  : '1px solid rgba(59, 130, 246, 0.2)',
+                background: 'var(--docente-input-bg)',
+                border: '1px solid var(--docente-border)',
                 borderRadius: '0.75rem',
-                marginBottom: '0.875rem',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(59, 130, 246, 0.1)'
-                  : '0 2px 8px rgba(59, 130, 246, 0.08)'
+                marginBottom: '0.875rem'
               }}>
                 <div style={{
                   display: 'flex',
@@ -2494,13 +2505,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
                 <div style={{
                   padding: '0.75rem',
-                  background: darkMode
-                    ? 'rgba(0, 0, 0, 0.3)'
-                    : 'rgba(255, 255, 255, 0.7)',
+                  background: 'var(--docente-input-bg)',
                   borderRadius: '0.625rem',
-                  border: darkMode
-                    ? '1px solid rgba(59, 130, 246, 0.2)'
-                    : '1px solid rgba(59, 130, 246, 0.15)'
+                  border: '1px solid var(--docente-border)'
                 }}>
                   <div style={{
                     fontSize: '0.65rem',
@@ -2535,17 +2542,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               {/* Previsualización del Documento */}
               <div style={{
                 padding: '0.875rem',
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)'
-                  : 'linear-gradient(135deg, rgba(147, 197, 253, 0.15) 0%, rgba(191, 219, 254, 0.2) 100%)',
-                border: darkMode
-                  ? '1px solid rgba(96, 165, 250, 0.25)'
-                  : '1px solid rgba(147, 197, 253, 0.3)',
+                background: 'var(--docente-input-bg)',
+                border: '1px solid var(--docente-border)',
                 borderRadius: '0.75rem',
-                marginBottom: '0.875rem',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(96, 165, 250, 0.08)'
-                  : '0 2px 8px rgba(147, 197, 253, 0.12)'
+                marginBottom: '0.875rem'
               }}>
                 <div style={{
                   display: 'flex',
@@ -2556,19 +2556,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     width: '3.5rem',
                     height: '3.5rem',
                     borderRadius: '0.75rem',
-                    background: darkMode
-                      ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
-                      : 'linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%)',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#fff',
-                    flexShrink: 0,
-                    boxShadow: darkMode
-                      ? '0 4px 12px rgba(30, 64, 175, 0.4)'
-                      : '0 4px 12px rgba(96, 165, 250, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                    flexShrink: 0
                   }}>
                     <FaFileAlt size={24} />
                     <div style={{
@@ -2585,7 +2579,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     <div style={{
                       fontSize: '0.8rem',
                       fontWeight: '700',
-                      color: darkMode ? '#e0e7ff' : '#1e40af',
+                      color: 'var(--docente-text-primary)',
                       marginBottom: '0.375rem',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -2634,6 +2628,116 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 </div>
               </div>
 
+              {/* Vista Previa del Documento */}
+              <div style={{
+                padding: '0.875rem',
+                background: 'var(--docente-input-bg)',
+                border: '1px solid var(--docente-border)',
+                borderRadius: '0.75rem',
+                marginBottom: '0.875rem'
+              }}>
+                <div style={{
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  color: 'var(--docente-text-secondary)',
+                  marginBottom: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em'
+                }}>
+                  Vista Previa del Documento
+                </div>
+                
+                {loadingPreview ? (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem',
+                    color: 'var(--docente-text-muted)'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <div style={{
+                        width: '1rem',
+                        height: '1rem',
+                        border: '2px solid var(--docente-border)',
+                        borderTop: '2px solid var(--docente-accent)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }} />
+                      Cargando vista previa...
+                    </div>
+                  </div>
+                ) : documentoPreviewUrl ? (
+                  <div style={{
+                    border: '1px solid var(--docente-border)',
+                    borderRadius: '0.5rem',
+                    overflow: 'hidden',
+                    maxHeight: '300px'
+                  }}>
+                    {documentoVisualizacion?.tipoArchivo.startsWith('image/') ? (
+                      <img
+                        src={documentoPreviewUrl}
+                        alt="Vista previa del documento"
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          maxHeight: '300px',
+                          objectFit: 'contain',
+                          display: 'block'
+                        }}
+                      />
+                    ) : documentoVisualizacion?.tipoArchivo === 'application/pdf' ? (
+                      <iframe
+                        src={documentoPreviewUrl}
+                        style={{
+                          width: '100%',
+                          height: '300px',
+                          border: 'none'
+                        }}
+                        title="Vista previa del PDF"
+                      />
+                    ) : (
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2rem',
+                        color: 'var(--docente-text-muted)',
+                        textAlign: 'center'
+                      }}>
+                        <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                        <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                          Vista previa no disponible
+                        </div>
+                        <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                          Este tipo de archivo no se puede previsualizar
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem',
+                    color: 'var(--docente-text-muted)',
+                    textAlign: 'center'
+                  }}>
+                    <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                    <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                      Error al cargar la vista previa
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Botones de Acción */}
               <div style={{
                 display: 'flex',
@@ -2641,49 +2745,35 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 justifyContent: 'flex-end'
               }}>
                 <button
-                  onClick={() => {
-                    setShowVerDocumentoModal(false);
-                    setDocumentoVisualizacion(null);
-                  }}
+                  onClick={cerrarModalDocumento}
                   style={{
                     padding: '0.625rem 1.25rem',
-                    borderRadius: '0.625rem',
-                    border: darkMode
-                      ? '1px solid rgba(148, 163, 184, 0.3)'
-                      : '1px solid rgba(203, 213, 225, 0.5)',
-                    background: darkMode
-                      ? 'rgba(51, 65, 85, 0.5)'
-                      : 'rgba(248, 250, 252, 0.8)',
-                    color: darkMode ? '#cbd5e1' : '#475569',
-                    fontSize: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid var(--docente-border)',
+                    background: 'var(--docente-input-bg)',
+                    color: 'var(--docente-text-secondary)',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode
-                      ? 'rgba(71, 85, 105, 0.6)'
-                      : 'rgba(241, 245, 249, 1)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = darkMode
-                      ? 'rgba(51, 65, 85, 0.5)'
-                      : 'rgba(248, 250, 252, 0.8)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
                 >
-                  Cerrar
+                  Cancelar
                 </button>
 
                 <button
                   onClick={() => {
                     if (documentoVisualizacion.id_asistencia) {
-                      descargarDocumento(
-                        documentoVisualizacion.id_asistencia,
-                        documentoVisualizacion.nombreArchivo,
-                        documentoVisualizacion.estudiante
-                      );
+                      // Cerrar modal primero
+                      cerrarModalDocumento();
+                      // Descargar después de un pequeño delay para que se cierre el modal
+                      setTimeout(() => {
+                        descargarDocumento(
+                          documentoVisualizacion.id_asistencia!,
+                          documentoVisualizacion.nombreArchivo,
+                          documentoVisualizacion.estudiante
+                        );
+                      }, 100);
                     }
                   }}
                   style={{
@@ -2705,26 +2795,14 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     alignItems: 'center',
                     gap: '0.375rem'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = darkMode
-                      ? '0 4px 12px rgba(37, 99, 235, 0.5)'
-                      : '0 4px 12px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = darkMode
-                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
-                      : '0 2px 8px rgba(59, 130, 246, 0.3)';
-                  }}
                 >
                   <FaFileAlt size={12} />
                   Descargar Documento
                 </button>
               </div>
-            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

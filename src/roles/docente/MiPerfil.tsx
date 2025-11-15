@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaVenusMars, FaLock, FaCheckCircle, FaEye, FaEyeSlash, FaChalkboardTeacher, FaGraduationCap } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
-import { HiOutlineShieldCheck } from 'react-icons/hi';
-import { UserCircle, Calendar } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { createPortal } from 'react-dom';
+import { Calendar, Eye, EyeOff, CheckCircle, ShieldCheck, User, Mail, Phone, MapPin, Cake, Users, X, GraduationCap, BookOpen, Lock } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -40,7 +38,6 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [isPhotoHovered, setIsPhotoHovered] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -86,7 +83,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al cargar datos del perfil');
+      showToast.error('Error al cargar datos del perfil', darkMode);
     } finally {
       setLoading(false);
     }
@@ -224,14 +221,14 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       if (response.ok) {
         await fetchPerfil();
         setIsEditing(false);
-        toast.success('Perfil actualizado exitosamente');
+        showToast.success('Perfil actualizado exitosamente', darkMode);
       } else {
         const err = await response.json().catch(() => ({}));
         throw new Error(err?.message || 'Error al actualizar');
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al actualizar el perfil');
+      showToast.error('Error al actualizar el perfil', darkMode);
     }
   };
 
@@ -239,12 +236,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
     e.preventDefault();
 
     if (passwordData.password_nueva !== passwordData.confirmar_password) {
-      toast.error('Las contraseñas no coinciden');
+      showToast.error('Las contraseñas no coinciden', darkMode);
       return;
     }
 
     if (passwordData.password_nueva.length < 8) {
-      toast.error('La contraseña debe tener al menos 8 caracteres');
+      showToast.error('La contraseña debe tener al menos 8 caracteres', darkMode);
       return;
     }
 
@@ -267,18 +264,18 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Contraseña actualizada correctamente');
+        showToast.success('Contraseña actualizada correctamente', darkMode);
         setPasswordData({
           password_actual: '',
           password_nueva: '',
           confirmar_password: ''
         });
       } else {
-        toast.error(data.message || 'Error al cambiar contraseña');
+        showToast.error(data.message || 'Error al cambiar contraseña', darkMode);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al cambiar contraseña');
+      showToast.error('Error al cambiar contraseña', darkMode);
     } finally {
       setLoading(false);
     }
@@ -302,14 +299,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       {/* Header con ícono */}
       <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 className="responsive-title" style={{ 
+          <h2 style={{ 
             color: 'var(--docente-text-primary)', 
             margin: '0 0 0.375rem 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: isMobile ? '0.5rem' : '0.625rem'
+            fontSize: isMobile ? '1.25rem' : '1.5rem',
+            fontWeight: '700'
           }}>
-            <UserCircle size={isMobile ? 20 : 26} color="#3b82f6" />
             Mi Perfil
           </h2>
           <p style={{ color: 'var(--docente-text-muted)', fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
@@ -317,35 +312,6 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
           </p>
         </div>
       </div>
-
-      {/* Overlay de animación */}
-      {isAnimating && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.9)',
-          zIndex: 99998,
-          animation: 'backdropFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-          backdropFilter: 'blur(20px)',
-          pointerEvents: 'none'
-        }}>
-          <style>{`
-            @keyframes backdropFadeIn {
-              from {
-                opacity: 0;
-                backdrop-filter: blur(0px);
-              }
-              to {
-                opacity: 1;
-                backdrop-filter: blur(20px);
-              }
-            }
-          `}</style>
-        </div>
-      )}
 
       {/* Tabs */}
       <div style={{
@@ -370,7 +336,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-          <FaUser size={14} />
+          <User size={14} />
           Información Personal
         </button>
         <button
@@ -389,7 +355,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-          <FaLock size={14} />
+          <Lock size={14} />
           Cambiar Contraseña
         </button>
       </div>
@@ -408,19 +374,14 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               backdropFilter: 'blur(20px)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
-              {/* Foto de perfil con animación */}
+              {/* Foto de perfil */}
               <div 
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsAnimating(true);
-                  setTimeout(() => {
-                    setShowPhotoPreview(true);
-                  }, 800);
+                  setShowPhotoPreview(true);
                 }}
                 style={{
-                  position: isAnimating ? 'fixed' : 'relative',
-                  left: isAnimating ? '50%' : '0',
-                  top: isAnimating ? '50%' : '0',
+                  position: 'relative',
                   width: '5.25rem',
                   height: '5.25rem',
                   borderRadius: '50%',
@@ -431,24 +392,18 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   fontSize: '2rem',
                   fontWeight: '800',
                   color: '#fff',
-                  border: isAnimating ? 'none' : '0',
                   overflow: 'hidden',
                   cursor: 'pointer',
                   margin: '0 auto 0.75rem',
-                  boxShadow: isAnimating ? 'none' : '0 0.5rem 1.5rem rgba(59, 130, 246, 0.4)',
-                  transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  transform: isAnimating ? 'translate(-50%, -50%) scale(4) rotate(360deg)' : 'scale(1) rotate(0deg)',
-                  zIndex: isAnimating ? 99999 : 1
+                  boxShadow: '0 0.5rem 1.5rem rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.3s ease',
+                  transform: 'scale(1) rotate(0deg)'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isAnimating) {
-                    e.currentTarget.style.transform = 'scale(1.08) rotate(5deg)';
-                  }
+                  e.currentTarget.style.transform = 'scale(1.08) rotate(5deg)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isAnimating) {
-                    e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                  }
+                  e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
                 }}>
                 {fotoUrl ? (
                   <img 
@@ -457,15 +412,11 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'cover',
-                      transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                      objectFit: 'cover'
                     }} 
                   />
                 ) : (
-                  <span style={{
-                    transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    filter: isAnimating ? 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.8))' : 'none'
-                  }}>
+                  <span>
                     {getInitials()}
                   </span>
                 )}
@@ -474,8 +425,8 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               <h3 style={{ color: 'var(--docente-text-primary)', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.125rem 0' }}>
                 {docente.nombres} {docente.apellidos}
               </h3>
-              <p style={{ color: 'var(--docente-text-muted)', fontSize: '0.75rem', margin: '0 0 0.375rem 0' }}>
-                @{docente.username}
+              <p style={{ color: 'var(--docente-text-muted)', fontSize: '0.8125rem', margin: '0 0 0.375rem 0' }}>
+                {docente.username ? `@${docente.username}` : ''}
               </p>
               
               <div style={{
@@ -490,7 +441,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 gap: '0.375rem',
                 marginTop: '0.5rem'
               }}>
-                <FaChalkboardTeacher size={12} />
+                <BookOpen size={14} />
                 Docente
               </div>
 
@@ -500,7 +451,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 borderTop: '1px solid var(--docente-border)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.5rem' }}>
-                  <FaCheckCircle size={16} color='#3b82f6' />
+                  <CheckCircle size={16} color='#3b82f6' />
                   <div style={{ textAlign: 'left', flex: 1 }}>
                     <div style={{ color: 'var(--docente-text-muted)', fontSize: '0.7rem' }}>Estado</div>
                     <div style={{ color: 'var(--docente-text-primary)', fontSize: '0.8125rem', fontWeight: '600', textTransform: 'capitalize' }}>
@@ -510,7 +461,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  <FaUser size={16} color='#3b82f6' />
+                  <User size={16} color='#3b82f6' />
                   <div style={{ textAlign: 'left', flex: 1 }}>
                     <div style={{ color: 'var(--docente-text-muted)', fontSize: '0.7rem' }}>Identificación</div>
                     <div style={{ color: 'var(--docente-text-primary)', fontSize: '0.8125rem', fontWeight: '600' }}>
@@ -542,7 +493,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       gap: '0.5rem',
                       transition: 'all 0.2s'
                     }}>
-                    <FaUser size={14} />
+                    <User size={14} />
                     Editar Perfil
                   </button>
                 ) : (
@@ -567,7 +518,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                         gap: '0.5rem',
                         transition: 'all 0.2s'
                       }}>
-                      <FaCheckCircle size={14} />
+                      <CheckCircle size={14} color="#fff" />
                       {loading ? 'Guardando...' : 'Guardar'}
                     </button>
                     <button
@@ -592,7 +543,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                         gap: '0.5rem',
                         transition: 'all 0.2s'
                       }}>
-                      <IoMdClose size={16} />
+                      <X size={16} />
                       Cancelar
                     </button>
                   </div>
@@ -655,7 +606,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaUser size={14} color='var(--docente-text-muted)' />
+                      <User size={14} color='var(--docente-text-muted)' />
                       {formData.nombres || 'No especificado'}
                     </div>
                   )}
@@ -694,7 +645,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaUser size={14} color='var(--docente-text-muted)' />
+                      <User size={14} color='var(--docente-text-muted)' />
                       {formData.apellidos || 'No especificado'}
                     </div>
                   )}
@@ -733,7 +684,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaEnvelope size={14} color='var(--docente-text-muted)' />
+                      <Mail size={14} color='var(--docente-text-muted)' />
                       {formData.email || 'No especificado'}
                     </div>
                   )}
@@ -771,7 +722,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaPhone size={14} color='var(--docente-text-muted)' />
+                      <Phone size={14} color='var(--docente-text-muted)' />
                       {formData.telefono || 'No especificado'}
                     </div>
                   )}
@@ -809,7 +760,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaMapMarkerAlt size={14} color='var(--docente-text-muted)' />
+                      <MapPin size={14} color='var(--docente-text-muted)' />
                       {formData.direccion || 'No especificado'}
                     </div>
                   )}
@@ -847,7 +798,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaBirthdayCake size={14} color='var(--docente-text-muted)' />
+                      <Cake size={14} color='var(--docente-text-muted)' />
                       {formData.fecha_nacimiento ? new Date(formData.fecha_nacimiento).toLocaleDateString() : 'No especificado'}
                     </div>
                   )}
@@ -889,7 +840,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaVenusMars size={14} color='var(--docente-text-muted)' />
+                      <Users size={14} color='var(--docente-text-muted)' />
                       {formData.genero ? formData.genero.charAt(0).toUpperCase() + formData.genero.slice(1) : 'No especificado'}
                     </div>
                   )}
@@ -928,7 +879,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaGraduationCap size={14} color='var(--docente-text-muted)' />
+                      <GraduationCap size={14} color='var(--docente-text-muted)' />
                       {formData.titulo_profesional || 'No especificado'}
                     </div>
                   )}
@@ -1041,7 +992,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showCurrentPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showCurrentPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
             </div>
@@ -1085,11 +1036,11 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showNewPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showNewPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
               <p style={{ fontSize: '0.7rem', color: 'var(--docente-text-muted)', margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <FaCheckCircle size={10} style={{ color: passwordData.password_nueva.length >= 8 ? '#3b82f6' : 'var(--docente-text-muted)' }} />
+                <CheckCircle size={12} color={passwordData.password_nueva.length >= 8 ? '#3b82f6' : '#9ca3af'} />
                 Mínimo 8 caracteres
               </p>
             </div>
@@ -1133,12 +1084,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showConfirmPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showConfirmPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
               {passwordData.confirmar_password && (
-                <p style={{ fontSize: '0.7rem', color: passwordData.password_nueva === passwordData.confirmar_password ? '#3b82f6' : '#3b82f6', margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <FaCheckCircle size={10} />
+                <p style={{ fontSize: '0.7rem', color: '#3b82f6', margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <CheckCircle size={12} color="#3b82f6" />
                   {passwordData.password_nueva === passwordData.confirmar_password ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden'}
                 </p>
               )}
@@ -1164,7 +1115,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   gap: '0.5rem',
                   transition: 'all 0.2s'
                 }}>
-                <HiOutlineShieldCheck size={16} />
+                <ShieldCheck size={16} color="#fff" />
                 {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
               </button>
             </div>
@@ -1173,21 +1124,26 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       )}
 
       {/* Vista previa de foto - Pantalla completa con X */}
-      {showPhotoPreview && (
+      {showPhotoPreview && createPortal(
         <div
+          onClick={() => setShowPhotoPreview(false)}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0, 0, 0, 0.95)',
-            zIndex: 100000,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.65)',
+            zIndex: 99999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            animation: 'photoPreviewFadeIn 0.5s ease-out',
-            backdropFilter: 'blur(20px)'
+            animation: 'photoPreviewFadeIn 0.3s ease-out',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            cursor: 'pointer'
           }}>
           <style>{`
             @keyframes photoPreviewFadeIn {
@@ -1200,18 +1156,18 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             }
             @keyframes photoScale {
               from {
-                transform: translate(-50%, -50%) scale(0.8) rotate(-10deg);
+                transform: translate(-50%, -50%) scale(0.85);
                 opacity: 0;
               }
               to {
-                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
               }
             }
             @keyframes closeButtonAppear {
               from {
                 opacity: 0;
-                transform: scale(0.5) rotate(-180deg);
+                transform: scale(0.7) rotate(-90deg);
               }
               to {
                 opacity: 1;
@@ -1230,9 +1186,9 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
           {/* Botón cerrar (X) */}
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setShowPhotoPreview(false);
-              setIsAnimating(false);
             }}
             style={{
               position: 'fixed',
@@ -1242,33 +1198,33 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               height: '44px',
               borderRadius: '50%',
               background: 'rgba(255, 255, 255, 0.15)',
-              border: 'none',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
               color: '#fff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 100001,
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-              transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              animation: 'closeButtonAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both',
-              backdropFilter: 'blur(20px)'
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.2s ease',
+              animation: 'closeButtonAppear 0.3s ease-out both',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.9)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.8)';
               e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
-              e.currentTarget.style.boxShadow = '0 6px 24px rgba(59, 130, 246, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
               e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.2)';
             }}>
-            <IoMdClose size={22} style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }} />
+            <X size={22} />
           </button>
 
           {/* Foto ampliada en el centro */}
           <div 
+            onClick={(e) => e.stopPropagation()}
             onMouseEnter={() => setIsPhotoHovered(true)}
             onMouseLeave={() => setIsPhotoHovered(false)}
             style={{
@@ -1278,20 +1234,23 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             width: '320px',
             height: '320px',
             borderRadius: '50%',
-            background: fotoUrl ? 'transparent' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            background: fotoUrl ? 'transparent' : 'var(--docente-card-bg, linear-gradient(135deg, #3b82f6, #2563eb))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '6rem',
             fontWeight: '700',
-            color: '#fff',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.1)',
-            border: '4px solid rgba(255, 255, 255, 0.15)',
+            color: 'var(--docente-text-primary, #fff)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--docente-border, rgba(255, 255, 255, 0.1))',
+            border: '4px solid var(--docente-border, rgba(255, 255, 255, 0.15))',
             overflow: 'hidden',
             animation: isPhotoHovered 
-              ? 'photoScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
-              : 'photoScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-            backdropFilter: 'blur(10px)'
+              ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
+              : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            cursor: 'default',
+            transition: 'transform 0.3s ease'
           }}>
             {fotoUrl ? (
               <img 
@@ -1311,7 +1270,8 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               </span>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import {
   X, Eye, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar
 } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 import { useSocket } from '../../hooks/useSocket';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -85,7 +85,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       console.log('Entregas establecidas:', entregasConEstado);
     } catch (error) {
       console.error('Error fetching entregas:', error);
-      toast.error('Error al cargar las entregas');
+      showToast.error('Error al cargar las entregas', darkMode);
     } finally {
       setLoading(false);
     }
@@ -93,15 +93,15 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   useSocket({
     'tarea_entregada_docente': (data: any) => {
-      console.log('📥 Nueva entrega recibida:', data);
+      console.log(' Nueva entrega recibida:', data);
       if (data.id_tarea === id_tarea) {
         const nombreEstudiante = data.estudiante_nombre || 'Un estudiante';
-        toast.success(`Nueva entrega de ${nombreEstudiante}`);
+        showToast.success(`Nueva entrega de ${nombreEstudiante}`, darkMode);
         fetchEntregas();
       }
     },
     'tarea_calificada': (data: any) => {
-      console.log('✅ Tarea calificada:', data);
+      console.log(' Tarea calificada:', data);
       if (data.id_tarea === id_tarea) {
         fetchEntregas();
       }
@@ -143,7 +143,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     const comentario = comentarioInput || '';
 
     if (isNaN(nota) || nota < 0 || nota > nota_maxima) {
-      toast.error(`La nota debe estar entre 0 y ${nota_maxima}`);
+      showToast.error(`La nota debe estar entre 0 y ${nota_maxima}`, darkMode);
       return;
     }
 
@@ -158,18 +158,30 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      toast.success('Tarea calificada exitosamente');
-      fetchEntregas();
-      onSuccess();
-      
-      // Cerrar modal de calificación
+      // Cerrar modal de calificación primero
       setShowCalificarModal(false);
       setEntregaSeleccionada(null);
       setNotaInput('');
       setComentarioInput('');
+      
+      // Cerrar también el modal principal de entregas
+      onClose();
+      
+      // Actualizar datos y mostrar notificación después de cerrar
+      fetchEntregas();
+      onSuccess();
+      
+      setTimeout(() => {
+        showToast.success('Tarea calificada exitosamente', darkMode);
+      }, 150);
     } catch (error: any) {
       console.error('Error calificando:', error);
-      toast.error(error.response?.data?.error || 'Error al calificar');
+      // Cerrar modales también en caso de error
+      setShowCalificarModal(false);
+      onClose();
+      setTimeout(() => {
+        showToast.error(error.response?.data?.error || 'Error al calificar', darkMode);
+      }, 150);
     } finally {
       setCalificando(null);
     }
@@ -199,10 +211,20 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       link.remove();
       window.URL.revokeObjectURL(url);
       
-      toast.success('Archivo descargado exitosamente');
+      // Cerrar modal principal antes de mostrar notificación
+      onClose();
+      
+      // Mostrar notificación después de cerrar el modal
+      setTimeout(() => {
+        showToast.success('Archivo descargado exitosamente', darkMode);
+      }, 200);
     } catch (error) {
       console.error('Error descargando archivo:', error);
-      toast.error('Error al descargar el archivo');
+      // Cerrar modal también en caso de error
+      onClose();
+      setTimeout(() => {
+        showToast.error('Error al descargar el archivo', darkMode);
+      }, 200);
     }
   };
 
@@ -225,7 +247,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       });
     } catch (error) {
       console.error('Error cargando archivo:', error);
-      toast.error('Error al cargar el archivo');
+      showToast.error('Error al cargar el archivo', darkMode);
     }
   };
 
@@ -309,10 +331,28 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         URL.revokeObjectURL(blobUrl);
       }, 150);
 
-      toast.success('Archivo descargado exitosamente');
+      // Cerrar modal de preview primero
+      setArchivoPreview(null);
+      
+      // Esperar un momento antes de cerrar el modal principal
+      setTimeout(() => {
+        onClose();
+        
+        // Mostrar notificación después de cerrar ambos modales
+        setTimeout(() => {
+          showToast.success('Archivo descargado exitosamente', darkMode);
+        }, 200);
+      }, 100);
     } catch (error) {
       console.error('Error descargando archivo:', error);
-      toast.error('Error al descargar el archivo');
+      // Cerrar ambos modales también en caso de error
+      setArchivoPreview(null);
+      setTimeout(() => {
+        onClose();
+        setTimeout(() => {
+          showToast.error('Error al descargar el archivo', darkMode);
+        }, 200);
+      }, 100);
     }
   };
 
@@ -368,19 +408,29 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         }}>
         {/* Header */}
         <div style={{
-          padding: '1.25em',
-          borderBottom: `0.0625rem solid ${theme.border}`,
+          padding: '1rem 1.5rem',
+          borderBottom: `1px solid ${theme.border}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-            <FileText size={28} style={{ color: '#3b82f6' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FileText size={20} color="#fff" />
+            </div>
             <div>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: '0 0 0.3em 0' }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '700', margin: 0, lineHeight: '1.2' }}>
                 Entregas de Tarea
               </h2>
-              <p style={{ color: theme.textSecondary, fontSize: '1rem', margin: 0 }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.875rem', margin: '0.25rem 0 0 0', lineHeight: '1.2' }}>
                 {nombre_tarea}
               </p>
             </div>
@@ -451,88 +501,197 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Estadísticas */}
         <div style={{
-          padding: '1em 1.25em',
-          borderBottom: `0.0625rem solid ${theme.border}`,
-          background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)'
+          margin: '0 1.25rem 1rem 1.25rem',
+          padding: '1.5rem',
+          borderRadius: '0.75rem',
+          background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)',
+          boxShadow: darkMode 
+            ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+            : '0 4px 6px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', gap: '1em', flexWrap: 'wrap' }}>
+          <h3 style={{
+            color: theme.textPrimary,
+            fontSize: '1rem',
+            fontWeight: '700',
+            margin: '0 0 1rem 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <BarChart3 size={20} style={{ color: '#3b82f6' }} />
+            Resumen de Entregas
+          </h3>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+            gap: '1rem' 
+          }}>
+            {/* Total */}
             <div style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.5em',
-              padding: '0.5em 1em',
-              background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
-              borderRadius: '0.5em',
-              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`
+              padding: '0.75rem',
+              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+              borderRadius: '0.75rem',
+              border: `1px solid rgba(59, 130, 246, 0.2)`,
+              transition: 'all 0.2s ease',
+              cursor: 'default'
             }}>
-              <Users size={18} color={darkMode ? '#3b82f6' : '#2563eb'} />
-              <div>
-                <div style={{ color: theme.textPrimary, fontSize: '0.9rem', fontWeight: '600' }}>
-                  {stats.total}
-                </div>
-                <div style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                  Total
-                </div>
+              <div style={{
+                width: '2rem',
+                height: '2rem',
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                <Users size={16} color="#fff" />
+              </div>
+              <div style={{ 
+                color: '#3b82f6', 
+                fontSize: '1.25rem', 
+                fontWeight: '800',
+                marginBottom: '0.125rem'
+              }}>
+                {stats.total}
+              </div>
+              <div style={{ 
+                color: theme.textSecondary, 
+                fontSize: '0.7rem',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Total
               </div>
             </div>
             
+            {/* Pendientes */}
             <div style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.5em',
-              padding: '0.5em 1em',
+              padding: '0.75rem',
               background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-              borderRadius: '0.5em',
-              border: `1px solid ${darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.2)'}`
+              borderRadius: '0.75rem',
+              border: `1px solid rgba(251, 191, 36, 0.2)`,
+              transition: 'all 0.2s ease',
+              cursor: 'default'
             }}>
-              <Clock size={18} color="#fbbf24" />
-              <div>
-                <div style={{ color: '#fbbf24', fontSize: '0.9rem', fontWeight: '600' }}>
-                  {stats.pendientes}
-                </div>
-                <div style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                  Pendientes
-                </div>
+              <div style={{
+                width: '2rem',
+                height: '2rem',
+                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                <Clock size={16} color="#fff" />
+              </div>
+              <div style={{ 
+                color: '#fbbf24', 
+                fontSize: '1.25rem', 
+                fontWeight: '800',
+                marginBottom: '0.125rem'
+              }}>
+                {stats.pendientes}
+              </div>
+              <div style={{ 
+                color: theme.textSecondary, 
+                fontSize: '0.7rem',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Pendientes
               </div>
             </div>
             
+            {/* Calificadas */}
             <div style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.5em',
-              padding: '0.5em 1em',
+              padding: '0.75rem',
               background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-              borderRadius: '0.5em',
-              border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`
+              borderRadius: '0.75rem',
+              border: `1px solid rgba(16, 185, 129, 0.2)`,
+              transition: 'all 0.2s ease',
+              cursor: 'default'
             }}>
-              <FileCheck size={18} color="#10b981" />
-              <div>
-                <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600' }}>
-                  {stats.calificadas}
-                </div>
-                <div style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                  Calificadas
-                </div>
+              <div style={{
+                width: '2rem',
+                height: '2rem',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                <FileCheck size={16} color="#fff" />
+              </div>
+              <div style={{ 
+                color: '#10b981', 
+                fontSize: '1.25rem', 
+                fontWeight: '800',
+                marginBottom: '0.125rem'
+              }}>
+                {stats.calificadas}
+              </div>
+              <div style={{ 
+                color: theme.textSecondary, 
+                fontSize: '0.7rem',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Calificadas
               </div>
             </div>
             
+            {/* Completado */}
             <div style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.5em',
-              padding: '0.5em 1em',
+              padding: '0.75rem',
               background: darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)',
-              borderRadius: '0.5em',
-              border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`
+              borderRadius: '0.75rem',
+              border: `1px solid rgba(16, 185, 129, 0.3)`,
+              transition: 'all 0.2s ease',
+              cursor: 'default'
             }}>
-              <Award size={18} color="#10b981" />
-              <div>
-                <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: '600' }}>
-                  {stats.porcentaje}%
-                </div>
-                <div style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                  Completado
-                </div>
+              <div style={{
+                width: '2rem',
+                height: '2rem',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                <Award size={16} color="#fff" />
+              </div>
+              <div style={{ 
+                color: '#10b981', 
+                fontSize: '1.25rem', 
+                fontWeight: '800',
+                marginBottom: '0.125rem'
+              }}>
+                {stats.porcentaje}%
+              </div>
+              <div style={{ 
+                color: theme.textSecondary, 
+                fontSize: '0.7rem',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Completado
               </div>
             </div>
           </div>
@@ -541,7 +700,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         {/* Controles de filtro y búsqueda */}
         <div style={{
           padding: '1em 1.25em',
-          borderBottom: `0.0625rem solid ${theme.border}`,
           display: 'flex',
           gap: '1em',
           flexWrap: 'wrap',
@@ -643,7 +801,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Tabla de entregas */}
         <div style={{
-          padding: '0',
+          margin: '0 1.25rem 1.25rem 1.25rem',
           maxHeight: 'calc(90vh - 20rem)',
           overflowY: 'auto'
         }}>
@@ -671,16 +829,33 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               textAlign: 'center', 
               padding: '3em 1em', 
               color: theme.textSecondary,
-              fontSize: '1rem'
+              fontSize: '1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem'
             }}>
-              📋 No hay entregas que coincidan con los filtros
+              <FileText size={48} style={{ opacity: 0.3, color: theme.textMuted }} />
+              <div>No hay entregas que coincidan con los filtros</div>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto', maxHeight: '60vh', overflowY: 'auto' }}>
+            <div style={{ 
+              overflowX: 'auto', 
+              maxHeight: '60vh', 
+              overflowY: 'auto',
+              borderRadius: '0.75rem',
+              boxShadow: darkMode 
+                ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+                : '0 4px 6px rgba(0, 0, 0, 0.05)',
+              background: theme.modalBg
+            }}>
               <table style={{ 
                 width: '100%', 
-                borderCollapse: 'collapse',
-                fontSize: '0.875rem'
+                borderCollapse: 'separate',
+                borderSpacing: 0,
+                fontSize: '0.875rem',
+                borderRadius: '0.75rem',
+                overflow: 'hidden'
               }}>
                 <thead style={{
                   position: 'sticky',
@@ -688,8 +863,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   zIndex: 10
                 }}>
                   <tr style={{
-                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
-                    borderBottom: `2px solid ${theme.border}`
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
                   }}>
                     <th style={{
                       padding: '1em',
@@ -746,7 +920,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     <tr 
                       key={entrega.id_entrega}
                       style={{
-                        borderBottom: `1px solid ${theme.border}`,
                         background: darkMode ? 'transparent' : '#fff',
                         transition: 'background 0.2s ease'
                       }}
@@ -974,23 +1147,33 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0,0,0,0.7)',
+        animation: 'fadeIn 0.2s ease-out',
+        background: 'rgba(0, 0, 0, 0.65)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000000,
-        backdropFilter: 'blur(0.25rem)'
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)'
       }}
       onClick={() => setShowCalificarModal(false)}
     >
       <div 
         style={{
-          background: theme.modalBg,
+          background: darkMode 
+            ? 'rgba(15, 23, 42, 0.95)' 
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           borderRadius: '0.75em',
           width: '90%',
           maxWidth: '30rem',
           padding: '1.5em',
-          boxShadow: darkMode ? '0 1rem 3rem rgba(0,0,0,0.45)' : '0 1rem 3rem rgba(0,0,0,0.18)'
+          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+          boxShadow: darkMode 
+            ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' 
+            : '0 1rem 3rem rgba(0, 0, 0, 0.15)',
+          animation: 'scaleIn 0.2s ease-out'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -1113,7 +1296,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 } else if (parseFloat(value) > nota_maxima) {
                   // Si excede, establecer el máximo
                   setNotaInput(nota_maxima.toString());
-                  toast.error(`La nota máxima es ${nota_maxima}`);
+                  showToast.error(`La nota máxima es ${nota_maxima}`, darkMode);
                 }
               }}
               onBlur={(e) => {
@@ -1155,9 +1338,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   fontWeight: '600',
                   marginBottom: '0.25em',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem'
                 }}>
-                  📊 Aporte Ponderado
+                  <BarChart3 size={14} />
+                  Aporte Ponderado
                 </div>
                 <div style={{ 
                   color: theme.textPrimary, 
@@ -1294,6 +1481,20 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+        @keyframes fadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          0% { 
+            opacity: 0;
+            transform: scale(0.9) translateY(-10px);
+          }
+          100% { 
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
       `}</style>
       <div style={{ pointerEvents: 'auto' }}>
         {modalContent}
@@ -1307,74 +1508,101 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.9)',
+            background: 'rgba(0, 0, 0, 0.65)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999999,
             padding: '2em',
-            backdropFilter: 'blur(8px)'
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            animation: 'fadeIn 0.2s ease-out'
           }}>
             <div style={{
-              background: darkMode ? 'rgba(26,26,46,0.98)' : '#ffffff',
-              borderRadius: '1em',
-              padding: '2em',
-              maxWidth: '60em',
-              width: '100%',
-              maxHeight: '90vh',
+              background: darkMode
+                ? 'rgba(15, 23, 42, 0.95)'
+                : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              maxWidth: '32rem',
+              width: '90%',
+              maxHeight: '80vh',
               overflowY: 'auto',
-              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+              border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)'}`,
+              boxShadow: darkMode
+                ? '0 10px 30px rgba(0, 0, 0, 0.4)'
+                : '0 10px 30px rgba(0, 0, 0, 0.1)',
+              animation: 'scaleIn 0.2s ease-out'
             }}>
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5em' }}>
-                <h3 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
-                  {archivoPreview.entrega.estudiante_apellido} {archivoPreview.entrega.estudiante_nombre} - {nombre_tarea}
-                </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{
+                    width: '2rem',
+                    height: '2rem',
+                    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                    borderRadius: '0.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <FileText size={16} color="#fff" />
+                  </div>
+                  <div>
+                    <h3 style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+                      Vista Previa del Archivo
+                    </h3>
+                    <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0 }}>
+                      {archivoPreview.entrega.estudiante_apellido} {archivoPreview.entrega.estudiante_nombre}
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => {
                     window.URL.revokeObjectURL(archivoPreview.url);
                     setArchivoPreview(null);
                   }}
                   style={{
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    borderRadius: '0.5em',
-                    padding: '0.5em',
-                    color: '#ef4444',
+                    background: 'transparent',
+                    border: 'none',
+                    color: theme.textSecondary,
                     cursor: 'pointer',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {/* Información del archivo */}
               <div style={{
                 background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '0.75em',
-                padding: '1em',
-                marginBottom: '1.5em'
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                borderRadius: '0.5rem',
+                padding: '0.75rem',
+                marginBottom: '1rem'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
-                  <FileText size={24} color="#3b82f6" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <FileText size={18} color="#3b82f6" />
                   <div>
-                    <p style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+                    <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: 0 }}>
                       {archivoPreview.entrega.archivo_nombre}
                     </p>
-                    <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
-                      Entregado: {new Date(archivoPreview.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(archivoPreview.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
+                      {new Date(archivoPreview.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(archivoPreview.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                     </p>
                   </div>
                 </div>
@@ -1382,11 +1610,11 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
               {/* Vista previa */}
               <div style={{
-                background: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
-                borderRadius: '0.75em',
-                padding: '1em',
-                marginBottom: '1.5em',
-                minHeight: '25em',
+                background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)',
+                borderRadius: '0.5rem',
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                minHeight: '16rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -1398,8 +1626,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     alt="Preview"
                     style={{
                       maxWidth: '100%',
-                      maxHeight: '35em',
-                      borderRadius: '0.5em',
+                      maxHeight: '20rem',
+                      borderRadius: '0.375rem',
                       objectFit: 'contain'
                     }}
                   />
@@ -1409,7 +1637,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     src={archivoPreview.url}
                     style={{
                       width: '100%',
-                      height: '35em',
+                      height: '20rem',
                       border: 'none',
                       borderRadius: '0.5em'
                     }}
@@ -1427,28 +1655,28 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               </div>
 
               {/* Botones */}
-              <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                 <button
                   onClick={() => {
                     window.URL.revokeObjectURL(archivoPreview.url);
                     setArchivoPreview(null);
                   }}
                   style={{
-                    background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
-                    border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                    borderRadius: '0.5em',
-                    padding: '0.75em 1.5em',
-                    color: darkMode ? '#fff' : '#64748b',
-                    fontWeight: '700',
+                    background: 'transparent',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    color: theme.textSecondary,
+                    fontWeight: '600',
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
+                    e.currentTarget.style.background = 'transparent';
                   }}
                 >
                   Cerrar
@@ -1458,28 +1686,28 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   style={{
                     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                     border: 'none',
-                    borderRadius: '0.5em',
-                    padding: '0.75em 1.5em',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 1rem',
                     color: '#fff',
-                    fontWeight: '800',
+                    fontWeight: '600',
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5em',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                    gap: '0.5rem',
+                    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.25)',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.25)';
                   }}
                 >
-                  <Download size={18} />
+                  <Download size={16} />
                   Descargar
                 </button>
               </div>

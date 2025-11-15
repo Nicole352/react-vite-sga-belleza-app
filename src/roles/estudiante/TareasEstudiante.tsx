@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, BookOpen, Upload, CheckCircle, Clock,
-  AlertCircle, FileText, Award, TrendingUp, Download,
+  AlertCircle, FileText, Award, Download,
   ChevronDown, ChevronUp, Edit3, Trash2, X, FileCheck
 } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -41,10 +42,14 @@ interface Curso {
   codigo_curso: string;
 }
 
-const TareasEstudiante: React.FC = () => {
+interface TareasEstudianteProps {
+  darkMode?: boolean;
+}
+
+const TareasEstudiante: React.FC<TareasEstudianteProps> = ({ darkMode = false }) => {
   const { id_curso } = useParams<{ id_curso: string }>();
   const navigate = useNavigate();
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  const { isMobile } = useBreakpoints();
   const [curso, setCurso] = useState<Curso | null>(null);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [modulosAgrupados, setModulosAgrupados] = useState<ModuloAgrupado[]>([]);
@@ -55,6 +60,8 @@ const TareasEstudiante: React.FC = () => {
   const [archivo, setArchivo] = useState<File | null>(null);
   const [comentario, setComentario] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [entregaToDelete, setEntregaToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCursoData();
@@ -95,7 +102,7 @@ const TareasEstudiante: React.FC = () => {
       setCurso(response.data);
     } catch (error) {
       console.error('Error fetching curso:', error);
-      toast.error('Error cargando información del curso');
+      showToast.error('Error cargando información del curso', darkMode);
     }
   };
 
@@ -109,7 +116,7 @@ const TareasEstudiante: React.FC = () => {
       setTareas(response.data.tareas || []);
     } catch (error) {
       console.error('Error fetching tareas:', error);
-      toast.error('Error cargando tareas');
+      showToast.error('Error cargando tareas', darkMode);
     } finally {
       setLoading(false);
     }
@@ -135,13 +142,13 @@ const TareasEstudiante: React.FC = () => {
       const maxSize = 5 * 1024 * 1024; // 5MB
 
       if (file.size > maxSize) {
-        toast.error('El archivo no debe superar 5MB');
+        showToast.error('El archivo no debe superar 5MB', darkMode);
         return;
       }
 
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        toast.error('Solo se permiten archivos PDF, JPG, PNG, WEBP');
+        showToast.error('Solo se permiten archivos PDF, JPG, PNG, WEBP', darkMode);
         return;
       }
 
@@ -151,7 +158,7 @@ const TareasEstudiante: React.FC = () => {
 
   const handleSubmitEntrega = async () => {
     if (!archivo && !tareaSeleccionada?.id_entrega) {
-      toast.error('Debes seleccionar un archivo');
+      showToast.error('Debes seleccionar un archivo', darkMode);
       return;
     }
 
@@ -173,7 +180,7 @@ const TareasEstudiante: React.FC = () => {
             'Content-Type': 'multipart/form-data'
           }
         });
-        toast.success('Entrega actualizada exitosamente');
+        showToast.success('Entrega actualizada exitosamente', darkMode);
       } else {
         // Crear nueva entrega
         await axios.post(`${API_BASE}/entregas`, formData, {
@@ -182,35 +189,42 @@ const TareasEstudiante: React.FC = () => {
             'Content-Type': 'multipart/form-data'
           }
         });
-        toast.success('Tarea entregada exitosamente');
+        showToast.success('Tarea entregada exitosamente', darkMode);
       }
 
       setShowModalEntrega(false);
       fetchTareas();
     } catch (error: any) {
       console.error('Error submitting entrega:', error);
-      toast.error(error.response?.data?.error || 'Error al entregar tarea');
+      showToast.error(error.response?.data?.error || 'Error al entregar tarea', darkMode);
     } finally {
       setUploading(false);
     }
   };
 
-  const handleEliminarEntrega = async (id_entrega: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.')) {
-      return;
-    }
+  const handleEliminarEntrega = async () => {
+    if (!entregaToDelete) return;
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE}/entregas/${id_entrega}`, {
+      await axios.delete(`${API_BASE}/entregas/${entregaToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Entrega eliminada exitosamente');
+      showToast.success('Entrega eliminada exitosamente', darkMode);
       fetchTareas();
+      setShowConfirmDelete(false);
+      setEntregaToDelete(null);
     } catch (error: any) {
       console.error('Error eliminando entrega:', error);
-      toast.error(error.response?.data?.error || 'Error al eliminar entrega');
+      showToast.error(error.response?.data?.error || 'Error al eliminar entrega', darkMode);
+      setShowConfirmDelete(false);
+      setEntregaToDelete(null);
     }
+  };
+
+  const openDeleteConfirm = (id_entrega: number) => {
+    setEntregaToDelete(id_entrega);
+    setShowConfirmDelete(true);
   };
 
   const getEstadoColor = (estado: string) => {
@@ -691,7 +705,7 @@ const TareasEstudiante: React.FC = () => {
                                           Editar
                                         </button>
                                         <button
-                                          onClick={() => handleEliminarEntrega(tarea.id_entrega!)}
+                                          onClick={() => openDeleteConfirm(tarea.id_entrega!)}
                                           style={{
                                             background: 'rgba(239, 68, 68, 0.1)',
                                             border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
@@ -1121,6 +1135,103 @@ const TareasEstudiante: React.FC = () => {
           }
         }
       `}</style>
+
+      {/* Modal de Confirmación de Eliminación */}
+      {showConfirmDelete && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(8px)',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div style={{
+            background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            borderRadius: '1rem',
+            border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+            padding: '1.5rem',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+            animation: 'scaleIn 0.2s ease-out'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              marginBottom: '1rem'
+            }}>
+              <AlertCircle size={24} color="#ef4444" />
+              <h3 style={{
+                color: darkMode ? '#fff' : '#1e293b',
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                margin: 0
+              }}>
+                Confirmar Eliminación
+              </h3>
+            </div>
+            <p style={{
+              color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
+              fontSize: '0.95rem',
+              lineHeight: '1.5',
+              margin: '0 0 1.5rem 0'
+            }}>
+              ¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setEntregaToDelete(null);
+                }}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#f1f5f9',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0'}`,
+                  borderRadius: '0.5rem',
+                  color: darkMode ? '#fff' : '#475569',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleEliminarEntrega}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

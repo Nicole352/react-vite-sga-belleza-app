@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Eye, XCircle, CreditCard } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { AlertCircle, CheckCircle, Eye, XCircle, CreditCard, Gift, Calendar, DollarSign, Clock, FileText, Sparkles } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
 import ModalPagoMensualidad from './ModalPagoMensualidad';
-import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import '../../styles/responsive.css';
@@ -92,7 +91,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
   useSocket({
     'pago_verificado_estudiante': (data: any) => {
       console.log('✅ Pago verificado (estudiante):', data);
-      toast.success(`¡Tu pago de la cuota #${data.numero_cuota} ha sido verificado!`);
+      showToast.success(`¡Tu pago de la cuota #${data.numero_cuota} ha sido verificado!`, darkMode);
       loadData();
       // Recargar cuotas si el curso está expandido
       if (cursoExpandido) {
@@ -101,7 +100,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
     },
     'pago_verificado': (data: any) => {
       console.log('✅ Pago verificado (broadcast):', data);
-      toast.success('¡Tu pago ha sido verificado!');
+      showToast.success('¡Tu pago ha sido verificado!', darkMode);
       loadData();
       // Recargar cuotas si el curso está expandido
       if (cursoExpandido) {
@@ -110,7 +109,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
     },
     'pago_rechazado': (data: any) => {
       console.log('❌ Pago rechazado:', data);
-      toast.error(`Pago rechazado: ${data.observaciones}`);
+      showToast.error(`Pago rechazado: ${data.observaciones}`, darkMode);
       loadData();
       // Recargar cuotas si el curso está expandido
       if (cursoExpandido) {
@@ -140,7 +139,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       setCuotasPorCurso(prev => ({ ...prev, [id_matricula]: cuotas }));
     } catch (error) {
       console.error('Error cargando cuotas:', error);
-      toast.error('Error cargando cuotas');
+      showToast.error('Error cargando cuotas', darkMode);
     } finally {
       setLoadingCuotas(prev => ({ ...prev, [id_matricula]: false }));
     }
@@ -289,29 +288,30 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
     <div
       style={{
         minHeight: '100%',
-        backgroundColor: darkMode ? '#1a1a1a' : '#f9fafb',
+        backgroundColor: 'transparent',
         color: darkMode ? '#fff' : '#1f2937',
-        padding: '1rem',
-        paddingBottom: '2rem',
-        paddingTop: '3rem'
+        padding: '0',
+        paddingBottom: '1.5rem',
+        paddingTop: '0.75rem'
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
           <div style={{
-            width: '2rem',
-            height: '2rem',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            borderRadius: '0.5rem',
+            width: '3rem',
+            height: '3rem',
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+            borderRadius: '0.875rem',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
           }}>
-            <CreditCard size={16} style={{ color: '#fff' }} />
+            <CreditCard size={24} strokeWidth={2.5} color="#fff" />
           </div>
           <div>
-            <h1 style={{ fontSize: isMobile ? '0.9rem' : '1rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
+            <h1 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
               Gestión de Pagos
             </h1>
             <p style={{ fontSize: isMobile ? '0.7rem' : '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
@@ -423,7 +423,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
 
       {/* Cursos con pagos pendientes */}
       <div id="cursos-pagos" style={{ marginBottom: '0.75em' }}>
-        <h2 style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '800', marginBottom: '0.5em', color: darkMode ? '#fff' : '#1f2937' }}>
+        <h2 style={{ fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '700', marginBottom: '0.75em', color: darkMode ? '#fff' : '#1f2937' }}>
           Cursos con Pagos Pendientes
         </h2>
 
@@ -445,52 +445,66 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
-            {cursosConPagos.map((curso) => (
+            {cursosConPagos
+              .filter(curso => curso.curso_nombre.toString() !== "0" && curso.curso_nombre.toString().trim() !== "")
+              .map((curso) => (
               <div
                 key={curso.id_matricula}
                 style={{
-                  backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
-                  border: darkMode ? '0.0625rem solid rgba(255,255,255,0.2)' : '0.0625rem solid #e5e7eb',
-                  borderRadius: '0.625em',
-                  padding: '0.625em'
+                  backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : '#ffffff',
+                  border: `1px solid ${darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.2)'}`,
+                  borderRadius: '1rem',
+                  padding: '1.15em 1.25em',
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: darkMode 
+                    ? '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(251, 191, 36, 0.1)' 
+                    : '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(251, 191, 36, 0.1)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5em' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', margin: 0, marginBottom: '0.75em' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', flexWrap: 'wrap' }}>
                       <h3 style={{ fontSize: '0.95rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
-                        {curso.curso_nombre}
+                        {curso.curso_nombre.toString().replace(/\s*0\s*$/, '')}
                       </h3>
                       {curso.es_curso_promocional && (
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.25em',
-                          padding: '0.25em 0.5em',
-                          backgroundColor: '#10b981',
+                          gap: '0.375em',
+                          padding: '0.25em 0.625em',
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
                           color: 'white',
-                          borderRadius: '0.375em',
+                          borderRadius: '0.5em',
                           fontSize: '0.7rem',
-                          fontWeight: '700'
+                          fontWeight: '700',
+                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
                         }}>
-                          🎁 CURSO PROMOCIONAL
+                          <Gift size={12} strokeWidth={2.5} />
+                          CURSO PROMOCIONAL
                         </span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.78rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginTop: '0.25em' }}>
-                      {curso.tipo_curso_nombre} • {curso.codigo_matricula}
+                      {curso.tipo_curso_nombre} {!curso.es_curso_promocional && curso.codigo_matricula && curso.codigo_matricula.toString() !== "0" && `• ${curso.codigo_matricula.toString().replace(/\s*0\s*$/, '')}`}
                     </div>
                     {curso.es_curso_promocional && curso.nombre_promocion && (
                       <div style={{
                         fontSize: '0.75rem',
                         color: '#10b981',
                         fontWeight: '600',
-                        marginTop: '0.25em'
+                        marginTop: '0.25em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375em',
+                        flexWrap: 'wrap'
                       }}>
-                        ✨ {curso.nombre_promocion} - {curso.meses_gratis} {curso.meses_gratis === 1 ? 'mes' : 'meses'} GRATIS
+                        <Sparkles size={14} strokeWidth={2.5} />
+                        <span>{curso.nombre_promocion} - {curso.meses_gratis} {curso.meses_gratis === 1 ? 'mes' : 'meses'} GRATIS</span>
                         {curso.fecha_inicio_cobro && (
                           <span style={{ color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', fontWeight: '400' }}>
-                            {' '}• Inicio de cobros: {new Date(curso.fecha_inicio_cobro).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })}
+                            • Inicio de cobros: {new Date(curso.fecha_inicio_cobro).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })}
                           </span>
                         )}
                       </div>
@@ -501,58 +515,108 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.375em',
-                      padding: '0.375em 0.625em',
-                      backgroundColor: cursoExpandido === curso.id_matricula ? '#ef4444' : '#3b82f6',
+                      gap: '0.5em',
+                      padding: '0.5em 0.875em',
+                      background: cursoExpandido === curso.id_matricula 
+                        ? 'linear-gradient(135deg, #ef4444, #dc2626)' 
+                        : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '0.5em',
+                      borderRadius: '0.625em',
                       fontSize: '0.8rem',
-                      fontWeight: '600',
+                      fontWeight: '700',
                       cursor: 'pointer',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      boxShadow: cursoExpandido === curso.id_matricula
+                        ? '0 2px 8px rgba(239, 68, 68, 0.3)'
+                        : '0 2px 8px rgba(251, 191, 36, 0.3)',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = cursoExpandido === curso.id_matricula
+                        ? '0 4px 12px rgba(239, 68, 68, 0.4)'
+                        : '0 4px 12px rgba(251, 191, 36, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = cursoExpandido === curso.id_matricula
+                        ? '0 2px 8px rgba(239, 68, 68, 0.3)'
+                        : '0 2px 8px rgba(251, 191, 36, 0.3)';
                     }}
                   >
                     {cursoExpandido === curso.id_matricula ? (
                       <>
-                        <XCircle size={14} />
+                        <XCircle size={16} strokeWidth={2.5} color="#fff" />
                         Ocultar
                       </>
                     ) : (
                       <>
-                        <Eye size={14} />
+                        <Eye size={16} strokeWidth={2.5} color="#fff" />
                         Ver Cuotas
                       </>
                     )}
                   </button>
                 </div>
 
-                <div className="responsive-grid-auto" style={{ gap: '0.375em' }}>
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Cuotas Pendientes</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#f59e0b' }}>
-                      {curso.cuotas_pendientes}
+                <div className="responsive-grid-auto" style={{ gap: '0.5em', marginTop: '0.25em' }}>
+                  <div style={{
+                    padding: '0.625em',
+                    background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.1)',
+                    borderRadius: '0.625em',
+                    border: `1px solid ${darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.2)'}`
+                  }}>
+                    <div style={{ fontSize: '0.72rem', color: '#f59e0b', marginBottom: '0.375em', display: 'flex', alignItems: 'center', gap: '0.25em', fontWeight: '600' }}>
+                      <Clock size={12} strokeWidth={2.5} color="#f59e0b" />
+                      Cuotas Pendientes
+                    </div>
+                    <div style={{ fontSize: '1rem', fontWeight: '800', color: '#f59e0b' }}>
+                      {curso.cuotas_pendientes > 0 ? curso.cuotas_pendientes : 1}
                     </div>
                   </div>
 
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Cuotas Vencidas</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ef4444' }}>
-                      {curso.cuotas_vencidas}
+                  <div style={{
+                    padding: '0.625em',
+                    background: darkMode ? 'rgba(239, 68, 68, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '0.625em',
+                    border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.2)'}`
+                  }}>
+                    <div style={{ fontSize: '0.72rem', color: '#ef4444', marginBottom: '0.375em', display: 'flex', alignItems: 'center', gap: '0.25em', fontWeight: '600' }}>
+                      <AlertCircle size={12} strokeWidth={2.5} color="#ef4444" />
+                      Cuotas Vencidas
+                    </div>
+                    <div style={{ fontSize: '1rem', fontWeight: '800', color: '#ef4444' }}>
+                      {curso.cuotas_vencidas > 0 ? curso.cuotas_vencidas : 0}
                     </div>
                   </div>
 
-                  <div>
-                    <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Monto Pendiente</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: '800', color: darkMode ? '#fff' : '#1f2937' }}>
+                  <div style={{
+                    padding: '0.625em',
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                    borderRadius: '0.625em',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}`
+                  }}>
+                    <div style={{ fontSize: '0.72rem', color: darkMode ? '#fbbf24' : '#f59e0b', marginBottom: '0.375em', display: 'flex', alignItems: 'center', gap: '0.25em', fontWeight: '600' }}>
+                      <DollarSign size={12} strokeWidth={2.5} color={darkMode ? '#fbbf24' : '#f59e0b'} />
+                      Monto Pendiente
+                    </div>
+                    <div style={{ fontSize: '1rem', fontWeight: '800', color: darkMode ? '#fbbf24' : '#f59e0b' }}>
                       {formatearMonto(curso.monto_pendiente)}
                     </div>
                   </div>
 
                   {!curso.es_curso_promocional && curso.proxima_fecha_vencimiento && (
-                    <div>
-                      <div style={{ fontSize: '0.72rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', marginBottom: '0.125em' }}>Próximo Vencimiento</div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: darkMode ? '#fff' : '#1f2937' }}>
+                    <div style={{
+                      padding: '0.625em',
+                      background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: '0.625em',
+                      border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.2)'}`
+                    }}>
+                      <div style={{ fontSize: '0.72rem', color: '#3b82f6', marginBottom: '0.375em', display: 'flex', alignItems: 'center', gap: '0.25em', fontWeight: '600' }}>
+                        <Calendar size={12} strokeWidth={2.5} color="#3b82f6" />
+                        Próximo Vencimiento
+                      </div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#3b82f6' }}>
                         {formatearFecha(curso.proxima_fecha_vencimiento)}
                       </div>
                     </div>
@@ -562,14 +626,28 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                 {/* Información y opciones para curso promocional */}
                 {curso.es_curso_promocional && (
                   <div style={{
-                    marginTop: '0.75em',
-                    padding: '0.75em',
-                    backgroundColor: darkMode ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5',
-                    border: `0.125rem solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : '#10b981'}`,
-                    borderRadius: '0.5em'
+                    marginTop: '0.5em',
+                    padding: '0.875em 1em',
+                    background: darkMode 
+                      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1))' 
+                      : 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
+                    border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : '#10b981'}`,
+                    borderRadius: '0.75em',
+                    boxShadow: darkMode 
+                      ? '0 4px 12px rgba(16, 185, 129, 0.1)' 
+                      : '0 4px 12px rgba(16, 185, 129, 0.15)'
                   }}>
-                    <div style={{ fontSize: '0.85rem', color: darkMode ? '#d1fae5' : '#065f46', marginBottom: '0.5em' }}>
-                      <strong>🎁 Beneficio Promocional:</strong>
+                    <div style={{ 
+                      fontSize: '0.875rem', 
+                      color: darkMode ? '#d1fae5' : '#065f46', 
+                      marginBottom: '0.625em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5em',
+                      fontWeight: '700'
+                    }}>
+                      <Gift size={16} strokeWidth={2.5} />
+                      <strong>Beneficio Promocional:</strong>
                     </div>
                     <ul style={{ 
                       margin: 0, 
@@ -597,39 +675,66 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                           style={{
                             flex: 1,
                             minWidth: '150px',
-                            padding: '0.5em 1em',
-                            backgroundColor: '#10b981',
+                            padding: '0.625em 1em',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '0.5em',
+                            borderRadius: '0.625em',
                             fontSize: '0.85rem',
-                            fontWeight: '600',
-                            cursor: 'pointer'
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5em',
+                            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                            transition: 'all 0.2s ease'
                           }}
-                          onClick={() => toast.success('¡Excelente! Continuarás con el curso después del período gratuito')}
+                          onClick={() => showToast.success('¡Excelente! Continuarás con el curso después del período gratuito', darkMode)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+                          }}
                         >
-                          ✅ Quiero Continuar
+                          <CheckCircle size={16} strokeWidth={2.5} />
+                          Quiero Continuar
                         </button>
                         <button
                           style={{
                             flex: 1,
                             minWidth: '150px',
-                            padding: '0.5em 1em',
+                            padding: '0.625em 1em',
                             backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
                             color: darkMode ? '#fca5a5' : '#dc2626',
-                            border: `0.0625rem solid ${darkMode ? 'rgba(239, 68, 68, 0.4)' : '#fca5a5'}`,
-                            borderRadius: '0.5em',
+                            border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.4)' : '#fca5a5'}`,
+                            borderRadius: '0.625em',
                             fontSize: '0.85rem',
-                            fontWeight: '600',
-                            cursor: 'pointer'
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5em',
+                            transition: 'all 0.2s ease'
                           }}
                           onClick={() => {
                             if (confirm('¿Estás seguro de que no deseas continuar con este curso después del período gratuito?')) {
-                              toast('Se notificará al administrador de tu decisión', { icon: 'ℹ️' });
+                              showToast.info('Se notificará al administrador de tu decisión', darkMode);
                             }
                           }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
                         >
-                          ❌ No Continuaré
+                          <XCircle size={16} strokeWidth={2.5} />
+                          No Continuaré
                         </button>
                       </div>
                     )}
@@ -639,19 +744,23 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                 {/* Cuotas expandidas inline */}
                 {cursoExpandido === curso.id_matricula && (
                   <div style={{
-                    marginTop: '1em',
-                    padding: '1em',
+                    marginTop: '0.75em',
+                    padding: '0.875em 1em',
                     backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
-                    borderRadius: '0.5em',
-                    border: darkMode ? '0.0625rem solid rgba(255,255,255,0.1)' : '0.0625rem solid #e5e7eb'
+                    borderRadius: '0.75em',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb'
                   }}>
                     <h4 style={{ 
                       fontSize: '0.9rem', 
                       fontWeight: '700', 
                       marginBottom: '0.75em',
-                      color: darkMode ? '#fff' : '#1f2937'
+                      color: darkMode ? '#fff' : '#1f2937',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5em'
                     }}>
-                      📋 Cuotas de {curso.curso_nombre}
+                      <FileText size={18} strokeWidth={2.5} color={darkMode ? '#fbbf24' : '#f59e0b'} />
+                      Cuotas de {curso.curso_nombre}
                     </h4>
 
                     {loadingCuotas[curso.id_matricula] ? (
@@ -744,18 +853,32 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                                 <button
                                   onClick={() => handlePagarCuota(cuota)}
                                   style={{
-                                    padding: '0.375em 0.75em',
-                                    backgroundColor: '#10b981',
+                                    padding: '0.5em 0.875em',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
                                     color: 'white',
                                     border: 'none',
-                                    borderRadius: '0.375em',
+                                    borderRadius: '0.5em',
                                     fontSize: '0.75rem',
-                                    fontWeight: '600',
+                                    fontWeight: '700',
                                     cursor: 'pointer',
-                                    whiteSpace: 'nowrap'
+                                    whiteSpace: 'nowrap',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.375em',
+                                    boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 4px 10px rgba(16, 185, 129, 0.4)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
                                   }}
                                 >
-                                  💳 Pagar
+                                  <CreditCard size={14} strokeWidth={2.5} color="#fff" />
+                                  Pagar
                                 </button>
                               )}
                             </div>

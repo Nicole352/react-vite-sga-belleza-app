@@ -46,35 +46,20 @@ const EstudianteThemeWrapper: React.FC<EstudianteThemeWrapperProps> = ({ childre
           --theme-modal-bg: ${theme.modalBg};
         }
         
-        /* Colores para títulos */
-        .estudiante-theme-wrapper h1,
-        .estudiante-theme-wrapper h2,
-        .estudiante-theme-wrapper h3,
-        .estudiante-theme-wrapper h4,
-        .estudiante-theme-wrapper h5,
-        .estudiante-theme-wrapper h6 {
-          color: var(--theme-text-primary) !important;
+        /* Colores para títulos - solo si NO tienen color inline */
+        .estudiante-theme-wrapper h1:not([style*="color"]),
+        .estudiante-theme-wrapper h2:not([style*="color"]),
+        .estudiante-theme-wrapper h3:not([style*="color"]),
+        .estudiante-theme-wrapper h4:not([style*="color"]),
+        .estudiante-theme-wrapper h5:not([style*="color"]),
+        .estudiante-theme-wrapper h6:not([style*="color"]) {
+          color: var(--theme-text-primary);
         }
         
-        /* Colores para contenido general */
-        .estudiante-theme-wrapper p,
-        .estudiante-theme-wrapper span,
-        .estudiante-theme-wrapper div {
-          color: var(--theme-text-secondary) !important;
-        }
-        
-        /* Forzar colores específicos para elementos problemáticos */
-        .estudiante-theme-wrapper * {
-          color: var(--theme-text-secondary) !important;
-        }
-        
-        .estudiante-theme-wrapper h1 *,
-        .estudiante-theme-wrapper h2 *,
-        .estudiante-theme-wrapper h3 *,
-        .estudiante-theme-wrapper h4 *,
-        .estudiante-theme-wrapper h5 *,
-        .estudiante-theme-wrapper h6 * {
-          color: var(--theme-text-primary) !important;
+        /* Colores para contenido general - solo elementos de texto sin color inline */
+        .estudiante-theme-wrapper p:not([style*="color"]),
+        .estudiante-theme-wrapper label:not([style*="color"]) {
+          color: var(--theme-text-secondary);
         }
         
         .estudiante-theme-wrapper input,
@@ -137,13 +122,8 @@ const EstudianteThemeWrapper: React.FC<EstudianteThemeWrapperProps> = ({ childre
           background: var(--theme-modal-bg) !important;
         }
         
-        /* Bordes - DORADO en lugar de rojo o azul */
-        .estudiante-theme-wrapper [style*="border: 1px solid"],
-        .estudiante-theme-wrapper [style*="border:1px solid"],
-        .estudiante-theme-wrapper [style*="border: 2px solid"],
-        .estudiante-theme-wrapper [style*="border:2px solid"],
-        .estudiante-theme-wrapper div[style*="border"],
-        .estudiante-theme-wrapper .glass-effect {
+        /* Bordes - NO sobrescribir bordes con colores específicos */
+        .estudiante-theme-wrapper div[style*="border"]:not([style*="border: 1px solid rgba"]):not([style*="border: 0.0625rem solid"]) {
           border-color: ${darkMode ? 'rgba(251, 191, 36, 0.3)' : 'rgba(251, 191, 36, 0.2)'} !important;
         }
         
@@ -156,59 +136,13 @@ const EstudianteThemeWrapper: React.FC<EstudianteThemeWrapperProps> = ({ childre
           background: var(--theme-input-bg) !important;
         }
         
-        /* Labels */
-        .estudiante-theme-wrapper label {
-          color: var(--theme-text-secondary) !important;
+        /* Tablas - solo si no tienen color inline */
+        .estudiante-theme-wrapper table th:not([style*="color"]) {
+          color: var(--theme-text-muted);
         }
         
-        /* Botones de texto */
-        .estudiante-theme-wrapper button:not([style*="background: linear-gradient"]) {
-          color: var(--theme-text-primary) !important;
-        }
-        
-        /* Tablas */
-        .estudiante-theme-wrapper table th {
-          color: var(--theme-text-muted) !important;
-        }
-        
-        .estudiante-theme-wrapper table td {
-          color: var(--theme-text-primary) !important;
-        }
-        
-        /* Textos específicos */
-        .estudiante-theme-wrapper div[style*="color: rgba(255,255,255,0.6)"],
-        .estudiante-theme-wrapper div[style*="color: rgba(255,255,255,0.7)"],
-        .estudiante-theme-wrapper span[style*="color: rgba(255,255,255,0.6)"],
-        .estudiante-theme-wrapper span[style*="color: rgba(255,255,255,0.7)"],
-        .estudiante-theme-wrapper p[style*="color: rgba(255,255,255,0.6)"],
-        .estudiante-theme-wrapper p[style*="color: rgba(255,255,255,0.7)"] {
-          color: var(--theme-text-muted) !important;
-        }
-        
-        .estudiante-theme-wrapper div[style*="color: rgba(255,255,255,0.8)"],
-        .estudiante-theme-wrapper span[style*="color: rgba(255,255,255,0.8)"],
-        .estudiante-theme-wrapper p[style*="color: rgba(255,255,255,0.8)"],
-        .estudiante-theme-wrapper h3[style*="color: rgba(255,255,255,0.8)"] {
-          color: var(--theme-text-secondary) !important;
-        }
-        
-        .estudiante-theme-wrapper div[style*="color: #fff"],
-        .estudiante-theme-wrapper span[style*="color: #fff"],
-        .estudiante-theme-wrapper h1[style*="color: #fff"],
-        .estudiante-theme-wrapper h2[style*="color: #fff"],
-        .estudiante-theme-wrapper h3[style*="color: #fff"],
-        .estudiante-theme-wrapper td[style*="color: #fff"],
-        .estudiante-theme-wrapper th[style*="color: #fff"] {
-          color: var(--theme-text-primary) !important;
-        }
-        
-        /* Reglas agresivas para sobrescribir colores hardcodeados */
-        .estudiante-theme-wrapper [style*="color: rgba(255,255,255"] {
-          color: var(--theme-text-secondary) !important;
-        }
-        
-        .estudiante-theme-wrapper [style*="color: #fff"] {
-          color: var(--theme-text-primary) !important;
+        .estudiante-theme-wrapper table td:not([style*="color"]) {
+          color: var(--theme-text-primary);
         }
         
         /* Backgrounds oscuros específicos */
@@ -220,23 +154,25 @@ const EstudianteThemeWrapper: React.FC<EstudianteThemeWrapperProps> = ({ childre
           background: var(--theme-bg-content) !important;
         }
         
-        /* Forzar TODOS los elementos a tener color visible */
-        .estudiante-theme-wrapper * {
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+        /* Colores base para elementos sin estilo - SIN !important para permitir sobrescritura */
+        .estudiante-theme-wrapper *:not([style*="color"]):not(svg):not(button):not(span[style]):not(div[style]) {
+          color: ${darkMode ? '#fff' : '#1e293b'};
         }
         
-        /* Iconos SVG */
-        .estudiante-theme-wrapper svg {
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+        /* Iconos SVG - NO aplicar si ya tienen color definido */
+        .estudiante-theme-wrapper svg:not([color]):not([style*="color"]) {
+          color: ${darkMode ? '#fff' : '#1e293b'};
         }
         
-        /* Excepciones para colores específicos que deben mantenerse */
-        .estudiante-theme-wrapper [style*="color: #10b981"],
-        .estudiante-theme-wrapper [style*="color: #ef4444"],
-        .estudiante-theme-wrapper [style*="color: #3b82f6"],
-        .estudiante-theme-wrapper [style*="color: #fbbf24"],
-        .estudiante-theme-wrapper [style*="color: #f59e0b"] {
-          /* Mantener colores de estado */
+        /* Permitir explícitamente colores específicos de cards y estados */
+        .estudiante-theme-wrapper [style*="#fbbf24"],
+        .estudiante-theme-wrapper [style*="#3b82f6"],
+        .estudiante-theme-wrapper [style*="#10b981"],
+        .estudiante-theme-wrapper [style*="#8b5cf6"],
+        .estudiante-theme-wrapper [style*="#f59e0b"],
+        .estudiante-theme-wrapper [style*="rgba(255,255,255,0.7)"],
+        .estudiante-theme-wrapper [style*="rgba(30,41,59,0.7)"] {
+          /* Estos elementos mantienen su color inline */
         }
       `}</style>
 

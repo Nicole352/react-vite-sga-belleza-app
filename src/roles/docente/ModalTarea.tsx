@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, FileText } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Save, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -137,12 +138,12 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     e.preventDefault();
 
     if (!formData.titulo.trim()) {
-      toast.error('El título de la tarea es obligatorio');
+      showToast.error('El título de la tarea es obligatorio', darkMode);
       return;
     }
 
     if (!formData.fecha_limite) {
-      toast.error('La fecha límite es obligatoria');
+      showToast.error('La fecha límite es obligatoria', darkMode);
       return;
     }
 
@@ -151,7 +152,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     const sumaTotal = sumaPonderaciones + ponderacionActual;
     
     if (sumaTotal > 10) {
-      toast.error(`La suma de ponderaciones (${sumaTotal.toFixed(2)}) excede el máximo de 10 puntos del módulo`);
+      showToast.error(`La suma de ponderaciones (${sumaTotal.toFixed(2)}) excede el máximo de 10 puntos del módulo`, darkMode);
       return;
     }
 
@@ -161,7 +162,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     hoy.setHours(0, 0, 0, 0);
     
     if (fechaLimite < hoy && !tareaEditar) {
-      toast.error('La fecha límite debe ser futura');
+      showToast.error('La fecha límite debe ser futura', darkMode);
       return;
     }
 
@@ -182,19 +183,19 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
         await axios.put(`${API_BASE}/api/tareas/${tareaEditar.id_tarea}`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Tarea actualizada exitosamente');
+        showToast.success('Tarea actualizada exitosamente', darkMode);
       } else {
         await axios.post(`${API_BASE}/api/tareas`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Tarea creada exitosamente');
+        showToast.success('Tarea creada exitosamente', darkMode);
       }
 
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Error saving tarea:', error);
-      toast.error(error.response?.data?.error || 'Error al guardar tarea');
+      showToast.error(error.response?.data?.error || 'Error al guardar tarea', darkMode);
     } finally {
       setLoading(false);
     }
@@ -206,32 +207,87 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
   const inputStyle = {
     width: '100%',
     padding: '0.625em 0.75em',
-    background: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
-    border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+    background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+    border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
     borderRadius: '0.5em',
-    color: darkMode ? '#fff' : '#1e293b',
+    color: 'var(--docente-text-primary, #fff)',
     fontSize: '0.875rem',
     outline: 'none',
     transition: 'all 0.2s ease'
   };
 
   const labelStyle = {
-    color: darkMode ? 'rgba(255,255,255,0.9)' : '#374151',
+    color: 'var(--docente-text-primary, rgba(255,255,255,0.9))',
     display: 'block',
     marginBottom: '0.375em',
     fontWeight: '600' as const,
     fontSize: '0.875rem'
   };
 
-  return (
-    <div 
-      className="modal-overlay"
-      onClick={onClose}
-    >
+  return createPortal(
+    <>
+      {/* Overlay */}
       <div 
-        className="modal-content responsive-modal"
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 99998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: 'fadeIn 0.3s ease-out'
+        }}
       >
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from {
+              opacity: 0;
+              transform: scale(0.9);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+        `}</style>
+        
+        {/* Modal */}
+        <div 
+          className="responsive-modal"
+          style={{
+            background: darkMode 
+              ? 'rgba(15, 23, 42, 0.95)' 
+              : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '12px',
+            boxShadow: darkMode 
+              ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)' 
+              : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
+            border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+            padding: '1.5rem',
+            maxWidth: '55rem',
+            width: '90%',
+            maxHeight: 'calc(100vh - 4rem)',
+            overflowY: 'auto',
+            zIndex: 99999,
+            animation: 'scaleIn 0.3s ease-out'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div style={{
           display: 'flex',
@@ -239,7 +295,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           alignItems: 'center',
           marginBottom: '10px',
           paddingBottom: '8px',
-          borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)'
+          borderBottom: '1px solid var(--docente-border, rgba(59, 130, 246, 0.2))'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileText size={20} style={{ color: '#3b82f6' }} />
@@ -248,7 +304,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               fontSize: '1.05rem', 
               fontWeight: '600', 
               letterSpacing: '-0.01em',
-              color: darkMode ? '#fff' : '#1e293b'
+              color: 'var(--docente-text-primary, #fff)'
             }}>
               {tareaEditar ? 'Editar Tarea' : 'Nueva Tarea'}
             </h3>
@@ -256,11 +312,11 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+              border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
               borderRadius: '8px',
               padding: '6px',
-              color: darkMode ? '#fff' : '#64748b',
+              color: 'var(--docente-text-primary, #fff)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -420,23 +476,32 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
           {/* Advertencia de suma de ponderaciones */}
           {formData.ponderacion && parseFloat(formData.ponderacion) > 0 && (
             <div style={{
-              padding: '0.75em',
+              padding: '0.625em 0.75em',
               background: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10
                 ? darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'
                 : darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              border: `1px solid ${(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '#ef4444' : '#3b82f6'}`,
-              borderRadius: '0.5em',
-              marginTop: '0.75em'
+              borderRadius: '0.5em'
             }}>
               <div style={{ 
                 color: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '#ef4444' : '#3b82f6',
                 fontSize: '0.75rem',
                 fontWeight: '600',
                 marginBottom: '0.25em',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                {(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? '⚠️ ADVERTENCIA' : '✅ SUMA DE PONDERACIONES'}
+                {(sumaPonderaciones + parseFloat(formData.ponderacion)) > 10 ? (
+                  <>
+                    <AlertTriangle size={12} />
+                    Advertencia
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={12} />
+                    Suma de ponderaciones
+                  </>
+                )}
               </div>
               <div style={{ 
                 color: darkMode ? '#fff' : '#1e293b',
@@ -481,18 +546,16 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
             </div>
 
             {/* Configuración de Archivos */}
-            <div style={{
-              background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)',
-              border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.2)'}`,
-              borderRadius: '10px',
-              padding: '10px'
-            }}>
-              <h4 style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '700', marginBottom: '8px' }}>
-                📎 Configuración de Archivos
-              </h4>
-
-              <div style={{ marginBottom: formData.permite_archivo ? '8px' : '0' }}>
-                <label style={{ color: darkMode ? '#fff' : '#374151', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+            <div>
+              <label style={labelStyle}>Configuración de Archivos</label>
+              <div style={{
+                ...inputStyle,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                padding: '0.625em 0.75em'
+              }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
                     name="permite_archivo"
@@ -500,26 +563,35 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                     onChange={handleChange}
                     style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                   />
-                  <span style={{ fontSize: '0.8rem' }}>Permitir entrega de archivos</span>
+                  <span style={{ fontSize: '0.875rem' }}>Permitir entrega de archivos</span>
                 </label>
-              </div>
 
-              {formData.permite_archivo && (
-                <div>
-                  <label style={{ color: darkMode ? '#fff' : '#374151', display: 'block', marginBottom: '4px', fontSize: '0.75rem' }}>
-                    Tamaño Máximo (MB)
-                  </label>
-                  <input
-                    type="number"
-                    name="tamano_maximo_mb"
-                    value={formData.tamano_maximo_mb}
-                    onChange={handleChange}
-                    min="1"
-                    max="50"
-                    style={{...inputStyle, fontSize: '0.8rem', padding: '0.5em 0.65em'}}
-                  />
-                </div>
-              )}
+                {formData.permite_archivo && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.375em', fontSize: '0.75rem', opacity: 0.8 }}>
+                      Tamaño Máximo (MB)
+                    </label>
+                    <input
+                      type="number"
+                      name="tamano_maximo_mb"
+                      value={formData.tamano_maximo_mb}
+                      onChange={handleChange}
+                      min="1"
+                      max="50"
+                      style={{
+                        width: '100%',
+                        padding: '0.5em 0.65em',
+                        background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                        border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}`,
+                        borderRadius: '0.375em',
+                        color: 'inherit',
+                        fontSize: '0.875rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -558,8 +630,8 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               disabled={loading}
               style={{
                 background: loading 
-                  ? 'rgba(239, 68, 68, 0.6)' 
-                  : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  ? 'rgba(59, 130, 246, 0.6)' 
+                  : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '8px 12px',
@@ -569,18 +641,18 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: loading ? 'none' : '0 3px 10px rgba(239, 68, 68, 0.25)',
+                boxShadow: loading ? 'none' : '0 3px 10px rgba(59, 130, 246, 0.25)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
                   e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 5px 14px rgba(239, 68, 68, 0.3)';
+                  e.currentTarget.style.boxShadow = '0 5px 14px rgba(59, 130, 246, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 3px 10px rgba(239, 68, 68, 0.25)';
+                e.currentTarget.style.boxShadow = '0 3px 10px rgba(59, 130, 246, 0.25)';
               }}
             >
               {loading ? (
@@ -604,15 +676,17 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
             </button>
           </div>
         </form>
+        
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+      </div>
+    </>,
+    document.body
   );
 };
 

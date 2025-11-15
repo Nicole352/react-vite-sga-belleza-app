@@ -162,10 +162,15 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ marginBottom: '0.625em' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.125em 0' }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: theme.textPrimary,
+          margin: '0 0 0.375rem 0'
+        }}>
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
           Visualiza tu calendario de clases
         </p>
       </div>
@@ -312,7 +317,7 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                         {clase.nombre}
                       </div>
                       <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.1875em' }}>
-                        <MapPin size={10} />
+                        <MapPin size={10} color="rgba(255,255,255,0.9)" strokeWidth={2} />
                         {clase.aula_nombre}
                       </div>
                       <div style={{

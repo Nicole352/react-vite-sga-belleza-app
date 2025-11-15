@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Users, TrendingUp, Award, Clock, FileCheck, 
-  Download, BarChart3, PieChart, Target
+  Download, BarChart3
 } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 
@@ -25,7 +25,7 @@ interface Entrega {
 const AnalisisEntregas: React.FC = () => {
   const { id_tarea } = useParams();
   const navigate = useNavigate();
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  useBreakpoints(); // Hook disponible si se necesita en el futuro
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('docente-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
@@ -65,9 +65,7 @@ const AnalisisEntregas: React.FC = () => {
       
       // Verificar si la entrega es de la tarea actual
       if (data.id_tarea === parseInt(id_tarea || '0')) {
-        toast.success(`📥 Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, {
-          duration: 5000,
-        });
+        showToast.success(`📥 Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, darkMode);
         
         // Recargar las entregas para mostrar la nueva
         fetchData();
@@ -78,9 +76,7 @@ const AnalisisEntregas: React.FC = () => {
       
       // Si es de esta tarea, recargar
       if (data.id_tarea === parseInt(id_tarea || '0')) {
-        toast.success(`✏️ ${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, {
-          duration: 4000,
-        });
+        showToast.success(`✏️ ${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, darkMode);
         
         fetchData();
       }
@@ -114,7 +110,7 @@ const AnalisisEntregas: React.FC = () => {
       setTareaInfo(responseTarea.data.tarea || {});
     } catch (error) {
       console.error('Error cargando datos:', error);
-      toast.error('Error al cargar los datos');
+      showToast.error('Error al cargar los datos', darkMode);
     } finally {
       setLoading(false);
     }
@@ -171,34 +167,23 @@ const AnalisisEntregas: React.FC = () => {
 
   const stats = calcularEstadisticas();
 
-  // Usar el mismo patrón de colores que DocenteDashboard
-  const theme = darkMode ? {
-    bg: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-    textPrimary: '#fff',
-    textSecondary: 'rgba(255,255,255,0.8)',
-    textMuted: 'rgba(255,255,255,0.7)',
-    cardBg: 'rgba(255, 255, 255, 0.05)',
-    border: 'rgba(59, 130, 246, 0.2)',
-    accent: '#3b82f6',
-    success: '#10b981',
-    warning: '#f59e0b'
-  } : {
-    bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
-    textPrimary: '#1e293b',
-    textSecondary: 'rgba(30,41,59,0.8)',
-    textMuted: 'rgba(30,41,59,0.7)',
-    cardBg: 'rgba(255, 255, 255, 0.8)',
-    border: 'rgba(59, 130, 246, 0.2)',
-    accent: '#3b82f6',
-    success: '#10b981',
-    warning: '#f59e0b'
+  // Usar las variables CSS del tema docente
+  const theme = {
+    textPrimary: "var(--docente-text-primary)",
+    textSecondary: "var(--docente-text-secondary)",
+    textMuted: "var(--docente-text-muted)",
+    cardBg: "var(--docente-card-bg)",
+    border: "var(--docente-border)",
+    accent: "var(--docente-accent)",
+    success: "#10b981",
+    warning: "#f59e0b"
   };
 
   if (loading) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: theme.bg,
+        backgroundColor: 'transparent',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -221,79 +206,99 @@ const AnalisisEntregas: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      padding: isMobile ? '0.75rem' : isSmallScreen ? '1rem' : '2rem',
-      maxWidth: '100%',
-      overflowX: 'hidden',
-      boxSizing: 'border-box'
+      minHeight: '100%',
+      backgroundColor: 'transparent',
+      color: theme.textPrimary,
+      padding: '0',
+      paddingBottom: '0',
+      paddingTop: '0'
     }}>
-      {/* Header */}
-      <div style={{
-        background: theme.cardBg,
-        borderRadius: isMobile ? '12px' : '16px',
-        padding: isMobile ? '1rem' : '1.5rem',
-        marginBottom: isMobile ? '1rem' : '2rem',
-        border: `1px solid ${theme.border}`,
-        boxShadow: darkMode ? 'none' : '0 4px 20px rgba(0, 0, 0, 0.1)'
-      }}>
+      {/* Botón Volver */}
+      <div style={{ marginBottom: '0.75rem' }}>
         <button
           onClick={() => navigate(-1)}
           style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: `1px solid ${theme.border}`,
-            borderRadius: '8px',
-            padding: '0.5rem 1rem',
-            color: theme.accent,
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            cursor: 'pointer',
-            marginBottom: '1rem',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: 'none',
+            color: '#3b82f6',
+            fontSize: '0.875rem',
             fontWeight: '600',
-            transition: 'all 0.2s ease'
+            cursor: 'pointer',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            transition: 'all 0.2s',
+            boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+            e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
           }}
           onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
             e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
           }}
         >
-          <ArrowLeft size={20} />
-          Volver
+          <ArrowLeft size={16} />
+          Volver a Detalles del Curso
         </button>
+      </div>
 
+      {/* Header */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            borderRadius: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+          }}>
+            <BarChart3 size={24} strokeWidth={2.5} color="#fff" />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
+              Análisis Completo de Entregas
+            </h1>
+            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+              {tareaInfo?.titulo || 'Cargando...'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Herramientas de Gestión */}
+      <div style={{
+        background: 'var(--docente-card-bg)',
+        borderRadius: '0.875rem',
+        padding: '1rem',
+        marginBottom: '1rem',
+        border: '1px solid var(--docente-border)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+      }}>
         <div style={{ 
           display: 'flex', 
-          alignItems: isMobile ? 'stretch' : 'center', 
-          justifyContent: 'space-between', 
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '1rem' : '0',
-          width: '100%' 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem' }}>
-            <BarChart3 size={isMobile ? 28 : 40} style={{ color: theme.accent, flexShrink: 0 }} />
-            <div>
-              <h1 style={{ 
-                color: theme.textPrimary, 
-                fontSize: isMobile ? '1.25rem' : '2rem', 
-                fontWeight: '800', 
-                margin: '0 0 0.25rem 0',
-                lineHeight: '1.2'
-              }}>
-                Análisis Completo de Entregas
-              </h1>
-              <p style={{ 
-                color: theme.textSecondary, 
-                fontSize: isMobile ? '0.875rem' : '1.1rem', 
-                margin: 0,
-                lineHeight: '1.4'
-              }}>
-                {tareaInfo?.titulo || 'Cargando...'}
-              </p>
-            </div>
+          <div>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: '700', margin: 0, color: theme.textPrimary }}>
+              Herramientas de Gestión
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+              Exportación, filtros y estadísticas disponibles
+            </p>
           </div>
-
+          
           {/* Botón Exportar a Excel */}
           <button
             onClick={() => {
@@ -335,35 +340,33 @@ const AnalisisEntregas: React.FC = () => {
               link.href = URL.createObjectURL(blob);
               link.download = `Entregas_${cursoNombre}_${moduloNombre}_${tareaNombre}_${fecha}.csv`;
               link.click();
-              toast.success('Archivo Excel descargado');
+              showToast.success('Archivo Excel descargado', darkMode);
             }}
             style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
               border: 'none',
-              borderRadius: '8px',
-              padding: isMobile ? '0.625rem 1rem' : '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 1rem',
               color: '#fff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '0.5rem',
               fontWeight: '600',
-              fontSize: isMobile ? '0.8125rem' : '0.875rem',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-              transition: 'all 0.2s ease',
-              width: isMobile ? '100%' : 'auto'
+              fontSize: '0.875rem',
+              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
+              transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
             }}
           >
-            <Download size={18} />
+            <Download size={16} />
             Exportar a Excel
           </button>
         </div>
@@ -372,99 +375,131 @@ const AnalisisEntregas: React.FC = () => {
       {/* Tarjetas de Estadísticas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: isMobile ? '0.75rem' : '1rem',
-        marginBottom: isMobile ? '1rem' : '1.5rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: '0.75rem',
+        marginBottom: '1rem'
       }}>
         {/* Total Estudiantes */}
         <div style={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)'
-            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-          borderRadius: isMobile ? '10px' : '12px',
-          padding: isMobile ? '0.875rem' : '1rem',
-          border: `1px solid ${theme.border}`,
-          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.75rem',
+          padding: '0.875rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Users size={18} color="#fff" />
+            </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
                 Total Estudiantes
               </p>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
                 {stats.total}
               </h2>
             </div>
-            <Users size={24} style={{ color: theme.accent, opacity: 0.7 }} />
           </div>
         </div>
 
         {/* Calificadas */}
         <div style={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(14, 165, 233, 0.1) 100%)'
-            : 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%)',
-          borderRadius: isMobile ? '10px' : '12px',
-          padding: isMobile ? '0.875rem' : '1rem',
-          border: `1px solid rgba(6, 182, 212, 0.2)`,
-          boxShadow: '0 2px 8px rgba(6, 182, 212, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.75rem',
+          padding: '0.875rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FileCheck size={18} color="#fff" />
+            </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
                 Calificadas
               </p>
-              <h2 style={{ color: darkMode ? '#06b6d4' : '#0891b2', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
                 {stats.calificadas}
               </h2>
             </div>
-            <FileCheck size={24} style={{ color: darkMode ? '#06b6d4' : '#0891b2', opacity: 0.7 }} />
           </div>
         </div>
 
         {/* Pendientes */}
         <div style={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)'
-            : 'linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)',
-          borderRadius: isMobile ? '10px' : '12px',
-          padding: isMobile ? '0.875rem' : '1rem',
-          border: `1px solid rgba(96, 165, 250, 0.2)`,
-          boxShadow: '0 2px 8px rgba(96, 165, 250, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.75rem',
+          padding: '0.875rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Clock size={18} color="#fff" />
+            </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
                 Pendientes
               </p>
-              <h2 style={{ color: darkMode ? '#60a5fa' : '#2563eb', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
                 {stats.pendientes}
               </h2>
             </div>
-            <Clock size={24} style={{ color: darkMode ? '#60a5fa' : '#2563eb', opacity: 0.7 }} />
           </div>
         </div>
 
         {/* Promedio */}
         <div style={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.1) 100%)'
-            : 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%)',
-          borderRadius: isMobile ? '10px' : '12px',
-          padding: isMobile ? '0.875rem' : '1rem',
-          border: `1px solid rgba(99, 102, 241, 0.2)`,
-          boxShadow: '0 2px 8px rgba(99, 102, 241, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.75rem',
+          padding: '0.875rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <TrendingUp size={18} color="#fff" />
+            </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.8rem', margin: '0 0 0.3rem 0' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
                 Promedio General
               </p>
-              <h2 style={{ color: darkMode ? '#6366f1' : '#4f46e5', fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
                 {stats.promedio}
               </h2>
             </div>
-            <TrendingUp size={24} style={{ color: '#6366f1', opacity: 0.7 }} />
           </div>
         </div>
       </div>
@@ -472,21 +507,20 @@ const AnalisisEntregas: React.FC = () => {
       {/* Gráficos y Detalles */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: isMobile ? '1rem' : '1.5rem',
-        marginBottom: isMobile ? '1rem' : '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1rem'
       }}>
         {/* Progreso de Calificación */}
         <div style={{
-          background: theme.cardBg,
-          borderRadius: isMobile ? '12px' : '16px',
-          padding: isMobile ? '1rem' : '1.5rem',
-          border: `1px solid ${theme.border}`,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.875rem',
+          padding: '1rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <Target size={24} style={{ color: theme.accent }} />
-            <h3 style={{ color: theme.textPrimary, fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
               Progreso de Calificación
             </h3>
           </div>
@@ -500,9 +534,9 @@ const AnalisisEntregas: React.FC = () => {
             </div>
             <div style={{
               width: '100%',
-              height: '12px',
-              background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-              borderRadius: '6px',
+              height: '8px',
+              background: 'var(--docente-input-bg)',
+              borderRadius: '4px',
               overflow: 'hidden'
             }}>
               <div style={{
@@ -517,32 +551,32 @@ const AnalisisEntregas: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
             <div style={{
-              background: darkMode ? 'rgba(6, 182, 212, 0.1)' : 'rgba(6, 182, 212, 0.05)',
-              borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '0.875rem' : '1rem',
-              border: '1px solid rgba(6, 182, 212, 0.2)'
+              background: 'var(--docente-card-bg)',
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              border: '1px solid var(--docente-border)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <TrendingUp size={isMobile ? 16 : 18} style={{ color: darkMode ? '#06b6d4' : '#0891b2' }} />
-                <span style={{ color: theme.textSecondary, fontSize: isMobile ? '0.8rem' : '0.85rem' }}>Nota Máxima</span>
+                <TrendingUp size={16} style={{ color: '#06b6d4' }} />
+                <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Nota Máxima</span>
               </div>
-              <p style={{ color: darkMode ? '#06b6d4' : '#0891b2', fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: '800', margin: 0 }}>
-                {stats.notaMaxima.toFixed(2)}
+              <p style={{ color: '#06b6d4', fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+                {Number(stats.notaMaxima || 0).toFixed(2)}
               </p>
             </div>
 
             <div style={{
-              background: darkMode ? 'rgba(96, 165, 250, 0.1)' : 'rgba(96, 165, 250, 0.05)',
-              borderRadius: isMobile ? '10px' : '12px',
-              padding: isMobile ? '0.875rem' : '1rem',
-              border: '1px solid rgba(96, 165, 250, 0.2)'
+              background: 'var(--docente-card-bg)',
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              border: '1px solid var(--docente-border)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Award size={isMobile ? 16 : 18} style={{ color: darkMode ? '#60a5fa' : '#2563eb' }} />
-                <span style={{ color: theme.textSecondary, fontSize: isMobile ? '0.8rem' : '0.85rem' }}>Nota Mínima</span>
+                <Award size={16} style={{ color: '#60a5fa' }} />
+                <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Nota Mínima</span>
               </div>
-              <p style={{ color: darkMode ? '#60a5fa' : '#2563eb', fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: '800', margin: 0 }}>
-                {stats.notaMinima.toFixed(2)}
+              <p style={{ color: '#60a5fa', fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+                {Number(stats.notaMinima || 0).toFixed(2)}
               </p>
             </div>
           </div>
@@ -550,15 +584,14 @@ const AnalisisEntregas: React.FC = () => {
 
         {/* Estado de Entregas */}
         <div style={{
-          background: theme.cardBg,
-          borderRadius: isMobile ? '12px' : '16px',
-          padding: isMobile ? '1rem' : '1.5rem',
-          border: `1px solid ${theme.border}`,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          background: 'var(--docente-card-bg)',
+          borderRadius: '0.875rem',
+          padding: '1rem',
+          border: '1px solid var(--docente-border)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <PieChart size={24} style={{ color: theme.accent }} />
-            <h3 style={{ color: theme.textPrimary, fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
               Estado de Entregas
             </h3>
           </div>
@@ -641,55 +674,74 @@ const AnalisisEntregas: React.FC = () => {
 
       {/* Información de la Tarea */}
       <div style={{
-        background: theme.cardBg,
-        borderRadius: '16px',
-        padding: '1.5rem',
-        border: `1px solid ${theme.border}`,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        background: 'var(--docente-card-bg)',
+        borderRadius: '0.875rem',
+        padding: '1rem',
+        border: '1px solid var(--docente-border)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <Award size={24} style={{ color: theme.accent }} />
-          <h3 style={{ color: theme.textPrimary, fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
             Información de la Tarea
           </h3>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-          <div>
-            <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: '0 0 0.5rem 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+          <div style={{
+            background: 'var(--docente-card-bg)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            border: '1px solid var(--docente-border)'
+          }}>
+            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
               Nota Máxima
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-              {tareaInfo?.nota_maxima || 10} pts
+            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.nota_maxima || 10).toFixed(2)} pts
             </p>
           </div>
 
-          <div>
-            <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: '0 0 0.5rem 0' }}>
+          <div style={{
+            background: 'var(--docente-card-bg)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            border: '1px solid var(--docente-border)'
+          }}>
+            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
               Ponderación
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-              {tareaInfo?.ponderacion || 1} pts
+            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.ponderacion || 1).toFixed(2)} pts
             </p>
           </div>
 
-          <div>
-            <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: '0 0 0.5rem 0' }}>
+          <div style={{
+            background: 'var(--docente-card-bg)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            border: '1px solid var(--docente-border)'
+          }}>
+            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
               Nota Mínima Aprobación
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-              {tareaInfo?.nota_minima_aprobacion || 7} pts
+            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.nota_minima_aprobacion || 7).toFixed(2)} pts
             </p>
           </div>
 
-          <div>
-            <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: '0 0 0.5rem 0' }}>
+          <div style={{
+            background: 'var(--docente-card-bg)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            border: '1px solid var(--docente-border)'
+          }}>
+            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
               Estado
             </p>
             <p style={{ 
               color: stats.colorEstado, 
-              fontSize: '1.5rem', 
-              fontWeight: '700', 
+              fontSize: '1.25rem', 
+              fontWeight: '800', 
               margin: 0
             }}>
               {stats.estadoTarea}

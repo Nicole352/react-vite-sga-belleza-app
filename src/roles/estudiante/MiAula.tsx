@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { showToast } from '../../config/toastConfig';
 import {
   BookOpen,
   Calendar,
@@ -16,16 +18,16 @@ import {
   GraduationCap,
   AlertCircle,
   CheckCircle,
-  Star,
-  Hand
+  Star
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { FaHandPaper } from 'react-icons/fa';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import '../../styles/responsive.css';
 
 interface MiAulaProps {
   darkMode: boolean;
+  onNavigate?: (tab: string) => void;
 }
 
 interface Curso {
@@ -70,7 +72,7 @@ interface UserData {
 
 const API_BASE = 'http://localhost:3000/api';
 
-const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
+const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
   const navigate = useNavigate();
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [isVisible, setIsVisible] = useState(false);
@@ -83,19 +85,19 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
   const socketEvents = {
     'nueva_tarea': (data: any) => {
       console.log('📝 Nueva tarea asignada:', data);
-      toast.success(`📝 Nueva tarea: ${data.titulo_tarea}`);
+      showToast.info(`📝 Nueva tarea: ${data.titulo_tarea}`, darkMode);
       // Recargar cursos para actualizar contador de tareas pendientes
       fetchCursosMatriculados();
     },
     'nuevo_modulo': (data: any) => {
       console.log('📚 Nuevo módulo disponible:', data);
-      toast.success(`📚 Nuevo módulo: ${data.nombre_modulo}`);
+      showToast.info(`📚 Nuevo módulo: ${data.nombre_modulo}`, darkMode);
       // Recargar cursos para actualizar información
       fetchCursosMatriculados();
     },
     'tarea_calificada': (data: any) => {
       console.log('⭐ Tarea calificada:', data);
-      toast.success(`✅ Tarea calificada con ${data.nota} puntos`);
+      showToast.success(`✅ Tarea calificada con ${data.nota} puntos`, darkMode);
       // Recargar cursos para actualizar progreso y calificación
       fetchCursosMatriculados();
     },
@@ -216,129 +218,129 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
       <div style={{
         background: theme.cardBg,
         border: `0.0625rem solid ${theme.border}`,
-        borderRadius: '1.25rem',
-        padding: '0.75em',
-        marginBottom: '0.75em',
+        borderRadius: '1rem',
+        padding: '1rem',
+        marginBottom: '1rem',
         backdropFilter: 'blur(1.25rem)',
-        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
+        boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.05)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.5em' }}>
-          <div style={{
-            width: '2.75rem',
-            height: '2.75rem',
-            background: `linear-gradient(135deg, ${theme.accent}, ${theme.warning})`,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `0 0.5rem 1.5rem ${theme.accent}30`
-          }}>
-            <BookOpen size={18} color="#fff" />
+        <h1 style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '700', 
+          color: theme.textPrimary, 
+          margin: '0 0 0.25rem 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <FaHandPaper size={20} style={{ color: theme.textPrimary, transform: 'rotate(35deg)' }} /> 
+          ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos || ''}` : (userData?.nombre ? `, ${userData.nombre} ${userData.apellido || ''}` : '')}!
+        </h1>
+        <p style={{ 
+          color: theme.textSecondary, 
+          fontSize: '0.8125rem', 
+          margin: '0 0 0.5rem 0' 
+        }}>
+          Continúa tu formación en Belleza y Estética
+        </p>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '1rem',
+          fontSize: '0.75rem',
+          color: theme.textMuted
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: theme.textMuted }}>
+            <Calendar size={14} color={theme.textMuted} strokeWidth={2} />
+            {new Date().toLocaleDateString('es-ES')}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: theme.textMuted }}>
+            <Clock size={14} color={theme.textMuted} strokeWidth={2} />
+            {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Estadísticas rápidas - 4 tarjetas */}
+      <div className="responsive-grid-4" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
+        <div style={{
+          background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+          border: `1px solid rgba(251, 191, 36, 0.4)`,
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Target size={16} color="#fbbf24" strokeWidth={2} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Progreso General</span>
           </div>
-          <div>
-            <h1 style={{
-              fontSize: '1.4rem',
-              fontWeight: '800',
-              color: theme.textPrimary,
-              margin: '0 0 0.25em 0'
-            }}>
-              <Hand size={16} style={{ display: 'inline', marginRight: '0.375em' }} /> ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos || ''}` : (userData?.nombre ? `, ${userData.nombre} ${userData.apellido || ''}` : '')}!
-            </h1>
-            <p style={{
-              color: theme.textSecondary,
-              fontSize: '0.85rem',
-              margin: '0 0 0.25em 0'
-            }}>
-              Continúa tu formación en Belleza y Estética
-            </p>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5em',
-              fontSize: '0.75rem',
-              color: theme.textMuted
-            }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                <Calendar size={12} />
-                {new Date().toLocaleDateString('es-ES')}
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                <Clock size={12} />
-                {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            </div>
-          </div>
+          <span style={{ color: '#fbbf24', fontSize: '1.5rem', fontWeight: '800' }}>
+            {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.progreso !== undefined && curso.progreso !== null) ?
+              Math.round(cursosMatriculados.reduce((acc, curso) => acc + (curso.progreso || 0), 0) / cursosMatriculados.length) : 0}%
+          </span>
         </div>
 
-        {/* Estadísticas rápidas (ultra-compactas, una sola línea) */}
-        <div className="responsive-grid-4" style={{ gap: '0.375em' }}>
-          <div style={{
-            background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-            border: `0.0625rem solid ${theme.accent}30`,
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Target size={12} color={theme.accent} />
-              <span style={{ color: theme.accent, fontSize: '0.7rem', fontWeight: '700' }}>Progreso General:</span>
-              <span style={{ color: theme.accent, fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.progreso !== undefined && curso.progreso !== null) ?
-                  Math.round(cursosMatriculados.reduce((acc, curso) => acc + (curso.progreso || 0), 0) / cursosMatriculados.length) : 0}%
-              </span>
-            </div>
+        <div style={{
+          background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+          border: '1px solid rgba(59, 130, 246, 0.4)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BookOpen size={16} color="#3b82f6" strokeWidth={2} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Cursos Activos</span>
           </div>
+          <span style={{ color: '#3b82f6', fontSize: '1.5rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
+        </div>
 
-          <div style={{
-            background: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)',
-            border: '0.0625rem solid rgba(245, 158, 11, 0.3)',
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <BookOpen size={12} color="#f59e0b" />
-              <span style={{ color: '#f59e0b', fontSize: '0.7rem', fontWeight: '700' }}>Cursos Activos:</span>
-              <span style={{ color: '#f59e0b', fontSize: '0.9rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
-            </div>
+        <div style={{
+          background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
+          border: '1px solid rgba(16, 185, 129, 0.4)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Star size={16} color="#10b981" strokeWidth={2} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Promedio</span>
           </div>
+          <span style={{ color: '#10b981', fontSize: '1.5rem', fontWeight: '800' }}>
+            {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.calificacion !== undefined && curso.calificacion !== null) ?
+              (cursosMatriculados.reduce((acc, curso) => acc + (curso.calificacion || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+          </span>
+        </div>
 
-          <div style={{
-            background: darkMode ? `rgba(217, 119, 6, 0.1)` : `rgba(217, 119, 6, 0.05)`,
-            border: `0.0625rem solid rgba(217, 119, 6, 0.3)`,
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Star size={12} color="#d97706" />
-              <span style={{ color: '#d97706', fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
-              <span style={{ color: '#d97706', fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.calificacion !== undefined && curso.calificacion !== null) ?
-                  (cursosMatriculados.reduce((acc, curso) => acc + (curso.calificacion || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
-              </span>
-            </div>
+        <div style={{
+          background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
+          border: '1px solid rgba(139, 92, 246, 0.4)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Award size={16} color="#8b5cf6" strokeWidth={2} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Tareas Pendientes</span>
           </div>
-
-          <div style={{
-            background: darkMode ? 'rgba(184, 134, 11, 0.1)' : 'rgba(184, 134, 11, 0.05)',
-            border: '0.0625rem solid rgba(184, 134, 11, 0.3)',
-            borderRadius: '0.625em',
-            padding: '0.375em'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap' }}>
-              <Award size={12} color="#b8860b" />
-              <span style={{ color: '#b8860b', fontSize: '0.7rem', fontWeight: '700' }}>Tareas Pendientes:</span>
-              <span style={{ color: '#b8860b', fontSize: '0.9rem', fontWeight: '800' }}>
-                {cursosMatriculados.length > 0 ?
-                  cursosMatriculados.reduce((acc, curso) => acc + (curso.tareasPendientes || 0), 0) : 0}
-              </span>
-            </div>
-          </div>
+          <span style={{ color: '#8b5cf6', fontSize: '1.5rem', fontWeight: '800' }}>
+            {cursosMatriculados.length > 0 ?
+              cursosMatriculados.reduce((acc, curso) => acc + (curso.tareasPendientes || 0), 0) : 0}
+          </span>
         </div>
       </div>
 
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: isSmallScreen ? '1fr' : '2fr 1fr', 
-        gap: isMobile ? '1em' : '2em', 
+        gridTemplateColumns: isSmallScreen ? '1fr' : '3fr 1fr', 
+        gap: '1em', 
         flex: 1, 
         overflow: 'hidden', 
         minHeight: 0 
@@ -347,13 +349,18 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         <div style={{
           background: theme.cardBg,
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '1rem',
-          padding: isMobile ? '0.5em' : '0.625em',
+          borderRadius: '1.25rem',
+          padding: '1em',
           backdropFilter: 'blur(1.25rem)',
-          boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)'
+          boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.05)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)'
         }}>
-          <h2 style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.625em 0' }}>
-            Mis Cursos en Progreso
+          <h2 style={{ 
+            fontSize: '1.125rem', 
+            fontWeight: '700', 
+            color: theme.textPrimary, 
+            margin: '0 0 0.5em 0' 
+          }}>
+            Mis Cursos
           </h2>
 
           {loading && (
@@ -439,30 +446,29 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5em' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.2em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', marginBottom: '0.375em' }}>
                       <div style={{
-                        background: darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.15)',
+                        background: `${theme.accent}20`,
                         color: theme.accent,
-                        padding: '0.2em 0.625em',
-                        borderRadius: '0.75em',
-                        fontSize: '0.7rem',
+                        padding: '0.1875em 0.625em',
+                        borderRadius: '1em',
+                        fontSize: '0.75rem',
                         fontWeight: '600'
                       }}>
                         {curso.codigo_curso || `CURSO-${curso.id_curso}`}
                       </div>
+                      <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
+                        {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
+                      </span>
                     </div>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.textPrimary, margin: '0 0 0.2em 0', lineHeight: '1.2' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
                       {curso.nombre || 'Curso sin nombre'}
                     </h3>
-                    <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3em' }}>
-                      <Calendar size={12} />
-                      Inicio: {curso.fecha_inicio ? new Date(curso.fecha_inicio).toLocaleDateString() : 'Fecha por definir'}
-                    </p>
                   </div>
 
                   <div style={{ textAlign: 'right', marginLeft: '0.5em' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.2em' }}>
-                      <Star size={12} color={theme.accent} />
+                      <Star size={12} color={theme.accent} strokeWidth={2} />
                       <span style={{ color: theme.accent, fontSize: '0.8rem', fontWeight: '600' }}>
                         {curso.calificacion !== undefined && curso.calificacion !== null ? curso.calificacion.toFixed(1) : '0.0'}/10
                       </span>
@@ -547,8 +553,8 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         {curso.aula.nombre}
                       </div>
                       {curso.aula.ubicacion && (
-                        <div style={{ color: theme.textMuted, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                          <MapPin size={10} /> {curso.aula.ubicacion}
+                        <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                          {curso.aula.ubicacion}
                         </div>
                       )}
                     </div>
@@ -692,7 +698,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         e.currentTarget.style.boxShadow = `0 0.25rem 0.5rem ${theme.accent}30`;
                       }}
                     >
-                      <Upload size={14} />
+                      <Upload size={14} color={darkMode ? '#000' : '#fff'} />
                       Subir Tarea
                     </button>
                   ) : (
@@ -721,7 +727,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                         e.currentTarget.style.boxShadow = `0 0.25rem 0.5rem ${theme.accent}30`;
                       }}
                     >
-                      <Play size={14} />
+                      <Play size={14} color="#fff" strokeWidth={2} />
                       Continuar
                     </button>
                   )}
@@ -753,7 +759,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    <Eye size={14} />
+                    <Eye size={14} color={theme.accent} strokeWidth={2} />
                     Ver Detalles
                   </button>
                 </div>
@@ -763,53 +769,58 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
         </div>
 
         {/* Panel lateral */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
           {/* Próximas clases */}
           <div style={{
             background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '12px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: '1em',
+            padding: '0.75em',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.01)'
           }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
               Próximas Clases
             </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
               {cursosMatriculados.slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
-                  padding: '8px',
+                  padding: '0.5em',
                   background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.border}`
+                  borderRadius: '0.625em',
+                  border: `0.0625rem solid ${theme.border}`
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', fontSize: '0.8rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     <div style={{
-                      width: '5px',
-                      height: '5px',
+                      width: '0.375em',
+                      height: '0.375em',
                       borderRadius: '50%',
-                      background: index === 0 ? theme.accent : '#f59e0b'
+                      background: index === 0 ? theme.accent : theme.success,
+                      flexShrink: 0
                     }} />
-                    <span style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
-                      {new Date(curso.proximaClase).toLocaleDateString()} {new Date(curso.proximaClase).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span style={{ color: theme.textPrimary, fontWeight: '600', flexShrink: 0 }}>
+                      {new Date(curso.proximaClase || curso.fecha_inicio).toLocaleDateString()}
                     </span>
+                    <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                    <span style={{ color: theme.textPrimary, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {curso.nombre}
+                    </span>
+                    {curso.aula?.nombre && (
+                      <>
+                        <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {curso.aula.nombre}{curso.aula.ubicacion && ` - ${curso.aula.ubicacion}`}
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0 }}>
-                    {curso.nombre}
-                  </p>
-                  {curso.aula?.nombre && (
-                    <p style={{ color: theme.textMuted, fontSize: '0.7rem', margin: '2px 0 0 0' }}>
-                      {curso.aula.nombre} {curso.aula.ubicacion && `- ${curso.aula.ubicacion}`}
-                    </p>
-                  )}
                 </div>
               ))}
 
               {cursosMatriculados.length === 0 && (
                 <div style={{
-                  padding: '12px',
+                  padding: '0.75em',
                   textAlign: 'center',
                   color: theme.textMuted,
                   fontSize: '0.85rem'
@@ -823,56 +834,54 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode }) => {
           {/* Acceso rápido */}
           <div style={{
             background: theme.cardBg,
-            border: `1px solid ${theme.border}`,
-            borderRadius: '20px',
-            padding: '12px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: darkMode ? '0 20px 40px rgba(0, 0, 0, 0.3)' : '0 20px 40px rgba(0, 0, 0, 0.1)'
+            border: `0.0625rem solid ${theme.border}`,
+            borderRadius: '1.25rem',
+            padding: '1em',
+            backdropFilter: 'blur(1.25rem)',
+            boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.01)'
           }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 8px 0' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.75em 0' }}>
               Acceso Rápido
             </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button
-                onClick={() => navigate('/panel/estudiante/calificaciones')}
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '8px',
-                  padding: '10px',
-                  color: theme.textSecondary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  transition: 'all 0.3s ease'
-                }}>
-                <FileText size={16} />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
+              <button onClick={() => onNavigate?.('calificaciones')} style={{
+                width: '100%',
+                background: 'transparent',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.5em',
+                padding: '0.625em',
+                color: theme.textMuted,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5em',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}>
+                <FileText size={14} color={theme.textMuted} strokeWidth={2} />
                 Mis Calificaciones
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+                <ChevronRight size={14} color={theme.textMuted} strokeWidth={2} style={{ marginLeft: 'auto' }} />
               </button>
-              <button
-                onClick={() => { /* Implementar funcionalidad de compañeros */ }}
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: '8px',
-                  padding: '10px',
-                  color: theme.textSecondary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  transition: 'all 0.3s ease'
-                }}>
-                <Users size={16} />
-                Compañeros de Curso
-                <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+
+              <button onClick={() => onNavigate?.('mi-horario')} style={{
+                background: 'transparent',
+                border: `0.0625rem solid ${theme.border}`,
+                borderRadius: '0.5em',
+                padding: '0.625em',
+                color: theme.textMuted,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5em',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}>
+                <Calendar size={14} color={theme.textMuted} strokeWidth={2} />
+                Mi Horario
+                <ChevronRight size={14} color={theme.textMuted} strokeWidth={2} style={{ marginLeft: 'auto' }} />
               </button>
             </div>
           </div>

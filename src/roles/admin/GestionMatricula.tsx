@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import {
-  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, Ban, FileCheck, ChevronLeft, ChevronRight, Lock, Sheet
+  Search, GraduationCap, Eye, X, Check, XCircle, Download, FileText, IdCard, Clock, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Lock, Sheet, RefreshCcw
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
   type Solicitud = {
@@ -37,6 +39,135 @@ const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:300
 
   const GestionMatricula = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
+
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('admin-dark-mode');
+      const nextMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(prev => (prev === nextMode ? prev : nextMode));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const pick = <T,>(light: T, dark: T): T => (darkMode ? dark : light);
+
+  const theme = {
+    pageBackground: pick(
+      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
+      'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(17,17,25,0.92) 100%)'
+    ),
+    contentBackground: pick(
+      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
+      'linear-gradient(135deg, rgba(13,13,25,0.92) 0%, rgba(26,26,46,0.92) 100%)'
+    ),
+    surface: pick('rgba(255,255,255,0.94)', 'rgba(12,12,24,0.94)'),
+    surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
+    accentBorder: pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.28)'),
+    textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
+    textSecondary: pick('rgba(71,85,105,0.82)', 'rgba(226,232,240,0.74)'),
+    textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
+    chipMutedBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.08)'),
+    chipMutedBorder: pick('rgba(148,163,184,0.24)', 'rgba(148,163,184,0.28)'),
+    chipMutedText: pick('rgba(71,85,105,0.7)', 'rgba(226,232,240,0.75)'),
+    divider: pick('rgba(148,163,184,0.18)', 'rgba(255,255,255,0.1)'),
+    inputBg: pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.08)'),
+    inputBorder: pick('rgba(148,163,184,0.32)', 'rgba(255,255,255,0.2)'),
+    inputText: pick('#0f172a', '#f8fafc'),
+    inputIcon: pick('rgba(71,85,105,0.55)', 'rgba(255,255,255,0.55)'),
+    controlShadow: pick('0 18px 36px rgba(15,23,42,0.08)', '0 20px 40px rgba(0,0,0,0.45)'),
+    paginationBackground: pick(
+      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
+      'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.92) 100%)'
+    ),
+    paginationBorder: pick('rgba(15,23,42,0.08)', 'rgba(239,68,68,0.2)'),
+    paginationText: pick('rgba(71,85,105,0.82)', 'rgba(226,232,240,0.74)'),
+    paginationInactiveBg: pick('rgba(241,245,249,0.9)', 'rgba(255,255,255,0.08)'),
+    paginationInactiveText: pick('rgba(148,163,184,0.65)', 'rgba(255,255,255,0.45)')
+  };
+
+  const estadoTokens: Record<Solicitud['estado'], { bg: string; border: string; text: string }> = {
+    pendiente: {
+      bg: pick('rgba(148,163,184,0.16)', 'rgba(148,163,184,0.18)'),
+      border: pick('rgba(148,163,184,0.28)', 'rgba(148,163,184,0.32)'),
+      text: pick('#0f172a', '#cbd5f5')
+    },
+    aprobado: {
+      bg: pick('rgba(16,185,129,0.16)', 'rgba(16,185,129,0.18)'),
+      border: pick('rgba(16,185,129,0.3)', 'rgba(16,185,129,0.35)'),
+      text: pick('#0f766e', '#34d399')
+    },
+    rechazado: {
+      bg: pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.18)'),
+      border: pick('rgba(239,68,68,0.32)', 'rgba(239,68,68,0.38)'),
+      text: pick('#b91c1c', RedColorPalette.primary)
+    },
+    observaciones: {
+      bg: pick('rgba(251,146,60,0.16)', 'rgba(249,115,22,0.2)'),
+      border: pick('rgba(251,146,60,0.32)', 'rgba(249,115,22,0.38)'),
+      text: pick('#b45309', '#fb923c')
+    }
+  };
+
+  const counterTokens = {
+    pendiente: estadoTokens.pendiente,
+    aprobado: estadoTokens.aprobado,
+    rechazado: estadoTokens.rechazado,
+    observaciones: estadoTokens.observaciones
+  } as const;
+
+  const neutralBadgeTokens = {
+    bg: theme.chipMutedBg,
+    border: theme.chipMutedBorder,
+    text: theme.chipMutedText
+  };
+
+  const excelButtonBackground = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
+  const excelButtonHoverBackground = `linear-gradient(135deg, ${RedColorPalette.primaryDark}, ${RedColorPalette.primary})`;
+  const excelButtonTextColor = '#ffffff';
+
+  const refreshButtonBackground = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
+  const refreshButtonHoverBackground = `linear-gradient(135deg, ${RedColorPalette.primaryDark}, ${RedColorPalette.primary})`;
+  const refreshButtonDisabledBackground = pick('rgba(239,68,68,0.25)', 'rgba(239,68,68,0.3)');
+
+  const emptyStateTokens = {
+    background: pick(
+      'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9))',
+      'linear-gradient(135deg, rgba(17,24,39,0.88), rgba(15,23,42,0.92))'
+    ),
+    border: pick('rgba(148,163,184,0.35)', 'rgba(148,163,184,0.25)'),
+    iconBg: pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.22)'),
+    iconColor: pick(RedColorPalette.primary, '#fca5a5'),
+    shadow: pick('0 18px 40px rgba(148,163,184,0.18)', '0 18px 40px rgba(0,0,0,0.45)')
+  } as const;
+
+  const actionColors = {
+    view: '#3b82f6',
+    approve: '#10b981',
+    reject: '#ef4444'
+  } as const;
+
+  const paginationActiveBg = pick('linear-gradient(135deg, #ef4444, #dc2626)', 'linear-gradient(135deg, #ef4444, #dc2626)');
+  const paginationActiveText = pick('#fff', '#fff');
+
+  const paginationButtonTokens = {
+    defaultBg: pick('rgba(248,250,252,0.92)', 'rgba(255,255,255,0.08)'),
+    border: theme.surfaceBorder,
+    text: theme.textPrimary,
+    disabledBg: pick('rgba(237,242,247,0.6)', 'rgba(255,255,255,0.05)'),
+    disabledText: theme.paginationInactiveText,
+    hoverBg: pick('rgba(255,255,255,0.98)', 'rgba(255,255,255,0.12)')
+  };
+
+  type CounterKey = keyof typeof counterTokens;
+
+  const getEstadoTokens = (estado: Solicitud['estado']) => estadoTokens[estado] ?? estadoTokens.pendiente;
+
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,14 +194,14 @@ const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado:
     useSocket({
       'nueva_solicitud_matricula': (data: any) => {
       console.log('🔔 Nueva solicitud recibida:', data);
-      toast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`);
-      fetchSolicitudes();
-      fetchCounters();
+      showToast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`, darkMode);
+      void fetchSolicitudes();
+      void fetchCounters();
         },
         'solicitud_actualizada': (data: any) => {
         console.log('🔔 Solicitud actualizada:', data);
-      fetchSolicitudes();
-    fetchCounters();
+      void fetchSolicitudes();
+    void fetchCounters();
   }
 });
   
@@ -107,7 +238,7 @@ params.set('aggregate', 'by_estado');
         } catch { }
       };
       
-      const fetchSolicitudes = async () => {
+      const fetchSolicitudes = async (): Promise<boolean> => {
       try {
       setLoading(true);
       setShowLoadingModal(true);
@@ -127,16 +258,20 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
   setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
     const data = await res.json();
   setSolicitudes(data);
+  return true;
 } catch (e: any) {
-  setError(e.message || 'Error cargando solicitudes');
+  const message = e.message || 'Error cargando solicitudes';
+  setError(message);
+  showToast.error(message, darkMode);
+  return false;
     } finally {
       setLoading(false);
       }
       };
       
       useEffect(() => {
-    fetchSolicitudes();
-  fetchCursos();
+    void fetchSolicitudes();
+  void fetchCursos();
 }, [filterEstado, filterTipo, page, limit]);
   
   useEffect(() => {
@@ -254,35 +389,17 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
       if (approvalData?.id_estudiante_existente) {
         // CASO: Estudiante existente - Solo se creó matrícula
         // Usar los datos de approvalData ya que son los de la solicitud original
-        toast.success(
-          `Matrícula aprobada exitosamente para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
-          {
-            duration: 4000,
-            icon: <CheckCircle2 size={20} />,
-          }
+        showToast.success(
+          `Matrícula aprobada para ${approvalData.nombre_solicitante} ${approvalData.apellido_solicitante}`,
+          darkMode
         );
       } else {
         // CASO: Estudiante nuevo - Se creó usuario + matrícula
-        toast.success(
-          <div style={{ fontSize: '0.875rem' }}>
-            <div style={{ fontWeight: '600', marginBottom: '0.375rem' }}>
-              Estudiante creado exitosamente
-            </div>
-            <div style={{ fontSize: '0.8125rem', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.5rem', alignItems: 'baseline' }}>
-              <span style={{ fontWeight: '600' }}>Nombre:</span>
-              <span>{data.estudiante.nombre} {data.estudiante.apellido}</span>
-              <span style={{ fontWeight: '600' }}>Usuario:</span>
-              <span>{data.estudiante.username}</span>
-              <span style={{ fontWeight: '600' }}>Email:</span>
-              <span>{data.estudiante.email}</span>
-              <span style={{ fontWeight: '600' }}>Contraseña:</span>
-              <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{data.estudiante.password_temporal}</span>
-            </div>
-          </div>,
-          {
-            duration: 7000,
-            icon: <CheckCircle2 size={20} />,
-          }
+        const estudiante = data?.estudiante ?? {};
+        const nombreCompleto = `${estudiante.nombre ?? ''} ${estudiante.apellido ?? ''}`.trim();
+        showToast.success(
+          `Estudiante creado: ${nombreCompleto || 'Nuevo estudiante'} | Usuario: ${estudiante.username ?? 'N/D'} | Contraseña temporal: ${estudiante.password_temporal ?? 'N/D'}`,
+          darkMode
         );
       }
 
@@ -297,10 +414,8 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
 
     } catch (error: any) {
       console.error('Error creando estudiante:', error);
-      toast.error(`Error: ${error.message}`, {
-        duration: 5000,
-        icon: <AlertCircle size={20} />,
-      });
+      const message = error?.message ? `Error creando estudiante: ${error.message}` : 'Error creando estudiante';
+      showToast.error(message, darkMode);
     } finally {
       setDecidiendo(false);
     }
@@ -334,29 +449,15 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
 
       // Notificación según el estado
       if (estado === 'aprobado') {
-        toast.success('Solicitud aprobada correctamente', {
-          icon: <CheckCircle2 size={20} />,
-        });
+        showToast.success('Solicitud aprobada correctamente', darkMode);
       } else if (estado === 'rechazado') {
-        toast.error('Solicitud rechazada', {
-          icon: <Ban size={20} />,
-        });
+        showToast.error('Solicitud rechazada', darkMode);
       } else {
-        toast('Observaciones agregadas', {
-          icon: <FileCheck size={20} />,
-          style: {
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
-            border: '0.0625rem solid rgba(239, 68, 68, 0.4)',
-            color: '#ef4444',
-            backdropFilter: 'blur(0.625rem)',
-          },
-        });
+        showToast.info('Observaciones agregadas a la solicitud', darkMode);
       }
     } catch (e: any) {
       setError(e.message || 'Error actualizando estado');
-      toast.error(`${e.message || 'Error actualizando estado'}`, {
-        icon: <AlertCircle size={20} />,
-      });
+      showToast.error(e.message || 'Error actualizando estado', darkMode);
     } finally {
       setDecidiendo(false);
     }
@@ -393,48 +494,104 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
     setPage(1);
   }, [filterEstado, filterTipo]);
 
+  const pageStyle = {
+    background: theme.pageBackground,
+    color: theme.textPrimary,
+    minHeight: '100%',
+    transition: 'background 0.3s ease, color 0.3s ease',
+    '--admin-card-bg': theme.contentBackground,
+    '--admin-bg-secondary': theme.contentBackground,
+    '--admin-border': theme.surfaceBorder,
+    '--admin-text-primary': theme.textPrimary,
+    '--admin-text-secondary': theme.textSecondary,
+    '--admin-text-muted': theme.textMuted,
+    '--admin-divider': theme.divider,
+    '--admin-chip-muted-bg': theme.chipMutedBg,
+    '--admin-chip-muted-border': theme.chipMutedBorder,
+    '--admin-chip-muted-text': theme.chipMutedText,
+    '--admin-input-bg': theme.inputBg,
+    '--admin-input-border': theme.inputBorder,
+    '--admin-input-text': theme.inputText,
+    '--admin-input-icon': theme.inputIcon
+  } as CSSProperties;
+
   return (
-    <div>
-      <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '6px' : '0.625rem'
-        }}>
-          <GraduationCap size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
-          Gestión de Matrículas
-        </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Administra las matrículas y credenciales de acceso de los estudiantes
-        </p>
-      </div>
+    <div style={pageStyle}>
+      <AdminSectionHeader
+        title="Gestión de Matrículas"
+        subtitle="Administra las matrículas y credenciales de acceso de los estudiantes"
+      />
 
       {/* Controles */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-        backdropFilter: 'blur(1.25rem)', border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
-        borderRadius: isMobile ? '0.75em' : '1rem', padding: isMobile ? '0.75em' : '1rem', marginBottom: isMobile ? '0.75em' : '1rem'
-      }}>
+      <div
+        style={{
+          background: theme.contentBackground,
+          border: `1px solid ${theme.accentBorder}`,
+          borderRadius: isMobile ? '0.75em' : '1rem',
+          padding: isMobile ? '0.75em' : '1rem',
+          marginBottom: isMobile ? '0.75em' : '1rem',
+          boxShadow: theme.controlShadow,
+          color: theme.textPrimary,
+          backdropFilter: darkMode ? 'blur(1.25rem)' : 'none',
+          transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease'
+        }}
+      >
         <div className="responsive-filters">
-          <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
-            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
-            <input
-              type="text" placeholder="Buscar por nombre, email o cédula..."
-              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+          <div
+            style={{
+              position: 'relative',
+              minWidth: isSmallScreen ? 'auto' : '17.5rem',
+              width: isSmallScreen ? '100%' : 'auto'
+            }}
+          >
+            <Search
+              size={16}
               style={{
-                width: '100%', padding: '10px 0.625rem 0.625rem 2.375rem',
-                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '0.625rem', color: '#fff', fontSize: '0.8rem'
+                position: 'absolute',
+                left: '0.75rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: theme.inputIcon,
+                transition: 'color 0.2s ease'
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email o cédula..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 0.625rem 0.625rem 2.375rem',
+                background: theme.inputBg,
+                border: `1px solid ${theme.inputBorder}`,
+                borderRadius: '0.625rem',
+                color: theme.inputText,
+                fontSize: '0.8rem',
+                transition: 'border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.08)';
+                e.currentTarget.style.border = `1px solid ${theme.accentBorder}`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.border = `1px solid ${theme.inputBorder}`;
               }}
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: isSmallScreen ? 'column' : 'row',
+              gap: '0.75rem',
+              alignItems: isSmallScreen ? 'stretch' : 'center',
+              flexWrap: 'wrap',
+              width: '100%',
+              flex: 1,
+              minWidth: 0
+            }}
+          >
             <div style={{ minWidth: isSmallScreen ? 'auto' : 180, width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filterEstado"
@@ -445,7 +602,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   { value: 'pendiente', label: 'Pendiente' },
                   { value: 'aprobado', label: 'Aprobado' },
                   { value: 'rechazado', label: 'Rechazado' },
-                  { value: 'observaciones', label: 'Observaciones' },
+                  { value: 'observaciones', label: 'Observaciones' }
                 ]}
               />
             </div>
@@ -460,8 +617,17 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 ]}
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
-              <button 
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                flexWrap: 'wrap',
+                width: isSmallScreen ? '100%' : 'auto',
+                justifyContent: isSmallScreen ? 'flex-start' : 'flex-end',
+                marginLeft: isSmallScreen ? 0 : 'auto'
+              }}
+            >
+              <button
                 onClick={async () => {
                   try {
                     const response = await fetch(`${API_BASE}/api/solicitudes/reporte/excel`);
@@ -475,40 +641,80 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
+                    showToast.success('Reporte descargado correctamente', darkMode);
                   } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al descargar el reporte');
+                    console.error('Error al descargar el reporte:', error);
+                    showToast.error('Error al descargar el reporte', darkMode);
                   }
                 }}
-                style={{ 
-                  padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', 
-                  fontSize: '0.8rem', 
-                  borderRadius: '0.5rem', 
-                  border: '1px solid rgba(220, 38, 38, 0.3)', 
-                  background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))', 
-                  color: '#ef4444', 
-                  cursor: 'pointer', 
-                  width: isSmallScreen ? '100%' : 'auto', 
-                  fontWeight: '600',
+                style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.375rem',
-                  transition: 'all 0.2s ease'
+                  gap: '0.5rem',
+                  padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                  background: excelButtonBackground,
+                  border: 'none',
+                  borderRadius: '0.625rem',
+                  color: excelButtonTextColor,
+                  fontSize: '0.8rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.28)',
+                  width: isSmallScreen ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.25))';
+                  e.currentTarget.style.background = excelButtonHoverBackground;
                   e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))';
+                  e.currentTarget.style.background = excelButtonBackground;
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                <Sheet size={16} />
+                <Sheet size={16} color={excelButtonTextColor} />
                 Descargar Excel
               </button>
-              <button onClick={fetchSolicitudes} style={{ padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', fontSize: '0.8rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', width: isSmallScreen ? '100%' : 'auto', fontWeight: '600' }}>Refrescar</button>
+              <button
+                onClick={async () => {
+                  if (loading) return;
+                  const refreshed = await fetchSolicitudes();
+                  if (refreshed) {
+                    showToast.info('Solicitudes actualizadas', darkMode);
+                  }
+                }}
+                disabled={loading}
+                aria-label="Refrescar lista"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 0,
+                  padding: '0.65rem',
+                  background: loading ? refreshButtonDisabledBackground : refreshButtonBackground,
+                  border: 'none',
+                  borderRadius: '0.625rem',
+                  color: '#fff',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+                  width: '2.75rem',
+                  height: '2.75rem',
+                  transition: 'transform 0.2s ease, opacity 0.2s ease',
+                  opacity: loading ? 0.8 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (loading) return;
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.background = refreshButtonHoverBackground;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = loading ? refreshButtonDisabledBackground : refreshButtonBackground;
+                }}
+              >
+                <RefreshCcw size={18} color="#fff" style={{ opacity: loading ? 0.6 : 1 }} />
+              </button>
             </div>
           </div>
         </div>
@@ -516,27 +722,36 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
           {/* Counters */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <span style={{
-              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(156, 163, 175, 0.15)', border: '1px solid rgba(156, 163, 175, 0.3)', color: '#9ca3af'
-            }}>Pendiente: {counters.pendiente}</span>
-            <span style={{
-              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981'
-            }}>Aprobado: {counters.aprobado}</span>
-            <span style={{
-              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
-            }}>Rechazado: {counters.rechazado}</span>
-            <span style={{
-              padding: '4px 0.625rem', borderRadius: '9999em', fontSize: '0.7rem', fontWeight: 700,
-              background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444'
-            }}>Observaciones: {counters.observaciones}</span>
+            {([
+              { key: 'pendiente', label: 'Pendiente' },
+              { key: 'aprobado', label: 'Aprobado' },
+              { key: 'rechazado', label: 'Rechazado' },
+              { key: 'observaciones', label: 'Observaciones' }
+            ] as const).map(({ key, label }) => {
+              const token = counterTokens[key as CounterKey];
+              return (
+                <span
+                  key={key}
+                  style={{
+                    padding: '4px 0.625rem',
+                    borderRadius: '9999em',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    background: token.bg,
+                    border: `1px solid ${token.border}`,
+                    color: token.text,
+                    textTransform: 'capitalize'
+                  }}
+                >
+                  {label}: {counters[key as CounterKey]}
+                </span>
+              );
+            })}
           </div>
           {/* Pagination */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}>Por página:</span>
+              <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Por página:</span>
               <div style={{ minWidth: 100 }}>
                 <StyledSelect
                   name="limit"
@@ -545,29 +760,115 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   options={[
                     { value: '10', label: '10' },
                     { value: '20', label: '20' },
-                    { value: '50', label: '50' },
+                    { value: '50', label: '50' }
                   ]}
                 />
               </div>
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{
-              padding: '7px 0.625rem', fontSize: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer', fontWeight: '600'
-            }}>Anterior</button>
-            <span style={{ color: 'rgba(255,255,255,0.8)' }}>Página {page}</span>
-            <button onClick={() => setPage(p => p + 1)} disabled={(page * limit) >= totalCount} style={{
-              padding: '0.5em 0.75rem', borderRadius: '0.625em', border: '0.0625rem solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: solicitudes.length < limit ? 'not-allowed' : 'pointer'
-            }}>Siguiente</button>
+            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', marginLeft: 6 }}>Total: {totalCount}</span>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                padding: '7px 0.625rem',
+                fontSize: '0.75rem',
+                borderRadius: '0.5rem',
+                border: `1px solid ${paginationButtonTokens.border}`,
+                background: page === 1 ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg,
+                color: page === 1 ? paginationButtonTokens.disabledText : paginationButtonTokens.text,
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (page === 1) return;
+                e.currentTarget.style.background = paginationButtonTokens.hoverBg;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = page === 1 ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg;
+              }}
+            >
+              Anterior
+            </button>
+            <span style={{ color: theme.paginationText }}>Página {page}</span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={(page * limit) >= totalCount}
+              style={{
+                padding: '0.5em 0.75rem',
+                borderRadius: '0.625em',
+                border: `0.0625rem solid ${paginationButtonTokens.border}`,
+                background: (page * limit) >= totalCount ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg,
+                color: (page * limit) >= totalCount ? paginationButtonTokens.disabledText : paginationButtonTokens.text,
+                cursor: (page * limit) >= totalCount ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if ((page * limit) >= totalCount) return;
+                e.currentTarget.style.background = paginationButtonTokens.hoverBg;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = (page * limit) >= totalCount ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg;
+              }}
+            >
+              Siguiente
+            </button>
           </div>
         </div>
       </div>
 
       {/* Lista de Solicitudes */}
       <div style={{ display: 'grid', gap: isMobile ? '12px' : '1rem' }}>
-        {loading && (<div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>Cargando...</div>)}
-        {error && (<div style={{ color: '#ef4444', fontSize: '0.8rem' }}>{error}</div>)}
+        {loading && (<div style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>Cargando...</div>)}
+        {error && (<div style={{ color: RedColorPalette.primary, fontSize: '0.8rem' }}>{error}</div>)}
         {!loading && solicitudesFiltradas.length === 0 && (
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>No hay solicitudes</div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              padding: isMobile ? '2.25rem 1.5rem' : '3rem 2.5rem',
+              background: emptyStateTokens.background,
+              border: `1px dashed ${emptyStateTokens.border}`,
+              borderRadius: '1.25rem',
+              boxShadow: emptyStateTokens.shadow,
+              textAlign: 'center',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+              transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease'
+            }}
+          >
+            <div
+              style={{
+                width: '3.25rem',
+                height: '3.25rem',
+                borderRadius: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: emptyStateTokens.iconBg
+              }}
+            >
+              <FileText size={26} color={emptyStateTokens.iconColor} />
+            </div>
+            <div style={{ fontSize: isMobile ? '1rem' : '1.05rem', fontWeight: 700, color: theme.textPrimary }}>
+              No hay solicitudes registradas
+            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.85rem',
+                lineHeight: 1.6,
+                color: theme.textSecondary,
+                maxWidth: '28rem'
+              }}
+            >
+              Cuando se generen nuevas solicitudes las verás aquí en tiempo real. Puedes usar el botón refrescar si estás esperando un registro reciente.
+            </p>
+          </div>
         )}
         {paginatedSolicitudes.map((sol) => {
           // Formatear fecha de solicitud
@@ -583,66 +884,91 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
             return `${dia}/${mes}/${año}`;
           };
 
+          const estadoVisual = getEstadoTokens(sol.estado);
+          const labelColor = theme.textSecondary;
+          const valueColor = theme.textPrimary;
+          const codeChipStyle = {
+            background: neutralBadgeTokens.bg,
+            border: `1px solid ${neutralBadgeTokens.border}`,
+            color: neutralBadgeTokens.text
+          } as CSSProperties;
+          const fieldLabelStyle = {
+            color: labelColor,
+            fontSize: '0.65rem',
+            marginBottom: '0.1875rem'
+          } as CSSProperties;
+          const fieldValueStyle = {
+            color: valueColor,
+            fontSize: '0.75rem',
+            fontWeight: 600
+          } as CSSProperties;
+
           return (
-            <div key={sol.id_solicitud} style={{
-              background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-              backdropFilter: 'blur(1.25rem)', 
-              border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-              borderRadius: '0.75rem', 
-              padding: '0.875rem', 
-              boxShadow: '0 0.25rem 0.75rem rgba(0, 0, 0, 0.2)',
-              transition: 'all 0.3s ease'
-            }}>
+            <div
+              key={sol.id_solicitud}
+              style={{
+                background: theme.contentBackground,
+                border: `1px solid ${theme.surfaceBorder}`,
+                borderRadius: '0.75rem',
+                padding: '0.875rem',
+                boxShadow: darkMode ? '0 0.25rem 0.75rem rgba(0, 0, 0, 0.25)' : '0 16px 32px rgba(15,23,42,0.08)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                backdropFilter: darkMode ? 'blur(1rem)' : 'none',
+                color: theme.textPrimary
+              }}
+            >
               {/* Información Principal */}
               <div style={{ marginBottom: '0.875rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
-                  <span style={{ 
-                    color: 'rgba(255,255,255,0.6)', 
-                    fontSize: '0.7rem',
-                    background: 'rgba(255,255,255,0.05)',
-                    padding: '3px 0.375rem',
-                    borderRadius: '0.3125rem'
-                  }}>
+                  <span
+                    style={{
+                      fontSize: '0.7rem',
+                      padding: '3px 0.5rem',
+                      borderRadius: '0.3125rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.01em',
+                      background: codeChipStyle.background,
+                      border: codeChipStyle.border,
+                      color: codeChipStyle.color
+                    }}
+                  >
                     {sol.codigo_solicitud}
                   </span>
-                  <span style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.1875rem',
-                    padding: '3px 0.5rem',
-                    borderRadius: 6,
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    background: sol.estado === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                      sol.estado === 'rechazado' ? 'rgba(239, 68, 68, 0.15)' :
-                        sol.estado === 'observaciones' ? 'rgba(239, 68, 68, 0.15)' :
-                          'rgba(156, 163, 175, 0.15)',
-                    border: sol.estado === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                      sol.estado === 'rechazado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                        sol.estado === 'observaciones' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                          '1px solid rgba(156, 163, 175, 0.3)',
-                    color: sol.estado === 'aprobado' ? '#10b981' :
-                      sol.estado === 'rechazado' ? '#ef4444' :
-                        sol.estado === 'observaciones' ? '#ef4444' :
-                          '#9ca3af'
-                  }}>
+                  <span
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.1875rem',
+                      padding: '3px 0.5rem',
+                      borderRadius: 6,
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      background: estadoVisual.bg,
+                      border: `1px solid ${estadoVisual.border}`,
+                      color: estadoVisual.text
+                    }}
+                  >
                     {sol.estado}
                   </span>
                 </div>
-                <h3 style={{ 
-                  color: '#fff', 
-                  margin: '0 0 0.5rem 0'
-                }}>
+                <h3
+                  style={{
+                    color: theme.textPrimary,
+                    margin: '0 0 0.5rem 0'
+                  }}
+                >
                   {sol.nombre_solicitante} {sol.apellido_solicitante}
                 </h3>
               </div>
 
-              <div style={{ 
-                paddingTop: '0.625rem',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                marginBottom: '0.875rem'
-              }}>
+              <div
+                style={{
+                  paddingTop: '0.625rem',
+                  borderTop: `1px solid ${theme.divider}`,
+                  marginBottom: '0.875rem'
+                }}
+              >
 
                 {/* Primera fila - Información básica */}
                 <div style={{
@@ -652,21 +978,21 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   flexWrap: 'wrap'
                 }}>
                   <div style={{ flex: '1 1 200px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{sol.identificacion_solicitante || '-'}</div>
+                    <div style={fieldLabelStyle}>Identificación</div>
+                    <div style={fieldValueStyle}>{sol.identificacion_solicitante || '-'}</div>
                   </div>
                   <div style={{ flex: '1 1 200px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Email</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{sol.email_solicitante}</div>
+                    <div style={fieldLabelStyle}>Email</div>
+                    <div style={fieldValueStyle}>{sol.email_solicitante}</div>
                   </div>
                   <div style={{ flex: '1 1 150px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Fecha de Solicitud</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                    <div style={fieldLabelStyle}>Fecha de Solicitud</div>
+                    <div style={fieldValueStyle}>{formatearFecha(sol.fecha_solicitud)}</div>
                   </div>
                   {(sol as any).tipo_curso_nombre && (
                     <div style={{ flex: '1 1 150px' }}>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Tipo de Curso</div>
-                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{(sol as any).tipo_curso_nombre}</div>
+                      <div style={fieldLabelStyle}>Tipo de Curso</div>
+                      <div style={fieldValueStyle}>{(sol as any).tipo_curso_nombre}</div>
                     </div>
                   )}
                 </div>
@@ -680,7 +1006,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 }}>
                   {/* Número de comprobante - Campo separado */}
                   <div style={{ flex: '1 1 140px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Número Comprobante</div>
+                    <div style={fieldLabelStyle}>Número Comprobante</div>
                     {sol.numero_comprobante ? (
                       <div style={{
                         background: 'rgba(239, 68, 68, 0.1)',
@@ -696,9 +1022,9 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                       </div>
                     ) : (
                       <div style={{
-                        background: 'rgba(107, 114, 128, 0.1)',
-                        border: '1px solid rgba(107, 114, 128, 0.3)',
-                        color: 'rgba(255, 255, 255, 0.5)',
+                        background: neutralBadgeTokens.bg,
+                        border: `1px solid ${neutralBadgeTokens.border}`,
+                        color: neutralBadgeTokens.text,
                         padding: '4px 0.5rem',
                         borderRadius: '0.3125rem',
                         fontSize: '0.7rem',
@@ -713,7 +1039,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   {/* Recibido por - Solo para efectivo */}
                   {sol.metodo_pago === 'efectivo' && (
                     <div style={{ flex: '1 1 140px' }}>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Recibido por</div>
+                      <div style={fieldLabelStyle}>Recibido por</div>
                       {(sol as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
@@ -729,9 +1055,9 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                         </div>
                       ) : (
                         <div style={{
-                          background: 'rgba(107, 114, 128, 0.1)',
-                          border: '1px solid rgba(107, 114, 128, 0.3)',
-                          color: 'rgba(255, 255, 255, 0.5)',
+                          background: neutralBadgeTokens.bg,
+                          border: `1px solid ${neutralBadgeTokens.border}`,
+                          color: neutralBadgeTokens.text,
                           padding: '4px 0.5rem',
                           borderRadius: '0.3125rem',
                           fontSize: '0.7rem',
@@ -746,7 +1072,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
 
                   {/* Comprobante - Solo botón */}
                   <div style={{ flex: '1 1 auto' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Comprobante</div>
+                    <div style={fieldLabelStyle}>Comprobante</div>
                     <button
                       onClick={() => openComprobanteModal(sol.id_solicitud, sol.numero_comprobante)}
                       style={{
@@ -771,7 +1097,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                         e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
                       }}
                     >
-                      <Download size={12} />
+                        <Download size={12} color={actionColors.approve} />
                       Ver Comprobante
                     </button>
                   </div>
@@ -783,7 +1109,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 display: 'flex',
                 gap: '0.5rem',
                 justifyContent: 'flex-end',
-                borderTop: '1px solid rgba(255,255,255,0.08)',
+                borderTop: `1px solid ${theme.divider}`,
                 paddingTop: '0.75rem',
                 marginTop: '0.75rem'
               }}>
@@ -792,7 +1118,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   style={{
                     background: 'rgba(59, 130, 246, 0.1)',
                     border: '1px solid rgba(59, 130, 246, 0.3)',
-                    color: '#3b82f6',
+                    color: actionColors.view,
                     padding: '6px 0.75rem',
                     borderRadius: '0.5rem',
                     cursor: 'pointer',
@@ -810,7 +1136,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                     e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
                   }}
                 >
-                  <Eye size={14} />
+                  <Eye size={14} color={actionColors.view} />
                   Ver
                 </button>
                 {sol.estado === 'pendiente' && (
@@ -821,7 +1147,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                       style={{
                         background: 'rgba(16, 185, 129, 0.15)',
                         border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
-                        color: '#10b981',
+                        color: actionColors.approve,
                         padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.75rem',
                         borderRadius: '0.5rem',
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
@@ -835,7 +1161,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                         width: isSmallScreen ? '100%' : 'auto'
                       }}
                     >
-                      <Check size={14} />
+                      <Check size={14} color={actionColors.approve} />
                       Aprobar
                     </button>
                     <button
@@ -844,7 +1170,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
                         border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-                        color: '#ef4444',
+                        color: actionColors.reject,
                         padding: isMobile ? '0.625em 0.875rem' : '0.5em 0.75rem',
                         borderRadius: '0.5rem',
                         cursor: decidiendo ? 'not-allowed' : 'pointer',
@@ -858,7 +1184,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                         width: isSmallScreen ? '100%' : 'auto'
                       }}
                     >
-                      <XCircle size={14} />
+                      <XCircle size={14} color={actionColors.reject} />
                       Rechazar
                     </button>
                   </>
@@ -871,19 +1197,24 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
 
       {/* Paginación */}
       {!loading && solicitudesFiltradas.length > 0 && (
-        <div className="pagination-container" style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '1rem',
-        }}>
+        <div
+          className="pagination-container"
+          style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '0.75rem' : '0',
+            padding: isMobile ? '16px' : '20px 1.5rem',
+            background: theme.paginationBackground,
+            border: `1px solid ${theme.paginationBorder}`,
+            borderRadius: '1rem',
+            boxShadow: theme.controlShadow,
+            transition: 'background 0.3s ease, border 0.3s ease'
+          }}
+        >
           <div style={{
-            color: 'rgba(255,255,255,0.7)',
+            color: theme.paginationText,
             fontSize: isMobile ? '0.8rem' : '0.9rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
@@ -904,15 +1235,22 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
                 padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: page === 1 ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg,
+                border: `1px solid ${paginationButtonTokens.border}`,
                 borderRadius: '0.625rem',
-                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: page === 1 ? paginationButtonTokens.disabledText : paginationButtonTokens.text,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 flex: isMobile ? '1' : 'initial'
+              }}
+              onMouseEnter={(e) => {
+                if (page === 1) return;
+                e.currentTarget.style.background = paginationButtonTokens.hoverBg;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = page === 1 ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg;
               }}
             >
               <ChevronLeft size={isMobile ? 14 : 16} />
@@ -924,15 +1262,23 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 onClick={() => setPage(pageNum)}
                 style={{
                   padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                  background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
-                  border: page === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  background: page === pageNum ? paginationActiveBg : paginationButtonTokens.defaultBg,
+                  border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${paginationButtonTokens.border}`,
                   borderRadius: '0.625rem',
-                  color: '#fff',
+                  color: page === pageNum ? paginationActiveText : paginationButtonTokens.text,
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   minWidth: isMobile ? '36px' : '2.5rem',
+                }}
+                onMouseEnter={(e) => {
+                  if (page === pageNum) return;
+                  e.currentTarget.style.background = paginationButtonTokens.hoverBg;
+                }}
+                onMouseLeave={(e) => {
+                  if (page === pageNum) return;
+                  e.currentTarget.style.background = paginationButtonTokens.defaultBg;
                 }}
               >
                 {pageNum}
@@ -947,15 +1293,22 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
                 padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: page === totalPages ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg,
+                border: `1px solid ${paginationButtonTokens.border}`,
                 borderRadius: '0.625rem',
-                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: page === totalPages ? paginationButtonTokens.disabledText : paginationButtonTokens.text,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 flex: isMobile ? '1' : 'initial'
+              }}
+              onMouseEnter={(e) => {
+                if (page === totalPages) return;
+                e.currentTarget.style.background = paginationButtonTokens.hoverBg;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = page === totalPages ? paginationButtonTokens.disabledBg : paginationButtonTokens.defaultBg;
               }}
             >
               {!isMobile && 'Siguiente'}
@@ -966,14 +1319,49 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
       )}
 
       {/* Modal Detalle Solicitud */}
-      {showModal && selected && (
+      {showModal && selected && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '700px',
+              maxWidth: isMobile ? '92vw' : '700px',
+              maxHeight: '85vh',
+              padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
+              margin: 'auto',
+              color: 'var(--admin-text-primary, #fff)',
+              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'scaleIn 0.3s ease-out'
+            }}
           >
             <div style={{
               display: 'flex',
@@ -1017,28 +1405,28 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
             <div style={{
               display: 'grid',
               gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-              gap: isMobile ? 12 : 16
+              gap: isMobile ? 8 : 10
             }}>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombre Completo</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>{selected.nombre_solicitante} {selected.apellido_solicitante}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Nombre Completo</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600', fontSize: '0.9rem' }}>{selected.nombre_solicitante} {selected.apellido_solicitante}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
-                <div style={{ color: '#fff' }}>{selected.identificacion_solicitante || '-'}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Identificación</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.identificacion_solicitante || '-'}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Email</div>
-                <div style={{ color: '#fff' }}>{selected.email_solicitante}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Email</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.email_solicitante}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
-                <div style={{ color: '#fff' }}>{selected.telefono_solicitante || '-'}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Teléfono</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.telefono_solicitante || '-'}</div>
               </div>
               {selected.fecha_nacimiento_solicitante && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
-                  <div style={{ color: '#fff' }}>
+                  <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Nacimiento</div>
+                  <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                     {(() => {
                       const fecha = new Date(selected.fecha_nacimiento_solicitante);
                       const meses = [
@@ -1055,22 +1443,22 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
               )}
               {selected.genero_solicitante && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Género</div>
-                  <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selected.genero_solicitante}</div>
+                  <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Género</div>
+                  <div style={{ color: 'var(--admin-text-primary, #fff)', textTransform: 'capitalize' }}>{selected.genero_solicitante}</div>
                 </div>
               )}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Dirección</div>
-                <div style={{ color: '#fff' }}>{selected.direccion_solicitante || '-'}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Dirección</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.direccion_solicitante || '-'}</div>
               </div>
               {/* Added emergency contact display */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Contacto de Emergencia</div>
-                <div style={{ color: '#fff' }}>{(selected as any).contacto_emergencia || '-'}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Contacto de Emergencia</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{(selected as any).contacto_emergencia || '-'}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Solicitud</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Solicitud</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {(() => {
                     const fecha = new Date(selected.fecha_solicitud);
                     const meses = [
@@ -1086,15 +1474,15 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
               </div>
               {(selected as any).tipo_curso_nombre && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Tipo de Curso</div>
-                  <div style={{ color: '#fff' }}>{(selected as any).tipo_curso_nombre}</div>
+                  <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Tipo de Curso</div>
+                  <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{(selected as any).tipo_curso_nombre}</div>
                 </div>
               )}
               {selected.horario_preferido && (
                 <div>
-                  <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Horario Preferido</div>
+                  <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Horario Preferido</div>
                   <div style={{
-                    color: '#fff',
+                    color: 'var(--admin-text-primary, #fff)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
@@ -1106,12 +1494,12 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 </div>
               )}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Monto de Matrícula</div>
-                <div style={{ color: '#fff', fontWeight: '600', fontSize: '1.1rem' }}>${selected.monto_matricula?.toLocaleString?.() || selected.monto_matricula}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Monto de Matrícula</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600', fontSize: '1.1rem' }}>${selected.monto_matricula?.toLocaleString?.() || selected.monto_matricula}</div>
               </div>
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Método de Pago</div>
-                <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selected.metodo_pago}</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Método de Pago</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', textTransform: 'capitalize' }}>{selected.metodo_pago}</div>
               </div>
 
               {/* Información del comprobante - para transferencia */}
@@ -1119,7 +1507,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 <>
                   {selected.numero_comprobante && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Número de Comprobante</div>
                       <div style={{
                         color: '#ef4444',
                         fontWeight: '600',
@@ -1135,14 +1523,14 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   )}
                   {selected.banco_comprobante && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Banco</div>
-                      <div style={{ color: '#fff', textTransform: 'capitalize' }}>{selected.banco_comprobante}</div>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Banco</div>
+                      <div style={{ color: 'var(--admin-text-primary, #fff)', textTransform: 'capitalize' }}>{selected.banco_comprobante}</div>
                     </div>
                   )}
                   {selected.fecha_transferencia && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Transferencia</div>
-                      <div style={{ color: '#fff' }}>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Transferencia</div>
+                      <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                         {(() => {
                           const fecha = new Date(selected.fecha_transferencia);
                           const meses = [
@@ -1165,7 +1553,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 <>
                   {selected.numero_comprobante && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Número de Comprobante</div>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Número de Comprobante</div>
                       <div style={{
                         color: '#ef4444',
                         fontWeight: '600',
@@ -1181,7 +1569,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                   )}
                   {(selected as any).recibido_por && (
                     <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Recibido por</div>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Recibido por</div>
                       <div style={{
                         color: '#b45309',
                         fontWeight: '600',
@@ -1199,7 +1587,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
               )}
 
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Estado</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Estado</div>
                 <div style={{
                   display: 'inline-flex',
                   padding: '6px 0.75rem',
@@ -1225,148 +1613,185 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
               </div>
             </div>
 
-            {/* Comprobante */}
-            <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-              <h4 style={{ margin: '0 0 0.75rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {/* Documentos - Botones con íconos claros */}
+            <div style={{ 
+              marginTop: 14,
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: 10
+            }}>
+              {/* Comprobante */}
+              <a
+                href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/comprobante`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  padding: '10px 12px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.08)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
                 <Download size={18} color="#10b981" />
-                Comprobante de Pago
-              </h4>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <a
-                  href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/comprobante`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '10px 1rem',
-                    borderRadius: 8,
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    color: '#10b981',
-                    textDecoration: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  <Download size={16} /> Ver/Descargar Comprobante
-                </a>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: '0.8rem' }}>
-                Abre el comprobante en una nueva pestaña para verificar la transferencia.
-              </p>
-            </div>
+                <span style={{ 
+                  color: '#10b981', 
+                  fontSize: '0.8rem', 
+                  fontWeight: '600',
+                  textAlign: 'center'
+                }}>
+                  Comprobante
+                </span>
+              </a>
 
-            {/* Documentos */}
-            <div style={{ marginTop: 16, background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)', borderRadius: 12, padding: 16 }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FileText size={18} color="#3b82f6" />
-                Documentos
-              </h4>
-
+              {/* Documentos */}
               {(() => {
-                // Determinar si es extranjero basado en la cédula (si no tiene formato ecuatoriano, es extranjero)
                 const esEcuatoriano = selected.identificacion_solicitante && /^\d{10}$/.test(selected.identificacion_solicitante);
 
                 if (esEcuatoriano) {
-                  // Solo mostrar documento de identificación para ecuatorianos
                   return (
-                    <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                        <IdCard size={14} color="#3b82f6" />
-                        Documento de Identificación
-                      </div>
+                    <a
+                      href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6,
+                        padding: '10px 12px',
+                        borderRadius: 8,
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        background: 'rgba(59, 130, 246, 0.08)',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      <IdCard size={18} color="#3b82f6" />
+                      <span style={{ 
+                        color: '#3b82f6', 
+                        fontSize: '0.8rem', 
+                        fontWeight: '600',
+                        textAlign: 'center'
+                      }}>
+                        Identificación
+                      </span>
+                    </a>
+                  );
+                } else {
+                  return (
+                    <>
                       <a
                         href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`}
                         target="_blank"
                         rel="noreferrer"
                         style={{
-                          display: 'inline-flex',
+                          display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
-                          gap: 8,
-                          padding: '8px 0.75rem',
+                          justifyContent: 'center',
+                          gap: 6,
+                          padding: '10px 12px',
                           borderRadius: 8,
                           border: '1px solid rgba(59, 130, 246, 0.3)',
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          color: '#3b82f6',
+                          background: 'rgba(59, 130, 246, 0.08)',
                           textDecoration: 'none',
-                          fontSize: '0.85rem',
-                          fontWeight: '500'
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        <Download size={14} /> Ver/Descargar Identificación
+                        <IdCard size={18} color="#3b82f6" />
+                        <span style={{ 
+                          color: '#3b82f6', 
+                          fontSize: '0.8rem', 
+                          fontWeight: '600',
+                          textAlign: 'center'
+                        }}>
+                          Pasaporte
+                        </span>
                       </a>
-                    </div>
-                  );
-                } else {
-                  // Mostrar ambos documentos para extranjeros
-                  return (
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                      gap: isMobile ? '10px' : '0.75rem'
-                    }}>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                          <IdCard size={14} color="#3b82f6" />
-                          Copia de Pasaporte
-                        </div>
-                        <a
-                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-identificacion`}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            padding: '8px 0.75rem',
-                            borderRadius: 8,
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            color: '#3b82f6',
-                            textDecoration: 'none',
-                            fontSize: '0.85rem',
-                            fontWeight: '500'
-                          }}
-                        >
-                          <Download size={14} /> Ver/Descargar
-                        </a>
-                      </div>
-                      <div>
-                        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                          <FileText size={14} color="#3b82f6" />
-                          Documento de Estatus Legal
-                        </div>
-                        <a
-                          href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-estatus-legal`}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            padding: '8px 0.75rem',
-                            borderRadius: 8,
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            color: '#3b82f6',
-                            textDecoration: 'none',
-                            fontSize: '0.85rem',
-                            fontWeight: '500'
-                          }}
-                        >
-                          <Download size={14} /> Ver/Descargar
-                        </a>
-                      </div>
-                    </div>
+                      <a
+                        href={`${API_BASE}/api/solicitudes/${selected.id_solicitud}/documento-estatus-legal`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 6,
+                          padding: '10px 12px',
+                          borderRadius: 8,
+                          border: '1px solid rgba(168, 85, 247, 0.3)',
+                          background: 'rgba(168, 85, 247, 0.08)',
+                          textDecoration: 'none',
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(168, 85, 247, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(168, 85, 247, 0.08)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        <FileText size={18} color="#a855f7" />
+                        <span style={{ 
+                          color: '#a855f7', 
+                          fontSize: '0.8rem', 
+                          fontWeight: '600',
+                          textAlign: 'center'
+                        }}>
+                          Estatus Legal
+                        </span>
+                      </a>
+                    </>
                   );
                 }
               })()}
-
-              <p style={{ color: 'rgba(255,255,255,0.5)', margin: '12px 0 0 0', fontSize: '0.8rem' }}>
-                Haz clic en los enlaces para abrir los documentos en una nueva pestaña.
-              </p>
             </div>
 
             {(() => {
@@ -1389,7 +1814,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                           Curso Bloqueado
                         </h4>
                       </div>
-                      <p style={{ color: 'rgba(255,255,255,0.8)', margin: 0, fontSize: '0.9rem' }}>
+                      <p style={{ color: 'var(--admin-text-primary, rgba(255,255,255,0.8))', margin: 0, fontSize: '0.9rem' }}>
                         Este curso está temporalmente bloqueado. Las matrículas están suspendidas hasta que se reactive el curso.
                         Solo se pueden rechazar solicitudes pendientes.
                       </p>
@@ -1428,7 +1853,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                           }}>
                             Solicitud {selected.estado}
                           </h4>
-                          <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.85rem' }}>
+                          <p style={{ color: 'var(--admin-text-primary, rgba(255,255,255,0.7))', margin: 0, fontSize: '0.85rem' }}>
                             {selected.estado === 'aprobado'
                               ? 'Esta solicitud ya fue aprobada y el estudiante fue creado exitosamente.'
                               : selected.estado === 'rechazado'
@@ -1497,22 +1922,69 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 </div>
               );
             })()}
+          {/* Animaciones CSS */}
+          <style>{`
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+          `}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal Comprobante */}
-      {showComprobanteModal && (
+      {showComprobanteModal && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowComprobanteModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '600px',
+              maxWidth: isMobile ? '92vw' : '600px',
+              maxHeight: '85vh',
+              padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
+              margin: 'auto',
+              color: 'var(--admin-text-primary, #fff)',
+              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'scaleIn 0.3s ease-out',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'column'
             }}
           >
             <div style={{
@@ -1646,19 +2118,68 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 Cerrar
               </button>
             </div>
+            {/* Animaciones CSS */}
+            <style>{`
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de Aprobación */}
-      {showApprovalModal && approvalData && (
+      {showApprovalModal && approvalData && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowApprovalModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '700px',
+              maxWidth: isMobile ? '92vw' : '700px',
+              maxHeight: '85vh',
+              padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
+              margin: 'auto',
+              color: 'var(--admin-text-primary, #fff)',
+              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'scaleIn 0.3s ease-out'
+            }}
           >
             <div style={{
               display: 'flex',
@@ -1708,48 +2229,48 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
             }}>
               {/* Nombres - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Nombres</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Nombres</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600' }}>
                   {(approvalData?.nombre_solicitante && approvalData.nombre_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Apellidos - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Apellidos</div>
-                <div style={{ color: '#fff', fontWeight: '600' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Apellidos</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600' }}>
                   {(approvalData?.apellido_solicitante && approvalData.apellido_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Identificación - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Identificación</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Identificación</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {(approvalData?.identificacion_solicitante && approvalData.identificacion_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Email - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Email</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Email</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {(approvalData?.email_solicitante && approvalData.email_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Teléfono - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Teléfono</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Teléfono</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {(approvalData?.telefono_solicitante && approvalData.telefono_solicitante.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Fecha de Nacimiento - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Fecha de Nacimiento</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Nacimiento</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {(() => {
                     try {
                       if (approvalData?.fecha_nacimiento_solicitante && approvalData.fecha_nacimiento_solicitante.trim()) {
@@ -1776,17 +2297,17 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
 
               {/* Tipo de Curso - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Tipo de Curso</div>
-                <div style={{ color: '#fff' }}>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Tipo de Curso</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                   {((approvalData as any)?.tipo_curso_nombre && (approvalData as any).tipo_curso_nombre.trim()) || 'No especificado'}
                 </div>
               </div>
 
               {/* Horario Preferido - Siempre visible */}
               <div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: 4 }}>Horario Preferido</div>
+                <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Horario Preferido</div>
                 <div style={{
-                  color: '#fff',
+                  color: 'var(--admin-text-primary, #fff)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
@@ -1801,7 +2322,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
             {/* Usuario Generado - Solo mostrar si NO es estudiante existente */}
             {!approvalData?.id_estudiante_existente && (
               <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-                <h4 style={{ margin: '0 0 0.75rem 0', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--admin-text-primary, #fff)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <GraduationCap size={18} color="#10b981" />
                   Usuario Generado Automáticamente
                 </h4>
@@ -1899,15 +2420,29 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
                 {decidiendo ? 'Procesando...' : (approvalData?.id_estudiante_existente ? 'Crear Matrícula' : 'Crear Estudiante')}
               </button>
             </div>
+            {/* Animaciones CSS */}
+            <style>{`
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       
       {/* Modal de carga */}
       <LoadingModal
         isOpen={showLoadingModal}
         message="Actualizando datos..."
-        darkMode={true}
+        darkMode={darkMode}
         duration={500}
         onComplete={() => setShowLoadingModal(false)}
         colorTheme="red"

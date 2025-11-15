@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
-import { BookOpen, Users, Calendar, BarChart3, Settings, Menu, ClipboardList, Award, X } from 'lucide-react';
+import { BookOpen, Users, Calendar, BarChart3, UserCircle, Menu, ClipboardList, Award, X } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
 import NotificationBell from '../../components/NotificationBell';
@@ -176,7 +176,7 @@ const PanelDocentes = () => {
     { id: 'asistencia', name: 'Asistencia', icon: ClipboardList },
     { id: 'calificaciones', name: 'Calificaciones', icon: Award },
     { id: 'horario', name: 'Mi Horario', icon: Calendar },
-    { id: 'perfil', name: 'Mi Perfil', icon: Settings }
+    { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
   return (
@@ -191,8 +191,10 @@ const PanelDocentes = () => {
           --docente-text-muted: ${theme.textMuted};
           --docente-border: ${theme.border};
           --docente-accent: ${theme.accent};
-          --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'};
-          --docente-input-border: ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
+          --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
+          --docente-input-border: ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'};
+          --docente-card-bg: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'};
+          --docente-hover-bg: ${darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(0,0,0,0.05)'};
         }
         
         .docente-panel input,
@@ -255,7 +257,7 @@ const PanelDocentes = () => {
           top: 0,
           zIndex: 1000,
           boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowY: isSmallScreen ? 'auto' : 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -279,7 +281,7 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 10
               }}
               onMouseEnter={(e) => {
@@ -313,7 +315,7 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 10
               }}
             >
@@ -373,9 +375,9 @@ const PanelDocentes = () => {
                     fontWeight: '500',
                     letterSpacing: '0.05em',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
+                    transition: 'background 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1)',
                     textAlign: 'left',
-                    boxShadow: activeTab === tab.id ? '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)' : 'none',
+                    boxShadow: activeTab === tab.id ? '0 0.25rem 0.75rem rgba(59, 130, 246, 0.15)' : 'none',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden'
                   }}
@@ -407,7 +409,7 @@ const PanelDocentes = () => {
           flex: 1,
           padding: isMobile ? '0.75em' : '1.25rem',
           minHeight: '100vh',
-          transition: 'margin-left 0.3s ease',
+          transition: 'margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           width: isSmallScreen ? '100%' : 'auto',
           maxWidth: '100%',
           overflowX: 'hidden',

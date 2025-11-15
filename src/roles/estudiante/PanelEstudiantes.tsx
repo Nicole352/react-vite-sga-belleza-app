@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, UserCircle, Settings, Menu, Calendar, X
+  BookOpen, UserCircle, Menu, Calendar, X, Award, FileText
 } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
@@ -169,8 +169,8 @@ const PanelEstudiantes = () => {
   const tabs = [
     { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
     { id: 'mi-horario', name: 'Mi Horario', icon: Calendar },
-    { id: 'calificaciones', name: 'Calificaciones', icon: Settings },
-    { id: 'servicios', name: 'Servicios', icon: Settings },
+    { id: 'calificaciones', name: 'Calificaciones', icon: Award },
+    { id: 'servicios', name: 'Servicios', icon: FileText },
     { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
@@ -513,7 +513,7 @@ const PanelEstudiantes = () => {
                 index
                 element={
                   <>
-                    {activeTab === 'mi-aula' && <EstudianteThemeWrapper darkMode={darkMode}><MiAula darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'mi-aula' && <EstudianteThemeWrapper darkMode={darkMode}><MiAula darkMode={darkMode} onNavigate={setActiveTab} /></EstudianteThemeWrapper>}
                     {activeTab === 'mi-horario' && <EstudianteThemeWrapper darkMode={darkMode}><MiHorario darkMode={darkMode} /></EstudianteThemeWrapper>}
                     {activeTab === 'calificaciones' && <EstudianteThemeWrapper darkMode={darkMode}><Calificaciones darkMode={darkMode} /></EstudianteThemeWrapper>}
                     {activeTab === 'servicios' && <EstudianteThemeWrapper darkMode={darkMode}><Servicios darkMode={darkMode} /></EstudianteThemeWrapper>}

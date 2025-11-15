@@ -17,12 +17,12 @@ type StyledSelectProps = {
 
 const getBaseStyle = (darkMode: boolean = true): React.CSSProperties => ({
   width: '100%',
-  padding: '12px',
-  background: darkMode ? '#1a1a2e' : 'rgba(255,255,255,0.9)',
-  border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)',
-  borderRadius: 10,
-  color: darkMode ? '#fff' : '#1e293b',
-  fontSize: '14px',
+  padding: '7px 10px',
+  background: 'var(--admin-input-bg, rgba(255,255,255,0.06))',
+  border: '1px solid var(--admin-border, rgba(255,255,255,0.12))',
+  borderRadius: 6,
+  color: 'var(--admin-text-primary, #fff)',
+  fontSize: '0.8rem',
   fontFamily: 'inherit',
   colorScheme: darkMode ? 'dark' : 'light',
   WebkitAppearance: 'none',
@@ -59,8 +59,8 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
           value="" 
           disabled 
           style={{ 
-            background: darkMode ? '#1a1a2e' : '#f8f9fa', 
-            color: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280' 
+            background: 'var(--admin-card-bg, rgba(0,0,0,0.9))', 
+            color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))' 
           }}
         >
           {placeholder}
@@ -71,8 +71,8 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
           key={opt.value} 
           value={opt.value} 
           style={{ 
-            background: darkMode ? '#1a1a2e' : '#fff', 
-            color: darkMode ? '#fff' : '#1e293b',
+            background: 'var(--admin-card-bg, rgba(0,0,0,0.9))', 
+            color: 'var(--admin-text-primary, #fff)',
             padding: '8px'
           }}
         >

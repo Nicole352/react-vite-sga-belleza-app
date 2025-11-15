@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Mail, Phone, Award, Star, Calendar, BookOpen } from 'lucide-react';
+import { Users, Award, Star, Calendar, BookOpen, ChevronLeft, ChevronRight, Grid, List } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -27,12 +27,15 @@ interface Estudiante {
 }
 
 const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  const { isMobile } = useBreakpoints();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [cursoFiltro, setCursoFiltro] = useState<string>('');
   const [estadoFiltro, setEstadoFiltro] = useState<'todos' | 'activos' | 'finalizados'>('todos');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   useEffect(() => {
     fetchEstudiantes();
@@ -105,6 +108,11 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   const cursosUnicos = Array.from(new Set(estudiantes.map(e => `${e.codigo_curso}||${e.curso_nombre}`)))
     .map(k => ({ codigo: k.split('||')[0], nombre: k.split('||')[1] }));
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, cursoFiltro, estadoFiltro]);
+
   // Filter students based on search, course, and status filters
   const estudiantesFiltrados = estudiantes.filter(est => {
     const matchTexto =
@@ -126,6 +134,18 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
     return matchTexto && matchCurso && matchEstado;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const estudiantesPaginados = estudiantesFiltrados.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   // Format date for display
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
@@ -140,10 +160,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ marginBottom: '1em' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.textPrimary, margin: '0 0 0.25em 0' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.375rem 0' }}>
           Mis Estudiantes
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.85rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
           Gestiona y monitorea el progreso de tus estudiantes
         </p>
       </div>
@@ -180,53 +200,43 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Filtros - Una sola fila con búsqueda grande y filtros pequeños */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr',
-        gap: '0.625em', 
-        marginBottom: '1em' 
-      }}>
-        <div style={{ position: 'relative' }}>
-          <Search
-            size={18}
-            color={theme.textMuted}
-            style={{ position: 'absolute', left: '0.875em', top: '50%', transform: 'translateY(-50%)' }}
-          />
-          <input
-            type="text"
-            placeholder="Buscar por nombre, cédula o curso..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.625em 0.75em 0.625em 2.5em',
-              background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-              border: `0.0625rem solid ${theme.border}`,
-              borderRadius: '0.625em',
-              color: theme.textPrimary,
-              fontSize: '0.875rem',
-              outline: 'none',
-              transition: 'all 0.2s ease'
-            }}
-            onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
-            onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
-          />
-        </div>
+      {/* Filtros y Toggle de vista en una sola línea */}
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, cédula o curso..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            flex: '1 1 auto',
+            minWidth: '200px',
+            padding: '0.5rem 0.75rem',
+            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '0.5rem',
+            color: theme.textPrimary,
+            fontSize: '0.875rem',
+            outline: 'none',
+            transition: 'border-color 0.3s ease'
+          }}
+          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
+          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
+        />
         <select
           value={cursoFiltro}
           onChange={(e) => setCursoFiltro(e.target.value)}
           style={{
-            width: '100%',
-            padding: '0.625em 0.75em',
-            background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-            border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '0.625em',
+            flex: '0 1 auto',
+            minWidth: '150px',
+            padding: '0.5rem 0.75rem',
+            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '0.5rem',
             color: theme.textPrimary,
-            fontSize: '0.8125rem',
+            fontSize: '0.875rem',
             outline: 'none',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'border-color 0.3s ease'
           }}
           onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
           onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
@@ -240,16 +250,17 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           value={estadoFiltro}
           onChange={(e) => setEstadoFiltro(e.target.value as 'todos' | 'activos' | 'finalizados')}
           style={{
-            width: '100%',
-            padding: '0.625em 0.75em',
-            background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-            border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '0.625em',
+            flex: '0 1 auto',
+            minWidth: '150px',
+            padding: '0.5rem 0.75rem',
+            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '0.5rem',
             color: theme.textPrimary,
-            fontSize: '0.8125rem',
+            fontSize: '0.875rem',
             outline: 'none',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'border-color 0.3s ease'
           }}
           onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
           onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
@@ -258,19 +269,55 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           <option value="activos">Cursos Activos</option>
           <option value="finalizados">Cursos Finalizados</option>
         </select>
+
+        {/* Toggle de vista */}
+        <button
+          onClick={() => setViewMode('table')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: viewMode === 'table' 
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+            border: `1px solid ${viewMode === 'table' ? theme.accent : theme.border}`,
+            borderRadius: '0.5rem',
+            color: viewMode === 'table' ? '#fff' : theme.textPrimary,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <List size={16} />
+          Tabla
+        </button>
+        <button
+          onClick={() => setViewMode('cards')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: viewMode === 'cards' 
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+            border: `1px solid ${viewMode === 'cards' ? theme.accent : theme.border}`,
+            borderRadius: '0.5rem',
+            color: viewMode === 'cards' ? '#fff' : theme.textPrimary,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Grid size={16} />
+          Cards
+        </button>
       </div>
 
-
-      {/* Lista de Estudiantes (compacta) */}
-      <div style={{
-        background: theme.cardBg,
-        border: `0.0625rem solid ${theme.border}`,
-        borderRadius: '1em',
-        padding: '1em',
-        backdropFilter: 'blur(1.25rem)',
-        boxShadow: darkMode ? '0 1.25rem 2.5rem rgba(0, 0, 0, 0.3)' : '0 1.25rem 2.5rem rgba(0, 0, 0, 0.1)',
-        flex: 1
-      }}>
+      <div style={{ flex: 1 }}>
         {estudiantesFiltrados.length === 0 ? (
           <div style={{
             padding: '3.75em 1.25em',
@@ -288,21 +335,28 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 : 'Los estudiantes aparecerán aquí cuando se matriculen en tus cursos'}
             </p>
           </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
+        ) : viewMode === 'table' ? (
+          <div style={{ 
+            overflowX: 'auto',
+            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+            borderRadius: '0.75rem',
+            boxShadow: darkMode 
+              ? '0 2px 12px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 12px rgba(0, 0, 0, 0.08)'
+          }}>
+            {/* Header de la tabla mejorado */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '2fr 1fr 1.5fr 1fr 1fr 1fr',
-              gap: '0.625em',
-              padding: '0.375em 0.5em',
-              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '0.5em',
-              marginBottom: '0.5em',
+              gap: '0.75rem',
+              padding: '0.75rem 1rem',
+              background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+              borderBottom: `1px solid ${theme.border}`,
               fontWeight: '700',
-              fontSize: '0.75rem',
-              color: theme.accent,
+              fontSize: '0.7rem',
+              color: darkMode ? theme.accent : '#1e40af',
               textTransform: 'uppercase',
-              letterSpacing: '0.03125em'
+              letterSpacing: '0.05em'
             }}>
               <div>Estudiante</div>
               <div>Cédula</div>
@@ -313,8 +367,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             </div>
 
             {/* Filas de estudiantes */}
-            <div style={{ display: 'grid', gap: '0.375em' }}>
-              {estudiantesFiltrados.map((estudiante) => {
+            <div style={{ display: 'grid', gap: '0', padding: '0.5rem 1rem 1rem 1rem' }}>
+              {estudiantesPaginados.map((estudiante) => {
                 // Determine status color
                 let statusColor = theme.textMuted;
                 let statusBg = 'rgba(156, 163, 175, 0.2)';
@@ -354,22 +408,24 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '2fr 1fr 1.5fr 1fr 1fr 1fr',
-                      gap: '0.5em',
-                      padding: '0.5em',
-                      background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      borderRadius: '0.5em',
-                      border: `0.0625rem solid ${theme.border}`,
+                      gap: '0.75rem',
+                      padding: '0.75rem 0.5rem',
+                      background: estudiantesPaginados.indexOf(estudiante) % 2 === 0
+                        ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
+                        : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'),
+                      borderRadius: '0.375rem',
                       alignItems: 'center',
-                      transition: 'all 0.3s ease',
+                      transition: 'all 0.2s ease',
                       cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)';
-                      e.currentTarget.style.transform = 'translateX(0.25em)';
+                      e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
-                      e.currentTarget.style.transform = 'translateX(0)';
+                      const index = estudiantesPaginados.indexOf(estudiante);
+                      e.currentTarget.style.background = index % 2 === 0
+                        ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
+                        : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)');
                     }}
                   >
                     {/* Columna: Estudiante */}
@@ -458,6 +514,376 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 );
               })}
             </div>
+
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '1rem',
+                borderTop: `1px solid ${theme.border}`,
+                marginTop: '1rem'
+              }}>
+                <div style={{ color: theme.textMuted, fontSize: '0.875rem' }}>
+                  Mostrando {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length} estudiantes
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '0.5rem',
+                      background: currentPage === 1 
+                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5rem',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <ChevronLeft size={18} color={theme.textPrimary} />
+                  </button>
+                  
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        style={{
+                          padding: '0.5rem 0.75rem',
+                          background: page === currentPage
+                            ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
+                            : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+                          border: `1px solid ${page === currentPage ? theme.accent : theme.border}`,
+                          borderRadius: '0.5rem',
+                          color: page === currentPage ? '#fff' : theme.textPrimary,
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          fontWeight: page === currentPage ? '700' : '600',
+                          transition: 'all 0.2s ease',
+                          minWidth: '2.5rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (page !== currentPage) {
+                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (page !== currentPage) {
+                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                          }
+                        }}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                  
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '0.5rem',
+                      background: currentPage === totalPages
+                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5rem',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <ChevronRight size={18} color={theme.textPrimary} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Vista de Cards */
+          <div>
+            <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1rem' }}>
+              {estudiantesPaginados.map((estudiante) => {
+                // Determine status color
+                let statusColor = theme.textMuted;
+                let statusBg = 'rgba(156, 163, 175, 0.2)';
+                let statusText = 'Desconocido';
+                
+                const studentEstado = estudiante.estado_curso || 'activo';
+                
+                switch (studentEstado) {
+                  case 'activo':
+                    statusColor = theme.success;
+                    statusBg = 'rgba(34, 197, 94, 0.2)';
+                    statusText = 'Activo';
+                    break;
+                  case 'finalizado':
+                    statusColor = theme.textMuted;
+                    statusBg = 'rgba(156, 163, 175, 0.2)';
+                    statusText = 'Finalizado';
+                    break;
+                  case 'planificado':
+                    statusColor = theme.warning;
+                    statusBg = 'rgba(245, 158, 11, 0.2)';
+                    statusText = 'Planificado';
+                    break;
+                  case 'cancelado':
+                    statusColor = theme.danger;
+                    statusBg = 'rgba(239, 68, 68, 0.2)';
+                    statusText = 'Cancelado';
+                    break;
+                  default:
+                    statusText = studentEstado || 'Activo (asumido)';
+                }
+
+                return (
+                  <div
+                    key={`${estudiante.id_usuario}-${estudiante.codigo_curso}`}
+                    style={{
+                      background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                      border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                      borderRadius: '0.5rem',
+                      padding: '0.75rem',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = darkMode 
+                        ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
+                        : '0 4px 12px rgba(0, 0, 0, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    {/* Header: Avatar, Nombre y Estado */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+                      <div style={{
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '50%',
+                        background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontSize: '0.75rem',
+                        fontWeight: '800',
+                        flexShrink: 0
+                      }}>
+                        {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700' }}>
+                          {estudiante.nombre} {estudiante.apellido}
+                        </div>
+                        <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                          {estudiante.cedula}
+                        </div>
+                      </div>
+                      <span style={{
+                        background: statusBg,
+                        color: statusColor,
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.65rem',
+                        fontWeight: '700',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {statusText}
+                      </span>
+                    </div>
+
+                    {/* Fila integrada: Curso, Inicio y Fin */}
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.5rem',
+                      background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.7rem'
+                    }}>
+                      {/* Curso */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flex: 1, minWidth: 0 }}>
+                        <BookOpen size={14} color={theme.accent} />
+                        <span style={{
+                          background: `${theme.accent}30`,
+                          color: theme.accent,
+                          padding: '0.1rem 0.4rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.65rem',
+                          fontWeight: '700',
+                          flexShrink: 0
+                        }}>
+                          {estudiante.codigo_curso}
+                        </span>
+                        <span style={{
+                          color: theme.textPrimary,
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {estudiante.curso_nombre}
+                        </span>
+                      </div>
+
+                      {/* Separador */}
+                      <div style={{ width: '1px', height: '1.5rem', background: theme.border, flexShrink: 0 }} />
+
+                      {/* Inicio */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+                        <Calendar size={12} color={theme.textMuted} />
+                        <div>
+                          <div style={{ color: theme.textMuted, fontSize: '0.6rem' }}>Inicio</div>
+                          <div style={{ color: theme.textPrimary, fontWeight: '600', fontSize: '0.7rem' }}>
+                            {formatDate(estudiante.fecha_inicio_curso)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Separador */}
+                      <div style={{ width: '1px', height: '1.5rem', background: theme.border, flexShrink: 0 }} />
+
+                      {/* Fin */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+                        <Calendar size={12} color={theme.textMuted} />
+                        <div>
+                          <div style={{ color: theme.textMuted, fontSize: '0.6rem' }}>Fin</div>
+                          <div style={{ color: theme.textPrimary, fontWeight: '600', fontSize: '0.7rem' }}>
+                            {formatDate(estudiante.fecha_fin_curso)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Paginación para cards */}
+            {totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '1rem',
+                borderTop: `1px solid ${theme.border}`,
+                marginTop: '1rem'
+              }}>
+                <div style={{ color: theme.textMuted, fontSize: '0.875rem' }}>
+                  Mostrando {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length} estudiantes
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '0.5rem',
+                      background: currentPage === 1 
+                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5rem',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <ChevronLeft size={18} color={theme.textPrimary} />
+                  </button>
+                  
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        style={{
+                          padding: '0.5rem 0.75rem',
+                          background: page === currentPage
+                            ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
+                            : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+                          border: `1px solid ${page === currentPage ? theme.accent : theme.border}`,
+                          borderRadius: '0.5rem',
+                          color: page === currentPage ? '#fff' : theme.textPrimary,
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          fontWeight: page === currentPage ? '700' : '600',
+                          transition: 'all 0.2s ease',
+                          minWidth: '2.5rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (page !== currentPage) {
+                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (page !== currentPage) {
+                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                          }
+                        }}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                  
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '0.5rem',
+                      background: currentPage === totalPages
+                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: '0.5rem',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <ChevronRight size={18} color={theme.textPrimary} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

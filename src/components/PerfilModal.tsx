@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, X, Upload, Trash2, User } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { showToast } from '../config/toastConfig';
 
 interface PerfilModalProps {
   isOpen: boolean;
@@ -85,13 +86,13 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
     // Validar tipo de archivo
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error('Formato no válido. Solo se permiten: JPG, PNG, WEBP');
+      showToast.error('Formato no válido. Solo se permiten: JPG, PNG, WEBP', darkMode);
       return;
     }
 
     // Validar tamaño (2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error('La imagen es demasiado grande. Tamaño máximo: 2 MB');
+      showToast.error('La imagen es demasiado grande. Tamaño máximo: 2 MB', darkMode);
       return;
     }
 
@@ -107,7 +108,7 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error('Por favor selecciona una imagen');
+      showToast.error('Por favor selecciona una imagen', darkMode);
       return;
     }
 
@@ -129,21 +130,22 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Foto de perfil actualizada correctamente');
         setSelectedFile(null);
         setPreviewUrl(null);
         await loadCurrentPhoto();
         if (onPhotoUpdated) onPhotoUpdated();
-        // Cerrar modal automáticamente después de subir
+        // Cerrar modal primero
+        onClose();
+        // Mostrar toast después de cerrar el modal
         setTimeout(() => {
-          onClose();
-        }, 500);
+          showToast.success('Foto de perfil actualizada correctamente', darkMode);
+        }, 100);
       } else {
-        toast.error(data.message || 'Error al subir la foto');
+        showToast.error(data.message || 'Error al subir la foto', darkMode);
       }
     } catch (error) {
       console.error('Error al subir foto:', error);
-      toast.error('Error al subir la foto');
+      showToast.error('Error al subir la foto', darkMode);
     } finally {
       setUploading(false);
     }
@@ -151,7 +153,7 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
 
   const handleDelete = async () => {
     if (!currentPhotoUrl) {
-      toast.error('No hay foto para eliminar');
+      showToast.error('No hay foto para eliminar', darkMode);
       return;
     }
 
@@ -173,21 +175,22 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Foto de perfil eliminada correctamente');
         setCurrentPhotoUrl(null);
         setSelectedFile(null);
         setPreviewUrl(null);
         if (onPhotoUpdated) onPhotoUpdated();
-        // Cerrar modal automáticamente después de eliminar
+        // Cerrar modal primero
+        onClose();
+        // Mostrar toast después de cerrar el modal
         setTimeout(() => {
-          onClose();
-        }, 500);
+          showToast.success('Foto de perfil eliminada correctamente', darkMode);
+        }, 100);
       } else {
-        toast.error(data.message || 'Error al eliminar la foto');
+        showToast.error(data.message || 'Error al eliminar la foto', darkMode);
       }
     } catch (error) {
       console.error('Error al eliminar foto:', error);
-      toast.error('Error al eliminar la foto');
+      showToast.error('Error al eliminar la foto', darkMode);
     } finally {
       setDeleting(false);
     }
@@ -195,23 +198,24 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
-      {/* Overlay - Solo cubre el contenido, NO el navbar */}
+      {/* Overlay */}
       <div
         onClick={onClose}
         style={{
           position: 'fixed',
-          top: '4.5rem',
+          top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: darkMode 
-            ? 'rgba(0, 0, 0, 0.4)' 
-            : 'rgba(0, 0, 0, 0.1)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 9998,
-          animation: 'fadeIn 0.2s ease-out'
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 99998,
+          animation: 'fadeIn 0.3s ease-out'
         }}
       />
 
@@ -221,34 +225,36 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
         onClick={(e) => e.stopPropagation()}
         style={{
           position: 'fixed',
-          top: '5rem',
+          top: '50%',
           left: '50%',
-          transform: 'translateX(-50%)',
-          background: darkMode ? theme.contentBg : theme.contentBg,
-          borderRadius: '0.75rem',
-          boxShadow: '0 1.25rem 3.75rem rgba(0, 0, 0, 0.3)',
-          border: `1px solid ${theme.border}`,
+          transform: 'translate(-50%, -50%)',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+          borderRadius: '12px',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+          border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
           width: '90%',
           maxWidth: '26rem',
-          maxHeight: 'calc(100vh - 6.25rem)',
+          maxHeight: 'calc(100vh - 4rem)',
           overflowY: 'auto',
-          zIndex: 9999,
-          animation: 'slideInDown 0.3s ease-out'
+          zIndex: 99999,
+          animation: 'scaleIn 0.3s ease-out'
         }}>
         {/* Header */}
         <div style={{
           padding: '1rem 1.25rem',
-          borderBottom: `1px solid ${theme.border}`,
+          borderBottom: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.5)'
+          background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
         }}>
           <h2 style={{
             margin: 0,
             fontSize: '1.1rem',
             fontWeight: '700',
-            color: theme.textPrimary,
+            color: darkMode ? '#fff' : '#1e293b',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem'
@@ -275,7 +281,7 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
             }}>
-            <X size={24} color={theme.textSecondary} />
+            <X size={24} color={darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)'} />
           </button>
         </div>
 
@@ -582,14 +588,14 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes slideInDown {
+        @keyframes scaleIn {
           from {
             opacity: 0;
-            transform: translateX(-50%) translateY(-10px) scale(0.95);
+            transform: translate(-50%, -50%) scale(0.9);
           }
           to {
             opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
+            transform: translate(-50%, -50%) scale(1);
           }
         }
         
@@ -607,7 +613,8 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
           }
         }
       `}</style>
-    </>
+    </>,
+    document.body
   );
 };
 

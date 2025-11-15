@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet } from 'lucide-react';
-import toast from 'react-hot-toast';
+import type { CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
-import { RedColorPalette } from '../../utils/colorMapper';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -65,6 +68,8 @@ precio_por_clase?: number;
   const [showComprobanteModal, setShowComprobanteModal] = useState(false);
   const [comprobanteUrl, setComprobanteUrl] = useState<string>('');
   const [comprobanteNumero, setComprobanteNumero] = useState<string>('');
+  const [detalleComprobanteError, setDetalleComprobanteError] = useState(false);
+  const [comprobanteModalError, setComprobanteModalError] = useState(false);
   const [showRechazoModal, setShowRechazoModal] = useState(false);
   const [pagoARechazar, setPagoARechazar] = useState<Pago | null>(null);
   const [motivoRechazo, setMotivoRechazo] = useState('');
@@ -80,24 +85,73 @@ const itemsPerPage = 10;
   
     // Trigger to refetch data when socket notifies of changes.
   const [socketTrigger, setSocketTrigger] = useState(0);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('admin-dark-mode');
+      const nextMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(prev => (prev === nextMode ? prev : nextMode));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const pick = <T,>(light: T, dark: T): T => (darkMode ? dark : light);
+
+  const theme = {
+    pageBackground: pick(
+      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
+      'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(17,17,25,0.92) 100%)'
+    ),
+    textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
+    textSecondary: pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)'),
+    textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
+    surface: pick('rgba(255,255,255,0.94)', 'rgba(12,12,24,0.92)'),
+    surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
+    inputBg: pick('#ffffff', 'rgba(255,255,255,0.08)'),
+    inputBorder: pick('rgba(148,163,184,0.35)', 'rgba(255,255,255,0.2)'),
+    inputIcon: pick('rgba(100,116,139,0.55)', 'rgba(255,255,255,0.55)'),
+    chipBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.07)'),
+    cardBackground: pick(
+      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(246,248,252,0.94) 100%)',
+      'linear-gradient(135deg, rgba(13,13,25,0.92) 0%, rgba(26,26,46,0.92) 100%)'
+    ),
+    cardShadow: pick('0 18px 48px rgba(15,23,42,0.12)', '0 24px 56px rgba(0,0,0,0.45)'),
+    infoPanelBg: pick('rgba(59,130,246,0.12)', 'rgba(59,130,246,0.18)'),
+    infoPanelBorder: pick('rgba(59,130,246,0.28)', 'rgba(59,130,246,0.35)'),
+    positiveBg: pick('rgba(16,185,129,0.12)', 'rgba(16,185,129,0.18)'),
+    positiveBorder: pick('rgba(16,185,129,0.28)', 'rgba(16,185,129,0.35)'),
+    warningBg: pick('rgba(251,191,36,0.14)', 'rgba(251,191,36,0.18)'),
+    warningBorder: pick('rgba(251,191,36,0.32)', 'rgba(251,191,36,0.38)'),
+    dangerBg: pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.2)'),
+    dangerBorder: pick('rgba(239,68,68,0.28)', 'rgba(239,68,68,0.38)'),
+    neutralBg: pick('rgba(148,163,184,0.12)', 'rgba(156,163,175,0.18)'),
+    neutralBorder: pick('rgba(148,163,184,0.28)', 'rgba(156,163,175,0.35)'),
+    buttonPrimaryBg: pick(RedColorPalette.primary, `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`),
+    buttonPrimaryText: '#ffffff'
+  };
 
   useSocket({
     'nuevo_pago': (data: any) => {
-      console.log('🔔 Nuevo pago recibido:', data);
-      toast.success('Nuevo pago registrado');
+      console.log('[Pagos] Nuevo pago recibido:', data);
+      showToast.success('Nuevo pago registrado', darkMode);
       setSocketTrigger(prev => prev + 1);
     },
     'nuevo_pago_pendiente': (data: any) => {
-      console.log('💰 Nuevo pago pendiente:', data);
-      toast.success(`Nuevo pago de ${data.estudiante_nombre} - Cuota #${data.numero_cuota}`);
+      console.log('[Pagos] Nuevo pago pendiente:', data);
+      showToast.success(`Nuevo pago de ${data.estudiante_nombre} - Cuota #${data.numero_cuota}`, darkMode);
       setSocketTrigger(prev => prev + 1);
     },
     'pago_verificado': (data: any) => {
-      console.log('✅ Pago verificado:', data);
+      console.log('[Pagos] Pago verificado:', data);
       setSocketTrigger(prev => prev + 1);
     },
     'pago_rechazado': (data: any) => {
-      console.log('❌ Pago rechazado:', data);
+      console.log('[Pagos] Pago rechazado:', data);
       setSocketTrigger(prev => prev + 1);
     }
   });
@@ -169,9 +223,7 @@ est.cursos.forEach(curso => {
 
     } catch (error) {
       console.error('Error cargando datos:', error);
-      toast.error('Error cargando datos de pagos', {
-        icon: <AlertCircle size={20} />,
-      });
+      showToast.error('Error cargando datos de pagos', darkMode);
     } finally {
       setLoading(false);
       setShowLoadingModal(false);
@@ -236,6 +288,11 @@ est.cursos.forEach(curso => {
     return `${dia}/${mes}/${año}`;
   };
 
+  const buildComprobanteUrl = (idPago: number) => {
+    const token = sessionStorage.getItem('auth_token');
+    return `${API_BASE}/api/admin/pagos/${idPago}/comprobante?token=${token}`;
+  };
+
   const openComprobanteModal = (pago: Pago) => {
     // Obtener el token de autenticación
     const token = sessionStorage.getItem('auth_token');
@@ -243,13 +300,14 @@ est.cursos.forEach(curso => {
     // Agregar el token como parámetro de query para que funcione con <img>
     const url = `${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante?token=${token}`;
     
-    console.log('🖼️ Abriendo modal de comprobante:', {
+    console.log('[Pagos] Abriendo modal de comprobante:', {
       id_pago: pago.id_pago,
       numero_comprobante: pago.numero_comprobante,
       url: url.replace(token || '', '***TOKEN***') // Ocultar token en logs
     });
     setComprobanteUrl(url);
     setComprobanteNumero(pago.numero_comprobante || 'N/A');
+    setComprobanteModalError(false);
     setShowComprobanteModal(true);
   };
 
@@ -296,16 +354,11 @@ est.cursos.forEach(curso => {
       setCuotasAVerificar([]);
       await loadData();
 
-      toast.success(`${cuotasAVerificar.length} cuota(s) verificada(s) exitosamente`, {
-        duration: 4000,
-        icon: <CheckCircle2 size={20} />,
-      });
+      showToast.success(`${cuotasAVerificar.length} cuota(s) verificada(s) exitosamente`, darkMode);
 
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error verificando los pagos', {
-        icon: <AlertCircle size={20} />,
-      });
+      showToast.error('Error verificando los pagos', darkMode);
     } finally {
       setProcesando(false);
     }
@@ -319,9 +372,7 @@ est.cursos.forEach(curso => {
 
   const confirmarRechazo = async () => {
     if (!motivoRechazo.trim()) {
-      toast.error('Por favor ingrese el motivo del rechazo', {
-        icon: <AlertCircle size={20} />,
-      });
+      showToast.warning('Por favor ingrese el motivo del rechazo', darkMode);
       return;
     }
 
@@ -358,15 +409,11 @@ est.cursos.forEach(curso => {
       setMotivoRechazo('');
       await loadData();
 
-      toast.success('Pago rechazado correctamente', {
-        icon: <XCircle size={20} />,
-      });
+      showToast.success('Pago rechazado correctamente', darkMode);
 
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error rechazando el pago', {
-        icon: <AlertCircle size={20} />,
-      });
+      showToast.error('Error rechazando el pago', darkMode);
     } finally {
       setProcesando(false);
     }
@@ -430,7 +477,7 @@ est.cursos.forEach(curso => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '25rem',
-        color: '#fff'
+        color: theme.textPrimary
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
@@ -449,36 +496,43 @@ est.cursos.forEach(curso => {
   }
 
   return (
-    <div>
+    <div
+      style={
+        {
+          background: theme.pageBackground,
+          color: "theme.textPrimary",
+          minHeight: '100%',
+          transition: 'background 0.3s ease, color 0.3s ease',
+          '--admin-card-bg': theme.cardBackground,
+          '--admin-bg-secondary': theme.surface,
+          '--admin-border': theme.surfaceBorder,
+          '--admin-text-primary': theme.textPrimary,
+          '--admin-text-secondary': theme.textSecondary,
+          '--admin-text-muted': theme.textMuted,
+          '--admin-input-bg': theme.inputBg,
+          '--admin-input-border': theme.inputBorder,
+          '--admin-input-text': theme.textPrimary,
+          '--admin-input-icon': theme.inputIcon,
+          '--admin-info-bg': theme.infoPanelBg,
+          '--admin-info-border': theme.infoPanelBorder
+        } as CSSProperties
+      }
+    >
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '6px' : '0.625rem'
-        }}>
-          <DollarSign size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
-          Gestión de Pagos {!isMobile && 'Mensuales'}
-        </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Verifica y administra los pagos mensuales de los estudiantes
-        </p>
-      </div>
+      <AdminSectionHeader
+        title={`Gestión de Pagos${!isMobile ? ' Mensuales' : ''}`}
+        subtitle="Verifica y administra los pagos mensuales de los estudiantes"
+      />
 
       {/* Controles */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+        background: theme.surface,
         backdropFilter: 'blur(1.25rem)',
-        border: '0.0625rem solid rgba(239, 68, 68, 0.2)',
+        border: `0.0625rem solid ${theme.surfaceBorder}`,
         borderRadius: isMobile ? '0.75em' : '1rem',
         padding: isMobile ? '0.75em' : '1rem',
-        marginBottom: isMobile ? '0.75em' : '1rem'
+        marginBottom: isMobile ? '0.75em' : '1rem',
+        boxShadow: theme.cardShadow
       }}>
         <div className="responsive-filters">
           <div style={{
@@ -487,7 +541,7 @@ est.cursos.forEach(curso => {
             minWidth: isSmallScreen ? 'auto' : '22rem',
             width: isSmallScreen ? '100%' : 'auto'
           }}>
-            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
             <input
               type="text"
               placeholder={isMobile ? "Buscar..." : "Buscar por estudiante, cédula, curso..."}
@@ -496,11 +550,13 @@ est.cursos.forEach(curso => {
               style={{
                 width: '100%',
                 padding: '0.625em 0.625rem 0.625rem 2.375rem',
-                background: 'rgba(255,255,255,0.1)',
-                border: '0.0625rem solid rgba(255,255,255,0.2)',
+                background: theme.inputBg,
+                border: `0.0625rem solid ${theme.inputBorder}`,
                 borderRadius: '0.625rem',
-                color: '#fff',
-                fontSize: '0.8rem'
+                color: theme.textPrimary,
+                fontSize: '0.8rem',
+                boxShadow: darkMode ? '0 0.35rem 1rem rgba(15,23,42,0.18)' : '0 0.35rem 1rem rgba(15,23,42,0.08)' ,
+                transition: 'background 0.2s ease, border 0.2s ease'
               }}
             />
           </div>
@@ -535,18 +591,19 @@ est.cursos.forEach(curso => {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
+                showToast.success('Reporte descargado correctamente', darkMode);
               } catch (error) {
                 console.error('Error:', error);
-                toast.error('Error al descargar el reporte');
+                showToast.error('Error al descargar el reporte', darkMode);
               }
             }}
             style={{ 
               padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', 
               fontSize: '0.8rem', 
               borderRadius: '0.5rem', 
-              border: '1px solid rgba(220, 38, 38, 0.3)', 
-              background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))', 
-              color: '#ef4444', 
+              border: `1px solid ${mapToRedScheme('rgba(239, 68, 68, 0.35)')}`, 
+              background: theme.buttonPrimaryBg, 
+              color: theme.buttonPrimaryText, 
               cursor: 'pointer', 
               width: isSmallScreen ? '100%' : 'auto', 
               fontWeight: '600',
@@ -554,18 +611,19 @@ est.cursos.forEach(curso => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.375rem',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: darkMode ? '0 0.5rem 1.2rem rgba(239,68,68,0.25)' : '0 0.45rem 1rem rgba(239,68,68,0.18)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.25))';
+              e.currentTarget.style.filter = 'brightness(1.05)';
               e.currentTarget.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.15))';
+              e.currentTarget.style.filter = 'none';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <Sheet size={16} />
+            <Sheet size={16} color={theme.buttonPrimaryText} />
             Descargar Excel
           </button>
         </div>
@@ -578,6 +636,38 @@ est.cursos.forEach(curso => {
           const pago = getPagoSeleccionado(estudiante.estudiante_cedula);
 
           if (!pago || !cursoActual) return null;
+
+          const metodoPagoBadge = (() => {
+            if (pago.metodo_pago === 'efectivo') {
+              return {
+                label: 'Efectivo',
+                color: '#10b981',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                Icon: Wallet
+              } as const;
+            }
+
+            if (!pago.numero_comprobante) {
+              return {
+                label: 'En Espera',
+                color: '#f59e0b',
+                background: 'rgba(245, 158, 11, 0.1)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                Icon: Hourglass
+              } as const;
+            }
+
+            return {
+              label: 'Transferencia',
+              color: '#3b82f6',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              Icon: Building2
+            } as const;
+          })();
+
+          const MetodoIcon = metodoPagoBadge.Icon;
 
           return (
             <div
@@ -595,17 +685,23 @@ est.cursos.forEach(curso => {
               {/* Información Principal */}
               <div style={{ marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
-                  <span style={{ 
-                    color: pago.metodo_pago === 'efectivo' ? '#10b981' : (!pago.numero_comprobante ? '#f59e0b' : '#3b82f6'),
-                    fontSize: '0.7rem',
-                    background: pago.metodo_pago === 'efectivo' ? 'rgba(16, 185, 129, 0.1)' : (!pago.numero_comprobante ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)'),
-                    border: pago.metodo_pago === 'efectivo' ? '1px solid rgba(16, 185, 129, 0.3)' : (!pago.numero_comprobante ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)'),
-                    padding: '3px 0.5rem',
-                    borderRadius: '0.3125rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase'
-                  }}>
-                    {pago.metodo_pago === 'efectivo' ? '💵 Efectivo' : (!pago.numero_comprobante ? '⏳ En Espera' : '🏦 Transferencia')}
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      color: metodoPagoBadge.color,
+                      fontSize: '0.7rem',
+                      background: metodoPagoBadge.background,
+                      border: metodoPagoBadge.border,
+                      padding: '3px 0.5rem',
+                      borderRadius: '0.3125rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    <MetodoIcon size={isMobile ? 14 : 16} color={metodoPagoBadge.color} />
+                    {metodoPagoBadge.label}
                   </span>
                   <span style={{
                     display: 'flex',
@@ -633,7 +729,7 @@ est.cursos.forEach(curso => {
                   </span>
                 </div>
                 <h3 style={{ 
-                  color: '#fff', 
+                  color: theme.textPrimary, 
                   margin: '0 0 0.5rem 0'
                 }}>
                   {pago.estudiante_nombre} {pago.estudiante_apellido}
@@ -642,7 +738,7 @@ est.cursos.forEach(curso => {
 
               <div style={{ 
                 paddingTop: '0.625rem',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
+                borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.25)'}`,
                 marginBottom: '0.875rem'
               }}>
                 {/* Primera fila - Información básica con selectores */}
@@ -653,13 +749,13 @@ est.cursos.forEach(curso => {
                   flexWrap: 'wrap'
                 }}>
                   <div style={{ flex: '1 1 140px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
-                    <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.75rem', fontWeight: 600 }}>{estudiante.estudiante_cedula}</div>
+                    <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Identificación</div>
+                    <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>{estudiante.estudiante_cedula}</div>
                   </div>
 
                   {/* Selector de Curso */}
                   <div style={{ flex: '1 1 200px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Curso</div>
+                    <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Curso</div>
                     {estudiante.cursos.length > 1 ? (
                       <select
                         value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
@@ -673,29 +769,37 @@ est.cursos.forEach(curso => {
                         }}
                         style={{
                           width: '100%',
-                          padding: '0.25em 0.5rem',
-                          background: 'rgba(255,255,255,0.1)',
-                          border: '0.0625rem solid rgba(255,255,255,0.2)',
+                          padding: '0.375em 0.625rem',
+                          background: theme.inputBg,
+                          border: `0.0625rem solid ${theme.inputBorder}`,
                           borderRadius: '0.375rem',
-                          color: '#fff',
+                          color: theme.textPrimary,
                           fontSize: '0.85rem',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          boxShadow: darkMode ? 'none' : '0 0.25rem 0.75rem rgba(15,23,42,0.08)'
                         }}
                       >
                         {estudiante.cursos.map(curso => (
-                          <option key={curso.id_curso} value={curso.id_curso} style={{ background: '#1a1a2e' }}>
+                          <option
+                            key={curso.id_curso}
+                            value={curso.id_curso}
+                            style={{
+                              background: darkMode ? '#1a1a2e' : '#ffffff',
+                              color: darkMode ? '#f8fafc' : '#0f172a'
+                            }}
+                          >
                             {curso.curso_nombre}
                           </option>
                         ))}
                       </select>
                     ) : (
-                      <div style={{ color: '#fff', fontSize: '0.9rem' }}>{cursoActual.curso_nombre}</div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.9rem' }}>{cursoActual.curso_nombre}</div>
                     )}
                   </div>
 
                   {/* Selector de Cuota/Clase */}
                   <div style={{ flex: '1 1 180px' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                       {pago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
                     </div>
                     <select
@@ -713,18 +817,26 @@ est.cursos.forEach(curso => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '4px 0.5rem',
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
+                        padding: '4px 0.625rem',
+                        background: theme.inputBg,
+                        border: `1px solid ${theme.inputBorder}`,
                         borderRadius: '0.375rem',
-                        color: '#fff',
+                        color: theme.textPrimary,
                         fontSize: '0.85rem',
                         cursor: 'pointer',
-                        fontWeight: '700'
+                        fontWeight: '700',
+                        boxShadow: darkMode ? 'none' : '0 0.25rem 0.75rem rgba(15,23,42,0.08)'
                       }}
                     >
                       {cursoActual.pagos.map(p => (
-                        <option key={p.id_pago} value={p.id_pago} style={{ background: '#1a1a2e' }}>
+                        <option
+                          key={p.id_pago}
+                          value={p.id_pago}
+                          style={{
+                            background: darkMode ? '#1a1a2e' : '#ffffff',
+                            color: darkMode ? '#f8fafc' : '#0f172a'
+                          }}
+                        >
                           {p.modalidad_pago === 'clases' ? `Clase ${p.numero_cuota}` : `Cuota #${p.numero_cuota}`} - {formatearMonto(p.monto)}
                         </option>
                       ))}
@@ -733,14 +845,14 @@ est.cursos.forEach(curso => {
 
                   <div>
                     <div style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: theme.textSecondary,
                       fontSize: isMobile ? '0.7rem' : '0.8rem',
                       marginBottom: '0.25rem'
                     }}>
                       Vencimiento
                     </div>
                     <div style={{
-                      color: '#fff',
+                      color: theme.textPrimary,
                       fontSize: isMobile ? '0.8rem' : '0.9rem'
                     }}>
                       {formatearFecha(pago.fecha_vencimiento)}
@@ -756,9 +868,13 @@ est.cursos.forEach(curso => {
                   alignItems: 'start'
                 }}>
                   {/* Número de comprobante */}
-                  <div>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}>
                     <div style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: isMobile ? '0.7rem' : '0.8rem',
                       marginBottom: '0.25rem'
                     }}>
@@ -774,7 +890,11 @@ est.cursos.forEach(curso => {
                         fontSize: '0.8rem',
                         fontWeight: '600',
                         textAlign: 'center',
-                        width: '100%'
+                        width: '100%',
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
                         {pago.numero_comprobante}
                       </div>
@@ -782,13 +902,17 @@ est.cursos.forEach(curso => {
                       <div style={{
                         background: 'rgba(107, 114, 128, 0.1)',
                         border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
-                        color: 'rgba(255, 255, 255, 0.5)',
+                        color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
                         padding: '0.375em 0.5rem',
                         borderRadius: '0.375rem',
                         fontSize: '0.8rem',
                         textAlign: 'center',
                         fontStyle: 'italic',
-                        width: '100%'
+                        width: '100%',
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
                         Sin número
                       </div>
@@ -797,8 +921,12 @@ est.cursos.forEach(curso => {
 
                   {/* Recibido por - Solo para efectivo */}
                   {pago.metodo_pago === 'efectivo' && (
-                    <div>
-                      <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Recibido por</div>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}>
+                      <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.8rem', marginBottom: '0.25rem' }}>Recibido por</div>
                       {(pago as any).recibido_por ? (
                         <div style={{
                           background: 'rgba(180, 83, 9, 0.1)',
@@ -809,7 +937,11 @@ est.cursos.forEach(curso => {
                           fontSize: '0.8rem',
                           fontWeight: '600',
                           textAlign: 'center',
-                          width: '100%'
+                          width: '100%',
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
                           {(pago as any).recibido_por}
                         </div>
@@ -817,13 +949,17 @@ est.cursos.forEach(curso => {
                         <div style={{
                           background: 'rgba(107, 114, 128, 0.1)',
                           border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
-                          color: 'rgba(255, 255, 255, 0.5)',
+                          color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
                           padding: '0.375em 0.5rem',
                           borderRadius: '0.375rem',
                           fontSize: '0.8rem',
                           textAlign: 'center',
                           fontStyle: 'italic',
-                          width: '100%'
+                          width: '100%',
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
                           Sin registro
                         </div>
@@ -832,9 +968,13 @@ est.cursos.forEach(curso => {
                   )}
 
                   {/* Comprobante - Botón */}
-                  <div>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}>
                     <div style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: isMobile ? '0.7rem' : '0.8rem',
                       marginBottom: '0.25rem'
                     }}>
@@ -856,18 +996,23 @@ est.cursos.forEach(curso => {
                         gap: '0.1875rem',
                         whiteSpace: 'nowrap',
                         width: '100%',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flex: 1
                       }}
                     >
-                      <Download size={12} />
+                        <Download size={12} color="#10b981" />
                       {isMobile ? 'Ver' : 'Ver Comprobante'}
                     </button>
                   </div>
 
                   {/* Estado */}
-                  <div>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}>
                     <div style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: isMobile ? '0.65rem' : '0.7rem',
                       marginBottom: '0.1875rem'
                     }}>
@@ -883,6 +1028,7 @@ est.cursos.forEach(curso => {
                       width: '100%',
                       justifyContent: 'center',
                       alignItems: 'center',
+                      flex: 1,
                       background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
                         pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
                           pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
@@ -914,6 +1060,7 @@ est.cursos.forEach(curso => {
                 <button
                   onClick={() => {
                     setSelectedPago(pago);
+                    setDetalleComprobanteError(false);
                     setShowModal(true);
                   }}
                   style={{
@@ -930,7 +1077,7 @@ est.cursos.forEach(curso => {
                     fontWeight: '500'
                   }}
                 >
-                  <Eye size={16} />
+                    <Eye size={16} color="#3b82f6" />
                   Ver
                 </button>
                 {pago.estado === 'pagado' && (
@@ -953,7 +1100,7 @@ est.cursos.forEach(curso => {
                         fontWeight: '500'
                       }}
                     >
-                      <Check size={16} />
+                      <Check size={16} color="#10b981" />
                       Aprobar
                     </button>
                     <button
@@ -974,7 +1121,7 @@ est.cursos.forEach(curso => {
                         fontWeight: '500'
                       }}
                     >
-                      <X size={16} />
+                      <X size={16} color="#ef4444" />
                       Rechazar
                     </button>
                   </>
@@ -987,88 +1134,113 @@ est.cursos.forEach(curso => {
 
 
       {/* Modal de detalle MEJORADO */}
-      {showModal && selectedPago && (
+      {showModal && selectedPago && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
-              maxWidth: '900px',
-              background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: `1px solid ${theme.surfaceBorder}`,
+              borderRadius: '0.75rem',
+              width: isMobile ? '92vw' : '820px',
+              maxWidth: isMobile ? '92vw' : '820px',
+              maxHeight: '80vh',
+              padding: isMobile ? '0.75rem' : '1rem 1.25rem',
+              margin: 'auto',
+              color: 'var(--admin-text-primary, #fff)',
+              boxShadow: '0 20px 60px -16px rgba(0, 0, 0, 0.45)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'scaleIn 0.3s ease-out'
             }}
           >
-            {/* Header Premium */}
-            <div style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              margin: '-1rem -1.5rem 1.5rem -1.5rem',
-              padding: '1.25rem 1.5rem',
-              borderRadius: '12px 12px 0 0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingBottom: '0.75rem',
+                marginBottom: '0.75rem',
+                borderBottom: `1px solid ${theme.surfaceBorder}`
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
-                  padding: '8px',
+                  background: 'rgba(59,130,246,0.12)',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  border: '1px solid rgba(59,130,246,0.25)'
                 }}>
-                  <FileText size={24} style={{ color: '#fff' }} />
+                  <FileText size={20} style={{ color: 'var(--admin-text-primary, #fff)' }} />
                 </div>
                 <div>
                   <h3 style={{
                     margin: 0,
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#fff',
-                    letterSpacing: '-0.02em'
+                    fontSize: '1.1rem',
+                    fontWeight: 700,
+                    color: 'var(--admin-text-primary, #fff)'
                   }}>
                     Detalle del Pago
                   </h3>
                   <p style={{
-                    margin: '2px 0 0 0',
-                    fontSize: '0.85rem',
-                    color: 'rgba(255,255,255,0.9)',
-                    fontWeight: '500'
+                    margin: '0.25rem 0 0 0',
+                    fontSize: '0.8rem',
+                    color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))',
+                    fontWeight: 500
                   }}>
-                    {selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'} #{selectedPago.numero_cuota} - {selectedPago.curso_nombre}
+                    {selectedPago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'} #{selectedPago.numero_cuota} · {selectedPago.curso_nombre}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.15)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  borderRadius: '8px',
-                  padding: '8px',
-                  color: '#fff',
+                  background: 'rgba(148,163,184,0.12)',
+                  border: `1px solid ${theme.surfaceBorder}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.4rem',
+                  color: 'var(--admin-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.25)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.background = 'rgba(148,163,184,0.2)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.background = 'rgba(148,163,184,0.12)';
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -1077,35 +1249,37 @@ est.cursos.forEach(curso => {
               {/* Información Principal - Grid 2 columnas */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: '0.75rem',
-                marginBottom: '1rem'
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))',
+                gap: '0.55rem',
+                marginBottom: '0.75rem'
               }}>
                 {/* Monto */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-                  borderRadius: '12px',
-                  padding: '1rem',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
+                  borderRadius: '0.6rem',
+                  padding: '0.65rem',
+                  border: '1px solid rgba(16, 185, 129, 0.22)',
+                  boxShadow: '0 8px 18px rgba(16, 185, 129, 0.08)',
                   transition: 'all 0.3s ease'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.625rem',
-                    marginBottom: '0.5rem'
+                    gap: '0.4rem',
+                    marginBottom: '0.3rem'
                   }}>
                     <div style={{
-                      background: 'rgba(16, 185, 129, 0.2)',
-                      borderRadius: '8px',
-                      padding: '6px',
-                      display: 'flex'
+                      background: 'rgba(16, 185, 129, 0.18)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <DollarSign size={18} style={{ color: '#10b981' }} />
+                      <DollarSign size={15} style={{ color: '#10b981' }} />
                     </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.7)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase',
@@ -1114,8 +1288,8 @@ est.cursos.forEach(curso => {
                   </div>
                   <div style={{
                     color: '#10b981',
-                    fontSize: '1.5rem',
-                    fontWeight: '800',
+                    fontSize: '1.2rem',
+                    fontWeight: 700,
                     fontFamily: 'Montserrat, sans-serif'
                   }}>
                     {formatearMonto(selectedPago.monto)}
@@ -1125,27 +1299,29 @@ est.cursos.forEach(curso => {
                 {/* Cuota/Clase */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-                  borderRadius: '12px',
-                  padding: '1rem',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.1)'
+                  borderRadius: '0.6rem',
+                  padding: '0.65rem',
+                  border: '1px solid rgba(59, 130, 246, 0.22)',
+                  boxShadow: '0 8px 18px rgba(59, 130, 246, 0.08)'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.625rem',
-                    marginBottom: '0.5rem'
+                    gap: '0.4rem',
+                    marginBottom: '0.3rem'
                   }}>
                     <div style={{
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      borderRadius: '8px',
-                      padding: '6px',
-                      display: 'flex'
+                      background: 'rgba(59, 130, 246, 0.18)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <Calendar size={18} style={{ color: '#3b82f6' }} />
+                      <Calendar size={15} style={{ color: '#3b82f6' }} />
                     </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.7)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase',
@@ -1154,8 +1330,8 @@ est.cursos.forEach(curso => {
                   </div>
                   <div style={{
                     color: '#3b82f6',
-                    fontSize: '1.5rem',
-                    fontWeight: '800',
+                    fontSize: '1.2rem',
+                    fontWeight: 700,
                     fontFamily: 'Montserrat, sans-serif'
                   }}>
                     #{selectedPago.numero_cuota}
@@ -1165,27 +1341,29 @@ est.cursos.forEach(curso => {
                 {/* Estado */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
-                  borderRadius: '12px',
-                  padding: '1rem',
-                  border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.3)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                  boxShadow: `0 4px 12px ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.1)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)'}`
+                  borderRadius: '0.6rem',
+                  padding: '0.65rem',
+                  border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.22)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.22)' : 'rgba(239, 68, 68, 0.22)'}`,
+                  boxShadow: `0 8px 18px ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.08)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.08)' : 'rgba(239, 68, 68, 0.08)'}`
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.625rem',
-                    marginBottom: '0.5rem'
+                    gap: '0.4rem',
+                    marginBottom: '0.3rem'
                   }}>
                     <div style={{
-                      background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                      borderRadius: '8px',
-                      padding: '6px',
-                      display: 'flex'
+                      background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.18)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.18)' : 'rgba(239, 68, 68, 0.18)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <BarChart3 size={18} style={{ color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444' }} />
+                      <BarChart3 size={15} style={{ color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444' }} />
                     </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.7)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase',
@@ -1194,83 +1372,100 @@ est.cursos.forEach(curso => {
                   </div>
                   <span style={{
                     display: 'inline-block',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    fontWeight: '700',
+                    padding: '0.32rem 0.65rem',
+                    borderRadius: '0.4rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
+                    letterSpacing: '0.04em',
                     background: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.2)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
                     color: selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? '#10b981' : selectedPago.estado === 'pendiente' ? '#fbbf24' : '#ef4444',
-                    border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.3)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                    border: `1px solid ${selectedPago.estado === 'verificado' || selectedPago.estado === 'pagado' ? 'rgba(16, 185, 129, 0.25)' : selectedPago.estado === 'pendiente' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`
                   }}>
                     {selectedPago.estado}
                   </span>
                 </div>
 
                 {/* Estudiante */}
-                <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }}>
+                 <div style={{
+                   background: 'rgba(255,255,255,0.03)',
+                   borderRadius: '0.6rem',
+                   padding: '0.6rem',
+                   border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
+                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.45rem',
+                    marginBottom: '0.3rem'
                   }}>
-                    <User size={16} style={{ color: '#8b5cf6' }} />
+                    <div style={{
+                      background: 'rgba(139, 92, 246, 0.16)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <User size={15} style={{ color: '#8b5cf6' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase'
                     }}>Estudiante</span>
                   </div>
                   <div style={{
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    marginBottom: '0.25rem'
+                    color: 'var(--admin-text-primary, #fff)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    marginBottom: '0.2rem'
                   }}>
                     {selectedPago.estudiante_nombre} {selectedPago.estudiante_apellido}
                   </div>
                   <div style={{
-                    color: 'rgba(255,255,255,0.5)',
-                    fontSize: '0.75rem'
+                    color: 'var(--admin-text-secondary, rgba(255,255,255,0.5))',
+                    fontSize: '0.7rem'
                   }}>
                     ID: {selectedPago.estudiante_cedula}
                   </div>
                 </div>
 
                 {/* Curso */}
-                <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  gridColumn: isMobile ? '1' : 'span 2'
-                }}>
+                 <div style={{
+                   background: 'rgba(255,255,255,0.03)',
+                   borderRadius: '0.6rem',
+                   padding: '0.6rem',
+                   border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
+                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.45rem',
+                    marginBottom: '0.3rem'
                   }}>
-                    <BookOpen size={16} style={{ color: '#ef4444' }} />
+                    <div style={{
+                      background: 'rgba(239, 68, 68, 0.16)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <BookOpen size={15} style={{ color: '#ef4444' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase'
                     }}>Curso</span>
                   </div>
                   <div style={{
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontWeight: '600'
+                    color: 'var(--admin-text-primary, #fff)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600
                   }}>
                     {selectedPago.curso_nombre}
                   </div>
@@ -1280,20 +1475,28 @@ est.cursos.forEach(curso => {
                 {selectedPago.numero_comprobante && (
                   <div style={{
                     background: 'rgba(255,255,255,0.03)',
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    gridColumn: isMobile ? '1' : 'span 2'
+                    borderRadius: '0.6rem',
+                    padding: '0.6rem',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
-                      marginBottom: '0.375rem'
+                      gap: '0.45rem',
+                      marginBottom: '0.3rem'
                     }}>
-                      <FileText size={16} style={{ color: '#fbbf24' }} />
+                      <div style={{
+                        background: 'rgba(251, 191, 36, 0.16)',
+                        borderRadius: '0.4rem',
+                        padding: '0.4rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <FileText size={15} style={{ color: '#fbbf24' }} />
+                      </div>
                       <span style={{
-                        color: 'rgba(255,255,255,0.6)',
+                        color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                         fontSize: '0.75rem',
                         fontWeight: '600',
                         textTransform: 'uppercase'
@@ -1301,8 +1504,8 @@ est.cursos.forEach(curso => {
                     </div>
                     <div style={{
                       color: '#fbbf24',
-                      fontSize: '0.9rem',
-                      fontWeight: '600'
+                      fontSize: '0.85rem',
+                      fontWeight: 600
                     }}>
                       {selectedPago.numero_comprobante}
                     </div>
@@ -1314,20 +1517,29 @@ est.cursos.forEach(curso => {
               {selectedPago.metodo_pago === 'efectivo' && (
                 <div style={{
                   background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '0.6rem',
+                  padding: '0.6rem',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)',
                   gridColumn: isMobile ? '1' : 'span 2'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    marginBottom: '0.375rem'
+                    gap: '0.45rem',
+                    marginBottom: '0.3rem'
                   }}>
-                    <DollarSign size={16} style={{ color: '#b45309' }} />
+                    <div style={{
+                      background: 'rgba(180, 83, 9, 0.16)',
+                      borderRadius: '0.4rem',
+                      padding: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <DollarSign size={15} style={{ color: '#b45309' }} />
+                    </div>
                     <span style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       textTransform: 'uppercase'
@@ -1336,21 +1548,21 @@ est.cursos.forEach(curso => {
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '0.5rem'
+                    gap: '0.45rem'
                   }}>
                     {(selectedPago as any).recibido_por && (
                       <div>
                         <div style={{
-                          color: 'rgba(255,255,255,0.6)',
-                          fontSize: '0.75rem',
+                          color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
+                          fontSize: '0.7rem',
                           marginBottom: '0.25rem'
                         }}>
                           Recibido por
                         </div>
                         <div style={{
                           color: '#b45309',
-                          fontSize: '0.9rem',
-                          fontWeight: '600'
+                          fontSize: '0.85rem',
+                          fontWeight: 600
                         }}>
                           {(selectedPago as any).recibido_por}
                         </div>
@@ -1359,16 +1571,16 @@ est.cursos.forEach(curso => {
                     {selectedPago.numero_comprobante && (
                       <div>
                         <div style={{
-                          color: 'rgba(255,255,255,0.6)',
-                          fontSize: '0.75rem',
+                          color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
+                          fontSize: '0.7rem',
                           marginBottom: '0.25rem'
                         }}>
                           Número de Comprobante
                         </div>
                         <div style={{
                           color: '#fbbf24',
-                          fontSize: '0.9rem',
-                          fontWeight: '600'
+                          fontSize: '0.85rem',
+                          fontWeight: 600
                         }}>
                           {selectedPago.numero_comprobante}
                         </div>
@@ -1381,23 +1593,23 @@ est.cursos.forEach(curso => {
               {/* Comprobante de Pago - Imagen */}
               {selectedPago.numero_comprobante && (
                 <div style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '0.75rem',
-                  padding: '1rem',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  borderRadius: '0.65rem',
+                  padding: '0.75rem',
                   border: '1px solid rgba(16, 185, 129, 0.2)',
-                  marginTop: '1rem'
+                  marginTop: '0.9rem'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    marginBottom: '0.75rem'
+                    marginBottom: '0.6rem'
                   }}>
                     <Download size={18} style={{ color: '#10b981' }} />
                     <span style={{
                       color: '#10b981',
-                      fontSize: '0.9rem',
-                      fontWeight: '700',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em'
                     }}>Comprobante de Pago</span>
@@ -1405,19 +1617,20 @@ est.cursos.forEach(curso => {
                   <div style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'flex-start',
-                    background: 'rgba(0,0,0,0.3)',
+                    alignItems: 'center',
+                    background: 'rgba(0,0,0,0.35)',
                     borderRadius: '0.5rem',
-                    padding: '1rem',
-                    maxHeight: '500px',
+                    padding: '0.75rem',
+                    maxHeight: '340px',
                     overflow: 'auto'
                   }}>
                     <img
                       src={`${API_BASE}/api/admin/pagos/${selectedPago.id_pago}/comprobante?token=${sessionStorage.getItem('auth_token')}`}
                       alt="Comprobante de pago"
                       style={{
-                        width: '100%',
+                        width: '90%',
                         height: 'auto',
+                        maxHeight: '280px',
                         objectFit: 'contain',
                         borderRadius: '0.375rem'
                       }}
@@ -1457,25 +1670,27 @@ est.cursos.forEach(curso => {
                 display: 'flex',
                 justifyContent: 'flex-end',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid rgba(255,255,255,0.1)'
+                borderTop: `1px solid ${theme.surfaceBorder}`
               }}>
                 <button
                   onClick={() => setShowModal(false)}
                   style={{
-                    padding: '8px 1.25rem',
-                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    color: '#fff',
-                    border: 'none',
+                    padding: '8px 1.15rem',
+                    background: 'rgba(148,163,184,0.12)',
+                    color: 'var(--admin-text-primary, #fff)',
+                    border: `1px solid ${theme.surfaceBorder}`,
                     borderRadius: '0.5rem',
                     cursor: 'pointer',
-                    fontWeight: '600',
+                    fontWeight: 600,
                     fontSize: '0.85rem',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(148,163,184,0.2)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(148,163,184,0.12)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
@@ -1483,24 +1698,69 @@ est.cursos.forEach(curso => {
                 </button>
               </div>
             </div>
+            {/* Animaciones CSS */}
+            <style>{`
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal Comprobante */}
-      {showComprobanteModal && (
+      {showComprobanteModal && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowComprobanteModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%))',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              borderRadius: '0.9rem',
+              width: isMobile ? '92vw' : '650px',
+              maxWidth: isMobile ? '92vw' : '650px',
+              maxHeight: '85vh',
+              padding: isMobile ? '0.75rem 0.9rem' : '1.25rem 1.5rem',
+              margin: 'auto',
+              color: theme.textPrimary,
+              boxShadow: '0 24px 60px rgba(15,23,42,0.25)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'scaleIn 0.3s ease-out',
               display: 'flex',
-              flexDirection: 'column',
-              maxWidth: '500px',
-              width: '90%'
+              flexDirection: 'column'
             }}
           >
             {/* Header */}
@@ -1510,39 +1770,47 @@ est.cursos.forEach(curso => {
               alignItems: 'center',
               marginBottom: '0.75rem',
               paddingBottom: '0.75rem',
-              borderBottom: '1px solid rgba(16, 185, 129, 0.2)',
+              borderBottom: '1px solid rgba(16, 185, 129, 0.25)'
             }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Download size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.85rem',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 12px 30px rgba(16,185,129,0.35)'
+                }}>
+                  <Download size={isMobile ? 18 : 20} color="#fff" />
+                </div>
+                <div>
                   <h3 style={{
                     margin: 0,
-                    fontSize: isMobile ? '1rem' : '1.1rem',
-                    fontWeight: '600',
-                    color: '#fff'
+                    fontSize: isMobile ? '1rem' : '1.15rem',
+                    fontWeight: 700,
+                    color: theme.textPrimary
                   }}>
                     Comprobante de Pago
                   </h3>
-                </div>
-                {comprobanteNumero && (
                   <p style={{
-                    margin: '4px 0 0 24px',
-                    color: '#fbbf24',
-                    fontSize: '0.75rem',
-                    fontWeight: '600'
+                    margin: '0.2rem 0 0 0',
+                    color: theme.textSecondary,
+                    fontSize: '0.85rem'
                   }}>
-                    Número: {comprobanteNumero}
+                    Verifica y descarga el archivo enviado por el estudiante
                   </p>
-                )}
+                </div>
               </div>
               <button
                 onClick={() => setShowComprobanteModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  color: '#fff',
+                  background: 'rgba(16,185,129,0.12)',
+                  border: '1px solid rgba(16,185,129,0.25)',
+                  borderRadius: '0.5rem',
+                  padding: '0.45rem',
+                  color: theme.textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1550,12 +1818,10 @@ est.cursos.forEach(curso => {
                   transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  e.currentTarget.style.background = 'rgba(16,185,129,0.2)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.background = 'rgba(16,185,129,0.12)';
                 }}
               >
                 <X size={16} />
@@ -1563,26 +1829,51 @@ est.cursos.forEach(curso => {
             </div>
 
             <div style={{
-              flex: 1,
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              background: 'rgba(255,255,255,0.05)',
-              borderRadius: '0.75rem',
-              padding: '1rem',
-              overflow: 'auto',
-              maxHeight: '60vh'
+              flexDirection: 'column',
+              gap: '0.75rem'
             }}>
+              {comprobanteNumero && (
+                <div style={{
+                  background: 'rgba(16,185,129,0.12)',
+                  border: '1px solid rgba(16,185,129,0.28)',
+                  borderRadius: '0.75rem',
+                  padding: '0.75rem',
+                  color: theme.textPrimary,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap'
+                }}>
+                  <span>Número del comprobante</span>
+                  <span style={{ color: '#059669' }}>{comprobanteNumero}</span>
+                </div>
+              )}
+
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: 'rgba(15,23,42,0.04)',
+                borderRadius: '0.85rem',
+                padding: '0.85rem',
+                overflow: 'auto',
+                maxHeight: '55vh',
+                border: '1px dashed rgba(148,163,184,0.25)'
+              }}>
               <img
                 src={comprobanteUrl}
                 alt="Comprobante de pago"
                 style={{
-                  maxWidth: '100%',
+                  maxWidth: '92%',
                   height: 'auto',
                   objectFit: 'contain',
-                  borderRadius: '0.5rem'
+                  borderRadius: '0.65rem',
+                  boxShadow: '0 12px 24px rgba(15,23,42,0.12)'
                 }}
-                onLoad={(e) => {
+                onLoad={() => {
                   console.log('✅ Imagen del comprobante cargada correctamente');
                 }}
                 onError={(e) => {
@@ -1593,10 +1884,10 @@ est.cursos.forEach(curso => {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'error-message';
                     errorDiv.innerHTML = `
-                      <div style="text-align: center; color: rgba(255,255,255,0.7); padding: 2rem;">
+                      <div style="text-align: center; color: var(--admin-text-secondary, rgba(255,255,255,0.7)); padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600;">No se pudo cargar la imagen del comprobante</p>
-                        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem;">El archivo puede estar dañado o no ser una imagen válida</p>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--admin-text-primary, #fff);">No se pudo cargar la imagen del comprobante</p>
+                        <p style="font-size: 0.9rem; color: var(--admin-text-secondary, rgba(255,255,255,0.5)); margin-bottom: 1.5rem;">El archivo puede estar dañado o no ser una imagen válida</p>
                         <a href="${comprobanteUrl}" target="_blank" rel="noopener noreferrer" style="
                           color: #10b981; 
                           text-decoration: none;
@@ -1617,56 +1908,72 @@ est.cursos.forEach(curso => {
               />
             </div>
 
-            {/* Botones */}
-            <div style={{
-              marginTop: '0.75rem',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              paddingTop: '0.75rem',
-              borderTop: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <a
-                href={comprobanteUrl}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  color: '#10b981',
-                  padding: '8px 1rem',
-                  borderRadius: '0.5rem',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Download size={16} />
-                Descargar
-              </a>
-              <button
-                onClick={() => setShowComprobanteModal(false)}
-                style={{
-                  background: 'rgba(156, 163, 175, 0.15)',
-                  border: '1px solid rgba(156, 163, 175, 0.3)',
-                  color: '#9ca3af',
-                  padding: '8px 1rem',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Cerrar
-              </button>
+              {/* Botones */}
+              <div style={{
+                marginTop: '0.85rem',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '0.65rem',
+                paddingTop: '0.85rem',
+                borderTop: '1px solid rgba(148,163,184,0.2)',
+                flexWrap: 'wrap'
+              }}>
+                <a
+                  href={comprobanteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    border: 'none',
+                    color: '#fff',
+                    padding: '9px 1.25rem',
+                    borderRadius: '0.65rem',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    boxShadow: '0 16px 30px rgba(16,185,129,0.3)'
+                  }}
+                >
+                  <Download size={16} color="#fff" />
+                  Descargar
+                </a>
+                <button
+                  onClick={() => setShowComprobanteModal(false)}
+                  style={{
+                    background: 'rgba(156,163,175,0.15)',
+                    border: '1px solid rgba(156,163,175,0.3)',
+                    color: theme.textSecondary,
+                    padding: '9px 1.25rem',
+                    borderRadius: '0.65rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
+            {/* Animaciones CSS */}
+            <style>{`
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}</style>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Paginación */}
@@ -1704,15 +2011,16 @@ est.cursos.forEach(curso => {
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
                 padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: currentPage === 1 ? theme.neutralBg : theme.surface,
+                border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
-                color: currentPage === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: currentPage === 1 ? theme.textMuted : theme.textPrimary,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: currentPage === 1 ? 'none' : (darkMode ? '0 0.35rem 0.95rem rgba(0,0,0,0.3)' : '0 0.35rem 0.95rem rgba(15,23,42,0.12)')
               }}
             >
               <ChevronLeft size={isMobile ? 14 : 16} />
@@ -1724,15 +2032,16 @@ est.cursos.forEach(curso => {
                 onClick={() => setCurrentPage(pageNum)}
                 style={{
                   padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                  background: currentPage === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(255,255,255,0.08)',
-                  border: currentPage === pageNum ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.15)',
+                  background: currentPage === pageNum ? theme.buttonPrimaryBg : theme.surface,
+                  border: currentPage === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
                   borderRadius: '0.625rem',
-                  color: '#fff',
+                  color: currentPage === pageNum ? theme.buttonPrimaryText : theme.textPrimary,
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   minWidth: isMobile ? '36px' : '2.5rem',
+                  boxShadow: currentPage === pageNum ? (darkMode ? '0 0.4rem 1rem rgba(239,68,68,0.35)' : '0 0.35rem 0.9rem rgba(239,68,68,0.25)') : 'none'
                 }}
               >
                 {pageNum}
@@ -1747,15 +2056,16 @@ est.cursos.forEach(curso => {
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
                 padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: currentPage === totalPages ? theme.neutralBg : theme.surface,
+                border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
-                color: currentPage === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: currentPage === totalPages ? theme.textMuted : theme.textPrimary,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: currentPage === totalPages ? 'none' : (darkMode ? '0 0.35rem 0.95rem rgba(0,0,0,0.3)' : '0 0.35rem 0.95rem rgba(15,23,42,0.12)')
               }}
             >
               {!isMobile && 'Siguiente'}
@@ -1791,7 +2101,7 @@ est.cursos.forEach(curso => {
                   margin: 0,
                   fontSize: isMobile ? '1rem' : '1.1rem',
                   fontWeight: '600',
-                  color: '#fff'
+                  color: theme.textPrimary
                 }}>
                   Verificar Pago
                 </h3>
@@ -1799,11 +2109,11 @@ est.cursos.forEach(curso => {
               <button
                 onClick={() => setShowVerificacionModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(239,68,68,0.08)',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(239,68,68,0.16)'}`,
                   borderRadius: '8px',
                   padding: '6px',
-                  color: '#fff',
+                  color: theme.textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1815,8 +2125,8 @@ est.cursos.forEach(curso => {
                   e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(239,68,68,0.08)';
+                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(239,68,68,0.16)';
                 }}
               >
                 <X size={16} />
@@ -1824,23 +2134,23 @@ est.cursos.forEach(curso => {
             </div>
 
             <div style={{ marginBottom: '0.75rem' }}>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', margin: 0 }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.85rem', margin: 0 }}>
                 {pagoAVerificar.estudiante_nombre} {pagoAVerificar.estudiante_apellido}
               </p>
             </div>
 
             {/* Información del pago */}
             <div style={{
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
+              background: theme.positiveBg,
+              border: `1px solid ${theme.positiveBorder}`,
               borderRadius: '0.5rem',
               padding: '0.75rem',
               marginBottom: '1rem'
             }}>
-              <div style={{ display: 'grid', gap: '0.5rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'grid', gap: '0.5rem', color: theme.textSecondary, fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Monto total pagado:</span>
-                  <strong style={{ fontSize: '0.95rem', color: '#10b981' }}>
+                  <strong style={{ fontSize: '0.95rem', color: mapToRedScheme('#10b981') }}>
                     {(() => {
                       const estudianteActual = estudiantes.find(e => e.estudiante_cedula === pagoAVerificar.estudiante_cedula);
                       const cursoActual = estudianteActual?.cursos.find(c => c.id_curso === pagoAVerificar.id_curso);
@@ -1850,7 +2160,7 @@ est.cursos.forEach(curso => {
                     })()}
                   </strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Cuotas cubiertas:</span>
                   <strong>
                     {(() => {
@@ -1861,11 +2171,11 @@ est.cursos.forEach(curso => {
                     })()}
                   </strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Comprobante:</span>
                   <strong>{pagoAVerificar.numero_comprobante || 'N/A'}</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Primera cuota:</span>
                   <strong>#{pagoAVerificar.numero_cuota}</strong>
                 </div>
@@ -1874,12 +2184,12 @@ est.cursos.forEach(curso => {
 
             {/* Selección de cuotas */}
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', color: '#fff', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+              <label style={{ display: 'block', color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                 ¿Cuántas cuotas desea verificar con este pago?
               </label>
               <div style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)'}`,
                 borderRadius: '0.5rem',
                 padding: '0.75rem'
               }}>
@@ -1893,7 +2203,7 @@ est.cursos.forEach(curso => {
 
                   if (cuotasDisponibles.length === 0) {
                     return (
-                      <div style={{ textAlign: 'center', padding: '0.75rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+                      <div style={{ textAlign: 'center', padding: '0.75rem', color: theme.textSecondary, fontSize: '0.85rem' }}>
                         Solo la cuota actual está disponible para verificar
                       </div>
                     );
@@ -1905,8 +2215,8 @@ est.cursos.forEach(curso => {
                       alignItems: 'center',
                       gap: '0.5rem',
                       padding: '0.5rem',
-                      background: cuotasAVerificar.includes(cuota.id_pago) ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                      border: cuotasAVerificar.includes(cuota.id_pago) ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
+                      background: cuotasAVerificar.includes(cuota.id_pago) ? theme.positiveBg : 'transparent',
+                      border: cuotasAVerificar.includes(cuota.id_pago) ? `1px solid ${theme.positiveBorder}` : '1px solid transparent',
                       borderRadius: '0.375rem',
                       cursor: 'pointer',
                       marginBottom: '0.375rem',
@@ -1924,11 +2234,11 @@ est.cursos.forEach(curso => {
                         }}
                         style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
                       />
-                      <div style={{ flex: 1, color: '#fff' }}>
+                      <div style={{ flex: 1, color: theme.textPrimary }}>
                         <div style={{ fontWeight: '600', fontSize: '0.85rem' }}>
                           {cuota.modalidad_pago === 'clases' ? `Clase ${cuota.numero_cuota}` : `Cuota #${cuota.numero_cuota}`}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
+                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
                           {formatearMonto(cuota.monto)} - {cuota.estado}
                         </div>
                       </div>
@@ -1936,15 +2246,15 @@ est.cursos.forEach(curso => {
                   ));
                 })()}
               </div>
-              <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.375rem' }}>
-                <div style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
+              <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: theme.positiveBg, borderRadius: '0.375rem' }}>
+                <div style={{ color: mapToRedScheme('#10b981'), fontSize: '0.8rem', fontWeight: '600' }}>
                   Total a verificar: {cuotasAVerificar.length} cuota(s)
                 </div>
               </div>
             </div>
 
             {/* Botones */}
-            <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.25)'}` }}>
               <button
                 onClick={() => {
                   setShowVerificacionModal(false);
@@ -1955,10 +2265,10 @@ est.cursos.forEach(curso => {
                 style={{
                   flex: 1,
                   padding: '8px 1rem',
-                  background: 'rgba(156, 163, 175, 0.15)',
-                  border: '1px solid rgba(156, 163, 175, 0.3)',
+                  background: theme.neutralBg,
+                  border: `1px solid ${theme.neutralBorder}`,
                   borderRadius: '0.5rem',
-                  color: '#9ca3af',
+                  color: theme.textSecondary,
                   fontSize: '0.85rem',
                   fontWeight: '600',
                   cursor: procesando ? 'not-allowed' : 'pointer',
@@ -2016,15 +2326,44 @@ est.cursos.forEach(curso => {
       )}
 
       {/* Modal de Rechazo Elegante */}
-      {showRechazoModal && pagoARechazar && (
+      {showRechazoModal && pagoARechazar && createPortal(
         <div
           className="modal-overlay"
           onClick={() => setShowRechazoModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
+          }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '31.25rem' }}
+            style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%))',
+              border: `1px solid ${theme.dangerBorder}`,
+              borderRadius: '0.85rem',
+              width: isMobile ? '92vw' : '33rem',
+              maxWidth: isMobile ? '92vw' : '33rem',
+              padding: isMobile ? '0.75rem 0.875rem' : '1.25rem 1.5rem',
+              boxShadow: '0 24px 60px rgba(15,23,42,0.25)',
+              color: theme.textPrimary
+            }}
           >
             {/* Header del modal */}
             <div style={{
@@ -2033,75 +2372,93 @@ est.cursos.forEach(curso => {
               alignItems: 'center',
               marginBottom: '0.75rem',
               paddingBottom: '0.75rem',
-              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              borderBottom: `1px solid ${theme.dangerBorder}`
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertCircle size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
-                <h3 style={{
-                  margin: 0,
-                  fontSize: isMobile ? '1rem' : '1.1rem',
-                  fontWeight: '600',
-                  color: '#fff'
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.85rem',
+                  background: `linear-gradient(135deg, ${mapToRedScheme('#ef4444')} 0%, ${mapToRedScheme('#dc2626')} 100%)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 12px 30px rgba(239,68,68,0.35)'
                 }}>
-                  Rechazar Pago
-                </h3>
+                  <AlertCircle size={isMobile ? 18 : 20} color="#fff" />
+                </div>
+                <div>
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: isMobile ? '1rem' : '1.15rem',
+                    fontWeight: 700,
+                    color: theme.textPrimary
+                  }}>
+                    Rechazar Pago
+                  </h3>
+                  <p style={{
+                    margin: '0.15rem 0 0 0',
+                    color: theme.textSecondary,
+                    fontSize: '0.8rem'
+                  }}>
+                    {pagoARechazar.modalidad_pago === 'clases' ? `Clase ${pagoARechazar.numero_cuota}` : `Cuota #${pagoARechazar.numero_cuota}`} · {pagoARechazar.estudiante_nombre} {pagoARechazar.estudiante_apellido}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setShowRechazoModal(false)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  color: '#fff',
+                  background: 'rgba(239,68,68,0.1)',
+                  border: `1px solid ${theme.dangerBorder}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.45rem',
+                  color: theme.textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  e.currentTarget.style.background = 'rgba(239,68,68,0.18)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.background = 'rgba(239,68,68,0.1)';
                 }}
               >
                 <X size={16} />
               </button>
             </div>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <p style={{
-                color: 'rgba(255,255,255,0.7)',
-                fontSize: '0.85rem',
-                margin: 0
-              }}>
-                {pagoARechazar.modalidad_pago === 'clases' ? `Clase ${pagoARechazar.numero_cuota}` : `Cuota #${pagoARechazar.numero_cuota}`} - {pagoARechazar.estudiante_nombre} {pagoARechazar.estudiante_apellido}
-              </p>
-            </div>
 
             {/* Información del pago */}
             <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '0.5rem',
-              padding: '0.75rem',
+              background: theme.dangerBg,
+              border: `1px solid ${theme.dangerBorder}`,
+              borderRadius: '0.75rem',
+              padding: '0.85rem',
               marginBottom: '1rem'
             }}>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginBottom: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                <AlertCircle size={14} /> Al rechazar este pago:
+              <div style={{
+                color: theme.textSecondary,
+                fontSize: '0.78rem',
+                marginBottom: '0.45rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}>
+                <AlertCircle size={14} style={{ color: mapToRedScheme('#ef4444') }} />
+                Al rechazar este pago:
               </div>
               <ul style={{
-                color: 'rgba(255,255,255,0.9)',
-                fontSize: '0.75rem',
+                color: theme.textPrimary,
+                fontSize: '0.78rem',
                 margin: 0,
-                paddingLeft: '1rem'
+                paddingLeft: '1.15rem',
+                lineHeight: 1.5
               }}>
                 <li>El estado volverá a "Pendiente"</li>
                 <li>El estudiante deberá subir un nuevo comprobante</li>
-                <li>Se le notificará el motivo del rechazo</li>
+                <li>Se notificará el motivo del rechazo</li>
               </ul>
             </div>
 
@@ -2109,10 +2466,10 @@ est.cursos.forEach(curso => {
             <div style={{ marginBottom: '1rem' }}>
               <label style={{
                 display: 'block',
-                color: '#fff',
+                color: theme.textPrimary,
                 fontSize: '0.85rem',
-                fontWeight: '600',
-                marginBottom: '0.5rem'
+                fontWeight: 600,
+                marginBottom: '0.35rem'
               }}>
                 Motivo del rechazo *
               </label>
@@ -2123,26 +2480,32 @@ est.cursos.forEach(curso => {
                 rows={3}
                 style={{
                   width: '100%',
-                  padding: '0.5rem',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.5rem',
-                  color: '#fff',
+                  padding: '0.65rem 0.75rem',
+                  background: pick('rgba(248,250,252,0.95)', 'rgba(255,255,255,0.08)'),
+                  border: `1px solid ${pick('rgba(148,163,184,0.35)', 'rgba(255,255,255,0.18)')}`,
+                  borderRadius: '0.65rem',
+                  color: theme.textPrimary,
                   fontSize: '0.85rem',
-                  resize: 'vertical'
+                  resize: 'vertical',
+                  boxShadow: pick('0 8px 18px rgba(15,23,42,0.08)', 'none')
                 }}
               />
               <div style={{
-                fontSize: '0.7rem',
-                color: 'rgba(255,255,255,0.5)',
-                marginTop: '0.375rem'
+                fontSize: '0.72rem',
+                color: theme.textMuted,
+                marginTop: '0.35rem'
               }}>
                 Este mensaje será visible para el estudiante
               </div>
             </div>
 
             {/* Botones */}
-            <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.65rem',
+              paddingTop: '0.85rem',
+              borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(148,163,184,0.25)'}`
+            }}>
               <button
                 onClick={() => {
                   setShowRechazoModal(false);
@@ -2152,15 +2515,15 @@ est.cursos.forEach(curso => {
                 disabled={procesando}
                 style={{
                   flex: 1,
-                  padding: '8px 1rem',
-                  background: 'rgba(156, 163, 175, 0.15)',
-                  border: '1px solid rgba(156, 163, 175, 0.3)',
-                  borderRadius: '0.5rem',
-                  color: '#9ca3af',
+                  padding: '10px 1rem',
+                  background: theme.neutralBg,
+                  border: `1px solid ${theme.neutralBorder}`,
+                  borderRadius: '0.65rem',
+                  color: theme.textSecondary,
                   fontSize: '0.85rem',
-                  fontWeight: '600',
+                  fontWeight: 600,
                   cursor: procesando ? 'not-allowed' : 'pointer',
-                  opacity: procesando ? 0.5 : 1,
+                  opacity: procesando ? 0.6 : 1,
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -2171,17 +2534,17 @@ est.cursos.forEach(curso => {
                 disabled={procesando || !motivoRechazo.trim()}
                 style={{
                   flex: 1,
-                  padding: '8px 1rem',
+                  padding: '10px 1rem',
                   background: procesando || !motivoRechazo.trim()
-                    ? 'rgba(239, 68, 68, 0.3)'
-                    : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    ? 'rgba(239, 68, 68, 0.35)'
+                    : `linear-gradient(135deg, ${mapToRedScheme('#ef4444')} 0%, ${mapToRedScheme('#b91c1c')} 100%)`,
                   border: 'none',
-                  borderRadius: '0.5rem',
+                  borderRadius: '0.65rem',
                   color: '#fff',
                   fontSize: '0.85rem',
-                  fontWeight: '600',
+                  fontWeight: 600,
                   cursor: procesando || !motivoRechazo.trim() ? 'not-allowed' : 'pointer',
-                  opacity: procesando || !motivoRechazo.trim() ? 0.5 : 1,
+                  opacity: procesando || !motivoRechazo.trim() ? 0.6 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -2210,7 +2573,8 @@ est.cursos.forEach(curso => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <style>{`

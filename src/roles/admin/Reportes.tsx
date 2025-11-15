@@ -3,11 +3,10 @@ import {
   Download, BarChart3, Users, BookOpen, DollarSign,
   Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
   History, Clock, User, Calendar, Search, ArrowUpDown, ArrowUp, ArrowDown,
-  Percent, Award, Target
+  Award, Target
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import GlassEffect from '../../components/GlassEffect';
-import { RedColorPalette } from '../../utils/colorMapper';
+import { showToast } from '../../config/toastConfig';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -33,8 +32,150 @@ type Periodo = {
 type DatosReporte = any[];
 type Estadisticas = any;
 
-const Reportes = () => {
+interface ReportesProps {
+  darkMode?: boolean;
+}
+
+const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   const { isMobile, isSmallScreen } = useBreakpoints();
+  const [darkMode, setDarkMode] = useState(() => {
+    if (inheritedDarkMode !== undefined) {
+      return inheritedDarkMode;
+    }
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    if (inheritedDarkMode !== undefined) {
+      setDarkMode(inheritedDarkMode);
+    }
+  }, [inheritedDarkMode]);
+
+  useEffect(() => {
+    if (inheritedDarkMode !== undefined) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('admin-dark-mode');
+      const newMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode((prev) => (prev === newMode ? prev : newMode));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [inheritedDarkMode]);
+
+  const themeColors = useMemo(() => ({
+    textPrimary: darkMode ? '#f8fafc' : '#1f2937',
+    textSecondary: darkMode ? 'rgba(248,250,252,0.85)' : 'rgba(30,41,59,0.9)',
+    textMuted: darkMode ? 'rgba(248,250,252,0.7)' : 'rgba(71,85,105,0.85)',
+    panelBg: darkMode
+      ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(241,245,249,0.98) 100%)',
+    panelBorder: darkMode ? 'rgba(239, 68, 68, 0.25)' : 'rgba(239, 68, 68, 0.14)',
+    softCardBg: darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(15,23,42,0.04)',
+    softCardHover: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.08)',
+    softCardBorder: darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)',
+    tabInactive: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(71,85,105,0.8)',
+    inputBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.05)',
+    inputBorder: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.15)',
+    pdfText: darkMode ? '#fbbf24' : '#b45309',
+    pdfBg: darkMode ? 'rgba(245, 158, 11, 0.2)' : 'rgba(253, 230, 138, 0.6)',
+    pdfBgDisabled: darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(253, 230, 138, 0.35)',
+    pdfBorder: darkMode ? 'rgba(245, 158, 11, 0.35)' : 'rgba(217, 119, 6, 0.35)',
+    excelText: darkMode ? '#10b981' : '#047857',
+    excelBg: darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(209, 250, 229, 0.64)',
+    excelBgDisabled: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(209, 250, 229, 0.36)',
+    excelBorder: darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(5, 150, 105, 0.35)',
+    shadow: darkMode ? '0 0.125rem 0.75rem rgba(0,0,0,0.35)' : '0 0.25rem 0.75rem rgba(15,23,42,0.1)'
+  }), [darkMode]);
+
+  const baseSelectStyle: React.CSSProperties = {
+    padding: '8px 0.75rem',
+    background: themeColors.inputBg,
+    border: `1px solid ${themeColors.inputBorder}`,
+    borderRadius: '0.5rem',
+    color: themeColors.textPrimary,
+    fontSize: '0.9rem'
+  };
+
+  const baseInputStyle: React.CSSProperties = {
+    background: themeColors.inputBg,
+    border: `1px solid ${themeColors.inputBorder}`,
+    borderRadius: '0.5rem',
+    color: themeColors.textPrimary,
+    fontSize: '0.85rem'
+  };
+
+  const getToggleButtonStyle = (active: boolean): React.CSSProperties => ({
+    padding: '8px 0.75rem',
+    background: active
+      ? (darkMode ? 'rgba(239, 68, 68, 0.22)' : 'rgba(239, 68, 68, 0.12)')
+      : themeColors.inputBg,
+    border: active ? '1px solid rgba(239, 68, 68, 0.45)' : `1px solid ${themeColors.inputBorder}`,
+    borderRadius: '0.5rem',
+    color: themeColors.textPrimary,
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    fontWeight: active ? 600 : 400,
+    transition: 'background 0.2s ease, border 0.2s ease'
+  });
+
+  const tabButtonStyle = (active: boolean): React.CSSProperties => ({
+    padding: '10px 0.875rem',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: active ? '2px solid #ef4444' : '2px solid transparent',
+    color: active ? '#ef4444' : themeColors.tabInactive,
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'color 0.2s ease, border-bottom-color 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.35rem'
+  });
+
+  const hexToRgb = (hex: string) => {
+    const sanitized = hex.replace('#', '');
+    const bigint = parseInt(sanitized, 16);
+    return {
+      r: (bigint >> 16) & 255,
+      g: (bigint >> 8) & 255,
+      b: bigint & 255
+    };
+  };
+
+  const buildMetricCardStyle = (accent: string): React.CSSProperties => {
+    const { r, g, b } = hexToRgb(accent);
+    return {
+      background: darkMode
+        ? `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.18) 0%, rgba(${r}, ${g}, ${b}, 0.08) 100%)`
+        : `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.12) 0%, rgba(255,255,255,0.95) 100%)`,
+      border: `1px solid rgba(${r}, ${g}, ${b}, 0.28)`,
+      borderRadius: '0.625rem',
+      padding: '0.875rem',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.75rem',
+      boxShadow: themeColors.shadow
+    };
+  };
+
+  const metricValueStyle = (accent?: string): React.CSSProperties => ({
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    color: accent ?? themeColors.textPrimary
+  });
+
+  const metricLabelStyle: React.CSSProperties = {
+    fontSize: '0.75rem',
+    color: themeColors.textMuted
+  };
   
   // Estilos para scrollbar horizontal
   const scrollbarStyles = `
@@ -65,9 +206,48 @@ const Reportes = () => {
       min-width: 9.375rem !important;
     }
   `;
+
+  const colorNormalizationStyles = `
+    .reportes-admin-wrapper [data-keep-color="true"],
+    .reportes-admin-wrapper [data-keep-color="true"] * {
+      color: #fff !important;
+      stroke: #fff !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="color: #fff"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textPrimary} !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="color:#fff"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textPrimary} !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="color: rgb(255, 255, 255)"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textPrimary} !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255,255,255,0.9)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255, 255, 255, 0.9)"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textPrimary} !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255,255,255,0.8)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255, 255, 255, 0.8)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255,255,255,0.7)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255, 255, 255, 0.7)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255,255,255,0.6)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255, 255, 255, 0.6)"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textSecondary} !important;
+    }
+
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255,255,255,0.5)"]:not([data-keep-color="true"]) ,
+    .reportes-admin-wrapper[data-dark="false"] [style*="rgba(255, 255, 255, 0.5)"]:not([data-keep-color="true"]) {
+      color: ${themeColors.textMuted} !important;
+    }
+  `;
   
   // Estados principales
-  const [tipoReporte, setTipoReporte] = useState('estudiantes');
+  const [tipoReporte, setTipoReporte] = useState<'estudiantes' | 'cursos' | 'financiero'>('estudiantes');
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos');
   const [periodosDisponibles, setPeriodosDisponibles] = useState<Periodo[]>([]);
   const [fechaInicio, setFechaInicio] = useState('2025-01-01');
@@ -76,7 +256,6 @@ const Reportes = () => {
   // Filtros específicos por tipo de reporte
   const [filtroEstadoEstudiante, setFiltroEstadoEstudiante] = useState('todos');
   const [filtroCurso, setFiltroCurso] = useState('');
-  const [filtroTipoPago, setFiltroTipoPago] = useState('todos');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('todos');
   
   // Nuevos filtros para cursos
@@ -85,9 +264,7 @@ const Reportes = () => {
   const [filtroHorarioCurso, setFiltroHorarioCurso] = useState('todos');
   
   // Nuevos filtros para financiero
-  const [filtroRangoMonto, setFiltroRangoMonto] = useState('todos');
   const [filtroMetodoPago, setFiltroMetodoPago] = useState('todos');
-  const [filtroMesEspecifico, setFiltroMesEspecifico] = useState('todos');
   const [filtroCursoFinanciero, setFiltroCursoFinanciero] = useState('');
   const [filtroEstadoCursoFinanciero, setFiltroEstadoCursoFinanciero] = useState('todos');
   const [filtroHorarioFinanciero, setFiltroHorarioFinanciero] = useState('todos');
@@ -111,13 +288,9 @@ const Reportes = () => {
 
   // Nuevos estados para mejoras
   const [filtroHorario, setFiltroHorario] = useState<'todos' | 'matutino' | 'vespertino'>('todos');
-  const [filtroTipoCurso, setFiltroTipoCurso] = useState('todos');
-  const [filtroEstadoCurso, setFiltroEstadoCurso] = useState<'todos' | 'activo' | 'finalizado' | 'cancelado'>('todos');
   const [busquedaRapida, setBusquedaRapida] = useState('');
   const [ordenamiento, setOrdenamiento] = useState<'nombre' | 'fecha' | 'monto' | 'capacidad'>('fecha');
   const [ordenAscendente, setOrdenAscendente] = useState(false);
-  const [compararPeriodos, setCompararPeriodos] = useState(false);
-  const [datosReportePrevio, setDatosReportePrevio] = useState<DatosReporte | null>(null);
 
   const reportesDisponibles = [
     {
@@ -293,7 +466,7 @@ const Reportes = () => {
     try {
       const token = sessionStorage.getItem('auth_token');
       if (!token) {
-        toast.error('Sesión expirada');
+        showToast.error('Sesión expirada', darkMode);
         return;
       }
 
@@ -305,11 +478,11 @@ const Reportes = () => {
         const data = await response.json();
         setHistorialReportes(data.data || []);
       } else {
-        toast.error('Error al cargar historial');
+        showToast.error('Error al cargar historial', darkMode);
       }
     } catch (error) {
       console.error('Error cargando historial:', error);
-      toast.error('Error al cargar historial');
+      showToast.error('Error al cargar historial', darkMode);
     } finally {
       setLoadingHistorial(false);
     }
@@ -503,19 +676,15 @@ const Reportes = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(urlBlob);
 
-      // Mostrar mensaje de éxito con trazabilidad
-      if (formato === 'excel') {
-        toast.success('Reporte descargado y guardado en historial', {
-          icon: <CheckCircle2 size={20} />
-        });
-      } else {
-        toast.success('Reporte descargado exitosamente', {
-          icon: <CheckCircle2 size={20} />
-        });
-      }
+        // Mostrar mensaje de éxito con trazabilidad
+        if (formato === 'excel') {
+          showToast.success('Reporte descargado y guardado en historial', darkMode);
+        } else {
+          showToast.success('Reporte descargado exitosamente', darkMode);
+        }
     } catch (error) {
       console.error(`Error descargando ${formato}:`, error);
-      toast.error(`Error al descargar el ${formato.toUpperCase()}`);
+      showToast.error(`Error al descargar el ${formato.toUpperCase()}`, darkMode);
     } finally {
       setDescargando(false);
     }
@@ -664,14 +833,13 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Curso:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Curso:</label>
             <select
               value={filtroCurso}
               onChange={(e) => setFiltroCurso(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '18.75rem',
+                ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '18.75rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -709,14 +877,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado:</label>
             <select
               value={filtroEstadoEstudiante}
               onChange={(e) => setFiltroEstadoEstudiante(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -740,14 +906,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado:</label>
             <select
               value={filtroEstadoCursoReporte}
               onChange={(e) => setFiltroEstadoCursoReporte(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -765,14 +929,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Ocupación:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Ocupación:</label>
             <select
               value={filtroOcupacionCurso}
               onChange={(e) => setFiltroOcupacionCurso(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -790,14 +952,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
             <select
               value={filtroHorarioCurso}
               onChange={(e) => setFiltroHorarioCurso(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -820,14 +980,13 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Curso:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Curso:</label>
             <select
               value={filtroCursoFinanciero}
               onChange={(e) => setFiltroCursoFinanciero(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem', minWidth: isMobile ? 'auto' : '18.75rem',
+                ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '18.75rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -862,14 +1021,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado Curso:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Curso:</label>
             <select
               value={filtroEstadoCursoFinanciero}
               onChange={(e) => setFiltroEstadoCursoFinanciero(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -886,15 +1043,13 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Estado Pago:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Pago:</label>
             <select
               value={filtroEstadoPago}
               onChange={(e) => setFiltroEstadoPago(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                width: isMobile ? '100%' : 'auto',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem'
+                ...baseSelectStyle,
+                width: isMobile ? '100%' : 'auto'
               }}
             >
               <option value="todos">Todos los estados</option>
@@ -912,14 +1067,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Método:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Método:</label>
             <select
               value={filtroMetodoPago}
               onChange={(e) => setFiltroMetodoPago(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -936,14 +1089,12 @@ const Reportes = () => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
             <select
               value={filtroHorarioFinanciero}
               onChange={(e) => setFiltroHorarioFinanciero(e.target.value)}
               style={{
-                padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                color: '#fff', fontSize: '0.9rem',
+                ...baseSelectStyle,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -962,8 +1113,9 @@ const Reportes = () => {
   // Renderizar tarjetas de resumen
   const renderTarjetasResumen = () => {
     if (!estadisticasCalculadas) return null;
-    
-    if (tipoReporte === 'estudiantes') {
+
+    if (tipoReporte === 'estudiantes' && 'tasaAprobacion' in estadisticasCalculadas) {
+      const { total, tasaAprobacion, enCurso } = estadisticasCalculadas;
       return (
         <div style={{
           display: 'grid',
@@ -971,56 +1123,38 @@ const Reportes = () => {
           gap: '0.75rem',
           marginBottom: '1rem'
         }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#ef4444')}>
             <Users size={28} color="#ef4444" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Estudiantes</div>
+              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
+              <div style={metricLabelStyle}>Total Estudiantes</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#10b981')}>
             <CheckCircle2 size={28} color="#10b981" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>{estadisticasCalculadas.tasaAprobacion}%</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Tasa Aprobación</div>
+              <div style={metricValueStyle('#10b981')}>{tasaAprobacion}%</div>
+              <div style={metricLabelStyle}>Tasa Aprobación</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#3b82f6')}>
             <Target size={28} color="#3b82f6" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>{estadisticasCalculadas.enCurso}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>En Curso</div>
+              <div style={metricValueStyle('#3b82f6')}>{enCurso}</div>
+              <div style={metricLabelStyle}>En Curso</div>
             </div>
           </div>
         </div>
       );
-    } else if (tipoReporte === 'financiero') {
+    } else if (tipoReporte === 'financiero' && 'ingresoTotal' in estadisticasCalculadas) {
+      const {
+        ingresoTotal = 0,
+        promedio = 0,
+        total
+      } = estadisticasCalculadas;
+
       return (
         <div style={{
           display: 'grid',
@@ -1028,56 +1162,38 @@ const Reportes = () => {
           gap: '0.75rem',
           marginBottom: '1rem'
         }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#10b981')}>
             <DollarSign size={28} color="#10b981" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>${estadisticasCalculadas.ingresoTotal.toFixed(2)}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Ingresos Totales</div>
+              <div style={metricValueStyle('#10b981')}>${ingresoTotal.toFixed(2)}</div>
+              <div style={metricLabelStyle}>Ingresos Totales</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#ef4444')}>
             <BarChart3 size={28} color="#ef4444" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Pagos</div>
+              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
+              <div style={metricLabelStyle}>Total Pagos</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#3b82f6')}>
             <Award size={28} color="#3b82f6" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>${estadisticasCalculadas.promedio.toFixed(2)}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Promedio</div>
+              <div style={metricValueStyle('#3b82f6')}>${promedio.toFixed(2)}</div>
+              <div style={metricLabelStyle}>Promedio</div>
             </div>
           </div>
         </div>
       );
-    } else if (tipoReporte === 'cursos') {
+    } else if (tipoReporte === 'cursos' && 'capacidadPromedio' in estadisticasCalculadas) {
+      const {
+        total,
+        capacidadPromedio = 0,
+        activos = 0
+      } = estadisticasCalculadas;
+
       return (
         <div style={{
           display: 'grid',
@@ -1085,51 +1201,27 @@ const Reportes = () => {
           gap: '0.75rem',
           marginBottom: '1rem'
         }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#ef4444')}>
             <BookOpen size={28} color="#ef4444" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>{estadisticasCalculadas.total}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Total Cursos</div>
+              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
+              <div style={metricLabelStyle}>Total Cursos</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#10b981')}>
             <CheckCircle2 size={28} color="#10b981" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>{estadisticasCalculadas.activos}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Cursos Activos</div>
+              <div style={metricValueStyle('#10b981')}>{activos}</div>
+              <div style={metricLabelStyle}>Cursos Activos</div>
             </div>
           </div>
           
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '0.625rem',
-            padding: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
+          <div style={buildMetricCardStyle('#3b82f6')}>
             <Users size={28} color="#3b82f6" />
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>{estadisticasCalculadas.capacidadPromedio}</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Capacidad Promedio</div>
+              <div style={metricValueStyle('#3b82f6')}>{capacidadPromedio}</div>
+              <div style={metricLabelStyle}>Capacidad Promedio</div>
             </div>
           </div>
         </div>
@@ -1157,8 +1249,8 @@ const Reportes = () => {
         return (
           <div style={{ textAlign: 'center', padding: '60px 1.25rem' }}>
             <AlertCircle size={64} color="#f59e0b" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3 style={{ color: '#fff', marginBottom: '0.5rem', fontSize: '1.2rem' }}>No hay estudiantes en este período</h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}>
+            <h3 style={{ color: themeColors.textPrimary, marginBottom: '0.5rem', fontSize: '1.2rem' }}>No hay estudiantes en este período</h3>
+            <p style={{ color: themeColors.textMuted, fontSize: '1rem' }}>
               Intenta seleccionar otro período o curso, o verifica que haya estudiantes matriculados.
             </p>
           </div>
@@ -1186,7 +1278,7 @@ const Reportes = () => {
             }}>
               {/* Búsqueda rápida */}
               <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? 'auto' : '250px' }}>
-                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.textMuted }} />
                 <input
                   type="text"
                   placeholder="Buscar por nombre o curso..."
@@ -1195,11 +1287,7 @@ const Reportes = () => {
                   style={{
                     width: '100%',
                     padding: '8px 0.75rem 8px 2.5rem',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    fontSize: '0.85rem'
+                    ...baseInputStyle
                   }}
                 />
               </div>
@@ -1215,19 +1303,7 @@ const Reportes = () => {
                       setOrdenAscendente(true);
                     }
                   }}
-                  style={{
-                    padding: '8px 0.75rem',
-                    background: ordenamiento === 'nombre' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
-                    border: ordenamiento === 'nombre' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    fontWeight: ordenamiento === 'nombre' ? '600' : '400'
-                  }}
+                  style={getToggleButtonStyle(ordenamiento === 'nombre')}
                 >
                   {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                   Nombre
@@ -1242,52 +1318,12 @@ const Reportes = () => {
                       setOrdenAscendente(false);
                     }
                   }}
-                  style={{
-                    padding: '8px 0.75rem',
-                    background: ordenamiento === 'fecha' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
-                    border: ordenamiento === 'fecha' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    fontWeight: ordenamiento === 'fecha' ? '600' : '400'
-                  }}
+                  style={getToggleButtonStyle(ordenamiento === 'fecha')}
                 >
                   {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                   Fecha
                 </button>
                 
-                {tipoReporte === 'financiero' && (
-                  <button
-                    onClick={() => {
-                      if (ordenamiento === 'monto') {
-                        setOrdenAscendente(!ordenAscendente);
-                      } else {
-                        setOrdenamiento('monto');
-                        setOrdenAscendente(false);
-                      }
-                    }}
-                    style={{
-                      padding: '8px 0.75rem',
-                      background: ordenamiento === 'monto' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.1)',
-                      border: ordenamiento === 'monto' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      fontWeight: ordenamiento === 'monto' ? '600' : '400'
-                    }}
-                  >
-                    {ordenamiento === 'monto' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
-                    Monto
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -1300,11 +1336,11 @@ const Reportes = () => {
               paddingRight: isMobile ? '0' : '0.5rem'
             }}>
               <h4 style={{
-                color: '#fff',
+                color: themeColors.textPrimary,
                 fontSize: '0.95rem',
                 fontWeight: '700',
                 marginBottom: '0.75rem',
-                textShadow: '0 0.125rem 0.25rem rgba(0,0,0,0.5)'
+                textShadow: darkMode ? '0 0.125rem 0.25rem rgba(0,0,0,0.35)' : 'none'
               }}>
                 Estudiantes Matriculados ({datosProcesados.length})
               </h4>
@@ -1312,8 +1348,8 @@ const Reportes = () => {
               {/* Indicador de scroll en móvil */}
               {isSmallScreen && (
                 <div style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
+                  border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
                   borderRadius: '0.5rem',
                   padding: '0.5rem',
                   marginBottom: '0.75rem',
@@ -1340,8 +1376,10 @@ const Reportes = () => {
               >
                 {datosProcesados.map((estudiante, idx) => (
                   <div key={idx} style={{
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    background: darkMode
+                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)',
+                    border: darkMode ? '1px solid rgba(239, 68, 68, 0.32)' : '1px solid rgba(239, 68, 68, 0.18)',
                     borderRadius: '0.5rem',
                     padding: '0.625rem 0.75rem',
                     transition: 'all 0.2s ease',
@@ -1350,17 +1388,21 @@ const Reportes = () => {
                     gap: '0.375rem'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)';
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
+                    e.currentTarget.style.background = darkMode
+                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)';
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
+                    e.currentTarget.style.background = darkMode
+                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
                   }}
                   >
                     {/* Nombre */}
                     <div style={{
-                      color: '#fff',
+                      color: themeColors.textPrimary,
                       fontSize: '0.8125rem',
                       fontWeight: '600',
                       lineHeight: '1.2',
@@ -1373,14 +1415,14 @@ const Reportes = () => {
                     
                     {/* Curso */}
                     <div style={{
-                      color: 'rgba(255,255,255,0.7)',
+                      color: themeColors.textMuted,
                       fontSize: '0.7rem',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.375rem',
                       overflow: 'hidden'
                     }}>
-                      <BookOpen size={11} color="rgba(255,255,255,0.6)" />
+                      <BookOpen size={11} color={themeColors.textMuted} />
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {estudiante.nombre_curso}
                       </span>
@@ -1415,14 +1457,14 @@ const Reportes = () => {
                       </div>
                       
                       <div style={{
-                        color: 'rgba(255,255,255,0.5)',
+                        color: themeColors.textMuted,
                         fontSize: '0.65rem',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.25rem',
                         whiteSpace: 'nowrap'
                       }}>
-                        <Calendar size={10} color="rgba(255,255,255,0.5)" />
+                        <Calendar size={10} color={themeColors.textMuted} />
                         {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES', { 
                           day: '2-digit', 
                           month: '2-digit', 
@@ -1435,7 +1477,7 @@ const Reportes = () => {
               </div>
               {datosReporte.length > 10 && (
                 <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0 }}>
+                  <p style={{ color: themeColors.textMuted, fontSize: '0.8rem', margin: 0 }}>
                     Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
                   </p>
                 </div>
@@ -1461,15 +1503,15 @@ const Reportes = () => {
               overflowY: 'auto',
               paddingRight: '0.5rem'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
+              <h4 style={{ color: themeColors.textPrimary, fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Detalle de Pagos ({datosReporte.length})
               </h4>
               
               {/* Indicador de scroll en móvil */}
               {isSmallScreen && (
                 <div style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
+                  border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
                   borderRadius: '0.5rem',
                   padding: '8px 0.75rem',
                   marginBottom: '0.75rem',
@@ -1498,8 +1540,10 @@ const Reportes = () => {
                     <div
                       key={idx}
                       style={{
-                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)',
-                        border: '1px solid rgba(239, 68, 68, 0.25)',
+                        background: darkMode
+                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)',
+                        border: darkMode ? '1px solid rgba(239, 68, 68, 0.32)' : '1px solid rgba(239, 68, 68, 0.18)',
                         borderRadius: '0.5rem',
                         padding: '0.625rem 0.75rem',
                         transition: 'all 0.2s ease',
@@ -1508,19 +1552,23 @@ const Reportes = () => {
                         gap: '0.375rem'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)';
+                        e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
+                        e.currentTarget.style.background = darkMode
+                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
+                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%)';
+                        e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
+                        e.currentTarget.style.background = darkMode
+                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
                       }}
                     >
                       {/* Nombre */}
                       <div style={{
                         fontSize: '0.8125rem',
                         fontWeight: '600',
-                        color: '#fff',
+                        color: themeColors.textPrimary,
                         lineHeight: '1.2',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -1532,13 +1580,13 @@ const Reportes = () => {
                       {/* Curso */}
                       <div style={{
                         fontSize: '0.7rem',
-                        color: 'rgba(255,255,255,0.7)',
+                        color: themeColors.textMuted,
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.375rem',
                         overflow: 'hidden'
                       }}>
-                        <BookOpen size={11} color="rgba(255,255,255,0.6)" />
+                        <BookOpen size={11} color={themeColors.textMuted} />
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {pago.nombre_curso}
                         </span>
@@ -1566,13 +1614,13 @@ const Reportes = () => {
                         
                         <div style={{
                           fontSize: '0.65rem',
-                          color: 'rgba(255,255,255,0.5)',
+                          color: themeColors.textMuted,
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.25rem',
                           whiteSpace: 'nowrap'
                         }}>
-                          <Calendar size={10} color="rgba(255,255,255,0.5)" />
+                          <Calendar size={10} color={themeColors.textMuted} />
                           {pago.fecha_pago
                             ? new Date(pago.fecha_pago).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
                             : pago.fecha_vencimiento
@@ -1603,7 +1651,7 @@ const Reportes = () => {
                 </div>
                 {datosReporte.length > 10 && (
                   <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0 }}>
+                    <p style={{ color: themeColors.textMuted, fontSize: '0.8rem', margin: 0 }}>
                       Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
                     </p>
                   </div>
@@ -1629,14 +1677,14 @@ const Reportes = () => {
               overflowY: isMobile ? 'visible' : 'auto',
               paddingRight: isMobile ? '0' : '0.5rem'
             }}>
-              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
+              <h4 style={{ color: themeColors.textPrimary, fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Cursos Disponibles ({datosReporte.length})
               </h4>
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {datosReporte.slice(0, 5).map((curso, idx) => (
                   <div key={idx} style={{
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
+                    background: darkMode ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.08)',
+                    border: darkMode ? '1px solid rgba(16, 185, 129, 0.28)' : '1px solid rgba(16, 185, 129, 0.18)',
                     borderRadius: '0.625rem',
                     padding: '0.75rem'
                   }}>
@@ -1648,7 +1696,7 @@ const Reportes = () => {
                       marginBottom: '0.375rem',
                       gap: isMobile ? '4px' : '0'
                     }}>
-                      <div style={{ color: '#fff', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '600' }}>
+                      <div style={{ color: themeColors.textPrimary, fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '600' }}>
                         {curso.nombre_curso}
                       </div>
                       <div style={{ color: '#10b981', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '700' }}>
@@ -1656,7 +1704,7 @@ const Reportes = () => {
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: '0.5rem', height: '0.5rem' }}>
+                      <div style={{ flex: 1, background: darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.08)', borderRadius: '0.5rem', height: '0.5rem' }}>
                         <div style={{
                           background: '#10b981',
                           height: '100%',
@@ -1664,7 +1712,7 @@ const Reportes = () => {
                           width: `${curso.porcentaje_ocupacion}%`
                         }} />
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                      <div style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>
                         {curso.total_estudiantes}/{curso.capacidad_maxima}
                       </div>
                     </div>
@@ -1673,7 +1721,7 @@ const Reportes = () => {
                       flexDirection: isMobile ? 'column' : 'row',
                       gap: isMobile ? '4px' : '1rem', 
                       fontSize: isMobile ? '0.75rem' : '0.85rem', 
-                      color: 'rgba(255,255,255,0.6)' 
+                      color: themeColors.textMuted 
                     }}>
                       <span>Horario: {curso.horario}</span>
                       <span>Docente: {curso.docente_nombres} {curso.docente_apellidos}</span>
@@ -1682,7 +1730,7 @@ const Reportes = () => {
                 ))}
               </div>
               {datosReporte.length > 5 && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginTop: '1rem', textAlign: 'center' }}>
+                <p style={{ color: themeColors.textMuted, fontSize: '0.85rem', marginTop: '1rem', textAlign: 'center' }}>
                   Mostrando 5 de {datosReporte.length} cursos. Descarga el reporte completo en PDF o Excel.
                 </p>
               )}
@@ -1693,7 +1741,7 @@ const Reportes = () => {
     }
 
     return (
-      <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: 'rgba(255,255,255,0.5)' }}>
+      <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: themeColors.textMuted }}>
         <AlertCircle size={64} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
         <p style={{ fontSize: '1.1rem', margin: 0 }}>
           Visualización de estadísticas en desarrollo para este tipo de reporte
@@ -1704,78 +1752,42 @@ const Reportes = () => {
 
   return (
     <>
-      <style>{scrollbarStyles}</style>
+      <style>{scrollbarStyles + colorNormalizationStyles}</style>
+      <div
+        className="reportes-admin-wrapper"
+        data-dark={darkMode ? 'true' : 'false'}
+        style={{ color: themeColors.textPrimary }}
+      >
       <div style={{
         width: '100%',
         maxWidth: '100%',
         overflowX: 'hidden',
         overflowY: 'auto'
       }}>
-        <div style={{ marginBottom: isMobile ? '12px' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)', 
-          margin: '0 0 0.375rem 0',
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: isMobile ? '6px' : '0.625rem'
-        }}>
-          <BarChart3 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
-          Reportes y Estadísticas
-        </h2>
-        <p style={{ 
-          color: 'rgba(255,255,255,0.7)', 
-          margin: 0, 
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Análisis detallado del rendimiento académico y financiero
-        </p>
-      </div>
+        <AdminSectionHeader
+          title="Reportes y Estadísticas"
+          subtitle="Análisis detallado del rendimiento académico y financiero"
+        />
 
       {/* Pestañas: Generar / Historial */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
         marginBottom: '0.75rem',
-        borderBottom: '2px solid rgba(239, 68, 68, 0.2)'
+        borderBottom: darkMode ? '2px solid rgba(239, 68, 68, 0.3)' : '2px solid rgba(239, 68, 68, 0.18)'
       }}>
         <button
           onClick={() => setVistaActual('generar')}
-          style={{
-            padding: '8px 0.875rem',
-            background: vistaActual === 'generar' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: vistaActual === 'generar' ? '2px solid #ef4444' : '2px solid transparent',
-            color: vistaActual === 'generar' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-            fontSize: '0.75rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3125rem'
-          }}
+          style={tabButtonStyle(vistaActual === 'generar')}
         >
-          <BarChart3 size={14} />
+          <BarChart3 size={14} color={vistaActual === 'generar' ? '#ef4444' : themeColors.tabInactive} />
           Generar Reporte
         </button>
         <button
           onClick={() => setVistaActual('historial')}
-          style={{
-            padding: '8px 0.875rem',
-            background: vistaActual === 'historial' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: vistaActual === 'historial' ? '2px solid #ef4444' : '2px solid transparent',
-            color: vistaActual === 'historial' ? '#ef4444' : 'rgba(255,255,255,0.6)',
-            fontSize: '0.75rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3125rem'
-          }}
+          style={tabButtonStyle(vistaActual === 'historial')}
         >
-          <History size={14} />
+          <History size={14} color={vistaActual === 'historial' ? '#ef4444' : themeColors.tabInactive} />
           Historial
         </button>
       </div>
@@ -1793,7 +1805,8 @@ const Reportes = () => {
             {reportesDisponibles.map(reporte => {
               const isSelected = tipoReporte === reporte.id;
               const IconComponent = reporte.icono;
-              
+              const accentColor = isSelected ? '#fff' : reporte.color;
+
               return (
                 <div
                   key={reporte.id}
@@ -1815,52 +1828,66 @@ const Reportes = () => {
                     setBusquedaRapida('');
                   }}
                   style={{
-                    background: isSelected 
-                      ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                      : 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-                    border: isSelected 
-                      ? '2px solid #ef4444' 
-                      : '1px solid rgba(239, 68, 68, 0.3)',
+                    background: isSelected
+                      ? (darkMode
+                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                        : 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)')
+                      : themeColors.softCardBg,
+                    border: isSelected
+                      ? '2px solid #ef4444'
+                      : `1px solid ${themeColors.softCardBorder}`,
                     borderRadius: '0.625rem',
                     padding: isMobile ? '0.75rem' : '0.875rem',
                     cursor: 'pointer',
                     textAlign: 'left',
                     transition: 'all 0.2s ease',
-                    boxShadow: isSelected 
-                      ? '0 0.25rem 1rem rgba(239, 68, 68, 0.4)' 
-                      : '0 0.125rem 0.5rem rgba(0, 0, 0, 0.3)',
+                    boxShadow: isSelected
+                      ? '0 0.25rem 1rem rgba(239, 68, 68, 0.35)'
+                      : themeColors.shadow,
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    color: isSelected ? '#fff' : undefined
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.45)';
                       e.currentTarget.style.transform = 'translateY(-2px)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                      e.currentTarget.style.borderColor = themeColors.softCardBorder;
                       e.currentTarget.style.transform = 'translateY(0)';
                     }
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-                    <IconComponent size={20} color={isSelected ? '#fff' : '#ef4444'} />
-                    <div style={{
-                      color: '#fff',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      lineHeight: '1.2'
-                    }}>
+                    <span
+                      data-keep-color={isSelected ? 'true' : undefined}
+                      style={{ color: accentColor, display: 'flex', alignItems: 'center' }}
+                    >
+                      <IconComponent size={20} />
+                    </span>
+                    <div
+                      data-keep-color={isSelected ? 'true' : undefined}
+                      style={{
+                        color: accentColor,
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        lineHeight: '1.2'
+                      }}
+                    >
                       {reporte.titulo}
                     </div>
                   </div>
-                  <div style={{
-                    color: isSelected ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)',
-                    fontSize: '0.75rem',
-                    lineHeight: '1.3'
-                  }}>
+                  <div
+                    data-keep-color={isSelected ? 'true' : undefined}
+                    style={{
+                      color: isSelected ? '#fff' : themeColors.textMuted,
+                      fontSize: '0.75rem',
+                      lineHeight: '1.3'
+                    }}
+                  >
                     {reporte.descripcion}
                   </div>
                 </div>
@@ -1870,11 +1897,11 @@ const Reportes = () => {
 
           {/* Controles de Filtro */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(1.25rem)', 
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: isMobile ? '12px' : '1rem', 
-            padding: isMobile ? '12px' : '1rem', 
+            background: themeColors.panelBg,
+            backdropFilter: 'blur(1.25rem)',
+            border: `1px solid ${themeColors.panelBorder}`,
+            borderRadius: isMobile ? '12px' : '1rem',
+            padding: isMobile ? '12px' : '1rem',
             marginBottom: '1rem'
           }}>
             <div style={{ 
@@ -1899,12 +1926,13 @@ const Reportes = () => {
                     value={periodoSeleccionado}
                     onChange={(e) => setPeriodoSeleccionado(e.target.value)}
                     style={{
-                      padding: '10px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.625rem',
-                      color: '#fff', fontSize: '0.8rem', minWidth: '15.625rem'
+                      ...baseSelectStyle,
+                      padding: '10px 0.75rem',
+                      fontSize: '0.8rem',
+                      minWidth: '15.625rem'
                     }}
                   >
-                    <option value="todos" style={{ background: '#1a1a1a' }}>Todos los períodos</option>
+                    <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los períodos</option>
                     {periodosDisponibles.map((periodo, idx) => {
                       const formatearFecha = (fecha: string): string => {
                         if (!fecha) return '';
@@ -1918,7 +1946,11 @@ const Reportes = () => {
                       const fechaFin = formatearFecha(periodo.fin);
 
                       return (
-                        <option key={idx} value={periodo.key} style={{ background: '#1a1a1a' }}>
+                        <option
+                          key={idx}
+                          value={periodo.key}
+                          style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}
+                        >
                           {fechaInicio} - {fechaFin}
                         </option>
                       );
@@ -1932,14 +1964,13 @@ const Reportes = () => {
                 {/* Nuevo: Filtro por Horario (solo para estudiantes) */}
                 {tipoReporte === 'estudiantes' && (
                   <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '0.5rem', flex: isMobile ? '1' : 'initial' }}>
-                    <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>Horario:</label>
+                    <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
                     <select
                       value={filtroHorario}
                       onChange={(e) => setFiltroHorario(e.target.value as any)}
                       style={{
-                        padding: '8px 0.75rem', background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-                        color: '#fff', fontSize: '0.9rem', width: isMobile ? '100%' : 'auto'
+                        ...baseSelectStyle,
+                        width: isMobile ? '100%' : 'auto'
                       }}
                     >
                       <option value="todos">Todos</option>
@@ -1952,6 +1983,7 @@ const Reportes = () => {
 
               {/* Botón Ver Reporte */}
               <button
+                data-keep-color="true"
                 onClick={generarReporte}
                 disabled={loading || descargando}
                 style={{
@@ -1960,19 +1992,30 @@ const Reportes = () => {
                   justifyContent: 'center',
                   gap: '0.5rem',
                   padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-                  background: loading ? 'rgba(239, 68, 68, 0.3)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  background: loading
+                    ? (darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.22)')
+                    : (darkMode
+                      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                      : 'linear-gradient(135deg, #ef4444, #f87171)'),
                   border: 'none',
                   borderRadius: '0.625rem',
-                  color: '#fff',
                   fontSize: '0.8rem',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+                  boxShadow: darkMode ? '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)' : '0 0.25rem 0.6rem rgba(239, 68, 68, 0.22)',
                   width: isSmallScreen ? '100%' : 'auto'
                 }}
               >
-                {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={16} />}
-                {loading ? 'Generando...' : 'Ver Reporte'}
+                {loading ? (
+                  <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
+                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  </span>
+                ) : (
+                  <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
+                    <Eye size={16} />
+                  </span>
+                )}
+                <span data-keep-color="true">{loading ? 'Generando...' : 'Ver Reporte'}</span>
               </button>
             </div>
           </div>
@@ -1989,40 +2032,59 @@ const Reportes = () => {
               onClick={() => descargarArchivo('pdf')}
               disabled={!datosReporte || descargando || loading}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '10px 1.25rem',
-                background: (!datosReporte || descargando || loading) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.2)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '0.5rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '10px 1.25rem',
+                background: (!datosReporte || descargando || loading) ? themeColors.pdfBgDisabled : themeColors.pdfBg,
+                border: `1px solid ${themeColors.pdfBorder}`,
+                borderRadius: '0.5rem',
+                color: themeColors.pdfText,
+                fontSize: '0.8rem',
+                fontWeight: '600',
                 cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
+                opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
-              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
-              Exportar PDF
+              {descargando
+                ? <Loader2 size={16} color={themeColors.pdfText} style={{ animation: 'spin 1s linear infinite' }} />
+                : <Download size={16} color={themeColors.pdfText} />}
+              <span style={{ color: themeColors.pdfText }}>Exportar PDF</span>
             </button>
             <button
               onClick={() => descargarArchivo('excel')}
               disabled={!datosReporte || descargando || loading}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '10px 1.25rem',
-                background: (!datosReporte || descargando || loading) ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '0.5rem', color: '#10b981', fontSize: '0.8rem', fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '10px 1.25rem',
+                background: (!datosReporte || descargando || loading) ? themeColors.excelBgDisabled : themeColors.excelBg,
+                border: `1px solid ${themeColors.excelBorder}`,
+                borderRadius: '0.5rem',
+                color: themeColors.excelText,
+                fontSize: '0.8rem',
+                fontWeight: '600',
                 cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.5 : 1,
+                opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
                 width: isMobile ? '100%' : 'auto'
               }}
             >
-              {descargando ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSpreadsheet size={16} />}
-              Exportar Excel
+              {descargando
+                ? <Loader2 size={16} color={themeColors.excelText} style={{ animation: 'spin 1s linear infinite' }} />
+                : <FileSpreadsheet size={16} color={themeColors.excelText} />}
+              <span style={{ color: themeColors.excelText }}>Exportar Excel</span>
             </button>
           </div>
 
           {/* Contenido del Reporte */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-            backdropFilter: 'blur(1.25rem)', border: '1px solid rgba(239, 68, 68, 0.2)',
+            background: themeColors.panelBg,
+            backdropFilter: 'blur(1.25rem)',
+            border: `1px solid ${themeColors.panelBorder}`,
             borderRadius: isMobile ? '12px' : '1.25rem', 
             padding: isMobile ? '12px' : '2rem',
             overflow: 'visible',
@@ -2031,7 +2093,7 @@ const Reportes = () => {
           }}>
             <div style={{ marginBottom: '1rem' }}>
               <h3 style={{ 
-                color: '#fff', 
+                color: themeColors.textPrimary, 
                 fontSize: isMobile ? '0.95rem' : '1.1rem', 
                 fontWeight: '700', 
                 margin: '0 0 0.375rem 0' 
@@ -2039,7 +2101,7 @@ const Reportes = () => {
                 {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
               </h3>
               <p style={{ 
-                color: 'rgba(255,255,255,0.7)', 
+                color: themeColors.textMuted, 
                 margin: 0, 
                 fontSize: isMobile ? '0.7rem' : '0.75rem',
                 wordBreak: 'break-word'
@@ -2050,8 +2112,8 @@ const Reportes = () => {
 
             {error && (
               <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
+                background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
+                border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
                 borderRadius: isMobile ? '10px' : '0.75rem',
               padding: isMobile ? '12px' : '1rem',
                 marginBottom: '1.5rem',
@@ -2073,19 +2135,19 @@ const Reportes = () => {
       {/* Vista: Historial */}
       {vistaActual === 'historial' && (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
+          background: themeColors.panelBg,
           backdropFilter: 'blur(1.25rem)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          border: `1px solid ${themeColors.panelBorder}`,
           borderRadius: '0.75rem',
           padding: '1rem'
         }}>
           <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ color: '#fff', margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ color: themeColors.textPrimary, margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <History size={22} color="#ef4444" />
                 Historial de Reportes
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '0.75rem' }}>
+              <p style={{ color: themeColors.textMuted, margin: 0, fontSize: '0.75rem' }}>
                 Últimos 50 reportes generados
               </p>
             </div>
@@ -2093,31 +2155,27 @@ const Reportes = () => {
               value={filtroTipoHistorial}
               onChange={(e) => setFiltroTipoHistorial(e.target.value)}
               style={{
+                ...baseSelectStyle,
                 padding: '8px 0.75rem',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '0.5rem',
-                color: '#fff',
-                fontSize: '0.8rem',
-                cursor: 'pointer'
+                fontSize: '0.8rem'
               }}
             >
-              <option value="todos" style={{ background: '#1a1a1a' }}>Todos los tipos</option>
-              <option value="1" style={{ background: '#1a1a1a' }}>Estudiantes</option>
-              <option value="2" style={{ background: '#1a1a1a' }}>Financiero</option>
-              <option value="3" style={{ background: '#1a1a1a' }}>Cursos</option>
+              <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los tipos</option>
+              <option value="1" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Estudiantes</option>
+              <option value="2" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Financiero</option>
+              <option value="3" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Cursos</option>
             </select>
           </div>
 
           {loadingHistorial ? (
             <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
               <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>Cargando historial...</p>
+              <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>Cargando historial...</p>
             </div>
           ) : historialReportes.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
-              <History size={48} color="rgba(255,255,255,0.3)" style={{ margin: '0 auto 0.75rem' }} />
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>No hay reportes generados aún</p>
+              <History size={48} color={darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(15,23,42,0.25)'} style={{ margin: '0 auto 0.75rem' }} />
+              <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>No hay reportes generados aún</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -2129,20 +2187,20 @@ const Reportes = () => {
 
                   return (
                     <div key={idx} style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+                      border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
                       borderRadius: '0.625rem',
                       padding: isMobile ? '10px' : '0.75rem',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
                         e.currentTarget.style.borderColor = tipoColor;
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                        e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)';
                       }}
                     >
                       <div style={{ 
@@ -2175,7 +2233,7 @@ const Reportes = () => {
                           }}>
                             <div>
                               <h4 style={{ 
-                                color: '#fff', 
+                                color: themeColors.textPrimary, 
                                 fontSize: isMobile ? '0.85rem' : '0.9rem', 
                                 fontWeight: '600', 
                                 margin: '0 0 0.1875rem 0',
@@ -2184,7 +2242,7 @@ const Reportes = () => {
                                 {reporte.nombre_reporte}
                               </h4>
                               <p style={{ 
-                                color: 'rgba(255,255,255,0.6)', 
+                                color: themeColors.textMuted, 
                                 fontSize: isMobile ? '0.7rem' : '0.75rem', 
                                 margin: 0,
                                 wordBreak: 'break-all'
@@ -2211,7 +2269,7 @@ const Reportes = () => {
                             flexDirection: isMobile ? 'column' : 'row',
                             gap: isMobile ? '4px' : '1rem', 
                             fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                            color: 'rgba(255,255,255,0.7)' 
+                            color: themeColors.textMuted 
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
                               <User size={isMobile ? 10 : 12} />
@@ -2244,13 +2302,14 @@ const Reportes = () => {
           to { transform: rotate(360deg); }
         }
       `}</style>
+      
+      </div>
       </div>
     </>
   );
 };
 
 export default Reportes;
-
 
 
 

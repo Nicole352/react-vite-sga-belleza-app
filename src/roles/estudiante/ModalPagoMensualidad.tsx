@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, AlertCircle, CheckCircle, Info, CreditCard, Building } from 'lucide-react';
 import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { showToast } from '../../config/toastConfig';
 import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
@@ -143,7 +145,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         throw new Error(errorData.error || 'Error al procesar el pago');
       }
 
-      // Éxito
+      // Éxito - Mostrar notificación
+      showToast.success('Pago registrado exitosamente. Pendiente de verificación', darkMode);
       onSuccess();
       onClose();
 
@@ -170,7 +173,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
   // Colores según el tema
   const theme = {
-    modalBg: darkMode ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.98)',
+    modalBg: darkMode 
+      ? 'rgba(15, 23, 42, 0.95)' 
+      : 'rgba(255, 255, 255, 0.95)',
     cardBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
     textPrimary: darkMode ? '#fff' : '#1e293b',
     textSecondary: darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(30,41,59,0.8)',
@@ -181,34 +186,64 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
     hoverBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
   };
 
-  return (
+  return createPortal(
     <EstudianteThemeWrapper darkMode={darkMode}>
-      <div className="modal-overlay" style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        zIndex: 9999,
-        padding: isMobile ? '1rem' : '1.5rem',
-        paddingTop: isMobile ? '2rem' : '2.5rem'
-      }}>
-      <div className="modal-content responsive-modal" style={{
-        background: theme.modalBg,
-        border: `0.0625rem solid ${theme.border}`,
-        padding: isMobile ? '1rem' : '1.25rem',
-        borderRadius: '0.75rem',
-        width: isMobile ? '95%' : '550px',
-        maxWidth: '550px',
-        maxHeight: isMobile ? '85vh' : '75vh',
-        overflowY: 'auto',
-        position: 'relative',
-        boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)'
-      }}>
+      <div 
+        className="modal-overlay" 
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from {
+              opacity: 0;
+              transform: scale(0.9);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+        `}</style>
+      <div 
+        className="modal-content responsive-modal" 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: theme.modalBg,
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+          padding: isMobile ? '1rem' : '1.25rem',
+          borderRadius: '0.75rem',
+          width: isMobile ? '95%' : '520px',
+          maxWidth: '520px',
+          maxHeight: 'calc(100vh - 3rem)',
+          overflowY: 'auto',
+          position: 'relative',
+          boxShadow: darkMode 
+            ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)' 
+            : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
+          animation: 'scaleIn 0.3s ease-out'
+        }}>
         {/* Botón cerrar */}
         <button
           onClick={onClose}
@@ -235,7 +270,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         </button>
 
         {/* Header */}
-        <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', paddingRight: '2.5rem' }}>
+        <div style={{ marginBottom: isMobile ? '0.625rem' : '0.75rem', paddingRight: '2.5rem' }}>
           <h2 style={{
             color: theme.textPrimary,
             fontSize: isMobile ? '0.95rem' : '1rem',
@@ -255,11 +290,11 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <CreditCard size={isMobile ? 14 : 16} color="#fff" />
+              <CreditCard size={isMobile ? 14 : 16} strokeWidth={2.5} color="#fff" />
             </div>
             Pagar Mensualidad
           </h2>
-          <div style={{ color: theme.textMuted, fontSize: isMobile ? '0.7rem' : '0.75rem', marginLeft: isMobile ? '2.25rem' : '2.5rem', fontWeight: '500' }}>
+          <div style={{ color: theme.textMuted, fontSize: isMobile ? '0.7rem' : '0.75rem', fontWeight: '500', marginLeft: 0 }}>
             {cuota.curso_nombre} • Cuota {cuota.numero_cuota}
           </div>
         </div>
@@ -269,8 +304,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)',
           border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
           borderRadius: '0.625rem',
-          padding: isMobile ? '0.75rem' : '0.875rem',
-          marginBottom: isMobile ? '0.75rem' : '0.875rem'
+          padding: isMobile ? '0.625rem' : '0.75rem',
+          marginBottom: isMobile ? '0.625rem' : '0.75rem'
         }}>
           <div style={{ 
             display: 'grid', 
@@ -316,13 +351,13 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               required
               style={{
                 width: '100%',
-                padding: isMobile ? '0.5rem 0.625rem' : '0.625rem 0.75rem',
+                padding: '0.625em 0.875em',
                 background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
                 border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
                 borderRadius: '0.5rem',
                 color: theme.textPrimary,
-                fontSize: isMobile ? '0.9rem' : '0.95rem',
-                fontWeight: '700',
+                fontSize: '0.8rem',
+                fontWeight: '600',
                 outline: 'none',
                 transition: 'all 0.2s ease'
               }}
@@ -345,7 +380,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
           {/* Método de pago */}
-          <div style={{ marginBottom: isMobile ? '0.75rem' : '0.875rem' }}>
+          <div style={{ marginBottom: isMobile ? '0.625rem' : '0.75rem' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
@@ -386,7 +421,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       boxShadow: isSelected ? '0 0.25rem 0.5rem rgba(16, 185, 129, 0.25)' : 'none'
                     }}
                   >
-                    <Icon size={20} />
+                    <Icon size={20} strokeWidth={2.5} color={isSelected ? '#fff' : (darkMode ? 'rgba(255,255,255,0.7)' : '#1f2937')} />
                     {metodo.label}
                   </button>
                 );
@@ -397,7 +432,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           {/* Campos específicos para transferencia */}
           {metodoPago === 'transferencia' && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75em', marginBottom: '1em' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625em', marginBottom: '0.75em' }}>
                 {/* Banco */}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{
@@ -580,20 +615,20 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           )}
 
           {/* Subir comprobante */}
-          <div style={{ marginBottom: '1em' }}>
+          <div style={{ marginBottom: '0.625em' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
               fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '0.5em'
+              marginBottom: '0.375em'
             }}>
               Comprobante de Pago *
             </label>
             <div style={{
               border: `0.0625rem dashed ${archivoComprobante ? '#10b981' : theme.border}`,
               borderRadius: '0.5em',
-              padding: '1.25em',
+              padding: '0.75em',
               textAlign: 'center',
               cursor: 'pointer',
               background: archivoComprobante
@@ -610,16 +645,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 required
               />
               <label htmlFor="comprobante-upload" style={{ cursor: 'pointer', display: 'block' }}>
-                <Upload size={28} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '0.5em' }} />
+                <Upload size={20} color={archivoComprobante ? '#10b981' : theme.textMuted} style={{ marginBottom: '0.25em' }} />
                 <div style={{
                   color: archivoComprobante ? '#10b981' : theme.textPrimary,
-                  fontSize: '0.85rem',
-                  fontWeight: '800',
-                  marginBottom: '0.375em'
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  marginBottom: '0.125em'
                 }}>
                   {archivoComprobante ? archivoComprobante.name : 'Haz clic para subir'}
                 </div>
-                <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                <div style={{ color: theme.textMuted, fontSize: '0.65rem' }}>
                   JPG, PNG o PDF • Máx. 5MB
                 </div>
               </label>
@@ -627,13 +662,13 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
           </div>
 
           {/* Observaciones */}
-          <div style={{ marginBottom: '1em' }}>
+          <div style={{ marginBottom: '0.625em' }}>
             <label style={{
               display: 'block',
               color: theme.textPrimary,
               fontSize: '0.8rem',
               fontWeight: '800',
-              marginBottom: '0.375em'
+              marginBottom: '0.25em'
             }}>
               Observaciones (Opcional)
             </label>
@@ -644,15 +679,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               rows={2}
               style={{
                 width: '100%',
-                padding: '0.625em 0.875em',
+                padding: '0.5em 0.75em',
                 background: theme.inputBg,
                 border: `0.0625rem solid ${theme.inputBorder}`,
                 borderRadius: '0.5em',
                 color: theme.textPrimary,
-                fontSize: '0.8rem',
-                resize: 'vertical',
+                fontSize: '0.75rem',
+                resize: 'none',
                 outline: 'none',
-                lineHeight: '1.4'
+                lineHeight: '1.25',
+                height: '2.5rem'
               }}
             />
           </div>
@@ -665,7 +701,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               color: darkMode ? '#fecaca' : '#dc2626',
               padding: '0.75em',
               borderRadius: '0.5em',
-              marginBottom: '1em',
+              marginBottom: '0.75em',
               fontSize: '0.8rem',
               display: 'flex',
               alignItems: 'center',
@@ -684,7 +720,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             flexDirection: isMobile ? 'column-reverse' : 'row',
             gap: '0.625rem', 
             justifyContent: 'flex-end', 
-            marginTop: isMobile ? '1rem' : '1.25rem' 
+            marginTop: '0.625rem' 
           }}>
             <button
               type="button"
@@ -740,7 +776,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                 </>
               ) : (
                 <>
-                  <CheckCircle size={14} />
+                  <CheckCircle size={16} strokeWidth={2.5} color="#fff" />
                   Procesar Pago
                 </>
               )}
@@ -757,7 +793,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
         `}</style>
       </div>
     </div>
-    </EstudianteThemeWrapper>
+    </EstudianteThemeWrapper>,
+    document.body
   );
 };
 

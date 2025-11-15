@@ -956,14 +956,6 @@ const AulaVirtual = () => {
                         <ArrowRight size={18} />
                       </>
                     </button>
-                    
-                    <LoadingModal
-                      isOpen={isLoading}
-                      message="Iniciando sesión"
-                      darkMode={theme === 'dark'}
-                      duration={2000}
-                      onComplete={() => setIsLoading(false)}
-                    />
                   </div>
                 </div>
               </form>
@@ -978,7 +970,8 @@ const AulaVirtual = () => {
         isOpen={isLoading}
         message="Iniciando sesión..."
         darkMode={theme === 'dark'}
-        duration={1000}
+        colorTheme="yellow"
+        duration={2000}
         onComplete={() => {
           // No hacer nada aquí, el estado se maneja en el handleSubmit
         }}

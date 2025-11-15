@@ -125,10 +125,15 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ marginBottom: isMobile ? '0.5em' : '0.625em' }}>
-        <h2 className="responsive-title" style={{ color: theme.textPrimary, margin: '0 0 0.125em 0' }}>
+        <h2 style={{ 
+          color: theme.textPrimary, 
+          margin: '0 0 0.375rem 0',
+          fontSize: isMobile ? '1.25rem' : '1.5rem',
+          fontWeight: '700'
+        }}>
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
           Visualiza tu calendario de clases
         </p>
       </div>

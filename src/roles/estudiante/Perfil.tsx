@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaVenusMars, FaLock, FaCheckCircle, FaEye, FaEyeSlash, FaUserGraduate } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
-import { HiOutlineShieldCheck } from 'react-icons/hi';
-import { UserCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { createPortal } from 'react-dom';
+import { Eye, EyeOff, CheckCircle, ShieldCheck, GraduationCap, User, Mail, Phone, MapPin, Cake, Users, X, Lock } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
@@ -43,7 +41,6 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [isPhotoHovered, setIsPhotoHovered] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -66,7 +63,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       if (!token) {
         console.error('No token found');
         setLoading(false);
-        toast.error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+        showToast.error('Sesión expirada. Por favor, inicia sesión nuevamente.', darkMode);
         return;
       }
       
@@ -105,11 +102,11 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         });
       } else {
         console.error('Failed to fetch profile:', response.status);
-        toast.error('Error al cargar el perfil');
+        showToast.error('Error al cargar el perfil', darkMode);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al cargar datos del perfil');
+      showToast.error('Error al cargar datos del perfil', darkMode);
     } finally {
       setLoading(false);
     }
@@ -150,14 +147,14 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       if (response.ok) {
         await fetchPerfil();
         setIsEditing(false);
-        toast.success('Perfil actualizado exitosamente');
+        showToast.success('Perfil actualizado exitosamente', darkMode);
       } else {
         const err = await response.json().catch(() => ({}));
         throw new Error(err?.message || 'Error al actualizar');
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al actualizar el perfil');
+      showToast.error('Error al actualizar el perfil', darkMode);
     }
   };
 
@@ -165,12 +162,12 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
     e.preventDefault();
 
     if (passwordData.password_nueva !== passwordData.confirmar_password) {
-      toast.error('Las contraseñas no coinciden');
+      showToast.error('Las contraseñas no coinciden', darkMode);
       return;
     }
 
     if (passwordData.password_nueva.length < 8) {
-      toast.error('La contraseña debe tener al menos 8 caracteres');
+      showToast.error('La contraseña debe tener al menos 8 caracteres', darkMode);
       return;
     }
 
@@ -193,18 +190,18 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Contraseña actualizada correctamente');
+        showToast.success('Contraseña actualizada correctamente', darkMode);
         setPasswordData({
           password_actual: '',
           password_nueva: '',
           confirmar_password: ''
         });
       } else {
-        toast.error(data.message || 'Error al cambiar contraseña');
+        showToast.error(data.message || 'Error al cambiar contraseña', darkMode);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al cambiar contraseña');
+      showToast.error('Error al cambiar contraseña', darkMode);
     } finally {
       setLoading(false);
     }
@@ -276,53 +273,20 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header con ícono */}
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 className="responsive-title" style={{ 
-            color: theme.textPrimary, 
-            margin: '0 0 0.375rem 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: isMobile ? '0.5rem' : '0.625rem'
-          }}>
-            <UserCircle size={isMobile ? 20 : 26} color="#f59e0b" />
-            Mi Perfil
-          </h2>
-          <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
-            Gestiona tu información personal y seguridad
-          </p>
-        </div>
-      </div>
-
-      {/* Overlay de animación */}
-      {isAnimating && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.9)',
-          zIndex: 99998,
-          animation: 'backdropFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-          backdropFilter: 'blur(20px)',
-          pointerEvents: 'none'
+      {/* Header */}
+      <div style={{ marginBottom: '1.25em' }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: theme.textPrimary,
+          margin: '0 0 0.375rem 0'
         }}>
-          <style>{`
-            @keyframes backdropFadeIn {
-              from {
-                opacity: 0;
-                backdrop-filter: blur(0px);
-              }
-              to {
-                opacity: 1;
-                backdrop-filter: blur(20px);
-              }
-            }
-          `}</style>
-        </div>
-      )}
+          Mi Perfil
+        </h2>
+        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+          Gestiona tu información personal y seguridad
+        </p>
+      </div>
 
       {/* Tabs */}
       <div style={{
@@ -347,7 +311,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-          <FaUser size={14} />
+          <User size={14} color={activeTab === 'info' ? theme.textPrimary : theme.textMuted} />
           Información Personal
         </button>
         <button
@@ -366,7 +330,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             alignItems: 'center',
             gap: '0.5rem'
           }}>
-          <FaLock size={14} />
+          <Lock size={14} color={activeTab === 'password' ? theme.textPrimary : theme.textMuted} />
           Cambiar Contraseña
         </button>
       </div>
@@ -385,19 +349,10 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
               backdropFilter: 'blur(20px)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
-              {/* Foto de perfil con animación */}
+              {/* Foto de perfil */}
               <div 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsAnimating(true);
-                  setTimeout(() => {
-                    setShowPhotoPreview(true);
-                  }, 800);
-                }}
+                onClick={() => setShowPhotoPreview(true)}
                 style={{
-                  position: isAnimating ? 'fixed' : 'relative',
-                  left: isAnimating ? '50%' : '0',
-                  top: isAnimating ? '50%' : '0',
                   width: '5.25rem',
                   height: '5.25rem',
                   borderRadius: '50%',
@@ -408,24 +363,17 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   fontSize: '2rem',
                   fontWeight: '800',
                   color: '#fff',
-                  border: isAnimating ? 'none' : '0',
                   overflow: 'hidden',
                   cursor: 'pointer',
                   margin: '0 auto 0.75rem',
-                  boxShadow: isAnimating ? 'none' : `0 0.5rem 1.5rem ${theme.accent}40`,
-                  transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  transform: isAnimating ? 'translate(-50%, -50%) scale(4) rotate(360deg)' : 'scale(1) rotate(0deg)',
-                  zIndex: isAnimating ? 99999 : 1
+                  boxShadow: `0 0.5rem 1.5rem ${theme.accent}40`,
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isAnimating) {
-                    e.currentTarget.style.transform = 'scale(1.08) rotate(5deg)';
-                  }
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isAnimating) {
-                    e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                  }
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}>
                 {fotoUrl ? (
                   <img 
@@ -434,15 +382,11 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'cover',
-                      transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                      objectFit: 'cover'
                     }} 
                   />
                 ) : (
-                  <span style={{
-                    transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    filter: isAnimating ? 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.8))' : 'none'
-                  }}>
+                  <span>
                     {getInitials()}
                   </span>
                 )}
@@ -450,19 +394,16 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
               <h3 style={{ 
                 color: theme.textPrimary, 
-                fontSize: '1.125rem', 
-                fontWeight: '800', 
-                margin: '0 0 0.25rem 0',
-                letterSpacing: '-0.02em',
-                lineHeight: '1.2'
+                fontSize: '1rem', 
+                fontWeight: '700', 
+                margin: '0 0 0.125rem 0'
               }}>
-                {(estudiante.nombres || estudiante.nombre || 'Estudiante').toUpperCase()} {(estudiante.apellidos || estudiante.apellido || '').toUpperCase()}
+                {(estudiante.nombres || estudiante.nombre || 'Estudiante')} {(estudiante.apellidos || estudiante.apellido || '')}
               </h3>
               <p style={{ 
                 color: theme.textMuted, 
                 fontSize: '0.8125rem', 
-                margin: '0 0 0.5rem 0',
-                fontWeight: '500'
+                margin: '0 0 0.375rem 0'
               }}>
                 {estudiante.username ? `@${estudiante.username}` : ''}
               </p>
@@ -479,7 +420,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 gap: '0.375rem',
                 marginTop: '0.5rem'
               }}>
-                <FaUserGraduate size={12} />
+                <GraduationCap size={14} color='#fbbf24' />
                 Estudiante
               </div>
 
@@ -489,7 +430,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 borderTop: `1px solid ${theme.border}`
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.5rem' }}>
-                  <FaCheckCircle size={16} style={{ color: estudiante?.estado === 'activo' ? theme.accent : theme.textMuted }} />
+                  <CheckCircle size={16} color='#fbbf24' />
                   <div style={{ textAlign: 'left', flex: 1 }}>
                     <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Estado</div>
                     <div style={{ color: theme.textPrimary, fontSize: '0.8125rem', fontWeight: '600', textTransform: 'capitalize' }}>
@@ -499,7 +440,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  <FaUser size={16} color={theme.accent} />
+                  <User size={16} color='#fbbf24' />
                   <div style={{ textAlign: 'left', flex: 1 }}>
                     <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>Identificación</div>
                     <div style={{ color: theme.textPrimary, fontSize: '0.8125rem', fontWeight: '600' }}>
@@ -519,7 +460,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       width: '100%',
                       padding: '0.5rem 1rem',
                       background: `linear-gradient(135deg, ${theme.accent}, ${darkMode ? '#d97706' : '#f59e0b'})`,
-                      color: darkMode ? '#000' : '#fff',
+                      color: '#fff',
                       border: 'none',
                       borderRadius: '0.5rem',
                       fontSize: '0.85rem',
@@ -531,7 +472,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       gap: '0.5rem',
                       transition: 'all 0.2s'
                     }}>
-                    <FaUser size={14} />
+                    <User size={14} color="#fff" />
                     Editar Perfil
                   </button>
                 ) : (
@@ -556,7 +497,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                         gap: '0.5rem',
                         transition: 'all 0.2s'
                       }}>
-                      <FaCheckCircle size={14} />
+                      <CheckCircle size={14} color="#fff" />
                       {loading ? 'Guardando...' : 'Guardar'}
                     </button>
                     <button
@@ -581,7 +522,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                         gap: '0.5rem',
                         transition: 'all 0.2s'
                       }}>
-                      <IoMdClose size={16} />
+                      <X size={16} />
                       Cancelar
                     </button>
                   </div>
@@ -644,7 +585,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaUser size={14} color={theme.textMuted} />
+                      <User size={14} color='#6b7280' />
                       {formData.nombres || 'No especificado'}
                     </div>
                   )}
@@ -683,7 +624,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaUser size={14} color={theme.textMuted} />
+                      <User size={14} color='#6b7280' />
                       {formData.apellidos || 'No especificado'}
                     </div>
                   )}
@@ -722,7 +663,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaEnvelope size={14} color={theme.textMuted} />
+                      <Mail size={14} color='#6b7280' />
                       {formData.email || 'No especificado'}
                     </div>
                   )}
@@ -760,7 +701,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaPhone size={14} color={theme.textMuted} />
+                      <Phone size={14} color='#6b7280' />
                       {formData.telefono || 'No especificado'}
                     </div>
                   )}
@@ -798,7 +739,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaMapMarkerAlt size={14} color={theme.textMuted} />
+                      <MapPin size={14} color='#6b7280' />
                       {formData.direccion || 'No especificado'}
                     </div>
                   )}
@@ -821,7 +762,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaBirthdayCake size={14} color={theme.textMuted} />
+                      <Cake size={14} color='#6b7280' />
                       {new Date(formData.fecha_nacimiento).toLocaleDateString()}
                     </div>
                   </div>
@@ -860,7 +801,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaPhone size={14} color={theme.textMuted} />
+                      <Phone size={14} color='#6b7280' />
                       {formData.contacto_emergencia || 'No especificado'}
                     </div>
                   )}
@@ -902,7 +843,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       alignItems: 'center',
                       gap: '0.5rem'
                     }}>
-                      <FaVenusMars size={14} color={theme.textMuted} />
+                      <Users size={14} color='#6b7280' />
                       {formData.genero ? (formData.genero.charAt(0).toUpperCase() + formData.genero.slice(1)) : 'No especificado'}
                     </div>
                   )}
@@ -971,12 +912,12 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                     background: 'transparent',
                     border: 'none',
                     cursor: 'pointer',
-                    color: theme.textMuted,
+                    color: 'var(--docente-text-muted)',
                     padding: '0.25rem',
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showCurrentPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showCurrentPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
             </div>
@@ -1015,16 +956,16 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                     background: 'transparent',
                     border: 'none',
                     cursor: 'pointer',
-                    color: theme.textMuted,
+                    color: 'var(--docente-text-muted)',
                     padding: '0.25rem',
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showNewPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showNewPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
               <p style={{ fontSize: '0.7rem', color: theme.textMuted, margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <FaCheckCircle size={10} style={{ color: passwordData.password_nueva.length >= 8 ? '#10b981' : theme.textMuted }} />
+                <CheckCircle size={12} color={passwordData.password_nueva.length >= 8 ? '#fbbf24' : '#9ca3af'} />
                 Mínimo 8 caracteres
               </p>
             </div>
@@ -1063,17 +1004,17 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                     background: 'transparent',
                     border: 'none',
                     cursor: 'pointer',
-                    color: theme.textMuted,
+                    color: 'var(--docente-text-muted)',
                     padding: '0.25rem',
                     display: 'flex',
                     alignItems: 'center'
                   }}>
-                  {showConfirmPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showConfirmPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
               {passwordData.confirmar_password && (
                 <p style={{ fontSize: '0.7rem', color: passwordData.password_nueva === passwordData.confirmar_password ? theme.accent : theme.accent, margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <FaCheckCircle size={10} />
+                  <CheckCircle size={12} color="#fbbf24" />
                   {passwordData.password_nueva === passwordData.confirmar_password ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden'}
                 </p>
               )}
@@ -1099,7 +1040,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   gap: '0.5rem',
                   transition: 'all 0.2s'
                 }}>
-                <HiOutlineShieldCheck size={16} />
+                <ShieldCheck size={16} color="#fff" />
                 {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
               </button>
             </div>
@@ -1108,21 +1049,26 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       )}
 
       {/* Vista previa de foto - Pantalla completa con X */}
-      {showPhotoPreview && (
+      {showPhotoPreview && createPortal(
         <div
+          onClick={() => setShowPhotoPreview(false)}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0, 0, 0, 0.95)',
-            zIndex: 100000,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.65)',
+            zIndex: 99999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            animation: 'photoPreviewFadeIn 0.5s ease-out',
-            backdropFilter: 'blur(20px)'
+            animation: 'photoPreviewFadeIn 0.3s ease-out',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            cursor: 'pointer'
           }}>
           <style>{`
             @keyframes photoPreviewFadeIn {
@@ -1135,18 +1081,18 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             }
             @keyframes photoScale {
               from {
-                transform: translate(-50%, -50%) scale(0.8) rotate(-10deg);
+                transform: translate(-50%, -50%) scale(0.85);
                 opacity: 0;
               }
               to {
-                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
               }
             }
             @keyframes closeButtonAppear {
               from {
                 opacity: 0;
-                transform: scale(0.5) rotate(-180deg);
+                transform: scale(0.7) rotate(-90deg);
               }
               to {
                 opacity: 1;
@@ -1165,9 +1111,9 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
           {/* Botón cerrar (X) */}
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setShowPhotoPreview(false);
-              setIsAnimating(false);
             }}
             style={{
               position: 'fixed',
@@ -1177,33 +1123,33 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
               height: '44px',
               borderRadius: '50%',
               background: 'rgba(255, 255, 255, 0.15)',
-              border: 'none',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
               color: '#fff',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 100001,
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-              transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              animation: 'closeButtonAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both',
-              backdropFilter: 'blur(20px)'
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.2s ease',
+              animation: 'closeButtonAppear 0.3s ease-out both',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = `${theme.accent}dd`;
+              e.currentTarget.style.background = 'rgba(245, 158, 11, 0.8)';
               e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
-              e.currentTarget.style.boxShadow = `0 6px 24px ${theme.accent}66`;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
               e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.2)';
             }}>
-            <IoMdClose size={22} style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }} />
+            <X size={22} />
           </button>
 
           {/* Foto ampliada en el centro */}
           <div 
+            onClick={(e) => e.stopPropagation()}
             onMouseEnter={() => setIsPhotoHovered(true)}
             onMouseLeave={() => setIsPhotoHovered(false)}
             style={{
@@ -1213,20 +1159,23 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             width: '320px',
             height: '320px',
             borderRadius: '50%',
-            background: fotoUrl ? 'transparent' : `linear-gradient(135deg, ${theme.accent}, ${darkMode ? '#d97706' : '#f59e0b'})`,
+            background: fotoUrl ? 'transparent' : 'var(--estudiante-accent, linear-gradient(135deg, #f59e0b, #d97706))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '6rem',
             fontWeight: '700',
-            color: '#fff',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.1)',
-            border: '4px solid rgba(255, 255, 255, 0.15)',
+            color: 'var(--estudiante-text-primary, #fff)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--estudiante-border, rgba(255, 255, 255, 0.1))',
+            border: '4px solid var(--estudiante-border, rgba(255, 255, 255, 0.15))',
             overflow: 'hidden',
             animation: isPhotoHovered 
-              ? 'photoScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
-              : 'photoScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-            backdropFilter: 'blur(10px)'
+              ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
+              : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            cursor: 'default',
+            transition: 'transform 0.3s ease'
           }}>
             {fotoUrl ? (
               <img 
@@ -1246,7 +1195,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
               </span>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

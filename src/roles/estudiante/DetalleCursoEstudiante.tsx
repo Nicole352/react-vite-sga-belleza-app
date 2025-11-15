@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, BookOpen, Calendar, FileText, Upload,
+  ArrowLeft, BookOpen, Calendar, FileText, Upload, Send,
   CheckCircle, ChevronDown, ChevronUp, Edit, Trash2, AlertTriangle, X, FileType
 } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 import { useSocket } from '../../hooks/useSocket';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
@@ -73,6 +74,8 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
     id_entrega?: number;
     id_modulo?: number;
   } | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [deleteData, setDeleteData] = useState<{id_entrega: number; id_modulo: number} | null>(null);
 
   // Escuchar cambios en el tema (igual que docente)
   useEffect(() => {
@@ -119,9 +122,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       
       // Solo mostrar notificación si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
-        toast.success(`📚 Nuevo módulo disponible: ${data.nombre_modulo}`, {
-          duration: 5000,
-        });
+        showToast.success(`📚 Nuevo módulo disponible: ${data.nombre_modulo}`, darkMode);
         fetchModulos();
       }
     },
@@ -129,9 +130,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       console.log('📝 Nueva tarea asignada:', data);
       
       // Mostrar notificación con información completa
-      toast.success(`📝 Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, {
-        duration: 5000,
-      });
+      showToast.success(`📝 Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, darkMode);
       
       // Recargar módulos para actualizar contador
       fetchModulos();
@@ -153,9 +152,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
           
           // Solo mostrar notificación si es para este estudiante
           if (data.id_estudiante === currentUserId) {
-            toast.success(`🎓 Tu tarea ha sido calificada: ${data.nota} puntos`, {
-              duration: 6000,
-            });
+            showToast.success(`🎓 Tu tarea ha sido calificada: ${data.nota} puntos`, darkMode);
           }
         } catch (error) {
           console.error('Error al parsear auth_data:', error);
@@ -188,7 +185,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       setCurso(response.data);
     } catch (error) {
       console.error('Error fetching curso:', error);
-      toast.error('Error al cargar el curso');
+      showToast.error('Error al cargar el curso', darkMode);
     }
   };
 
@@ -263,35 +260,42 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
         }
       });
 
-      toast.success('¡Archivo entregado exitosamente!');
+      showToast.success('¡Archivo entregado exitosamente!', darkMode);
 
       // Recargar todas las tareas para actualizar el estado
       await Promise.all(modulos.map(modulo => fetchTareasModulo(modulo.id_modulo)));
     } catch (error: any) {
       console.error('Error uploading file:', error);
-      toast.error(error.response?.data?.error || 'Error al subir el archivo');
+      showToast.error(error.response?.data?.error || 'Error al subir el archivo', darkMode);
     } finally {
       setUploadingTarea(null);
     }
   };
 
-  const handleDeleteEntrega = async (id_entrega: number, id_modulo: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.')) {
-      return;
-    }
+  const handleDeleteEntrega = async () => {
+    if (!deleteData) return;
 
     try {
       const token = sessionStorage.getItem('auth_token');
-      await axios.delete(`${API_BASE}/entregas/${id_entrega}`, {
+      await axios.delete(`${API_BASE}/entregas/${deleteData.id_entrega}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      toast.success('Entrega eliminada exitosamente');
-      await fetchTareasModulo(id_modulo);
+      showToast.success('Entrega eliminada exitosamente', darkMode);
+      await fetchTareasModulo(deleteData.id_modulo);
+      setShowConfirmDelete(false);
+      setDeleteData(null);
     } catch (error: any) {
       console.error('Error deleting entrega:', error);
-      toast.error(error.response?.data?.error || 'Error al eliminar la entrega');
+      showToast.error(error.response?.data?.error || 'Error al eliminar la entrega', darkMode);
+      setShowConfirmDelete(false);
+      setDeleteData(null);
     }
+  };
+
+  const openDeleteConfirm = (id_entrega: number, id_modulo: number) => {
+    setDeleteData({ id_entrega, id_modulo });
+    setShowConfirmDelete(true);
   };
 
   const handleEditEntrega = async (id_entrega: number, id_modulo: number, file: File) => {
@@ -309,11 +313,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
         }
       });
 
-      toast.success('Entrega actualizada exitosamente');
+      showToast.success('Entrega actualizada exitosamente', darkMode);
       await fetchTareasModulo(id_modulo);
     } catch (error: any) {
       console.error('Error updating entrega:', error);
-      toast.error(error.response?.data?.error || 'Error al actualizar la entrega');
+      showToast.error(error.response?.data?.error || 'Error al actualizar la entrega', darkMode);
     } finally {
       setUploadingTarea(null);
     }
@@ -374,52 +378,68 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{
-        background: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
-        border: darkMode ? '0.0625rem solid rgba(255,255,255,0.08)' : '0.0625rem solid #e5e7eb',
-        borderRadius: '1em',
-        padding: '1.5em 1.75em',
-        marginBottom: '1.25em',
-        boxShadow: darkMode ? '0 0.125rem 0.5rem rgba(0,0,0,0.1)' : '0 0.0625rem 0.1875rem rgba(0,0,0,0.1)'
-      }}>
+    <div style={{
+      minHeight: '100%',
+      backgroundColor: 'transparent',
+      color: darkMode ? '#fff' : '#1f2937',
+      padding: '0',
+      paddingBottom: '1.5rem',
+    }}>
+      {/* Botón Volver */}
+      <div style={{ marginBottom: '1rem' }}>
         <button
           onClick={() => navigate('/panel/estudiante')}
           style={{
-            background: 'transparent',
+            background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.2)',
             border: 'none',
-            color: theme.accent,
+            color: darkMode ? '#fbbf24' : '#f59e0b',
             cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: '700',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.625rem',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 6px rgba(251, 191, 36, 0.2)',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.375em',
-            marginBottom: '1em',
-            fontWeight: '600',
-            fontSize: '0.875rem',
-            padding: '0.25em 0',
-            transition: 'opacity 0.2s ease'
+            gap: '0.5rem'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = darkMode ? 'rgba(251, 191, 36, 0.25)' : 'rgba(251, 191, 36, 0.3)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(251, 191, 36, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.2)';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 6px rgba(251, 191, 36, 0.2)';
+          }}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={16} strokeWidth={2.5} color={darkMode ? '#fbbf24' : '#f59e0b'} />
           Volver a Mis Cursos
         </button>
+      </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
-          <BookOpen size={28} color={theme.accent} />
+      {/* Header */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+            borderRadius: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
+          }}>
+            <BookOpen size={24} strokeWidth={2.5} color="#fff" />
+          </div>
           <div>
-            <h1 style={{
-              color: theme.textPrimary,
-              fontSize: isMobile ? '1.25rem' : '1.5rem',
-              fontWeight: '700',
-              margin: '0 0 0.25em 0',
-              letterSpacing: '-0.01em'
-            }}>
+            <h1 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '800', margin: 0, color: darkMode ? '#fff' : '#1f2937' }}>
               {curso?.nombre}
             </h1>
-            <p style={{ color: theme.textMuted, margin: 0, fontSize: '0.875rem' }}>
+            <p style={{ fontSize: isMobile ? '0.7rem' : '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
               Código: {curso?.codigo_curso}
             </p>
           </div>
@@ -529,11 +549,11 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                               )}
                               <div style={{ display: 'flex', gap: '0.75em', fontSize: '0.8125rem', color: theme.textMuted, flexWrap: 'wrap' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                                  <Calendar size={13} />
+                                  <Calendar size={13} color={theme.textMuted} />
                                   Límite: {new Date(tarea.fecha_limite).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })} {new Date(tarea.fecha_limite).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                 </span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                                  <FileText size={13} />
+                                  <FileText size={13} color={theme.textMuted} />
                                   Nota máx: {tarea.nota_maxima}
                                 </span>
                               </div>
@@ -542,13 +562,13 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                             {/* Estado de la entrega */}
                             {tarea.entrega ? (
                               <div style={{
-                                background: tarea.entrega.calificacion ? 'rgba(217, 119, 6, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-                                border: `0.0625rem solid ${tarea.entrega.calificacion ? 'rgba(217, 119, 6, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
+                                background: tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.08)',
+                                border: `0.0625rem solid ${tarea.entrega.calificacion ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.2)'}`,
                                 borderRadius: '0.375em',
                                 padding: '0.25em 0.625em',
                                 fontSize: '0.6875rem',
                                 fontWeight: '600',
-                                color: tarea.entrega.calificacion ? '#d97706' : '#f59e0b',
+                                color: tarea.entrega.calificacion ? '#10b981' : '#f59e0b',
                                 whiteSpace: 'nowrap' as const
                               }}>
                                 {tarea.entrega.calificacion ? 'Calificado' : 'Entregado'}
@@ -598,7 +618,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                   const file = e.target.files?.[0];
                                   if (file) {
                                     if (file.size > tarea.tamano_maximo_mb * 1024 * 1024) {
-                                      toast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`);
+                                      showToast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`, darkMode);
                                       return;
                                     }
                                     handleFileSelect(file, tarea.id_tarea, 'entregar');
@@ -637,7 +657,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                   e.currentTarget.style.boxShadow = '0 0.125rem 0.375rem rgba(251, 191, 36, 0.25)';
                                 }}
                               >
-                                <Upload size={15} />
+                                <Send size={15} color={darkMode ? '#000' : '#fff'} />
                                 {uploadingTarea === tarea.id_tarea ? 'Subiendo...' : 'Entregar Tarea'}
                               </label>
                               <p style={{ color: theme.textMuted, fontSize: '0.6875rem', margin: '0.375em 0 0 0' }}>
@@ -681,7 +701,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                     Entregado: {new Date(tarea.entrega.fecha_entrega).toLocaleDateString('es-ES')} {new Date(tarea.entrega.fecha_entrega).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false })}
                                   </p>
                                 </div>
-                                <CheckCircle size={20} color="#d97706" />
+                                <CheckCircle size={20} color={tarea.entrega.calificacion ? '#10b981' : '#d97706'} />
                               </div>
 
                               {/* Botones Editar y Eliminar (solo si NO está calificada) */}
@@ -696,7 +716,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                         const file = e.target.files?.[0];
                                         if (file) {
                                           if (file.size > tarea.tamano_maximo_mb * 1024 * 1024) {
-                                            toast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`);
+                                            showToast.error(`El archivo no debe superar ${tarea.tamano_maximo_mb}MB`, darkMode);
                                             return;
                                           }
                                           handleFileSelect(file, tarea.id_tarea, 'editar', tarea.entrega!.id_entrega, modulo.id_modulo);
@@ -729,14 +749,14 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                         e.currentTarget.style.background = darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)';
                                       }}
                                     >
-                                      <Edit size={14} />
+                                      <Edit size={14} color="#f59e0b" />
                                       Editar
                                     </label>
                                   </div>
 
                                   {/* Botón Eliminar */}
                                   <button
-                                    onClick={() => handleDeleteEntrega(tarea.entrega!.id_entrega, modulo.id_modulo)}
+                                    onClick={() => openDeleteConfirm(tarea.entrega!.id_entrega, modulo.id_modulo)}
                                     style={{
                                       background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
                                       border: '1px solid rgba(239, 68, 68, 0.3)',
@@ -758,7 +778,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
                                     }}
                                   >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={14} color="#ef4444" />
                                     Eliminar
                                   </button>
                                 </div>
@@ -805,45 +825,90 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       )}
 
       {/* Modal de Previsualización */}
-      {archivoPreview && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '1em',
-          backdropFilter: 'blur(8px)'
-        }}>
-          <div style={{
-            background: darkMode ? 'rgba(26,26,46,0.98)' : '#ffffff',
-            borderRadius: '1em',
-            padding: '1.5em',
-            maxWidth: '50em',
-            width: '100%',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
-          }}>
+      {archivoPreview && createPortal(
+        <>
+          {/* Overlay */}
+          <div
+            onClick={() => setArchivoPreview(null)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              zIndex: 99998,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              animation: 'fadeIn 0.3s ease-out'
+            }}
+          >
+            <style>{`
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+            
+            {/* Modal */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: darkMode 
+                  ? 'rgba(15, 23, 42, 0.95)' 
+                  : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                maxWidth: '42rem',
+                width: '90%',
+                maxHeight: '85vh',
+                overflowY: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                boxShadow: darkMode 
+                  ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)' 
+                  : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
+                zIndex: 99999,
+                animation: 'scaleIn 0.3s ease-out'
+              }}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1em' }}>
-              <h3 style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexShrink: 0 }}>
+              <h3 style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
                 Vista Previa del Archivo
               </h3>
               <button
-                onClick={() => setArchivoPreview(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setArchivoPreview(null);
+                }}
                 style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.2)',
-                  borderRadius: '0.5em',
-                  padding: '0.5em',
-                  color: '#ef4444',
+                  background: 'var(--estudiante-input-bg, rgba(255, 255, 255, 0.05))',
+                  border: '1px solid var(--estudiante-border, rgba(255, 255, 255, 0.1))',
+                  borderRadius: '8px',
+                  padding: '0.5rem',
+                  color: 'var(--estudiante-text-primary, #fff)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -851,10 +916,12 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                  e.currentTarget.style.background = 'var(--estudiante-hover-bg, rgba(255, 255, 255, 0.1))';
+                  e.currentTarget.style.transform = 'rotate(90deg)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.background = 'var(--estudiante-input-bg, rgba(255, 255, 255, 0.05))';
+                  e.currentTarget.style.transform = 'rotate(0deg)';
                 }}
               >
                 <X size={20} />
@@ -865,17 +932,18 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
             <div style={{
               background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
-              borderRadius: '0.75em',
-              padding: '1em',
-              marginBottom: '1.5em'
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              marginBottom: '0.75rem',
+              flexShrink: 0
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '0.5em' }}>
-                <FileText size={24} color="#fbbf24" />
-                <div>
-                  <p style={{ color: theme.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                <FileText size={20} color="#fbbf24" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '600', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {archivoPreview.file.name}
                   </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.875rem', margin: 0 }}>
+                  <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
                     Tamaño: {(archivoPreview.file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
@@ -885,13 +953,15 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
             {/* Vista previa */}
             <div style={{
               background: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
-              borderRadius: '0.75em',
-              padding: '1em',
-              marginBottom: '1.5em',
-              minHeight: '20em',
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              marginBottom: '0.75rem',
+              flex: 1,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              overflow: 'hidden',
+              minHeight: 0
             }}>
               {archivoPreview.file.type.startsWith('image/') ? (
                 // Vista previa de imagen
@@ -900,8 +970,8 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                   alt="Preview"
                   style={{
                     maxWidth: '100%',
-                    maxHeight: '30em',
-                    borderRadius: '0.5em',
+                    maxHeight: '100%',
+                    borderRadius: '0.5rem',
                     objectFit: 'contain'
                   }}
                 />
@@ -911,9 +981,9 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                   src={archivoPreview.preview}
                   style={{
                     width: '100%',
-                    height: '30em',
+                    height: '100%',
                     border: 'none',
-                    borderRadius: '0.5em'
+                    borderRadius: '0.5rem'
                   }}
                   title="PDF Preview"
                 />
@@ -929,18 +999,18 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
             </div>
 
             {/* Botones */}
-            <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end', flexShrink: 0 }}>
               <button
                 onClick={() => setArchivoPreview(null)}
                 style={{
                   background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
                   border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                  borderRadius: '0.5em',
-                  padding: '0.75em 1.5em',
+                  borderRadius: '0.5rem',
+                  padding: '0.625rem 1.25rem',
                   color: darkMode ? '#fff' : '#64748b',
-                  fontWeight: '700',
+                  fontWeight: '600',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.875rem',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -960,15 +1030,15 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                     ? 'rgba(251, 191, 36, 0.6)'
                     : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
                   border: 'none',
-                  borderRadius: '0.5em',
-                  padding: '0.75em 1.5em',
+                  borderRadius: '0.5rem',
+                  padding: '0.625rem 1.25rem',
                   color: darkMode ? '#000' : '#fff',
-                  fontWeight: '800',
+                  fontWeight: '700',
                   cursor: uploadingTarea !== null ? 'not-allowed' : 'pointer',
-                  fontSize: '0.9rem',
+                  fontSize: '0.875rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5em',
+                  gap: '0.5rem',
                   boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)',
                   transition: 'all 0.2s ease',
                   opacity: uploadingTarea !== null ? 0.6 : 1
@@ -1005,16 +1075,107 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
               </button>
             </div>
           </div>
-
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
+          </div>
+        </>,
+        document.body
       )}
 
+      {/* Modal de Confirmación de Eliminación */}
+      {showConfirmDelete && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(8px)',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div style={{
+            background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            borderRadius: '1rem',
+            border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+            padding: '1.5rem',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+            animation: 'scaleIn 0.2s ease-out'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              marginBottom: '1rem'
+            }}>
+              <AlertTriangle size={24} color="#ef4444" />
+              <h3 style={{
+                color: darkMode ? '#fff' : '#1e293b',
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                margin: 0
+              }}>
+                Confirmar Eliminación
+              </h3>
+            </div>
+            <p style={{
+              color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
+              fontSize: '0.95rem',
+              lineHeight: '1.5',
+              margin: '0 0 1.5rem 0'
+            }}>
+              ¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setDeleteData(null);
+                }}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#f1f5f9',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0'}`,
+                  borderRadius: '0.5rem',
+                  color: darkMode ? '#fff' : '#475569',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteEntrega}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

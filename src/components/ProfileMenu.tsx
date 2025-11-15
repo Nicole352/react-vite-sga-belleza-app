@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, LogOut } from 'lucide-react';
-import toast from 'react-hot-toast';
 import PerfilModal from './PerfilModal';
 import { useBreakpoints } from '../hooks/useMediaQuery';
 
@@ -129,7 +128,6 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
       // Limpiar sesión local
       sessionStorage.removeItem('auth_token');
       sessionStorage.removeItem('user_role');
-      toast.success('Sesión cerrada exitosamente');
       navigate('/aula-virtual');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -227,14 +225,14 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
             position: 'absolute',
             top: '50px',
             right: '0px',
-            background: darkMode ? theme.contentBg : theme.contentBg,
+            background: darkMode ? theme.contentBg : '#ffffff',
             borderRadius: '12px',
-            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.1)',
+            boxShadow: darkMode ? '0 8px 24px rgba(0, 0, 0, 0.2)' : '0 8px 24px rgba(0, 0, 0, 0.15)',
             border: `1px solid ${theme.border}`,
             minWidth: '250px',
             zIndex: 1001,
             animation: 'slideInDown 0.3s ease-out',
-            backdropFilter: 'blur(20px)'
+            backdropFilter: darkMode ? 'blur(20px)' : 'none'
           }}>
           {/* Header del menú */}
           <div style={{

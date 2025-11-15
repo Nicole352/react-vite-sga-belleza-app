@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, Calendar, FileText } from 'lucide-react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { showToast } from '../../config/toastConfig';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -62,7 +63,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
     e.preventDefault();
 
     if (!formData.nombre.trim()) {
-      toast.error('El nombre del módulo es obligatorio');
+      showToast.error('El nombre del módulo es obligatorio', darkMode);
       return;
     }
 
@@ -79,19 +80,19 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
         await axios.put(`${API_BASE}/api/modulos/${moduloEditar.id_modulo}`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Módulo actualizado exitosamente');
+        showToast.success('Módulo actualizado exitosamente', darkMode);
       } else {
         await axios.post(`${API_BASE}/api/modulos`, dataToSend, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success('Módulo creado exitosamente');
+        showToast.success('Módulo creado exitosamente', darkMode);
       }
 
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Error saving modulo:', error);
-      toast.error(error.response?.data?.error || 'Error al guardar módulo');
+      showToast.error(error.response?.data?.error || 'Error al guardar módulo', darkMode);
     } finally {
       setLoading(false);
     }
@@ -102,35 +103,87 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
   const inputStyle = {
     width: '100%',
     padding: '0.625em 0.75em',
-    background: darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb',
-    border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+    background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+    border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
     borderRadius: '0.5em',
-    color: darkMode ? '#fff' : '#1e293b',
+    color: 'var(--docente-text-primary, #fff)',
     fontSize: '0.875rem',
     outline: 'none',
     transition: 'all 0.2s ease'
   };
 
   const labelStyle = {
-    color: darkMode ? 'rgba(255,255,255,0.9)' : '#374151',
+    color: 'var(--docente-text-primary, rgba(255,255,255,0.9))',
     display: 'block',
     marginBottom: '0.375em',
     fontWeight: '600' as const,
     fontSize: '0.875rem'
   };
 
-  return (
-    <div 
-      className="modal-overlay"
-      onClick={onClose}
-    >
+  return createPortal(
+    <>
+      {/* Overlay */}
       <div 
-        className="modal-content responsive-modal"
+        onClick={onClose}
         style={{
-          maxWidth: '55rem'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 99998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: 'fadeIn 0.3s ease-out'
         }}
-        onClick={(e) => e.stopPropagation()}
       >
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from {
+              opacity: 0;
+              transform: scale(0.9);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+        `}</style>
+        
+        {/* Modal */}
+        <div 
+          className="responsive-modal"
+          style={{
+            background: darkMode 
+              ? 'rgba(15, 23, 42, 0.95)' 
+              : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '12px',
+            boxShadow: darkMode 
+              ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)' 
+              : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
+            border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+            padding: '1.5rem',
+            maxWidth: '55rem',
+            width: '90%',
+            maxHeight: 'calc(100vh - 4rem)',
+            overflowY: 'auto',
+            zIndex: 99999,
+            animation: 'scaleIn 0.3s ease-out'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div style={{
           display: 'flex',
@@ -138,7 +191,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           alignItems: 'center',
           marginBottom: '10px',
           paddingBottom: '8px',
-          borderBottom: darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.15)'
+          borderBottom: '1px solid var(--docente-border, rgba(59, 130, 246, 0.2))'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileText size={20} style={{ color: '#3b82f6' }} />
@@ -147,7 +200,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               fontSize: '1.05rem', 
               fontWeight: '600', 
               letterSpacing: '-0.01em',
-              color: darkMode ? '#fff' : '#1e293b'
+              color: 'var(--docente-text-primary, #fff)'
             }}>
               {moduloEditar ? 'Editar Módulo' : 'Nuevo Módulo'}
             </h3>
@@ -155,11 +208,11 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
           <button
             onClick={onClose}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+              border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
               borderRadius: '8px',
               padding: '6px',
-              color: darkMode ? '#fff' : '#64748b',
+              color: 'var(--docente-text-primary, #fff)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -192,7 +245,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
               required
               style={inputStyle}
               onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--docente-border, rgba(255,255,255,0.1))'}
             />
           </div>
 
@@ -210,7 +263,7 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
                 resize: 'vertical' as const
               }}
               onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--docente-border, rgba(255,255,255,0.1))'}
             />
           </div>
 
@@ -248,28 +301,16 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             <button
               type="button"
               onClick={onClose}
-              disabled={loading}
               style={{
-                background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
-                border: darkMode ? '0.0625rem solid rgba(255,255,255,0.1)' : '0.0625rem solid #e2e8f0',
+                background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+                border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
                 borderRadius: '0.5em',
                 padding: '0.5em 0.75em',
-                color: darkMode ? 'rgba(255,255,255,0.8)' : '#64748b',
-                fontWeight: '700',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.5 : 1,
+                color: 'var(--docente-text-primary, #fff)',
+                fontWeight: '600',
+                cursor: 'pointer',
                 fontSize: '0.85rem',
                 transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.2)' : '#cbd5e1';
-                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : '#f8fafc';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0';
-                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : '#fff';
               }}
             >
               Cancelar
@@ -326,15 +367,17 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             </button>
           </div>
         </form>
+        
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+      </div>
+    </>,
+    document.body
   );
 };
 

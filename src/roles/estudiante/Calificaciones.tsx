@@ -9,7 +9,7 @@ import {
   ChevronRight,
   BarChart3,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import { showToast } from '../../config/toastConfig';
 import { useSocket } from "../../hooks/useSocket";
 
 const API_BASE = "http://localhost:3000/api";
@@ -206,9 +206,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
     calificacion_actualizada: (data: any) => {
       console.log("📊 [WebSocket Estudiante] Calificación actualizada:", data);
       
-      toast.success(`✅ Nueva calificación disponible`, {
-        duration: 4000,
-      });
+      showToast.success(`✅ Nueva calificación disponible`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();
@@ -216,9 +214,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
     entrega_calificada: (data: any) => {
       console.log("📝 [WebSocket Estudiante] Entrega calificada:", data);
       
-      toast.success(`📝 Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, {
-        duration: 5000,
-      });
+      showToast.success(`📝 Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();
@@ -226,9 +222,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
     promedio_actualizado: (data: any) => {
       console.log("📈 [WebSocket Estudiante] Promedio actualizado:", data);
       
-      toast.success(`📈 Promedio actualizado`, {
-        duration: 3000,
-      });
+      showToast.success(`📈 Promedio actualizado`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();
@@ -435,138 +429,106 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   return (
     <div>
       {/* Header */}
-      <div
-        style={{
-          background: darkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
-          border: darkMode
-            ? "1px solid rgba(255,255,255,0.08)"
-            : "1px solid #e5e7eb",
-          borderRadius: "1rem",
-          padding: "1.5rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div
-            style={{
-              width: "3.5rem",
-              height: "3.5rem",
-              background: `linear-gradient(135deg, ${theme.accent}, #f59e0b)`,
-              borderRadius: "1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Award size={24} color="#fff" />
-          </div>
-          <div>
-            <h1
-              style={{
-                color: theme.textPrimary,
-                fontSize: "1.5rem",
-                fontWeight: "700",
-                margin: 0,
-              }}
-            >
-              Mis Calificaciones
-            </h1>
-            <p style={{ color: theme.textMuted, margin: "0.25rem 0 0 0" }}>
-              Revisa tu rendimiento académico en todos tus cursos
-            </p>
-          </div>
-        </div>
+      <div style={{ marginBottom: "1.25em" }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: theme.textPrimary,
+          margin: '0 0 0.375rem 0'
+        }}>
+          Mis Calificaciones
+        </h2>
+        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+          Revisa tu rendimiento académico en todos tus cursos
+        </p>
       </div>
 
       {/* Estadísticas generales */}
-      {cursosConCalificaciones.length > 0 ? (
-        <>
-          {/* PROMEDIO GENERAL OCULTO - Se mostrará cuando el docente publique los promedios */}
-
-          {/* Estadísticas adicionales */}
+      {cursosConCalificaciones.length > 0 && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "0.75rem",
+            marginBottom: "1rem",
+          }}
+        >
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "1rem",
-              marginBottom: "1.5rem",
+              background: darkMode
+                ? "rgba(59, 130, 246, 0.1)"
+                : "rgba(59, 130, 246, 0.05)",
+              border: "1px solid rgba(59, 130, 246, 0.3)",
+              borderRadius: "0.75rem",
+              padding: "1rem",
             }}
           >
             <div
               style={{
-                background: darkMode
-                  ? "rgba(59, 130, 246, 0.1)"
-                  : "rgba(59, 130, 246, 0.05)",
-                border: "1px solid rgba(59, 130, 246, 0.3)",
-                borderRadius: "0.75rem",
-                padding: "1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "0.5rem",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <BookOpen size={20} color="#3b82f6" />
-                <span style={{ color: "#3b82f6", fontWeight: "600" }}>
-                  Cursos
-                </span>
-              </div>
-              <div
-                style={{
-                  color: "#3b82f6",
-                  fontSize: "1.75rem",
-                  fontWeight: "800",
-                  lineHeight: 1,
-                }}
-              >
-                {cursosConCalificaciones.length}
-              </div>
+              <BookOpen size={18} color="#3b82f6" />
+              <span style={{ color: "#3b82f6", fontWeight: "600", fontSize: "0.875rem" }}>
+                Cursos
+              </span>
             </div>
-
             <div
               style={{
-                background: darkMode
-                  ? "rgba(245, 158, 11, 0.1)"
-                  : "rgba(245, 158, 11, 0.05)",
-                border: `1px solid ${theme.warning}30`,
-                borderRadius: "0.75rem",
-                padding: "1rem",
+                color: "#3b82f6",
+                fontSize: "1.5rem",
+                fontWeight: "800",
+                lineHeight: 1,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <FileText size={20} color={theme.warning} />
-                <span style={{ color: theme.warning, fontWeight: "600" }}>
-                  Total Tareas
-                </span>
-              </div>
-              <div
-                style={{
-                  color: theme.warning,
-                  fontSize: "1.75rem",
-                  fontWeight: "800",
-                  lineHeight: 1,
-                }}
-              >
-                {cursosConCalificaciones.reduce(
-                  (sum, c) => sum + c.calificaciones.length,
-                  0,
-                )}
-              </div>
+              {cursosConCalificaciones.length}
             </div>
           </div>
-        </>
-      ) : (
+
+          <div
+            style={{
+              background: darkMode
+                ? "rgba(245, 158, 11, 0.1)"
+                : "rgba(245, 158, 11, 0.05)",
+              border: `1px solid ${theme.warning}30`,
+              borderRadius: "0.75rem",
+              padding: "1rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              <FileText size={18} color={theme.warning} />
+              <span style={{ color: theme.warning, fontWeight: "600", fontSize: "0.875rem" }}>
+                Total Tareas
+              </span>
+            </div>
+            <div
+              style={{
+                color: theme.warning,
+                fontSize: "1.5rem",
+                fontWeight: "800",
+                lineHeight: 1,
+              }}
+            >
+              {cursosConCalificaciones.reduce(
+                (sum, c) => sum + c.calificaciones.length,
+                0,
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cursosConCalificaciones.length === 0 && (
         <div
           style={{
             background: darkMode
@@ -646,59 +608,62 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
           </p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           {cursosConCalificaciones.map(
             ({ curso, calificaciones, promedio, modulos }) => (
               <div
                 key={curso.id_curso}
                 style={{
-                  background: theme.cardBg,
-                  border: `1px solid ${theme.border}`,
-                  borderRadius: "1rem",
+                  background: darkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
+                  border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e5e7eb",
+                  borderRadius: "0.75rem",
                   overflow: "hidden",
+                  transition: "all 0.2s ease",
                 }}
               >
                 {/* Header del curso */}
                 <div
                   onClick={() => toggleCurso(curso.id_curso)}
                   style={{
-                    padding: "1rem 1.5rem",
+                    padding: "1rem",
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    background: darkMode
-                      ? "rgba(255,255,255,0.02)"
-                      : "rgba(0,0,0,0.01)",
                   }}
                 >
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "1rem",
+                      gap: "0.75rem",
+                      flex: 1,
                     }}
                   >
                     <div
                       style={{
-                        width: "3rem",
-                        height: "3rem",
+                        width: "2.5rem",
+                        height: "2.5rem",
                         background: `linear-gradient(135deg, ${theme.accent}, #f59e0b)`,
-                        borderRadius: "0.75rem",
+                        borderRadius: "0.625rem",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        boxShadow: "0 2px 8px rgba(251, 191, 36, 0.3)",
                       }}
                     >
-                      <BookOpen size={20} color="#fff" />
+                      <BookOpen size={18} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <h3
                         style={{
                           color: theme.textPrimary,
-                          fontSize: "1.1rem",
-                          fontWeight: "600",
+                          fontSize: "0.95rem",
+                          fontWeight: "700",
                           margin: 0,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {curso.nombre}
@@ -706,8 +671,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                       <p
                         style={{
                           color: theme.textMuted,
-                          margin: "0.25rem 0 0 0",
-                          fontSize: "0.9rem",
+                          margin: "0.125rem 0 0 0",
+                          fontSize: "0.75rem",
                         }}
                       >
                         {curso.codigo_curso}
@@ -719,15 +684,15 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "1.5rem",
+                      gap: "1rem",
                     }}
                   >
                     <div style={{ textAlign: "right" }}>
                       <div
                         style={{
                           color: getColorByGrade(promedio),
-                          fontSize: "1.25rem",
-                          fontWeight: "700",
+                          fontSize: "1.125rem",
+                          fontWeight: "800",
                         }}
                       >
                         {promedio.toFixed(1)}
@@ -735,7 +700,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                       <div
                         style={{
                           color: theme.textMuted,
-                          fontSize: "0.8rem",
+                          fontSize: "0.7rem",
                           marginTop: "0.125rem",
                         }}
                       >
@@ -744,13 +709,13 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                     </div>
                     {expandedCursos[curso.id_curso] ? (
                       <ChevronDown
-                        size={20}
-                        style={{ color: theme.textMuted }}
+                        size={18}
+                        color={theme.textMuted}
                       />
                     ) : (
                       <ChevronRight
-                        size={20}
-                        style={{ color: theme.textMuted }}
+                        size={18}
+                        color={theme.textMuted}
                       />
                     )}
                   </div>
@@ -1257,7 +1222,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                         >
                                           <Calendar
                                             size={14}
-                                            style={{ color: theme.textMuted }}
+                                            color={theme.textMuted}
                                           />
                                           <span
                                             style={{

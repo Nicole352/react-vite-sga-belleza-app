@@ -44,36 +44,43 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           --theme-input-border: ${theme.inputBorder};
           --theme-hover-bg: ${theme.hoverBg};
           --theme-modal-bg: ${theme.modalBg};
+          --admin-text-primary: ${theme.textPrimary};
+          --admin-text-secondary: ${theme.textSecondary};
+          --admin-text-muted: ${theme.textMuted};
+          --admin-border: ${theme.border};
+          --admin-input-bg: ${theme.inputBg};
+          --admin-input-border: ${theme.inputBorder};
+          --admin-card-bg: ${theme.contentBg};
         }
         
-        /* Colores para títulos */
-        .admin-theme-wrapper h1,
-        .admin-theme-wrapper h2,
-        .admin-theme-wrapper h3,
-        .admin-theme-wrapper h4,
-        .admin-theme-wrapper h5,
-        .admin-theme-wrapper h6 {
+        /* Colores para títulos (respetar estilos inline personalizados) */
+        .admin-theme-wrapper h1:not([style*="color:"]),
+        .admin-theme-wrapper h2:not([style*="color:"]),
+        .admin-theme-wrapper h3:not([style*="color:"]),
+        .admin-theme-wrapper h4:not([style*="color:"]),
+        .admin-theme-wrapper h5:not([style*="color:"]),
+        .admin-theme-wrapper h6:not([style*="color:"]) {
           color: var(--theme-text-primary) !important;
         }
         
-        /* Colores para contenido general */
-        .admin-theme-wrapper p,
-        .admin-theme-wrapper span,
-        .admin-theme-wrapper div {
+        /* Colores para contenido general - respetar estilos inline existentes */
+        .admin-theme-wrapper p:not(button p):not([style*="background: rgba(239, 68, 68"]):not([style*="color:"]),
+        .admin-theme-wrapper span:not(button span):not([style*="background: rgba(239, 68, 68"]):not([style*="color:"]),
+        .admin-theme-wrapper div:not(button div):not([style*="background: rgba(239, 68, 68"]):not([style*="color:"]) {
           color: var(--theme-text-secondary) !important;
         }
         
-        /* Forzar colores específicos para elementos problemáticos */
-        .admin-theme-wrapper * {
+        /* Forzar colores específicos para elementos problemáticos - respetar estilos inline */
+        .admin-theme-wrapper *:not(button):not(button *):not([style*="background: rgba(239, 68, 68"]):not([style*="background: rgba(239, 68, 68"] *):not([style*="color:"]) {
           color: var(--theme-text-secondary) !important;
         }
         
-        .admin-theme-wrapper h1 *,
-        .admin-theme-wrapper h2 *,
-        .admin-theme-wrapper h3 *,
-        .admin-theme-wrapper h4 *,
-        .admin-theme-wrapper h5 *,
-        .admin-theme-wrapper h6 * {
+        .admin-theme-wrapper h1 *:not([style*="color:"]),
+        .admin-theme-wrapper h2 *:not([style*="color:"]),
+        .admin-theme-wrapper h3 *:not([style*="color:"]),
+        .admin-theme-wrapper h4 *:not([style*="color:"]),
+        .admin-theme-wrapper h5 *:not([style*="color:"]),
+        .admin-theme-wrapper h6 *:not([style*="color:"]) {
           color: var(--theme-text-primary) !important;
         }
         
@@ -198,8 +205,8 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           color: var(--theme-text-secondary) !important;
         }
         
-        /* Botones de texto */
-        .admin-theme-wrapper button:not([style*="background: linear-gradient"]) {
+        /* Botones de texto - respetar colores inline personalizados */
+        .admin-theme-wrapper button:not([style*="background: linear-gradient"]):not([style*="color:"]) {
           color: var(--theme-text-primary) !important;
         }
         
@@ -288,15 +295,15 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
             font-size: 13px !important;
           }
           
-          .admin-theme-wrapper h1 {
+          .admin-theme-wrapper h1:not([style*="font-size"]) {
             font-size: 1.3rem !important;
           }
           
-          .admin-theme-wrapper h2 {
+          .admin-theme-wrapper h2:not([style*="font-size"]) {
             font-size: 1.1rem !important;
           }
           
-          .admin-theme-wrapper h3 {
+          .admin-theme-wrapper h3:not([style*="font-size"]) {
             font-size: 0.8rem !important;
             font-weight: 600 !important;
           }
@@ -337,15 +344,15 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
             font-size: 12px !important;
           }
           
-          .admin-theme-wrapper h1 {
+          .admin-theme-wrapper h1:not([style*="font-size"]) {
             font-size: 1.2rem !important;
           }
           
-          .admin-theme-wrapper h2 {
+          .admin-theme-wrapper h2:not([style*="font-size"]) {
             font-size: 1rem !important;
           }
           
-          .admin-theme-wrapper h3 {
+          .admin-theme-wrapper h3:not([style*="font-size"]) {
             font-size: 0.8rem !important;
             font-weight: 600 !important;
           }
@@ -357,15 +364,15 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         }
         
         /* Reducir títulos en TODAS las resoluciones */
-        .admin-theme-wrapper h1 {
+        .admin-theme-wrapper h1:not([style*="font-size"]) {
           font-size: 1.5rem !important;
         }
         
-        .admin-theme-wrapper h2 {
+        .admin-theme-wrapper h2:not([style*="font-size"]) {
           font-size: 1.25rem !important;
         }
         
-        .admin-theme-wrapper h3 {
+        .admin-theme-wrapper h3:not([style*="font-size"]) {
           font-size: 0.8rem !important;
           font-weight: 700 !important;
           letter-spacing: 0.02em !important;
@@ -373,17 +380,17 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         }
         
         /* Regla ultra-específica para h3 en cards */
-        .admin-theme-wrapper div[style*="border-radius"] h3,
-        .admin-theme-wrapper div[style*="borderRadius"] h3,
-        .admin-theme-wrapper [style*="padding"] h3 {
+        .admin-theme-wrapper div[style*="border-radius"] h3:not([style*="font-size"]),
+        .admin-theme-wrapper div[style*="borderRadius"] h3:not([style*="font-size"]),
+        .admin-theme-wrapper [style*="padding"] h3:not([style*="font-size"]) {
           font-size: 0.8rem !important;
           font-weight: 700 !important;
           letter-spacing: 0.02em !important;
           text-transform: uppercase !important;
         }
         
-        /* Forzar fontWeight en h3 con estilos inline */
-        .admin-theme-wrapper h3[style] {
+        /* Forzar fontWeight solo si no se define inline */
+        .admin-theme-wrapper h3[style]:not([style*="font-weight"]) {
           font-weight: 700 !important;
         }
         
@@ -408,8 +415,8 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
           background: var(--theme-bg-content) !important;
         }
         
-        /* Forzar TODOS los elementos a tener color visible */
-        .admin-theme-wrapper * {
+        /* Forzar colores por defecto solo cuando no se ha definido uno inline */
+        .admin-theme-wrapper *:not([style*="color:"]) {
           color: ${darkMode ? '#fff' : '#1e293b'} !important;
         }
         
@@ -423,6 +430,25 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         .admin-theme-wrapper [style*="color: #ef4444"],
         .admin-theme-wrapper [style*="color: #3b82f6"],
         .admin-theme-wrapper .error-text-red {
+          color: #ef4444 !important;
+        }
+        
+        /* EXCEPCIONES CRÍTICAS: Botones con gradientes deben mantener texto blanco */
+        .admin-theme-wrapper button[style*="linear-gradient"],
+        .admin-theme-wrapper button[style*="linear-gradient"] *,
+        .admin-theme-wrapper button[style*="background: linear-gradient"],
+        .admin-theme-wrapper button[style*="background: linear-gradient"] * {
+          color: #fff !important;
+        }
+        
+        /* Etiquetas con fondo rojo deben mantener texto rojo */
+        .admin-theme-wrapper div[style*="background: rgba(239, 68, 68, 0.1)"],
+        .admin-theme-wrapper div[style*="background: rgba(239, 68, 68, 0.1)"] * {
+          color: #ef4444 !important;
+        }
+        
+        /* Iconos dentro de etiquetas rojas */
+        .admin-theme-wrapper div[style*="background: rgba(239, 68, 68, 0.1)"] svg {
           color: #ef4444 !important;
         }
       `}</style>

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import {
-  Search, Plus, Edit, X, MapPin, Building2, Calendar, Grid, List, ChevronLeft, ChevronRight
+  Search, Plus, Edit, X, MapPin, Building2, Calendar, Grid, List, ChevronLeft, ChevronRight, Hash, FileText
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { showToast } from '../../config/toastConfig';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -23,12 +27,101 @@ interface Aula {
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
+type FormState = {
+  nombre: string;
+  ubicacion: string;
+  descripcion: string;
+  estado: 'activa' | 'inactiva' | 'mantenimiento' | 'reservada';
+};
+
+const createEmptyForm = (): FormState => ({
+  nombre: '',
+  ubicacion: '',
+  descripcion: '',
+  estado: 'activa'
+});
+
 const GestionAulas = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
 
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('admin-dark-mode');
+      const newMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(prev => (prev === newMode ? prev : newMode));
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const pick = (light: string, dark: string) => (darkMode ? dark : light);
+
+  const textPrimary = 'var(--admin-text-primary, #1f2937)';
+  const textSecondary = 'var(--admin-text-secondary, rgba(30,41,59,0.85))';
+  const textMuted = 'var(--admin-text-muted, rgba(71,85,105,0.6))';
+
+  const palette = {
+    toggleGroupBg: pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)'),
+    toggleInactiveText: pick('rgba(71, 85, 105, 0.75)', 'rgba(226, 232, 240, 0.7)'),
+    toggleInactiveBorder: pick('rgba(148, 163, 184, 0.2)', 'rgba(148, 163, 184, 0.18)'),
+    toggleActiveBg: pick('rgba(248, 250, 252, 0.95)', 'rgba(255, 255, 255, 0.12)'),
+    toggleActiveShadow: pick('0 0.75rem 1.5rem rgba(15, 23, 42, 0.12)', '0 0.75rem 1.8rem rgba(0, 0, 0, 0.4)'),
+    searchIcon: pick('rgba(100, 116, 139, 0.6)', 'rgba(226, 232, 240, 0.6)'),
+    inputBg: 'var(--admin-input-bg, rgba(15,23,42,0.05))',
+    inputBorder: 'var(--admin-input-border, rgba(15,23,42,0.1))',
+    inputText: pick('#1f2937', '#f8fafc'),
+    placeholder: pick('rgba(100, 116, 139, 0.6)', 'rgba(148, 163, 184, 0.65)'),
+    paginationSurface: pick(
+      'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+      'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+    ),
+    paginationBorder: pick('rgba(239, 68, 68, 0.14)', 'rgba(239, 68, 68, 0.25)'),
+    paginationText: pick('rgba(30, 41, 59, 0.85)', 'rgba(226, 232, 240, 0.9)'),
+    paginationButtonBg: pick('rgba(248, 250, 252, 0.9)', 'rgba(255, 255, 255, 0.1)'),
+    paginationButtonBorder: pick('rgba(226, 232, 240, 0.7)', 'rgba(255, 255, 255, 0.2)'),
+    paginationButtonText: pick('rgba(30, 41, 59, 0.85)', '#f8fafc'),
+    paginationButtonDisabledBg: pick('rgba(226, 232, 240, 0.5)', 'rgba(255, 255, 255, 0.05)'),
+    paginationButtonDisabledText: pick('rgba(148, 163, 184, 0.6)', 'rgba(255, 255, 255, 0.3)'),
+    paginationButtonShadow: pick('0 0.5rem 1.5rem rgba(15, 23, 42, 0.12)', '0 0.5rem 1.5rem rgba(0, 0, 0, 0.35)'),
+    tableActionBg: pick('rgba(245, 158, 11, 0.15)', 'rgba(245, 158, 11, 0.2)'),
+    tableActionBorder: pick('rgba(245, 158, 11, 0.24)', 'rgba(245, 158, 11, 0.3)'),
+    tableActionText: pick('#b45309', '#fbbf24')
+  };
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const styleId = 'gestion-aulas-search-placeholder-style';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement | null;
+    let created = false;
+
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      styleElement.textContent = `
+        .gestion-aulas-search-input::placeholder {
+          color: var(--gestion-aulas-placeholder);
+          opacity: 1;
+        }
+      `;
+      document.head.appendChild(styleElement);
+      created = true;
+    }
+
+    return () => {
+      if (created && styleElement && styleElement.parentNode) {
+        styleElement.parentNode.removeChild(styleElement);
+      }
+    };
+  }, []);
+
   const [aulas, setAulas] = useState<Aula[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedAula, setSelectedAula] = useState<Aula | null>(null);
@@ -39,12 +132,7 @@ const GestionAulas = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
-  const [formData, setFormData] = useState({
-    nombre: '',
-    ubicacion: '',
-    descripcion: '',
-    estado: 'activa' as 'activa' | 'inactiva' | 'mantenimiento' | 'reservada'
-  });
+  const [formData, setFormData] = useState<FormState>(() => createEmptyForm());
 
   const [autoGeneratedCode, setAutoGeneratedCode] = useState('');
 
@@ -88,7 +176,6 @@ const GestionAulas = () => {
   const fetchAulas = async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const params = new URLSearchParams();
       params.set('page', String(page));
@@ -107,7 +194,7 @@ const GestionAulas = () => {
       setTotalCount(data.total || 0);
     } catch (err) {
       console.error('Error al obtener aulas:', err);
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      showToast.error(err instanceof Error ? err.message : 'Error desconocido', darkMode);
       setAulas([]);
     } finally {
       setLoading(false);
@@ -139,11 +226,13 @@ const GestionAulas = () => {
 
       await fetchAulas();
       setShowCreateModal(false);
-      setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
+      setFormData(createEmptyForm());
       setAutoGeneratedCode('');
+      setSelectedAula(null);
+      showToast.success('Aula creada correctamente', darkMode);
     } catch (err) {
       console.error('Error al crear aula:', err);
-      setError(err instanceof Error ? err.message : 'Error al crear aula');
+      showToast.error(err instanceof Error ? err.message : 'Error al crear aula', darkMode);
     } finally {
       setLoading(false);
     }
@@ -169,9 +258,12 @@ const GestionAulas = () => {
       await fetchAulas();
       setShowModal(false);
       setSelectedAula(null);
+      setFormData(createEmptyForm());
+      setAutoGeneratedCode('');
+      showToast.success('Aula actualizada correctamente', darkMode);
     } catch (err) {
       console.error('Error al actualizar aula:', err);
-      setError(err instanceof Error ? err.message : 'Error al actualizar aula');
+      showToast.error(err instanceof Error ? err.message : 'Error al actualizar aula', darkMode);
     } finally {
       setLoading(false);
     }
@@ -182,6 +274,7 @@ const GestionAulas = () => {
   }, [page, limit, searchTerm, filterEstado]);
 
   const openEditModal = (aula: Aula) => {
+    setShowCreateModal(false);
     setSelectedAula(aula);
     setFormData({
       nombre: aula.nombre,
@@ -189,6 +282,7 @@ const GestionAulas = () => {
       descripcion: aula.descripcion || '',
       estado: aula.estado
     });
+    setAutoGeneratedCode('');
     setShowModal(true);
   };
 
@@ -215,32 +309,32 @@ const GestionAulas = () => {
   const aulasSorted = [...aulas].sort((a, b) => a.id_aula - b.id_aula);
   const totalPages = Math.ceil(totalCount / limit);
   const aulasActivas = aulasSorted.filter(a => a.estado === 'activa').length;
+  const isCardsView = viewMode === 'cards';
+  const isTableView = viewMode === 'table';
+
+  const searchInputStyles: (CSSProperties & Record<'--gestion-aulas-placeholder', string>) = {
+    width: '100%',
+    padding: '0.625em 0.625em 0.625em 2.375em',
+    background: palette.inputBg,
+    border: `0.0625rem solid ${palette.inputBorder}`,
+    borderRadius: '0.625em',
+    color: palette.inputText,
+    fontSize: '0.875rem',
+    transition: 'background 0.2s ease, border 0.2s ease',
+    outline: 'none',
+    '--gestion-aulas-placeholder': palette.placeholder
+  };
 
   return (
     <div style={{
       background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
-      color: '#fff'
+      color: textPrimary
     }}>
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.125rem' }}>
-        <h2 className="responsive-title" style={{
-          color: 'rgba(255,255,255,0.95)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '0.375rem' : '0.625rem'
-        }}>
-          <Building2 size={isMobile ? 20 : 26} color={RedColorPalette.primary} />
-          Gestión de Aulas
-        </h2>
-        <p style={{
-          color: 'rgba(255,255,255,0.7)',
-          margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Administra las aulas y espacios físicos de la institución
-        </p>
-      </div>
+      <AdminSectionHeader
+        title="Gestión de Aulas"
+        subtitle="Administra las aulas y espacios físicos de la institución"
+      />
 
       {/* Controles */}
       <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: '1em' }}>
@@ -260,27 +354,33 @@ const GestionAulas = () => {
             flex: 1
           }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '17.5rem', flex: isMobile ? '1' : 'initial' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : 'min(17.5rem, 30vw)', flex: isMobile ? '1' : 'initial' }}>
+              <Search
+                size={isMobile ? 14 : 16}
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: palette.searchIcon,
+                  transition: 'color 0.2s ease',
+                  pointerEvents: 'none'
+                }}
+                color={palette.searchIcon}
+              />
               <input
+                className="gestion-aulas-search-input"
                 type="text"
                 placeholder={isMobile ? "Buscar..." : "Buscar por código, nombre o ubicación..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625em 0.625em 0.625em 2.375em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem'
-                }}
+                style={searchInputStyles}
               />
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 25vw)', flex: isMobile ? '1' : 'initial' }}>
+            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 20vw)', flex: isMobile ? '1' : 'initial' }}>
+            
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -299,7 +399,7 @@ const GestionAulas = () => {
             <div style={{
               display: 'flex',
               gap: '0.375em',
-              background: 'rgba(255,255,255,0.05)',
+              background: palette.toggleGroupBg,
               borderRadius: '0.625em',
               padding: '0.1875em',
               width: isSmallScreen ? '100%' : 'auto'
@@ -310,20 +410,26 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.4375em 0.625em' : '0.4375em 0.75em',
-                  background: viewMode === 'cards' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'cards' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
-                  borderRadius: '0.4em',
-                  color: viewMode === 'cards' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
+                  gap: '0.35em',
+                  padding: isMobile ? '0.4em 0.6em' : '0.4em 0.85em',
+                  background: isCardsView ? palette.toggleActiveBg : 'transparent',
+                  border: `0.0625rem solid ${isCardsView ? palette.toggleInactiveBorder : 'transparent'}`,
+                  borderRadius: '0.55em',
+                  color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText,
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  boxShadow: isCardsView ? palette.toggleActiveShadow : 'none',
                   flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={16} /> {!isMobile && 'Tarjetas'}
+                <Grid size={16} color={isCardsView ? RedColorPalette.primary : palette.toggleInactiveText} />
+                {!isMobile && (
+                  <span style={{ color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText }}>
+                    Tarjetas
+                  </span>
+                )}
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -331,20 +437,26 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.4375em 0.625em' : '0.5em 0.875em',
-                  background: viewMode === 'table' ? mapToRedScheme('rgba(59, 130, 246, 0.2)') : 'transparent',
-                  border: viewMode === 'table' ? `0.0625rem solid ${RedColorPalette.primary}` : '0.0625rem solid transparent',
-                  borderRadius: '0.5em',
-                  color: viewMode === 'table' ? RedColorPalette.primary : 'rgba(255,255,255,0.6)',
+                  gap: '0.35em',
+                  padding: isMobile ? '0.4em 0.6em' : '0.5em 0.95em',
+                  background: isTableView ? palette.toggleActiveBg : 'transparent',
+                  border: `0.0625rem solid ${isTableView ? palette.toggleInactiveBorder : 'transparent'}`,
+                  borderRadius: '0.55em',
+                  color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText,
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  boxShadow: isTableView ? palette.toggleActiveShadow : 'none',
                   flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={16} /> {!isMobile && 'Tabla'}
+                <List size={16} color={isTableView ? RedColorPalette.primary : palette.toggleInactiveText} />
+                {!isMobile && (
+                  <span style={{ color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText }}>
+                    Tabla
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -352,7 +464,10 @@ const GestionAulas = () => {
           {/* Botón Crear */}
           <button
             onClick={() => {
+              setShowModal(false);
+              setSelectedAula(null);
               setShowCreateModal(true);
+              setFormData(createEmptyForm());
               setAutoGeneratedCode('');
             }}
             style={{
@@ -364,7 +479,7 @@ const GestionAulas = () => {
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '0.625em',
-              color: '#fff',
+              color: textPrimary,
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
@@ -384,7 +499,7 @@ const GestionAulas = () => {
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem' }}>
             {totalCount}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
+          <div style={{ color: textSecondary, fontSize: '0.7rem' }}>
             Total Aulas
           </div>
         </GlassEffect>
@@ -393,35 +508,21 @@ const GestionAulas = () => {
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem' }}>
             {aulasActivas}
           </div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem' }}>
+          <div style={{ color: textSecondary, fontSize: '0.7rem' }}>
             Aulas Activas
           </div>
         </GlassEffect>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.75em',
-          padding: '1em',
-          marginBottom: '1.5em',
-          color: '#ef4444'
-        }}>
-          {error}
-        </div>
-      )}
-
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(17.5rem, 90vw), 1fr))', gap: '1em', marginBottom: '1.125em' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(16rem, 90vw), 1fr))', gap: '0.9em', marginBottom: '1.125em' }}>
           {loading ? (
-            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: textMuted, fontSize: '0.85rem' }}>
               Cargando aulas...
             </div>
           ) : aulasSorted.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: textMuted, fontSize: '0.85rem' }}>
               No hay aulas registradas
             </div>
           ) : (
@@ -431,39 +532,43 @@ const GestionAulas = () => {
                 variant="card"
                 tint="red"
                 intensity="light"
-                hover
-                animated
                 style={{
-                  padding: '0.875rem',
+                  padding: '0.75rem',
+                  borderRadius: '0.85rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75em' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.4rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <div style={{
-                      width: '2.5em',
-                      height: '2.5em',
-                      borderRadius: '50%',
-                      background: 'rgba(239, 68, 68, 0.15)',
+                      width: '2.25rem',
+                      height: '2.25rem',
+                      borderRadius: '0.75rem',
+                      background: 'rgba(239, 68, 68, 0.12)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <Building2 size={20} color={RedColorPalette.primary} />
+                      <Building2 size={18} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: '#fff', margin: '0 0 0.1875rem 0' }}>
+                      <h3 style={{ color: textPrimary, margin: '0 0 0.2rem 0', fontSize: '0.95rem', fontWeight: 700 }}>
                         {aula.nombre}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '2px 0.5rem',
+                        padding: '0.15rem 0.6rem',
                         borderRadius: '9999px',
-                        fontSize: '0.65rem',
-                        fontWeight: '600',
+                        fontSize: '0.62rem',
+                        fontWeight: 700,
                         textTransform: 'uppercase',
                         background: `${getEstadoColor(aula.estado)}20`,
                         border: `1px solid ${getEstadoColor(aula.estado)}40`,
-                        color: getEstadoColor(aula.estado)
+                        color: getEstadoColor(aula.estado),
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.3rem'
                       }}>
                         {getEstadoText(aula.estado)}
                       </span>
@@ -471,43 +576,61 @@ const GestionAulas = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                      Código
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(2, minmax(0, 1fr))',
+                  gap: '0.75rem',
+                  paddingTop: '0.75rem',
+                  borderTop: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  <div style={{ display: 'grid', gap: '0.55rem' }}>
+                    <div>
+                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
+                        <Hash size={12} />
+                        Código
+                      </div>
+                      <div style={{ color: textPrimary, fontSize: '0.8rem', fontWeight: 600 }}>
+                        {aula.codigo_aula}
+                      </div>
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>
-                      {aula.codigo_aula}
+                    <div>
+                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
+                        <Calendar size={12} />
+                        Fecha Creación
+                      </div>
+                      <div style={{ color: textPrimary, fontSize: '0.75rem' }}>
+                        {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                      <Calendar size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
-                      Fecha Creación
+                  <div style={{ display: 'grid', gap: '0.55rem' }}>
+                    <div>
+                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
+                        <MapPin size={12} />
+                        Ubicación
+                      </div>
+                      <div style={{ color: textPrimary, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        {aula.ubicacion || 'No especificada'}
+                      </div>
                     </div>
-                    <div style={{ color: '#fff', fontSize: '0.7rem' }}>
-                      {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
-                    </div>
-                  </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                      <MapPin size={10} style={{ display: 'inline', marginRight: '0.1875rem' }} />
-                      Ubicación
-                    </div>
-                    <div style={{ color: '#fff', fontSize: '0.7rem' }}>
-                      {aula.ubicacion || 'No especificada'}
-                    </div>
-                  </div>
-                  {aula.descripcion && (
-                    <div style={{ gridColumn: '1 / -1' }}>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div>
+                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
+                        <FileText size={12} />
                         Descripción
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.7rem' }}>
-                        {aula.descripcion}
+                      <div style={{
+                        color: textPrimary,
+                        fontSize: '0.75rem',
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {aula.descripcion || 'Sin descripción registrada'}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 <button
@@ -518,28 +641,26 @@ const GestionAulas = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.375rem',
-                    padding: '0.625rem',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${RedColorPalette.primary}`,
-                    borderRadius: '0.625rem',
-                    color: RedColorPalette.primary,
-                    fontSize: '0.85rem',
+                    padding: '0.6rem',
+                    background: palette.tableActionBg,
+                    border: `0.0625rem solid ${palette.tableActionBorder}`,
+                    borderRadius: '0.5rem',
+                    color: palette.tableActionText,
+                    fontSize: '0.82rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'background 0.2s ease',
+                    marginTop: '0.55rem'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                    e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                    e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
+                    e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.background = palette.tableActionBg;
                   }}
                 >
-                  <Edit size={14} /> Editar
+                  <Edit size={14} color={palette.tableActionText} />
+                  Editar
                 </button>
               </GlassEffect>
             ))
@@ -585,22 +706,22 @@ const GestionAulas = () => {
                   background: 'rgba(248, 113, 113, 0.15)',
                   borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
                 }}>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Código
                   </th>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     NOMBRE
                   </th>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Ubicación
                   </th>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Estado
                   </th>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Fecha Creación
                   </th>
-                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: textPrimary, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                     Acciones
                   </th>
                 </tr>
@@ -608,13 +729,13 @@ const GestionAulas = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: textMuted }}>
                       Cargando aulas...
                     </td>
                   </tr>
                 ) : aulasSorted.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: textMuted }}>
                       No hay aulas registradas
                     </td>
                   </tr>
@@ -646,7 +767,7 @@ const GestionAulas = () => {
                       <td className="table-nombre-uppercase" style={{ padding: '0.75rem' }}>
                         <div style={{
                           fontWeight: '600',
-                          color: '#fff',
+                          color: textPrimary,
                           fontSize: '0.85rem',
                           marginBottom: '0.125rem'
                         }}>
@@ -655,7 +776,7 @@ const GestionAulas = () => {
                         {aula.descripcion && (
                           <div style={{
                             fontSize: '0.7rem',
-                            color: 'rgba(255,255,255,0.5)',
+                            color: textMuted,
                             maxWidth: '12.5rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -670,7 +791,7 @@ const GestionAulas = () => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.375rem',
-                          color: 'rgba(255,255,255,0.8)',
+                          color: textSecondary,
                           fontSize: '0.8rem'
                         }}>
                           <MapPin size={12} />
@@ -696,7 +817,7 @@ const GestionAulas = () => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.375rem',
-                          color: 'rgba(255,255,255,0.8)',
+                          color: textSecondary,
                           fontSize: '0.75rem'
                         }}>
                           <Calendar size={12} />
@@ -707,10 +828,10 @@ const GestionAulas = () => {
                         <button
                           onClick={() => openEditModal(aula)}
                           style={{
-                            padding: '6px 0.625rem',
-                            background: 'rgba(245, 158, 11, 0.2)',
-                            border: '1px solid rgba(245, 158, 11, 0.3)',
-                            color: '#fbbf24',
+                            padding: '0.375rem 0.625rem',
+                            background: palette.tableActionBg,
+                            border: `0.0625rem solid ${palette.tableActionBorder}`,
+                            color: palette.tableActionText,
                             borderRadius: '0.375rem',
                             cursor: 'pointer',
                             display: 'inline-flex',
@@ -721,13 +842,13 @@ const GestionAulas = () => {
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                            e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
+                            e.currentTarget.style.background = palette.tableActionBg;
                           }}
                         >
-                          <Edit size={12} />
+                          <Edit size={12} color={palette.tableActionText} />
                           Editar
                         </button>
                       </td>
@@ -749,12 +870,15 @@ const GestionAulas = () => {
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
           padding: isMobile ? '16px' : '20px 1.5rem',
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          background: palette.paginationSurface,
+          border: `1px solid ${palette.paginationBorder}`,
           borderRadius: '1rem',
+          boxShadow: darkMode
+            ? '0 1rem 2.5rem rgba(0, 0, 0, 0.35)'
+            : '0 1rem 2.5rem rgba(15, 23, 42, 0.12)',
         }}>
           <div style={{
-            color: 'rgba(255,255,255,0.7)',
+            color: palette.paginationText,
             fontSize: isMobile ? '0.8rem' : '0.9rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
@@ -764,7 +888,9 @@ const GestionAulas = () => {
             display: 'flex',
             gap: '0.5rem',
             flexWrap: 'wrap',
-            justifyContent: isMobile ? 'center' : 'flex-start'
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            alignItems: 'stretch',
+            width: isMobile ? '100%' : 'auto'
           }}>
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -774,16 +900,21 @@ const GestionAulas = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: page === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                padding: isMobile ? '0 0.75rem' : '0 1rem',
+                height: isMobile ? '2.75rem' : '2.5rem',
+                minHeight: isMobile ? '2.75rem' : '2.5rem',
+                minWidth: isMobile ? '3.25rem' : 'auto',
+                background: page === 1 ? palette.paginationButtonDisabledBg : palette.paginationButtonBg,
+                border: `1px solid ${palette.paginationButtonBorder}`,
                 borderRadius: '0.625rem',
-                color: page === 1 ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: page === 1 ? palette.paginationButtonDisabledText : palette.paginationButtonText,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1 1 100%' : '0 0 auto',
+                boxShadow: page === 1 ? 'none' : palette.paginationButtonShadow,
+                whiteSpace: 'nowrap'
               }}
             >
               <ChevronLeft size={isMobile ? 14 : 16} />
@@ -794,16 +925,26 @@ const GestionAulas = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                  background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : 'rgba(255,255,255,0.08)',
-                  border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(255,255,255,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: isMobile ? '0 0.75rem' : '0 0.875rem',
+                  height: isMobile ? '2.75rem' : '2.5rem',
+                  minHeight: isMobile ? '2.75rem' : '2.5rem',
+                  minWidth: isMobile ? '3rem' : '2.75rem',
+                  background: page === pageNum
+                    ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`
+                    : palette.paginationButtonBg,
+                  border: `1px solid ${page === pageNum ? RedColorPalette.primary : palette.paginationButtonBorder}`,
                   borderRadius: '0.625rem',
-                  color: '#fff',
+                  color: page === pageNum ? '#fff' : palette.paginationButtonText,
                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
+                  flex: isMobile ? '1 1 3rem' : '0 0 auto',
+                  boxShadow: page === pageNum ? palette.paginationButtonShadow : 'none',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {pageNum}
@@ -817,16 +958,21 @@ const GestionAulas = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: page === totalPages ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                padding: isMobile ? '0 0.75rem' : '0 1rem',
+                height: isMobile ? '2.75rem' : '2.5rem',
+                minHeight: isMobile ? '2.75rem' : '2.5rem',
+                minWidth: isMobile ? '3.25rem' : 'auto',
+                background: page === totalPages ? palette.paginationButtonDisabledBg : palette.paginationButtonBg,
+                border: `1px solid ${palette.paginationButtonBorder}`,
                 borderRadius: '0.625rem',
-                color: page === totalPages ? 'rgba(255,255,255,0.3)' : '#fff',
+                color: page === totalPages ? palette.paginationButtonDisabledText : palette.paginationButtonText,
                 fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1 1 100%' : '0 0 auto',
+                boxShadow: page === totalPages ? 'none' : palette.paginationButtonShadow,
+                whiteSpace: 'nowrap'
               }}
             >
               {!isMobile && 'Siguiente'}
@@ -837,17 +983,53 @@ const GestionAulas = () => {
       )}
 
       {/* Modal Crear Aula */}
-      {showCreateModal && (
+      {showCreateModal && createPortal(
         <div
           className="modal-overlay"
           onClick={() => {
             setShowCreateModal(false);
-            setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
+            setFormData(createEmptyForm());
+            setAutoGeneratedCode('');
+            setSelectedAula(null);
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '1rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
           }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              width: '92vw',
+              maxWidth: '600px',
+              maxHeight: '85vh',
+              margin: 'auto',
+              padding: '1.5rem',
+              color: textPrimary,
+              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+              animation: 'scaleIn 0.3s ease-out',
+              overflowY: 'auto'
+            }}
           >
             <div
               style={{
@@ -868,14 +1050,16 @@ const GestionAulas = () => {
               <button
                 onClick={() => {
                   setShowCreateModal(false);
-                  setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
+                  setFormData(createEmptyForm());
+                  setAutoGeneratedCode('');
+                  setSelectedAula(null);
                 }}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px',
                   padding: '6px',
-                  color: 'var(--admin-text-primary, #fff)',
+                  color: textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -906,7 +1090,7 @@ const GestionAulas = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '500',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: textSecondary,
                     fontSize: '0.875rem'
                   }}>
                     Código
@@ -918,17 +1102,17 @@ const GestionAulas = () => {
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.05)',
-                      color: 'rgba(255,255,255,0.5)',
+                      color: textMuted,
                       fontSize: '0.8rem',
                       cursor: 'not-allowed'
                     }}
                   />
                   <div style={{
                     fontSize: '0.75rem',
-                    color: 'rgba(255,255,255,0.5)',
+                    color: textMuted,
                     marginTop: '0.25rem'
                   }}>
                     Se genera automáticamente
@@ -940,7 +1124,7 @@ const GestionAulas = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '500',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: textSecondary,
                     fontSize: '0.875rem'
                   }}>
                     Nombre *
@@ -950,7 +1134,7 @@ const GestionAulas = () => {
                     value={formData.nombre}
                     onChange={async (e) => {
                       const nombre = e.target.value;
-                      setFormData({ ...formData, nombre });
+                      setFormData(prev => ({ ...prev, nombre }));
 
                       if (nombre.trim().length > 2) {
                         try {
@@ -968,10 +1152,10 @@ const GestionAulas = () => {
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
-                      color: '#fff',
+                      color: textPrimary,
                       fontSize: '0.8rem'
                     }}
                     required
@@ -984,23 +1168,23 @@ const GestionAulas = () => {
                   display: 'block',
                   marginBottom: '0.5rem',
                   fontWeight: '500',
-                  color: 'rgba(255,255,255,0.9)',
+                  color: textSecondary,
                   fontSize: '0.875rem'
                 }}>
                   Descripción
                 </label>
                 <textarea
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
                   placeholder="Descripción del aula..."
                   rows={3}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                     borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
-                    color: '#fff',
+                    color: textPrimary,
                     fontSize: '0.8rem',
                     resize: 'vertical'
                   }}
@@ -1013,7 +1197,7 @@ const GestionAulas = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '500',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: textSecondary,
                     fontSize: '0.875rem'
                   }}>
                     Ubicación
@@ -1021,15 +1205,15 @@ const GestionAulas = () => {
                   <input
                     type="text"
                     value={formData.ubicacion}
-                    onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, ubicacion: e.target.value }))}
                     placeholder="Ej: Edificio A - Piso 2"
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
-                      color: '#fff',
+                      color: textPrimary,
                       fontSize: '0.8rem'
                     }}
                   />
@@ -1040,7 +1224,7 @@ const GestionAulas = () => {
                     display: 'block',
                     marginBottom: '0.5rem',
                     fontWeight: '500',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: textSecondary,
                     fontSize: '0.875rem'
                   }}>
                     Estado
@@ -1048,14 +1232,22 @@ const GestionAulas = () => {
                   <StyledSelect
                     name="estado"
                     value={formData.estado}
-                    onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value as FormState['estado'] }))}
                     options={[
                       { value: 'activa', label: 'Activa' },
                       { value: 'inactiva', label: 'Inactiva' },
                       { value: 'mantenimiento', label: 'Mantenimiento' },
                       { value: 'reservada', label: 'Reservada' }
                     ]}
-                    style={{ width: '100%' }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
+                      background: 'rgba(255,255,255,0.08)',
+                      color: textPrimary,
+                      fontSize: '0.8rem'
+                    }}
                   />
                 </div>
               </div>
@@ -1071,13 +1263,15 @@ const GestionAulas = () => {
               <button
                 onClick={() => {
                   setShowCreateModal(false);
-                  setFormData({ nombre: '', ubicacion: '', descripcion: '', estado: 'activa' });
+                  setFormData(createEmptyForm());
+                  setAutoGeneratedCode('');
+                  setSelectedAula(null);
                 }}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: 'rgba(255,255,255,0.05)',
-                  color: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: textSecondary,
+                  border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.8rem',
@@ -1093,7 +1287,7 @@ const GestionAulas = () => {
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.05)' : RedColorPalette.primary,
-                  color: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.3)' : 'white',
+                  color: !formData.nombre.trim() || loading ? textMuted : '#fff',
                   border: 'none',
                   borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
@@ -1127,21 +1321,71 @@ const GestionAulas = () => {
               </button>
             </div>
           </div>
-        </div>
+          {/* Animaciones CSS */}
+          <style>{`
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+          `}</style>
+        </div>,
+        document.body
       )}
 
       {/* Modal Editar Aula */}
-      {showModal && selectedAula && (
+      {showModal && selectedAula && createPortal(
         <div
           className="modal-overlay"
           onClick={() => {
             setShowModal(false);
             setSelectedAula(null);
+            setFormData(createEmptyForm());
+            setAutoGeneratedCode('');
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '1rem',
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            scrollBehavior: 'smooth'
           }}
         >
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              width: '92vw',
+              maxWidth: '600px',
+              maxHeight: '85vh',
+              margin: 'auto',
+              padding: '1.5rem',
+              color: textPrimary,
+              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+              animation: 'scaleIn 0.3s ease-out',
+              overflowY: 'auto'
+            }}
           >
             <div
               style={{
@@ -1163,13 +1407,15 @@ const GestionAulas = () => {
                 onClick={() => {
                   setShowModal(false);
                   setSelectedAula(null);
+                  setFormData(createEmptyForm());
+                  setAutoGeneratedCode('');
                 }}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px',
                   padding: '6px',
-                  color: 'var(--admin-text-primary, #fff)',
+                  color: textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1205,14 +1451,14 @@ const GestionAulas = () => {
                 <Building2 size={16} color={RedColorPalette.primary} />
                 <span style={{
                   fontWeight: '600',
-                  color: '#fff'
+                  color: textPrimary
                 }}>
                   {selectedAula.codigo_aula}
                 </span>
               </div>
               <div style={{
                 fontSize: '0.85rem',
-                color: 'rgba(255,255,255,0.7)'
+                color: textSecondary
               }}>
                 Creada el {new Date(selectedAula.fecha_creacion).toLocaleDateString('es-ES')}
               </div>
@@ -1230,22 +1476,22 @@ const GestionAulas = () => {
                     marginBottom: '0.5rem',
                     fontWeight: '500',
                     fontSize: '0.875rem',
-                    color: 'rgba(255,255,255,0.9)'
+                    color: textSecondary
                   }}>
                     Nombre del Aula *
                   </label>
                   <input
                     type="text"
                     value={formData.nombre}
-                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                     placeholder="Ej: Aula de Teoría 1"
                     style={{
                       width: '100%',
                       padding: '10px 0.75rem',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
-                      color: '#fff',
+                      color: textPrimary,
                       fontSize: '0.9rem',
                       transition: 'all 0.2s ease',
                     }}
@@ -1259,20 +1505,20 @@ const GestionAulas = () => {
                     marginBottom: '0.5rem',
                     fontWeight: '500',
                     fontSize: '0.875rem',
-                    color: 'rgba(255,255,255,0.9)'
+                    color: textSecondary
                   }}>
                     Estado
                   </label>
                   <select
                     value={formData.estado}
-                    onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value as FormState['estado'] }))}
                     style={{
                       width: '100%',
                       padding: '10px 0.75rem',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
                       background: 'rgba(255,255,255,0.08)',
-                      color: '#fff',
+                      color: textPrimary,
                       fontSize: '0.9rem',
                       cursor: 'pointer',
                     }}
@@ -1291,22 +1537,22 @@ const GestionAulas = () => {
                   marginBottom: '0.5rem',
                   fontWeight: '500',
                   fontSize: '0.875rem',
-                  color: 'rgba(255,255,255,0.9)'
+                  color: textSecondary
                 }}>
                   Descripción
                 </label>
                 <textarea
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
                   placeholder="Descripción del aula..."
                   rows={3}
                   style={{
                     width: '100%',
                     padding: '10px 0.75rem',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                     borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
-                    color: '#fff',
+                    color: textPrimary,
                     fontSize: '0.9rem',
                     resize: 'vertical',
                     transition: 'all 0.2s ease',
@@ -1320,22 +1566,22 @@ const GestionAulas = () => {
                   marginBottom: '0.5rem',
                   fontWeight: '500',
                   fontSize: '0.875rem',
-                  color: 'rgba(255,255,255,0.9)'
+                  color: textSecondary
                 }}>
                   Ubicación
                 </label>
                 <input
                   type="text"
                   value={formData.ubicacion}
-                  onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, ubicacion: e.target.value }))}
                   placeholder="Ej: Edificio A - Piso 2"
                   style={{
                     width: '100%',
                     padding: '10px 0.75rem',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                     borderRadius: '0.5rem',
                     background: 'rgba(255,255,255,0.08)',
-                    color: '#fff',
+                    color: textPrimary,
                     fontSize: '0.9rem',
                     transition: 'all 0.2s ease',
                   }}
@@ -1354,12 +1600,14 @@ const GestionAulas = () => {
                 onClick={() => {
                   setShowModal(false);
                   setSelectedAula(null);
+                  setFormData(createEmptyForm());
+                  setAutoGeneratedCode('');
                 }}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: 'rgba(255,255,255,0.05)',
-                  color: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: textSecondary,
+                  border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
                   fontSize: '0.8rem',
@@ -1375,7 +1623,7 @@ const GestionAulas = () => {
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.05)' : RedColorPalette.primary,
-                  color: !formData.nombre.trim() || loading ? 'rgba(255,255,255,0.3)' : 'white',
+                  color: !formData.nombre.trim() || loading ? textMuted : '#fff',
                   border: 'none',
                   borderRadius: '0.5rem',
                   cursor: !formData.nombre.trim() || loading ? 'not-allowed' : 'pointer',
@@ -1409,7 +1657,21 @@ const GestionAulas = () => {
               </button>
             </div>
           </div>
-        </div>
+          {/* Animaciones CSS */}
+          <style>{`
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.9);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+          `}</style>
+        </div>,
+        document.body
       )}
 
       <style>{`

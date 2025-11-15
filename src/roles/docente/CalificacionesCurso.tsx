@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  X,
   Download,
   Award,
   Search,
-  Filter,
   BarChart3,
   User,
   BookOpen,
   FileSpreadsheet,
   ArrowLeft,
+  GraduationCap,
 } from "lucide-react";
-import toast from "react-hot-toast";
 import { useSocket } from "../../hooks/useSocket";
+import { showToast } from "../../config/toastConfig";
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -38,12 +37,6 @@ interface Estudiante {
   promedio_global?: number;
   promedios_modulos?: { [moduloNombre: string]: number };
   modulos_detalle?: ModuloDetalle[];
-}
-
-interface ModuloInfo {
-  nombre: string;
-  promedio: number;
-  peso: number;
 }
 
 interface ModuloDetalle {
@@ -102,7 +95,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
   );
   const [modulos, setModulos] = useState<string[]>([]);
   const [pesoPorModulo, setPesoPorModulo] = useState<number>(0);
-  const [modulosInfo, setModulosInfo] = useState<ModuloDetalle[]>([]);
   const [moduloActivo, setModuloActivo] = useState<string>("todos");
   const [tareasFiltradas, setTareasFiltradas] = useState<Tarea[]>([]);
 
@@ -156,9 +148,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       
       // Verificar si la calificación pertenece a este curso
       if (data.id_curso === cursoId) {
-        toast.success(`✅ Calificación actualizada`, {
-          duration: 3000,
-        });
+        showToast.success('Calificación actualizada', darkMode);
         
         // Recargar todas las calificaciones
         fetchCalificaciones();
@@ -173,9 +163,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           ? `${data.estudiante_nombre} ${data.estudiante_apellido}`
           : 'Estudiante';
         
-        toast.success(`📝 ${nombreEstudiante} - Calificación registrada`, {
-          duration: 4000,
-        });
+        showToast.success(`${nombreEstudiante} - Calificación registrada`, darkMode);
         
         // Recargar calificaciones
         fetchCalificaciones();
@@ -342,14 +330,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         };
       });
 
-      // Extraer información de módulos del primer estudiante
-      if (
-        estudiantesConCalificaciones.length > 0 &&
-        estudiantesConCalificaciones[0].modulos_detalle
-      ) {
-        setModulosInfo(estudiantesConCalificaciones[0].modulos_detalle);
-      }
-
       setTareas(tareasArr);
       setEstudiantes(estudiantesConCalificaciones);
       setTareasFiltradas(tareasArr); // Inicialmente mostrar todas
@@ -416,9 +396,11 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       doc.save(
         `Calificaciones_${cursoNombre}_${new Date().toISOString().split("T")[0]}.pdf`,
       );
+      showToast.success('PDF descargado correctamente', darkMode);
     } catch (error) {
       console.error("Error al generar PDF:", error);
-    } finally {
+      showToast.error('Error al generar el PDF', darkMode);
+    } finally{
       setDownloadingPDF(false);
     }
   };
@@ -625,93 +607,116 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
   const stats = calcularEstadisticas();
 
-  // Estilos consistentes con el admin
+  // Estilos usando variables CSS del tema docente
   const theme = {
     bg: darkMode ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.5)",
-    modalBg: darkMode ? "#1a1a2e" : "#ffffff",
-    textPrimary: darkMode ? "#ffffff" : "#1e293b",
-    textSecondary: darkMode ? "rgba(255,255,255,0.7)" : "rgba(30,41,59,0.7)",
-    textMuted: darkMode ? "rgba(255,255,255,0.5)" : "rgba(100,116,139,0.8)",
-    border: darkMode ? "rgba(255,255,255,0.1)" : "#e2e8f0",
-    inputBg: darkMode ? "rgba(255,255,255,0.05)" : "#f8fafc",
-    inputBorder: darkMode ? "rgba(255,255,255,0.1)" : "#cbd5e1",
-    cardBg: darkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
+    modalBg: darkMode ? "var(--docente-card-bg)" : "#ffffff",
+    textPrimary: "var(--docente-text-primary)",
+    textSecondary: "var(--docente-text-secondary)",
+    textMuted: "var(--docente-text-muted)",
+    border: "var(--docente-border)",
+    inputBg: "var(--docente-input-bg)",
+    inputBorder: "var(--docente-border)",
+    cardBg: "var(--docente-card-bg)",
     success: "#10b981",
     warning: "#f59e0b",
     danger: "#ef4444",
-    info: "#60a5fa", // Cambiado a celeste/azul claro
+    info: "var(--docente-accent)", // Usar el color de acento del tema docente
   };
 
   return (
-    <div style={{
-      background: theme.modalBg,
-      borderRadius: "0.75rem",
-      width: "100%",
-      maxHeight: "calc(100vh - 2rem)",
-      overflow: "hidden",
-      boxShadow: darkMode
-        ? "0 1.25rem 2.5rem rgba(0,0,0,0.5)"
-        : "0 1.25rem 2.5rem rgba(0,0,0,0.15)",
-      border: `1px solid ${theme.border}`,
-    }}>
-      {/* Header con estilo del admin */}
-      <div
-        style={{
-          padding: "1rem",
-          borderBottom: `1px solid ${theme.border}`,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: darkMode
-            ? "rgba(255,255,255,0.02)"
-            : "rgba(0,0,0,0.02)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <button
-            onClick={() => navigate("/panel/docente/calificaciones")}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: theme.textMuted,
-              cursor: "pointer",
-              padding: "0.5rem",
-              borderRadius: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = theme.inputBg}
-            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-          >
-            <ArrowLeft size={20} />
-            <span>Volver</span>
-          </button>
-          
+    <div
+      style={{
+        minHeight: '100%',
+        backgroundColor: 'transparent',
+        color: theme.textPrimary,
+        padding: '0',
+        paddingBottom: '0',
+        paddingTop: '0'
+      }}
+    >
+      {/* Botón Volver */}
+      <div style={{ marginBottom: '0.75rem' }}>
+        <button
+          onClick={() => navigate('/panel/docente/calificaciones')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: 'none',
+            color: '#3b82f6',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            transition: 'all 0.2s',
+            boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+            e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+          }}
+        >
+          <ArrowLeft size={16} />
+          Volver a Calificaciones
+        </button>
+      </div>
+
+      {/* Header */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            borderRadius: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+          }}>
+            <GraduationCap size={24} strokeWidth={2.5} color="#fff" />
+          </div>
           <div>
-            <h3
-              style={{
-                color: theme.textPrimary,
-                fontSize: "1.1rem",
-                fontWeight: "700",
-                margin: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <BarChart3 size={20} color={theme.info} />
-              Calificaciones del Curso
-            </h3>
-            <p
-              style={{
-                color: theme.textSecondary,
-                fontSize: "0.85rem",
-                margin: "0.25rem 0 0 0",
-              }}
-            >
-              {cursoNombre}
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
+              {cursoNombre || 'Calificaciones del Curso'}
+            </h1>
+            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+              Gestiona las calificaciones y evaluaciones de los estudiantes
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Acciones rápidas */}
+      <div style={{
+        background: theme.cardBg,
+        border: `1px solid ${theme.border}`,
+        borderRadius: '0.625rem',
+        padding: '1rem',
+        marginBottom: '0.75rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div>
+            <div style={{ fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.125rem' }}>
+              Herramientas de Gestión
+            </div>
+            <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
+              Exportación, filtros y estadísticas disponibles
+            </div>
           </div>
         </div>
         
@@ -798,31 +803,26 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         </div>
       </div>
 
-      {/* Estadísticas con estilo del admin */}
+      {/* Estadísticas */}
       <div
         style={{
-          padding: "0.75rem 1rem",
-          borderBottom: `1px solid ${theme.border}`,
-          background: darkMode
-            ? "rgba(255,255,255,0.01)"
-            : "rgba(0,0,0,0.01)",
+          padding: "0",
+          marginBottom: "0.75rem",
         }}
       >
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-            gap: "0.5rem",
+            gap: "0.75rem",
           }}
         >
           <div
             style={{
-              background: darkMode
-                ? "rgba(96, 165, 250, 0.1)"
-                : "rgba(96, 165, 250, 0.05)", // Celeste
-              border: `1px solid ${darkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(96, 165, 250, 0.15)"}`,
-              borderRadius: "0.375rem",
-              padding: "0.5rem",
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.625rem",
+              padding: "0.75rem",
               textAlign: "center",
             }}
           >
@@ -852,12 +852,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
           <div
             style={{
-              background: darkMode
-                ? "rgba(96, 165, 250, 0.1)"
-                : "rgba(96, 165, 250, 0.05)", // Celeste
-              border: `1px solid ${darkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(96, 165, 250, 0.15)"}`,
-              borderRadius: "0.375rem",
-              padding: "0.5rem",
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.625rem",
+              padding: "0.75rem",
               textAlign: "center",
             }}
           >
@@ -868,7 +866,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             />
             <div
               style={{
-                color: theme.info, // Celeste para el número
+                color: theme.info,
                 fontSize: "1rem",
                 fontWeight: "600",
               }}
@@ -887,12 +885,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
           <div
             style={{
-              background: darkMode
-                ? "rgba(96, 165, 250, 0.1)"
-                : "rgba(96, 165, 250, 0.05)", // Celeste
-              border: `1px solid ${darkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(96, 165, 250, 0.15)"}`,
-              borderRadius: "0.375rem",
-              padding: "0.5rem",
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.625rem",
+              padding: "0.75rem",
               textAlign: "center",
             }}
           >
@@ -922,12 +918,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
           <div
             style={{
-              background: darkMode
-                ? "rgba(96, 165, 250, 0.1)"
-                : "rgba(96, 165, 250, 0.05)", // Celeste
-              border: `1px solid ${darkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(96, 165, 250, 0.15)"}`,
-              borderRadius: "0.375rem",
-              padding: "0.5rem",
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.625rem",
+              padding: "0.75rem",
               textAlign: "center",
             }}
           >
@@ -938,7 +932,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             />
             <div
               style={{
-                color: theme.info, // Celeste para el número
+                color: theme.info,
                 fontSize: "1rem",
                 fontWeight: "600",
               }}
@@ -957,85 +951,92 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         </div>
       </div>
 
-      {/* Controles de filtro y búsqueda con estilo del admin */}
+      {/* Título de la sección */}
+      <div style={{ padding: "0", marginBottom: "1rem" }}>
+        <h2 style={{
+          fontSize: "1.125rem",
+          fontWeight: "700",
+          color: theme.textPrimary,
+          margin: 0
+        }}>
+          Calificaciones de Estudiantes en {cursoNombre || 'Cosmetología'}
+        </h2>
+      </div>
+
+      {/* Controles de filtro y búsqueda */}
       <div
         style={{
-          padding: "0.5rem 1rem",
-          paddingBottom: "0.75rem",
-          borderBottom: `1px solid ${theme.border}`,
-          background: darkMode
-            ? "rgba(255,255,255,0.01)"
-            : "rgba(0,0,0,0.01)",
+          padding: "0",
+          marginBottom: "0.75rem",
         }}
       >
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ position: "relative", width: "17.5rem", maxWidth: "20rem", display: "flex", alignItems: "center" }}>
-            <Search
-              size={16}
-              style={{
-                position: "absolute",
-                left: "0.875rem",
-                top: "0",
-                bottom: "0",
-                margin: "auto",
-                display: "flex",
-                alignItems: "center",
-                color: darkMode ? "rgba(255,255,255,0.7)" : "rgba(71,85,105,1)",
-                zIndex: 1,
-                pointerEvents: "none",
-                height: "fit-content",
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Buscar estudiante..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              style={{
-                width: "100%",
-                paddingLeft: "2.5rem",
-                paddingRight: "0.875rem",
-                paddingTop: "0.5rem",
-                paddingBottom: "0.5rem",
-                background: theme.inputBg,
-                border: `1px solid ${theme.inputBorder}`,
-                borderRadius: "1.5rem",
-                color: theme.textPrimary,
-                fontSize: "0.875rem",
-                outline: "none",
-                lineHeight: "1.4",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#3b82f6";
-                e.currentTarget.style.boxShadow =
-                  "0 0 0 3px rgba(59, 130, 246, 0.1)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = theme.inputBorder;
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            />
-          </div>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flex: 1 }}>
+            <div style={{ position: "relative", width: "17.5rem", maxWidth: "20rem", display: "flex", alignItems: "center" }}>
+              <Search
+                size={16}
+                style={{
+                  position: "absolute",
+                  left: "0.875rem",
+                  top: "0",
+                  bottom: "0",
+                  margin: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  color: theme.textSecondary,
+                  zIndex: 1,
+                  pointerEvents: "none",
+                  height: "fit-content",
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Buscar estudiante..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                style={{
+                  width: "100%",
+                  paddingLeft: "2.5rem",
+                  paddingRight: "0.875rem",
+                  paddingTop: "0.5rem",
+                  paddingBottom: "0.5rem",
+                  background: theme.inputBg,
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: "1.5rem",
+                  color: theme.textPrimary,
+                  fontSize: "0.875rem",
+                  outline: "none",
+                  lineHeight: "1.4",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--docente-accent)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 0 3px rgba(34, 197, 94, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              />
+            </div>
 
-          {/* Pestañas de Módulos - Estilo chips/pills compacto */}
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              overflowX: "auto",
-              alignItems: "center",
-            }}
-          >
+            {/* Pestañas de Módulos - Estilo chips/pills compacto */}
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                overflowX: "auto",
+                alignItems: "center",
+              }}
+            >
             <button
               onClick={() => setModuloActivo("todos")}
               style={{
-                padding: "0.5rem 0.875rem",
+                padding: "0.35rem 0.75rem",
                 background:
                   moduloActivo === "todos"
-                    ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
-                    : darkMode
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.05)",
+                    ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                    : theme.inputBg,
                 border:
                   moduloActivo === "todos"
                     ? "none"
@@ -1049,27 +1050,17 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                 display: "flex",
                 alignItems: "center",
                 gap: "0.35rem",
-                transition: "all 0.2s ease",
-                whiteSpace: "nowrap",
-                boxShadow:
-                  moduloActivo === "todos"
-                    ? "0 2px 8px rgba(59, 130, 246, 0.3)"
-                    : "none",
-                height: "fit-content",
+                transition: "all 0.1s ease-out",
               }}
               onMouseEnter={(e) => {
                 if (moduloActivo !== "todos") {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.08)";
+                  e.currentTarget.style.background = theme.cardBg;
                   e.currentTarget.style.transform = "translateY(-1px)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (moduloActivo !== "todos") {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.05)";
+                  e.currentTarget.style.background = theme.inputBg;
                   e.currentTarget.style.transform = "translateY(0)";
                 }
               }}
@@ -1083,13 +1074,11 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                 key={`tab-${idx}`}
                 onClick={() => setModuloActivo(modulo)}
                 style={{
-                  padding: "0.5rem 0.875rem",
+                  padding: "0.35rem 0.75rem",
                   background:
                     moduloActivo === modulo
-                      ? "linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)"
-                      : darkMode
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "rgba(0, 0, 0, 0.05)",
+                      ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                      : theme.inputBg,
                   border:
                     moduloActivo === modulo
                       ? "none"
@@ -1100,27 +1089,21 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                   cursor: "pointer",
                   fontSize: "0.75rem",
                   fontWeight: "600",
-                  transition: "all 0.2s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  transition: "all 0.1s ease-out",
                   whiteSpace: "nowrap",
-                  boxShadow:
-                    moduloActivo === modulo
-                      ? "0 2px 8px rgba(59, 130, 246, 0.3)"
-                      : "none",
-                  height: "fit-content",
                 }}
                 onMouseEnter={(e) => {
                   if (moduloActivo !== modulo) {
-                    e.currentTarget.style.background = darkMode
-                      ? "rgba(255, 255, 255, 0.08)"
-                      : "rgba(0, 0, 0, 0.08)";
+                    e.currentTarget.style.background = theme.cardBg;
                     e.currentTarget.style.transform = "translateY(-1px)";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (moduloActivo !== modulo) {
-                    e.currentTarget.style.background = darkMode
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.05)";
+                    e.currentTarget.style.background = theme.inputBg;
                     e.currentTarget.style.transform = "translateY(0)";
                   }
                 }}
@@ -1128,31 +1111,31 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                 {modulo}
               </button>
             ))}
+            </div>
           </div>
-        </div>
-        
-        {/* Filtros de estudiantes */}
-        <div
-          style={{
-            marginTop: "0.75rem",
-            display: "flex",
-            gap: "0.375rem",
-            justifyContent: "flex-end",
-          }}
-        >
+
+          {/* Filtros de estudiantes */}
+          <div
+            style={{
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+            }}
+          >
           <button
             onClick={() => setFiltro("todos")}
             style={{
               padding: "0.35rem 0.75rem",
               background:
                 filtro === "todos"
-                  ? darkMode
-                    ? "rgba(59, 130, 246, 0.15)"
-                    : "rgba(59, 130, 246, 0.1)"
-                  : "transparent",
-              border: `1px solid ${filtro === "todos" ? "#3b82f6" : theme.inputBorder}`,
-              borderRadius: "0.375rem",
-              color: filtro === "todos" ? "#3b82f6" : theme.textSecondary,
+                  ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                  : theme.inputBg,
+              border:
+                filtro === "todos"
+                  ? "none"
+                  : `1px solid ${theme.border}`,
+              borderRadius: "1.5rem",
+              color: filtro === "todos" ? "#fff" : theme.textSecondary,
               cursor: "pointer",
               fontSize: "0.75rem",
               fontWeight: "600",
@@ -1163,14 +1146,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             }}
             onMouseEnter={(e) => {
               if (filtro !== "todos") {
-                e.currentTarget.style.background = darkMode
-                  ? "rgba(59, 130, 246, 0.08)"
-                  : "rgba(59, 130, 246, 0.05)";
+                e.currentTarget.style.background = theme.cardBg;
+                e.currentTarget.style.transform = "translateY(-1px)";
               }
             }}
             onMouseLeave={(e) => {
               if (filtro !== "todos") {
-                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.background = theme.inputBg;
+                e.currentTarget.style.transform = "translateY(0)";
               }
             }}
           >
@@ -1184,14 +1167,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               padding: "0.35rem 0.75rem",
               background:
                 filtro === "aprobados"
-                  ? darkMode
-                    ? "rgba(16, 185, 129, 0.15)"
-                    : "rgba(16, 185, 129, 0.1)"
-                  : "transparent",
-              border: `1px solid ${filtro === "aprobados" ? "#10b981" : theme.inputBorder}`,
-              borderRadius: "0.375rem",
-              color:
-                filtro === "aprobados" ? "#10b981" : theme.textSecondary,
+                  ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                  : theme.inputBg,
+              border:
+                filtro === "aprobados"
+                  ? "none"
+                  : `1px solid ${theme.border}`,
+              borderRadius: "1.5rem",
+              color: filtro === "aprobados" ? "#fff" : theme.textSecondary,
               cursor: "pointer",
               fontSize: "0.75rem",
               fontWeight: "600",
@@ -1202,14 +1185,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             }}
             onMouseEnter={(e) => {
               if (filtro !== "aprobados") {
-                e.currentTarget.style.background = darkMode
-                  ? "rgba(16, 185, 129, 0.08)"
-                  : "rgba(16, 185, 129, 0.05)";
+                e.currentTarget.style.background = theme.cardBg;
+                e.currentTarget.style.transform = "translateY(-1px)";
               }
             }}
             onMouseLeave={(e) => {
               if (filtro !== "aprobados") {
-                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.background = theme.inputBg;
+                e.currentTarget.style.transform = "translateY(0)";
               }
             }}
           >
@@ -1223,14 +1206,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               padding: "0.35rem 0.75rem",
               background:
                 filtro === "reprobados"
-                  ? darkMode
-                    ? "rgba(239, 68, 68, 0.15)"
-                    : "rgba(239, 68, 68, 0.1)"
-                  : "transparent",
-              border: `1px solid ${filtro === "reprobados" ? "#ef4444" : theme.inputBorder}`,
-              borderRadius: "0.375rem",
-              color:
-                filtro === "reprobados" ? "#ef4444" : theme.textSecondary,
+                  ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                  : theme.inputBg,
+              border:
+                filtro === "reprobados"
+                  ? "none"
+                  : `1px solid ${theme.border}`,
+              borderRadius: "1.5rem",
+              color: filtro === "reprobados" ? "#fff" : theme.textSecondary,
               cursor: "pointer",
               fontSize: "0.75rem",
               fontWeight: "600",
@@ -1241,29 +1224,31 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             }}
             onMouseEnter={(e) => {
               if (filtro !== "reprobados") {
-                e.currentTarget.style.background = darkMode
-                  ? "rgba(239, 68, 68, 0.08)"
-                  : "rgba(239, 68, 68, 0.05)";
+                e.currentTarget.style.background = theme.cardBg;
+                e.currentTarget.style.transform = "translateY(-1px)";
               }
             }}
             onMouseLeave={(e) => {
               if (filtro !== "reprobados") {
-                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.background = theme.inputBg;
+                e.currentTarget.style.transform = "translateY(0)";
               }
             }}
           >
             <BarChart3 size={14} />
             Reprobados
           </button>
+          </div>
         </div>
       </div>
+
 
       {/* Content con estilo del admin */}
       <div
         style={{
           flex: 1,
           overflow: "auto",
-          padding: "1rem",
+          padding: "0",
           maxHeight: "calc(90vh - 200px)",
         }}
       >

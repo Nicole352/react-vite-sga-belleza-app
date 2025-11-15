@@ -213,7 +213,7 @@ const Pago: React.FC = () => {
   const [tipoCursoId, setTipoCursoId] = useState<number>(0);
   const curso = detallesCursos[cursoKey];
 
-  const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'payphone' | 'efectivo'>('transferencia');
+  const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'efectivo'>('transferencia');
   const [isVisible, setIsVisible] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [documentoIdentificacion, setDocumentoIdentificacion] = useState<File | null>(null);
@@ -575,10 +575,7 @@ const Pago: React.FC = () => {
 
       // TOAST DE ÉXITO (solo si showToast es true)
       if (loadingToast) {
-        toast.success(`✅ ${cupos.length} cursos cargados`, {
-          id: loadingToast,
-          duration: 2000
-        });
+        toast.dismiss(loadingToast);
       }
 
       return cupos;
@@ -595,7 +592,7 @@ const Pago: React.FC = () => {
 
     const init = async () => {
       if (cancelled) return;
-      await loadCuposDisponibles(false, true, false); // Una sola carga inicial
+      await loadCuposDisponibles(false, false, false); // Evitar toast en la carga inicial
     };
 
     init();
@@ -1066,7 +1063,7 @@ if (!formData.horarioPreferido) {
           body
         });
       } else {
-        const montoFinal = selectedPayment === 'payphone' ? formData.montoMatricula + 7 : formData.montoMatricula;
+        const montoFinal = formData.montoMatricula;
         debugInfo = {
           identificacion_solicitante: documento.toUpperCase(),
           nombre_solicitante: formData.nombre,
@@ -2003,6 +2000,29 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     const tieneCupos = c.cupos_totales > 0;
                                     const porcentajeOcupado = ((c.capacidad_total - c.cupos_totales) / c.capacidad_total) * 100;
                                     const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
+                                    const slotColors = tieneCupos
+                                      ? {
+                                          background: theme === 'dark'
+                                            ? 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(248,113,113,0.15))'
+                                            : 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(253,230,138,0.4))',
+                                          border: '1.5px solid rgba(251,191,36,0.45)',
+                                          text: theme === 'dark' ? '#fde68a' : '#92400e',
+                                          accent: '#d97706',
+                                          shadow: theme === 'dark'
+                                            ? '0 6px 18px rgba(251,191,36,0.25)'
+                                            : '0 8px 22px rgba(251,191,36,0.2)'
+                                        }
+                                      : {
+                                          background: theme === 'dark'
+                                            ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(190,24,93,0.2))'
+                                            : 'linear-gradient(135deg, rgba(254,226,226,0.9), rgba(254,215,215,0.8))',
+                                          border: '1.5px solid rgba(239,68,68,0.35)',
+                                          text: theme === 'dark' ? '#fecdd3' : '#7f1d1d',
+                                          accent: '#dc2626',
+                                          shadow: theme === 'dark'
+                                            ? '0 6px 18px rgba(239,68,68,0.2)'
+                                            : '0 8px 22px rgba(239,68,68,0.18)'
+                                        };
 
                                     return (
                                       <div
@@ -2011,41 +2031,33 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                           display: 'inline-flex',
                                           alignItems: 'center',
                                           gap: '8px',
-                                          padding: '8px 14px',
-                                          borderRadius: '12px',
-                                          background: tieneCupos
-                                            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1))'
-                                            : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
-                                          border: tieneCupos
-                                            ? '1.5px solid rgba(16, 185, 129, 0.4)'
-                                            : '1.5px solid rgba(239, 68, 68, 0.4)',
-                                          boxShadow: tieneCupos
-                                            ? '0 4px 12px rgba(16, 185, 129, 0.15)'
-                                            : '0 4px 12px rgba(239, 68, 68, 0.15)',
+                                          padding: '10px 18px',
+                                          borderRadius: '16px',
+                                          background: slotColors.background,
+                                          border: slotColors.border,
+                                          boxShadow: slotColors.shadow,
                                           transition: 'all 0.3s ease',
                                           cursor: 'default'
                                         }}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.transform = 'translateY(-2px)';
                                           e.currentTarget.style.boxShadow = tieneCupos
-                                            ? '0 6px 20px rgba(16, 185, 129, 0.25)'
-                                            : '0 6px 20px rgba(239, 68, 68, 0.25)';
+                                            ? '0 10px 26px rgba(251,191,36,0.32)'
+                                            : '0 10px 26px rgba(239,68,68,0.28)';
                                         }}
                                         onMouseLeave={(e) => {
                                           e.currentTarget.style.transform = 'translateY(0)';
-                                          e.currentTarget.style.boxShadow = tieneCupos
-                                            ? '0 4px 12px rgba(16, 185, 129, 0.15)'
-                                            : '0 4px 12px rgba(239, 68, 68, 0.15)';
+                                          e.currentTarget.style.boxShadow = slotColors.shadow;
                                         }}
                                       >
                                         <Icon
                                           size={16}
-                                          color={tieneCupos ? '#10b981' : '#ef4444'}
+                                          color={slotColors.accent}
                                           style={{ flexShrink: 0 }}
                                         />
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                           <span style={{
-                                            color: tieneCupos ? '#10b981' : '#ef4444',
+                                            color: slotColors.text,
                                             fontWeight: 700,
                                             fontSize: '0.75rem',
                                             textTransform: 'capitalize',
@@ -2053,23 +2065,20 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                           }}>
                                             {c.horario}
                                           </span>
-                                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Users size={12} color={tieneCupos ? '#059669' : '#dc2626'} />
-                                            <span style={{
-                                              color: tieneCupos ? '#059669' : '#dc2626',
-                                              fontWeight: 600,
-                                              fontSize: '0.7rem',
-                                              lineHeight: 1
-                                            }}>
-                                              {c.cupos_totales}/{c.capacidad_total} cupos
-                                            </span>
-                                          </div>
+                                          <span style={{
+                                            color: slotColors.text,
+                                            fontWeight: 600,
+                                            fontSize: '0.7rem',
+                                            lineHeight: 1
+                                          }}>
+                                            {c.cupos_totales}/{c.capacidad_total} cupos
+                                          </span>
                                         </div>
                                         {/* Barra de progreso */}
                                         <div style={{
                                           width: '40px',
                                           height: '4px',
-                                          background: 'rgba(0,0,0,0.1)',
+                                            background: 'rgba(0,0,0,0.2)',
                                           borderRadius: '2px',
                                           overflow: 'hidden',
                                           marginLeft: '4px'
@@ -2077,9 +2086,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                           <div style={{
                                             width: `${porcentajeOcupado}%`,
                                             height: '100%',
-                                            background: tieneCupos
-                                              ? 'linear-gradient(90deg, #10b981, #059669)'
-                                              : 'linear-gradient(90deg, #ef4444, #dc2626)',
+                                              background: tieneCupos
+                                                ? 'linear-gradient(90deg, #fde68a, #fbbf24)'
+                                                : 'linear-gradient(90deg, #fecdd3, #e11d48)',
                                             transition: 'width 0.3s ease'
                                           }} />
                                         </div>
@@ -2194,17 +2203,26 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 )}
 
                 <div style={{
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  marginTop: '16px'
+                  background: theme === 'dark'
+                    ? 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(248,113,113,0.12))'
+                    : 'linear-gradient(135deg, rgba(253,230,138,0.85), rgba(251,191,36,0.65))',
+                  borderRadius: '14px',
+                  padding: '14px',
+                  marginTop: '16px',
+                  border: theme === 'dark'
+                    ? '1px solid rgba(251,191,36,0.5)'
+                    : '1px solid rgba(217,119,6,0.45)',
+                  boxShadow: theme === 'dark'
+                    ? '0 10px 26px rgba(251,191,36,0.25)'
+                    : '0 12px 28px rgba(217,119,6,0.18)'
                 }}>
                   <p style={{
-                    color: '#10b981',
-                    fontSize: '0.85rem',
+                    color: theme === 'dark' ? '#fde68a' : '#92400e',
+                    fontSize: '0.9rem',
                     margin: 0,
-                    fontWeight: '600',
-                    textAlign: 'center'
+                    fontWeight: '700',
+                    textAlign: 'center',
+                    letterSpacing: 0.3
                   }}>
                     ✨ Con tu primer pago ya inicias tus clases ✨
                   </p>
@@ -2213,11 +2231,18 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
               {/* Información de seguridad */}
               <div style={{
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '16px',
-                padding: '20px',
-                marginBottom: '32px'
+                background: theme === 'dark'
+                  ? 'linear-gradient(135deg, rgba(37,99,235,0.18), rgba(14,165,233,0.2))'
+                  : 'linear-gradient(135deg, rgba(191,219,254,0.9), rgba(125,211,252,0.9))',
+                border: theme === 'dark'
+                  ? '1px solid rgba(96,165,250,0.45)'
+                  : '1px solid rgba(37,99,235,0.35)',
+                borderRadius: '20px',
+                padding: '22px',
+                marginBottom: '32px',
+                boxShadow: theme === 'dark'
+                  ? '0 15px 40px rgba(37,99,235,0.25)'
+                  : '0 18px 42px rgba(14,165,233,0.22)'
               }}>
                 <div style={{
                   display: 'flex',
@@ -2225,9 +2250,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   gap: '12px',
                   marginBottom: '12px'
                 }}>
-                  <Shield size={24} color="#10b981" />
+                  <Shield size={24} color={theme === 'dark' ? '#93c5fd' : '#1d4ed8'} />
                   <span style={{
-                    color: '#10b981',
+                    color: theme === 'dark' ? '#bfdbfe' : '#1d4ed8',
                     fontWeight: '700',
                     fontSize: '1.1rem'
                   }}>
@@ -2235,7 +2260,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   </span>
                 </div>
                 <p style={{
-                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                  color: theme === 'dark' ? 'rgba(226,232,240,0.95)' : 'rgba(30,58,138,0.9)',
                   fontSize: '0.9rem',
                   margin: 0,
                   lineHeight: 1.5
@@ -3286,7 +3311,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   borderRadius: '12px',
                                   padding: '20px',
                                   textAlign: 'center',
-                                  background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                  background: dragActive
+                                    ? 'rgba(59, 130, 246, 0.1)'
+                                    : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
                                   transition: 'all 0.3s ease',
                                   cursor: 'pointer'
                                 }}
@@ -3379,9 +3406,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       Arrastra y suelta o haz clic para seleccionar
                                     </p>
                                     <p style={{
-                                      color: '#999',
+                                      color: theme === 'dark' ? '#9ca3af' : '#4b5563',
                                       fontSize: '0.75rem'
-
                                     }}>
                                       PDF, JPG, PNG, WEBP (Máx. 5MB)
                                     </p>
@@ -3449,7 +3475,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     borderRadius: '12px',
                                     padding: '20px',
                                     textAlign: 'center',
-                                    background: dragActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                                    background: dragActive
+                                      ? 'rgba(59, 130, 246, 0.1)'
+                                      : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
                                     transition: 'all 0.3s ease',
                                     cursor: 'pointer'
                                   }}
@@ -3542,7 +3570,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                         Arrastra y suelta o haz clic para seleccionar
                                       </p>
                                       <p style={{
-                                        color: '#999',
+                                        color: theme === 'dark' ? '#9ca3af' : '#4b5563',
                                         fontSize: '0.75rem'
                                       }}>
                                         PDF, JPG, PNG, WEBP (Máx. 5MB)
@@ -3693,71 +3721,11 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         isSelected={selectedPayment === 'efectivo'}
                         onClick={() => setSelectedPayment('efectivo')}
                       />
-
-                      <PaymentCard
-                        title="PayPhone"
-                        icon={<CreditCard size={24} />}
-                        description="Pago rápido y seguro con PayPhone (+$7 por servicio)"
-                        isSelected={selectedPayment === 'payphone'}
-                        onClick={() => setSelectedPayment('payphone')}
-                      />
                     </div>
 
 
 
                     {/* Contenido específico según método seleccionado */}
-                    {selectedPayment === 'payphone' && (
-                      <div style={{
-                        padding: '24px',
-                        background: 'rgba(251, 191, 36, 0.1)',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(251, 191, 36, 0.3)'
-                      }}>
-                        <h4 style={{
-                          color: '#b45309',
-                          fontSize: '1.2rem',
-                          fontWeight: '700',
-                          marginBottom: '16px'
-                        }}>
-                          Pagar con PayPhone
-                        </h4>
-                        <p style={{
-                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                          marginBottom: '16px',
-                          lineHeight: 1.6
-                        }}>
-                          Serás redirigido a PayPhone para completar tu pago de forma segura.
-                        </p>
-                        <div style={{
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          borderRadius: '12px',
-                          padding: '12px 16px',
-                          marginBottom: '16px'
-                        }}>
-                          <p style={{
-                            color: '#ef4444',
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                            margin: 0
-                          }}>
-                            ⚠️ Aviso: Este método de pago aplica un recargo fijo de USD 7, correspondiente a comisiones del procesador de pagos. El monto final a cobrar incluirá dicho recargo.
-                          </p>
-                        </div>
-                        <div style={{
-                          background: '#1a365d',
-                          color: theme === 'dark' ? '#fff' : '#1f2937',
-                          padding: '16px 24px',
-                          borderRadius: '12px',
-                          textAlign: 'center',
-                          fontWeight: '700',
-                          fontSize: '1.1rem'
-                        }}>
-                          Pagar con PayPhone
-                        </div>
-                      </div>
-                    )}
-
                     {selectedPayment === 'transferencia' && (
                       <div style={{
                         padding: '24px',
@@ -3787,7 +3755,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <div style={{
                             width: '150px',
                             height: '150px',
-                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
                             borderRadius: '12px',
                             display: 'flex',
                             alignItems: 'center',
@@ -3795,7 +3763,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
                             flexShrink: 0
                           }}>
-                            <QrCode size={100} color="#fff" />
+                            <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{
@@ -3991,7 +3959,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               }}
                             />
                             <p style={{
-                              color: 'rgba(255, 255, 255, 0.6)',
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(55, 65, 81, 0.7)',
                               fontSize: '0.8rem',
                               margin: '8px 0 0 0',
                               lineHeight: 1.4
@@ -4027,7 +3995,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               borderRadius: '16px',
                               padding: '32px',
                               textAlign: 'center',
-                              background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                              background: dragActive
+                                ? 'rgba(251, 191, 36, 0.1)'
+                                : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
                               transition: 'all 0.3s ease',
                               cursor: 'pointer',
                               position: 'relative'
@@ -4121,7 +4091,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   o haz clic para seleccionar archivo
                                 </p>
                                 <p style={{
-                                  color: '#999',
+                                  color: theme === 'dark' ? '#9ca3af' : '#4b5563',
                                   fontSize: '0.8rem'
                                 }}>
                                   Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
@@ -4219,7 +4189,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               borderRadius: '16px',
                               padding: '32px',
                               textAlign: 'center',
-                              background: dragActive ? 'rgba(251, 191, 36, 0.1)' : 'rgba(0, 0, 0, 0.4)',
+                              background: dragActive
+                                ? 'rgba(251, 191, 36, 0.1)'
+                                : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
                               transition: 'all 0.3s ease',
                               cursor: 'pointer',
                               position: 'relative'
@@ -4313,7 +4285,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   o haz clic para seleccionar archivo
                                 </p>
                                 <p style={{
-                                  color: '#999',
+                                  color: theme === 'dark' ? '#9ca3af' : '#4b5563',
                                   fontSize: '0.8rem'
                                 }}>
                                   Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
