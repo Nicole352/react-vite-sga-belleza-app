@@ -49,28 +49,17 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
-  const [filteredCursos, setFilteredCursos] = useState<CursoResumen[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCalif, setShowCalif] = useState(false);
   const [cursoSelId, setCursoSelId] = useState<number | null>(null);
   const [cursoSelNombre, setCursoSelNombre] = useState<string>('');
   const [showDropdownCursos, setShowDropdownCursos] = useState(false);
-  const [activeTab, setActiveTab] = useState<'activos' | 'finalizados'>('activos');
 
   useEffect(() => {
     setIsVisible(true);
     fetchUserData();
     fetchCursos();
   }, []);
-
-  useEffect(() => {
-    // Filter courses based on active tab
-    if (activeTab === 'activos') {
-      setFilteredCursos(cursos.filter(curso => (curso.estado || 'activo') === 'activo'));
-    } else {
-      setFilteredCursos(cursos.filter(curso => curso.estado === 'finalizado'));
-    }
-  }, [cursos, activeTab]);
 
   const fetchUserData = async () => {
     try {
@@ -301,89 +290,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               Mis Cursos
             </h2>
             
-            {/* Tabs para filtrar cursos */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '0.5rem', 
-              borderBottom: `1px solid ${theme.border}`,
-              paddingBottom: '0.75rem'
-            }}>
-              <button
-                onClick={() => setActiveTab('activos')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: activeTab === 'activos' 
-                    ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-                    : darkMode 
-                      ? 'rgba(255, 255, 255, 0.05)' 
-                      : 'rgba(0, 0, 0, 0.05)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: activeTab === 'activos' ? '#fff' : theme.textSecondary,
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== 'activos') {
-                    e.currentTarget.style.background = darkMode 
-                      ? 'rgba(255, 255, 255, 0.1)' 
-                      : 'rgba(0, 0, 0, 0.1)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== 'activos') {
-                    e.currentTarget.style.background = darkMode 
-                      ? 'rgba(255, 255, 255, 0.05)' 
-                      : 'rgba(0, 0, 0, 0.05)';
-                  }
-                }}
-              >
-                Cursos Activos
-              </button>
-              
-              <button
-                onClick={() => setActiveTab('finalizados')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: activeTab === 'finalizados' 
-                    ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-                    : darkMode 
-                      ? 'rgba(255, 255, 255, 0.05)' 
-                      : 'rgba(0, 0, 0, 0.05)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: activeTab === 'finalizados' ? '#fff' : theme.textSecondary,
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== 'finalizados') {
-                    e.currentTarget.style.background = darkMode 
-                      ? 'rgba(255, 255, 255, 0.1)' 
-                      : 'rgba(0, 0, 0, 0.1)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== 'finalizados') {
-                    e.currentTarget.style.background = darkMode 
-                      ? 'rgba(255, 255, 255, 0.05)' 
-                      : 'rgba(0, 0, 0, 0.05)';
-                  }
-                }}
-              >
-                Cursos Finalizados
-              </button>
-            </div>
+
           </div>
 
           {loading ? (
@@ -399,26 +306,22 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
               }} />
               <p style={{ color: theme.textSecondary, fontSize: '1.1rem' }}>Cargando cursos...</p>
             </div>
-          ) : filteredCursos.length === 0 ? (
+          ) : cursos.length === 0 ? (
             <div style={{
               textAlign: 'center',
               padding: '3.75em 1.25em'
             }}>
               <BookOpen size={64} color={theme.textMuted} style={{ marginBottom: '1em', opacity: 0.5 }} />
               <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
-                {activeTab === 'activos' 
-                  ? 'No tienes cursos activos' 
-                  : 'No tienes cursos finalizados'}
+                No tienes cursos activos
               </h3>
               <p style={{ color: theme.textMuted, margin: 0 }}>
-                {activeTab === 'activos' 
-                  ? 'Tus cursos activos aparecerán aquí cuando se asignen' 
-                  : 'Tus cursos finalizados aparecerán aquí cuando se completen'}
+                Tus cursos activos aparecerán aquí cuando se asignen
               </p>
             </div>
           ) : (
             <div style={{ display: 'grid', gap: '0.75em' }}>
-              {filteredCursos.map((curso) => (
+              {cursos.map((curso) => (
                 <div
                   key={curso.id_curso}
                   onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}

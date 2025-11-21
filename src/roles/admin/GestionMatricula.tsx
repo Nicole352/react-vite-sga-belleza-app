@@ -193,13 +193,13 @@ const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado:
   
     useSocket({
       'nueva_solicitud_matricula': (data: any) => {
-      console.log('🔔 Nueva solicitud recibida:', data);
+      console.log('Nueva solicitud recibida:', data);
       showToast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`, darkMode);
       void fetchSolicitudes();
       void fetchCounters();
         },
         'solicitud_actualizada': (data: any) => {
-        console.log('🔔 Solicitud actualizada:', data);
+        console.log('Solicitud actualizada:', data);
       void fetchSolicitudes();
     void fetchCounters();
   }
@@ -367,10 +367,16 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
     try {
       setDecidiendo(true);
 
+const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
+
       const response = await fetch(`${API_BASE}/api/estudiantes/crear-desde-solicitud`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           id_solicitud: approvalData.id_solicitud,

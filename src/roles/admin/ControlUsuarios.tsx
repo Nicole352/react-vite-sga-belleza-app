@@ -43,6 +43,10 @@ interface Usuario {
   matriculas_aprobadas?: number;
   pagos_verificados?: number;
   total_acciones?: number;
+  // Bloqueo financiero
+  cuenta_bloqueada?: boolean;
+  motivo_bloqueo?: string | null;
+  fecha_bloqueo?: string | null;
 }
 
 interface Sesion {
@@ -185,7 +189,8 @@ const ControlUsuarios = () => {
 
   // Modal de confirmación
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar' | 'resetear', usuario: Usuario } | null>(null);
+  const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear', usuario: Usuario } | null>(null);
+  const [motivoBloqueo, setMotivoBloqueo] = useState('');
 
   // Modal de credenciales
   const [showCredencialesModal, setShowCredencialesModal] = useState(false);
@@ -217,10 +222,10 @@ const ControlUsuarios = () => {
       }
 
       const data = await response.json();
-      
+
       // DEBUG: Verificar fotos (simplificado para no mostrar base64 completo)
       const conFoto = data.usuarios?.filter((u: any) => u.foto_perfil).length || 0;
-      console.log('📸 Usuarios con foto:', conFoto, 'de', data.usuarios?.length);
+      console.log(' Usuarios con foto:', conFoto, 'de', data.usuarios?.length);
 
       // Obtener ID del usuario logueado
       let idUsuarioLogueado = null;
@@ -363,14 +368,14 @@ const ControlUsuarios = () => {
         });
         if (historialRes.ok) {
           const historialData = await historialRes.json();
-          console.log('📋 Historial detallado recibido:', historialData);
+          console.log('Historial detallado recibido:', historialData);
           setAcciones(historialData.data?.acciones || []);
         } else {
-          console.error('❌ Error al cargar historial:', historialRes.status);
+          console.error('Error al cargar historial:', historialRes.status);
           setAcciones([]);
         }
       } catch (err) {
-        console.error('❌ Error en fetch de historial:', err);
+        console.error('Error en fetch de historial:', err);
         setAcciones([]);
       }
 
@@ -427,7 +432,7 @@ const ControlUsuarios = () => {
 
   const cargarAccionesDetalladas = async (tipo: 'todas' | 'administrativas' | 'academicas') => {
     if (!usuarioSeleccionado) return;
-    
+
     try {
       const token = sessionStorage.getItem('auth_token');
       const historialRes = await fetch(`${API_BASE}/auditoria/usuario/${usuarioSeleccionado.id_usuario}/historial-detallado?tipo=${tipo}&limite=50`, {
@@ -435,27 +440,26 @@ const ControlUsuarios = () => {
       });
       if (historialRes.ok) {
         const historialData = await historialRes.json();
-        console.log('📋 Historial detallado recibido:', historialData);
-        
-        // Parsear detalles si es string JSON
+        console.log('Historial detallado recibido:', historialData);
+
         const accionesParsed = (historialData.data?.acciones || []).map((accion: any) => {
           if (typeof accion.detalles === 'string') {
             try {
               accion.detalles = JSON.parse(accion.detalles);
             } catch (e) {
-              console.warn('⚠️ No se pudo parsear detalles:', accion.detalles);
+              console.warn('No se pudo parsear detalles:', accion.detalles);
             }
           }
           return accion;
         });
-        
+
         setAcciones(accionesParsed);
       } else {
-        console.error('❌ Error al cargar historial:', historialRes.status);
+        console.error('Error al cargar historial:', historialRes.status);
         setAcciones([]);
       }
     } catch (err) {
-      console.error('❌ Error en fetch de historial:', err);
+      console.error('Error en fetch de historial:', err);
       setAcciones([]);
     }
   };
@@ -466,34 +470,68 @@ const ControlUsuarios = () => {
     setShowConfirmModal(true);
   };
 
-  const cambiarEstado = async () => {
+  const confirmarBloqueo = (usuario: Usuario) => {
+    setAccionConfirmar({ tipo: 'bloquear', usuario });
+    setMotivoBloqueo('');
+    setShowConfirmModal(true);
+  };
+
+  const confirmarDesbloqueo = (usuario: Usuario) => {
+    setAccionConfirmar({ tipo: 'desbloquear', usuario });
+    setShowConfirmModal(true);
+  };
+
+  const ejecutarAccion = async () => {
     if (!accionConfirmar) return;
 
     try {
       const token = sessionStorage.getItem('auth_token');
-      const nuevoEstado = accionConfirmar.tipo === 'activar' ? 'activo' : 'inactivo';
+      let response;
 
-      const response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/estado`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ estado: nuevoEstado })
-      });
+      if (accionConfirmar.tipo === 'bloquear') {
+        response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/bloquear`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ motivo: motivoBloqueo || 'Bloqueo manual por administrador' })
+        });
+      } else if (accionConfirmar.tipo === 'desbloquear') {
+        response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/desbloquear`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } else if (accionConfirmar.tipo === 'activar' || accionConfirmar.tipo === 'desactivar') {
+        const nuevoEstado = accionConfirmar.tipo === 'activar' ? 'activo' : 'inactivo';
+        response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/estado`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ estado: nuevoEstado })
+        });
+      } else if (accionConfirmar.tipo === 'resetear') {
+        // Este caso se maneja en ejecutarResetearPassword, pero por seguridad lo dejamos aquí también o lo ignoramos
+        return;
+      }
 
-      if (!response.ok) {
+      if (response && !response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al cambiar estado');
+        throw new Error(errorData.message || 'Error al ejecutar acción');
       }
 
       await cargarUsuarios();
       await cargarStats();
       setShowConfirmModal(false);
       setAccionConfirmar(null);
-      showToast.success(`Usuario ${accionConfirmar.tipo === 'activar' ? 'activado' : 'desactivado'} correctamente`, darkMode);
+      setMotivoBloqueo('');
+      showToast.success('Acción realizada correctamente', darkMode);
     } catch (err: any) {
-      showToast.error(err?.message || 'Error al cambiar estado del usuario', darkMode);
+      showToast.error(err?.message || 'Error al ejecutar acción', darkMode);
     }
   };
 
@@ -811,6 +849,7 @@ const ControlUsuarios = () => {
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
             <option value="pendiente">Pendiente</option>
+            <option value="bloqueado">Bloqueado</option>
           </select>
         </div>
       </div >
@@ -907,9 +946,15 @@ const ControlUsuarios = () => {
                         <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
                       </td>
                       <td style={{ padding: '1rem' }}>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
-                          {usuario.estado}
-                        </span>
+                        {usuario.cuenta_bloqueada ? (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
+                            <Lock size={12} /> BLOQUEADO
+                          </span>
+                        ) : (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
+                            {usuario.estado.toUpperCase()}
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
@@ -960,12 +1005,43 @@ const ControlUsuarios = () => {
                               e.currentTarget.style.backgroundColor = 'transparent';
                               e.currentTarget.style.color = color;
                             }}
-                            title={usuario.estado === 'activo' ? 'Bloquear usuario' : 'Desbloquear usuario'}
+                            title={usuario.estado === 'activo' ? 'Desactivar usuario' : 'Activar usuario'}
                           >
                             {usuario.estado === 'activo' ? (
-                              <Lock style={{ width: '1rem', height: '1rem' }} />
+                              <Power style={{ width: '1rem', height: '1rem' }} />
                             ) : (
+                              <CheckCircle style={{ width: '1rem', height: '1rem' }} />
+                            )}
+                          </button>
+
+                          {/* Botón de Bloqueo Financiero */}
+                          <button
+                            onClick={() => usuario.cuenta_bloqueada ? confirmarDesbloqueo(usuario) : confirmarBloqueo(usuario)}
+                            style={{
+                              padding: '0.5rem',
+                              borderRadius: '0.5rem',
+                              border: `1px solid ${usuario.cuenta_bloqueada ? '#10b981' : '#ef4444'}`,
+                              backgroundColor: 'transparent',
+                              color: usuario.cuenta_bloqueada ? '#10b981' : '#ef4444',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
+                              e.currentTarget.style.backgroundColor = color;
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = color;
+                            }}
+                            title={usuario.cuenta_bloqueada ? 'Desbloquear cuenta' : 'Bloquear cuenta'}
+                          >
+                            {usuario.cuenta_bloqueada ? (
                               <Unlock style={{ width: '1rem', height: '1rem' }} />
+                            ) : (
+                              <Lock style={{ width: '1rem', height: '1rem' }} />
                             )}
                           </button>
                           <button
@@ -1122,13 +1198,16 @@ const ControlUsuarios = () => {
           if (accionConfirmar?.tipo === 'resetear') {
             ejecutarResetearPassword();
           } else {
-            cambiarEstado();
+            ejecutarAccion();
           }
         }}
         onCancel={() => {
           setShowConfirmModal(false);
           setAccionConfirmar(null);
+          setMotivoBloqueo('');
         }}
+        motivoBloqueo={motivoBloqueo}
+        setMotivoBloqueo={setMotivoBloqueo}
       />
 
       <ModalCredenciales
@@ -1410,8 +1489,8 @@ const ModalDetalle = ({
               border: usuario.foto_perfil ? `2px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(248,113,113,0.45)'}` : 'none'
             }}>
               {usuario.foto_perfil ? (
-                <img 
-                  src={usuario.foto_perfil} 
+                <img
+                  src={usuario.foto_perfil}
                   alt={`${usuario.nombre} ${usuario.apellido}`}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   onError={(e) => {
@@ -2262,12 +2341,14 @@ const ModalDetalle = ({
 
 interface ModalConfirmacionProps {
   show: boolean;
-  accion: { tipo: 'activar' | 'desactivar' | 'resetear', usuario: Usuario } | null;
+  accion: { tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear', usuario: Usuario } | null;
   onConfirm: () => void;
   onCancel: () => void;
+  motivoBloqueo?: string;
+  setMotivoBloqueo?: (motivo: string) => void;
 }
 
-const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmacionProps) => {
+const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, setMotivoBloqueo }: ModalConfirmacionProps) => {
   if (!show || !accion) return null;
 
   const getTitulo = () => {
@@ -2275,6 +2356,8 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
       case 'activar': return 'Activar Usuario';
       case 'desactivar': return 'Desactivar Usuario';
       case 'resetear': return 'Resetear Contraseña';
+      case 'bloquear': return 'Bloquear Usuario';
+      case 'desbloquear': return 'Desbloquear Usuario';
       default: return '';
     }
   };
@@ -2286,6 +2369,10 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
         return `¿Estás seguro de ${accion.tipo} a `;
       case 'resetear':
         return '¿Estás seguro de resetear la contraseña de ';
+      case 'bloquear':
+        return '¿Estás seguro de bloquear financieramente a ';
+      case 'desbloquear':
+        return '¿Estás seguro de desbloquear a ';
       default:
         return '';
     }
@@ -2296,6 +2383,8 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
       case 'activar': return 'Activar';
       case 'desactivar': return 'Desactivar';
       case 'resetear': return 'Resetear';
+      case 'bloquear': return 'Bloquear';
+      case 'desbloquear': return 'Desbloquear';
       default: return 'Confirmar';
     }
   };
@@ -2324,7 +2413,7 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
         scrollBehavior: 'smooth'
       }}
     >
-      <div 
+      <div
         onClick={(e) => e.stopPropagation()}
         className="modal-content"
         style={{
@@ -2346,6 +2435,32 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel }: ModalConfirmac
         <p style={{ marginBottom: '1.25rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontSize: '0.95rem' }}>
           {getMensaje()}<strong style={{ color: 'var(--admin-text-primary, #fff)' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
         </p>
+
+        {/* Input para motivo de bloqueo */}
+        {accion.tipo === 'bloquear' && setMotivoBloqueo && (
+          <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--admin-text-primary, #fff)', marginBottom: '0.5rem' }}>
+              Motivo del bloqueo
+            </label>
+            <textarea
+              value={motivoBloqueo}
+              onChange={(e) => setMotivoBloqueo(e.target.value)}
+              placeholder="Ej: Falta de pago cuota 2 y 3..."
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid var(--admin-border, rgba(255,255,255,0.2))',
+                backgroundColor: 'var(--admin-input-bg, rgba(255,255,255,0.05))',
+                color: 'var(--admin-text-primary, #fff)',
+                fontSize: '0.9rem',
+                resize: 'none',
+                minHeight: '80px'
+              }}
+              rows={3}
+            />
+          </div>
+        )}
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
             onClick={onCancel}
@@ -2436,7 +2551,7 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
         scrollBehavior: 'smooth'
       }}
     >
-      <div 
+      <div
         onClick={(e) => e.stopPropagation()}
         className="modal-content"
         style={{
@@ -2468,12 +2583,12 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
           <div style={{ marginBottom: '0.75rem' }}>
             <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', marginBottom: '0.25rem' }}>Usuario</div>
             <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.username}</div>
-          </div>
+          </div >
           <div>
             <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', marginBottom: '0.25rem' }}>Contraseña Temporal</div>
             <div style={{ fontWeight: '700', color: '#3b82f6', fontSize: '1rem' }}>{credenciales.password_temporal}</div>
           </div>
-        </div>
+        </div >
         <p style={{ fontSize: '0.85rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', marginBottom: '1.25rem' }}>
           ⚠️ El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
         </p>
@@ -2494,9 +2609,9 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
         >
           Cerrar
         </button>
-      </div>
+      </div >
       {/* Animaciones CSS */}
-      <style>{`
+      < style > {`
         @keyframes scaleIn {
           from {
             opacity: 0;
@@ -2507,8 +2622,8 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
             transform: scale(1);
           }
         }
-      `}</style>
-    </div>,
+      `}</style >
+    </div >,
     document.body
   );
 };

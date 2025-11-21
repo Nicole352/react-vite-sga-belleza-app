@@ -73,9 +73,9 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('📊 Datos del estudiante cargados:', data);
-        console.log('📞 Contacto de emergencia:', data.contacto_emergencia);
-        console.log('🔑 Todas las propiedades:', Object.keys(data));
+        console.log('Datos del estudiante cargados:', data);
+        console.log('Contacto de emergencia:', data.contacto_emergencia);
+        console.log('Todas las propiedades:', Object.keys(data));
         console.log('Username del estudiante:', data.username);
         console.log('Contacto de emergencia:', data.contacto_emergencia);
         console.log('Todas las propiedades:', Object.keys(data));
@@ -133,7 +133,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         contacto_emergencia: formData.contacto_emergencia || ''
       };
 
-      console.log('📤 Datos a enviar:', cleanedData);
+      console.log('Datos a enviar:', cleanedData);
 
       const response = await fetch(`${API_BASE}/api/usuarios/mi-perfil`, {
         method: 'PUT',

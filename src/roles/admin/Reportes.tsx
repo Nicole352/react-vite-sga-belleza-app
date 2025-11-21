@@ -176,7 +176,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     fontSize: '0.75rem',
     color: themeColors.textMuted
   };
-  
+
   // Estilos para scrollbar horizontal
   const scrollbarStyles = `
     .metricas-scroll {
@@ -245,7 +245,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       color: ${themeColors.textMuted} !important;
     }
   `;
-  
+
   // Estados principales
   const [tipoReporte, setTipoReporte] = useState<'estudiantes' | 'cursos' | 'financiero'>('estudiantes');
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos');
@@ -257,12 +257,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   const [filtroEstadoEstudiante, setFiltroEstadoEstudiante] = useState('todos');
   const [filtroCurso, setFiltroCurso] = useState('');
   const [filtroEstadoPago, setFiltroEstadoPago] = useState('todos');
-  
+
   // Nuevos filtros para cursos
   const [filtroEstadoCursoReporte, setFiltroEstadoCursoReporte] = useState('todos');
   const [filtroOcupacionCurso, setFiltroOcupacionCurso] = useState('todos');
   const [filtroHorarioCurso, setFiltroHorarioCurso] = useState('todos');
-  
+
   // Nuevos filtros para financiero
   const [filtroMetodoPago, setFiltroMetodoPago] = useState('todos');
   const [filtroCursoFinanciero, setFiltroCursoFinanciero] = useState('');
@@ -319,12 +319,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   // Cargar datos iniciales
   useEffect(() => {
     const token = sessionStorage.getItem('auth_token');
-    console.log('🔑 Token disponible:', !!token);
+    console.log('Token disponible:', !!token);
     if (token) {
       cargarCursosParaFiltro();
       cargarPeriodosDisponibles();
     } else {
-      console.error('-No hay token disponible');
+      console.error('No hay token disponible');
     }
   }, []);
 
@@ -343,21 +343,21 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   // Cargar períodos disponibles desde cursos
   const cargarPeriodosDisponibles = async () => {
     try {
-      console.log('📅 Iniciando carga de períodos...');
+      console.log('Iniciando carga de períodos...');
       const token = sessionStorage.getItem('auth_token');
       if (!token) {
-        console.error('-No hay token disponible para cargar períodos');
+        console.error('No hay token disponible para cargar períodos');
         return;
       }
 
-      console.log('🌐 Llamando a:', `${API_BASE}/reportes/cursos-filtro`);
+      console.log('Llamando a:', `${API_BASE}/reportes/cursos-filtro`);
       const response = await fetch(`${API_BASE}/reportes/cursos-filtro`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      console.log('📡 Status de respuesta:', response.status);
+      console.log('Status de respuesta:', response.status);
 
       if (response.status === 401) {
         console.error('-Token inválido o expirado al cargar períodos');
@@ -365,8 +365,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       }
 
       const data = await response.json();
-      console.log('✅ Cursos recibidos para períodos:', data);
-      console.log('📊 Cantidad de cursos:', data.data?.length || 0);
+      console.log('Cursos recibidos para períodos:', data);
+      console.log('Cantidad de cursos:', data.data?.length || 0);
 
       if (data.success && data.data.length > 0) {
         // Extraer períodos únicos de los cursos
@@ -497,12 +497,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
   // Filtrar cursos según el período seleccionado
   useEffect(() => {
-    console.log('🔍 Filtrando cursos...');
+    console.log('Filtrando cursos');
     console.log('Período seleccionado:', periodoSeleccionado);
     console.log('Cursos disponibles:', cursosDisponibles.length);
 
     if (periodoSeleccionado === 'todos') {
-      console.log('✅ Mostrando todos los cursos');
+      console.log('Mostrando todos los cursos');
       setCursosFiltrados(cursosDisponibles);
     } else {
       const periodo = periodosDisponibles.find(p => p.key === periodoSeleccionado);
@@ -517,10 +517,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           const periodoFin = periodo.fin?.split('T')[0] || periodo.fin;
 
           const coincide = cursoInicio === periodoInicio && cursoFin === periodoFin;
-          console.log(`Curso ${curso.nombre}: inicio=${cursoInicio} vs ${periodoInicio}, fin=${cursoFin} vs ${periodoFin} → ${coincide ? '✅' : '❌'}`);
+          console.log(`Curso ${curso.nombre}: inicio=${cursoInicio} vs ${periodoInicio}, fin=${cursoFin} vs ${periodoFin} → ${coincide ? 'Mostrando' : 'Ocultando'}`);
           return coincide;
         });
-        console.log('📊 Cursos filtrados:', cursosFiltradosPorPeriodo.length);
+        console.log('Cursos filtrados:', cursosFiltradosPorPeriodo.length);
         setCursosFiltrados(cursosFiltradosPorPeriodo);
       }
     }
@@ -555,12 +555,19 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           url = `${API_BASE}/reportes/estudiantes`;
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
           if (filtroCurso) params.append('idCurso', filtroCurso);
+          if (filtroHorario !== 'todos') params.append('horario', filtroHorario);
+          console.log('Filtros estudiantes:', { estado: filtroEstadoEstudiante, curso: filtroCurso, horario: filtroHorario });
           break;
         case 'cursos':
           url = `${API_BASE}/reportes/cursos`;
           if (filtroEstadoCursoReporte !== 'todos') params.append('estado', filtroEstadoCursoReporte);
           if (filtroOcupacionCurso !== 'todos') params.append('ocupacion', filtroOcupacionCurso);
           if (filtroHorarioCurso !== 'todos') params.append('horario', filtroHorarioCurso);
+          console.log('Filtros cursos:', {
+            estado: filtroEstadoCursoReporte,
+            ocupacion: filtroOcupacionCurso,
+            horario: filtroHorarioCurso
+          });
           break;
         case 'financiero':
           url = `${API_BASE}/reportes/financiero`;
@@ -569,6 +576,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           if (filtroEstadoPago !== 'todos') params.append('estadoPago', filtroEstadoPago);
           if (filtroMetodoPago !== 'todos') params.append('metodoPago', filtroMetodoPago);
           if (filtroHorarioFinanciero !== 'todos') params.append('horario', filtroHorarioFinanciero);
+          console.log('Filtros financiero:', {
+            curso: filtroCursoFinanciero,
+            estadoCurso: filtroEstadoCursoFinanciero,
+            estadoPago: filtroEstadoPago,
+            metodoPago: filtroMetodoPago,
+            horario: filtroHorarioFinanciero
+          });
           break;
         default:
           throw new Error('Tipo de reporte no válido');
@@ -598,7 +612,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       }
 
       if (data.success) {
-        console.log('Datos del reporte:', data.data.datos);
+        console.log('Datos del reporte:', data.data.datos.length, 'registros');
         console.log('Estadísticas:', data.data.estadisticas);
         setDatosReporte(data.data.datos);
         setEstadisticas(data.data.estadisticas);
@@ -606,7 +620,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         throw new Error(data.message || 'Error al generar el reporte');
       }
     } catch (error: any) {
-      console.error('Error generando reporte:', error);
+      console.error(' Error generando reporte:', error);
       setError(error.message || 'Error al generar el reporte');
     } finally {
       setLoading(false);
@@ -628,6 +642,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             : `${API_BASE}/reportes/estudiantes/${formato}`;
           if (filtroEstadoEstudiante !== 'todos') params.append('estado', filtroEstadoEstudiante);
           if (filtroCurso) params.append('idCurso', filtroCurso);
+          if (filtroHorario !== 'todos') params.append('horario', filtroHorario);
           break;
         case 'cursos':
           // Usar ruta v2 para Excel (con historial), ruta normal para PDF
@@ -676,12 +691,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(urlBlob);
 
-        // Mostrar mensaje de éxito con trazabilidad
-        if (formato === 'excel') {
-          showToast.success('Reporte descargado y guardado en historial', darkMode);
-        } else {
-          showToast.success('Reporte descargado exitosamente', darkMode);
-        }
+      // Mostrar mensaje de éxito con trazabilidad
+      if (formato === 'excel') {
+        showToast.success('Reporte descargado y guardado en historial', darkMode);
+      } else {
+        showToast.success('Reporte descargado exitosamente', darkMode);
+      }
     } catch (error) {
       console.error(`Error descargando ${formato}:`, error);
       showToast.error(`Error al descargar el ${formato.toUpperCase()}`, darkMode);
@@ -690,13 +705,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     }
   };
 
-  // Procesar y filtrar datos con useMemo para optimizar
+  // Procesar y filtrar datos con useMemo para optimizar (solo búsqueda y ordenamiento)
   const datosProcesados = useMemo(() => {
     if (!datosReporte) return [];
-    
+
     let datos = [...datosReporte];
-    
-    // Aplicar búsqueda rápida
+
+    // Aplicar búsqueda rápida (solo en frontend)
     if (busquedaRapida.trim()) {
       const busqueda = busquedaRapida.toLowerCase();
       datos = datos.filter((item: any) => {
@@ -705,53 +720,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         return nombre.includes(busqueda) || curso.includes(busqueda);
       });
     }
-    
-    // Filtros para CURSOS
-    if (tipoReporte === 'cursos') {
-      // Filtro por estado del curso
-      if (filtroEstadoCursoReporte !== 'todos') {
-        datos = datos.filter((item: any) => item.estado?.toLowerCase() === filtroEstadoCursoReporte);
-      }
-      
-      // Filtro por ocupación
-      if (filtroOcupacionCurso !== 'todos') {
-        datos = datos.filter((item: any) => {
-          const ocupacion = parseFloat(item.porcentaje_ocupacion || 0);
-          if (filtroOcupacionCurso === 'lleno') return ocupacion >= 80;
-          if (filtroOcupacionCurso === 'medio') return ocupacion >= 40 && ocupacion < 80;
-          if (filtroOcupacionCurso === 'bajo') return ocupacion < 40;
-          return true;
-        });
-      }
-      
-      // Filtro por horario
-      if (filtroHorarioCurso !== 'todos') {
-        datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorarioCurso);
-      }
-    }
-    
-    // Filtros para FINANCIERO
-    if (tipoReporte === 'financiero') {
-      // Filtro por método de pago
-      if (filtroMetodoPago !== 'todos') {
-        datos = datos.filter((item: any) => item.metodo_pago?.toLowerCase() === filtroMetodoPago);
-      }
-      
-      // Filtro por horario
-      if (filtroHorarioFinanciero !== 'todos') {
-        datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorarioFinanciero);
-      }
-    }
-    
-    // Aplicar filtro de horario para estudiantes
-    if (tipoReporte === 'estudiantes' && filtroHorario !== 'todos') {
-      datos = datos.filter((item: any) => item.horario?.toLowerCase() === filtroHorario);
-    }
-    
-    // Aplicar ordenamiento
+
+    // Aplicar ordenamiento (solo en frontend)
     datos.sort((a: any, b: any) => {
       let comparacion = 0;
-      
+
       if (ordenamiento === 'nombre') {
         const nombreA = `${a.nombre || a.nombre_estudiante || a.nombre_curso || ''} ${a.apellido || a.apellido_estudiante || ''}`;
         const nombreB = `${b.nombre || b.nombre_estudiante || b.nombre_curso || ''} ${b.apellido || b.apellido_estudiante || ''}`;
@@ -765,23 +738,22 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       } else if (ordenamiento === 'capacidad' && tipoReporte === 'cursos') {
         comparacion = parseInt(b.capacidad_maxima || 0) - parseInt(a.capacidad_maxima || 0); // Mayor primero por defecto
       }
-      
+
       return ordenAscendente ? -comparacion : comparacion;
     });
-    
+
     return datos;
-  }, [datosReporte, busquedaRapida, filtroHorario, ordenamiento, ordenAscendente, tipoReporte, 
-      filtroEstadoCursoReporte, filtroOcupacionCurso, filtroHorarioCurso, filtroMetodoPago, filtroHorarioFinanciero]);
+  }, [datosReporte, busquedaRapida, ordenamiento, ordenAscendente, tipoReporte]);
 
   // Calcular estadísticas mejoradas
   const estadisticasCalculadas = useMemo(() => {
     if (!datosProcesados || datosProcesados.length === 0) return null;
-    
+
     if (tipoReporte === 'estudiantes') {
       const total = datosProcesados.length;
       const aprobados = datosProcesados.filter((e: any) => e.estado_academico === 'aprobado').length;
       const tasaAprobacion = total > 0 ? ((aprobados / total) * 100).toFixed(1) : '0';
-      
+
       return {
         total,
         aprobados,
@@ -794,7 +766,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       const ingresoTotal = datosProcesados.reduce((sum: number, p: any) => sum + parseFloat(p.monto || 0), 0);
       const promedio = total > 0 ? ingresoTotal / total : 0;
       const verificados = datosProcesados.filter((p: any) => p.estado === 'verificado').length;
-      
+
       return {
         total,
         ingresoTotal,
@@ -808,7 +780,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       const capacidadPromedio = total > 0 ? Math.round(capacidadTotal / total) : 0;
       const activos = datosProcesados.filter((c: any) => c.estado === 'activo').length;
       const finalizados = datosProcesados.filter((c: any) => c.estado === 'finalizado').length;
-      
+
       return {
         total,
         capacidadPromedio,
@@ -817,7 +789,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         cancelados: datosProcesados.filter((c: any) => c.estado === 'cancelado').length
       };
     }
-    
+
     return null;
   }, [datosProcesados, tipoReporte]);
 
@@ -826,10 +798,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     if (tipoReporte === 'estudiantes') {
       return (
         <>
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -870,10 +842,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               })}
             </select>
           </div>
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -899,10 +871,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     if (tipoReporte === 'cursos') {
       return (
         <>
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -921,11 +893,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="cancelado">Cancelados</option>
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -944,11 +916,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="bajo">Baja ocupación (0-39%)</option>
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -973,10 +945,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     if (tipoReporte === 'financiero') {
       return (
         <>
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -1013,11 +985,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               })}
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -1035,11 +1007,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="finalizado">Finalizados</option>
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -1059,11 +1031,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="vencido">Vencidos</option>
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -1081,11 +1053,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="transferencia">Transferencia</option>
             </select>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
@@ -1130,7 +1102,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Total Estudiantes</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#10b981')}>
             <CheckCircle2 size={28} color="#10b981" />
             <div>
@@ -1138,7 +1110,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Tasa Aprobación</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#3b82f6')}>
             <Target size={28} color="#3b82f6" />
             <div>
@@ -1169,7 +1141,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Ingresos Totales</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#ef4444')}>
             <BarChart3 size={28} color="#ef4444" />
             <div>
@@ -1177,7 +1149,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Total Pagos</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#3b82f6')}>
             <Award size={28} color="#3b82f6" />
             <div>
@@ -1208,7 +1180,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Total Cursos</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#10b981')}>
             <CheckCircle2 size={28} color="#10b981" />
             <div>
@@ -1216,7 +1188,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <div style={metricLabelStyle}>Cursos Activos</div>
             </div>
           </div>
-          
+
           <div style={buildMetricCardStyle('#3b82f6')}>
             <Users size={28} color="#3b82f6" />
             <div>
@@ -1227,7 +1199,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -1258,15 +1230,15 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       }
 
       return (
-        <div style={{ 
-          display: 'grid', 
-          gap: isMobile ? '16px' : '1.5rem', 
-          width: '100%', 
+        <div style={{
+          display: 'grid',
+          gap: isMobile ? '16px' : '1.5rem',
+          width: '100%',
           maxWidth: '100%'
         }}>
           {/* Tarjetas de resumen */}
           {renderTarjetasResumen()}
-          
+
           {/* Controles de búsqueda y ordenamiento */}
           {datosReporte.length > 0 && (
             <div style={{
@@ -1291,7 +1263,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   }}
                 />
               </div>
-              
+
               {/* Ordenamiento */}
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <button
@@ -1308,7 +1280,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                   Nombre
                 </button>
-                
+
                 <button
                   onClick={() => {
                     if (ordenamiento === 'fecha') {
@@ -1323,11 +1295,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                   Fecha
                 </button>
-                
+
               </div>
             </div>
           )}
-          
+
           {/* Lista de estudiantes */}
           {datosProcesados.length > 0 && (
             <div style={{
@@ -1344,7 +1316,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               }}>
                 Estudiantes Matriculados ({datosProcesados.length})
               </h4>
-              
+
               {/* Indicador de scroll en móvil */}
               {isSmallScreen && (
                 <div style={{
@@ -1362,12 +1334,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   gap: '0.375rem'
                 }}>
                   <TrendingUp size={14} />
-                  Desliza horizontalmente
+                  Desplazate
                 </div>
               )}
-              
+
               {/* Cards en grid compacto */}
-              <div 
+              <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
@@ -1387,18 +1359,18 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     flexDirection: 'column',
                     gap: '0.375rem'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
-                    e.currentTarget.style.background = darkMode
-                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
-                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
-                    e.currentTarget.style.background = darkMode
-                      ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
-                      : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
-                  }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
+                      e.currentTarget.style.background = darkMode
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
+                      e.currentTarget.style.background = darkMode
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
+                    }}
                   >
                     {/* Nombre */}
                     <div style={{
@@ -1412,7 +1384,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     }}>
                       {estudiante.nombre} {estudiante.apellido}
                     </div>
-                    
+
                     {/* Curso */}
                     <div style={{
                       color: themeColors.textMuted,
@@ -1427,7 +1399,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         {estudiante.nombre_curso}
                       </span>
                     </div>
-                    
+
                     {/* Estado y Fecha en la misma línea */}
                     <div style={{
                       display: 'flex',
@@ -1455,7 +1427,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                       }}>
                         {estudiante.estado_academico?.toUpperCase() || 'ACTIVO'}
                       </div>
-                      
+
                       <div style={{
                         color: themeColors.textMuted,
                         fontSize: '0.65rem',
@@ -1465,10 +1437,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         whiteSpace: 'nowrap'
                       }}>
                         <Calendar size={10} color={themeColors.textMuted} />
-                        {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES', { 
-                          day: '2-digit', 
-                          month: '2-digit', 
-                          year: '2-digit' 
+                        {new Date(estudiante.fecha_inscripcion).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: '2-digit'
                         })}
                       </div>
                     </div>
@@ -1490,10 +1462,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
     if (tipoReporte === 'financiero') {
       return (
-        <div style={{ 
-          display: 'grid', 
-          gap: isMobile ? '12px' : '1rem', 
-          width: '100%', 
+        <div style={{
+          display: 'grid',
+          gap: isMobile ? '12px' : '1rem',
+          width: '100%',
           maxWidth: '100%'
         }}>
           {/* Lista de pagos */}
@@ -1506,7 +1478,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <h4 style={{ color: themeColors.textPrimary, fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Detalle de Pagos ({datosReporte.length})
               </h4>
-              
+
               {/* Indicador de scroll en móvil */}
               {isSmallScreen && (
                 <div style={{
@@ -1524,12 +1496,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   gap: '0.375rem'
                 }}>
                   <TrendingUp size={14} />
-                  <span>Desliza horizontalmente para ver toda la tabla</span>
+                  <span>Desliza verticalmente para ver todos los datos</span>
                 </div>
               )}
-              
+
               {/* Cards en grid compacto */}
-              <div 
+              <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
@@ -1537,125 +1509,125 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 }}
               >
                 {datosProcesados.map((pago, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: darkMode
-                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
-                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)',
-                        border: darkMode ? '1px solid rgba(239, 68, 68, 0.32)' : '1px solid rgba(239, 68, 68, 0.18)',
-                        borderRadius: '0.5rem',
-                        padding: '0.625rem 0.75rem',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.375rem'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
-                        e.currentTarget.style.background = darkMode
-                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
-                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
-                        e.currentTarget.style.background = darkMode
-                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
-                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
-                      }}
-                    >
-                      {/* Nombre */}
+                  <div
+                    key={idx}
+                    style={{
+                      background: darkMode
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)',
+                      border: darkMode ? '1px solid rgba(239, 68, 68, 0.32)' : '1px solid rgba(239, 68, 68, 0.18)',
+                      borderRadius: '0.5rem',
+                      padding: '0.625rem 0.75rem',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.375rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
+                      e.currentTarget.style.background = darkMode
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
+                      e.currentTarget.style.background = darkMode
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
+                    }}
+                  >
+                    {/* Nombre */}
+                    <div style={{
+                      fontSize: '0.8125rem',
+                      fontWeight: '600',
+                      color: themeColors.textPrimary,
+                      lineHeight: '1.2',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {pago.nombre_estudiante} {pago.apellido_estudiante}
+                    </div>
+
+                    {/* Curso */}
+                    <div style={{
+                      fontSize: '0.7rem',
+                      color: themeColors.textMuted,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      overflow: 'hidden'
+                    }}>
+                      <BookOpen size={11} color={themeColors.textMuted} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {pago.nombre_curso}
+                      </span>
+                    </div>
+
+                    {/* Monto y Fecha en la misma línea */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem'
+                    }}>
                       <div style={{
-                        fontSize: '0.8125rem',
-                        fontWeight: '600',
-                        color: themeColors.textPrimary,
-                        lineHeight: '1.2',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        fontSize: '0.875rem',
+                        fontWeight: '700',
+                        color: '#10b981',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
                         whiteSpace: 'nowrap'
                       }}>
-                        {pago.nombre_estudiante} {pago.apellido_estudiante}
+                        <DollarSign size={14} color="#10b981" />
+                        ${parseFloat(pago.monto).toFixed(2)}
                       </div>
-                      
-                      {/* Curso */}
+
                       <div style={{
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         color: themeColors.textMuted,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.375rem',
-                        overflow: 'hidden'
+                        gap: '0.25rem',
+                        whiteSpace: 'nowrap'
                       }}>
-                        <BookOpen size={11} color={themeColors.textMuted} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {pago.nombre_curso}
-                        </span>
-                      </div>
-                      
-                      {/* Monto y Fecha en la misma línea */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '0.5rem'
-                      }}>
-                        <div style={{
-                          fontSize: '0.875rem',
-                          fontWeight: '700',
-                          color: '#10b981',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          <DollarSign size={14} color="#10b981" />
-                          ${parseFloat(pago.monto).toFixed(2)}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '0.65rem',
-                          color: themeColors.textMuted,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          <Calendar size={10} color={themeColors.textMuted} />
-                          {pago.fecha_pago
-                            ? new Date(pago.fecha_pago).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
-                            : pago.fecha_vencimiento
-                              ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
-                              : 'N/A'
-                          }
-                        </div>
-                      </div>
-                      <div>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.25rem',
-                          fontSize: '0.75rem',
-                          fontWeight: '600',
-                          background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
-                            pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
-                              'rgba(239, 68, 68, 0.2)',
-                          color: pago.estado_pago === 'verificado' ? '#10b981' :
-                            pago.estado_pago === 'pagado' ? '#3b82f6' :
-                              '#ef4444'
-                        }}>
-                          {pago.estado_pago?.toUpperCase()}
-                        </span>
+                        <Calendar size={10} color={themeColors.textMuted} />
+                        {pago.fecha_pago
+                          ? new Date(pago.fecha_pago).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                          : pago.fecha_vencimiento
+                            ? new Date(pago.fecha_vencimiento).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                            : 'N/A'
+                        }
                       </div>
                     </div>
-                  ))}
-                </div>
-                {datosReporte.length > 10 && (
-                  <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                    <p style={{ color: themeColors.textMuted, fontSize: '0.8rem', margin: 0 }}>
-                      Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
-                    </p>
+                    <div>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
+                          pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
+                            'rgba(239, 68, 68, 0.2)',
+                        color: pago.estado_pago === 'verificado' ? '#10b981' :
+                          pago.estado_pago === 'pagado' ? '#3b82f6' :
+                            '#ef4444'
+                      }}>
+                        {pago.estado_pago?.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
-                )}
+                ))}
+              </div>
+              {datosReporte.length > 10 && (
+                <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ color: themeColors.textMuted, fontSize: '0.8rem', margin: 0 }}>
+                    Mostrando todas las cards. Descarga el reporte completo en PDF o Excel.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1664,10 +1636,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
     if (tipoReporte === 'cursos') {
       return (
-        <div style={{ 
-          display: 'grid', 
-          gap: isMobile ? '12px' : '1rem', 
-          width: '100%', 
+        <div style={{
+          display: 'grid',
+          gap: isMobile ? '12px' : '1rem',
+          width: '100%',
           maxWidth: '100%'
         }}>
           {/* Lista de cursos */}
@@ -1688,11 +1660,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     borderRadius: '0.625rem',
                     padding: '0.75rem'
                   }}>
-                    <div style={{ 
-                      display: 'flex', 
+                    <div style={{
+                      display: 'flex',
                       flexDirection: isMobile ? 'column' : 'row',
-                      justifyContent: 'space-between', 
-                      alignItems: isMobile ? 'flex-start' : 'center', 
+                      justifyContent: 'space-between',
+                      alignItems: isMobile ? 'flex-start' : 'center',
                       marginBottom: '0.375rem',
                       gap: isMobile ? '4px' : '0'
                     }}>
@@ -1716,12 +1688,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         {curso.total_estudiantes}/{curso.capacidad_maxima}
                       </div>
                     </div>
-                    <div style={{ 
-                      display: 'flex', 
+                    <div style={{
+                      display: 'flex',
                       flexDirection: isMobile ? 'column' : 'row',
-                      gap: isMobile ? '4px' : '1rem', 
-                      fontSize: isMobile ? '0.75rem' : '0.85rem', 
-                      color: themeColors.textMuted 
+                      gap: isMobile ? '4px' : '1rem',
+                      fontSize: isMobile ? '0.75rem' : '0.85rem',
+                      color: themeColors.textMuted
                     }}>
                       <span>Horario: {curso.horario}</span>
                       <span>Docente: {curso.docente_nombres} {curso.docente_apellidos}</span>
@@ -1758,552 +1730,552 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         data-dark={darkMode ? 'true' : 'false'}
         style={{ color: themeColors.textPrimary }}
       >
-      <div style={{
-        width: '100%',
-        maxWidth: '100%',
-        overflowX: 'hidden',
-        overflowY: 'auto'
-      }}>
-        <AdminSectionHeader
-          title="Reportes y Estadísticas"
-          subtitle="Análisis detallado del rendimiento académico y financiero"
-        />
-
-      {/* Pestañas: Generar / Historial */}
-      <div style={{
-        display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '0.75rem',
-        borderBottom: darkMode ? '2px solid rgba(239, 68, 68, 0.3)' : '2px solid rgba(239, 68, 68, 0.18)'
-      }}>
-        <button
-          onClick={() => setVistaActual('generar')}
-          style={tabButtonStyle(vistaActual === 'generar')}
-        >
-          <BarChart3 size={14} color={vistaActual === 'generar' ? '#ef4444' : themeColors.tabInactive} />
-          Generar Reporte
-        </button>
-        <button
-          onClick={() => setVistaActual('historial')}
-          style={tabButtonStyle(vistaActual === 'historial')}
-        >
-          <History size={14} color={vistaActual === 'historial' ? '#ef4444' : themeColors.tabInactive} />
-          Historial
-        </button>
-      </div>
-
-      {/* Vista: Generar Reporte */}
-      {vistaActual === 'generar' && (
-        <>
-          {/* Selector de Tipo de Reporte */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))', 
-            gap: '0.625rem', 
-            marginBottom: '1rem' 
-          }}>
-            {reportesDisponibles.map(reporte => {
-              const isSelected = tipoReporte === reporte.id;
-              const IconComponent = reporte.icono;
-              const accentColor = isSelected ? '#fff' : reporte.color;
-
-              return (
-                <div
-                  key={reporte.id}
-                  onClick={() => {
-                    setTipoReporte(reporte.id);
-                    setDatosReporte(null);
-                    setEstadisticas(null);
-                    // Resetear filtros específicos
-                    setFiltroEstadoCursoReporte('todos');
-                    setFiltroOcupacionCurso('todos');
-                    setFiltroHorarioCurso('todos');
-                    setFiltroMetodoPago('todos');
-                    setFiltroEstadoEstudiante('todos');
-                    setFiltroCurso('');
-                    setFiltroEstadoPago('todos');
-                    setFiltroCursoFinanciero('');
-                    setFiltroEstadoCursoFinanciero('todos');
-                    setFiltroHorarioFinanciero('todos');
-                    setBusquedaRapida('');
-                  }}
-                  style={{
-                    background: isSelected
-                      ? (darkMode
-                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                        : 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)')
-                      : themeColors.softCardBg,
-                    border: isSelected
-                      ? '2px solid #ef4444'
-                      : `1px solid ${themeColors.softCardBorder}`,
-                    borderRadius: '0.625rem',
-                    padding: isMobile ? '0.75rem' : '0.875rem',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.2s ease',
-                    boxShadow: isSelected
-                      ? '0 0.25rem 1rem rgba(239, 68, 68, 0.35)'
-                      : themeColors.shadow,
-                    position: 'relative',
-                    overflow: 'hidden',
-                    color: isSelected ? '#fff' : undefined
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.45)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.borderColor = themeColors.softCardBorder;
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-                    <span
-                      data-keep-color={isSelected ? 'true' : undefined}
-                      style={{ color: accentColor, display: 'flex', alignItems: 'center' }}
-                    >
-                      <IconComponent size={20} />
-                    </span>
-                    <div
-                      data-keep-color={isSelected ? 'true' : undefined}
-                      style={{
-                        color: accentColor,
-                        fontSize: '0.875rem',
-                        fontWeight: '600',
-                        lineHeight: '1.2'
-                      }}
-                    >
-                      {reporte.titulo}
-                    </div>
-                  </div>
-                  <div
-                    data-keep-color={isSelected ? 'true' : undefined}
-                    style={{
-                      color: isSelected ? '#fff' : themeColors.textMuted,
-                      fontSize: '0.75rem',
-                      lineHeight: '1.3'
-                    }}
-                  >
-                    {reporte.descripcion}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Controles de Filtro */}
-          <div style={{
-            background: themeColors.panelBg,
-            backdropFilter: 'blur(1.25rem)',
-            border: `1px solid ${themeColors.panelBorder}`,
-            borderRadius: isMobile ? '12px' : '1rem',
-            padding: isMobile ? '12px' : '1rem',
-            marginBottom: '1rem'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: isMobile ? 'column' : 'row',
-              flexWrap: 'wrap', 
-              gap: '0.75rem', 
-              alignItems: isMobile ? 'stretch' : 'center', 
-              justifyContent: 'space-between' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                gap: '0.75rem', 
-                alignItems: isMobile ? 'stretch' : 'center', 
-                flex: 1, 
-                flexWrap: 'wrap' 
-              }}>
-                {/* Selector de Período */}
-                <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
-                  <select
-                    value={periodoSeleccionado}
-                    onChange={(e) => setPeriodoSeleccionado(e.target.value)}
-                    style={{
-                      ...baseSelectStyle,
-                      padding: '10px 0.75rem',
-                      fontSize: '0.8rem',
-                      minWidth: '15.625rem'
-                    }}
-                  >
-                    <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los períodos</option>
-                    {periodosDisponibles.map((periodo, idx) => {
-                      const formatearFecha = (fecha: string): string => {
-                        if (!fecha) return '';
-                        const [año, mes, dia] = fecha.split('T')[0].split('-');
-                        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                        const mesNombre = meses[parseInt(mes) - 1];
-                        return `${parseInt(dia)} ${mesNombre} ${año}`;
-                      };
-
-                      const fechaInicio = formatearFecha(periodo.inicio);
-                      const fechaFin = formatearFecha(periodo.fin);
-
-                      return (
-                        <option
-                          key={idx}
-                          value={periodo.key}
-                          style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}
-                        >
-                          {fechaInicio} - {fechaFin}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                {/* Filtros específicos */}
-                {renderFiltrosEspecificos()}
-                
-                {/* Nuevo: Filtro por Horario (solo para estudiantes) */}
-                {tipoReporte === 'estudiantes' && (
-                  <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '0.5rem', flex: isMobile ? '1' : 'initial' }}>
-                    <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
-                    <select
-                      value={filtroHorario}
-                      onChange={(e) => setFiltroHorario(e.target.value as any)}
-                      style={{
-                        ...baseSelectStyle,
-                        width: isMobile ? '100%' : 'auto'
-                      }}
-                    >
-                      <option value="todos">Todos</option>
-                      <option value="matutino">Matutino</option>
-                      <option value="vespertino">Vespertino</option>
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              {/* Botón Ver Reporte */}
-              <button
-                data-keep-color="true"
-                onClick={generarReporte}
-                disabled={loading || descargando}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-                  background: loading
-                    ? (darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.22)')
-                    : (darkMode
-                      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                      : 'linear-gradient(135deg, #ef4444, #f87171)'),
-                  border: 'none',
-                  borderRadius: '0.625rem',
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: darkMode ? '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)' : '0 0.25rem 0.6rem rgba(239, 68, 68, 0.22)',
-                  width: isSmallScreen ? '100%' : 'auto'
-                }}
-              >
-                {loading ? (
-                  <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
-                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  </span>
-                ) : (
-                  <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
-                    <Eye size={16} />
-                  </span>
-                )}
-                <span data-keep-color="true">{loading ? 'Generando...' : 'Ver Reporte'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Botones de Exportación */}
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: '0.75rem', 
-            marginBottom: '1rem', 
-            justifyContent: isMobile ? 'stretch' : 'flex-end' 
-          }}>
-            <button
-              onClick={() => descargarArchivo('pdf')}
-              disabled={!datosReporte || descargando || loading}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '10px 1.25rem',
-                background: (!datosReporte || descargando || loading) ? themeColors.pdfBgDisabled : themeColors.pdfBg,
-                border: `1px solid ${themeColors.pdfBorder}`,
-                borderRadius: '0.5rem',
-                color: themeColors.pdfText,
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              {descargando
-                ? <Loader2 size={16} color={themeColors.pdfText} style={{ animation: 'spin 1s linear infinite' }} />
-                : <Download size={16} color={themeColors.pdfText} />}
-              <span style={{ color: themeColors.pdfText }}>Exportar PDF</span>
-            </button>
-            <button
-              onClick={() => descargarArchivo('excel')}
-              disabled={!datosReporte || descargando || loading}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '10px 1.25rem',
-                background: (!datosReporte || descargando || loading) ? themeColors.excelBgDisabled : themeColors.excelBg,
-                border: `1px solid ${themeColors.excelBorder}`,
-                borderRadius: '0.5rem',
-                color: themeColors.excelText,
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
-                opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              {descargando
-                ? <Loader2 size={16} color={themeColors.excelText} style={{ animation: 'spin 1s linear infinite' }} />
-                : <FileSpreadsheet size={16} color={themeColors.excelText} />}
-              <span style={{ color: themeColors.excelText }}>Exportar Excel</span>
-            </button>
-          </div>
-
-          {/* Contenido del Reporte */}
-          <div style={{
-            background: themeColors.panelBg,
-            backdropFilter: 'blur(1.25rem)',
-            border: `1px solid ${themeColors.panelBorder}`,
-            borderRadius: isMobile ? '12px' : '1.25rem', 
-            padding: isMobile ? '12px' : '2rem',
-            overflow: 'visible',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}>
-            <div style={{ marginBottom: '1rem' }}>
-              <h3 style={{ 
-                color: themeColors.textPrimary, 
-                fontSize: isMobile ? '0.95rem' : '1.1rem', 
-                fontWeight: '700', 
-                margin: '0 0 0.375rem 0' 
-              }}>
-                {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
-              </h3>
-              <p style={{ 
-                color: themeColors.textMuted, 
-                margin: 0, 
-                fontSize: isMobile ? '0.7rem' : '0.75rem',
-                wordBreak: 'break-word'
-              }}>
-                Período: {fechaInicio} - {fechaFin}
-              </p>
-            </div>
-
-            {error && (
-              <div style={{
-                background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
-                border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
-                borderRadius: isMobile ? '10px' : '0.75rem',
-              padding: isMobile ? '12px' : '1rem',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                color: '#ef4444'
-              }}>
-                <AlertCircle size={20} />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {renderEstadisticas()}
-          </div>
-        </>
-      )}
-
-      {/* Vista: Historial */}
-      {vistaActual === 'historial' && (
         <div style={{
-          background: themeColors.panelBg,
-          backdropFilter: 'blur(1.25rem)',
-          border: `1px solid ${themeColors.panelBorder}`,
-          borderRadius: '0.75rem',
-          padding: '1rem'
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'hidden',
+          overflowY: 'auto'
         }}>
-          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h3 style={{ color: themeColors.textPrimary, margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <History size={22} color="#ef4444" />
-                Historial de Reportes
-              </h3>
-              <p style={{ color: themeColors.textMuted, margin: 0, fontSize: '0.75rem' }}>
-                Últimos 50 reportes generados
-              </p>
-            </div>
-            <select
-              value={filtroTipoHistorial}
-              onChange={(e) => setFiltroTipoHistorial(e.target.value)}
-              style={{
-                ...baseSelectStyle,
-                padding: '8px 0.75rem',
-                fontSize: '0.8rem'
-              }}
+          <AdminSectionHeader
+            title="Reportes y Estadísticas"
+            subtitle="Análisis detallado del rendimiento académico y financiero"
+          />
+
+          {/* Pestañas: Generar / Historial */}
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '0.75rem',
+            borderBottom: darkMode ? '2px solid rgba(239, 68, 68, 0.3)' : '2px solid rgba(239, 68, 68, 0.18)'
+          }}>
+            <button
+              onClick={() => setVistaActual('generar')}
+              style={tabButtonStyle(vistaActual === 'generar')}
             >
-              <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los tipos</option>
-              <option value="1" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Estudiantes</option>
-              <option value="2" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Financiero</option>
-              <option value="3" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Cursos</option>
-            </select>
+              <BarChart3 size={14} color={vistaActual === 'generar' ? '#ef4444' : themeColors.tabInactive} />
+              Generar Reporte
+            </button>
+            <button
+              onClick={() => setVistaActual('historial')}
+              style={tabButtonStyle(vistaActual === 'historial')}
+            >
+              <History size={14} color={vistaActual === 'historial' ? '#ef4444' : themeColors.tabInactive} />
+              Historial
+            </button>
           </div>
 
-          {loadingHistorial ? (
-            <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
-              <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
-              <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>Cargando historial...</p>
-            </div>
-          ) : historialReportes.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
-              <History size={48} color={darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(15,23,42,0.25)'} style={{ margin: '0 auto 0.75rem' }} />
-              <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>No hay reportes generados aún</p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {historialReportes
-                .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
-                .map((reporte, idx) => {
-                  const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
-                  const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
+          {/* Vista: Generar Reporte */}
+          {vistaActual === 'generar' && (
+            <>
+              {/* Selector de Tipo de Reporte */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '0.625rem',
+                marginBottom: '1rem'
+              }}>
+                {reportesDisponibles.map(reporte => {
+                  const isSelected = tipoReporte === reporte.id;
+                  const IconComponent = reporte.icono;
+                  const accentColor = isSelected ? '#fff' : reporte.color;
 
                   return (
-                    <div key={idx} style={{
-                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
-                      borderRadius: '0.625rem',
-                      padding: isMobile ? '10px' : '0.75rem',
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer'
-                    }}
+                    <div
+                      key={reporte.id}
+                      onClick={() => {
+                        setTipoReporte(reporte.id);
+                        setDatosReporte(null);
+                        setEstadisticas(null);
+                        // Resetear filtros específicos
+                        setFiltroEstadoCursoReporte('todos');
+                        setFiltroOcupacionCurso('todos');
+                        setFiltroHorarioCurso('todos');
+                        setFiltroMetodoPago('todos');
+                        setFiltroEstadoEstudiante('todos');
+                        setFiltroCurso('');
+                        setFiltroEstadoPago('todos');
+                        setFiltroCursoFinanciero('');
+                        setFiltroEstadoCursoFinanciero('todos');
+                        setFiltroHorarioFinanciero('todos');
+                        setBusquedaRapida('');
+                      }}
+                      style={{
+                        background: isSelected
+                          ? (darkMode
+                            ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                            : 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)')
+                          : themeColors.softCardBg,
+                        border: isSelected
+                          ? '2px solid #ef4444'
+                          : `1px solid ${themeColors.softCardBorder}`,
+                        borderRadius: '0.625rem',
+                        padding: isMobile ? '0.75rem' : '0.875rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.2s ease',
+                        boxShadow: isSelected
+                          ? '0 0.25rem 1rem rgba(239, 68, 68, 0.35)'
+                          : themeColors.shadow,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        color: isSelected ? '#fff' : undefined
+                      }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
-                        e.currentTarget.style.borderColor = tipoColor;
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
-                        e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)';
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = themeColors.softCardBorder;
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }
                       }}
                     >
-                      <div style={{ 
-                        display: 'flex', 
-                        flexDirection: isMobile ? 'column' : 'row',
-                        gap: isMobile ? '10px' : '0.875rem', 
-                        alignItems: isMobile ? 'stretch' : 'start' 
-                      }}>
-                        <div style={{
-                          background: `${tipoColor}20`,
-                          border: `2px solid ${tipoColor}`,
-                          borderRadius: '0.625rem',
-                          padding: isMobile ? '8px' : '0.625rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          alignSelf: isMobile ? 'center' : 'flex-start'
-                        }}>
-                          {React.createElement(tipoIcono, { size: isMobile ? 18 : 20, color: tipoColor })}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                        <span
+                          data-keep-color={isSelected ? 'true' : undefined}
+                          style={{ color: accentColor, display: 'flex', alignItems: 'center' }}
+                        >
+                          <IconComponent size={20} />
+                        </span>
+                        <div
+                          data-keep-color={isSelected ? 'true' : undefined}
+                          style={{
+                            color: accentColor,
+                            fontSize: '0.875rem',
+                            fontWeight: '600',
+                            lineHeight: '1.2'
+                          }}
+                        >
+                          {reporte.titulo}
                         </div>
-
-                        <div style={{ flex: 1 }}>
-                          <div style={{ 
-                            display: 'flex', 
-                            flexDirection: isMobile ? 'column' : 'row',
-                            justifyContent: 'space-between', 
-                            alignItems: isMobile ? 'flex-start' : 'start', 
-                            marginBottom: '0.5rem',
-                            gap: isMobile ? '6px' : '0'
-                          }}>
-                            <div>
-                              <h4 style={{ 
-                                color: themeColors.textPrimary, 
-                                fontSize: isMobile ? '0.85rem' : '0.9rem', 
-                                fontWeight: '600', 
-                                margin: '0 0 0.1875rem 0',
-                                wordBreak: 'break-word'
-                              }}>
-                                {reporte.nombre_reporte}
-                              </h4>
-                              <p style={{ 
-                                color: themeColors.textMuted, 
-                                fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                                margin: 0,
-                                wordBreak: 'break-all'
-                              }}>
-                                {reporte.archivo_generado}
-                              </p>
-                            </div>
-                            <span style={{
-                              padding: '3px 0.625rem',
-                              background: `${tipoColor}20`,
-                              border: `1px solid ${tipoColor}`,
-                              borderRadius: '0.3125rem',
-                              color: tipoColor,
-                              fontSize: '0.7rem',
-                              fontWeight: '600',
-                              textTransform: 'uppercase'
-                            }}>
-                              {reporte.formato_generado}
-                            </span>
-                          </div>
-
-                          <div style={{ 
-                            display: 'flex', 
-                            flexDirection: isMobile ? 'column' : 'row',
-                            gap: isMobile ? '4px' : '1rem', 
-                            fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                            color: themeColors.textMuted 
-                          }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
-                              <User size={isMobile ? 10 : 12} />
-                              <span>{reporte.generado_por}</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
-                              <Clock size={isMobile ? 10 : 12} />
-                              <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}</span>
-                            </div>
-                          </div>
-                        </div>
+                      </div>
+                      <div
+                        data-keep-color={isSelected ? 'true' : undefined}
+                        style={{
+                          color: isSelected ? '#fff' : themeColors.textMuted,
+                          fontSize: '0.75rem',
+                          lineHeight: '1.3'
+                        }}
+                      >
+                        {reporte.descripcion}
                       </div>
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Controles de Filtro */}
+              <div style={{
+                background: themeColors.panelBg,
+                backdropFilter: 'blur(1.25rem)',
+                border: `1px solid ${themeColors.panelBorder}`,
+                borderRadius: isMobile ? '12px' : '1rem',
+                padding: isMobile ? '12px' : '1rem',
+                marginBottom: '1rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
+                  alignItems: isMobile ? 'stretch' : 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: '0.75rem',
+                    alignItems: isMobile ? 'stretch' : 'center',
+                    flex: 1,
+                    flexWrap: 'wrap'
+                  }}>
+                    {/* Selector de Período */}
+                    <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+                      <select
+                        value={periodoSeleccionado}
+                        onChange={(e) => setPeriodoSeleccionado(e.target.value)}
+                        style={{
+                          ...baseSelectStyle,
+                          padding: '10px 0.75rem',
+                          fontSize: '0.8rem',
+                          minWidth: '15.625rem'
+                        }}
+                      >
+                        <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los períodos</option>
+                        {periodosDisponibles.map((periodo, idx) => {
+                          const formatearFecha = (fecha: string): string => {
+                            if (!fecha) return '';
+                            const [año, mes, dia] = fecha.split('T')[0].split('-');
+                            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                            const mesNombre = meses[parseInt(mes) - 1];
+                            return `${parseInt(dia)} ${mesNombre} ${año}`;
+                          };
+
+                          const fechaInicio = formatearFecha(periodo.inicio);
+                          const fechaFin = formatearFecha(periodo.fin);
+
+                          return (
+                            <option
+                              key={idx}
+                              value={periodo.key}
+                              style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}
+                            >
+                              {fechaInicio} - {fechaFin}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    {/* Filtros específicos */}
+                    {renderFiltrosEspecificos()}
+
+                    {/* Nuevo: Filtro por Horario (solo para estudiantes) */}
+                    {tipoReporte === 'estudiantes' && (
+                      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '0.5rem', flex: isMobile ? '1' : 'initial' }}>
+                        <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
+                        <select
+                          value={filtroHorario}
+                          onChange={(e) => setFiltroHorario(e.target.value as any)}
+                          style={{
+                            ...baseSelectStyle,
+                            width: isMobile ? '100%' : 'auto'
+                          }}
+                        >
+                          <option value="todos">Todos</option>
+                          <option value="matutino">Matutino</option>
+                          <option value="vespertino">Vespertino</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botón Ver Reporte */}
+                  <button
+                    data-keep-color="true"
+                    onClick={generarReporte}
+                    disabled={loading || descargando}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                      background: loading
+                        ? (darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.22)')
+                        : (darkMode
+                          ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                          : 'linear-gradient(135deg, #ef4444, #f87171)'),
+                      border: 'none',
+                      borderRadius: '0.625rem',
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: darkMode ? '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)' : '0 0.25rem 0.6rem rgba(239, 68, 68, 0.22)',
+                      width: isSmallScreen ? '100%' : 'auto'
+                    }}
+                  >
+                    {loading ? (
+                      <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
+                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                      </span>
+                    ) : (
+                      <span data-keep-color="true" style={{ display: 'flex', alignItems: 'center' }}>
+                        <Eye size={16} />
+                      </span>
+                    )}
+                    <span data-keep-color="true">{loading ? 'Generando...' : 'Ver Reporte'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Botones de Exportación */}
+              <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: '0.75rem',
+                marginBottom: '1rem',
+                justifyContent: isMobile ? 'stretch' : 'flex-end'
+              }}>
+                <button
+                  onClick={() => descargarArchivo('pdf')}
+                  disabled={!datosReporte || descargando || loading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '10px 1.25rem',
+                    background: (!datosReporte || descargando || loading) ? themeColors.pdfBgDisabled : themeColors.pdfBg,
+                    border: `1px solid ${themeColors.pdfBorder}`,
+                    borderRadius: '0.5rem',
+                    color: themeColors.pdfText,
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                    opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
+                    width: isMobile ? '100%' : 'auto'
+                  }}
+                >
+                  {descargando
+                    ? <Loader2 size={16} color={themeColors.pdfText} style={{ animation: 'spin 1s linear infinite' }} />
+                    : <Download size={16} color={themeColors.pdfText} />}
+                  <span style={{ color: themeColors.pdfText }}>Exportar PDF</span>
+                </button>
+                <button
+                  onClick={() => descargarArchivo('excel')}
+                  disabled={!datosReporte || descargando || loading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '10px 1.25rem',
+                    background: (!datosReporte || descargando || loading) ? themeColors.excelBgDisabled : themeColors.excelBg,
+                    border: `1px solid ${themeColors.excelBorder}`,
+                    borderRadius: '0.5rem',
+                    color: themeColors.excelText,
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    cursor: (!datosReporte || descargando || loading) ? 'not-allowed' : 'pointer',
+                    opacity: (!datosReporte || descargando || loading) ? 0.55 : 1,
+                    width: isMobile ? '100%' : 'auto'
+                  }}
+                >
+                  {descargando
+                    ? <Loader2 size={16} color={themeColors.excelText} style={{ animation: 'spin 1s linear infinite' }} />
+                    : <FileSpreadsheet size={16} color={themeColors.excelText} />}
+                  <span style={{ color: themeColors.excelText }}>Exportar Excel</span>
+                </button>
+              </div>
+
+              {/* Contenido del Reporte */}
+              <div style={{
+                background: themeColors.panelBg,
+                backdropFilter: 'blur(1.25rem)',
+                border: `1px solid ${themeColors.panelBorder}`,
+                borderRadius: isMobile ? '12px' : '1.25rem',
+                padding: isMobile ? '12px' : '2rem',
+                overflow: 'visible',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <h3 style={{
+                    color: themeColors.textPrimary,
+                    fontSize: isMobile ? '0.95rem' : '1.1rem',
+                    fontWeight: '700',
+                    margin: '0 0 0.375rem 0'
+                  }}>
+                    {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
+                  </h3>
+                  <p style={{
+                    color: themeColors.textMuted,
+                    margin: 0,
+                    fontSize: isMobile ? '0.7rem' : '0.75rem',
+                    wordBreak: 'break-word'
+                  }}>
+                    Período: {fechaInicio} - {fechaFin}
+                  </p>
+                </div>
+
+                {error && (
+                  <div style={{
+                    background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
+                    border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
+                    borderRadius: isMobile ? '10px' : '0.75rem',
+                    padding: isMobile ? '12px' : '1rem',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    color: '#ef4444'
+                  }}>
+                    <AlertCircle size={20} />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                {renderEstadisticas()}
+              </div>
+            </>
+          )}
+
+          {/* Vista: Historial */}
+          {vistaActual === 'historial' && (
+            <div style={{
+              background: themeColors.panelBg,
+              backdropFilter: 'blur(1.25rem)',
+              border: `1px solid ${themeColors.panelBorder}`,
+              borderRadius: '0.75rem',
+              padding: '1rem'
+            }}>
+              <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ color: themeColors.textPrimary, margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <History size={22} color="#ef4444" />
+                    Historial de Reportes
+                  </h3>
+                  <p style={{ color: themeColors.textMuted, margin: 0, fontSize: '0.75rem' }}>
+                    Últimos 50 reportes generados
+                  </p>
+                </div>
+                <select
+                  value={filtroTipoHistorial}
+                  onChange={(e) => setFiltroTipoHistorial(e.target.value)}
+                  style={{
+                    ...baseSelectStyle,
+                    padding: '8px 0.75rem',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los tipos</option>
+                  <option value="1" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Estudiantes</option>
+                  <option value="2" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Financiero</option>
+                  <option value="3" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Cursos</option>
+                </select>
+              </div>
+
+              {loadingHistorial ? (
+                <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
+                  <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
+                  <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>Cargando historial...</p>
+                </div>
+              ) : historialReportes.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
+                  <History size={48} color={darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(15,23,42,0.25)'} style={{ margin: '0 auto 0.75rem' }} />
+                  <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>No hay reportes generados aún</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  {historialReportes
+                    .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
+                    .map((reporte, idx) => {
+                      const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
+                      const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
+
+                      return (
+                        <div key={idx} style={{
+                          background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+                          border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
+                          borderRadius: '0.625rem',
+                          padding: isMobile ? '10px' : '0.75rem',
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer'
+                        }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+                            e.currentTarget.style.borderColor = tipoColor;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                            e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)';
+                          }}
+                        >
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            gap: isMobile ? '10px' : '0.875rem',
+                            alignItems: isMobile ? 'stretch' : 'start'
+                          }}>
+                            <div style={{
+                              background: `${tipoColor}20`,
+                              border: `2px solid ${tipoColor}`,
+                              borderRadius: '0.625rem',
+                              padding: isMobile ? '8px' : '0.625rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              alignSelf: isMobile ? 'center' : 'flex-start'
+                            }}>
+                              {React.createElement(tipoIcono, { size: isMobile ? 18 : 20, color: tipoColor })}
+                            </div>
+
+                            <div style={{ flex: 1 }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: isMobile ? 'column' : 'row',
+                                justifyContent: 'space-between',
+                                alignItems: isMobile ? 'flex-start' : 'start',
+                                marginBottom: '0.5rem',
+                                gap: isMobile ? '6px' : '0'
+                              }}>
+                                <div>
+                                  <h4 style={{
+                                    color: themeColors.textPrimary,
+                                    fontSize: isMobile ? '0.85rem' : '0.9rem',
+                                    fontWeight: '600',
+                                    margin: '0 0 0.1875rem 0',
+                                    wordBreak: 'break-word'
+                                  }}>
+                                    {reporte.nombre_reporte}
+                                  </h4>
+                                  <p style={{
+                                    color: themeColors.textMuted,
+                                    fontSize: isMobile ? '0.7rem' : '0.75rem',
+                                    margin: 0,
+                                    wordBreak: 'break-all'
+                                  }}>
+                                    {reporte.archivo_generado}
+                                  </p>
+                                </div>
+                                <span style={{
+                                  padding: '3px 0.625rem',
+                                  background: `${tipoColor}20`,
+                                  border: `1px solid ${tipoColor}`,
+                                  borderRadius: '0.3125rem',
+                                  color: tipoColor,
+                                  fontSize: '0.7rem',
+                                  fontWeight: '600',
+                                  textTransform: 'uppercase'
+                                }}>
+                                  {reporte.formato_generado}
+                                </span>
+                              </div>
+
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: isMobile ? 'column' : 'row',
+                                gap: isMobile ? '4px' : '1rem',
+                                fontSize: isMobile ? '0.7rem' : '0.75rem',
+                                color: themeColors.textMuted
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
+                                  <User size={isMobile ? 10 : 12} />
+                                  <span>{reporte.generado_por}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
+                                  <Clock size={isMobile ? 10 : 12} />
+                                  <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      <style>{`
+          <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
       `}</style>
-      
-      </div>
+
+        </div>
       </div>
     </>
   );

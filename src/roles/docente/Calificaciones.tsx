@@ -11,6 +11,7 @@ interface Curso {
   codigo_curso: string;
   nombre: string;
   total_estudiantes: number;
+  fecha_fin?: string;
   estado?: 'activo' | 'finalizado' | 'planificado' | 'cancelado';
 }
 
@@ -35,7 +36,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
+      // Usar el endpoint que devuelve TODOS los cursos (activos y finalizados)
+      const response = await fetch(`${API_BASE}/api/docentes/todos-mis-cursos`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -68,13 +70,20 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
 
   // Filter courses based on active tab
   const filteredCursos = cursos.filter(curso => {
-    // When estado is not available, we assume it's active
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const fechaFin = new Date(curso.fecha_fin || new Date());
+    fechaFin.setHours(0, 0, 0, 0);
+    
     const cursoEstado = curso.estado || 'activo';
     
     if (activeTab === 'activos') {
-      return cursoEstado === 'activo';
+      // Cursos activos: estado activo/planificado Y fecha de fin no ha pasado
+      return (cursoEstado === 'activo' || cursoEstado === 'planificado') && fechaFin >= hoy;
     } else {
-      return cursoEstado === 'finalizado';
+      // Cursos finalizados: estado finalizado/cancelado O fecha de fin ya pasó
+      return cursoEstado === 'finalizado' || cursoEstado === 'cancelado' || fechaFin < hoy;
     }
   });
 

@@ -118,19 +118,19 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
 
   useSocket({
     'nuevo_modulo': (data: any) => {
-      console.log('📚 Nuevo módulo disponible:', data);
+      console.log('Nuevo módulo disponible:', data);
       
       // Solo mostrar notificación si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
-        showToast.success(`📚 Nuevo módulo disponible: ${data.nombre_modulo}`, darkMode);
+        showToast.success(`Nuevo módulo disponible: ${data.nombre_modulo}`, darkMode);
         fetchModulos();
       }
     },
     'nueva_tarea': (data: any) => {
-      console.log('📝 Nueva tarea asignada:', data);
+      console.log('Nueva tarea asignada:', data);
       
       // Mostrar notificación con información completa
-      showToast.success(`📝 Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, darkMode);
+      showToast.success(`Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, darkMode);
       
       // Recargar módulos para actualizar contador
       fetchModulos();
@@ -141,7 +141,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       }
     },
     'tarea_calificada': (data: any) => {
-      console.log('✅ Tarea calificada:', data);
+      console.log('Tarea calificada:', data);
       
       // Obtener el ID del usuario actual desde sessionStorage
       const authData = sessionStorage.getItem('auth_data');

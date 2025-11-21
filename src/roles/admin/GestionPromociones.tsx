@@ -192,6 +192,7 @@ const GestionPromociones: React.FC = () => {
   } as const;
 
   // Estados del formulario
+  const [selectedCursoPrincipalId, setSelectedCursoPrincipalId] = useState<number | null>(null);
   const [selectedCursoId, setSelectedCursoId] = useState<number | null>(null);
 
   // Helper: formato de precio
@@ -297,6 +298,7 @@ const GestionPromociones: React.FC = () => {
 
   const openCreate = () => {
     setSelected(null);
+    setSelectedCursoPrincipalId(null);
     setSelectedCursoId(null);
     setModalType('create');
     setShowModal(true);
@@ -304,6 +306,7 @@ const GestionPromociones: React.FC = () => {
 
   const openEdit = (p: Promocion) => {
     setSelected(p);
+    setSelectedCursoPrincipalId(p.id_curso_principal);
     setSelectedCursoId(p.id_curso_promocional);
     setModalType('edit');
     setShowModal(true);
@@ -1442,7 +1445,8 @@ const GestionPromociones: React.FC = () => {
                   </label>
                   <StyledSelect
                     name="id_curso_principal"
-                    defaultValue={selected?.id_curso_principal || ''}
+                    value={selectedCursoPrincipalId || ''}
+                    onChange={(e) => setSelectedCursoPrincipalId(Number(e.target.value))}
                     darkMode={darkMode}
                     style={{
                       ...fieldInputStyle
@@ -1474,10 +1478,12 @@ const GestionPromociones: React.FC = () => {
                     }}
                     options={[
                       { value: '', label: 'Selecciona curso promocional...' },
-                      ...cursos.map(c => ({
-                        value: String(c.id_curso),
-                        label: `${c.codigo_curso} - ${c.nombre} (${c.modalidad_pago === 'clases' ? 'Por Clases' : 'Mensual'})`
-                      }))
+                      ...cursos
+                        .filter(c => c.id_curso !== selectedCursoPrincipalId) // Excluir el curso principal
+                        .map(c => ({
+                          value: String(c.id_curso),
+                          label: `${c.codigo_curso} - ${c.nombre} (${c.modalidad_pago === 'clases' ? 'Por Clases' : 'Mensual'})`
+                        }))
                     ]}
                     required
                   />

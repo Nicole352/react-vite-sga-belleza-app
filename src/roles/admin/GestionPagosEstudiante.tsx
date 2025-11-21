@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink } from 'lucide-react';
@@ -14,7 +14,7 @@ import '../../utils/modalScrollHelper';
 
 const API_BASE = 'http://localhost:3000';
 
-  interface Pago {
+interface Pago {
   id_pago: number;
   numero_cuota: number;
   monto: number;
@@ -38,22 +38,22 @@ const API_BASE = 'http://localhost:3000';
   id_curso: number;
   modalidad_pago?: 'mensual' | 'clases';
   numero_clases?: number;
-precio_por_clase?: number;
+  precio_por_clase?: number;
 }
 
-  interface EstudianteAgrupado {
+interface EstudianteAgrupado {
   estudiante_cedula: string;
   estudiante_nombre: string;
   estudiante_apellido: string;
-    cursos: {
+  cursos: {
     id_curso: number;
     curso_nombre: string;
     codigo_matricula: string;
-  pagos: Pago[];
-}[];
+    pagos: Pago[];
+  }[];
 }
 
-  const GestionPagosEstudiante = () => {
+const GestionPagosEstudiante = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [estudiantes, setEstudiantes] = useState<EstudianteAgrupado[]>([]);
@@ -75,15 +75,23 @@ precio_por_clase?: number;
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [showVerificacionModal, setShowVerificacionModal] = useState(false);
   const [pagoAVerificar, setPagoAVerificar] = useState<Pago | null>(null);
-const [cuotasAVerificar, setCuotasAVerificar] = useState<number[]>([]);
-  
+  const [cuotasAVerificar, setCuotasAVerificar] = useState<number[]>([]);
+
   const [selectedCurso, setSelectedCurso] = useState<{ [key: string]: number }>({});
-const [selectedCuota, setSelectedCuota] = useState<{ [key: string]: number }>({});
-  
+  const [selectedCuota, setSelectedCuota] = useState<{ [key: string]: number }>({});
+  const [selectedCursoTab, setSelectedCursoTab] = useState<'todos' | number>('todos');
+
+  const buildCuotaKey = (cedula: string, cursoId: number) => `${cedula}-${cursoId}`;
+
+  const setCuotaSeleccionada = (cedula: string, cursoId: number, cuotaId: number) => {
+    const key = buildCuotaKey(cedula, cursoId);
+    setSelectedCuota(prev => ({ ...prev, [key]: cuotaId }));
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 10;
-  
-    // Trigger to refetch data when socket notifies of changes.
+  const itemsPerPage = 10;
+
+  // Trigger to refetch data when socket notifies of changes.
   const [socketTrigger, setSocketTrigger] = useState(0);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('admin-dark-mode');
@@ -99,6 +107,10 @@ const itemsPerPage = 10;
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCursoTab]);
 
   const pick = <T,>(light: T, dark: T): T => (darkMode ? dark : light);
 
@@ -135,6 +147,31 @@ const itemsPerPage = 10;
     buttonPrimaryText: '#ffffff'
   };
 
+  const tabTypographyStyles = `
+    .admin-course-tab[data-active="false"][data-dark="false"] .admin-course-tab-title {
+      color: #111827 !important;
+    }
+    .admin-course-tab[data-active="false"][data-dark="false"] .admin-course-tab-subtitle {
+      color: #4b5563 !important;
+    }
+    .admin-course-tab[data-active="true"][data-dark="false"] .admin-course-tab-title,
+    .admin-course-tab[data-active="true"][data-dark="false"] .admin-course-tab-subtitle {
+      color: #ffffff !important;
+    }
+    .admin-course-tab[data-dark="true"] .admin-course-tab-title {
+      color: rgba(248,250,252,0.92) !important;
+    }
+    .admin-course-tab[data-dark="true"] .admin-course-tab-subtitle {
+      color: rgba(248,250,252,0.7) !important;
+    }
+    .admin-course-tab[data-dark="true"][data-active="true"] .admin-course-tab-title {
+      color: #ffffff !important;
+    }
+    .admin-course-tab[data-dark="true"][data-active="true"] .admin-course-tab-subtitle {
+      color: rgba(255,255,255,0.85) !important;
+    }
+  `;
+
   useSocket({
     'nuevo_pago': (data: any) => {
       console.log('[Pagos] Nuevo pago recibido:', data);
@@ -155,31 +192,33 @@ const itemsPerPage = 10;
       setSocketTrigger(prev => prev + 1);
     }
   });
-          
-            useEffect(() => {
-          loadData();
-            }, [filtroEstado, socketTrigger]);
-            
-              useEffect(() => {
-            if (estudiantes.length > 0) {
-          const nuevosSelectores: { [key: string]: number } = {};
-        
-      estudiantes.forEach(est => {
-est.cursos.forEach(curso => {
-      const pagoPendiente = curso.pagos.find(p => p.estado === 'pagado');
-    if (pagoPendiente) {
-  nuevosSelectores[est.estudiante_cedula] = pagoPendiente.id_pago;
-  } else {
-  const pagoNoVerificado = curso.pagos.find(p => p.estado !== 'verificado');
-  if (pagoNoVerificado) {
-  nuevosSelectores[est.estudiante_cedula] = pagoNoVerificado.id_pago;
-  }
-  }
-  });
-  });
-  
-  setSelectedCuota(nuevosSelectores);
-  }
+
+  useEffect(() => {
+    loadData();
+  }, [filtroEstado, socketTrigger]);
+
+  useEffect(() => {
+    if (estudiantes.length === 0) return;
+    const nuevosSelectores: { [key: string]: number } = {};
+
+    estudiantes.forEach(est => {
+      est.cursos.forEach(curso => {
+        const key = buildCuotaKey(est.estudiante_cedula, curso.id_curso);
+        const pagoPendiente = curso.pagos.find(p => p.estado === 'pagado');
+        if (pagoPendiente) {
+          nuevosSelectores[key] = pagoPendiente.id_pago;
+        } else {
+          const pagoNoVerificado = curso.pagos.find(p => p.estado !== 'verificado');
+          if (pagoNoVerificado) {
+            nuevosSelectores[key] = pagoNoVerificado.id_pago;
+          } else if (curso.pagos[0]) {
+            nuevosSelectores[key] = curso.pagos[0].id_pago;
+          }
+        }
+      });
+    });
+
+    setSelectedCuota(prev => ({ ...prev, ...nuevosSelectores }));
   }, [estudiantes]);
 
   const loadData = async () => {
@@ -207,16 +246,19 @@ est.cursos.forEach(curso => {
       const agrupados = agruparPorEstudiante(data);
       setEstudiantes(agrupados);
 
-      // Inicializar selectores con primer curso y primera cuota
+      // Inicializar selectores con primer curso por estudiante y primera cuota por curso
       const initCursos: { [key: string]: number } = {};
       const initCuotas: { [key: string]: number } = {};
       agrupados.forEach(est => {
-        if (est.cursos.length > 0) {
-          initCursos[est.estudiante_cedula] = est.cursos[0].id_curso;
-          if (est.cursos[0].pagos.length > 0) {
-            initCuotas[est.estudiante_cedula] = est.cursos[0].pagos[0].id_pago;
+        est.cursos.forEach((curso, index) => {
+          if (index === 0) {
+            initCursos[est.estudiante_cedula] = curso.id_curso;
           }
-        }
+          if (curso.pagos.length > 0) {
+            const key = buildCuotaKey(est.estudiante_cedula, curso.id_curso);
+            initCuotas[key] = curso.pagos[0].id_pago;
+          }
+        });
       });
       setSelectedCurso(initCursos);
       setSelectedCuota(initCuotas);
@@ -288,18 +330,13 @@ est.cursos.forEach(curso => {
     return `${dia}/${mes}/${año}`;
   };
 
-  const buildComprobanteUrl = (idPago: number) => {
-    const token = sessionStorage.getItem('auth_token');
-    return `${API_BASE}/api/admin/pagos/${idPago}/comprobante?token=${token}`;
-  };
-
   const openComprobanteModal = (pago: Pago) => {
     // Obtener el token de autenticación
     const token = sessionStorage.getItem('auth_token');
-    
+
     // Agregar el token como parámetro de query para que funcione con <img>
     const url = `${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante?token=${token}`;
-    
+
     console.log('[Pagos] Abriendo modal de comprobante:', {
       id_pago: pago.id_pago,
       numero_comprobante: pago.numero_comprobante,
@@ -323,14 +360,14 @@ est.cursos.forEach(curso => {
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       // Obtener el ID del usuario desde el endpoint /api/auth/me
       const meRes = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const userData = await meRes.json();
       const id_usuario = userData.id_usuario;
-      
+
       if (!id_usuario) {
         throw new Error('No se pudo obtener el ID del usuario');
       }
@@ -381,14 +418,14 @@ est.cursos.forEach(curso => {
     try {
       setProcesando(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       // Obtener el ID del usuario desde el endpoint /api/auth/me
       const meRes = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const userData = await meRes.json();
       const id_usuario = userData.id_usuario;
-      
+
       if (!id_usuario) {
         throw new Error('No se pudo obtener el ID del usuario');
       }
@@ -419,8 +456,32 @@ est.cursos.forEach(curso => {
     }
   };
 
+  const cursosDisponibles = useMemo(() => {
+    const map = new Map<number, { id: number; nombre: string }>();
+    estudiantes.forEach(est => {
+      est.cursos.forEach(curso => {
+        if (!map.has(curso.id_curso)) {
+          map.set(curso.id_curso, { id: curso.id_curso, nombre: curso.curso_nombre });
+        }
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }, [estudiantes]);
+
+  useEffect(() => {
+    if (selectedCursoTab === 'todos') return;
+    const existe = cursosDisponibles.some(c => c.id === selectedCursoTab);
+    if (!existe) {
+      setSelectedCursoTab('todos');
+    }
+  }, [cursosDisponibles, selectedCursoTab]);
+
   // Filtrar y ordenar estudiantes
   const estudiantesFiltrados = estudiantes
+    .filter(est => {
+      if (selectedCursoTab === 'todos') return true;
+      return est.cursos.some(curso => curso.id_curso === selectedCursoTab);
+    })
     .filter(est => {
       const matchSearch =
         est.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -457,11 +518,14 @@ est.cursos.forEach(curso => {
   const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage);
   const paginatedEstudiantes = estudiantesFiltrados.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Obtener el pago seleccionado para un estudiante
-  const getPagoSeleccionado = (cedula: string): Pago | null => {
-    const idCuota = selectedCuota[cedula];
-    if (!idCuota) return null;
-    return pagos.find(p => p.id_pago === idCuota) || null;
+  // Obtener el pago seleccionado para un estudiante en un curso específico
+  const getPagoSeleccionado = (estudiante: EstudianteAgrupado, curso: EstudianteAgrupado['cursos'][number]): Pago | null => {
+    const key = buildCuotaKey(estudiante.estudiante_cedula, curso.id_curso);
+    const idCuota = selectedCuota[key];
+    if (idCuota) {
+      return curso.pagos.find(p => p.id_pago === idCuota) || curso.pagos[0] || null;
+    }
+    return curso.pagos[0] || null;
   };
 
   // Obtener el curso seleccionado para un estudiante
@@ -518,6 +582,7 @@ est.cursos.forEach(curso => {
         } as CSSProperties
       }
     >
+      <style>{tabTypographyStyles}</style>
       {/* Header */}
       <AdminSectionHeader
         title={`Gestión de Pagos${!isMobile ? ' Mensuales' : ''}`}
@@ -555,7 +620,7 @@ est.cursos.forEach(curso => {
                 borderRadius: '0.625rem',
                 color: theme.textPrimary,
                 fontSize: '0.8rem',
-                boxShadow: darkMode ? '0 0.35rem 1rem rgba(15,23,42,0.18)' : '0 0.35rem 1rem rgba(15,23,42,0.08)' ,
+                boxShadow: darkMode ? '0 0.35rem 1rem rgba(15,23,42,0.18)' : '0 0.35rem 1rem rgba(15,23,42,0.08)',
                 transition: 'background 0.2s ease, border 0.2s ease'
               }}
             />
@@ -577,7 +642,7 @@ est.cursos.forEach(curso => {
               ]}
             />
           </div>
-          <button 
+          <button
             onClick={async () => {
               try {
                 const response = await fetch(`${API_BASE}/api/pagos-mensuales/reporte/excel`);
@@ -597,15 +662,15 @@ est.cursos.forEach(curso => {
                 showToast.error('Error al descargar el reporte', darkMode);
               }
             }}
-            style={{ 
-              padding: isMobile ? '10px 0.875rem' : '8px 0.875rem', 
-              fontSize: '0.8rem', 
-              borderRadius: '0.5rem', 
-              border: `1px solid ${mapToRedScheme('rgba(239, 68, 68, 0.35)')}`, 
-              background: theme.buttonPrimaryBg, 
-              color: theme.buttonPrimaryText, 
-              cursor: 'pointer', 
-              width: isSmallScreen ? '100%' : 'auto', 
+            style={{
+              padding: isMobile ? '10px 0.875rem' : '8px 0.875rem',
+              fontSize: '0.8rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${mapToRedScheme('rgba(239, 68, 68, 0.35)')}`,
+              background: theme.buttonPrimaryBg,
+              color: theme.buttonPrimaryText,
+              cursor: 'pointer',
+              width: isSmallScreen ? '100%' : 'auto',
               fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
@@ -629,13 +694,123 @@ est.cursos.forEach(curso => {
         </div>
       </div>
 
+      {cursosDisponibles.length > 0 && (
+        <div style={{
+          marginTop: '1rem',
+          marginBottom: '1.25rem',
+          background: darkMode ? 'rgba(15,23,42,0.4)' : 'rgba(248,250,252,0.8)',
+          border: `1px solid ${theme.surfaceBorder}`,
+          borderRadius: '0.9rem',
+          padding: isMobile ? '0.75rem' : '1rem',
+          boxShadow: darkMode ? '0 0.75rem 2rem rgba(0,0,0,0.35)' : '0 0.75rem 1.5rem rgba(15,23,42,0.08)'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.75rem',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
+          }}>
+            <div style={{ color: theme.textSecondary, fontWeight: 600, fontSize: '0.85rem' }}>
+              Cursos activos
+            </div>
+            <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+              Selecciona una pestaña para filtrar por curso
+            </div>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '0.75rem',
+            alignItems: 'stretch'
+          }}>
+            {['todos', ...cursosDisponibles.map(c => c.id)].map((cursoId) => {
+              const isAll = cursoId === 'todos';
+              const cursoInfo = isAll ? { nombre: 'Todos los cursos' } : cursosDisponibles.find(c => c.id === cursoId);
+              if (!cursoInfo) return null;
+              const isActive = selectedCursoTab === cursoId;
+              const inactiveText = darkMode ? 'rgba(248,250,252,0.92)' : '#111827';
+              const detailText = darkMode ? 'rgba(248,250,252,0.7)' : '#4b5563';
+              const activeText = '#ffffff';
+              const iconColor = isActive
+                ? '#ffffff'
+                : (darkMode ? 'rgba(255,255,255,0.9)' : '#ef4444');
+              const iconBackground = isActive
+                ? darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.85)'
+                : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(239,68,68,0.12)';
+              const textColor = isActive ? activeText : inactiveText;
+              const detailActiveColor = darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.9)';
+              return (
+                <button
+                  key={cursoId}
+                  className="admin-course-tab"
+                  data-active={isActive}
+                  data-dark={darkMode}
+                  onClick={() => setSelectedCursoTab(cursoId as typeof selectedCursoTab)}
+                  style={{
+                    borderRadius: '0.85rem',
+                    padding: '0.75rem 1rem',
+                    border: `1px solid ${isActive ? mapToRedScheme('rgba(239,68,68,0.8)') : theme.surfaceBorder}`,
+                    background: isActive
+                      ? theme.buttonPrimaryBg
+                      : theme.cardBackground,
+                    color: textColor,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    boxShadow: isActive
+                      ? '0 0.75rem 1.5rem rgba(239,68,68,0.35)'
+                      : darkMode ? '0 0.5rem 1.25rem rgba(0,0,0,0.3)' : '0 0.35rem 1rem rgba(15,23,42,0.08)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: '0.9rem',
+                    background: iconBackground,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <BookOpen size={18} color={iconColor} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div className="admin-course-tab-title" style={{ color: textColor }}>{cursoInfo.nombre}</div>
+                    {!isAll && (
+                      <div
+                        className="admin-course-tab-subtitle"
+                        style={{ color: isActive ? detailActiveColor : detailText, fontSize: '0.7rem', fontWeight: 500 }}
+                      >
+                        {isActive ? 'Mostrando este curso' : 'Ver pagos'}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Lista de estudiantes - UNA TARJETA POR ESTUDIANTE */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {paginatedEstudiantes.map((estudiante) => {
-          const cursoActual = getCursoSeleccionado(estudiante);
-          const pago = getPagoSeleccionado(estudiante.estudiante_cedula);
+          const cursoFiltrado = selectedCursoTab !== 'todos'
+            ? estudiante.cursos.find(c => c.id_curso === selectedCursoTab)
+            : null;
+          const cursoActual = cursoFiltrado || getCursoSeleccionado(estudiante);
+          if (!cursoActual) return null;
 
-          if (!pago || !cursoActual) return null;
+          const pago = getPagoSeleccionado(estudiante, cursoActual);
+          if (!pago) return null;
+
+          const cuotaKey = buildCuotaKey(estudiante.estudiante_cedula, cursoActual.id_curso);
+          const cuotaSeleccionada = selectedCuota[cuotaKey] ?? pago.id_pago;
 
           const metodoPagoBadge = (() => {
             if (pago.metodo_pago === 'efectivo') {
@@ -713,30 +888,30 @@ est.cursos.forEach(curso => {
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
-                               pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
-                               pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
-                               'rgba(156, 163, 175, 0.15)',
+                      pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
+                        pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
+                          'rgba(156, 163, 175, 0.15)',
                     border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                           pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                           pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                           '1px solid rgba(156, 163, 175, 0.3)',
+                      pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                        pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                          '1px solid rgba(156, 163, 175, 0.3)',
                     color: pago.estado === 'verificado' ? '#10b981' :
-                          pago.estado === 'pagado' ? '#fbbf24' :
-                          pago.estado === 'vencido' ? '#ef4444' :
+                      pago.estado === 'pagado' ? '#fbbf24' :
+                        pago.estado === 'vencido' ? '#ef4444' :
                           '#9ca3af'
                   }}>
                     {pago.estado}
                   </span>
                 </div>
-                <h3 style={{ 
-                  color: theme.textPrimary, 
+                <h3 style={{
+                  color: theme.textPrimary,
                   margin: '0 0 0.5rem 0'
                 }}>
                   {pago.estudiante_nombre} {pago.estudiante_apellido}
                 </h3>
               </div>
 
-              <div style={{ 
+              <div style={{
                 paddingTop: '0.625rem',
                 borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.25)'}`,
                 marginBottom: '0.875rem'
@@ -753,18 +928,33 @@ est.cursos.forEach(curso => {
                     <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>{estudiante.estudiante_cedula}</div>
                   </div>
 
-                  {/* Selector de Curso */}
+                  {/* Selector/Pestaña de Curso */}
                   <div style={{ flex: '1 1 200px' }}>
                     <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>Curso</div>
-                    {estudiante.cursos.length > 1 ? (
+                    {selectedCursoTab !== 'todos' ? (
+                      <div style={{
+                        color: theme.textPrimary,
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        padding: '0.35rem 0.5rem',
+                        background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)',
+                        borderRadius: '0.35rem'
+                      }}>
+                        {cursoActual.curso_nombre}
+                      </div>
+                    ) : estudiante.cursos.length > 1 ? (
                       <select
                         value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
                         onChange={(e) => {
                           const newIdCurso = Number(e.target.value);
-                          setSelectedCurso({ ...selectedCurso, [estudiante.estudiante_cedula]: newIdCurso });
+                          setSelectedCurso(prev => ({ ...prev, [estudiante.estudiante_cedula]: newIdCurso }));
                           const nuevoCurso = estudiante.cursos.find(c => c.id_curso === newIdCurso);
                           if (nuevoCurso && nuevoCurso.pagos.length > 0) {
-                            setSelectedCuota({ ...selectedCuota, [estudiante.estudiante_cedula]: nuevoCurso.pagos[0].id_pago });
+                            const newKey = buildCuotaKey(estudiante.estudiante_cedula, nuevoCurso.id_curso);
+                            setSelectedCuota(prev => {
+                              if (prev[newKey]) return prev;
+                              return { ...prev, [newKey]: nuevoCurso.pagos[0].id_pago };
+                            });
                           }
                         }}
                         style={{
@@ -803,17 +993,9 @@ est.cursos.forEach(curso => {
                       {pago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
                     </div>
                     <select
-                      value={selectedCuota[estudiante.estudiante_cedula] || (() => {
-                        // Primero buscar cuotas en estado 'pagado' (pendientes de verificar)
-                        const cuotaPagada = cursoActual.pagos.find((p: Pago) => p.estado === 'pagado');
-                        if (cuotaPagada) return cuotaPagada.id_pago;
-
-                        // Si no hay pagadas, buscar la primera que NO esté verificada
-                        const cuotaNoVerificada = cursoActual.pagos.find((p: Pago) => p.estado !== 'verificado');
-                        return cuotaNoVerificada?.id_pago || pago.id_pago;
-                      })()}
+                      value={cuotaSeleccionada}
                       onChange={(e) => {
-                        setSelectedCuota({ ...selectedCuota, [estudiante.estudiante_cedula]: Number(e.target.value) });
+                        setCuotaSeleccionada(estudiante.estudiante_cedula, cursoActual.id_curso, Number(e.target.value));
                       }}
                       style={{
                         width: '100%',
@@ -980,15 +1162,13 @@ est.cursos.forEach(curso => {
                     }}>
                       Comprobante
                     </div>
-                    <button
-                      onClick={() => openComprobanteModal(pago)}
-                      style={{
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
-                        color: '#10b981',
+                    {!pago.numero_comprobante ? (
+                      <div style={{
+                        background: 'rgba(107, 114, 128, 0.1)',
+                        border: '0.0625rem solid rgba(107, 114, 128, 0.3)',
+                        color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
                         padding: isMobile ? '0.5em 0.625rem' : '0.375em 0.5rem',
                         borderRadius: '0.375rem',
-                        cursor: 'pointer',
                         fontSize: isMobile ? '0.75rem' : '0.7rem',
                         fontWeight: '500',
                         display: 'flex',
@@ -997,12 +1177,37 @@ est.cursos.forEach(curso => {
                         whiteSpace: 'nowrap',
                         width: '100%',
                         justifyContent: 'center',
-                        flex: 1
-                      }}
-                    >
+                        flex: 1,
+                        fontStyle: 'italic'
+                      }}>
+                        <ImageOff size={12} color="var(--admin-text-secondary, rgba(255, 255, 255, 0.5))" />
+                        Sin archivo
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => openComprobanteModal(pago)}
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.15)',
+                          border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
+                          color: '#10b981',
+                          padding: isMobile ? '0.5em 0.625rem' : '0.375em 0.5rem',
+                          borderRadius: '0.375rem',
+                          cursor: 'pointer',
+                          fontSize: isMobile ? '0.75rem' : '0.7rem',
+                          fontWeight: '500',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.1875rem',
+                          whiteSpace: 'nowrap',
+                          width: '100%',
+                          justifyContent: 'center',
+                          flex: 1
+                        }}
+                      >
                         <Download size={12} color="#10b981" />
-                      {isMobile ? 'Ver' : 'Ver Comprobante'}
-                    </button>
+                        {isMobile ? 'Ver' : 'Ver Comprobante'}
+                      </button>
+                    )}
                   </div>
 
                   {/* Estado */}
@@ -1077,10 +1282,10 @@ est.cursos.forEach(curso => {
                     fontWeight: '500'
                   }}
                 >
-                    <Eye size={16} color="#3b82f6" />
+                  <Eye size={16} color="#3b82f6" />
                   Ver
                 </button>
-                {pago.estado === 'pagado' && (
+                {pago.numero_comprobante && pago.estado !== 'verificado' && (
                   <>
                     <button
                       onClick={() => handleVerificarPago(pago)}
@@ -1387,12 +1592,12 @@ est.cursos.forEach(curso => {
                 </div>
 
                 {/* Estudiante */}
-                 <div style={{
-                   background: 'rgba(255,255,255,0.03)',
-                   borderRadius: '0.6rem',
-                   padding: '0.6rem',
-                   border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
-                 }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.6rem',
+                  padding: '0.6rem',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
+                }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1433,12 +1638,12 @@ est.cursos.forEach(curso => {
                 </div>
 
                 {/* Curso */}
-                 <div style={{
-                   background: 'rgba(255,255,255,0.03)',
-                   borderRadius: '0.6rem',
-                   padding: '0.6rem',
-                   border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
-                 }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.6rem',
+                  padding: '0.6rem',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(148,163,184,0.28)'
+                }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1863,27 +2068,27 @@ est.cursos.forEach(curso => {
                 maxHeight: '55vh',
                 border: '1px dashed rgba(148,163,184,0.25)'
               }}>
-              <img
-                src={comprobanteUrl}
-                alt="Comprobante de pago"
-                style={{
-                  maxWidth: '92%',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  borderRadius: '0.65rem',
-                  boxShadow: '0 12px 24px rgba(15,23,42,0.12)'
-                }}
-                onLoad={() => {
-                  console.log('✅ Imagen del comprobante cargada correctamente');
-                }}
-                onError={(e) => {
-                  console.error('❌ Error al cargar imagen del comprobante:', comprobanteUrl);
-                  (e.target as HTMLImageElement).style.display = 'none';
-                  const parent = (e.target as HTMLImageElement).parentNode as HTMLElement;
-                  if (parent && !parent.querySelector('.error-message')) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error-message';
-                    errorDiv.innerHTML = `
+                <img
+                  src={comprobanteUrl}
+                  alt="Comprobante de pago"
+                  style={{
+                    maxWidth: '92%',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    borderRadius: '0.65rem',
+                    boxShadow: '0 12px 24px rgba(15,23,42,0.12)'
+                  }}
+                  onLoad={() => {
+                    console.log('Imagen del comprobante cargada correctamente');
+                  }}
+                  onError={(e) => {
+                    console.error('Error al cargar imagen del comprobante:', comprobanteUrl);
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    const parent = (e.target as HTMLImageElement).parentNode as HTMLElement;
+                    if (parent && !parent.querySelector('.error-message')) {
+                      const errorDiv = document.createElement('div');
+                      errorDiv.className = 'error-message';
+                      errorDiv.innerHTML = `
                       <div style="text-align: center; color: var(--admin-text-secondary, rgba(255,255,255,0.7)); padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
                         <p style="font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--admin-text-primary, #fff);">No se pudo cargar la imagen del comprobante</p>
@@ -1902,11 +2107,11 @@ est.cursos.forEach(curso => {
                         </a>
                       </div>
                     `;
-                    parent.appendChild(errorDiv);
-                  }
-                }}
-              />
-            </div>
+                      parent.appendChild(errorDiv);
+                    }
+                  }}
+                />
+              </div>
 
               {/* Botones */}
               <div style={{

@@ -305,12 +305,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
-  const handleCursoChange = (cursoId: number) => {
+  const handleCursoChange = async (cursoId: number) => {
     setCursoSeleccionado(cursoId);
     setAsistencias(new Map());
     setAsistenciaGuardada(false);
     setPaginaActual(1);
-    loadEstudiantes(cursoId);
+    await loadEstudiantes(cursoId);
+    // Cargar asistencia existente para la fecha seleccionada
+    if (fechaSeleccionada) {
+      await loadAsistenciaExistente(cursoId, fechaSeleccionada);
+    }
   };
 
   const handleFechaChange = (fecha: string) => {
@@ -447,7 +451,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       if (response.ok) {
         showToast.success('Asistencia guardada correctamente', darkMode);
         setAsistenciaGuardada(true);
-        
+
         // Mostrar modal de carga y recargar datos
         setShowLoadingModal(true);
       } else {
@@ -1172,7 +1176,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 display: 'flex',
                 justifyContent: 'flex-end',
                 gap: '0.5rem',
-                marginBottom: '1rem'
+                marginBottom: '1rem',
+                flexWrap: 'wrap'
               }}>
                 <button
                   onClick={descargarExcel}
@@ -1252,18 +1257,18 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </div>
 
               {/* Tabla de estudiantes */}
-              <div style={{ 
+              <div style={{
                 overflowX: 'auto',
                 background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
                 borderRadius: '0.75rem',
-                boxShadow: darkMode 
-                  ? '0 2px 12px rgba(0, 0, 0, 0.3)' 
+                boxShadow: darkMode
+                  ? '0 2px 12px rgba(0, 0, 0, 0.3)'
                   : '0 2px 12px rgba(0, 0, 0, 0.08)'
               }}>
                 {/* Header de la tabla */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1.5fr',
+                  display: 'flex',
+                  flexWrap: 'wrap',
                   gap: '0.75rem',
                   padding: '0.75rem 1rem',
                   background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
@@ -1274,8 +1279,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
-                  <div>Estudiante</div>
-                  <div style={{ textAlign: 'center' }}>Asistencia</div>
+                  <div style={{ flex: '1 1 300px' }}>Estudiante</div>
+                  <div style={{ flex: '1 1 200px', textAlign: 'center' }}>Asistencia</div>
                 </div>
 
                 {/* Filas de estudiantes */}
@@ -1286,8 +1291,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                       <div
                         key={estudiante.id_estudiante}
                         style={{
-                          display: 'grid',
-                          gridTemplateColumns: '2fr 1.5fr',
+                          display: 'flex',
+                          flexWrap: 'wrap',
                           gap: '0.75rem',
                           padding: '0.75rem 0.5rem',
                           background: index % 2 === 0
@@ -1308,7 +1313,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         }}
                       >
                         {/* Columna: Estudiante */}
-                        <div>
+                        <div style={{ flex: '1 1 300px', minWidth: 0 }}>
                           <div style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -1403,166 +1408,166 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         </div>
 
                         {/* Columna: Asistencia */}
-                        <div>
-                              <div style={{
+                        <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '0.25rem',
+                            flexWrap: 'wrap'
+                          }}>
+                            <button
+                              onClick={() => marcarAsistencia(estudiante.id_estudiante, 'presente')}
+                              style={{
+                                padding: '0.375rem 0.625rem',
+                                borderRadius: '0.375rem',
+                                border: 'none',
+                                background: registro?.estado === 'presente'
+                                  ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
+                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                                color: registro?.estado === 'presente' ? '#fff' : 'var(--docente-text-primary)',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
                                 display: 'flex',
-                                justifyContent: 'center',
+                                alignItems: 'center',
                                 gap: '0.25rem',
-                                flexWrap: 'wrap'
-                              }}>
-                                <button
-                                  onClick={() => marcarAsistencia(estudiante.id_estudiante, 'presente')}
-                                  style={{
-                                    padding: '0.375rem 0.625rem',
-                                    borderRadius: '0.375rem',
-                                    border: 'none',
-                                    background: registro?.estado === 'presente'
-                                      ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
-                                      : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                    color: registro?.estado === 'presente' ? '#fff' : 'var(--docente-text-primary)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.25rem',
-                                    transition: 'all 0.2s',
-                                    boxShadow: registro?.estado === 'presente' ? '0 0.125rem 0.5rem rgba(59, 130, 246, 0.3)' : 'none',
-                                    opacity: registro?.estado === 'presente' ? 1 : 0.7
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (registro?.estado !== 'presente') {
-                                      e.currentTarget.style.opacity = '1';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (registro?.estado !== 'presente') {
-                                      e.currentTarget.style.opacity = '0.7';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                    }
-                                  }}
-                                >
-                                  <FaCheckCircle size={12} />
-                                  P
-                                </button>
+                                transition: 'all 0.2s',
+                                boxShadow: registro?.estado === 'presente' ? '0 0.125rem 0.5rem rgba(59, 130, 246, 0.3)' : 'none',
+                                opacity: registro?.estado === 'presente' ? 1 : 0.7
+                              }}
+                              onMouseEnter={(e) => {
+                                if (registro?.estado !== 'presente') {
+                                  e.currentTarget.style.opacity = '1';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (registro?.estado !== 'presente') {
+                                  e.currentTarget.style.opacity = '0.7';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
+                                }
+                              }}
+                            >
+                              <FaCheckCircle size={12} />
+                              P
+                            </button>
 
-                                <button
-                                  onClick={() => marcarAsistencia(estudiante.id_estudiante, 'ausente')}
-                                  style={{
-                                    padding: '0.375rem 0.625rem',
-                                    borderRadius: '0.375rem',
-                                    border: 'none',
-                                    background: registro?.estado === 'ausente'
-                                      ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-                                      : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                    color: registro?.estado === 'ausente' ? '#fff' : 'var(--docente-text-primary)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.25rem',
-                                    transition: 'all 0.2s',
-                                    boxShadow: registro?.estado === 'ausente' ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.3)' : 'none',
-                                    opacity: registro?.estado === 'ausente' ? 1 : 0.7
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (registro?.estado !== 'ausente') {
-                                      e.currentTarget.style.opacity = '1';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(96, 165, 250, 0.15)' : 'rgba(96, 165, 250, 0.1)';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (registro?.estado !== 'ausente') {
-                                      e.currentTarget.style.opacity = '0.7';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                    }
-                                  }}
-                                >
-                                  <FaTimesCircle size={12} />
-                                  A
-                                </button>
+                            <button
+                              onClick={() => marcarAsistencia(estudiante.id_estudiante, 'ausente')}
+                              style={{
+                                padding: '0.375rem 0.625rem',
+                                borderRadius: '0.375rem',
+                                border: 'none',
+                                background: registro?.estado === 'ausente'
+                                  ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
+                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                                color: registro?.estado === 'ausente' ? '#fff' : 'var(--docente-text-primary)',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                transition: 'all 0.2s',
+                                boxShadow: registro?.estado === 'ausente' ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.3)' : 'none',
+                                opacity: registro?.estado === 'ausente' ? 1 : 0.7
+                              }}
+                              onMouseEnter={(e) => {
+                                if (registro?.estado !== 'ausente') {
+                                  e.currentTarget.style.opacity = '1';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(96, 165, 250, 0.15)' : 'rgba(96, 165, 250, 0.1)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (registro?.estado !== 'ausente') {
+                                  e.currentTarget.style.opacity = '0.7';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
+                                }
+                              }}
+                            >
+                              <FaTimesCircle size={12} />
+                              A
+                            </button>
 
-                                <button
-                                  onClick={() => marcarAsistencia(estudiante.id_estudiante, 'tardanza')}
-                                  style={{
-                                    padding: '0.375rem 0.625rem',
-                                    borderRadius: '0.375rem',
-                                    border: 'none',
-                                    background: registro?.estado === 'tardanza'
-                                      ? 'linear-gradient(135deg, #93c5fd, #60a5fa)'
-                                      : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                    color: registro?.estado === 'tardanza' ? '#fff' : 'var(--docente-text-primary)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.25rem',
-                                    transition: 'all 0.2s',
-                                    boxShadow: registro?.estado === 'tardanza' ? '0 0.125rem 0.5rem rgba(147, 197, 253, 0.3)' : 'none',
-                                    opacity: registro?.estado === 'tardanza' ? 1 : 0.7
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (registro?.estado !== 'tardanza') {
-                                      e.currentTarget.style.opacity = '1';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(147, 197, 253, 0.15)' : 'rgba(147, 197, 253, 0.1)';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (registro?.estado !== 'tardanza') {
-                                      e.currentTarget.style.opacity = '0.7';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                    }
-                                  }}
-                                >
-                                  <FaClock size={12} />
-                                  T
-                                </button>
+                            <button
+                              onClick={() => marcarAsistencia(estudiante.id_estudiante, 'tardanza')}
+                              style={{
+                                padding: '0.375rem 0.625rem',
+                                borderRadius: '0.375rem',
+                                border: 'none',
+                                background: registro?.estado === 'tardanza'
+                                  ? 'linear-gradient(135deg, #93c5fd, #60a5fa)'
+                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                                color: registro?.estado === 'tardanza' ? '#fff' : 'var(--docente-text-primary)',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                transition: 'all 0.2s',
+                                boxShadow: registro?.estado === 'tardanza' ? '0 0.125rem 0.5rem rgba(147, 197, 253, 0.3)' : 'none',
+                                opacity: registro?.estado === 'tardanza' ? 1 : 0.7
+                              }}
+                              onMouseEnter={(e) => {
+                                if (registro?.estado !== 'tardanza') {
+                                  e.currentTarget.style.opacity = '1';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(147, 197, 253, 0.15)' : 'rgba(147, 197, 253, 0.1)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (registro?.estado !== 'tardanza') {
+                                  e.currentTarget.style.opacity = '0.7';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
+                                }
+                              }}
+                            >
+                              <FaClock size={12} />
+                              T
+                            </button>
 
-                                <button
-                                  onClick={() => marcarAsistencia(estudiante.id_estudiante, 'justificado')}
-                                  style={{
-                                    padding: '0.375rem 0.625rem',
-                                    borderRadius: '0.375rem',
-                                    border: 'none',
-                                    background: registro?.estado === 'justificado'
-                                      ? 'linear-gradient(135deg, #2563eb, #1e40af)'
-                                      : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                    color: registro?.estado === 'justificado' ? '#fff' : 'var(--docente-text-primary)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.25rem',
-                                    transition: 'all 0.2s',
-                                    boxShadow: registro?.estado === 'justificado' ? '0 0.125rem 0.5rem rgba(37, 99, 235, 0.3)' : 'none',
-                                    opacity: registro?.estado === 'justificado' ? 1 : 0.7
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (registro?.estado !== 'justificado') {
-                                      e.currentTarget.style.opacity = '1';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.1)';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (registro?.estado !== 'justificado') {
-                                      e.currentTarget.style.opacity = '0.7';
-                                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                    }
-                                  }}
-                                >
-                                  <FaFileAlt size={12} />
-                                  J
-                                </button>
-                              </div>
-                            </div>
+                            <button
+                              onClick={() => marcarAsistencia(estudiante.id_estudiante, 'justificado')}
+                              style={{
+                                padding: '0.375rem 0.625rem',
+                                borderRadius: '0.375rem',
+                                border: 'none',
+                                background: registro?.estado === 'justificado'
+                                  ? 'linear-gradient(135deg, #2563eb, #1e40af)'
+                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                                color: registro?.estado === 'justificado' ? '#fff' : 'var(--docente-text-primary)',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                transition: 'all 0.2s',
+                                boxShadow: registro?.estado === 'justificado' ? '0 0.125rem 0.5rem rgba(37, 99, 235, 0.3)' : 'none',
+                                opacity: registro?.estado === 'justificado' ? 1 : 0.7
+                              }}
+                              onMouseEnter={(e) => {
+                                if (registro?.estado !== 'justificado') {
+                                  e.currentTarget.style.opacity = '1';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.1)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (registro?.estado !== 'justificado') {
+                                  e.currentTarget.style.opacity = '0.7';
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
+                                }
+                              }}
+                            >
+                              <FaFileAlt size={12} />
+                              J
+                            </button>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
 
                 {/* Paginación */}
                 {totalPaginas > 1 && (
@@ -1710,64 +1715,64 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </div>
 
               {/* Botón Guardar Asistencia */}
-                <div style={{
-                  padding: '1rem',
-                  borderTop: '1px solid var(--docente-border)',
-                  display: 'flex',
-                  justifyContent: 'flex-end'
-                }}>
-                  <button
-                    onClick={guardarAsistencia}
-                    disabled={saving || asistencias.size === 0}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.375rem',
-                      border: 'none',
-                      background: asistencias.size === 0
-                        ? 'rgba(128, 128, 128, 0.3)'
-                        : asistenciaGuardada
-                          ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-                          : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                      color: '#fff',
-                      fontSize: '0.75rem',
-                      fontWeight: '600',
-                      cursor: asistencias.size === 0 ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      transition: 'all 0.2s',
-                      boxShadow: asistencias.size > 0
-                        ? (asistenciaGuardada
-                          ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
-                          : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)')
-                        : 'none',
-                      opacity: saving ? 0.7 : (asistencias.size === 0 ? 0.6 : 1)
-                    }}
-                    onMouseEnter={(e) => {
-                      if (asistencias.size > 0 && !saving) {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = asistenciaGuardada
-                          ? '0 0.25rem 0.75rem rgba(96, 165, 250, 0.25)'
-                          : '0 0.25rem 0.75rem rgba(59, 130, 246, 0.25)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (asistencias.size > 0 && !saving) {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = asistenciaGuardada
-                          ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
-                          : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)';
-                      }
-                    }}
-                  >
-                    <FaSave size={12} />
-                    {saving
-                      ? 'Guardando...'
+              <div style={{
+                padding: '1rem',
+                borderTop: '1px solid var(--docente-border)',
+                display: 'flex',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={guardarAsistencia}
+                  disabled={saving || asistencias.size === 0}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    background: asistencias.size === 0
+                      ? 'rgba(128, 128, 128, 0.3)'
                       : asistenciaGuardada
-                        ? `✓ Guardado (${asistencias.size})`
-                        : `Guardar (${asistencias.size})`}
-                  </button>
-                </div>
+                        ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
+                        : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    cursor: asistencias.size === 0 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    transition: 'all 0.2s',
+                    boxShadow: asistencias.size > 0
+                      ? (asistenciaGuardada
+                        ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
+                        : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)')
+                      : 'none',
+                    opacity: saving ? 0.7 : (asistencias.size === 0 ? 0.6 : 1)
+                  }}
+                  onMouseEnter={(e) => {
+                    if (asistencias.size > 0 && !saving) {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = asistenciaGuardada
+                        ? '0 0.25rem 0.75rem rgba(96, 165, 250, 0.25)'
+                        : '0 0.25rem 0.75rem rgba(59, 130, 246, 0.25)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (asistencias.size > 0 && !saving) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = asistenciaGuardada
+                        ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
+                        : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)';
+                    }
+                  }}
+                >
+                  <FaSave size={12} />
+                  {saving
+                    ? 'Guardando...'
+                    : asistenciaGuardada
+                      ? `✓ Guardado (${asistencias.size})`
+                      : `Guardar (${asistencias.size})`}
+                </button>
+              </div>
             </>
           ) : (
             <div style={{
@@ -2446,360 +2451,360 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               </button>
             </div>
 
-              {/* Información del Estudiante */}
+            {/* Información del Estudiante */}
+            <div style={{
+              padding: '0.875rem',
+              background: 'var(--docente-input-bg)',
+              border: '1px solid var(--docente-border)',
+              borderRadius: '0.75rem',
+              marginBottom: '0.875rem'
+            }}>
               <div style={{
-                padding: '0.875rem',
-                background: 'var(--docente-input-bg)',
-                border: '1px solid var(--docente-border)',
-                borderRadius: '0.75rem',
-                marginBottom: '0.875rem'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '0.75rem'
               }}>
                 <div style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.625rem',
+                  background: darkMode
+                    ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '0.75rem'
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontWeight: '700',
+                  fontSize: '0.875rem',
+                  boxShadow: darkMode
+                    ? '0 2px 8px rgba(37, 99, 235, 0.4)'
+                    : '0 2px 8px rgba(59, 130, 246, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
                 }}>
-                  <div style={{
-                    width: '2.5rem',
-                    height: '2.5rem',
-                    borderRadius: '0.625rem',
-                    background: darkMode
-                      ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
-                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: '700',
-                    fontSize: '0.875rem',
-                    boxShadow: darkMode
-                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
-                      : '0 2px 8px rgba(59, 130, 246, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                    {documentoVisualizacion.estudiante.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontSize: '0.875rem',
-                      fontWeight: '700',
-                      color: darkMode ? '#e0e7ff' : '#1e40af',
-                      marginBottom: '0.1875rem'
-                    }}>
-                      {documentoVisualizacion.estudiante}
-                    </div>
-                    <div style={{
-                      fontSize: '0.7rem',
-                      color: darkMode ? '#93c5fd' : '#3b82f6',
-                      fontWeight: '500',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem'
-                    }}>
-                      <FaCalendarAlt size={10} />
-                      {fechaSeleccionada.split('-').reverse().join('/')}
-                    </div>
-                  </div>
+                  {documentoVisualizacion.estudiante.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)}
                 </div>
-
-                <div style={{
-                  padding: '0.75rem',
-                  background: 'var(--docente-input-bg)',
-                  borderRadius: '0.625rem',
-                  border: '1px solid var(--docente-border)'
-                }}>
+                <div style={{ flex: 1 }}>
                   <div style={{
-                    fontSize: '0.65rem',
+                    fontSize: '0.875rem',
                     fontWeight: '700',
-                    color: darkMode ? '#93c5fd' : '#2563eb',
-                    marginBottom: '0.375rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
+                    color: darkMode ? '#e0e7ff' : '#1e40af',
+                    marginBottom: '0.1875rem'
+                  }}>
+                    {documentoVisualizacion.estudiante}
+                  </div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    color: darkMode ? '#93c5fd' : '#3b82f6',
+                    fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.25rem'
                   }}>
-                    <div style={{
-                      width: '3px',
-                      height: '3px',
-                      borderRadius: '50%',
-                      background: darkMode ? '#60a5fa' : '#3b82f6'
-                    }} />
-                    Motivo de Justificación
-                  </div>
-                  <div style={{
-                    fontSize: '0.8rem',
-                    color: darkMode ? '#e0e7ff' : '#1e293b',
-                    lineHeight: '1.5',
-                    fontWeight: '500'
-                  }}>
-                    {documentoVisualizacion.motivo}
+                    <FaCalendarAlt size={10} />
+                    {fechaSeleccionada.split('-').reverse().join('/')}
                   </div>
                 </div>
               </div>
 
-              {/* Previsualización del Documento */}
               <div style={{
-                padding: '0.875rem',
+                padding: '0.75rem',
                 background: 'var(--docente-input-bg)',
-                border: '1px solid var(--docente-border)',
-                borderRadius: '0.75rem',
-                marginBottom: '0.875rem'
+                borderRadius: '0.625rem',
+                border: '1px solid var(--docente-border)'
               }}>
+                <div style={{
+                  fontSize: '0.65rem',
+                  fontWeight: '700',
+                  color: darkMode ? '#93c5fd' : '#2563eb',
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  <div style={{
+                    width: '3px',
+                    height: '3px',
+                    borderRadius: '50%',
+                    background: darkMode ? '#60a5fa' : '#3b82f6'
+                  }} />
+                  Motivo de Justificación
+                </div>
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: darkMode ? '#e0e7ff' : '#1e293b',
+                  lineHeight: '1.5',
+                  fontWeight: '500'
+                }}>
+                  {documentoVisualizacion.motivo}
+                </div>
+              </div>
+            </div>
+
+            {/* Previsualización del Documento */}
+            <div style={{
+              padding: '0.875rem',
+              background: 'var(--docente-input-bg)',
+              border: '1px solid var(--docente-border)',
+              borderRadius: '0.75rem',
+              marginBottom: '0.875rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <div style={{
+                  width: '3.5rem',
+                  height: '3.5rem',
+                  borderRadius: '0.75rem',
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  flexShrink: 0
+                }}>
+                  <FaFileAlt size={24} />
+                  <div style={{
+                    fontSize: '0.5625rem',
+                    fontWeight: '700',
+                    marginTop: '0.25rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}>
+                    {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'DOC'}
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    fontWeight: '700',
+                    color: 'var(--docente-text-primary)',
+                    marginBottom: '0.375rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {documentoVisualizacion.nombreArchivo}
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.1875rem 0.5rem',
+                      borderRadius: '0.3125rem',
+                      background: darkMode
+                        ? 'rgba(59, 130, 246, 0.2)'
+                        : 'rgba(59, 130, 246, 0.15)',
+                      fontSize: '0.7rem',
+                      fontWeight: '600',
+                      color: darkMode ? '#93c5fd' : '#2563eb'
+                    }}>
+                      <FaFileAlt size={9} />
+                      {documentoVisualizacion.tamanoKB} KB
+                    </div>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.1875rem 0.5rem',
+                      borderRadius: '0.3125rem',
+                      background: darkMode
+                        ? 'rgba(96, 165, 250, 0.2)'
+                        : 'rgba(147, 197, 253, 0.2)',
+                      fontSize: '0.7rem',
+                      fontWeight: '600',
+                      color: darkMode ? '#bfdbfe' : '#1e40af'
+                    }}>
+                      {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'ARCHIVO'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Vista Previa del Documento */}
+            <div style={{
+              padding: '0.875rem',
+              background: 'var(--docente-input-bg)',
+              border: '1px solid var(--docente-border)',
+              borderRadius: '0.75rem',
+              marginBottom: '0.875rem'
+            }}>
+              <div style={{
+                fontSize: '0.75rem',
+                fontWeight: '700',
+                color: 'var(--docente-text-secondary)',
+                marginBottom: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em'
+              }}>
+                Vista Previa del Documento
+              </div>
+
+              {loadingPreview ? (
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem'
+                  justifyContent: 'center',
+                  padding: '2rem',
+                  color: 'var(--docente-text-muted)'
                 }}>
                   <div style={{
-                    width: '3.5rem',
-                    height: '3.5rem',
-                    borderRadius: '0.75rem',
-                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    flexShrink: 0
+                    gap: '0.5rem'
                   }}>
-                    <FaFileAlt size={24} />
                     <div style={{
-                      fontSize: '0.5625rem',
-                      fontWeight: '700',
-                      marginTop: '0.25rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em'
-                    }}>
-                      {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'DOC'}
-                    </div>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: '0.8rem',
-                      fontWeight: '700',
-                      color: 'var(--docente-text-primary)',
-                      marginBottom: '0.375rem',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {documentoVisualizacion.nombreArchivo}
-                    </div>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      flexWrap: 'wrap'
-                    }}>
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        padding: '0.1875rem 0.5rem',
-                        borderRadius: '0.3125rem',
-                        background: darkMode
-                          ? 'rgba(59, 130, 246, 0.2)'
-                          : 'rgba(59, 130, 246, 0.15)',
-                        fontSize: '0.7rem',
-                        fontWeight: '600',
-                        color: darkMode ? '#93c5fd' : '#2563eb'
-                      }}>
-                        <FaFileAlt size={9} />
-                        {documentoVisualizacion.tamanoKB} KB
-                      </div>
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        padding: '0.1875rem 0.5rem',
-                        borderRadius: '0.3125rem',
-                        background: darkMode
-                          ? 'rgba(96, 165, 250, 0.2)'
-                          : 'rgba(147, 197, 253, 0.2)',
-                        fontSize: '0.7rem',
-                        fontWeight: '600',
-                        color: darkMode ? '#bfdbfe' : '#1e40af'
-                      }}>
-                        {documentoVisualizacion.tipoArchivo.split('/')[1]?.toUpperCase() || 'ARCHIVO'}
-                      </div>
-                    </div>
+                      width: '1rem',
+                      height: '1rem',
+                      border: '2px solid var(--docente-border)',
+                      borderTop: '2px solid var(--docente-accent)',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    Cargando vista previa...
                   </div>
                 </div>
-              </div>
-
-              {/* Vista Previa del Documento */}
-              <div style={{
-                padding: '0.875rem',
-                background: 'var(--docente-input-bg)',
-                border: '1px solid var(--docente-border)',
-                borderRadius: '0.75rem',
-                marginBottom: '0.875rem'
-              }}>
+              ) : documentoPreviewUrl ? (
                 <div style={{
+                  border: '1px solid var(--docente-border)',
+                  borderRadius: '0.5rem',
+                  overflow: 'hidden',
+                  maxHeight: '300px'
+                }}>
+                  {documentoVisualizacion?.tipoArchivo.startsWith('image/') ? (
+                    <img
+                      src={documentoPreviewUrl}
+                      alt="Vista previa del documento"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        maxHeight: '300px',
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                    />
+                  ) : documentoVisualizacion?.tipoArchivo === 'application/pdf' ? (
+                    <iframe
+                      src={documentoPreviewUrl}
+                      style={{
+                        width: '100%',
+                        height: '300px',
+                        border: 'none'
+                      }}
+                      title="Vista previa del PDF"
+                    />
+                  ) : (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '2rem',
+                      color: 'var(--docente-text-muted)',
+                      textAlign: 'center'
+                    }}>
+                      <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                      <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                        Vista previa no disponible
+                      </div>
+                      <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                        Este tipo de archivo no se puede previsualizar
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2rem',
+                  color: 'var(--docente-text-muted)',
+                  textAlign: 'center'
+                }}>
+                  <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                  <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                    Error al cargar la vista previa
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Botones de Acción */}
+            <div style={{
+              display: 'flex',
+              gap: '0.625rem',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={cerrarModalDocumento}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid var(--docente-border)',
+                  background: 'var(--docente-input-bg)',
+                  color: 'var(--docente-text-secondary)',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => {
+                  if (documentoVisualizacion.id_asistencia) {
+                    // Cerrar modal primero
+                    cerrarModalDocumento();
+                    // Descargar después de un pequeño delay para que se cierre el modal
+                    setTimeout(() => {
+                      descargarDocumento(
+                        documentoVisualizacion.id_asistencia!,
+                        documentoVisualizacion.nombreArchivo,
+                        documentoVisualizacion.estudiante
+                      );
+                    }, 100);
+                  }
+                }}
+                style={{
+                  padding: '0.625rem 1.5rem',
+                  borderRadius: '0.625rem',
+                  border: 'none',
+                  background: darkMode
+                    ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#fff',
                   fontSize: '0.75rem',
                   fontWeight: '700',
-                  color: 'var(--docente-text-secondary)',
-                  marginBottom: '0.75rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em'
-                }}>
-                  Vista Previa del Documento
-                </div>
-                
-                {loadingPreview ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2rem',
-                    color: 'var(--docente-text-muted)'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <div style={{
-                        width: '1rem',
-                        height: '1rem',
-                        border: '2px solid var(--docente-border)',
-                        borderTop: '2px solid var(--docente-accent)',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      Cargando vista previa...
-                    </div>
-                  </div>
-                ) : documentoPreviewUrl ? (
-                  <div style={{
-                    border: '1px solid var(--docente-border)',
-                    borderRadius: '0.5rem',
-                    overflow: 'hidden',
-                    maxHeight: '300px'
-                  }}>
-                    {documentoVisualizacion?.tipoArchivo.startsWith('image/') ? (
-                      <img
-                        src={documentoPreviewUrl}
-                        alt="Vista previa del documento"
-                        style={{
-                          width: '100%',
-                          height: 'auto',
-                          maxHeight: '300px',
-                          objectFit: 'contain',
-                          display: 'block'
-                        }}
-                      />
-                    ) : documentoVisualizacion?.tipoArchivo === 'application/pdf' ? (
-                      <iframe
-                        src={documentoPreviewUrl}
-                        style={{
-                          width: '100%',
-                          height: '300px',
-                          border: 'none'
-                        }}
-                        title="Vista previa del PDF"
-                      />
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '2rem',
-                        color: 'var(--docente-text-muted)',
-                        textAlign: 'center'
-                      }}>
-                        <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                        <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
-                          Vista previa no disponible
-                        </div>
-                        <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
-                          Este tipo de archivo no se puede previsualizar
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2rem',
-                    color: 'var(--docente-text-muted)',
-                    textAlign: 'center'
-                  }}>
-                    <FaFileAlt size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                    <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
-                      Error al cargar la vista previa
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Botones de Acción */}
-              <div style={{
-                display: 'flex',
-                gap: '0.625rem',
-                justifyContent: 'flex-end'
-              }}>
-                <button
-                  onClick={cerrarModalDocumento}
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid var(--docente-border)',
-                    background: 'var(--docente-input-bg)',
-                    color: 'var(--docente-text-secondary)',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  onClick={() => {
-                    if (documentoVisualizacion.id_asistencia) {
-                      // Cerrar modal primero
-                      cerrarModalDocumento();
-                      // Descargar después de un pequeño delay para que se cierre el modal
-                      setTimeout(() => {
-                        descargarDocumento(
-                          documentoVisualizacion.id_asistencia!,
-                          documentoVisualizacion.nombreArchivo,
-                          documentoVisualizacion.estudiante
-                        );
-                      }, 100);
-                    }
-                  }}
-                  style={{
-                    padding: '0.625rem 1.5rem',
-                    borderRadius: '0.625rem',
-                    border: 'none',
-                    background: darkMode
-                      ? 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
-                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    boxShadow: darkMode
-                      ? '0 2px 8px rgba(37, 99, 235, 0.4)'
-                      : '0 2px 8px rgba(59, 130, 246, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem'
-                  }}
-                >
-                  <FaFileAlt size={12} />
-                  Descargar Documento
-                </button>
-              </div>
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: darkMode
+                    ? '0 2px 8px rgba(37, 99, 235, 0.4)'
+                    : '0 2px 8px rgba(59, 130, 246, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem'
+                }}
+              >
+                <FaFileAlt size={12} />
+                Descargar Documento
+              </button>
+            </div>
           </div>
         </div>,
         document.body

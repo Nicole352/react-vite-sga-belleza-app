@@ -61,22 +61,22 @@ const AnalisisEntregas: React.FC = () => {
   // 🔥 WebSocket: Escuchar nuevas entregas en tiempo real
   useSocket({
     'entrega_nueva': (data: any) => {
-      console.log('🎯 [WebSocket Docente] Nueva entrega recibida:', data);
+      console.log('[WebSocket Docente] Nueva entrega recibida:', data);
       
       // Verificar si la entrega es de la tarea actual
       if (data.id_tarea === parseInt(id_tarea || '0')) {
-        showToast.success(`📥 Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, darkMode);
+        showToast.success(`Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, darkMode);
         
         // Recargar las entregas para mostrar la nueva
         fetchData();
       }
     },
     'entrega_actualizada': (data: any) => {
-      console.log('🎯 [WebSocket Docente] Entrega actualizada:', data);
+      console.log('[WebSocket Docente] Entrega actualizada:', data);
       
       // Si es de esta tarea, recargar
       if (data.id_tarea === parseInt(id_tarea || '0')) {
-        showToast.success(`✏️ ${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, darkMode);
+        showToast.success(`${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, darkMode);
         
         fetchData();
       }

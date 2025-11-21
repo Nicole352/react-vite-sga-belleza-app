@@ -204,25 +204,25 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   // Escuchar eventos de WebSocket para actualizaciones en tiempo real
   useSocket({
     calificacion_actualizada: (data: any) => {
-      console.log("📊 [WebSocket Estudiante] Calificación actualizada:", data);
+      console.log("Calificación actualizada:", data);
       
-      showToast.success(`✅ Nueva calificación disponible`, darkMode);
+      showToast.success(`Nueva calificación disponible`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();
     },
     entrega_calificada: (data: any) => {
-      console.log("📝 [WebSocket Estudiante] Entrega calificada:", data);
+      console.log("Entrega calificada:", data);
       
-      showToast.success(`📝 Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, darkMode);
+      showToast.success(`Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();
     },
     promedio_actualizado: (data: any) => {
-      console.log("📈 [WebSocket Estudiante] Promedio actualizado:", data);
+      console.log("Promedio actualizado:", data);
       
-      showToast.success(`📈 Promedio actualizado`, darkMode);
+      showToast.success(`Promedio actualizado`, darkMode);
       
       // Recargar calificaciones
       fetchCalificaciones();

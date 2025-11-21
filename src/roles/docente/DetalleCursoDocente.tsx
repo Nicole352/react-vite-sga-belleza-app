@@ -226,14 +226,14 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
   // Escuchar eventos en tiempo real vía socket (módulos, tareas, entregas)
   useSocket({
     modulo_creado: (data: any) => {
-      console.log("📚 Nuevo módulo creado:", data);
+      console.log("Nuevo módulo creado:", data);
       if (data.id_curso === parseInt(id_curso || "0")) {
         // No mostrar notificación aquí porque el modal ya la muestra
         fetchModulos();
       }
     },
     nueva_tarea: (data: any) => {
-      console.log("📝 Nueva tarea creada:", data);
+      console.log("Nueva tarea creada:", data);
       
       // No mostrar notificación aquí porque el modal ya la muestra
       
@@ -255,38 +255,38 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       }
     },
     tarea_entregada_docente: (data: any) => {
-      console.log("🎯 [WebSocket Docente] Nueva entrega recibida:", data);
+      console.log("Nueva entrega recibida:", data);
       
       // Mostrar notificación con nombre del estudiante
       const nombreEstudiante = data.estudiante_nombre || 'Un estudiante';
       
-      showToast.success(`📥 ${nombreEstudiante} entregó una tarea`, darkMode);
+      showToast.success(`${nombreEstudiante} entregó una tarea`, darkMode);
       
       // Recargar módulos para actualizar contadores
       fetchModulos();
       
       // Si el módulo está expandido, recargar sus tareas inmediatamente
       if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
-        console.log(`🔄 Recargando tareas del módulo ${data.id_modulo}`);
+        console.log(`Recargando tareas del módulo ${data.id_modulo}`);
         fetchTareasModulo(data.id_modulo);
       }
     },
     entrega_actualizada: (data: any) => {
-      console.log("🎯 [WebSocket Docente] Entrega actualizada:", data);
+      console.log("Entrega actualizada:", data);
       
       // Mostrar notificación
       const nombreEstudiante = data.entrega?.estudiante_nombre && data.entrega?.estudiante_apellido
         ? `${data.entrega.estudiante_nombre} ${data.entrega.estudiante_apellido}`
         : 'Un estudiante';
       
-      showToast.info(`✏️ ${nombreEstudiante} actualizó su entrega`, darkMode);
+      showToast.info(`${nombreEstudiante} actualizó su entrega`, darkMode);
       
       // Recargar módulos y tareas
       fetchModulos();
       
       // Si el módulo está expandido, recargar sus tareas inmediatamente
       if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
-        console.log(`🔄 Recargando tareas del módulo ${data.id_modulo}`);
+        console.log(`Recargando tareas del módulo ${data.id_modulo}`);
         fetchTareasModulo(data.id_modulo);
       }
     },

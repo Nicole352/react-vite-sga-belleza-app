@@ -35,7 +35,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   const [estadoFiltro, setEstadoFiltro] = useState<'todos' | 'activos' | 'finalizados'>('todos');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
   useEffect(() => {
     fetchEstudiantes();
@@ -57,10 +57,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('👥 Estudiantes del docente (raw data):', data);
-        
+        console.log('Estudiantes del docente (raw data):', data);
+
         // Sort students alphabetically by apellido
-        const sortedData = data.sort((a: Estudiante, b: Estudiante) => 
+        const sortedData = data.sort((a: Estudiante, b: Estudiante) =>
           a.apellido.localeCompare(b.apellido, 'es', { sensitivity: 'base' })
         );
         setEstudiantes(sortedData);
@@ -120,17 +120,15 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       est.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
       est.cedula.includes(searchTerm) ||
       est.curso_nombre.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchCurso = !cursoFiltro || est.codigo_curso === cursoFiltro;
-    
-    // When estado_curso is not available (undefined), we assume students are active
-    // This is a workaround since the backend isn't sending estado_curso
+
     const studentEstado = est.estado_curso || 'activo';
-    
-    const matchEstado = estadoFiltro === 'todos' || 
+
+    const matchEstado = estadoFiltro === 'todos' ||
       (estadoFiltro === 'activos' && studentEstado === 'activo') ||
       (estadoFiltro === 'finalizados' && studentEstado === 'finalizado');
-    
+
     return matchTexto && matchCurso && matchEstado;
   });
 
@@ -272,11 +270,33 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
         {/* Toggle de vista */}
         <button
+          onClick={() => setViewMode('cards')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: viewMode === 'cards'
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
+              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+            border: `1px solid ${viewMode === 'cards' ? theme.accent : theme.border}`,
+            borderRadius: '0.5rem',
+            color: viewMode === 'cards' ? '#fff' : theme.textPrimary,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Grid size={16} />
+          Tarjetas
+        </button>
+        <button
           onClick={() => setViewMode('table')}
           style={{
             padding: '0.5rem 1rem',
-            background: viewMode === 'table' 
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
+            background: viewMode === 'table'
+              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
               : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
             border: `1px solid ${viewMode === 'table' ? theme.accent : theme.border}`,
             borderRadius: '0.5rem',
@@ -293,28 +313,6 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           <List size={16} />
           Tabla
         </button>
-        <button
-          onClick={() => setViewMode('cards')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: viewMode === 'cards' 
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-            border: `1px solid ${viewMode === 'cards' ? theme.accent : theme.border}`,
-            borderRadius: '0.5rem',
-            color: viewMode === 'cards' ? '#fff' : theme.textPrimary,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <Grid size={16} />
-          Cards
-        </button>
       </div>
 
       <div style={{ flex: 1 }}>
@@ -325,23 +323,23 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           }}>
             <Users size={64} color={theme.textMuted} style={{ marginBottom: '1em', opacity: 0.5 }} />
             <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
-              {searchTerm || cursoFiltro || estadoFiltro !== 'todos' 
-                ? 'No se encontraron estudiantes' 
+              {searchTerm || cursoFiltro || estadoFiltro !== 'todos'
+                ? 'No se encontraron estudiantes'
                 : 'No tienes estudiantes asignados'}
             </h3>
             <p style={{ color: theme.textMuted, margin: 0 }}>
-              {searchTerm || cursoFiltro || estadoFiltro !== 'todos' 
-                ? 'Intenta con otros términos de búsqueda' 
+              {searchTerm || cursoFiltro || estadoFiltro !== 'todos'
+                ? 'Intenta con otros términos de búsqueda'
                 : 'Los estudiantes aparecerán aquí cuando se matriculen en tus cursos'}
             </p>
           </div>
         ) : viewMode === 'table' ? (
-          <div style={{ 
+          <div style={{
             overflowX: 'auto',
             background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
             borderRadius: '0.75rem',
-            boxShadow: darkMode 
-              ? '0 2px 12px rgba(0, 0, 0, 0.3)' 
+            boxShadow: darkMode
+              ? '0 2px 12px rgba(0, 0, 0, 0.3)'
               : '0 2px 12px rgba(0, 0, 0, 0.08)'
           }}>
             {/* Header de la tabla mejorado */}
@@ -356,7 +354,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
               fontSize: '0.7rem',
               color: darkMode ? theme.accent : '#1e40af',
               textTransform: 'uppercase',
-              letterSpacing: '0.05em'
+              letterSpacing: '0.05em',
+              minWidth: '800px'
             }}>
               <div>Estudiante</div>
               <div>Cédula</div>
@@ -367,16 +366,15 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             </div>
 
             {/* Filas de estudiantes */}
-            <div style={{ display: 'grid', gap: '0', padding: '0.5rem 1rem 1rem 1rem' }}>
+            <div style={{ display: 'grid', gap: '0', padding: '0.5rem 1rem 1rem 1rem', minWidth: '800px' }}>
               {estudiantesPaginados.map((estudiante) => {
                 // Determine status color
                 let statusColor = theme.textMuted;
                 let statusBg = 'rgba(156, 163, 175, 0.2)';
                 let statusText = 'Desconocido';
-                
-                // When estado_curso is not available, we assume it's active
+
                 const studentEstado = estudiante.estado_curso || 'activo';
-                
+
                 switch (studentEstado) {
                   case 'activo':
                     statusColor = theme.success;
@@ -534,7 +532,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     disabled={currentPage === 1}
                     style={{
                       padding: '0.5rem',
-                      background: currentPage === 1 
+                      background: currentPage === 1
                         ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
                         : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
                       border: `1px solid ${theme.border}`,
@@ -548,7 +546,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                   >
                     <ChevronLeft size={18} color={theme.textPrimary} />
                   </button>
-                  
+
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let page;
                     if (totalPages <= 5) {
@@ -593,7 +591,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -626,9 +624,9 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 let statusColor = theme.textMuted;
                 let statusBg = 'rgba(156, 163, 175, 0.2)';
                 let statusText = 'Desconocido';
-                
+
                 const studentEstado = estudiante.estado_curso || 'activo';
-                
+
                 switch (studentEstado) {
                   case 'activo':
                     statusColor = theme.success;
@@ -667,8 +665,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = darkMode 
-                        ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? '0 4px 12px rgba(59, 130, 246, 0.2)'
                         : '0 4px 12px rgba(0, 0, 0, 0.1)';
                     }}
                     onMouseLeave={(e) => {
@@ -715,8 +713,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Fila integrada: Curso, Inicio y Fin */}
-                    <div style={{ 
-                      display: 'flex', 
+                    <div style={{
+                      display: 'flex',
                       alignItems: 'center',
                       gap: '0.75rem',
                       padding: '0.5rem',
@@ -802,7 +800,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     disabled={currentPage === 1}
                     style={{
                       padding: '0.5rem',
-                      background: currentPage === 1 
+                      background: currentPage === 1
                         ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
                         : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
                       border: `1px solid ${theme.border}`,
@@ -816,7 +814,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                   >
                     <ChevronLeft size={18} color={theme.textPrimary} />
                   </button>
-                  
+
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let page;
                     if (totalPages <= 5) {
@@ -861,7 +859,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}

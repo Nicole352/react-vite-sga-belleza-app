@@ -1,13 +1,13 @@
-import React, { 
-  useState, 
-  useEffect 
+import React, {
+  useState,
+  useEffect
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { 
-  Eye, 
-  EyeOff, 
+import {
+  Eye,
+  EyeOff,
   Shield,
   CheckCircle,
   ArrowRight,
@@ -45,7 +45,7 @@ const AulaVirtual = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
-    
+
     // Función para forzar un retraso mínimo
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     try {
@@ -62,6 +62,16 @@ const AulaVirtual = () => {
         }),
         delay(1000) // Forzar 1 segundo de espera
       ]);
+
+      // Verificar si la cuenta está bloqueada (HTTP 403)
+      if (res.status === 403) {
+        const errorData = await res.json();
+        if (errorData.bloqueada) {
+          setErrorMsg(errorData.motivo || 'Su cuenta ha sido bloqueada. Por favor, contacte con el área administrativa.');
+          return;
+        }
+      }
+
       if (!res.ok) {
         const txt = await res.text();
         throw new Error(txt || 'Credenciales inválidas');
@@ -123,7 +133,7 @@ const AulaVirtual = () => {
         paddingTop: 110,
         fontFamily: "'Cormorant Garamond', 'Playfair Display', 'Georgia', serif"
       }}>
-        <div 
+        <div
           style={{
             background: 'rgba(255, 255, 255, 0.95)',
             borderRadius: '32px',
@@ -138,7 +148,7 @@ const AulaVirtual = () => {
           data-aos="fade-up"
           data-aos-delay="60"
         >
-          <div 
+          <div
             style={{
               width: '80px',
               height: '80px',
@@ -153,7 +163,7 @@ const AulaVirtual = () => {
           >
             <CheckCircle size={40} color="#fff" />
           </div>
-          <h2 
+          <h2
             style={{
               fontSize: '2.5rem',
               fontWeight: '800',
@@ -164,7 +174,7 @@ const AulaVirtual = () => {
           >
             ¡Bienvenida!
           </h2>
-          <p 
+          <p
             style={{
               color: '#666',
               fontSize: '1.2rem',
@@ -173,10 +183,10 @@ const AulaVirtual = () => {
               fontFamily: "'Crimson Text', serif"
             }}
           >
-            Has ingresado exitosamente al Aula Virtual. 
+            Has ingresado exitosamente al Aula Virtual.
             Redirigiendo al panel de estudiante...
           </p>
-          <div 
+          <div
             style={{
               background: 'rgba(251, 191, 36, 0.1)',
               padding: '20px',
@@ -273,8 +283,8 @@ const AulaVirtual = () => {
           .login-container {
             min-height: 100vh;
             background: ${theme === 'dark'
-              ? 'rgba(0, 0, 0, 0.95)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)'};
+            ? 'rgba(0, 0, 0, 0.95)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)'};
             position: relative;
             overflow: hidden;
             font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -341,8 +351,8 @@ const AulaVirtual = () => {
             justify-content: center;
             padding: 92px 48px 52px; /* ajustar para que quepa sin scroll en desktop */
             background: ${theme === 'dark'
-              ? 'rgba(0, 0, 0, 0.95)'
-              : 'rgba(255, 255, 255, 0.97)'};
+            ? 'rgba(0, 0, 0, 0.95)'
+            : 'rgba(255, 255, 255, 0.97)'};
             position: relative;
           }
           
@@ -411,9 +421,9 @@ const AulaVirtual = () => {
           }
           
           .login-form {
-            background: ${theme === 'dark' 
-              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))' 
-              : '#ffffff'};
+            background: ${theme === 'dark'
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+            : '#ffffff'};
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(209, 160, 42, 0.2)'};
@@ -797,7 +807,7 @@ const AulaVirtual = () => {
         <div className="main-content">
           <div className="login-grid">
             {/* Sección de imagen (izquierda) */}
-            <div 
+            <div
               className="image-section"
               data-aos="zoom-in"
               data-aos-offset="140"
@@ -808,7 +818,7 @@ const AulaVirtual = () => {
               }}
             >
               {/* Aquí va tu imagen - Por ahora uso una placeholder */}
-              <img 
+              <img
                 src="https://res.cloudinary.com/dfczvdz7b/image/upload/v1759544229/aula_qzzpke.jpg"
                 alt="Aula Virtual - Jessica Vélez Escuela de Esteticistas"
                 className="hero-image"
@@ -816,7 +826,7 @@ const AulaVirtual = () => {
             </div>
 
             {/* Sección de login (derecha) */}
-            <div 
+            <div
               className="login-section"
               data-aos="zoom-in-up"
               data-aos-delay="120"
@@ -848,16 +858,16 @@ const AulaVirtual = () => {
 
                 {/* Subtítulo */}
                 <p className="subtitle">
-                  Accede a tu plataforma de aprendizaje personalizada. 
+                  Accede a tu plataforma de aprendizaje personalizada.
                   Continúa tu formación profesional desde cualquier lugar.
                 </p>
               </div>
 
               {/* Formulario de Login */}
-              <form 
-                onSubmit={handleSubmit} 
-                className="login-form" 
-                data-aos="fade-up" 
+              <form
+                onSubmit={handleSubmit}
+                className="login-form"
+                data-aos="fade-up"
                 data-aos-delay="200"
               >
                 {/* Columna izquierda: Características */}
@@ -964,7 +974,7 @@ const AulaVirtual = () => {
         </div>
 
       </div>
-      
+
       {/* Modal de carga */}
       <LoadingModal
         isOpen={isLoading}

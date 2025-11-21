@@ -127,11 +127,11 @@ export const useAutoRefresh = ({
       const handleVisibilityChange = async () => {
         if (document.hidden) {
           // Pestaña oculta: pausar auto-refresh
-          console.log('⏸️ Auto-refresh pausado (pestaña oculta)');
+          console.log('Auto-refresh pausado (pestaña oculta)');
           stopInterval();
         } else {
           // Pestaña visible: reanudar auto-refresh
-          console.log('▶️ Auto-refresh reanudado (pestaña visible)');
+          console.log('Auto-refresh reanudado (pestaña visible)');
           // Refrescar inmediatamente al volver con modal
           if (!isRefreshing) {
             setIsRefreshing(true);

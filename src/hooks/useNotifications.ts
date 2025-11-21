@@ -66,7 +66,7 @@ export const useNotifications = (rol: RolUsuario) => {
         fechaLeida: ahora
       }))
     );
-    
+
     setTimeout(() => {
       setNotificaciones([]);
     }, 2000);
@@ -78,12 +78,12 @@ export const useNotifications = (rol: RolUsuario) => {
       setNotificaciones((prev) =>
         prev.filter((n) => {
           if (!n.leida) return true;
-          
+
           if (n.fechaLeida) {
             const diffMinutos = (ahora.getTime() - n.fechaLeida.getTime()) / (1000 * 60);
             return diffMinutos < 60;
           }
-          
+
           return true;
         })
       );
@@ -129,6 +129,26 @@ export const useNotifications = (rol: RolUsuario) => {
         data
       });
     };
+
+    events.cuenta_bloqueada = (data: any) => {
+      agregarNotificacion({
+        tipo: "general",
+        titulo: "🔒 Usuario Bloqueado",
+        mensaje: `El estudiante ${data.nombre_estudiante} ha sido bloqueado. Motivo: ${data.motivo}`,
+        link: "/admin/usuarios",
+        data
+      });
+    };
+
+    events.cuenta_desbloqueada = (data: any) => {
+      agregarNotificacion({
+        tipo: "general",
+        titulo: "🔓 Usuario Desbloqueado",
+        mensaje: `El estudiante ${data.nombre_estudiante} ha sido desbloqueado.`,
+        link: "/admin/usuarios",
+        data
+      });
+    };
   } else if (rol === "docente") {
     events.tarea_entregada_docente = (data: any) => {
       const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
@@ -163,20 +183,20 @@ export const useNotifications = (rol: RolUsuario) => {
 
     events.nueva_tarea = (data: any) => {
       const fechaEntrega = new Date(data.fecha_entrega);
-      const fechaFormateada = fechaEntrega.toLocaleDateString('es-ES', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
+      const fechaFormateada = fechaEntrega.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       });
-      const horaFormateada = fechaEntrega.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
+      const horaFormateada = fechaEntrega.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
         minute: '2-digit',
         hour12: false
       });
-      
+
       const curso = data.curso_nombre || 'tu curso';
       const docente = data.docente_nombre ? ` (${data.docente_nombre})` : '';
-      
+
       agregarNotificacion({
         tipo: "tarea",
         titulo: "📝 Nueva tarea asignada",
@@ -210,6 +230,18 @@ export const useNotifications = (rol: RolUsuario) => {
       });
     };
 
+    events.pago_rechazado = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
+      const motivo = data.observaciones?.trim() ? data.observaciones : 'Revisa el comprobante y vuelve a subirlo.';
+      agregarNotificacion({
+        tipo: "pago",
+        titulo: "❌ Pago rechazado",
+        mensaje: `Cuota #${data.numero_cuota}${curso} - Motivo: ${motivo}`,
+        link: "/estudiante/pagos",
+        data
+      });
+    };
+
     events.matricula_aprobada = (data: any) =>
       agregarNotificacion({
         tipo: "matricula",
@@ -218,6 +250,43 @@ export const useNotifications = (rol: RolUsuario) => {
         link: "/estudiante/cursos",
         data
       });
+
+    events.recordatorio_pago = (data: any) => {
+      const curso = data.curso_nombre ? ` - ${data.curso_nombre}` : '';
+      const fechaVencimiento = new Date(data.fecha_vencimiento).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      agregarNotificacion({
+        tipo: "pago",
+        titulo: "⚠️ Recordatorio de Pago",
+        mensaje: `Tu cuota #${data.numero_cuota}${curso} vence el ${fechaVencimiento}. Evita el bloqueo de tu cuenta.`,
+        link: "/estudiante/pagos",
+        data
+      });
+    };
+
+    events.cuenta_bloqueada = (data: any) => {
+      agregarNotificacion({
+        tipo: "general",
+        titulo: "🚫 Cuenta Bloqueada",
+        mensaje: `Tu cuenta ha sido bloqueada. Motivo: ${data.motivo}. Por favor contacta a administración.`,
+        link: "/estudiante/perfil",
+        data
+      });
+    };
+
+    events.cuenta_desbloqueada = (data: any) => {
+      agregarNotificacion({
+        tipo: "general",
+        titulo: "✅ Cuenta Desbloqueada",
+        mensaje: `Tu cuenta ha sido desbloqueada. Ya puedes acceder a todos los servicios.`,
+        link: "/estudiante/perfil",
+        data
+      });
+    };
   }
 
   // Conectar socket con los eventos definidos

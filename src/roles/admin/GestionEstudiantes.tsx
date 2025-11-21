@@ -165,12 +165,17 @@ const GestionEstudiantes = () => {
       setShowLoadingModal(true);
       setError(null);
 
+      const token = sessionStorage.getItem('auth_token');
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', String(limit));
       if (searchTerm) params.set('search', searchTerm);
 
-      const response = await fetch(`${API_BASE}/api/estudiantes?${params.toString()}`);
+      const response = await fetch(`${API_BASE}/api/estudiantes?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       if (!response.ok) {
         throw new Error('Error cargando estudiantes');
@@ -408,11 +413,16 @@ const GestionEstudiantes = () => {
 
           {/* Botones Excel y Refrescar */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
-            <button 
+            <button
               onClick={async () => {
                 try {
                   showToast.info('Generando reporte de estudiantes...', darkMode);
-                  const response = await fetch(`${API_BASE}/api/estudiantes/reporte/excel`);
+                  const token = sessionStorage.getItem('auth_token');
+                  const response = await fetch(`${API_BASE}/api/estudiantes/reporte/excel`, {
+                    headers: {
+                      Authorization: `Bearer ${token}`
+                    }
+                  });
                   if (!response.ok) throw new Error('Error descargando reporte');
                   const blob = await response.blob();
                   const url = window.URL.createObjectURL(blob);
@@ -429,7 +439,7 @@ const GestionEstudiantes = () => {
                   showToast.error('No se pudo descargar el reporte.', darkMode);
                 }
               }}
-              style={{ 
+              style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -458,14 +468,14 @@ const GestionEstudiantes = () => {
               <Sheet size={16} color={excelButtonTextColor} />
               Descargar Excel
             </button>
-            <button 
+            <button
               onClick={async () => {
                 if (loading) return;
                 await fetchEstudiantes({ successMessage: 'Listado de estudiantes actualizado.' });
               }}
               disabled={loading}
               aria-label="Refrescar lista"
-              style={{ 
+              style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -504,7 +514,7 @@ const GestionEstudiantes = () => {
             Total Estudiantes
           </div>
         </GlassEffect>
-        
+
         <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: theme.contentBackground }}>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: pick('#2563eb', mapToRedScheme('#3b82f6')), marginBottom: '0.25rem' }}>
             {estudiantes.filter(e => e.estado === 'activo').length}
@@ -517,13 +527,13 @@ const GestionEstudiantes = () => {
 
       {/* Error */}
       {error && (
-        <div style={{ 
-          background: 'rgba(239, 68, 68, 0.1)', 
-          border: '1px solid rgba(239, 68, 68, 0.3)', 
-          borderRadius: 12, 
-          padding: 16, 
-          marginBottom: 24, 
-          color: '#ef4444' 
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: 12,
+          padding: 16,
+          marginBottom: 24,
+          color: '#ef4444'
         }}>
           {error}
         </div>
@@ -680,15 +690,15 @@ const GestionEstudiantes = () => {
           border: `1px solid ${theme.paginationBorder}`,
           borderRadius: '1rem'
         }}>
-          <div style={{ 
-            color: theme.paginationText, 
+          <div style={{
+            color: theme.paginationText,
             fontSize: isMobile ? '0.8rem' : '0.9rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {page} de {totalPages} • Total: {totalCount} estudiantes
           </div>
-          <div style={{ 
-            display: 'flex', 
+          <div style={{
+            display: 'flex',
             gap: '0.5rem',
             justifyContent: isMobile ? 'center' : 'flex-start',
             flexWrap: 'wrap'
@@ -713,7 +723,7 @@ const GestionEstudiantes = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} /> 
+              <ChevronLeft size={isMobile ? 14 : 16} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -756,7 +766,7 @@ const GestionEstudiantes = () => {
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              {!isMobile && 'Siguiente'} 
+              {!isMobile && 'Siguiente'}
               <ChevronRight size={isMobile ? 14 : 16} />
             </button>
           </div>
@@ -766,241 +776,241 @@ const GestionEstudiantes = () => {
       {/* Vista Tabla */}
       {viewMode === 'table' && (
         <>
-        <div style={{ 
-          background: theme.surface, 
-          borderRadius: 16, 
-          overflow: 'hidden',
-          border: `1px solid ${theme.surfaceBorder}`,
-          boxShadow: theme.cardShadow
-        }}>
-          {/* Indicador de scroll en móvil */}
-          {isSmallScreen && (
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '0.5rem',
-              padding: '8px 0.75rem',
-              margin: '0.75rem',
-              color: '#ef4444',
-              fontSize: '0.75rem',
-              textAlign: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.375rem'
-            }}>
-              <span>👉</span>
-              <span>Desliza horizontalmente para ver toda la tabla</span>
-              <span>👈</span>
-            </div>
-          )}
-          
-          <div className="responsive-table-container">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: theme.tableHeaderBg }}>
-                <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Estudiante
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Identificación
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Usuario
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Estado
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Fecha Registro
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {estudiantesFiltrados.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: theme.emptyStateText }}>
-                    {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
-                  </td>
-                </tr>
-              ) : (
-                estudiantesFiltrados.map((estudiante, index) => (
-                  <tr key={estudiante.id_usuario} style={{ 
-                    borderTop: index > 0 ? `1px solid ${theme.tableRowBorder}` : 'none',
-                    transition: 'background-color 0.2s'
-                  }}>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <UserAvatar
-                          nombre={estudiante.nombre}
-                          apellido={estudiante.apellido}
-                          userId={estudiante.id_usuario}
-                          size={2.25}
-                        />
-                        <div>
-                          <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.9rem' }}>
-                            {estudiante.nombre} {estudiante.apellido}
-                          </div>
-                          {estudiante.telefono && (
-                            <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
-                              {estudiante.telefono}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
-                      {estudiante.identificacion}
-                    </td>
-                    <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
-                      {estudiante.username || 'No asignado'}
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        padding: '4px 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.8rem',
-                        fontWeight: '500',
-                        textTransform: 'capitalize',
-                        background: getEstadoTokens(estudiante.estado).bg,
-                        border: `1px solid ${getEstadoTokens(estudiante.estado).border}`,
-                        color: getEstadoTokens(estudiante.estado).color
-                      }}>
-                        {estudiante.estado}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
-                      {formatDate(estudiante.fecha_registro)}
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <button
-                        onClick={() => handleViewEstudiante(estudiante)}
-                        style={{
-                          background: theme.tableActionBg,
-                          border: `1px solid ${theme.tableActionBorder}`,
-                          color: theme.tableActionText,
-                          padding: '8px 0.75rem',
-                          borderRadius: '0.5rem',
-                          cursor: 'pointer',
-                          fontSize: '0.8rem',
-                          fontWeight: '500',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.375rem',
-                          margin: '0 auto'
-                        }}
-                      >
-                        <Eye size={14} color={theme.tableActionText} />
-                        Ver
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        </div>
-        
-        {/* Paginación fuera del contenedor con overflow */}
-        {totalCount > 0 && (
-          <div className="pagination-container" style={{ 
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            justifyContent: 'space-between',
-            alignItems: isMobile ? 'stretch' : 'center',
-            gap: isMobile ? '12px' : '0',
-            padding: isMobile ? '16px' : '20px 1.5rem',
-            background: theme.paginationBackground,
-            border: `1px solid ${theme.paginationBorder}`,
-            borderRadius: '1rem'
+          <div style={{
+            background: theme.surface,
+            borderRadius: 16,
+            overflow: 'hidden',
+            border: `1px solid ${theme.surfaceBorder}`,
+            boxShadow: theme.cardShadow
           }}>
-            <div style={{ 
-              color: theme.paginationText, 
-              fontSize: isMobile ? '0.8rem' : '0.9rem',
-              textAlign: isMobile ? 'center' : 'left'
-            }}>
-              Página {page} de {totalPages} • Total: {totalCount} estudiantes
-            </div>
-            <div style={{ 
-              display: 'flex', 
-              gap: '0.5rem',
-              justifyContent: isMobile ? 'center' : 'flex-start',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: isMobile ? '4px' : '0.375rem',
-                  padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                  background: page === 1 ? theme.paginationInactiveBg : theme.surface,
-                  border: `1px solid ${theme.surfaceBorder}`,
-                  borderRadius: '0.625rem',
-                  color: page === 1 ? theme.paginationInactiveText : theme.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
-                  fontWeight: 600,
-                  cursor: page === 1 ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  flex: isMobile ? '1' : 'initial'
-                }}
-              >
-                <ChevronLeft size={isMobile ? 14 : 16} /> 
-                {!isMobile && 'Anterior'}
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                <button
-                  key={pageNum}
-                  onClick={() => setPage(pageNum)}
-                  style={{
-                    padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                    background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : theme.surface,
-                    border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
-                    borderRadius: '0.625rem',
-                    color: page === pageNum ? '#fff' : theme.textPrimary,
-                    fontSize: isMobile ? '0.8rem' : '0.9rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    minWidth: isMobile ? '36px' : '2.5rem',
-                  }}
-                >
-                  {pageNum}
-                </button>
-              ))}
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: isMobile ? '4px' : '0.375rem',
-                  padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                  background: page === totalPages ? theme.paginationInactiveBg : theme.surface,
-                  border: `1px solid ${theme.surfaceBorder}`,
-                  borderRadius: '0.625rem',
-                  color: page === totalPages ? theme.paginationInactiveText : theme.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
-                  fontWeight: 600,
-                  cursor: page === totalPages ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  flex: isMobile ? '1' : 'initial'
-                }}
-              >
-                {!isMobile && 'Siguiente'} 
-                <ChevronRight size={isMobile ? 14 : 16} />
-              </button>
+            {/* Indicador de scroll en móvil */}
+            {isSmallScreen && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '0.5rem',
+                padding: '8px 0.75rem',
+                margin: '0.75rem',
+                color: '#ef4444',
+                fontSize: '0.75rem',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem'
+              }}>
+                <span>👉</span>
+                <span>Desliza horizontalmente para ver toda la tabla</span>
+                <span>👈</span>
+              </div>
+            )}
+
+            <div className="responsive-table-container">
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: theme.tableHeaderBg }}>
+                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Estudiante
+                    </th>
+                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Identificación
+                    </th>
+                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Usuario
+                    </th>
+                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Estado
+                    </th>
+                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Fecha Registro
+                    </th>
+                    <th style={{ padding: '1rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estudiantesFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: theme.emptyStateText }}>
+                        {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
+                      </td>
+                    </tr>
+                  ) : (
+                    estudiantesFiltrados.map((estudiante, index) => (
+                      <tr key={estudiante.id_usuario} style={{
+                        borderTop: index > 0 ? `1px solid ${theme.tableRowBorder}` : 'none',
+                        transition: 'background-color 0.2s'
+                      }}>
+                        <td style={{ padding: '0.75rem 1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <UserAvatar
+                              nombre={estudiante.nombre}
+                              apellido={estudiante.apellido}
+                              userId={estudiante.id_usuario}
+                              size={2.25}
+                            />
+                            <div>
+                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.9rem' }}>
+                                {estudiante.nombre} {estudiante.apellido}
+                              </div>
+                              {estudiante.telefono && (
+                                <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                                  {estudiante.telefono}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
+                          {estudiante.identificacion}
+                        </td>
+                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
+                          {estudiante.username || 'No asignado'}
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            padding: '4px 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.8rem',
+                            fontWeight: '500',
+                            textTransform: 'capitalize',
+                            background: getEstadoTokens(estudiante.estado).bg,
+                            border: `1px solid ${getEstadoTokens(estudiante.estado).border}`,
+                            color: getEstadoTokens(estudiante.estado).color
+                          }}>
+                            {estudiante.estado}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
+                          {formatDate(estudiante.fecha_registro)}
+                        </td>
+                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleViewEstudiante(estudiante)}
+                            style={{
+                              background: theme.tableActionBg,
+                              border: `1px solid ${theme.tableActionBorder}`,
+                              color: theme.tableActionText,
+                              padding: '8px 0.75rem',
+                              borderRadius: '0.5rem',
+                              cursor: 'pointer',
+                              fontSize: '0.8rem',
+                              fontWeight: '500',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.375rem',
+                              margin: '0 auto'
+                            }}
+                          >
+                            <Eye size={14} color={theme.tableActionText} />
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
+
+          {/* Paginación fuera del contenedor con overflow */}
+          {totalCount > 0 && (
+            <div className="pagination-container" style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'stretch' : 'center',
+              gap: isMobile ? '12px' : '0',
+              padding: isMobile ? '16px' : '20px 1.5rem',
+              background: theme.paginationBackground,
+              border: `1px solid ${theme.paginationBorder}`,
+              borderRadius: '1rem'
+            }}>
+              <div style={{
+                color: theme.paginationText,
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                textAlign: isMobile ? 'center' : 'left'
+              }}>
+                Página {page} de {totalPages} • Total: {totalCount} estudiantes
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                justifyContent: isMobile ? 'center' : 'flex-start',
+                flexWrap: 'wrap'
+              }}>
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isMobile ? '4px' : '0.375rem',
+                    padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                    background: page === 1 ? theme.paginationInactiveBg : theme.surface,
+                    border: `1px solid ${theme.surfaceBorder}`,
+                    borderRadius: '0.625rem',
+                    color: page === 1 ? theme.paginationInactiveText : theme.textPrimary,
+                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                    fontWeight: 600,
+                    cursor: page === 1 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial'
+                  }}
+                >
+                  <ChevronLeft size={isMobile ? 14 : 16} />
+                  {!isMobile && 'Anterior'}
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    style={{
+                      padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                      background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : theme.surface,
+                      border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
+                      borderRadius: '0.625rem',
+                      color: page === pageNum ? '#fff' : theme.textPrimary,
+                      fontSize: isMobile ? '0.8rem' : '0.9rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      minWidth: isMobile ? '36px' : '2.5rem',
+                    }}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isMobile ? '4px' : '0.375rem',
+                    padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                    background: page === totalPages ? theme.paginationInactiveBg : theme.surface,
+                    border: `1px solid ${theme.surfaceBorder}`,
+                    borderRadius: '0.625rem',
+                    color: page === totalPages ? theme.paginationInactiveText : theme.textPrimary,
+                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                    fontWeight: 600,
+                    cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial'
+                  }}
+                >
+                  {!isMobile && 'Siguiente'}
+                  <ChevronRight size={isMobile ? 14 : 16} />
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -1110,7 +1120,7 @@ const GestionEstudiantes = () => {
             : '1fr';
 
           return (
-            <div 
+            <div
               className="modal-overlay"
               onClick={() => setShowModal(false)}
               style={{
@@ -1133,7 +1143,7 @@ const GestionEstudiantes = () => {
                 scrollBehavior: 'smooth'
               }}
             >
-              <div 
+              <div
                 className="modal-content"
                 onClick={(e) => e.stopPropagation()}
                 style={{

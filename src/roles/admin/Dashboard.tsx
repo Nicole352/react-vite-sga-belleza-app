@@ -113,19 +113,23 @@ const Dashboard = () => {
 
   useSocket({
     'nueva_solicitud': () => {
-      console.log('🔔 Nueva solicitud - Actualizando dashboard');
+      console.log('Nueva solicitud - Actualizando dashboard');
       loadAllData();
     },
     'solicitud_actualizada': () => {
-      console.log('🔔 Solicitud actualizada - Actualizando dashboard');
+      console.log('Solicitud actualizada - Actualizando dashboard');
+      loadAllData();
+    },
+    'matricula_aprobada': () => {
+      console.log('Matrícula aprobada - Actualizando dashboard');
       loadAllData();
     },
     'nuevo_pago': () => {
-      console.log('🔔 Nuevo pago - Actualizando dashboard');
+      console.log('Nuevo pago - Actualizando dashboard');
       loadAllData();
     },
     'pago_verificado': () => {
-      console.log('🔔 Pago verificado - Actualizando dashboard');
+      console.log('Pago verificado - Actualizando dashboard');
       loadAllData();
     }
   });

@@ -336,6 +336,82 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     setShowModal(true);
   };
 
+  const checkAvailability = (
+    newDocenteId: number,
+    newAulaId: number,
+    newCursoId: number,
+    newDias: string[],
+    newHoraInicio: string,
+    newHoraFin: string,
+    excludeAsignacionId?: number
+  ): { valid: boolean; error?: string } => {
+    // Obtener fechas del curso seleccionado
+    const cursoSeleccionado = cursos.find(c => c.id_curso === newCursoId);
+    if (!cursoSeleccionado) return { valid: false, error: 'Curso no encontrado' };
+
+    const newFechaInicio = new Date(cursoSeleccionado.fecha_inicio);
+    const newFechaFin = new Date(cursoSeleccionado.fecha_fin);
+
+    // Normalizar horas para comparación
+    const [newInicioH, newInicioM] = newHoraInicio.split(':').map(Number);
+    const [newFinH, newFinM] = newHoraFin.split(':').map(Number);
+    const newMinutosInicio = newInicioH * 60 + newInicioM;
+    const newMinutosFin = newFinH * 60 + newFinM;
+
+    for (const asignacion of asignaciones) {
+      // Excluir la propia asignación si estamos editando
+      if (excludeAsignacionId && asignacion.id_asignacion === excludeAsignacionId) continue;
+
+      // Solo validar contra asignaciones activas
+      if (asignacion.estado !== 'activa') continue;
+
+      // 1. Validar superposición de fechas
+      const existingFechaInicio = new Date(asignacion.fecha_inicio);
+      const existingFechaFin = new Date(asignacion.fecha_fin);
+
+      // Si los rangos de fecha NO se superponen, no hay conflicto
+      if (newFechaFin < existingFechaInicio || newFechaInicio > existingFechaFin) continue;
+
+      // 2. Validar superposición de días
+      const existingDias = asignacion.dias.split(',').map(d => d.trim());
+      const diasOverlap = newDias.some(dia => existingDias.includes(dia));
+
+      if (!diasOverlap) continue;
+
+      // 3. Validar superposición de horas
+      const [exInicioH, exInicioM] = asignacion.hora_inicio.split(':').map(Number);
+      const [exFinH, exFinM] = asignacion.hora_fin.split(':').map(Number);
+      const exMinutosInicio = exInicioH * 60 + exInicioM;
+      const exMinutosFin = exFinH * 60 + exFinM;
+
+      // Verificar si hay solapamiento de tiempo
+      // (StartA < EndB) and (EndA > StartB)
+      const tiempoOverlap = (newMinutosInicio < exMinutosFin) && (newMinutosFin > exMinutosInicio);
+
+      if (tiempoOverlap) {
+        // Si llegamos aquí, hay conflicto de Fecha + Día + Hora
+
+        // Validar Docente
+        if (asignacion.id_docente === newDocenteId) {
+          return {
+            valid: false,
+            error: `El docente ${asignacion.docente_nombres} ${asignacion.docente_apellidos} ya tiene clase asignada en este horario (${asignacion.curso_nombre})`
+          };
+        }
+
+        // Validar Aula
+        if (asignacion.id_aula === newAulaId) {
+          return {
+            valid: false,
+            error: `El aula ${asignacion.aula_nombre} ya está ocupada en este horario (${asignacion.curso_nombre})`
+          };
+        }
+      }
+    }
+
+    return { valid: true };
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -348,11 +424,41 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
 
     const horaInicio = String(formData.get('hora_inicio') || '');
     const horaFin = String(formData.get('hora_fin') || '');
+    const idAula = Number(formData.get('id_aula'));
+    const idCurso = Number(formData.get('id_curso'));
+    const idDocente = Number(formData.get('id_docente'));
+
+    // Validar que la hora de fin sea mayor que la hora de inicio
+    const [inicioH, inicioM] = horaInicio.split(':').map(Number);
+    const [finH, finM] = horaFin.split(':').map(Number);
+    const minutosInicio = inicioH * 60 + inicioM;
+    const minutosFin = finH * 60 + finM;
+
+    if (minutosFin <= minutosInicio) {
+      showToast.error('La hora de fin debe ser mayor que la hora de inicio', darkMode);
+      return;
+    }
+
+    // Validar disponibilidad
+    const validation = checkAvailability(
+      idDocente,
+      idAula,
+      idCurso,
+      diasSeleccionados,
+      horaInicio,
+      horaFin,
+      selectedAsignacion?.id_asignacion
+    );
+
+    if (!validation.valid) {
+      showToast.error(validation.error || 'Conflicto de horario detectado', darkMode);
+      return;
+    }
 
     const asignacionData = {
-      id_aula: Number(formData.get('id_aula')),
-      id_curso: Number(formData.get('id_curso')),
-      id_docente: Number(formData.get('id_docente')),
+      id_aula: idAula,
+      id_curso: idCurso,
+      id_docente: idDocente,
       hora_inicio: `${horaInicio}:00`,
       hora_fin: `${horaFin}:00`,
       dias: diasSeleccionados.join(','),
@@ -588,46 +694,46 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               const baseStatus = getStatusStyles(asignacion.estado);
               const cardStatus = asignacion.estado === 'activa'
                 ? {
-                    ...baseStatus,
-                    background: palette.cardStatusActiveBg,
-                    border: palette.cardStatusActiveBorder,
-                    color: palette.cardStatusActiveText
-                  }
+                  ...baseStatus,
+                  background: palette.cardStatusActiveBg,
+                  border: palette.cardStatusActiveBorder,
+                  color: palette.cardStatusActiveText
+                }
                 : baseStatus;
 
               return (
-              <div key={asignacion.id_asignacion} style={{
-                background: palette.cardBg,
-                backdropFilter: 'blur(1.25rem)',
-                border: `0.0625rem solid ${palette.cardBorder}`,
-                borderRadius: '0.75em',
-                overflow: 'hidden',
-                boxShadow: palette.cardShadow,
-                transition: 'all 0.3s ease',
-              }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-0.25em)';
-                  e.currentTarget.style.boxShadow = palette.cardHoverShadow;
-                  e.currentTarget.style.borderColor = palette.cardHoverBorder;
+                <div key={asignacion.id_asignacion} style={{
+                  background: palette.cardBg,
+                  backdropFilter: 'blur(1.25rem)',
+                  border: `0.0625rem solid ${palette.cardBorder}`,
+                  borderRadius: '0.75em',
+                  overflow: 'hidden',
+                  boxShadow: palette.cardShadow,
+                  transition: 'all 0.3s ease',
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = palette.cardShadow;
-                  e.currentTarget.style.borderColor = palette.cardBorder;
-                }}
-              >
-                {/* Header */}
-                <div style={{
-                  background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
-                  padding: '0.75em 0.875em',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                    <div style={{
-                      width: '1.875em',
-                      height: '1.875em',
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.25em)';
+                    e.currentTarget.style.boxShadow = palette.cardHoverShadow;
+                    e.currentTarget.style.borderColor = palette.cardHoverBorder;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = palette.cardShadow;
+                    e.currentTarget.style.borderColor = palette.cardBorder;
+                  }}
+                >
+                  {/* Header */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
+                    padding: '0.75em 0.875em',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                      <div style={{
+                        width: '1.875em',
+                        height: '1.875em',
                         borderRadius: '0.5em',
                         background: pick('rgba(255, 255, 255, 0.85)', 'rgba(255, 255, 255, 0.12)'),
                         border: `0.0625rem solid ${pick('rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.18)')}`,
@@ -635,171 +741,171 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
-                    }}>
-                      <MapPin size={isMobile ? 14 : 16} color="currentColor" />
-                    </div>
-                    <div>
-                      <h3 style={{ color: pick('#1f2937', '#f8fafc'), margin: 0 }}>
-                        {asignacion.aula_nombre}
-                      </h3>
-                      <div style={{ color: palette.textMuted, fontSize: '0.65em' }}>
-                        {asignacion.codigo_aula}
+                      }}>
+                        <MapPin size={isMobile ? 14 : 16} color="currentColor" />
                       </div>
-                    </div>
-                  </div>
-                  <div style={{
-                    background: cardStatus.background,
-                    color: cardStatus.color,
-                    padding: '0.3em 0.75em',
-                    borderRadius: '0.9em',
-                    fontSize: '0.65em',
-                    fontWeight: '700',
-                    textTransform: 'uppercase',
-                    border: `0.0625rem solid ${cardStatus.border}`,
-                    letterSpacing: '0.05em'
-                  }}>
-                    {asignacion.estado}
-                  </div>
-                </div>
-
-                {/* Contenido */}
-                <div style={{ padding: '0.75em 0.875em' }}>
-                  {/* Curso y Docente */}
-                  <div style={{ marginBottom: '0.625rem' }}>
-                    <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                      <Calendar size={isMobile ? 9 : 10} />
-                      CURSO
-                    </div>
-                    <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '600' }}>
-                      {asignacion.curso_nombre}
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '0.625rem' }}>
-                    <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                      <Users size={isMobile ? 9 : 10} />
-                      DOCENTE
-                    </div>
-                    <div style={{ color: palette.textSecondary, fontSize: '0.75rem' }}>
-                      {asignacion.docente_nombres} {asignacion.docente_apellidos}
-                    </div>
-                  </div>
-
-                  {/* Horario y Período */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.625rem' }}>
-                    <div>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                        <Clock size={isMobile ? 9 : 10} />
-                        HORARIO
-                      </div>
-                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
-                        {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.25rem' }}>
-                        PERÍODO
-                      </div>
-                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem' }}>
-                        {formatearFecha(asignacion.fecha_inicio)}
-                      </div>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem' }}>
-                        {formatearFecha(asignacion.fecha_fin)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Días */}
-                  <div style={{ marginBottom: '0.875rem' }}>
-                    <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.375rem' }}>
-                      DÍAS DE CLASE
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
-                      {asignacion.dias.split(',').map((dia: string, idx: number) => (
-                        <div key={idx} style={{
-                          background: palette.blueChipBg,
-                          color: palette.blueChipText,
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.7rem',
-                          fontWeight: '600',
-                          border: `0.0625rem solid ${palette.blueChipBorder}`
-                        }}>
-                          {dia.trim()}
+                      <div>
+                        <h3 style={{ color: pick('#1f2937', '#f8fafc'), margin: 0 }}>
+                          {asignacion.aula_nombre}
+                        </h3>
+                        <div style={{ color: palette.textMuted, fontSize: '0.65em' }}>
+                          {asignacion.codigo_aula}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Ocupación */}
-                  <div style={{
-                    background: palette.softSurface,
-                    borderRadius: '0.5rem',
-                    padding: '0.625rem',
-                    marginBottom: '0.75rem',
-                    border: `0.0625rem solid ${palette.softSurfaceBorder}`
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', fontWeight: '600' }}>
-                        OCUPACIÓN
-                      </div>
-                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '700' }}>
-                        {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                       </div>
                     </div>
                     <div style={{
-                      width: '100%',
-                      height: '0.375rem',
-                      background: palette.occupancyTrack,
-                      borderRadius: '0.625rem',
-                      overflow: 'hidden'
+                      background: cardStatus.background,
+                      color: cardStatus.color,
+                      padding: '0.3em 0.75em',
+                      borderRadius: '0.9em',
+                      fontSize: '0.65em',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      border: `0.0625rem solid ${cardStatus.border}`,
+                      letterSpacing: '0.05em'
                     }}>
-                      <div style={{
-                        width: `${asignacion.porcentaje_ocupacion}%`,
-                        height: '100%',
-                        background: asignacion.porcentaje_ocupacion > 80 ? 'linear-gradient(90deg, #ef4444, #dc2626)' :
-                          asignacion.porcentaje_ocupacion > 50 ? 'linear-gradient(90deg, #f59e0b, #d97706)' :
-                            'linear-gradient(90deg, #10b981, #059669)',
-                        transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                    <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginTop: '0.25rem', textAlign: 'right' }}>
-                      {asignacion.porcentaje_ocupacion}% ocupado
+                      {asignacion.estado}
                     </div>
                   </div>
 
-                  {/* Botón */}
-                  <button
-                    onClick={() => handleEditAsignacion(asignacion)}
-                    style={{
-                      width: '100%',
-                      padding: '0.625rem',
-                      background: palette.tableActionBg,
-                      border: `0.0625rem solid ${palette.tableActionBorder}`,
+                  {/* Contenido */}
+                  <div style={{ padding: '0.75em 0.875em' }}>
+                    {/* Curso y Docente */}
+                    <div style={{ marginBottom: '0.625rem' }}>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                        <Calendar size={isMobile ? 9 : 10} />
+                        CURSO
+                      </div>
+                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '600' }}>
+                        {asignacion.curso_nombre}
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '0.625rem' }}>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                        <Users size={isMobile ? 9 : 10} />
+                        DOCENTE
+                      </div>
+                      <div style={{ color: palette.textSecondary, fontSize: '0.75rem' }}>
+                        {asignacion.docente_nombres} {asignacion.docente_apellidos}
+                      </div>
+                    </div>
+
+                    {/* Horario y Período */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.625rem' }}>
+                      <div>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
+                          <Clock size={isMobile ? 9 : 10} />
+                          HORARIO
+                        </div>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
+                          {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.25rem' }}>
+                          PERÍODO
+                        </div>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem' }}>
+                          {formatearFecha(asignacion.fecha_inicio)}
+                        </div>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem' }}>
+                          {formatearFecha(asignacion.fecha_fin)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Días */}
+                    <div style={{ marginBottom: '0.875rem' }}>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.375rem' }}>
+                        DÍAS DE CLASE
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                        {asignacion.dias.split(',').map((dia: string, idx: number) => (
+                          <div key={idx} style={{
+                            background: palette.blueChipBg,
+                            color: palette.blueChipText,
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.7rem',
+                            fontWeight: '600',
+                            border: `0.0625rem solid ${palette.blueChipBorder}`
+                          }}>
+                            {dia.trim()}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Ocupación */}
+                    <div style={{
+                      background: palette.softSurface,
                       borderRadius: '0.5rem',
-                      color: palette.tableActionText,
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.375rem',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = palette.tableActionBg;
-                    }}
-                  >
-                    <Edit size={isMobile ? 12 : 14} color={palette.tableActionText} />
-                    Editar Asignación
-                  </button>
+                      padding: '0.625rem',
+                      marginBottom: '0.75rem',
+                      border: `0.0625rem solid ${palette.softSurfaceBorder}`
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem', fontWeight: '600' }}>
+                          OCUPACIÓN
+                        </div>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '700' }}>
+                          {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
+                        </div>
+                      </div>
+                      <div style={{
+                        width: '100%',
+                        height: '0.375rem',
+                        background: palette.occupancyTrack,
+                        borderRadius: '0.625rem',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          width: `${asignacion.porcentaje_ocupacion}%`,
+                          height: '100%',
+                          background: asignacion.porcentaje_ocupacion > 80 ? 'linear-gradient(90deg, #ef4444, #dc2626)' :
+                            asignacion.porcentaje_ocupacion > 50 ? 'linear-gradient(90deg, #f59e0b, #d97706)' :
+                              'linear-gradient(90deg, #10b981, #059669)',
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginTop: '0.25rem', textAlign: 'right' }}>
+                        {asignacion.porcentaje_ocupacion}% ocupado
+                      </div>
+                    </div>
+
+                    {/* Botón */}
+                    <button
+                      onClick={() => handleEditAsignacion(asignacion)}
+                      style={{
+                        width: '100%',
+                        padding: '0.625rem',
+                        background: palette.tableActionBg,
+                        border: `0.0625rem solid ${palette.tableActionBorder}`,
+                        borderRadius: '0.5rem',
+                        color: palette.tableActionText,
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.375rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = palette.tableActionBg;
+                      }}
+                    >
+                      <Edit size={isMobile ? 12 : 14} color={palette.tableActionText} />
+                      Editar Asignación
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
+              );
             })
           )}
         </div>
@@ -1109,7 +1215,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
             scrollBehavior: 'smooth'
           }}
         >
-          <div 
+          <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{

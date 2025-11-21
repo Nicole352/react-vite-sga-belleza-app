@@ -31,6 +31,7 @@ const ToasterWithTheme = () => {
       containerStyle={{
         bottom: 40,
         right: 40,
+        zIndex: 999999,
       }}
       toastOptions={{
         duration: 4000,

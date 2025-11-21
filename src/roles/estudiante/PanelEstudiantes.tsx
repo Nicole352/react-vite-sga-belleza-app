@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
-  BookOpen, UserCircle, Menu, Calendar, X, Award, FileText
+  BookOpen, UserCircle, Menu, Calendar, X, Award, FileText, TrendingUp
 } from 'lucide-react';
 import SchoolLogo from '../../components/SchoolLogo';
 import ProfileMenu from '../../components/ProfileMenu';
@@ -19,6 +19,7 @@ import Perfil from './Perfil';
 import Calificaciones from './Calificaciones';
 import DetalleCursoEstudiante from './DetalleCursoEstudiante';
 import MiHorario from './MiHorario';
+import HistorialAcademico from './HistorialAcademico';
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -171,6 +172,7 @@ const PanelEstudiantes = () => {
     { id: 'mi-horario', name: 'Mi Horario', icon: Calendar },
     { id: 'calificaciones', name: 'Calificaciones', icon: Award },
     { id: 'servicios', name: 'Servicios', icon: FileText },
+    { id: 'historial', name: 'Historial Académico', icon: TrendingUp },
     { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];
 
@@ -515,6 +517,7 @@ const PanelEstudiantes = () => {
                   <>
                     {activeTab === 'mi-aula' && <EstudianteThemeWrapper darkMode={darkMode}><MiAula darkMode={darkMode} onNavigate={setActiveTab} /></EstudianteThemeWrapper>}
                     {activeTab === 'mi-horario' && <EstudianteThemeWrapper darkMode={darkMode}><MiHorario darkMode={darkMode} /></EstudianteThemeWrapper>}
+                    {activeTab === 'historial' && <EstudianteThemeWrapper darkMode={darkMode}><HistorialAcademico darkMode={darkMode} /></EstudianteThemeWrapper>}
                     {activeTab === 'calificaciones' && <EstudianteThemeWrapper darkMode={darkMode}><Calificaciones darkMode={darkMode} /></EstudianteThemeWrapper>}
                     {activeTab === 'servicios' && <EstudianteThemeWrapper darkMode={darkMode}><Servicios darkMode={darkMode} /></EstudianteThemeWrapper>}
                     {activeTab === 'perfil' && <EstudianteThemeWrapper darkMode={darkMode}><Perfil darkMode={darkMode} /></EstudianteThemeWrapper>}

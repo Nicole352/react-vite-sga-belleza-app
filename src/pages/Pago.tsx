@@ -70,13 +70,97 @@ import {
   Ban,
   BookOpen,
   Hash,
-  Phone
+  Phone,
+  Info,
+  RefreshCcw
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
+import { useSocket } from '../hooks/useSocket';
 
 // Backend API base (sin proxy de Vite)
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+
+type CacheBucket = 'cupos' | 'tiposCursos';
+
+const CACHE_KEYS: Record<CacheBucket, string> = {
+  cupos: 'pago_cupos_cache_v1',
+  tiposCursos: 'pago_tipos_cursos_cache_v1'
+};
+
+const CACHE_TTL_MS: Record<CacheBucket, number> = {
+  cupos: 5 * 1000, // 5 segundos para refrescar cursos casi en tiempo real
+  tiposCursos: 60 * 1000 // 1 minuto para catálogo de tipos
+};
+
+type CacheEntry<T> = {
+  data: T;
+  timestamp: number;
+};
+
+const inMemoryCache: Partial<Record<CacheBucket, CacheEntry<any>>> = {};
+
+const getSessionStorage = (): Storage | null => {
+  try {
+    if (typeof window === 'undefined') return null;
+    return window.sessionStorage;
+  } catch (error) {
+    console.warn('Session storage no disponible:', error);
+    return null;
+  }
+};
+
+interface CacheResult<T> {
+  data: T;
+  fresh: boolean;
+}
+
+const readCacheEntry = <T,>(bucket: CacheBucket): CacheResult<T> | null => {
+  const ttl = CACHE_TTL_MS[bucket];
+  const now = Date.now();
+
+  const normalize = (entry: CacheEntry<T> | null | undefined): CacheResult<T> | null => {
+    if (!entry) return null;
+    return {
+      data: entry.data,
+      fresh: now - entry.timestamp < ttl
+    };
+  };
+
+  const memoryHit = normalize(inMemoryCache[bucket] as CacheEntry<T> | null);
+  if (memoryHit) return memoryHit;
+
+  const storage = getSessionStorage();
+  if (!storage) return null;
+
+  try {
+    const raw = storage.getItem(CACHE_KEYS[bucket]);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CacheEntry<T>;
+    inMemoryCache[bucket] = parsed;
+    return normalize(parsed);
+  } catch (error) {
+    console.warn('Error leyendo caché:', error);
+    return null;
+  }
+};
+
+const writeCacheEntry = <T,>(bucket: CacheBucket, data: T) => {
+  const entry: CacheEntry<T> = {
+    data,
+    timestamp: Date.now()
+  };
+  inMemoryCache[bucket] = entry;
+
+  const storage = getSessionStorage();
+  if (!storage) return;
+
+  try {
+    storage.setItem(CACHE_KEYS[bucket], JSON.stringify(entry));
+  } catch (error) {
+    console.warn('Error guardando caché:', error);
+  }
+};
 
 // Datos reales de cursos con precios y modalidades actualizadas
 const detallesCursos: DetallesCursos = {
@@ -130,10 +214,19 @@ const detallesCursos: DetallesCursos = {
   },
   'moldin-queen': {
     titulo: 'Moldin Queen',
-    precio: 90,
-    duracion: '6 meses - $90 mensuales',
+    precio: 100,
+    duracion: 'Matrícula $50 + 2 pagos de $25 (Total $100)',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png'
   }
+};
+
+const formatCurrency = (valor: number | string) => {
+  const number = typeof valor === 'string' ? parseFloat(valor) || 0 : valor || 0;
+  return new Intl.NumberFormat('es-EC', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+  }).format(number);
 };
 
 const Pago: React.FC = () => {
@@ -212,6 +305,21 @@ const Pago: React.FC = () => {
   // Eliminamos la referencia al mapeo estático ya que ahora es dinámico
   const [tipoCursoId, setTipoCursoId] = useState<number>(0);
   const curso = detallesCursos[cursoKey];
+  // Cursos cuyo campo de monto se mantiene en solo lectura con un valor fijo.
+  const CURSOS_MONTO_FIJO: Record<string, number> = {
+    unas: 50,
+    lashista: 50,
+    cosmetologia: 90,
+    cosmiatria: 90,
+    integral: 90,
+    maquillaje: 90,
+    facial: 90,
+    'alta-peluqueria': 90,
+    'moldin-queen': 50
+  };
+  const montoFijoCurso = CURSOS_MONTO_FIJO[cursoKey];
+  const esCursoMontoFijo = typeof montoFijoCurso === 'number';
+  const montoPredeterminado = esCursoMontoFijo ? montoFijoCurso : curso.precio;
 
   const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'efectivo'>('transferencia');
   const [isVisible, setIsVisible] = useState(false);
@@ -225,8 +333,6 @@ const Pago: React.FC = () => {
   const [tiposCursosDisponibles, setTiposCursosDisponibles] = useState<any[]>([]);
   const [cuposDisponibles, setCuposDisponibles] = useState<any[]>([]);
   const [isRefreshingCupos, setIsRefreshingCupos] = useState(false);
-  const cuposCache = useRef<{ data: any[], timestamp: number } | null>(null);
-  const CACHE_DURATION = 60000; // 60 segundos de caché (más profesional)
   const lastFetchRef = useRef<number>(0);
   const [lastCuposCount, setLastCuposCount] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
@@ -239,7 +345,7 @@ const Pago: React.FC = () => {
     fechaNacimiento: '',
     direccion: '',
     genero: '',
-    montoMatricula: curso.precio,
+    montoMatricula: montoPredeterminado,
     horarioPreferido: '',
     // Inicialización del contacto de emergencia
     contactoEmergencia: ''
@@ -288,6 +394,9 @@ const Pago: React.FC = () => {
   const [loadingPromo, setLoadingPromo] = useState(false);
   const [solicitudCreada, setSolicitudCreada] = useState<any>(null); // Guardar datos de la solicitud creada
   const [promocionSeleccionadaId, setPromocionSeleccionadaId] = useState<number | null>(null); // ID de la promoción aceptada
+  const revalidateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoRefreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const loadCuposDisponiblesRef = useRef<null | ((forceRefresh?: boolean, showToast?: boolean, isPolling?: boolean) => Promise<any>)>(null);
 
   // Validador estricto de cédula ecuatoriana
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
@@ -311,6 +420,13 @@ const Pago: React.FC = () => {
     if (verifier !== digits[9]) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
     return { ok: true };
   };
+
+  useEffect(() => {
+    if (esCursoMontoFijo && formData.montoMatricula !== montoPredeterminado) {
+      setFormData(prev => ({ ...prev, montoMatricula: montoPredeterminado }));
+      setShowMontoAlert(false);
+    }
+  }, [esCursoMontoFijo, formData.montoMatricula, montoPredeterminado]);
 
 
   // Función para verificar solicitudes pendientes
@@ -389,7 +505,7 @@ const Pago: React.FC = () => {
 
           // Mostrar cursos matriculados si existen
           if (data.cursos_matriculados && data.cursos_matriculados.length > 0) {
-            console.log('📚 Cursos actuales del estudiante:', data.cursos_matriculados);
+            console.log('Cursos actuales del estudiante:', data.cursos_matriculados);
 
             // VALIDAR CURSO DUPLICADO: Verificar si ya está inscrito en este curso
             const yaInscritoEnEsteCurso = data.cursos_matriculados.some(
@@ -456,44 +572,88 @@ const Pago: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-  // Cargar tipos de cursos disponibles
+    const poll = () => {
+      loadCuposDisponiblesRef.current?.(true, false, true);
+    };
+
+    // ⚡ OPTIMIZADO: Polling cada 30 segundos (reducido de 20s)
+    autoRefreshIntervalRef.current = window.setInterval(poll, 30000);
+
+    return () => {
+      if (autoRefreshIntervalRef.current) {
+        clearInterval(autoRefreshIntervalRef.current);
+        autoRefreshIntervalRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (revalidateTimeoutRef.current) {
+        clearTimeout(revalidateTimeoutRef.current);
+        revalidateTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+
+  // Cargar tipos de cursos disponibles con caché ligera
   useEffect(() => {
     let cancelled = false;
 
+    const resolveTipoCurso = (tiposCursos: any[]) => {
+      if (cancelled) return;
+
+      console.log('=== RESOLUCIÓN TIPO ===');
+      console.log('Card (query ?curso=):', cursoKey);
+      console.log('Tipos disponibles:', tiposCursos.map((tc: any) => `${tc.card_key || '-'} | ${tc.nombre}`));
+
+      const byCardKey = tiposCursos.find((tc: any) =>
+        (tc.card_key || '').toLowerCase() === String(cursoKey).toLowerCase()
+      );
+
+      if (byCardKey) {
+        console.log('Tipo resuelto por card_key:', byCardKey);
+        setTipoCursoId(byCardKey.id_tipo_curso);
+      } else {
+        const tipoCursoEncontrado = getMatchingTipoCurso(cursoKey, tiposCursos);
+        if (tipoCursoEncontrado) {
+          console.log('Tipo detectado por similitud:', tipoCursoEncontrado);
+          setTipoCursoId(tipoCursoEncontrado.id_tipo_curso);
+        } else {
+          console.log('No se pudo resolver el tipo para card:', cursoKey);
+        }
+      }
+      console.log('============================');
+    };
+
     const loadTiposCursos = async () => {
       if (cancelled) return;
+
+      const cached = readCacheEntry<any[]>('tiposCursos');
+      if (cached) {
+        console.log('Tipos de curso desde caché', cached);
+        setTiposCursosDisponibles(cached.data);
+        resolveTipoCurso(cached.data);
+        if (cached.fresh) return;
+      }
+
       try {
         const resTipo = await fetch(`${API_BASE}/tipos-cursos?estado=activo`);
         if (!resTipo.ok) return;
         const tiposCursos = await resTipo.json();
+        if (cancelled) return;
         setTiposCursosDisponibles(tiposCursos);
-
-        // Resolución por card_key (preferida) y fallback a similitud
-        console.log('=== RESOLUCIÓN TIPO ===');
-        console.log('Card (query ?curso=):', cursoKey);
-        console.log('Tipos disponibles:', tiposCursos.map((tc: any) => `${tc.card_key || '-'} | ${tc.nombre}`));
-
-        // 1) Intentar por card_key directa
-        const byCardKey = tiposCursos.find((tc: any) =>
-          (tc.card_key || '').toLowerCase() === String(cursoKey).toLowerCase()
-        );
-
-        if (byCardKey) {
-          console.log('✅ Tipo resuelto por card_key:', byCardKey);
-          setTipoCursoId(byCardKey.id_tipo_curso);
-        } else {
-          // 2) Fallback a similitud si no hay card_key cargada
-          const tipoCursoEncontrado = getMatchingTipoCurso(cursoKey, tiposCursos);
-          if (tipoCursoEncontrado) {
-            console.log('✅ Tipo detectado por similitud:', tipoCursoEncontrado);
-            setTipoCursoId(tipoCursoEncontrado.id_tipo_curso);
-          } else {
-            console.log('-No se pudo resolver el tipo para card:', cursoKey);
-          }
-        }
-        console.log('============================');
-      } catch { }
+        writeCacheEntry('tiposCursos', tiposCursos);
+        resolveTipoCurso(tiposCursos);
+      } catch (error) {
+        console.error('Error cargando tipos de cursos:', error);
+      }
     };
 
     loadTiposCursos();
@@ -502,22 +662,32 @@ const Pago: React.FC = () => {
 
   // Función para cargar cupos (reutilizable)
   const loadCuposDisponibles = async (forceRefresh = false, showToast = true, isPolling = false) => {
-    // VERIFICAR CACHÉ PRIMERO (si no es forzado)
-    const now = Date.now();
-    if (!forceRefresh && cuposCache.current && (now - cuposCache.current.timestamp) < CACHE_DURATION) {
-      console.log('✅ Usando cupos desde caché');
-      setCuposDisponibles(cuposCache.current.data);
-      return cuposCache.current.data;
+    if (!forceRefresh) {
+      const cached = readCacheEntry<any[]>('cupos');
+      if (cached) {
+        console.log(`Cupos desde caché (${cached.fresh ? 'vigente' : 'caducado - refrescando'})`);
+        setCuposDisponibles(cached.data);
+        setLastCuposCount(cached.data.length);
+        if (cached.fresh) {
+          if (!revalidateTimeoutRef.current && typeof window !== 'undefined') {
+            revalidateTimeoutRef.current = window.setTimeout(() => {
+              revalidateTimeoutRef.current = null;
+              loadCuposDisponibles(true, false, true);
+            }, 0);
+          }
+          return cached.data;
+        }
+      }
     }
 
-    // Rate limiting: evitar llamadas muy seguidas
-    if (now - lastFetchRef.current < 2000) {
-      console.log('⏱️ Rate limit: esperando...');
-      return cuposCache.current?.data || [];
+    const now = Date.now();
+
+    if (!forceRefresh && now - lastFetchRef.current < 2000) {
+      console.log('Rate limit: esperando...');
+      return cuposDisponibles;
     }
     lastFetchRef.current = now;
 
-    // MOSTRAR TOAST DE CARGA (solo si showToast es true)
     const loadingToast = showToast ? toast.loading('Cargando cupos disponibles...', {
       duration: 5000,
       style: {
@@ -530,13 +700,13 @@ const Pago: React.FC = () => {
     }) : null;
 
     try {
-      console.log('🔄 Cargando cupos desde:', `${API_BASE}/cursos/disponibles`);
+      console.log('Cargando cupos desde:', `${API_BASE}/cursos/disponibles`);
       const res = await fetch(`${API_BASE}/cursos/disponibles`);
 
       if (!res.ok) {
         console.error('-Error en respuesta de cupos:', res.status);
         if (loadingToast) toast.error('Error al cargar cupos disponibles', { id: loadingToast });
-        return cuposCache.current?.data || [];
+        return cuposDisponibles;
       }
 
       const cupos = await res.json();
@@ -563,15 +733,10 @@ const Pago: React.FC = () => {
 
       setLastCuposCount(newCount);
 
-      // GUARDAR EN CACHÉ
-      cuposCache.current = {
-        data: cupos,
-        timestamp: Date.now()
-      };
-
       setCuposDisponibles(cupos);
-      console.log('📊 Cupos disponibles cargados:', cupos);
-      console.log('📊 Total de registros:', cupos.length);
+      writeCacheEntry('cupos', cupos);
+      console.log('Cupos disponibles cargados:', cupos);
+      console.log('Total de registros:', cupos.length);
 
       // TOAST DE ÉXITO (solo si showToast es true)
       if (loadingToast) {
@@ -580,11 +745,49 @@ const Pago: React.FC = () => {
 
       return cupos;
     } catch (err) {
-      console.error('-Error cargando cupos:', err);
+      console.error('Error cargando cupos:', err);
       if (loadingToast) toast.error('Error de conexión con el servidor', { id: loadingToast });
-      return cuposCache.current?.data || [];
+      return cuposDisponibles;
     }
   };
+
+  loadCuposDisponiblesRef.current = loadCuposDisponibles;
+
+  // ========================================
+  // WEBSOCKET - ACTUALIZACIÓN EN TIEMPO REAL
+  // ⚡ OPTIMIZADO: Debounce de 500ms para evitar múltiples recargas
+  // ========================================
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedReload = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      loadCuposDisponibles(true, false, false);
+      loadTipoCurso();
+      debounceTimerRef.current = null;
+    }, 500); // 500ms debounce
+  };
+
+  useSocket({
+    'cupos_actualizados': (data: any) => {
+      console.log('Cupos actualizados (WS) - Refrescando datos (debounced)', data);
+      debouncedReload();
+    },
+    'matricula_aprobada': (data: any) => {
+      console.log('Matrícula aprobada - Actualizando cupos y disponibilidad (debounced)', data);
+      debouncedReload();
+    },
+    'solicitud_actualizada': (data: any) => {
+      console.log('Solicitud actualizada - Actualizando cupos y disponibilidad (debounced)', data);
+      debouncedReload();
+    },
+    'nueva_solicitud': (data: any) => {
+      console.log('Nueva solicitud - Actualizando cupos y disponibilidad (debounced)', data);
+      debouncedReload();
+    }
+  });
 
   // Cargar cupos SOLO al montar (sin polling)
   useEffect(() => {
@@ -617,69 +820,75 @@ const Pago: React.FC = () => {
     setIsRefreshingCupos(false);
   };
 
+  // Función para cargar datos del tipo de curso (reutilizable)
+  const loadTipoCurso = async () => {
+    if (!tipoCursoId) return;
+    try {
+      // Encontrar el tipo de curso en los datos ya cargados
+      const tipoCurso = tiposCursosDisponibles.find((tc: any) =>
+        tc.id_tipo_curso === tipoCursoId
+      );
+
+      if (tipoCurso) {
+        // Verificar todos los cursos de este tipo (activos, planificados, cancelados)
+        const resCursos = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
+        if (resCursos.ok) {
+          const todosCursos = await resCursos.json();
+
+          // Contar cursos por estado
+          const cursosActivos = todosCursos.filter((c: any) =>
+            c.estado === 'activo' && Number(c.cupos_disponibles || 0) > 0
+          );
+          const cursosPlanificados = todosCursos.filter((c: any) =>
+            c.estado === 'planificado'
+          );
+          const cursosCancelados = todosCursos.filter((c: any) =>
+            c.estado === 'cancelado'
+          );
+
+          // Hay disponibilidad si hay cursos activos con cupos O cursos planificados
+          const hayDisponibles = cursosActivos.length > 0 || cursosPlanificados.length > 0;
+
+          setTipoCursoBackend({
+            ...tipoCurso,
+            disponible: hayDisponibles,
+            cursosActivos: cursosActivos.length,
+            cursosPlanificados: cursosPlanificados.length,
+            cursosCancelados: cursosCancelados.length,
+            totalCursos: todosCursos.length
+          });
+        } else {
+          // Si no se pueden cargar los cursos, asumir no disponible
+          setTipoCursoBackend({
+            ...tipoCurso,
+            disponible: false,
+            cursosActivos: 0,
+            cursosPlanificados: 0,
+            cursosCancelados: 0,
+            totalCursos: 0
+          });
+        }
+      }
+    } catch { }
+  };
+
   // Cargar datos del tipo de curso específico y verificar disponibilidad
   useEffect(() => {
     if (!tipoCursoId) return;
     let cancelled = false;
 
-    const loadTipoCurso = async () => {
+    const loadWithCancel = async () => {
       if (cancelled) return;
-      try {
-        // Encontrar el tipo de curso en los datos ya cargados
-        const tipoCurso = tiposCursosDisponibles.find((tc: any) =>
-          tc.id_tipo_curso === tipoCursoId
-        );
-
-        if (tipoCurso) {
-          // Verificar todos los cursos de este tipo (activos, planificados, cancelados)
-          const resCursos = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
-          if (resCursos.ok) {
-            const todosCursos = await resCursos.json();
-
-            // Contar cursos por estado
-            const cursosActivos = todosCursos.filter((c: any) =>
-              c.estado === 'activo' && Number(c.cupos_disponibles || 0) > 0
-            );
-            const cursosPlanificados = todosCursos.filter((c: any) =>
-              c.estado === 'planificado'
-            );
-            const cursosCancelados = todosCursos.filter((c: any) =>
-              c.estado === 'cancelado'
-            );
-
-            // Hay disponibilidad si hay cursos activos con cupos O cursos planificados
-            const hayDisponibles = cursosActivos.length > 0 || cursosPlanificados.length > 0;
-
-            setTipoCursoBackend({
-              ...tipoCurso,
-              disponible: hayDisponibles,
-              cursosActivos: cursosActivos.length,
-              cursosPlanificados: cursosPlanificados.length,
-              cursosCancelados: cursosCancelados.length,
-              totalCursos: todosCursos.length
-            });
-          } else {
-            // Si no se pueden cargar los cursos, asumir no disponible
-            setTipoCursoBackend({
-              ...tipoCurso,
-              disponible: false,
-              cursosActivos: 0,
-              cursosPlanificados: 0,
-              cursosCancelados: 0,
-              totalCursos: 0
-            });
-          }
-        }
-      } catch { }
+      await loadTipoCurso();
     };
 
     // Carga inicial
-    loadTipoCurso();
+    loadWithCancel();
 
     // Recargar cuando la pestaña recupere foco o visibilidad
-    const onFocus = () => loadTipoCurso();
+    const onFocus = () => loadWithCancel();
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') loadTipoCurso();
+      if (document.visibilityState === 'visible') loadWithCancel();
     };
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVisibility);
@@ -831,29 +1040,29 @@ const Pago: React.FC = () => {
     }
   };
 
-// Función para limpiar el número de comprobante al quitar archivo
-const limpiarDatosComprobante = () => {
-setNumeroComprobante('');
-};
+  // Función para limpiar el número de comprobante al quitar archivo
+  const limpiarDatosComprobante = () => {
+    setNumeroComprobante('');
+  };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-e.preventDefault();
-// Bloqueo por estado/cupos desde backend
-if (isBlocked) {
-  alert(notFoundOrNoCourse
-    ? 'No existe cursos disponibles.'
-    : 'La matrícula para este curso está cerrada o no hay cupos disponibles.'
-  );
-  return;
-}
-if (!formData.tipoDocumento) {
-  alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
-  return;
-}
-if (!formData.horarioPreferido) {
-  alert('Selecciona el horario preferido (Matutino o Vespertino).');
-  return;
-}
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Bloqueo por estado/cupos desde backend
+    if (isBlocked) {
+      alert(notFoundOrNoCourse
+        ? 'No existe cursos disponibles.'
+        : 'La matrícula para este curso está cerrada o no hay cupos disponibles.'
+      );
+      return;
+    }
+    if (!formData.tipoDocumento) {
+      alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
+      return;
+    }
+    if (!formData.horarioPreferido) {
+      alert('Selecciona el horario preferido (Matutino o Vespertino).');
+      return;
+    }
 
     // VALIDAR SI HAY CUPOS DISPONIBLES PARA EL HORARIO SELECCIONADO
     const cuposParaHorario = cuposDisponibles.find(
@@ -959,7 +1168,7 @@ if (!formData.horarioPreferido) {
               ? 'Por favor, suba el comprobante de la transferencia realizada para validar su solicitud.'
               : 'Por favor, suba el comprobante o la factura entregada en nuestras oficinas para validar su solicitud.'
         });
-        console.log('🚨 ALERTA ACTIVADA:', selectedPayment, uploadedFile);
+        console.log('ALERTA ACTIVADA:', selectedPayment, uploadedFile);
         // Auto-ocultar después de 3 segundos con animación de salida
         setAlertAnimatingOut(false);
         setTimeout(() => {
@@ -1029,14 +1238,14 @@ if (!formData.horarioPreferido) {
         if (estudianteExistente) {
           body.append('id_estudiante_existente', String(estudianteExistente.id_usuario));
         }
-        
+
         // Agregar contacto de emergencia
         if (formData.contactoEmergencia) body.append('contacto_emergencia', formData.contactoEmergencia);
 
         // Agregar promoción seleccionada si existe
         if (promocionSeleccionadaId) {
           body.append('id_promocion_seleccionada', String(promocionSeleccionadaId));
-          console.log('📦 Enviando promoción seleccionada:', promocionSeleccionadaId);
+          console.log('Enviando promoción seleccionada:', promocionSeleccionadaId);
         }
 
         // Para debug - convertir FormData a objeto
@@ -1090,9 +1299,9 @@ if (!formData.horarioPreferido) {
         // Agregar promoción seleccionada si existe
         if (promocionSeleccionadaId) {
           debugInfo.id_promocion_seleccionada = promocionSeleccionadaId;
-          console.log('📦 Enviando promoción seleccionada (JSON):', promocionSeleccionadaId);
+          console.log('Enviando promoción seleccionada (JSON):', promocionSeleccionadaId);
         }
-        
+
         response = await fetch(`${API_BASE}/solicitudes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1144,62 +1353,62 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       }
       const data = await response.json();
       if (data?.codigo_solicitud) setCodigoSolicitud(data.codigo_solicitud);
-      
+
       // Guardar datos de la solicitud creada
       setSolicitudCreada(data);
-      
-      console.log('📋 Solicitud creada:', data);
-      console.log('🎯 Tipo de curso seleccionado:', tipoCursoId);
-      
+
+      console.log('Solicitud creada:', data);
+      console.log('Tipo de curso seleccionado:', tipoCursoId);
+
       // Verificar si hay promociones disponibles para este tipo de curso
       try {
         const promosResponse = await fetch(`${API_BASE}/promociones/activas`);
-        console.log('📡 Response promociones:', promosResponse.status);
-        
+        console.log('Response promociones:', promosResponse.status);
+
         if (promosResponse.ok) {
           const todasPromos = await promosResponse.json();
-          console.log('🎁 Total promociones activas:', todasPromos.length, todasPromos);
-          
+          console.log('Total promociones activas:', todasPromos.length, todasPromos);
+
           // Filtrar promociones que apliquen al tipo de curso actual
           // Las promociones ahora tienen id_curso_principal (el que el estudiante paga)
           const cursosResponse = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
-          console.log('📚 Response cursos del tipo:', cursosResponse.status);
-          
+          console.log('Response cursos del tipo:', cursosResponse.status);
+
           if (cursosResponse.ok) {
             const cursosDelTipo = await cursosResponse.json();
-            console.log('📚 Cursos del tipo', tipoCursoId, ':', cursosDelTipo);
-            
+            console.log('Cursos del tipo', tipoCursoId, ':', cursosDelTipo);
+
             const idsCursos = cursosDelTipo
               .filter((c: any) => c.estado === 'activo')
               .map((c: any) => c.id_curso);
-            
-            console.log('✅ IDs de cursos activos:', idsCursos);
-            
+
+            console.log('IDs de cursos activos:', idsCursos);
+
             // Filtrar promociones cuyo id_curso_principal esté en la lista
             const promosAplicables = todasPromos.filter((promo: any) => {
               const aplica = idsCursos.includes(promo.id_curso_principal);
               console.log(`  🔍 Promo "${promo.nombre_promocion}" (id_curso_principal: ${promo.id_curso_principal}) → ${aplica ? '✅ APLICA' : '❌ NO APLICA'}`);
               return aplica;
             });
-            
-            console.log('🎁 Promociones aplicables:', promosAplicables.length, promosAplicables);
-            
+
+            console.log('Promociones aplicables:', promosAplicables.length, promosAplicables);
+
             if (promosAplicables.length > 0) {
               setPromocionesDisponibles(promosAplicables);
               setShowPromoModal(true);
-              console.log('✅ showPromoModal establecido a TRUE');
+              console.log('showPromoModal establecido a TRUE');
               // NO mostrar success ni redirigir aún
               return;
             } else {
-              console.log('⚠️ No hay promociones aplicables para este tipo de curso');
+              console.log(' No hay promociones aplicables para este tipo de curso');
             }
           }
         }
       } catch (promoError) {
-        console.error('❌ Error al verificar promociones:', promoError);
+        console.error('Error al verificar promociones:', promoError);
         // Si falla la verificación de promos, continuar normal
       }
-      
+
       // Si no hay promociones o hubo error, mostrar success
       setShowSuccess(true);
       setTimeout(() => {
@@ -1219,17 +1428,17 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
     }
 
     setLoadingPromo(true);
-    
+
     try {
       const promoSeleccionada = promocionesDisponibles.find(p => p.id_promocion === id_promocion);
-      
+
       // Guardar el ID de la promoción seleccionada
       setPromocionSeleccionadaId(id_promocion);
-      console.log('✅ Promoción guardada en estado:', id_promocion);
-      
+      console.log('Promoción guardada en estado:', id_promocion);
+
       // ACTUALIZAR LA SOLICITUD EN EL BACKEND
       const id_solicitud = solicitudCreada.id_solicitud || solicitudCreada.insertId;
-      
+
       const response = await fetch(`${API_BASE}/solicitudes/${id_solicitud}/promocion`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1237,28 +1446,37 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       });
 
       if (!response.ok) {
-        throw new Error('No se pudo actualizar la promoción en la solicitud');
+        let errorMessage = 'No se pudo actualizar la promoción en la solicitud';
+        try {
+          const errorBody = await response.json();
+          if (errorBody?.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (parseErr) {
+          console.error('No se pudo parsear el error de promoción:', parseErr);
+        }
+        throw new Error(errorMessage);
       }
 
-      console.log('✅ Solicitud actualizada con promoción en el backend');
-      
+      console.log(' Solicitud actualizada con promoción en el backend');
+
       // Mostrar mensaje de éxito
       console.log('Promoción seleccionada:', {
         id_promocion,
         id_solicitud: solicitudCreada.id_solicitud || solicitudCreada.codigo_solicitud,
         nombre_promocion: promoSeleccionada?.nombre_promocion
       });
-      
+
       const beneficioTexto = promoSeleccionada?.modalidad_pago === 'clases'
         ? `${promoSeleccionada?.clases_gratis} ${promoSeleccionada?.clases_gratis === 1 ? 'clase gratis' : 'clases gratis'}`
         : `${promoSeleccionada?.meses_gratis} ${promoSeleccionada?.meses_gratis === 1 ? 'mes gratis' : 'meses gratis'}`;
-      
+
       toast.success(
         `¡Genial! Has seleccionado la promoción "${promoSeleccionada?.nombre_promocion}". ` +
         `Cuando tu solicitud sea aprobada, se aplicarán ${beneficioTexto} automáticamente.`,
         { duration: 6000 }
       );
-      
+
       // Cerrar modal y mostrar success
       setShowPromoModal(false);
       setShowSuccess(true);
@@ -1908,6 +2126,30 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 Finalizar Inscripción
               </h1>
 
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button
+                  onClick={handleRefreshCupos}
+                  disabled={isRefreshingCupos}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(251, 191, 36, 0.3)',
+                    padding: '0.4rem 1rem',
+                    background: theme === 'dark' ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.15)',
+                    color: theme === 'dark' ? '#fef3c7' : '#92400e',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    cursor: isRefreshingCupos ? 'wait' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <RefreshCcw size={16} />
+                  {isRefreshingCupos ? 'Actualizando…' : 'Actualizar lista de cursos'}
+                </button>
+              </div>
+
               {/* Card del curso */}
               <div className="curso-card" style={{
                 background: theme === 'dark'
@@ -1982,9 +2224,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               {/* Mostrar cupos por horario */}
                               {(() => {
-                                console.log('🔍 Filtrando cupos para tipoCursoId:', tipoCursoId);
-                                console.log('🔍 Cupos disponibles:', cuposDisponibles);
-                                console.log('🔍 Detalle de cada cupo:', cuposDisponibles.map((c: any) => ({
+                                console.log(' Filtrando cupos para tipoCursoId:', tipoCursoId);
+                                console.log(' Cupos disponibles:', cuposDisponibles);
+                                console.log(' Detalle de cada cupo:', cuposDisponibles.map((c: any) => ({
                                   id_tipo_curso: c.id_tipo_curso,
                                   tipo: typeof c.id_tipo_curso,
                                   nombre: c.tipo_curso_nombre,
@@ -1992,127 +2234,144 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   cupos: c.cupos_totales
                                 })));
                                 const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
-                                console.log('🔍 Cupos filtrados:', cuposFiltrados);
-                                console.log('🔍 Comparación:', cuposDisponibles.map((c: any) => `${c.id_tipo_curso} === ${tipoCursoId} ? ${c.id_tipo_curso === tipoCursoId}`));
+                                console.log('Cupos filtrados:', cuposFiltrados);
+                                console.log('Comparación:', cuposDisponibles.map((c: any) => `${c.id_tipo_curso} === ${tipoCursoId} ? ${c.id_tipo_curso === tipoCursoId}`));
 
-                                if (cuposFiltrados.length > 0) {
-                                  return cuposFiltrados.map((c: any) => {
-                                    const tieneCupos = c.cupos_totales > 0;
-                                    const porcentajeOcupado = ((c.capacidad_total - c.cupos_totales) / c.capacidad_total) * 100;
-                                    const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
-                                    const slotColors = tieneCupos
-                                      ? {
-                                          background: theme === 'dark'
-                                            ? 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(248,113,113,0.15))'
-                                            : 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(253,230,138,0.4))',
-                                          border: '1.5px solid rgba(251,191,36,0.45)',
-                                          text: theme === 'dark' ? '#fde68a' : '#92400e',
-                                          accent: '#d97706',
-                                          shadow: theme === 'dark'
-                                            ? '0 6px 18px rgba(251,191,36,0.25)'
-                                            : '0 8px 22px rgba(251,191,36,0.2)'
-                                        }
-                                      : {
-                                          background: theme === 'dark'
-                                            ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(190,24,93,0.2))'
-                                            : 'linear-gradient(135deg, rgba(254,226,226,0.9), rgba(254,215,215,0.8))',
-                                          border: '1.5px solid rgba(239,68,68,0.35)',
-                                          text: theme === 'dark' ? '#fecdd3' : '#7f1d1d',
-                                          accent: '#dc2626',
-                                          shadow: theme === 'dark'
-                                            ? '0 6px 18px rgba(239,68,68,0.2)'
-                                            : '0 8px 22px rgba(239,68,68,0.18)'
-                                        };
-
-                                    return (
-                                      <div
-                                        key={c.horario}
-                                        style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '8px',
-                                          padding: '10px 18px',
-                                          borderRadius: '16px',
-                                          background: slotColors.background,
-                                          border: slotColors.border,
-                                          boxShadow: slotColors.shadow,
-                                          transition: 'all 0.3s ease',
-                                          cursor: 'default'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.transform = 'translateY(-2px)';
-                                          e.currentTarget.style.boxShadow = tieneCupos
-                                            ? '0 10px 26px rgba(251,191,36,0.32)'
-                                            : '0 10px 26px rgba(239,68,68,0.28)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.transform = 'translateY(0)';
-                                          e.currentTarget.style.boxShadow = slotColors.shadow;
-                                        }}
-                                      >
-                                        <Icon
-                                          size={16}
-                                          color={slotColors.accent}
-                                          style={{ flexShrink: 0 }}
-                                        />
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                          <span style={{
-                                            color: slotColors.text,
-                                            fontWeight: 700,
-                                            fontSize: '0.75rem',
-                                            textTransform: 'capitalize',
-                                            lineHeight: 1
-                                          }}>
-                                            {c.horario}
-                                          </span>
-                                          <span style={{
-                                            color: slotColors.text,
-                                            fontWeight: 600,
-                                            fontSize: '0.7rem',
-                                            lineHeight: 1
-                                          }}>
-                                            {c.cupos_totales}/{c.capacidad_total} cupos
-                                          </span>
-                                        </div>
-                                        {/* Barra de progreso */}
-                                        <div style={{
-                                          width: '40px',
-                                          height: '4px',
-                                            background: 'rgba(0,0,0,0.2)',
-                                          borderRadius: '2px',
-                                          overflow: 'hidden',
-                                          marginLeft: '4px'
-                                        }}>
-                                          <div style={{
-                                            width: `${porcentajeOcupado}%`,
-                                            height: '100%',
-                                              background: tieneCupos
-                                                ? 'linear-gradient(90deg, #fde68a, #fbbf24)'
-                                                : 'linear-gradient(90deg, #fecdd3, #e11d48)',
-                                            transition: 'width 0.3s ease'
-                                          }} />
-                                        </div>
-                                      </div>
-                                    );
-                                  });
+                                if (cuposFiltrados.length === 0) {
+                                  return (
+                                    <span style={{
+                                      padding: '4px 10px',
+                                      borderRadius: '9999px',
+                                      background: 'rgba(16, 185, 129, 0.15)',
+                                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                                      color: '#10b981',
+                                      fontWeight: 700,
+                                      fontSize: '0.8rem'
+                                    }}>
+                                      {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` :
+                                        tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` :
+                                          'Disponible'}
+                                    </span>
+                                  );
                                 }
 
-                                // Fallback si no hay cupos cargados
-                                return (
-                                  <span style={{
-                                    padding: '4px 10px',
-                                    borderRadius: '9999px',
-                                    background: 'rgba(16, 185, 129, 0.15)',
-                                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                                    color: '#10b981',
-                                    fontWeight: 700,
-                                    fontSize: '0.8rem'
-                                  }}>
-                                    {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` :
-                                      tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` :
-                                        'Disponible'}
-                                  </span>
-                                );
+                                return cuposFiltrados.map((c: any) => {
+                                  const cuposMostrar = Math.max(Number(c.cupos_totales) || 0, 0);
+                                  const tieneCupos = cuposMostrar > 0;
+                                  const promoLimitadaActiva = (c.promociones_con_limite || 0) > 0;
+                                  const promoSinCupos = promoLimitadaActiva && (c.cupos_promocion_restantes || 0) <= 0;
+                                  const porcentajeOcupado = Math.min(Math.max(((c.capacidad_total - cuposMostrar) / c.capacidad_total) * 100, 0), 100);
+                                  const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
+
+                                  const slotColors = tieneCupos
+                                    ? {
+                                      background: theme === 'dark'
+                                        ? 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(248,113,113,0.15))'
+                                        : 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(253,230,138,0.4))',
+                                      border: '1.5px solid rgba(251,191,36,0.45)',
+                                      text: theme === 'dark' ? '#fde68a' : '#92400e',
+                                      accent: '#d97706',
+                                      shadow: theme === 'dark'
+                                        ? '0 6px 18px rgba(251,191,36,0.25)'
+                                        : '0 8px 22px rgba(251,191,36,0.2)'
+                                    }
+                                    : {
+                                      background: theme === 'dark'
+                                        ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(190,24,93,0.2))'
+                                        : 'linear-gradient(135deg, rgba(254,226,226,0.9), rgba(254,215,215,0.8))',
+                                      border: '1.5px solid rgba(239,68,68,0.35)',
+                                      text: theme === 'dark' ? '#fecdd3' : '#7f1d1d',
+                                      accent: '#dc2626',
+                                      shadow: theme === 'dark'
+                                        ? '0 6px 18px rgba(239,68,68,0.2)'
+                                        : '0 8px 22px rgba(239,68,68,0.18)'
+                                    };
+
+                                  return (
+                                    <div
+                                      key={c.horario}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '10px 18px',
+                                        borderRadius: '16px',
+                                        background: slotColors.background,
+                                        border: slotColors.border,
+                                        boxShadow: slotColors.shadow,
+                                        transition: 'all 0.3s ease',
+                                        cursor: 'default'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                        e.currentTarget.style.boxShadow = tieneCupos
+                                          ? '0 10px 26px rgba(251,191,36,0.32)'
+                                          : '0 10px 26px rgba(239,68,68,0.28)';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = slotColors.shadow;
+                                      }}
+                                    >
+                                      <Icon
+                                        size={16}
+                                        color={slotColors.accent}
+                                        style={{ flexShrink: 0 }}
+                                      />
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                        <span style={{
+                                          color: slotColors.text,
+                                          fontWeight: 700,
+                                          fontSize: '0.75rem',
+                                          textTransform: 'capitalize',
+                                          lineHeight: 1
+                                        }}>
+                                          {c.horario}
+                                        </span>
+                                        <span style={{
+                                          color: slotColors.text,
+                                          fontWeight: 600,
+                                          fontSize: '0.7rem',
+                                          lineHeight: 1
+                                        }}>
+                                          {`${cuposMostrar}/${c.capacidad_total} cupos`}
+                                        </span>
+                                        {promoLimitadaActiva && (
+                                          <span style={{
+                                            marginTop: '2px',
+                                            color: promoSinCupos ? '#f87171' : slotColors.accent,
+                                            fontSize: '0.65rem',
+                                            fontWeight: 600
+                                          }}>
+                                            {promoSinCupos
+                                              ? 'Promoción sin cupos disponibles'
+                                              : cuposRegalados > 0
+                                                ? `Incluye ${cuposRegalados} cupo${cuposRegalados === 1 ? '' : 's'} por promo`
+                                                : `Cupos reservados para promo (${c.cupos_promocion_restantes} restantes)`}
+                                          </span>
+                                        )}
+                                      </div>
+                                      {/* Barra de progreso */}
+                                      <div style={{
+                                        width: '40px',
+                                        height: '4px',
+                                        background: 'rgba(0,0,0,0.2)',
+                                        borderRadius: '2px',
+                                        overflow: 'hidden',
+                                        marginLeft: '4px'
+                                      }}>
+                                        <div style={{
+                                          width: `${porcentajeOcupado}%`,
+                                          height: '100%',
+                                          background: tieneCupos
+                                            ? 'linear-gradient(90deg, #fde68a, #fbbf24)'
+                                            : 'linear-gradient(90deg, #fecdd3, #e11d48)',
+                                          transition: 'width 0.3s ease'
+                                        }} />
+                                      </div>
+                                    </div>
+                                  );
+                                });
                               })()}
                             </div>
                           )
@@ -2376,9 +2635,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           className="transition-all duration-300 hover:scale-125 hover:rotate-90"
                           title="Cerrar"
                         >
-                          <span style={{ 
-                            color: '#ef4444', 
-                            fontSize: '1.5rem', 
+                          <span style={{
+                            color: '#ef4444',
+                            fontSize: '1.5rem',
                             fontWeight: 'bold',
                             display: 'block'
                           }}>×</span>
@@ -2472,9 +2731,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           className="transition-all duration-300 hover:scale-125 hover:rotate-90"
                           title="Cerrar"
                         >
-                          <span style={{ 
-                            color: '#10b981', 
-                            fontSize: '1.5rem', 
+                          <span style={{
+                            color: '#10b981',
+                            fontSize: '1.5rem',
                             fontWeight: 'bold',
                             display: 'block'
                           }}>×</span>
@@ -2520,6 +2779,27 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <li>✅ Elegir método de pago</li>
                           <li>✅ Subir comprobante de pago</li>
                         </ul>
+
+                        <div style={{
+                          margin: '16px 0',
+                          padding: '14px 18px',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(245, 158, 11, 0.35)',
+                          background: 'rgba(245, 158, 11, 0.08)'
+                        }}>
+                          <p style={{
+                            margin: 0,
+                            color: theme === 'dark' ? '#fde68a' : '#92400e',
+                            fontWeight: 600,
+                            fontSize: '0.95rem',
+                            lineHeight: 1.5
+                          }}>
+                            💲 Pago requerido ahora: <strong>{formatCurrency(esCursoMontoFijo ? montoPredeterminado : (formData.montoMatricula || curso?.precio || 0))}</strong>.{' '}
+                            {esCursoMontoFijo
+                              ? `Este curso solo admite un pago inicial fijo de ${formatCurrency(montoPredeterminado)}; cuando confirmemos tu matrícula podrás cancelar el resto del curso.`
+                              : 'Si deseas adelantar más meses, modifica el monto directamente en el campo “Monto a pagar”.'}
+                          </p>
+                        </div>
 
                         <div style={{
                           marginTop: '16px',
@@ -2569,7 +2849,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   fechaNacimiento: '',
                                   direccion: '',
                                   genero: '',
-                                  montoMatricula: curso?.precio || 0,
+                                  montoMatricula: montoPredeterminado,
                                   horarioPreferido: '',
                                   contactoEmergencia: ''
                                 });
@@ -2616,7 +2896,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   fechaNacimiento: '',
                                   direccion: '',
                                   genero: '',
-                                  montoMatricula: curso?.precio || 0,
+                                  montoMatricula: montoPredeterminado,
                                   horarioPreferido: '',
                                   contactoEmergencia: ''
                                 });
@@ -3187,16 +3467,71 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <input
                                   type="number"
                                   required
-                                  min="1"
-                                  step="0.01"
+                                  min={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '1')}
+                                  step={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '0.01')}
                                   value={formData.montoMatricula}
+                                  readOnly={esCursoMontoFijo}
                                   onChange={(e) => {
-                                    const newMonto = parseFloat(e.target.value) || 0;
-                                    setFormData({ ...formData, montoMatricula: newMonto });
+                                    if (esCursoMontoFijo) {
+                                      toast.error(`Este curso tiene un monto fijo de ${formatCurrency(montoPredeterminado)}.`);
+                                      return;
+                                    }
+                                    const valor = e.target.value;
+                                    const newMonto = parseFloat(valor) || 0;
 
-                                    // Mostrar alerta si el monto es diferente al precio original del curso
-                                    const precioOriginal = curso?.precio || 0;
-                                    setShowMontoAlert(newMonto !== precioOriginal);
+                                    // VALIDACIÓN DE MÚLTIPLOS DE 90 PARA CURSOS MENSUALES
+                                    if (tipoCursoBackend?.modalidad_pago === 'mensual') {
+                                      const MONTO_BASE = 90;
+
+                                      // Si está vacío o es 0, permitir (para que pueda borrar)
+                                      if (valor === '' || newMonto === 0) {
+                                        setFormData({ ...formData, montoMatricula: newMonto });
+                                        return;
+                                      }
+
+                                      // Solo permitir múltiplos de 90
+                                      if (newMonto % MONTO_BASE === 0 && newMonto >= MONTO_BASE) {
+                                        setFormData({ ...formData, montoMatricula: newMonto });
+
+                                        // Mostrar alerta si el monto es diferente al precio original del curso
+                                        const precioOriginal = curso?.precio || 0;
+                                        setShowMontoAlert(newMonto !== precioOriginal);
+                                      } else {
+                                        // No actualizar el estado si no es múltiplo de 90
+                                        const mesesPagados = Math.floor(newMonto / MONTO_BASE);
+                                        const montoSugerido = mesesPagados * MONTO_BASE;
+                                        const montoSiguiente = (mesesPagados + 1) * MONTO_BASE;
+
+                                        toast.warning(
+                                          `Solo múltiplos de $${MONTO_BASE}. Puedes pagar: $${montoSugerido} o $${montoSiguiente}`,
+                                          { duration: 3000 }
+                                        );
+                                      }
+                                    } else {
+                                      // Para cursos por clases, permitir cualquier valor
+                                      setFormData({ ...formData, montoMatricula: newMonto });
+
+                                      // Mostrar alerta si el monto es diferente al precio original del curso
+                                      const precioOriginal = curso?.precio || 0;
+                                      setShowMontoAlert(newMonto !== precioOriginal);
+                                    }
+                                  }}
+                                  onBlur={(e) => {
+                                    // Cambiar color del borde
+                                    (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                                    if (esCursoMontoFijo) {
+                                      return;
+                                    }
+
+                                    // Al perder el foco, si está vacío o es inválido, restaurar al precio del curso
+                                    if (tipoCursoBackend?.modalidad_pago === 'mensual') {
+                                      const numero = parseFloat(e.target.value);
+                                      if (!numero || numero < 90 || numero % 90 !== 0) {
+                                        setFormData({ ...formData, montoMatricula: montoPredeterminado });
+                                        setShowMontoAlert(false);
+                                        toast.error('Monto inválido. Se restauró al valor del curso.', { duration: 3000 });
+                                      }
+                                    }
                                   }}
                                   style={{
                                     width: '100%',
@@ -3207,14 +3542,28 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     transition: 'border-color 0.3s ease',
                                     background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                                     color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontWeight: '600'
+                                    fontWeight: '600',
+                                    opacity: esCursoMontoFijo ? 0.8 : 1,
+                                    cursor: esCursoMontoFijo ? 'not-allowed' : 'text'
                                   }}
                                   onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                                 />
 
-                                {/* Alerta motivacional cuando se edita el monto */}
-                                {showMontoAlert && (
+                                {esCursoMontoFijo && (
+                                  <p style={{
+                                    marginTop: '8px',
+                                    fontSize: '0.75rem',
+                                    color: theme === 'dark' ? '#fef3c7' : '#92400e',
+                                    fontWeight: 600
+                                  }}>
+                                    Este curso solo acepta pagos iniciales de {formatCurrency(montoPredeterminado)}. Una vez aprobada tu matrícula, podrás completar el resto del valor cuando lo desees.
+                                  </p>
+                                )}
+
+
+
+                                {/* Alerta motivacional cuando se edita el monto - SOLO para montos inválidos */}
+                                {showMontoAlert && tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula % 90 !== 0 && (
                                   <div style={{
                                     display: 'flex',
                                     alignItems: 'flex-start',
@@ -3245,6 +3594,44 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                         ¡No pierdas esta oportunidad de transformar tu futuro profesional!
                                         <span style={{ color: '#fbbf24', fontWeight: '600' }}>
                                           ✨ Tu carrera en belleza te está esperando.
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Mensaje de confirmación para pagos adelantados válidos */}
+                                {tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula > 90 && formData.montoMatricula % 90 === 0 && (
+                                  <div style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 12,
+                                    marginTop: 12,
+                                    padding: '16px',
+                                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08))',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    borderRadius: '12px',
+                                    animation: 'slideInUp 0.3s ease-out'
+                                  }}>
+                                    <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                                    <div>
+                                      <div style={{
+                                        color: '#10b981',
+                                        fontSize: '0.95rem',
+                                        fontWeight: '700',
+                                        marginBottom: '6px'
+                                      }}>
+                                        ✅ ¡Excelente decisión!
+                                      </div>
+                                      <div style={{
+                                        color: theme === 'dark' ? '#6ee7b7' : '#047857',
+                                        fontSize: '0.9rem',
+                                        lineHeight: '1.5'
+                                      }}>
+                                        Estás pagando <strong>{formData.montoMatricula / 90} meses adelantados</strong> (${formData.montoMatricula}).
+                                        Esto te permitirá enfocarte en tu aprendizaje sin preocupaciones.
+                                        <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+                                          🎓 ¡Tu compromiso con tu futuro es admirable!
                                         </span>
                                       </div>
                                     </div>
@@ -3596,76 +3983,76 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         }}>
                           Horario Preferido *
                         </label>
-                      <select
-                        required
-                        value={formData.horarioPreferido}
-                        onChange={(e) => setFormData({ ...formData, horarioPreferido: (e.target as HTMLSelectElement).value as FormData['horarioPreferido'] })}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: '2px solid rgba(251, 191, 36, 0.2)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}
-                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                      >
-                        <option value="" disabled>Seleccionar horario</option>
-                        <option value="matutino">Matutino</option>
-                        <option value="vespertino">Vespertino</option>
-                      </select>
+                        <select
+                          required
+                          value={formData.horarioPreferido}
+                          onChange={(e) => setFormData({ ...formData, horarioPreferido: (e.target as HTMLSelectElement).value as FormData['horarioPreferido'] })}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            border: '2px solid rgba(251, 191, 36, 0.2)',
+                            borderRadius: '12px',
+                            fontSize: '1rem',
+                            transition: 'border-color 0.3s ease',
+                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
+                          }}
+                          onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                          onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                        >
+                          <option value="" disabled>Seleccionar horario</option>
+                          <option value="matutino">Matutino</option>
+                          <option value="vespertino">Vespertino</option>
+                        </select>
 
-                      {/* Mostrar disponibilidad de cupos por horario */}
-                      {formData.horarioPreferido && (
-                        <div style={{ marginTop: '12px' }}>
-                          {(() => {
-                            const cuposHorario = cuposDisponibles.find(
-                              (c: any) => c.id_tipo_curso === tipoCursoId && c.horario === formData.horarioPreferido
-                            );
+                        {/* Mostrar disponibilidad de cupos por horario */}
+                        {formData.horarioPreferido && (
+                          <div style={{ marginTop: '12px' }}>
+                            {(() => {
+                              const cuposHorario = cuposDisponibles.find(
+                                (c: any) => c.id_tipo_curso === tipoCursoId && c.horario === formData.horarioPreferido
+                              );
 
-                            if (!cuposHorario || cuposHorario.cupos_totales === 0) {
+                              if (!cuposHorario || cuposHorario.cupos_totales === 0) {
+                                return (
+                                  <div style={{
+                                    padding: '12px 16px',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '12px',
+                                    color: '#ef4444',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                  }}>
+                                    <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                    No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
+                                  </div>
+                                );
+                              }
+
                               return (
                                 <div style={{
                                   padding: '12px 16px',
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  background: 'rgba(16, 185, 129, 0.1)',
+                                  border: '1px solid rgba(16, 185, 129, 0.3)',
                                   borderRadius: '12px',
-                                  color: '#ef4444',
+                                  color: '#10b981',
                                   fontSize: '0.9rem',
                                   fontWeight: '600',
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '8px'
                                 }}>
-                                  <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                  No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
+                                  <span style={{ fontSize: '1.2rem' }}>✅</span>
+                                  Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
                                 </div>
                               );
-                            }
-
-                            return (
-                              <div style={{
-                                padding: '12px 16px',
-                                background: 'rgba(16, 185, 129, 0.1)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                borderRadius: '12px',
-                                color: '#10b981',
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                              }}>
-                                <span style={{ fontSize: '1.2rem' }}>✅</span>
-                                Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      )}
+                            })()}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -3673,798 +4060,798 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                   {/* Métodos de pago - Solo mostrar si NO tiene solicitud pendiente */}
                   {!tieneSolicitudPendiente && (
-                  <div style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
-                      : 'rgba(255, 255, 255, 0.97)',
-                    borderRadius: '24px',
-                    padding: '32px',
-                    marginBottom: '32px',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
-                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-                  }}>
-                    {/* MÉTODOS DE PAGO - Solo mostrar si NO tiene solicitud pendiente */}
-                    {!tieneSolicitudPendiente && (
-                      <>
-                        <h3 className="section-title" style={{
-                          fontSize: '1.4rem',
-                          fontWeight: '700',
-                          color: theme === 'dark' ? '#fff' : '#1f2937',
-                          marginBottom: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px'
-                        }}>
-                          <CreditCard size={24} color="#fbbf24" />
-                          Método de Pago
-                        </h3>
-
-                    <div className="payment-methods" style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr',
-                      gap: '16px',
-                      marginBottom: '24px'
-                    }}>
-                      <PaymentCard
-                        title="Transferencia Bancaria"
-                        icon={<QrCode size={24} />}
-                        description="Transfiere directamente a nuestra cuenta bancaria"
-                        isSelected={selectedPayment === 'transferencia'}
-                        onClick={() => setSelectedPayment('transferencia')}
-                      />
-
-                      <PaymentCard
-                        title="Efectivo"
-                        icon={<CreditCard size={24} />}
-                        description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
-                        isSelected={selectedPayment === 'efectivo'}
-                        onClick={() => setSelectedPayment('efectivo')}
-                      />
-                    </div>
-
-
-
-                    {/* Contenido específico según método seleccionado */}
-                    {selectedPayment === 'transferencia' && (
-                      <div style={{
-                        padding: '24px',
-                        background: 'rgba(251, 191, 36, 0.1)',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(251, 191, 36, 0.3)'
-                      }}>
-                        <h4 style={{
-                          color: '#b45309',
-                          fontSize: '1.2rem',
-                          fontWeight: '700',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <QrCode size={20} />
-                          Datos para Transferencia
-                        </h4>
-
-                        {/* QR Code placeholder */}
-                        <div style={{
-                          display: 'flex',
-                          gap: '24px',
-                          marginBottom: '24px'
-                        }}>
-                          <div style={{
-                            width: '150px',
-                            height: '150px',
-                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                            flexShrink: 0
-                          }}>
-                            <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{
-                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
-                              padding: '16px',
-                              borderRadius: '12px',
-                              marginBottom: '12px'
-                            }}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
-                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
-                              </div>
-                              <div style={{ marginBottom: '8px' }}>
-                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
-                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
-                              </div>
-                              <div style={{ marginBottom: '8px' }}>
-                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                                <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
-                              </div>
-                              <div>
-                                <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
-                                <span style={{
-                                  color: '#fbbf24',
-                                  marginLeft: '8px',
-                                  fontWeight: '700',
-                                  fontSize: '1.1rem'
-                                }}>
-                                  ${curso.precio.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                            <p style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                              fontSize: '0.9rem',
-                              margin: 0,
-                              fontStyle: 'italic'
-                            }}>
-                              Escanea el QR o usa los datos bancarios para realizar la transferencia
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Información del comprobante */}
-                        <div style={{ marginBottom: '24px' }}>
-                          <h5 style={{
-                            color: '#b45309',
-                            fontSize: '1.1rem',
-                            fontWeight: '600',
-                            marginBottom: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-                            <FileText size={18} />
-                            Datos del Comprobante *
-                          </h5>
-
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                            {/* Banco */}
-                            <div>
-                              <label style={{
-                                display: 'block',
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                                fontSize: '0.9rem',
-                                marginBottom: '8px',
-                                fontWeight: '500'
-                              }}>
-                                Banco *
-                              </label>
-                              <select
-                                value={bancoComprobante}
-                                onChange={(e) => setBancoComprobante(e.target.value)}
-                                required
-                                style={{
-                                  width: '100%',
-                                  padding: '12px 16px',
-                                  borderRadius: '12px',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontSize: '1rem'
-                                }}
-                              >
-                                <option value="">Selecciona el banco</option>
-                                <option value="pichincha">Banco Pichincha</option>
-                                <option value="guayaquil">Banco de Guayaquil</option>
-                                <option value="pacifico">Banco del Pacífico</option>
-                                <option value="produbanco">Produbanco</option>
-                                <option value="bolivariano">Banco Bolivariano</option>
-                                <option value="internacional">Banco Internacional</option>
-                                <option value="machala">Banco de Machala</option>
-                                <option value="austro">Banco del Austro</option>
-                                <option value="cooperativa">Cooperativa</option>
-                                <option value="otro">Otro</option>
-                              </select>
-                            </div>
-
-                            {/* Fecha de transferencia */}
-                            <div>
-                              <label style={{
-                                display: 'block',
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                                fontSize: '0.9rem',
-                                marginBottom: '8px',
-                                fontWeight: '500'
-                              }}>
-                                Fecha de transferencia *
-                              </label>
-                              <input
-                                type="date"
-                                value={fechaTransferencia}
-                                onChange={(e) => setFechaTransferencia(e.target.value)}
-                                required
-                                min={(() => {
-                                  const now = new Date();
-                                  const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
-                                  const year = ecuadorDate.getFullYear();
-                                  const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
-                                  const day = String(ecuadorDate.getDate()).padStart(2, '0');
-                                  return `${year}-${month}-${day}`;
-                                })()}
-                                max={(() => {
-                                  const now = new Date();
-                                  const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
-                                  const year = ecuadorDate.getFullYear();
-                                  const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
-                                  const day = String(ecuadorDate.getDate()).padStart(2, '0');
-                                  return `${year}-${month}-${day}`;
-                                })()}
-                                readOnly
-                                style={{
-                                  width: '100%',
-                                  padding: '12px 16px',
-                                  borderRadius: '12px',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                  color: theme === 'dark' ? '#ffffff !important' : '#1f2937',
-                                  fontSize: '1rem',
-                                  cursor: 'not-allowed',
-                                  opacity: 1,
-                                  WebkitTextFillColor: theme === 'dark' ? '#ffffff' : '#1f2937',
-                                  colorScheme: theme === 'dark' ? 'dark' : 'light'
-                                }}
-                              />
-                              <p style={{
-                                fontSize: '0.75rem',
-                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(31, 41, 55, 0.5)',
-                                marginTop: '4px',
-                                fontStyle: 'italic'
-                              }}>
-                                La fecha se establece automáticamente al día de hoy
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Número de comprobante */}
-                          <div>
-                            <label style={{
-                              display: 'block',
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                              fontSize: '0.9rem',
-                              marginBottom: '8px',
-                              fontWeight: '500'
-                            }}>
-                              Número de comprobante *
-                            </label>
-                            <input
-                              type="text"
-                              value={numeroComprobante}
-                              onChange={(e) => {
-                                // Solo permitir números
-                                const value = e.target.value.replace(/\D/g, '');
-                                setNumeroComprobante(value);
-                              }}
-                              onKeyPress={(e) => {
-                                // Prevenir entrada de caracteres no numéricos
-                                if (!/[0-9]/.test(e.key)) {
-                                  e.preventDefault();
-                                }
-                              }}
-                              placeholder="Ej: 123456789"
-                              required
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
-                                color: theme === 'dark' ? '#fff' : '#1f2937',
-                                fontSize: '1rem',
-                                fontFamily: 'monospace'
-                              }}
-                            />
-                            <p style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(55, 65, 81, 0.7)',
-                              fontSize: '0.8rem',
-                              margin: '8px 0 0 0',
-                              lineHeight: 1.4
-                            }}>
-                              Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Subida de comprobante */}
-                        <div>
-                          <h5 style={{
-                            color: '#b45309',
-                            fontSize: '1.1rem',
-                            fontWeight: '600',
-                            marginBottom: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-                            <Upload size={18} />
-                            Subir Comprobante de Pago *
-                          </h5>
-
-                          <div
-                            className="upload-area"
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={handleDrop}
-                            style={{
-                              border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                              borderRadius: '16px',
-                              padding: '32px',
-                              textAlign: 'center',
-                              background: dragActive
-                                ? 'rgba(251, 191, 36, 0.1)'
-                                : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
-                              transition: 'all 0.3s ease',
-                              cursor: 'pointer',
-                              position: 'relative'
-                            }}
-                            onClick={() => document.getElementById('fileInput')?.click()}
-                          >
-                            <input
-                              id="fileInput"
-                              type="file"
-                              accept=".pdf,image/jpeg,image/png,image/webp"
-                              onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
-                              style={{ display: 'none' }}
-                            />
-
-                            {uploadedFile ? (
-                              <div>
-                                <div style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 16px'
-                                }}>
-                                  <CheckCircle size={30} color="#fff" />
-                                </div>
-                                <p style={{
-                                  color: '#10b981',
-                                  fontWeight: '600',
-                                  fontSize: '1.1rem',
-                                  marginBottom: '8px'
-                                }}>
-                                  ¡Archivo subido correctamente!
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '16px'
-                                }}>
-                                  {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setUploadedFile(null);
-                                  }}
-                                  style={{
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '8px',
-                                    padding: '8px 16px',
-                                    color: '#dc2626',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  Cambiar archivo
-                                </button>
-                              </div>
-                            ) : (
-                              <div>
-                                <div style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  background: 'rgba(251, 191, 36, 0.2)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 16px'
-                                }}>
-                                  <FileImage size={30} color="#fbbf24" />
-                                </div>
-                                <p style={{
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontWeight: '600',
-                                  fontSize: '1.1rem',
-                                  marginBottom: '8px'
-                                }}>
-                                  Arrastra y suelta tu comprobante aquí
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '16px'
-                                }}>
-                                  o haz clic para seleccionar archivo
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? '#9ca3af' : '#4b5563',
-                                  fontSize: '0.8rem'
-                                }}>
-                                  Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          <div style={{
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            marginTop: '16px'
-                          }}>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              marginBottom: '8px'
-                            }}>
-                              <AlertCircle size={18} color="#3b82f6" />
-                              <span style={{
-                                color: '#3b82f6',
-                                fontWeight: '600',
-                                fontSize: '0.9rem'
-                              }}>
-                                Importante
-                              </span>
-                            </div>
-                            <p style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                              fontSize: '0.85rem',
-                              margin: 0,
-                              lineHeight: 1.4
-                            }}>
-                              Asegúrate de que el comprobante sea legible y muestre claramente el monto,
-                              fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedPayment === 'efectivo' && (
-                      <div style={{
-                        padding: '24px',
-                        background: 'rgba(251, 191, 36, 0.1)',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(251, 191, 36, 0.3)'
-                      }}>
-                        <h4 style={{
-                          color: '#b45309',
-                          fontSize: '1.2rem',
-                          fontWeight: '700',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Upload size={20} />
-                          Pago en Efectivo
-                        </h4>
-                        <p style={{
-                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                          marginBottom: '16px',
-                          lineHeight: 1.6
-                        }}>
-                          Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
-                          Por favor, súbelo a continuación para validar tu solicitud.
-                        </p>
-
-                        {/* Subida de comprobante (Efectivo) */}
-                        <div>
-                          <h5 style={{
-                            color: '#b45309',
-                            fontSize: '1.1rem',
-                            fontWeight: '600',
-                            marginBottom: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-                            <Upload size={18} />
-                            Subir Comprobante/Factura *
-                          </h5>
-
-                          <div
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={handleDrop}
-                            style={{
-                              border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                              borderRadius: '16px',
-                              padding: '32px',
-                              textAlign: 'center',
-                              background: dragActive
-                                ? 'rgba(251, 191, 36, 0.1)'
-                                : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
-                              transition: 'all 0.3s ease',
-                              cursor: 'pointer',
-                              position: 'relative'
-                            }}
-                            onClick={() => document.getElementById('fileInputEfectivo')?.click()}
-                          >
-                            <input
-                              id="fileInputEfectivo"
-                              type="file"
-                              accept=".pdf,image/jpeg,image/png,image/webp"
-                              onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
-                              style={{ display: 'none' }}
-                            />
-
-                            {uploadedFile ? (
-                              <div>
-                                <div style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 16px'
-                                }}>
-                                  <CheckCircle size={30} color="#fff" />
-                                </div>
-                                <p style={{
-                                  color: '#10b981',
-                                  fontWeight: '600',
-                                  fontSize: '1.1rem',
-                                  marginBottom: '8px'
-                                }}>
-                                  ¡Archivo subido correctamente!
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '16px'
-                                }}>
-                                  {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setUploadedFile(null);
-                                  }}
-                                  style={{
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '8px',
-                                    padding: '8px 16px',
-                                    color: '#dc2626',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  Cambiar archivo
-                                </button>
-                              </div>
-                            ) : (
-                              <div>
-                                <div style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  background: 'rgba(251, 191, 36, 0.2)',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  margin: '0 auto 16px'
-                                }}>
-                                  <FileImage size={30} color="#fbbf24" />
-                                </div>
-                                <p style={{
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontWeight: '600',
-                                  fontSize: '1.1rem',
-                                  marginBottom: '8px'
-                                }}>
-                                  Arrastra y suelta tu comprobante aquí
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                  fontSize: '0.9rem',
-                                  marginBottom: '16px'
-                                }}>
-                                  o haz clic para seleccionar archivo
-                                </p>
-                                <p style={{
-                                  color: theme === 'dark' ? '#9ca3af' : '#4b5563',
-                                  fontSize: '0.8rem'
-                                }}>
-                                  Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Campos adicionales para efectivo */}
-                        <div style={{
-                          marginTop: '32px',
-                          padding: '24px',
-                          background: 'rgba(180, 83, 9, 0.1)',
-                          borderRadius: '16px',
-                          border: '1px solid rgba(180, 83, 9, 0.3)'
-                        }}>
-                          <h5 style={{
-                            color: '#b45309',
-                            fontSize: '1.1rem',
-                            fontWeight: '700',
-                            marginBottom: '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-                            <FileText size={20} />
-                            Información del Comprobante
-                          </h5>
-
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px'
-                          }}>
-                            {/* Número de comprobante/factura */}
-                            <div>
-                              <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                color: '#b45309',
-                                fontWeight: 600,
-                                fontSize: '0.95rem'
-                              }}>
-                                Número de Comprobante/Factura *
-                              </label>
-                              <input
-                                type="text"
-                                value={numeroComprobanteEfectivo}
-                                onChange={(e) => {
-                                  // Solo permitir números
-                                  const value = e.target.value.replace(/\D/g, '');
-                                  setNumeroComprobanteEfectivo(value);
-                                }}
-                                onKeyPress={(e) => {
-                                  // Prevenir entrada de caracteres no numéricos
-                                  if (!/[0-9]/.test(e.key)) {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                placeholder="Ej: 123456789"
-                                required
-                                style={{
-                                  width: '100%',
-                                  padding: '14px 16px',
-                                  borderRadius: '12px',
-                                  border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                                  background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontSize: '1rem',
-                                  fontFamily: 'Montserrat, sans-serif',
-                                  transition: 'all 0.3s ease',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                                onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
-                              />
-                            </div>
-
-                            {/* Recibido por */}
-                            <div>
-                              <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                color: '#b45309',
-                                fontWeight: 600,
-                                fontSize: '0.95rem'
-                              }}>
-                                Recibido por *
-                              </label>
-                              <input
-                                type="text"
-                                value={recibidoPor}
-                                onChange={(e) => setRecibidoPor(e.target.value.toUpperCase())}
-                                placeholder="Nombre de quien recibió el pago"
-                                required
-                                style={{
-                                  width: '100%',
-                                  padding: '14px 16px',
-                                  borderRadius: '12px',
-                                  border: '1.5px solid rgba(251, 191, 36, 0.3)',
-                                  background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  fontSize: '1rem',
-                                  fontFamily: 'Montserrat, sans-serif',
-                                  transition: 'all 0.3s ease',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
-                                onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                  {/* Alerta de validación al enviar */}
-                  {submitAlert && (
                     <div style={{
                       background: theme === 'dark'
-                        ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
-                        : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
-                      border: '1px solid rgba(251, 191, 36, 0.3)',
-                      borderRadius: 12,
-                      padding: '20px 24px',
-                      marginBottom: 24,
-                      animation: alertAnimatingOut
-                        ? 'alertFadeOut 0.35s ease-in forwards'
-                        : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                      maxWidth: '100%',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                        ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+                        : 'rgba(255, 255, 255, 0.97)',
+                      borderRadius: '24px',
+                      padding: '32px',
+                      marginBottom: '32px',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(251, 191, 36, 0.2)',
+                      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
-                          <AlertCircle
-                            size={24}
-                            color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'}
-                            style={{ marginTop: '2px', flexShrink: 0 }}
-                          />
-                          <div style={{
-                            color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)',
-                            fontSize: '0.95rem',
-                            fontWeight: '500',
-                            lineHeight: 1.6,
-                            whiteSpace: 'pre-line',
-                            flex: 1
+                      {/* MÉTODOS DE PAGO - Solo mostrar si NO tiene solicitud pendiente */}
+                      {!tieneSolicitudPendiente && (
+                        <>
+                          <h3 className="section-title" style={{
+                            fontSize: '1.4rem',
+                            fontWeight: '700',
+                            color: theme === 'dark' ? '#fff' : '#1f2937',
+                            marginBottom: '24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
                           }}>
-                            {submitAlert.text}
+                            <CreditCard size={24} color="#fbbf24" />
+                            Método de Pago
+                          </h3>
+
+                          <div className="payment-methods" style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr',
+                            gap: '16px',
+                            marginBottom: '24px'
+                          }}>
+                            <PaymentCard
+                              title="Transferencia Bancaria"
+                              icon={<QrCode size={24} />}
+                              description="Transfiere directamente a nuestra cuenta bancaria"
+                              isSelected={selectedPayment === 'transferencia'}
+                              onClick={() => setSelectedPayment('transferencia')}
+                            />
+
+                            <PaymentCard
+                              title="Efectivo"
+                              icon={<CreditCard size={24} />}
+                              description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
+                              isSelected={selectedPayment === 'efectivo'}
+                              onClick={() => setSelectedPayment('efectivo')}
+                            />
                           </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setSubmitAlert(null)}
-                          style={{
-                            background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
-                            border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
-                            color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
-                            borderRadius: 8,
-                            padding: '10px 14px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            alignSelf: 'flex-start',
-                            flexShrink: 0,
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
-                          onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
-                        >
-                          Entendido
-                        </button>
-                      </div>
+
+
+
+                          {/* Contenido específico según método seleccionado */}
+                          {selectedPayment === 'transferencia' && (
+                            <div style={{
+                              padding: '24px',
+                              background: 'rgba(251, 191, 36, 0.1)',
+                              borderRadius: '16px',
+                              border: '1px solid rgba(251, 191, 36, 0.3)'
+                            }}>
+                              <h4 style={{
+                                color: '#b45309',
+                                fontSize: '1.2rem',
+                                fontWeight: '700',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}>
+                                <QrCode size={20} />
+                                Datos para Transferencia
+                              </h4>
+
+                              {/* QR Code placeholder */}
+                              <div style={{
+                                display: 'flex',
+                                gap: '24px',
+                                marginBottom: '24px'
+                              }}>
+                                <div style={{
+                                  width: '150px',
+                                  height: '150px',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
+                                  borderRadius: '12px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                                  flexShrink: 0
+                                }}>
+                                  <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+                                    padding: '16px',
+                                    borderRadius: '12px',
+                                    marginBottom: '12px'
+                                  }}>
+                                    <div style={{ marginBottom: '8px' }}>
+                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
+                                    </div>
+                                    <div style={{ marginBottom: '8px' }}>
+                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
+                                    </div>
+                                    <div style={{ marginBottom: '8px' }}>
+                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                                    </div>
+                                    <div>
+                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
+                                      <span style={{
+                                        color: '#fbbf24',
+                                        marginLeft: '8px',
+                                        fontWeight: '700',
+                                        fontSize: '1.1rem'
+                                      }}>
+                                        ${curso.precio.toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.9rem',
+                                    margin: 0,
+                                    fontStyle: 'italic'
+                                  }}>
+                                    Escanea el QR o usa los datos bancarios para realizar la transferencia
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Información del comprobante */}
+                              <div style={{ marginBottom: '24px' }}>
+                                <h5 style={{
+                                  color: '#b45309',
+                                  fontSize: '1.1rem',
+                                  fontWeight: '600',
+                                  marginBottom: '16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}>
+                                  <FileText size={18} />
+                                  Datos del Comprobante *
+                                </h5>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                                  {/* Banco */}
+                                  <div>
+                                    <label style={{
+                                      display: 'block',
+                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                      fontSize: '0.9rem',
+                                      marginBottom: '8px',
+                                      fontWeight: '500'
+                                    }}>
+                                      Banco *
+                                    </label>
+                                    <select
+                                      value={bancoComprobante}
+                                      onChange={(e) => setBancoComprobante(e.target.value)}
+                                      required
+                                      style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontSize: '1rem'
+                                      }}
+                                    >
+                                      <option value="">Selecciona el banco</option>
+                                      <option value="pichincha">Banco Pichincha</option>
+                                      <option value="guayaquil">Banco de Guayaquil</option>
+                                      <option value="pacifico">Banco del Pacífico</option>
+                                      <option value="produbanco">Produbanco</option>
+                                      <option value="bolivariano">Banco Bolivariano</option>
+                                      <option value="internacional">Banco Internacional</option>
+                                      <option value="machala">Banco de Machala</option>
+                                      <option value="austro">Banco del Austro</option>
+                                      <option value="cooperativa">Cooperativa</option>
+                                      <option value="otro">Otro</option>
+                                    </select>
+                                  </div>
+
+                                  {/* Fecha de transferencia */}
+                                  <div>
+                                    <label style={{
+                                      display: 'block',
+                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                      fontSize: '0.9rem',
+                                      marginBottom: '8px',
+                                      fontWeight: '500'
+                                    }}>
+                                      Fecha de transferencia *
+                                    </label>
+                                    <input
+                                      type="date"
+                                      value={fechaTransferencia}
+                                      onChange={(e) => setFechaTransferencia(e.target.value)}
+                                      required
+                                      min={(() => {
+                                        const now = new Date();
+                                        const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+                                        const year = ecuadorDate.getFullYear();
+                                        const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
+                                        const day = String(ecuadorDate.getDate()).padStart(2, '0');
+                                        return `${year}-${month}-${day}`;
+                                      })()}
+                                      max={(() => {
+                                        const now = new Date();
+                                        const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+                                        const year = ecuadorDate.getFullYear();
+                                        const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
+                                        const day = String(ecuadorDate.getDate()).padStart(2, '0');
+                                        return `${year}-${month}-${day}`;
+                                      })()}
+                                      readOnly
+                                      style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                        color: theme === 'dark' ? '#ffffff !important' : '#1f2937',
+                                        fontSize: '1rem',
+                                        cursor: 'not-allowed',
+                                        opacity: 1,
+                                        WebkitTextFillColor: theme === 'dark' ? '#ffffff' : '#1f2937',
+                                        colorScheme: theme === 'dark' ? 'dark' : 'light'
+                                      }}
+                                    />
+                                    <p style={{
+                                      fontSize: '0.75rem',
+                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(31, 41, 55, 0.5)',
+                                      marginTop: '4px',
+                                      fontStyle: 'italic'
+                                    }}>
+                                      La fecha se establece automáticamente al día de hoy
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Número de comprobante */}
+                                <div>
+                                  <label style={{
+                                    display: 'block',
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                    fontSize: '0.9rem',
+                                    marginBottom: '8px',
+                                    fontWeight: '500'
+                                  }}>
+                                    Número de comprobante *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={numeroComprobante}
+                                    onChange={(e) => {
+                                      // Solo permitir números
+                                      const value = e.target.value.replace(/\D/g, '');
+                                      setNumeroComprobante(value);
+                                    }}
+                                    onKeyPress={(e) => {
+                                      // Prevenir entrada de caracteres no numéricos
+                                      if (!/[0-9]/.test(e.key)) {
+                                        e.preventDefault();
+                                      }
+                                    }}
+                                    placeholder="Ej: 123456789"
+                                    required
+                                    style={{
+                                      width: '100%',
+                                      padding: '12px 16px',
+                                      borderRadius: '12px',
+                                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                                      background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                      color: theme === 'dark' ? '#fff' : '#1f2937',
+                                      fontSize: '1rem',
+                                      fontFamily: 'monospace'
+                                    }}
+                                  />
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(55, 65, 81, 0.7)',
+                                    fontSize: '0.8rem',
+                                    margin: '8px 0 0 0',
+                                    lineHeight: 1.4
+                                  }}>
+                                    Ingresa el número de referencia/transacción que aparece en tu comprobante bancario.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Subida de comprobante */}
+                              <div>
+                                <h5 style={{
+                                  color: '#b45309',
+                                  fontSize: '1.1rem',
+                                  fontWeight: '600',
+                                  marginBottom: '16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}>
+                                  <Upload size={18} />
+                                  Subir Comprobante de Pago *
+                                </h5>
+
+                                <div
+                                  className="upload-area"
+                                  onDragEnter={handleDrag}
+                                  onDragLeave={handleDrag}
+                                  onDragOver={handleDrag}
+                                  onDrop={handleDrop}
+                                  style={{
+                                    border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                                    borderRadius: '16px',
+                                    padding: '32px',
+                                    textAlign: 'center',
+                                    background: dragActive
+                                      ? 'rgba(251, 191, 36, 0.1)'
+                                      : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer',
+                                    position: 'relative'
+                                  }}
+                                  onClick={() => document.getElementById('fileInput')?.click()}
+                                >
+                                  <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".pdf,image/jpeg,image/png,image/webp"
+                                    onChange={(e) => handleFileUpload(e.target.files?.[0] || null)}
+                                    style={{ display: 'none' }}
+                                  />
+
+                                  {uploadedFile ? (
+                                    <div>
+                                      <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 16px'
+                                      }}>
+                                        <CheckCircle size={30} color="#fff" />
+                                      </div>
+                                      <p style={{
+                                        color: '#10b981',
+                                        fontWeight: '600',
+                                        fontSize: '1.1rem',
+                                        marginBottom: '8px'
+                                      }}>
+                                        ¡Archivo subido correctamente!
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '16px'
+                                      }}>
+                                        {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setUploadedFile(null);
+                                        }}
+                                        style={{
+                                          background: 'rgba(239, 68, 68, 0.1)',
+                                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                                          borderRadius: '8px',
+                                          padding: '8px 16px',
+                                          color: '#dc2626',
+                                          cursor: 'pointer',
+                                          fontSize: '0.9rem',
+                                          fontWeight: '500'
+                                        }}
+                                      >
+                                        Cambiar archivo
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        background: 'rgba(251, 191, 36, 0.2)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 16px'
+                                      }}>
+                                        <FileImage size={30} color="#fbbf24" />
+                                      </div>
+                                      <p style={{
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontWeight: '600',
+                                        fontSize: '1.1rem',
+                                        marginBottom: '8px'
+                                      }}>
+                                        Arrastra y suelta tu comprobante aquí
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '16px'
+                                      }}>
+                                        o haz clic para seleccionar archivo
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                                        fontSize: '0.8rem'
+                                      }}>
+                                        Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div style={{
+                                  background: 'rgba(59, 130, 246, 0.1)',
+                                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                                  borderRadius: '12px',
+                                  padding: '16px',
+                                  marginTop: '16px'
+                                }}>
+                                  <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    marginBottom: '8px'
+                                  }}>
+                                    <AlertCircle size={18} color="#3b82f6" />
+                                    <span style={{
+                                      color: '#3b82f6',
+                                      fontWeight: '600',
+                                      fontSize: '0.9rem'
+                                    }}>
+                                      Importante
+                                    </span>
+                                  </div>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.85rem',
+                                    margin: 0,
+                                    lineHeight: 1.4
+                                  }}>
+                                    Asegúrate de que el comprobante sea legible y muestre claramente el monto,
+                                    fecha y datos de la transferencia. Revisaremos tu pago en máximo 24 horas.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {selectedPayment === 'efectivo' && (
+                            <div style={{
+                              padding: '24px',
+                              background: 'rgba(251, 191, 36, 0.1)',
+                              borderRadius: '16px',
+                              border: '1px solid rgba(251, 191, 36, 0.3)'
+                            }}>
+                              <h4 style={{
+                                color: '#b45309',
+                                fontSize: '1.2rem',
+                                fontWeight: '700',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}>
+                                <Upload size={20} />
+                                Pago en Efectivo
+                              </h4>
+                              <p style={{
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                marginBottom: '16px',
+                                lineHeight: 1.6
+                              }}>
+                                Realiza el pago en efectivo en nuestras oficinas. Te entregaremos un comprobante o factura.
+                                Por favor, súbelo a continuación para validar tu solicitud.
+                              </p>
+
+                              {/* Subida de comprobante (Efectivo) */}
+                              <div>
+                                <h5 style={{
+                                  color: '#b45309',
+                                  fontSize: '1.1rem',
+                                  fontWeight: '600',
+                                  marginBottom: '16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}>
+                                  <Upload size={18} />
+                                  Subir Comprobante/Factura *
+                                </h5>
+
+                                <div
+                                  onDragEnter={handleDrag}
+                                  onDragLeave={handleDrag}
+                                  onDragOver={handleDrag}
+                                  onDrop={handleDrop}
+                                  style={{
+                                    border: `2px dashed ${dragActive || uploadedFile ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                                    borderRadius: '16px',
+                                    padding: '32px',
+                                    textAlign: 'center',
+                                    background: dragActive
+                                      ? 'rgba(251, 191, 36, 0.1)'
+                                      : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.92)'),
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer',
+                                    position: 'relative'
+                                  }}
+                                  onClick={() => document.getElementById('fileInputEfectivo')?.click()}
+                                >
+                                  <input
+                                    id="fileInputEfectivo"
+                                    type="file"
+                                    accept=".pdf,image/jpeg,image/png,image/webp"
+                                    onChange={(e) => handleFileUpload((e.target as HTMLInputElement).files?.[0] || null)}
+                                    style={{ display: 'none' }}
+                                  />
+
+                                  {uploadedFile ? (
+                                    <div>
+                                      <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 16px'
+                                      }}>
+                                        <CheckCircle size={30} color="#fff" />
+                                      </div>
+                                      <p style={{
+                                        color: '#10b981',
+                                        fontWeight: '600',
+                                        fontSize: '1.1rem',
+                                        marginBottom: '8px'
+                                      }}>
+                                        ¡Archivo subido correctamente!
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '16px'
+                                      }}>
+                                        {uploadedFile?.name} ({((uploadedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setUploadedFile(null);
+                                        }}
+                                        style={{
+                                          background: 'rgba(239, 68, 68, 0.1)',
+                                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                                          borderRadius: '8px',
+                                          padding: '8px 16px',
+                                          color: '#dc2626',
+                                          cursor: 'pointer',
+                                          fontSize: '0.9rem',
+                                          fontWeight: '500'
+                                        }}
+                                      >
+                                        Cambiar archivo
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        background: 'rgba(251, 191, 36, 0.2)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 16px'
+                                      }}>
+                                        <FileImage size={30} color="#fbbf24" />
+                                      </div>
+                                      <p style={{
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontWeight: '600',
+                                        fontSize: '1.1rem',
+                                        marginBottom: '8px'
+                                      }}>
+                                        Arrastra y suelta tu comprobante aquí
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '16px'
+                                      }}>
+                                        o haz clic para seleccionar archivo
+                                      </p>
+                                      <p style={{
+                                        color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                                        fontSize: '0.8rem'
+                                      }}>
+                                        Formatos: PDF, JPG, PNG, WEBP (Máx. 5MB)
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Campos adicionales para efectivo */}
+                              <div style={{
+                                marginTop: '32px',
+                                padding: '24px',
+                                background: 'rgba(180, 83, 9, 0.1)',
+                                borderRadius: '16px',
+                                border: '1px solid rgba(180, 83, 9, 0.3)'
+                              }}>
+                                <h5 style={{
+                                  color: '#b45309',
+                                  fontSize: '1.1rem',
+                                  fontWeight: '700',
+                                  marginBottom: '20px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}>
+                                  <FileText size={20} />
+                                  Información del Comprobante
+                                </h5>
+
+                                <div style={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '16px'
+                                }}>
+                                  {/* Número de comprobante/factura */}
+                                  <div>
+                                    <label style={{
+                                      display: 'block',
+                                      marginBottom: '8px',
+                                      color: '#b45309',
+                                      fontWeight: 600,
+                                      fontSize: '0.95rem'
+                                    }}>
+                                      Número de Comprobante/Factura *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={numeroComprobanteEfectivo}
+                                      onChange={(e) => {
+                                        // Solo permitir números
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        setNumeroComprobanteEfectivo(value);
+                                      }}
+                                      onKeyPress={(e) => {
+                                        // Prevenir entrada de caracteres no numéricos
+                                        if (!/[0-9]/.test(e.key)) {
+                                          e.preventDefault();
+                                        }
+                                      }}
+                                      placeholder="Ej: 123456789"
+                                      required
+                                      style={{
+                                        width: '100%',
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                        background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontSize: '1rem',
+                                        fontFamily: 'Montserrat, sans-serif',
+                                        transition: 'all 0.3s ease',
+                                        outline: 'none'
+                                      }}
+                                      onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                      onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                                    />
+                                  </div>
+
+                                  {/* Recibido por */}
+                                  <div>
+                                    <label style={{
+                                      display: 'block',
+                                      marginBottom: '8px',
+                                      color: '#b45309',
+                                      fontWeight: 600,
+                                      fontSize: '0.95rem'
+                                    }}>
+                                      Recibido por *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={recibidoPor}
+                                      onChange={(e) => setRecibidoPor(e.target.value.toUpperCase())}
+                                      placeholder="Nombre de quien recibió el pago"
+                                      required
+                                      style={{
+                                        width: '100%',
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1.5px solid rgba(251, 191, 36, 0.3)',
+                                        background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.9)',
+                                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                                        fontSize: '1rem',
+                                        fontFamily: 'Montserrat, sans-serif',
+                                        transition: 'all 0.3s ease',
+                                        outline: 'none'
+                                      }}
+                                      onFocus={(e) => e.target.style.borderColor = '#fbbf24'}
+                                      onBlur={(e) => e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)'}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Alerta de validación al enviar */}
+                          {submitAlert && (
+                            <div style={{
+                              background: theme === 'dark'
+                                ? (submitAlert.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : submitAlert.type === 'success' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)')
+                                : (submitAlert.type === 'error' ? 'rgba(254, 202, 202, 0.9)' : submitAlert.type === 'success' ? 'rgba(167,243,208,0.9)' : 'rgba(191,219,254,0.9)'),
+                              border: '1px solid rgba(251, 191, 36, 0.3)',
+                              borderRadius: 12,
+                              padding: '20px 24px',
+                              marginBottom: 24,
+                              animation: alertAnimatingOut
+                                ? 'alertFadeOut 0.35s ease-in forwards'
+                                : 'alertSlideIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                              maxWidth: '100%',
+                              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                                  <AlertCircle
+                                    size={24}
+                                    color={submitAlert.type === 'error' ? '#ef4444' : submitAlert.type === 'success' ? '#10b981' : '#3b82f6'}
+                                    style={{ marginTop: '2px', flexShrink: 0 }}
+                                  />
+                                  <div style={{
+                                    color: theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.95)',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '500',
+                                    lineHeight: 1.6,
+                                    whiteSpace: 'pre-line',
+                                    flex: 1
+                                  }}>
+                                    {submitAlert.text}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setSubmitAlert(null)}
+                                  style={{
+                                    background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)',
+                                    border: theme === 'dark' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(31, 41, 55, 0.3)',
+                                    color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
+                                    borderRadius: 8,
+                                    padding: '10px 14px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    alignSelf: 'flex-start',
+                                    flexShrink: 0,
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(31, 41, 55, 0.25)'}
+                                  onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(31, 41, 55, 0.15)'}
+                                >
+                                  Entendido
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   )}
-              </>
-            )}
-          </div>
-          )}
 
                   {/* Botón de envío - Deshabilitado si tiene solicitud pendiente */}
                   <button
@@ -4513,7 +4900,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       {/* Modal de Promociones - se muestra después de crear la solicitud exitosamente */}
       <ModalPromocion
         isOpen={showPromoModal}
-        onClose={() => {}} // No permitir cerrar con X, debe decidir
+        onClose={() => { }} // No permitir cerrar con X, debe decidir
         promociones={promocionesDisponibles}
         onAceptar={handleAceptarPromocion}
         onRechazar={handleRechazarPromocion}

@@ -305,8 +305,8 @@ const GestionCursos = () => {
       const res = await fetch(`${API_BASE}/api/cursos/${id}`);
       if (!res.ok) return null;
       const row = await res.json();
-      console.log('📚 Curso recibido del backend:', row);
-      console.log('🕐 Horario del curso:', row.horario);
+      console.log('Curso recibido del backend:', row);
+      console.log('Horario del curso:', row.horario);
       const c: Course = {
         id_curso: Number(row.id_curso ?? id),
         codigo_curso: String(row.codigo_curso ?? ''),
@@ -647,8 +647,8 @@ const GestionCursos = () => {
       setError(null);
       if (modalType === 'create') {
         const token = sessionStorage.getItem('auth_token');
-        console.log('🔑 Token obtenido:', token ? 'Existe' : 'NO EXISTE');
-        console.log('📦 Payload a enviar:', payload);
+        console.log('Token obtenido:', token ? 'Existe' : 'NO EXISTE');
+        console.log('Payload a enviar:', payload);
         
         const res = await fetch(`${API_BASE}/api/cursos`, {
           method: 'POST',
@@ -659,7 +659,7 @@ const GestionCursos = () => {
           body: JSON.stringify(payload)
         });
         
-        console.log('📡 Status de respuesta:', res.status);
+        console.log(' Status de respuesta:', res.status);
         
         if (!res.ok) {
           let msg = 'No se pudo crear el curso';

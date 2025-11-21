@@ -41,10 +41,25 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
   useEffect(() => {
     // Filter courses based on active tab
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
     if (activeTab === 'activos') {
-      setFilteredCursos(cursos.filter(curso => curso.estado === 'activo'));
+      // Cursos activos: estado activo/planificado Y fecha de fin no ha pasado
+      setFilteredCursos(cursos.filter(curso => {
+        const fechaFin = new Date(curso.fecha_fin);
+        fechaFin.setHours(0, 0, 0, 0);
+        
+        return (curso.estado === 'activo' || curso.estado === 'planificado') && fechaFin >= hoy;
+      }));
     } else {
-      setFilteredCursos(cursos.filter(curso => curso.estado === 'finalizado'));
+      // Cursos finalizados: estado finalizado/cancelado O fecha de fin ya pasó
+      setFilteredCursos(cursos.filter(curso => {
+        const fechaFin = new Date(curso.fecha_fin);
+        fechaFin.setHours(0, 0, 0, 0);
+        
+        return curso.estado === 'finalizado' || curso.estado === 'cancelado' || fechaFin < hoy;
+      }));
     }
   }, [cursos, activeTab]);
 
@@ -58,7 +73,8 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
+      // Usar el endpoint que devuelve TODOS los cursos (activos y finalizados)
+      const response = await fetch(`${API_BASE}/api/docentes/todos-mis-cursos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +82,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Cursos del docente:', data);
+        console.log('Todos los cursos del docente:', data);
         setCursos(data);
         setError('');
       } else {

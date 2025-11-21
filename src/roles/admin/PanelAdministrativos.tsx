@@ -66,30 +66,30 @@ const PanelAdministrativos = () => {
     const fetchUserData = async () => {
       try {
         const token = sessionStorage.getItem('auth_token');
-        console.log('🔑 Token para obtener datos:', token ? 'Existe' : 'No existe');
+        console.log('Token para obtener datos:', token ? 'Existe' : 'No existe');
         if (!token) return;
 
         const response = await fetch('http://localhost:3000/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        console.log('📡 Status de /api/auth/me:', response.status);
+        console.log('Status de /api/auth/me:', response.status);
 
         if (response.ok) {
           const data = await response.json();
-          console.log('👤 Datos del usuario recibidos:', data);
+          console.log('Datos del usuario recibidos:', data);
           // Handle both nombre/nombres and apellido/apellidos for compatibility
           const nombres = data.nombres || data.nombre || '';
           const apellidos = data.apellidos || data.apellido || '';
-          console.log('📝 Nombres:', nombres);
-          console.log('📝 Apellidos:', apellidos);
-          console.log('📝 Todas las propiedades:', Object.keys(data));
+          console.log('Nombres:', nombres);
+          console.log('Apellidos:', apellidos);
+          console.log('Todas las propiedades:', Object.keys(data));
           setUserData(data);
         } else {
           console.error('Error en respuesta:', response.status);
         }
       } catch (error) {
-        console.error('-Error obteniendo datos del usuario:', error);
+        console.error('Error obteniendo datos del usuario:', error);
       }
     };
     fetchUserData();

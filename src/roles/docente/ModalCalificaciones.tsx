@@ -227,19 +227,19 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       if (calificacionesCompletasResponse.ok) {
         try {
           datosCompletos = await calificacionesCompletasResponse.json();
-          console.log("📊 Datos completos recibidos:", datosCompletos);
+          console.log("Datos completos recibidos:", datosCompletos);
           if (datosCompletos.success) {
-            console.log("✅ Módulos encontrados:", datosCompletos.modulos);
-            console.log("⚖️ Peso por módulo:", datosCompletos.peso_por_modulo);
+            console.log("Módulos encontrados:", datosCompletos.modulos);
+            console.log("Peso por módulo:", datosCompletos.peso_por_modulo);
             setModulos(datosCompletos.modulos || []);
             setPesoPorModulo(datosCompletos.peso_por_modulo || 0);
           }
         } catch (err) {
-          console.error("-Error parseando calificaciones completas:", err);
+          console.error("Error parseando calificaciones completas:", err);
         }
       } else {
         console.error(
-          "-Error en respuesta del servidor:",
+          "Error en respuesta del servidor:",
           calificacionesCompletasResponse.status,
         );
       }
@@ -421,10 +421,10 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       });
 
       // Debug: Verificar datos antes de crear Excel
-      console.log("📋 Generando Excel...");
-      console.log("👥 Total estudiantes:", estudiantes.length);
-      console.log("📚 Módulos disponibles:", modulos);
-      console.log("⚖️ Peso por módulo:", pesoPorModulo);
+      console.log("Generando Excel...");
+      console.log("Total estudiantes:", estudiantes.length);
+      console.log("Módulos disponibles:", modulos);
+      console.log("Peso por módulo:", pesoPorModulo);
 
       // Hoja 2: Promedios por Módulo (sobre 10 puntos)
       const datosModulos = estudiantes.map((est) => {
@@ -523,16 +523,16 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       XLSX.utils.book_append_sheet(wb, wsDetalle, "Calificaciones por Tarea");
 
       // Agregar hoja de promedios por módulo (SIEMPRE se crea)
-      console.log("📊 Intentando crear hoja de módulos...");
+      console.log("Intentando crear hoja de módulos...");
       console.log("   - datosModulos.length:", datosModulos.length);
       console.log("   - modulos.length:", modulos.length);
 
       if (datosModulos.length > 0) {
-        console.log("✅ Creando hoja 'Promedios por Módulo'");
+        console.log("Creando hoja 'Promedios por Módulo'");
         const wsModulos = XLSX.utils.json_to_sheet(datosModulos);
         XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
       } else {
-        console.warn("⚠️ Creando hoja de módulos vacía (sin datos)");
+        console.warn("Creando hoja de módulos vacía (sin datos)");
         // Crear hoja vacía con encabezados
         const datosVacios = [
           {
