@@ -12,7 +12,7 @@ import LoadingModal from '../../components/LoadingModal';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
-  type Solicitud = {
+type Solicitud = {
   id_solicitud: number;
   codigo_solicitud: string;
   identificacion_solicitante?: string;
@@ -32,12 +32,12 @@ import '../../utils/modalScrollHelper';
   fecha_transferencia?: string;
   id_estudiante_existente?: number | null;
   estado: 'pendiente' | 'aprobado' | 'rechazado' | 'observaciones';
-fecha_solicitud: string;
+  fecha_solicitud: string;
 };
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
-  const GestionMatricula = () => {
+const GestionMatricula = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -189,105 +189,105 @@ const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:300
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
-const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
-  
-    useSocket({
-      'nueva_solicitud_matricula': (data: any) => {
+  const [counters, setCounters] = useState({ pendiente: 0, aprobado: 0, rechazado: 0, observaciones: 0 });
+
+  useSocket({
+    'nueva_solicitud_matricula': (data: any) => {
       console.log('Nueva solicitud recibida:', data);
       showToast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`, darkMode);
       void fetchSolicitudes();
       void fetchCounters();
-        },
-        'solicitud_actualizada': (data: any) => {
-        console.log('Solicitud actualizada:', data);
+    },
+    'solicitud_actualizada': (data: any) => {
+      console.log('Solicitud actualizada:', data);
       void fetchSolicitudes();
-    void fetchCounters();
-  }
-});
-  
-    const fetchCursos = async () => {
-      try {
+      void fetchCounters();
+    }
+  });
+
+  const fetchCursos = async () => {
+    try {
       const res = await fetch(`${API_BASE}/api/cursos?limit=100`);
       if (!res.ok) return;
-        const data = await res.json();
+      const data = await res.json();
       const cursosList = Array.isArray(data) ? data : [];
       setCursos(cursosList.map((c: any) => ({
-      id_curso: c.id_curso,
-      nombre: c.nombre,
-      estado: c.estado
-        })));
-        } catch { }
-        };
-        
-      const fetchCounters = async () => {
+        id_curso: c.id_curso,
+        nombre: c.nombre,
+        estado: c.estado
+      })));
+    } catch { }
+  };
+
+  const fetchCounters = async () => {
     try {
-  const params = new URLSearchParams();
-params.set('aggregate', 'by_estado');
-  if (filterTipo !== 'todos') {
-    params.set('tipo', String(filterTipo));
+      const params = new URLSearchParams();
+      params.set('aggregate', 'by_estado');
+      if (filterTipo !== 'todos') {
+        params.set('tipo', String(filterTipo));
       }
       const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
       if (!res.ok) return;
       const data = await res.json();
       setCounters({
         pendiente: Number(data?.pendiente || 0),
-      aprobado: Number(data?.aprobado || 0),
-      rechazado: Number(data?.rechazado || 0),
-      observaciones: Number(data?.observaciones || 0),
+        aprobado: Number(data?.aprobado || 0),
+        rechazado: Number(data?.rechazado || 0),
+        observaciones: Number(data?.observaciones || 0),
       });
-        } catch { }
-      };
-      
-      const fetchSolicitudes = async (): Promise<boolean> => {
-      try {
+    } catch { }
+  };
+
+  const fetchSolicitudes = async (): Promise<boolean> => {
+    try {
       setLoading(true);
       setShowLoadingModal(true);
       setError(null);
-    const params = new URLSearchParams();
+      const params = new URLSearchParams();
       if (filterEstado !== 'todos') {
-    params.set('estado', filterEstado);
+        params.set('estado', filterEstado);
       }
-    params.set('limit', String(limit));
-  params.set('page', String(page));
-if (filterTipo !== 'todos') {
-  params.set('tipo', String(filterTipo));
-    }
-    const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
-  if (!res.ok) throw new Error('No se pudo cargar solicitudes');
-const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
-  setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
-    const data = await res.json();
-  setSolicitudes(data);
-  return true;
-} catch (e: any) {
-  const message = e.message || 'Error cargando solicitudes';
-  setError(message);
-  showToast.error(message, darkMode);
-  return false;
+      params.set('limit', String(limit));
+      params.set('page', String(page));
+      if (filterTipo !== 'todos') {
+        params.set('tipo', String(filterTipo));
+      }
+      const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
+      if (!res.ok) throw new Error('No se pudo cargar solicitudes');
+      const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
+      setTotalCount(Number.isFinite(totalHeader) ? totalHeader : 0);
+      const data = await res.json();
+      setSolicitudes(data);
+      return true;
+    } catch (e: any) {
+      const message = e.message || 'Error cargando solicitudes';
+      setError(message);
+      showToast.error(message, darkMode);
+      return false;
     } finally {
       setLoading(false);
-      }
-      };
-      
-      useEffect(() => {
-    void fetchSolicitudes();
-  void fetchCursos();
-}, [filterEstado, filterTipo, page, limit]);
-  
-  useEffect(() => {
-  fetchCounters();
-  }, [filterTipo]);
-  
-  const fetchTipos = async () => {
-  try {
-  const res = await fetch(`${API_BASE}/api/tipos-cursos?estado=activo&limit=200`);
-  if (!res.ok) return;
-  const data = await res.json();
-  const list = Array.isArray(data) ? data : [];
-  setTipos(list.map((t: any) => ({ id_tipo_curso: t.id_tipo_curso, nombre: t.nombre, codigo: t.codigo })));
-  } catch { }
+    }
   };
-  
+
+  useEffect(() => {
+    void fetchSolicitudes();
+    void fetchCursos();
+  }, [filterEstado, filterTipo, page, limit]);
+
+  useEffect(() => {
+    fetchCounters();
+  }, [filterTipo]);
+
+  const fetchTipos = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/tipos-cursos?estado=activo&limit=200`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setTipos(list.map((t: any) => ({ id_tipo_curso: t.id_tipo_curso, nombre: t.nombre, codigo: t.codigo })));
+    } catch { }
+  };
+
   useEffect(() => { fetchTipos(); }, []);
 
   const openModal = async (id: number) => {
@@ -367,7 +367,7 @@ const totalHeader = Number(res.headers.get('X-Total-Count') || 0);
     try {
       setDecidiendo(true);
 
-const token = sessionStorage.getItem('auth_token');
+      const token = sessionStorage.getItem('auth_token');
       if (!token) {
         throw new Error('No se encontró token de autenticación');
       }
@@ -1103,7 +1103,7 @@ const token = sessionStorage.getItem('auth_token');
                         e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
                       }}
                     >
-                        <Download size={12} color={actionColors.approve} />
+                      <Download size={12} color={actionColors.approve} />
                       Ver Comprobante
                     </button>
                   </div>
@@ -1620,7 +1620,7 @@ const token = sessionStorage.getItem('auth_token');
             </div>
 
             {/* Documentos - Botones con íconos claros */}
-            <div style={{ 
+            <div style={{
               marginTop: 14,
               display: 'grid',
               gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(140px, 1fr))',
@@ -1657,9 +1657,9 @@ const token = sessionStorage.getItem('auth_token');
                 }}
               >
                 <Download size={18} color="#10b981" />
-                <span style={{ 
-                  color: '#10b981', 
-                  fontSize: '0.8rem', 
+                <span style={{
+                  color: '#10b981',
+                  fontSize: '0.8rem',
                   fontWeight: '600',
                   textAlign: 'center'
                 }}>
@@ -1703,9 +1703,9 @@ const token = sessionStorage.getItem('auth_token');
                       }}
                     >
                       <IdCard size={18} color="#3b82f6" />
-                      <span style={{ 
-                        color: '#3b82f6', 
-                        fontSize: '0.8rem', 
+                      <span style={{
+                        color: '#3b82f6',
+                        fontSize: '0.8rem',
                         fontWeight: '600',
                         textAlign: 'center'
                       }}>
@@ -1746,9 +1746,9 @@ const token = sessionStorage.getItem('auth_token');
                         }}
                       >
                         <IdCard size={18} color="#3b82f6" />
-                        <span style={{ 
-                          color: '#3b82f6', 
-                          fontSize: '0.8rem', 
+                        <span style={{
+                          color: '#3b82f6',
+                          fontSize: '0.8rem',
                           fontWeight: '600',
                           textAlign: 'center'
                         }}>
@@ -1785,9 +1785,9 @@ const token = sessionStorage.getItem('auth_token');
                         }}
                       >
                         <FileText size={18} color="#a855f7" />
-                        <span style={{ 
-                          color: '#a855f7', 
-                          fontSize: '0.8rem', 
+                        <span style={{
+                          color: '#a855f7',
+                          fontSize: '0.8rem',
                           fontWeight: '600',
                           textAlign: 'center'
                         }}>
@@ -1928,8 +1928,8 @@ const token = sessionStorage.getItem('auth_token');
                 </div>
               );
             })()}
-          {/* Animaciones CSS */}
-          <style>{`
+            {/* Animaciones CSS */}
+            <style>{`
             @keyframes scaleIn {
               from {
                 opacity: 0;
@@ -2443,7 +2443,7 @@ const token = sessionStorage.getItem('auth_token');
         </div>,
         document.body
       )}
-      
+
       {/* Modal de carga */}
       <LoadingModal
         isOpen={showLoadingModal}
