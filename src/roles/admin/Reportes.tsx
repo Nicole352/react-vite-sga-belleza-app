@@ -751,14 +751,24 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
     if (tipoReporte === 'estudiantes') {
       const total = datosProcesados.length;
-      const aprobados = datosProcesados.filter((e: any) => e.estado_academico === 'aprobado').length;
+      // Aprobados: estado 'aprobado', 'graduado' o nota >= 7
+      const aprobados = datosProcesados.filter((e: any) =>
+        e.estado_academico === 'aprobado' ||
+        e.estado_academico === 'graduado' ||
+        (e.nota_final && parseFloat(e.nota_final) >= 7)
+      ).length;
+
       const tasaAprobacion = total > 0 ? ((aprobados / total) * 100).toFixed(1) : '0';
 
       return {
         total,
         aprobados,
         tasaAprobacion,
-        enCurso: datosProcesados.filter((e: any) => !e.estado_academico || e.estado_academico === 'en_curso').length,
+        // En curso: 'inscrito' o 'activo' y que no estén aprobados/graduados
+        enCurso: datosProcesados.filter((e: any) =>
+          (!e.estado_academico || ['inscrito', 'activo'].includes(e.estado_academico)) &&
+          (!e.nota_final || parseFloat(e.nota_final) < 7)
+        ).length,
         reprobados: datosProcesados.filter((e: any) => e.estado_academico === 'reprobado').length
       };
     } else if (tipoReporte === 'financiero') {
@@ -890,7 +900,6 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="todos">Todos los estados</option>
               <option value="activo">Activos</option>
               <option value="finalizado">Finalizados</option>
-              <option value="cancelado">Cancelados</option>
             </select>
           </div>
 
@@ -952,6 +961,28 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Curso:</label>
+            <select
+              value={filtroEstadoCursoFinanciero}
+              onChange={(e) => setFiltroEstadoCursoFinanciero(e.target.value)}
+              style={{
+                ...baseSelectStyle,
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos los estados</option>
+              <option value="activo">Activos</option>
+              <option value="finalizado">Finalizados</option>
+            </select>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
             <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Curso:</label>
             <select
               value={filtroCursoFinanciero}
@@ -983,28 +1014,6 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   </option>
                 );
               })}
-            </select>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center',
-            gap: '0.5rem',
-            flex: isMobile ? '1' : 'initial'
-          }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Curso:</label>
-            <select
-              value={filtroEstadoCursoFinanciero}
-              onChange={(e) => setFiltroEstadoCursoFinanciero(e.target.value)}
-              style={{
-                ...baseSelectStyle,
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="finalizado">Finalizados</option>
             </select>
           </div>
 

@@ -41,7 +41,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [passwordData, setPasswordData] = useState({
     password_actual: '',
     password_nueva: '',
@@ -57,7 +57,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -95,16 +95,14 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        const fotoResponse = await fetch(`${API_BASE}/api/usuarios/${data.id_usuario}/foto-perfil`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (fotoResponse.ok) {
-          const blob = await fotoResponse.blob();
-          setFotoUrl(URL.createObjectURL(blob));
+        // Usar directamente la URL de Cloudinary si existe
+        if (data.foto_perfil) {
+          setFotoUrl(data.foto_perfil);
+        } else {
+          setFotoUrl(null);
         }
       }
     } catch (error) {
@@ -128,7 +126,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       let id_docente: number | null = null;
       let registro: any = null;
       const namesKey = `${docente.nombres} ${docente.apellidos}`.trim().toLowerCase();
-      
+
       try {
         const res1 = await fetch(`${API_BASE}/api/docentes?search=${encodeURIComponent(ident)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -140,8 +138,8 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             id_docente = registro?.id_docente ?? null;
           }
         }
-      } catch {}
-      
+      } catch { }
+
       if (!id_docente && docente.username) {
         try {
           const res2 = await fetch(`${API_BASE}/api/docentes?search=${encodeURIComponent(docente.username)}`, {
@@ -154,9 +152,9 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               id_docente = registro?.id_docente ?? null;
             }
           }
-        } catch {}
+        } catch { }
       }
-      
+
       if (!id_docente) {
         const res3 = await fetch(`${API_BASE}/api/docentes?limit=1000`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -165,12 +163,12 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
         const lista3 = await res3.json();
         if (Array.isArray(lista3)) {
           registro = lista3.find((d: any) => `${(d.identificacion || d.cedula || '').toString().trim()}` === ident.trim())
-                  || lista3.find((d: any) => (d.username || '').toString() === (docente.username || '').toString())
-                  || lista3.find((d: any) => `${(d.nombres || '').toString().trim().toLowerCase()} ${(d.apellidos || '').toString().trim().toLowerCase()}` === namesKey);
+            || lista3.find((d: any) => (d.username || '').toString() === (docente.username || '').toString())
+            || lista3.find((d: any) => `${(d.nombres || '').toString().trim().toLowerCase()} ${(d.apellidos || '').toString().trim().toLowerCase()}` === namesKey);
           id_docente = registro?.id_docente ?? null;
         }
       }
-      
+
       if (!ident.trim() && registro?.identificacion) {
         ident = `${registro.identificacion}`;
       }
@@ -184,7 +182,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             const ced = dataU?.usuario?.cedula || dataU?.usuario?.cedula?.toString?.();
             if (ced) ident = `${ced}`;
           }
-        } catch {}
+        } catch { }
       }
       if (!ident.trim() && id_docente) {
         try {
@@ -194,7 +192,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             const identDoc = dataD?.docente?.identificacion || dataD?.identificacion;
             if (identDoc) ident = `${identDoc}`;
           }
-        } catch {}
+        } catch { }
       }
       if (!ident.trim()) {
         throw new Error('La identificación es obligatoria');
@@ -299,8 +297,8 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
       {/* Header con ícono */}
       <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ 
-            color: 'var(--docente-text-primary)', 
+          <h2 style={{
+            color: 'var(--docente-text-primary)',
             margin: '0 0 0.375rem 0',
             fontSize: isMobile ? '1.25rem' : '1.5rem',
             fontWeight: '700'
@@ -375,7 +373,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
               {/* Foto de perfil */}
-              <div 
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowPhotoPreview(true);
@@ -406,14 +404,14 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
                   e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
                 }}>
                 {fotoUrl ? (
-                  <img 
-                    src={fotoUrl} 
-                    alt="Foto de perfil" 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
+                  <img
+                    src={fotoUrl}
+                    alt="Foto de perfil"
+                    style={{
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover'
-                    }} 
+                    }}
                   />
                 ) : (
                   <span>
@@ -428,7 +426,7 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               <p style={{ color: 'var(--docente-text-muted)', fontSize: '0.8125rem', margin: '0 0 0.375rem 0' }}>
                 {docente.username ? `@${docente.username}` : ''}
               </p>
-              
+
               <div style={{
                 padding: '0.375rem 0.75rem',
                 background: 'rgba(59, 130, 246, 0.1)',
@@ -560,10 +558,10 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
               backdropFilter: 'blur(20px)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
-              <h3 style={{ 
-                color: 'var(--docente-text-primary)', 
-                fontSize: isMobile ? '0.8rem' : '0.875rem', 
-                fontWeight: '700', 
+              <h3 style={{
+                color: 'var(--docente-text-primary)',
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
+                fontWeight: '700',
                 margin: '0 0 1rem 0',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -931,8 +929,8 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
 
       {activeTab === 'password' && (
         <form onSubmit={handleChangePassword}>
-          <div style={{ 
-            maxWidth: '500px', 
+          <div style={{
+            maxWidth: '500px',
             margin: '0 auto',
             background: 'var(--theme-card-bg)',
             border: '1px solid var(--theme-border)',
@@ -941,10 +939,10 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
             backdropFilter: 'blur(20px)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
           }}>
-            <h3 style={{ 
-              color: 'var(--docente-text-primary)', 
-              fontSize: '0.875rem', 
-              fontWeight: '700', 
+            <h3 style={{
+              color: 'var(--docente-text-primary)',
+              fontSize: '0.875rem',
+              fontWeight: '700',
               margin: '0 0 1rem 0',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
@@ -1223,44 +1221,44 @@ const MiPerfil: React.FC<MiPerfilProps> = ({ darkMode }) => {
           </button>
 
           {/* Foto ampliada en el centro */}
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             onMouseEnter={() => setIsPhotoHovered(true)}
             onMouseLeave={() => setIsPhotoHovered(false)}
             style={{
-            position: 'fixed',
-            left: '50%',
-            top: '50%',
-            width: '320px',
-            height: '320px',
-            borderRadius: '50%',
-            background: fotoUrl ? 'transparent' : 'var(--docente-card-bg, linear-gradient(135deg, #3b82f6, #2563eb))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '6rem',
-            fontWeight: '700',
-            color: 'var(--docente-text-primary, #fff)',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--docente-border, rgba(255, 255, 255, 0.1))',
-            border: '4px solid var(--docente-border, rgba(255, 255, 255, 0.15))',
-            overflow: 'hidden',
-            animation: isPhotoHovered 
-              ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
-              : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            cursor: 'default',
-            transition: 'transform 0.3s ease'
-          }}>
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              width: '320px',
+              height: '320px',
+              borderRadius: '50%',
+              background: fotoUrl ? 'transparent' : 'var(--docente-card-bg, linear-gradient(135deg, #3b82f6, #2563eb))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '6rem',
+              fontWeight: '700',
+              color: 'var(--docente-text-primary, #fff)',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--docente-border, rgba(255, 255, 255, 0.1))',
+              border: '4px solid var(--docente-border, rgba(255, 255, 255, 0.15))',
+              overflow: 'hidden',
+              animation: isPhotoHovered
+                ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
+                : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              cursor: 'default',
+              transition: 'transform 0.3s ease'
+            }}>
             {fotoUrl ? (
-              <img 
-                src={fotoUrl} 
-                alt="Foto de perfil" 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
+              <img
+                src={fotoUrl}
+                alt="Foto de perfil"
+                style={{
+                  width: '100%',
+                  height: '100%',
                   objectFit: 'cover'
-                }} 
+                }}
               />
             ) : (
               <span style={{

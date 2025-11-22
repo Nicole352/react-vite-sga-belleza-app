@@ -38,14 +38,17 @@ interface Estudiante {
   estado: 'activo' | 'inactivo' | 'pendiente';
   fecha_registro: string;
   fecha_ultima_conexion?: string;
+  foto_perfil?: string | null; // URL de Cloudinary
   // Nuevos campos de documentos y contacto
   contacto_emergencia?: string;
   tipo_documento?: 'ecuatoriano' | 'extranjero';
-  tiene_documento_identificacion?: boolean;
-  tiene_documento_estatus_legal?: boolean;
+  documento_identificacion_url?: string;
+  documento_estatus_legal_url?: string;
+  certificado_cosmetologia_url?: string;
   id_solicitud?: number; // Para descargar documentos
   cursos?: Curso[]; // Cursos inscritos
 }
+
 
 interface PersonalField {
   key: string;
@@ -614,6 +617,7 @@ const GestionEstudiantes = () => {
                         size={2}
                         showBorder={true}
                         borderColor={darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.18)'}
+                        fotoUrl={estudiante.foto_perfil}
                       />
                       <h3 style={{ color: theme.textPrimary, margin: 0 }}>
                         {estudiante.nombre} {estudiante.apellido}
@@ -1114,7 +1118,7 @@ const GestionEstudiantes = () => {
             : `repeat(${personalFieldColumns.length}, minmax(0, 1fr))`;
 
           const showCourses = Array.isArray(selectedEstudiante.cursos) && selectedEstudiante.cursos.length > 0;
-          const showDocuments = Boolean(selectedEstudiante.tiene_documento_identificacion || selectedEstudiante.tiene_documento_estatus_legal);
+          const showDocuments = Boolean(selectedEstudiante.documento_identificacion_url || selectedEstudiante.documento_estatus_legal_url || selectedEstudiante.certificado_cosmetologia_url);
           const additionalSectionsTemplate = !isMobile && showCourses && showDocuments
             ? 'repeat(2, minmax(0, 1fr))'
             : '1fr';
@@ -1368,13 +1372,13 @@ const GestionEstudiantes = () => {
                           <div
                             style={{
                               display: 'grid',
-                              gridTemplateColumns: !isMobile && selectedEstudiante.tipo_documento === 'extranjero' && selectedEstudiante.tiene_documento_estatus_legal ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+                              gridTemplateColumns: !isMobile && (selectedEstudiante.documento_estatus_legal_url || selectedEstudiante.certificado_cosmetologia_url) ? 'repeat(2, minmax(0, 1fr))' : '1fr',
                               gap: isMobile ? '0.55rem' : '0.7rem'
                             }}
                           >
-                            {selectedEstudiante.tiene_documento_identificacion && (
+                            {selectedEstudiante.documento_identificacion_url && (
                               <a
-                                href={`${API_BASE}/api/solicitudes/${selectedEstudiante.id_solicitud}/documento-identificacion`}
+                                href={selectedEstudiante.documento_identificacion_url}
                                 target="_blank"
                                 rel="noreferrer"
                                 style={{
@@ -1405,9 +1409,9 @@ const GestionEstudiantes = () => {
                                 {selectedEstudiante.tipo_documento === 'extranjero' ? 'Ver Pasaporte' : 'Ver Cédula'}
                               </a>
                             )}
-                            {selectedEstudiante.tipo_documento === 'extranjero' && selectedEstudiante.tiene_documento_estatus_legal && (
+                            {selectedEstudiante.documento_estatus_legal_url && (
                               <a
-                                href={`${API_BASE}/api/solicitudes/${selectedEstudiante.id_solicitud}/documento-estatus-legal`}
+                                href={selectedEstudiante.documento_estatus_legal_url}
                                 target="_blank"
                                 rel="noreferrer"
                                 style={{
@@ -1436,6 +1440,39 @@ const GestionEstudiantes = () => {
                               >
                                 <Shield size={16} color={modalAccent} />
                                 Ver Estatus Legal
+                              </a>
+                            )}
+                            {selectedEstudiante.certificado_cosmetologia_url && (
+                              <a
+                                href={selectedEstudiante.certificado_cosmetologia_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '0.4rem',
+                                  padding: isMobile ? '0.6rem 0.85rem' : '0.7rem 0.95rem',
+                                  background: 'rgba(168, 85, 247, 0.12)',
+                                  border: '1px solid rgba(168, 85, 247, 0.28)',
+                                  borderRadius: isMobile ? 9 : 11,
+                                  color: '#a855f7',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 600,
+                                  textDecoration: 'none',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.18)';
+                                  e.currentTarget.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(168, 85, 247, 0.12)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                              >
+                                <FileText size={16} color="#a855f7" />
+                                Ver Certificado
                               </a>
                             )}
                           </div>

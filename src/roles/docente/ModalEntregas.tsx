@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
-  X, Eye, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar
+  X, Download, Users, Clock, FileCheck, Award, Search, FileText, CheckCircle, BarChart3, AlertCircle, User, Calendar
 } from 'lucide-react';
 import axios from 'axios';
 import { showToast } from '../../config/toastConfig';
@@ -27,7 +27,9 @@ interface Entrega {
   estudiante_nombre: string;
   estudiante_apellido: string;
   estudiante_identificacion?: string;
-  archivo_nombre: string;
+  archivo_nombre?: string;
+  archivo_url?: string; // URL de Cloudinary
+  archivo_public_id?: string; // Public ID de Cloudinary
   fecha_entrega: string;
   estado: string;
   calificacion?: number;
@@ -35,8 +37,8 @@ interface Entrega {
   fecha_calificacion?: string;
 }
 
-const ModalEntregas: React.FC<ModalEntregasProps> = ({ 
-  isOpen, 
+const ModalEntregas: React.FC<ModalEntregasProps> = ({
+  isOpen,
   onClose,
   onSuccess,
   id_tarea,
@@ -118,23 +120,23 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   useEffect(() => {
     // Aplicar filtros y búsqueda
     let result = [...entregas];
-    
+
     // Aplicar filtro
     if (filtro === 'pendientes') {
       result = result.filter(e => e.calificacion === undefined || e.calificacion === null);
     } else if (filtro === 'calificadas') {
       result = result.filter(e => e.calificacion !== undefined && e.calificacion !== null);
     }
-    
+
     // Aplicar búsqueda
     if (busqueda) {
       const term = busqueda.toLowerCase();
-      result = result.filter(e => 
+      result = result.filter(e =>
         e.estudiante_nombre.toLowerCase().includes(term) ||
         e.estudiante_apellido.toLowerCase().includes(term)
       );
     }
-    
+
     setFilteredEntregas(result);
   }, [entregas, filtro, busqueda]);
 
@@ -150,7 +152,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     try {
       setCalificando(id_entrega);
       const token = sessionStorage.getItem('auth_token');
-      
+
       await axios.post(`${API_BASE}/api/entregas/${id_entrega}/calificar`, {
         nota,
         comentario_docente: comentario
@@ -163,14 +165,14 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       setEntregaSeleccionada(null);
       setNotaInput('');
       setComentarioInput('');
-      
+
       // Cerrar también el modal principal de entregas
       onClose();
-      
+
       // Actualizar datos y mostrar notificación después de cerrar
       fetchEntregas();
       onSuccess();
-      
+
       setTimeout(() => {
         showToast.success('Tarea calificada exitosamente', darkMode);
       }, 150);
@@ -187,40 +189,29 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     }
   };
 
-  const handleDescargar = async (id_entrega: number, archivo_nombre: string) => {
+  const handleDescargar = async (entrega: Entrega) => {
     try {
-      const token = sessionStorage.getItem('auth_token');
-      const response = await axios.get(`${API_BASE}/api/entregas/${id_entrega}/archivo`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
+      // Si tiene URL de Cloudinary, descargar directamente
+      if (entrega.archivo_url) {
+        const link = document.createElement('a');
+        link.href = entrega.archivo_url;
+        // Usar archivo_nombre si existe, sino extraer de la URL
+        const nombreArchivo = entrega.archivo_nombre || entrega.archivo_url.split('/').pop() || 'entrega';
+        link.setAttribute('download', nombreArchivo);
+        link.setAttribute('target', '_blank');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
 
-      // Obtener el tipo MIME del header de respuesta
-      const contentType = response.headers['content-type'] || 'application/octet-stream';
-      console.log('Content-Type recibido:', contentType);
-      console.log('Nombre de archivo:', archivo_nombre);
-
-      // Crear blob con el tipo correcto
-      const blob = new Blob([response.data], { type: contentType });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', archivo_nombre);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      // Cerrar modal principal antes de mostrar notificación
-      onClose();
-      
-      // Mostrar notificación después de cerrar el modal
-      setTimeout(() => {
-        showToast.success('Archivo descargado exitosamente', darkMode);
-      }, 200);
+        onClose();
+        setTimeout(() => {
+          showToast.success('Archivo descargado exitosamente', darkMode);
+        }, 200);
+      } else {
+        throw new Error('No hay archivo disponible');
+      }
     } catch (error) {
       console.error('Error descargando archivo:', error);
-      // Cerrar modal también en caso de error
       onClose();
       setTimeout(() => {
         showToast.error('Error al descargar el archivo', darkMode);
@@ -230,21 +221,28 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   const handleVerArchivo = async (entrega: Entrega) => {
     try {
-      const token = sessionStorage.getItem('auth_token');
-      const response = await axios.get(`${API_BASE}/api/entregas/${entrega.id_entrega}/archivo`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
+      // Si tiene URL de Cloudinary, usar directamente
+      if (entrega.archivo_url) {
+        // Determinar tipo de archivo por extensión
+        // Extraer de archivo_nombre o desde la URL de Cloudinary
+        const nombreArchivo = entrega.archivo_nombre || entrega.archivo_url;
+        const extension = nombreArchivo?.split('.').pop()?.toLowerCase();
+        let tipo = 'application/octet-stream';
 
-      const contentType = response.headers['content-type'] || 'application/octet-stream';
-      const blob = new Blob([response.data], { type: contentType });
-      const url = window.URL.createObjectURL(blob);
+        if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+          tipo = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+        } else if (extension === 'pdf') {
+          tipo = 'application/pdf';
+        }
 
-      setArchivoPreview({
-        entrega,
-        url,
-        tipo: contentType
-      });
+        setArchivoPreview({
+          entrega,
+          url: entrega.archivo_url,
+          tipo
+        });
+      } else {
+        throw new Error('No hay archivo disponible');
+      }
     } catch (error) {
       console.error('Error cargando archivo:', error);
       showToast.error('Error al cargar el archivo', darkMode);
@@ -256,7 +254,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
     try {
       const { entrega } = archivoPreview;
-      
+
       // Limpiar nombres: quitar espacios, acentos y caracteres especiales
       const limpiarNombre = (texto: string) => {
         return texto
@@ -266,16 +264,35 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           .replace(/_+/g, '_')               // Reemplazar múltiples _ por uno solo
           .replace(/^_|_$/g, '');            // Quitar _ al inicio y final
       };
-      
+
       const apellidoLimpio = limpiarNombre(entrega.estudiante_apellido);
       const nombreLimpio = limpiarNombre(entrega.estudiante_nombre);
       const tareaLimpia = limpiarNombre(nombre_tarea);
-      
+
       // Obtener extensión del archivo original
-      // Si archivo_nombre es undefined, usar el mime type para determinar la extensión
+      // Prioridad: archivo_nombre > extraer de URL > usar mime type
       let extension = 'jpg';
       if (entrega.archivo_nombre && entrega.archivo_nombre !== 'undefined' && entrega.archivo_nombre !== 'undefined (1).jpg') {
         extension = entrega.archivo_nombre.split('.').pop() || 'jpg';
+      } else if (entrega.archivo_url) {
+        // Intentar extraer extensión desde la URL de Cloudinary
+        const urlExtension = entrega.archivo_url.split('.').pop()?.toLowerCase();
+        if (urlExtension && ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'doc', 'docx'].includes(urlExtension)) {
+          extension = urlExtension;
+        } else {
+          // Determinar extensión desde el mime type
+          const mimeToExt: { [key: string]: string } = {
+            'image/jpeg': 'jpg',
+            'image/jpg': 'jpg',
+            'image/png': 'png',
+            'image/webp': 'webp',
+            'image/gif': 'gif',
+            'application/pdf': 'pdf',
+            'application/msword': 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
+          };
+          extension = mimeToExt[archivoPreview.tipo] || 'jpg';
+        }
       } else {
         // Determinar extensión desde el mime type
         const mimeToExt: { [key: string]: string } = {
@@ -290,7 +307,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         };
         extension = mimeToExt[archivoPreview.tipo] || 'jpg';
       }
-      
+
       const nombrePersonalizado = `${apellidoLimpio}_${nombreLimpio}_${tareaLimpia}.${extension}`;
 
       console.log('Nombre personalizado generado:', nombrePersonalizado);
@@ -299,45 +316,31 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       console.log('Tarea limpia:', tareaLimpia);
       console.log('Extension:', extension);
 
-      // Crear un link directo al archivo con el token en el header
-      const token = sessionStorage.getItem('auth_token');
-      
-      // Fetch manual para tener más control
-      const response = await fetch(`${API_BASE}/api/entregas/${entrega.id_entrega}/archivo`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al descargar archivo');
+           // Usar URL de Cloudinary directamente
+      if (!entrega.archivo_url) {
+        throw new Error('No hay archivo disponible');
       }
 
-      const blob = await response.blob();
-      
-      // Crear URL y forzar descarga con el nombre correcto
-      const blobUrl = URL.createObjectURL(blob);
+      // Crear link y forzar descarga con el nombre correcto
       const a = document.createElement('a');
-      a.href = blobUrl;
+      a.href = entrega.archivo_url;
       a.download = nombrePersonalizado;
-      
+
       document.body.appendChild(a);
       a.click();
-      
+
       // Cleanup
       setTimeout(() => {
         document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
       }, 150);
 
       // Cerrar modal de preview primero
       setArchivoPreview(null);
-      
+
       // Esperar un momento antes de cerrar el modal principal
       setTimeout(() => {
         onClose();
-        
+
         // Mostrar notificación después de cerrar ambos modales
         setTimeout(() => {
           showToast.success('Archivo descargado exitosamente', darkMode);
@@ -355,7 +358,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       }, 100);
     }
   };
-
+  
   const abrirModalCalificar = (entrega: Entrega) => {
     setEntregaSeleccionada(entrega);
     setNotaInput(entrega.calificacion?.toString() || '');
@@ -368,7 +371,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     const calificadas = entregas.filter(e => e.calificacion !== undefined && e.calificacion !== null).length;
     const pendientes = total - calificadas;
     const porcentaje = total > 0 ? Math.round((calificadas / total) * 100) : 0;
-    
+
     return { total, calificadas, pendientes, porcentaje };
   };
 
@@ -394,13 +397,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   const stats = calcularEstadisticas();
 
   const modalContent = (
-    <div 
+    <div
       className="modal-overlay"
       onClick={onClose}
       style={{
         zIndex: 999999
       }}>
-      <div 
+      <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -435,7 +438,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               </p>
             </div>
           </div>
-          
+
           <div style={{ display: 'flex', gap: '0.5em', alignItems: 'center' }}>
             {/* Botón Ver Análisis Completo */}
             <button
@@ -505,8 +508,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           padding: '1.5rem',
           borderRadius: '0.75rem',
           background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)',
-          boxShadow: darkMode 
-            ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+          boxShadow: darkMode
+            ? '0 4px 6px rgba(0, 0, 0, 0.3)'
             : '0 4px 6px rgba(0, 0, 0, 0.05)'
         }}>
           <h3 style={{
@@ -521,11 +524,11 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             <BarChart3 size={20} style={{ color: '#3b82f6' }} />
             Resumen de Entregas
           </h3>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
-            gap: '1rem' 
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem'
           }}>
             {/* Total */}
             <div style={{
@@ -551,16 +554,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               }}>
                 <Users size={16} color="#fff" />
               </div>
-              <div style={{ 
-                color: '#3b82f6', 
-                fontSize: '1.25rem', 
+              <div style={{
+                color: '#3b82f6',
+                fontSize: '1.25rem',
                 fontWeight: '800',
                 marginBottom: '0.125rem'
               }}>
                 {stats.total}
               </div>
-              <div style={{ 
-                color: theme.textSecondary, 
+              <div style={{
+                color: theme.textSecondary,
                 fontSize: '0.7rem',
                 fontWeight: '600',
                 textAlign: 'center'
@@ -568,7 +571,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 Total
               </div>
             </div>
-            
+
             {/* Pendientes */}
             <div style={{
               display: 'flex',
@@ -593,16 +596,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               }}>
                 <Clock size={16} color="#fff" />
               </div>
-              <div style={{ 
-                color: '#fbbf24', 
-                fontSize: '1.25rem', 
+              <div style={{
+                color: '#fbbf24',
+                fontSize: '1.25rem',
                 fontWeight: '800',
                 marginBottom: '0.125rem'
               }}>
                 {stats.pendientes}
               </div>
-              <div style={{ 
-                color: theme.textSecondary, 
+              <div style={{
+                color: theme.textSecondary,
                 fontSize: '0.7rem',
                 fontWeight: '600',
                 textAlign: 'center'
@@ -610,7 +613,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 Pendientes
               </div>
             </div>
-            
+
             {/* Calificadas */}
             <div style={{
               display: 'flex',
@@ -635,16 +638,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               }}>
                 <FileCheck size={16} color="#fff" />
               </div>
-              <div style={{ 
-                color: '#10b981', 
-                fontSize: '1.25rem', 
+              <div style={{
+                color: '#10b981',
+                fontSize: '1.25rem',
                 fontWeight: '800',
                 marginBottom: '0.125rem'
               }}>
                 {stats.calificadas}
               </div>
-              <div style={{ 
-                color: theme.textSecondary, 
+              <div style={{
+                color: theme.textSecondary,
                 fontSize: '0.7rem',
                 fontWeight: '600',
                 textAlign: 'center'
@@ -652,7 +655,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 Calificadas
               </div>
             </div>
-            
+
             {/* Completado */}
             <div style={{
               display: 'flex',
@@ -677,16 +680,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               }}>
                 <Award size={16} color="#fff" />
               </div>
-              <div style={{ 
-                color: '#10b981', 
-                fontSize: '1.25rem', 
+              <div style={{
+                color: '#10b981',
+                fontSize: '1.25rem',
                 fontWeight: '800',
                 marginBottom: '0.125rem'
               }}>
                 {stats.porcentaje}%
               </div>
-              <div style={{ 
-                color: theme.textSecondary, 
+              <div style={{
+                color: theme.textSecondary,
                 fontSize: '0.7rem',
                 fontWeight: '600',
                 textAlign: 'center'
@@ -729,13 +732,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               }}
             />
           </div>
-          
+
           <div style={{ display: 'flex', gap: '0.5em' }}>
             <button
               onClick={() => setFiltro('todas')}
               style={{
                 padding: '0.625em 1em',
-                background: filtro === 'todas' 
+                background: filtro === 'todas'
                   ? darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'todas' ? '#3b82f6' : theme.inputBorder}`,
@@ -752,12 +755,12 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               <FileText size={16} />
               Todas
             </button>
-            
+
             <button
               onClick={() => setFiltro('pendientes')}
               style={{
                 padding: '0.625em 1em',
-                background: filtro === 'pendientes' 
+                background: filtro === 'pendientes'
                   ? darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.1)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'pendientes' ? '#fbbf24' : theme.inputBorder}`,
@@ -774,12 +777,12 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               <AlertCircle size={16} />
               Pendientes
             </button>
-            
+
             <button
               onClick={() => setFiltro('calificadas')}
               style={{
                 padding: '0.625em 1em',
-                background: filtro === 'calificadas' 
+                background: filtro === 'calificadas'
                   ? darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'calificadas' ? '#10b981' : theme.inputBorder}`,
@@ -806,16 +809,16 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           overflowY: 'auto'
         }}>
           {loading ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '3em', 
+            <div style={{
+              textAlign: 'center',
+              padding: '3em',
               color: theme.textPrimary,
               fontSize: '1rem',
               fontWeight: '500'
             }}>
-              <div style={{ 
-                width: '40px', 
-                height: '40px', 
+              <div style={{
+                width: '40px',
+                height: '40px',
                 border: '3px solid rgba(59, 130, 246, 0.2)',
                 borderTop: '3px solid #3b82f6',
                 borderRadius: '50%',
@@ -825,9 +828,9 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               Cargando entregas...
             </div>
           ) : filteredEntregas.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '3em 1em', 
+            <div style={{
+              textAlign: 'center',
+              padding: '3em 1em',
               color: theme.textSecondary,
               fontSize: '1rem',
               display: 'flex',
@@ -839,18 +842,18 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               <div>No hay entregas que coincidan con los filtros</div>
             </div>
           ) : (
-            <div style={{ 
-              overflowX: 'auto', 
-              maxHeight: '60vh', 
+            <div style={{
+              overflowX: 'auto',
+              maxHeight: '60vh',
               overflowY: 'auto',
               borderRadius: '0.75rem',
-              boxShadow: darkMode 
-                ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+              boxShadow: darkMode
+                ? '0 4px 6px rgba(0, 0, 0, 0.3)'
                 : '0 4px 6px rgba(0, 0, 0, 0.05)',
               background: theme.modalBg
             }}>
-              <table style={{ 
-                width: '100%', 
+              <table style={{
+                width: '100%',
                 borderCollapse: 'separate',
                 borderSpacing: 0,
                 fontSize: '0.875rem',
@@ -917,7 +920,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 </thead>
                 <tbody>
                   {filteredEntregas.map((entrega) => (
-                    <tr 
+                    <tr
                       key={entrega.id_entrega}
                       style={{
                         background: darkMode ? 'transparent' : '#fff',
@@ -953,8 +956,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             <div>
                               {entrega.estudiante_apellido}, {entrega.estudiante_nombre}
                             </div>
-                            <div style={{ 
-                              fontSize: '0.75rem', 
+                            <div style={{
+                              fontSize: '0.75rem',
                               color: theme.textSecondary,
                               fontWeight: '400'
                             }}>
@@ -979,25 +982,29 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         <button
                           onClick={() => handleVerArchivo(entrega)}
                           style={{
-                            background: 'none',
+                            background: '#3b82f6',
                             border: 'none',
-                            padding: 0,
+                            padding: '0.45em 1.1em',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.5em',
-                            color: theme.textSecondary,
-                            transition: 'all 0.2s ease'
+                            gap: '0.6em',
+                            color: '#fff',
+                            borderRadius: '0.5em',
+                            fontWeight: 600,
+                            fontSize: '0.98em',
+                            boxShadow: '0 2px 8px rgba(59,130,246,0.08)',
+                            transition: 'background 0.18s'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.color = '#3b82f6';
+                            e.currentTarget.style.background = '#2563eb';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.color = theme.textSecondary;
+                            e.currentTarget.style.background = '#3b82f6';
                           }}
                         >
-                          <Eye size={16} />
-                          {entrega.archivo_nombre}
+                          <Search size={18} />
+                          <span>Ver tarea</span>
                         </button>
                       </td>
                       <td style={{
@@ -1099,7 +1106,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                               <Award size={18} />
                             )}
                           </button>
-                          
+
                           {/* Botón Descargar - SEGUNDO */}
                           <button
                             onClick={() => handleDescargar(entrega.id_entrega, entrega.archivo_nombre)}
@@ -1140,7 +1147,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   // Modal de calificación
   const modalCalificar = showCalificarModal && entregaSeleccionada && (
-    <div 
+    <div
       style={{
         position: 'fixed',
         top: 0,
@@ -1158,10 +1165,10 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       }}
       onClick={() => setShowCalificarModal(false)}
     >
-      <div 
+      <div
         style={{
-          background: darkMode 
-            ? 'rgba(15, 23, 42, 0.95)' 
+          background: darkMode
+            ? 'rgba(15, 23, 42, 0.95)'
             : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -1170,27 +1177,27 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           maxWidth: '30rem',
           padding: '1.5em',
           border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-          boxShadow: darkMode 
-            ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' 
+          boxShadow: darkMode
+            ? '0 1rem 3rem rgba(0, 0, 0, 0.5)'
             : '0 1rem 3rem rgba(0, 0, 0, 0.15)',
           animation: 'scaleIn 0.2s ease-out'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '1.5em' 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5em'
         }}>
-          <h3 style={{ 
-            color: theme.textPrimary, 
-            fontSize: '1.25rem', 
-            fontWeight: '700', 
-            margin: 0 
+          <h3 style={{
+            color: theme.textPrimary,
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            margin: 0
           }}>
-            {entregaSeleccionada.calificacion !== undefined && entregaSeleccionada.calificacion !== null 
-              ? 'Editar Calificación' 
+            {entregaSeleccionada.calificacion !== undefined && entregaSeleccionada.calificacion !== null
+              ? 'Editar Calificación'
               : 'Calificar Tarea'}
           </h3>
           <button
@@ -1210,13 +1217,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             <X size={20} />
           </button>
         </div>
-        
+
         <div style={{ marginBottom: '1.5em' }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.75em', 
-            marginBottom: '1em' 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75em',
+            marginBottom: '1em'
           }}>
             <div style={{
               width: '2.5rem',
@@ -1231,39 +1238,39 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               <User size={20} />
             </div>
             <div>
-              <div style={{ 
-                color: theme.textPrimary, 
-                fontWeight: '600' 
+              <div style={{
+                color: theme.textPrimary,
+                fontWeight: '600'
               }}>
                 {entregaSeleccionada.estudiante_nombre} {entregaSeleccionada.estudiante_apellido}
               </div>
-              <div style={{ 
-                color: theme.textSecondary, 
-                fontSize: '0.875rem' 
+              <div style={{
+                color: theme.textSecondary,
+                fontSize: '0.875rem'
               }}>
-                CI: {entregaSeleccionada.estudiante_identificacion || entregaSeleccionada.id_estudiante} • 
+                CI: {entregaSeleccionada.estudiante_identificacion || entregaSeleccionada.id_estudiante} •
                 Entregado: {new Date(entregaSeleccionada.fecha_entrega).toLocaleDateString('es-ES')}
               </div>
             </div>
           </div>
-          
-          <div style={{ 
+
+          <div style={{
             background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
             border: `1px solid ${theme.inputBorder}`,
             borderRadius: '0.5em',
             padding: '1em',
             marginBottom: '1em'
           }}>
-            <div style={{ 
-              color: theme.textSecondary, 
-              fontSize: '0.875rem', 
-              marginBottom: '0.5em' 
+            <div style={{
+              color: theme.textSecondary,
+              fontSize: '0.875rem',
+              marginBottom: '0.5em'
             }}>
               Archivo entregado:
             </div>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
               gap: '0.5em',
               color: theme.textPrimary,
               fontWeight: '500'
@@ -1272,13 +1279,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               {entregaSeleccionada.archivo_nombre}
             </div>
           </div>
-          
+
           <div style={{ marginBottom: '1em' }}>
-            <label style={{ 
-              display: 'block', 
-              color: theme.textPrimary, 
-              fontWeight: '600', 
-              marginBottom: '0.5em' 
+            <label style={{
+              display: 'block',
+              color: theme.textPrimary,
+              fontWeight: '600',
+              marginBottom: '0.5em'
             }}>
               Nota (0 - {nota_maxima})
             </label>
@@ -1320,21 +1327,21 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 fontSize: '0.875rem'
               }}
             />
-            
+
             {/* Mostrar cálculo del aporte ponderado */}
             {notaInput && parseFloat(notaInput) >= 0 && (
               <div style={{
                 marginTop: '0.75em',
                 padding: '0.75em',
-                background: darkMode 
+                background: darkMode
                   ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)'
                   : 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%)',
                 border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
                 borderRadius: '0.5em'
               }}>
-                <div style={{ 
-                  color: '#3b82f6', 
-                  fontSize: '0.75rem', 
+                <div style={{
+                  color: '#3b82f6',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
                   marginBottom: '0.25em',
                   textTransform: 'uppercase',
@@ -1346,8 +1353,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   <BarChart3 size={14} />
                   Aporte Ponderado
                 </div>
-                <div style={{ 
-                  color: theme.textPrimary, 
+                <div style={{
+                  color: theme.textPrimary,
                   fontSize: '1.125rem',
                   fontWeight: '700',
                   fontFamily: 'Montserrat, sans-serif'
@@ -1357,8 +1364,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     {((parseFloat(notaInput) / nota_maxima) * ponderacion).toFixed(2)} puntos
                   </span>
                 </div>
-                <div style={{ 
-                  color: theme.textSecondary, 
+                <div style={{
+                  color: theme.textSecondary,
                   fontSize: '0.75rem',
                   marginTop: '0.25em'
                 }}>
@@ -1367,13 +1374,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               </div>
             )}
           </div>
-          
+
           <div>
-            <label style={{ 
-              display: 'block', 
-              color: theme.textPrimary, 
-              fontWeight: '600', 
-              marginBottom: '0.5em' 
+            <label style={{
+              display: 'block',
+              color: theme.textPrimary,
+              fontWeight: '600',
+              marginBottom: '0.5em'
             }}>
               Comentario (opcional)
             </label>
@@ -1395,7 +1402,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             />
           </div>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end' }}>
           <button
             onClick={() => setShowCalificarModal(false)}
@@ -1416,7 +1423,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             disabled={!!calificando}
             style={{
               padding: '0.625em 1.25em',
-              background: calificando 
+              background: calificando
                 ? darkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.3)'
                 : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
               border: 'none',
@@ -1444,8 +1451,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             ) : (
               <>
                 <Award size={16} />
-                {entregaSeleccionada.calificacion !== undefined && entregaSeleccionada.calificacion !== null 
-                  ? 'Actualizar' 
+                {entregaSeleccionada.calificacion !== undefined && entregaSeleccionada.calificacion !== null
+                  ? 'Actualizar'
                   : 'Calificar'}
               </>
             )}
@@ -1457,7 +1464,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   console.log('Creando portal en document.body');
   console.log('document.body existe:', !!document.body);
-  
+
   // Crear un div específico para el modal si no existe
   let modalRoot = document.getElementById('modal-root');
   if (!modalRoot) {
@@ -1472,7 +1479,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
     modalRoot.style.pointerEvents = 'none';
     document.body.appendChild(modalRoot);
   }
-  
+
   // Habilitar pointer events solo para el contenido del modal
   const modalWithPointerEvents = (
     <>
@@ -1499,7 +1506,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       <div style={{ pointerEvents: 'auto' }}>
         {modalContent}
         {modalCalificar}
-        
+
         {/* Modal de Previsualización de Archivo */}
         {archivoPreview && createPortal(
           <div style={{
@@ -1718,7 +1725,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       </div>
     </>
   );
-  
+
   return (
     <>
       {createPortal(modalWithPointerEvents, modalRoot)}

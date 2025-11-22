@@ -481,8 +481,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         return;
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // Obtener URL de Cloudinary desde JSON
+      const data = await response.json();
+      if (!data.documento_justificacion_url) {
+        showToast.error('No hay documento disponible', darkMode);
+        return;
+      }
+
       const a = document.createElement('a');
 
       // Crear nombre descriptivo del archivo
@@ -523,11 +528,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         nombreDescarga = `Justificacion_${apellidosLimpio}_${nombresLimpio}_${fechaFormateada}.${extension}`;
       }
 
-      a.href = url;
+      // Usar URL de Cloudinary directamente
+      a.href = data.documento_justificacion_url;
       a.download = nombreDescarga;
+      a.setAttribute('target', '_blank');
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       showToast.success('Documento descargado correctamente', darkMode);
     } catch (error) {
@@ -552,9 +558,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         return;
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      setDocumentoPreviewUrl(url);
+      // Obtener URL de Cloudinary desde JSON
+      const data = await response.json();
+      if (data.documento_justificacion_url) {
+        setDocumentoPreviewUrl(data.documento_justificacion_url);
+      } else {
+        showToast.error('No hay documento disponible', darkMode);
+      }
     } catch (error) {
       console.error('Error cargando vista previa:', error);
       showToast.error('Error al cargar la vista previa', darkMode);
@@ -566,11 +576,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const cerrarModalDocumento = () => {
     setShowVerDocumentoModal(false);
     setDocumentoVisualizacion(null);
-    // Limpiar la URL de vista previa para liberar memoria
-    if (documentoPreviewUrl) {
-      window.URL.revokeObjectURL(documentoPreviewUrl);
-      setDocumentoPreviewUrl(null);
-    }
+    setDocumentoPreviewUrl(null);
   };
 
   const abrirModalVerDocumento = async (idEstudiante: number) => {

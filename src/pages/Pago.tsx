@@ -16,6 +16,7 @@ interface DetallesCursos {
 }
 
 interface FormData {
+  idCurso?: number;
   nombre: string;
   apellido: string;
   email: string;
@@ -72,7 +73,10 @@ import {
   Hash,
   Phone,
   Info,
-  RefreshCcw
+  RefreshCcw,
+  Lock,
+  Lightbulb,
+  ClipboardCheck
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
@@ -327,6 +331,7 @@ const Pago: React.FC = () => {
   const [documentoIdentificacion, setDocumentoIdentificacion] = useState<File | null>(null);
   const [documentoEstatusLegal, setDocumentoEstatusLegal] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [certificadoCosmetologia, setCertificadoCosmetologia] = useState<File | null>(null);
   const [submitAlert, setSubmitAlert] = useState<null | { type: 'error' | 'info' | 'success'; text: string }>(null);
   const [alertAnimatingOut, setAlertAnimatingOut] = useState(false);
   const [tipoCursoBackend, setTipoCursoBackend] = useState<any | null>(null);
@@ -352,6 +357,7 @@ const Pago: React.FC = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [codigoSolicitud, setCodigoSolicitud] = useState<string | null>(null);
   const [showMontoAlert, setShowMontoAlert] = useState(false);
 
@@ -1019,6 +1025,22 @@ const Pago: React.FC = () => {
     setDocumentoEstatusLegal(file);
   };
 
+  const handleCertificadoCosmetologiaUpload = (file: File | null) => {
+    if (isBlocked) return;
+    if (!file) { setCertificadoCosmetologia(null); return; }
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    const maxBytes = 5 * 1024 * 1024;
+    if (!allowed.includes(file.type)) {
+      alert('Formato no permitido. Usa PDF, JPG, PNG o WEBP.');
+      return;
+    }
+    if (file.size > maxBytes) {
+      alert('El archivo supera 5MB. Por favor, sube un archivo más pequeño.');
+      return;
+    }
+    setCertificadoCosmetologia(file);
+  };
+
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1047,20 +1069,24 @@ const Pago: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSubmitting(true);
     // Bloqueo por estado/cupos desde backend
     if (isBlocked) {
       alert(notFoundOrNoCourse
         ? 'No existe cursos disponibles.'
         : 'La matrícula para este curso está cerrada o no hay cupos disponibles.'
       );
+      setIsSubmitting(false);
       return;
     }
     if (!formData.tipoDocumento) {
       alert('Selecciona el tipo de documento (Cédula o Pasaporte).');
+      setIsSubmitting(false);
       return;
     }
     if (!formData.horarioPreferido) {
       alert('Selecciona el horario preferido (Matutino o Vespertino).');
+      setIsSubmitting(false);
       return;
     }
 
@@ -1071,20 +1097,24 @@ const Pago: React.FC = () => {
 
     if (!cuposParaHorario || cuposParaHorario.cupos_totales === 0) {
       alert(`No hay cupos disponibles para el horario ${formData.horarioPreferido}. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.`);
+      setIsSubmitting(false);
       return;
     }
     if (!estudianteExistente && !documentoIdentificacion) {
       alert(`Por favor, sube la copia de ${formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}.`);
+      setIsSubmitting(false);
       return;
     }
     if (!estudianteExistente && formData.tipoDocumento === 'extranjero' && !documentoEstatusLegal) {
       alert('Por favor, sube el documento de estatus legal (visa de estudiante o permiso de residencia).');
+      setIsSubmitting(false);
       return;
     }
     // Validaciones mínimas - SOLO si NO es estudiante existente
     if (!estudianteExistente) {
       if (!formData.apellido) {
         alert('Apellido es obligatorio');
+        setIsSubmitting(false);
         return;
       }
       // Email formato básico
@@ -1092,6 +1122,7 @@ const Pago: React.FC = () => {
       if (!emailOk) {
         setErrors((prev) => ({ ...prev, email: 'Ingresa un correo válido' }));
         alert('Correo electrónico inválido.');
+        setIsSubmitting(false);
         return;
       }
     }
@@ -1101,6 +1132,7 @@ const Pago: React.FC = () => {
     if (isEcuatoriano) {
       if (!/^\d{10}$/.test(documento)) {
         alert('La cédula debe tener exactamente 10 dígitos.');
+        setIsSubmitting(false);
         return;
       }
     } else {
@@ -1108,12 +1140,14 @@ const Pago: React.FC = () => {
       if (!/^[A-Z0-9]{6,20}$/.test(documento.toUpperCase())) {
         setErrors((prev) => ({ ...prev, pasaporte: 'Pasaporte inválido (use 6-20 caracteres alfanuméricos)' }));
         alert('Pasaporte inválido. Use 6-20 caracteres alfanuméricos.');
+        setIsSubmitting(false);
         return;
       }
     }
     // Teléfono Ecuador: 10 dígitos iniciando con 09
     if (!/^09\d{8}$/.test(formData.telefono)) {
       alert('El teléfono debe tener 10 dígitos y comenzar con 09 (formato Ecuador).');
+      setIsSubmitting(false);
       return;
     }
     if (selectedPayment === 'transferencia' || selectedPayment === 'efectivo') {
@@ -1124,6 +1158,7 @@ const Pago: React.FC = () => {
             type: 'error',
             text: 'Por favor, ingresa el número de comprobante.'
           });
+          setIsSubmitting(false);
           return;
         }
         if (!bancoComprobante) {
@@ -1131,6 +1166,7 @@ const Pago: React.FC = () => {
             type: 'error',
             text: 'Por favor, selecciona el banco.'
           });
+          setIsSubmitting(false);
           return;
         }
         if (!fechaTransferencia) {
@@ -1138,6 +1174,7 @@ const Pago: React.FC = () => {
             type: 'error',
             text: 'Por favor, ingresa la fecha de transferencia.'
           });
+          setIsSubmitting(false);
           return;
         }
       }
@@ -1149,6 +1186,7 @@ const Pago: React.FC = () => {
             type: 'error',
             text: 'Por favor, ingresa el número de comprobante/factura.'
           });
+          setIsSubmitting(false);
           return;
         }
         if (!recibidoPor.trim()) {
@@ -1156,6 +1194,7 @@ const Pago: React.FC = () => {
             type: 'error',
             text: 'Por favor, ingresa el nombre de quien recibió el pago.'
           });
+          setIsSubmitting(false);
           return;
         }
       }
@@ -1178,6 +1217,7 @@ const Pago: React.FC = () => {
             setAlertAnimatingOut(false);
           }, 350);
         }, 7000);
+        setIsSubmitting(false);
         return;
       }
       const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
@@ -1188,6 +1228,7 @@ const Pago: React.FC = () => {
           setAlertAnimatingOut(true);
           setTimeout(() => { setSubmitAlert(null); setAlertAnimatingOut(false); }, 350);
         }, 7000);
+        setIsSubmitting(false);
         return;
       }
       if (uploadedFile.size > 5 * 1024 * 1024) {
@@ -1197,6 +1238,7 @@ const Pago: React.FC = () => {
           setAlertAnimatingOut(true);
           setTimeout(() => { setSubmitAlert(null); setAlertAnimatingOut(false); }, 350);
         }, 7000);
+        setIsSubmitting(false);
         return;
       }
     }
@@ -1217,6 +1259,7 @@ const Pago: React.FC = () => {
         if (formData.genero) body.append('genero_solicitante', formData.genero);
         body.append('horario_preferido', formData.horarioPreferido);
         body.append('id_tipo_curso', String(tipoCursoId));
+        if (formData.idCurso) body.append('id_curso', String(formData.idCurso));
         body.append('monto_matricula', String(formData.montoMatricula));
         body.append('metodo_pago', selectedPayment);
         // Nuevos campos del comprobante (transferencia)
@@ -1230,10 +1273,16 @@ const Pago: React.FC = () => {
           if (numeroComprobanteEfectivo) body.append('numero_comprobante', numeroComprobanteEfectivo);
           if (recibidoPor) body.append('recibido_por', recibidoPor);
         }
+        // Validar certificado para cosmiatría
+        if (cursoKey === 'cosmiatria' && !estudianteExistente && !certificadoCosmetologia) {
+          toast.error('Por favor, sube tu certificado de cosmetóloga para Cosmiatría.');
+          setIsSubmitting(false);
+          return;
+        }
         if (uploadedFile) body.append('comprobante', uploadedFile);
         if (documentoIdentificacion) body.append('documento_identificacion', documentoIdentificacion);
         if (documentoEstatusLegal) body.append('documento_estatus_legal', documentoEstatusLegal);
-
+        if (certificadoCosmetologia) body.append('certificado_cosmetologia', certificadoCosmetologia);
         // Si es estudiante existente, enviar su ID
         if (estudianteExistente) {
           body.append('id_estudiante_existente', String(estudianteExistente.id_usuario));
@@ -1284,6 +1333,7 @@ const Pago: React.FC = () => {
           genero_solicitante: formData.genero || null,
           horario_preferido: formData.horarioPreferido,
           id_tipo_curso: tipoCursoId,
+          ...(formData.idCurso && { id_curso: formData.idCurso }),
           monto_matricula: montoFinal,
           metodo_pago: selectedPayment
         };
@@ -1328,26 +1378,31 @@ const Pago: React.FC = () => {
         }
 
         if (errorObj.error && errorObj.error.includes('número de comprobante ya fue utilizado')) {
+          // Determinar qué número mostrar según el método de pago
+          const numComp = selectedPayment === 'efectivo' ? numeroComprobanteEfectivo : numeroComprobante;
+
           // Alerta profesional para comprobante duplicado
           setSubmitAlert({
             type: 'error',
-            text: `🚨 COMPROBANTE DUPLICADO DETECTADO
+            text: `COMPROBANTE DUPLICADO DETECTADO
 
-⚠️ El número de comprobante "${numeroComprobante}" ya fue registrado anteriormente en nuestro sistema.
+El número de comprobante ${numComp} ya fue registrado anteriormente en nuestro sistema.
 
-📋 POR FAVOR, VERIFICA:
-• Que no hayas enviado esta solicitud antes
-• Que el comprobante sea de una transferencia nueva
-• Que el número esté correcto
+POR FAVOR, VERIFICA:
+ Que no hayas enviado esta solicitud antes
+ Que el comprobante sea de una transferencia nueva
+ Que el número esté correcto
 
-🔒 POLÍTICA DE SEGURIDAD:
+POLÍTICA DE SEGURIDAD:
 Cada comprobante debe ser único para garantizar la transparencia y evitar pagos duplicados. Esta medida protege tanto a estudiantes como a la institución.
 
-💡 SOLUCIÓN:
+SOLUCIÓN:
 Realiza una nueva transferencia o verifica si ya tienes una solicitud previa registrada.`
           });
+          setIsSubmitting(false);
           return;
         }
+
 
         throw new Error(errText || 'Error al enviar la solicitud');
       }
@@ -1410,11 +1465,13 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       }
 
       // Si no hay promociones o hubo error, mostrar success
+      setIsSubmitting(false);
       setShowSuccess(true);
       setTimeout(() => {
         navigate('/cursos');
       }, 3000);
     } catch (error) {
+      setIsSubmitting(false);
       console.error(error);
       alert('No se pudo enviar la solicitud. Intenta nuevamente.');
     }
@@ -2255,7 +2312,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   );
                                 }
 
-                                return cuposFiltrados.map((c: any) => {
+                                return cuposFiltrados.filter((c: any) => c.cupos_totales > 0).map((c: any) => {
                                   const cuposMostrar = Math.max(Number(c.cupos_totales) || 0, 0);
                                   const tieneCupos = cuposMostrar > 0;
                                   const promoLimitadaActiva = (c.promociones_con_limite || 0) > 0;
@@ -3974,7 +4031,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                     {/* Horario Preferido - Solo mostrar si NO tiene solicitud pendiente */}
                     {!tieneSolicitudPendiente && (
-                      <div style={{ marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
+                      <div style={{ marginTop: '32px', marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
                         <label style={{
                           display: 'block',
                           marginBottom: '8px',
@@ -3985,8 +4042,16 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         </label>
                         <select
                           required
-                          value={formData.horarioPreferido}
-                          onChange={(e) => setFormData({ ...formData, horarioPreferido: (e.target as HTMLSelectElement).value as FormData['horarioPreferido'] })}
+                          value={formData.idCurso || ''}
+                          onChange={(e) => {
+                            const selectedIdCurso = parseInt(e.target.value);
+                            const selectedCurso = cuposDisponibles.find((c: any) => c.id_curso === selectedIdCurso);
+                            setFormData({
+                              ...formData,
+                              idCurso: selectedIdCurso,
+                              horarioPreferido: selectedCurso?.horario || ''
+                            });
+                          }}
                           style={{
                             width: '100%',
                             padding: '12px 16px',
@@ -4000,9 +4065,15 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
                           onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
                         >
-                          <option value="" disabled>Seleccionar horario</option>
-                          <option value="matutino">Matutino</option>
-                          <option value="vespertino">Vespertino</option>
+                          <option value="" disabled>Seleccionar horario y fecha</option>
+                          {cuposDisponibles
+                            .filter((c: any) => c.id_tipo_curso === tipoCursoId && c.cupos_totales > 0)
+                            .map((c: any) => (
+                              <option key={c.id_curso} value={c.id_curso}>
+                                {c.horario.charAt(0).toUpperCase() + c.horario.slice(1)} - Inicio: {new Date(c.fecha_inicio).toLocaleDateString('es-EC')} ({c.cupos_totales} cupos)
+                              </option>
+                            ))
+                          }
                         </select>
 
                         {/* Mostrar disponibilidad de cupos por horario */}
@@ -4010,7 +4081,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <div style={{ marginTop: '12px' }}>
                             {(() => {
                               const cuposHorario = cuposDisponibles.find(
-                                (c: any) => c.id_tipo_curso === tipoCursoId && c.horario === formData.horarioPreferido
+                                (c: any) => c.id_curso === formData.idCurso
                               );
 
                               if (!cuposHorario || cuposHorario.cupos_totales === 0) {
@@ -4055,6 +4126,174 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         )}
                       </div>
                     )}
+
+                    {/* Certificado Cosmetóloga - Solo Cosmiatría */}
+                    {cursoKey === 'cosmiatria' && !tieneSolicitudPendiente && (<div style={{
+                      background: 'rgba(251, 191, 36, 0.1)',
+                      border: '1px solid rgba(251, 191, 36, 0.3)',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      marginTop: '24px'
+                    }}>
+                      <h4 style={{
+                        fontSize: '1.2rem',
+                        fontWeight: '700',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                      }}>
+                        <FileText size={24} color="#fbbf24" />
+                        Certificado de Cosmetóloga
+                      </h4>
+
+                      <div style={{
+                        background: 'rgba(251, 191, 36, 0.15)',
+                        border: '1px solid rgba(251, 191, 36, 0.4)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        marginBottom: '20px'
+                      }}>
+                        <p style={{
+                          color: '#fbbf24',
+                          fontSize: '0.95rem',
+                          margin: 0,
+                          fontWeight: '600'
+                        }}>
+                          📋 Requisito obligatorio para Cosmiatría
+                        </p>
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                          fontSize: '0.85rem',
+                          margin: '12px 0 0 0'
+                        }}>
+                          Debes adjuntar tu certificado de cosmetóloga.
+                        </p>
+                      </div>
+
+                      <div
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (isBlocked) return;
+                          setDragActive(false);
+                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            handleCertificadoCosmetologiaUpload(e.dataTransfer.files[0]);
+                          }
+                        }}
+                        style={{
+                          border: `2px dashed ${dragActive || certificadoCosmetologia ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                          borderRadius: '12px',
+                          padding: '20px',
+                          textAlign: 'center',
+                          background: dragActive ? 'rgba(251, 191, 36, 0.1)' : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => document.getElementById('certificadoCosmetologiaInput')?.click()}
+                      >
+                        <input
+                          id="certificadoCosmetologiaInput"
+                          type="file"
+                          accept=".pdf,image/jpeg,image/png,image/webp"
+                          onChange={(e) => handleCertificadoCosmetologiaUpload(e.target.files?.[0] || null)}
+                          style={{ display: 'none' }}
+                        />
+
+                        {certificadoCosmetologia ? (
+                          <div>
+                            <div style={{
+                              width: '50px',
+                              height: '50px',
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              margin: '0 auto 12px'
+                            }}>
+                              <CheckCircle size={24} color="#fff" />
+                            </div>
+                            <p style={{
+                              color: '#10b981',
+                              fontWeight: '600',
+                              fontSize: '1rem',
+                              marginBottom: '6px'
+                            }}>
+                              ¡Certificado subido!
+                            </p>
+                            <p style={{
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                              fontSize: '0.85rem',
+                              marginBottom: '12px'
+                            }}>
+                              {certificadoCosmetologia.name} ({((certificadoCosmetologia.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCertificadoCosmetologia(null);
+                              }}
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '6px',
+                                padding: '6px 12px',
+                                color: '#dc2626',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: '500'
+                              }}
+                            >
+                              Cambiar
+                            </button>
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{
+                              width: '50px',
+                              height: '50px',
+                              background: 'rgba(251, 191, 36, 0.2)',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              margin: '0 auto 12px'
+                            }}>
+                              <FileText size={24} color="#fbbf24" />
+                            </div>
+                            <p style={{
+                              color: theme === 'dark' ? '#fff' : '#1f2937',
+                              fontWeight: '600',
+                              fontSize: '1rem',
+                              marginBottom: '6px'
+                            }}>
+                              Subir Certificado de Cosmetóloga
+                            </p>
+                            <p style={{
+                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                              fontSize: '0.85rem',
+                              marginBottom: '12px'
+                            }}>
+                              Arrastra y suelta o haz clic
+                            </p>
+                            <p style={{
+                              color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                              fontSize: '0.75rem'
+                            }}>
+                              PDF, JPG, PNG, WEBP (Máx. 5MB)
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    )}
+
 
                   </div>
 
@@ -4856,26 +5095,24 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                   {/* Botón de envío - Deshabilitado si tiene solicitud pendiente */}
                   <button
                     type="submit"
-                    disabled={isBlocked || tieneSolicitudPendiente}
+                    disabled={isBlocked || tieneSolicitudPendiente || isSubmitting}
                     className="submit-button"
                     style={{
                       width: '100%',
-                      background: (isBlocked || tieneSolicitudPendiente) ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                      color: (isBlocked || tieneSolicitudPendiente) ? 'rgba(255,255,255,0.5)' : '#000',
+                      background: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(255,255,255,0.5)' : '#000',
                       padding: '16px 24px',
                       borderRadius: '16px',
                       border: 'none',
                       fontWeight: 800,
                       fontSize: '1.1rem',
-                      cursor: (isBlocked || tieneSolicitudPendiente) ? 'not-allowed' : 'pointer',
-                      boxShadow: (isBlocked || tieneSolicitudPendiente) ? 'none' : '0 12px 40px rgba(251, 191, 36, 0.25)',
-                      opacity: (isBlocked || tieneSolicitudPendiente) ? 0.6 : 1,
+                      cursor: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'not-allowed' : 'pointer',
+                      boxShadow: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'none' : '0 12px 40px rgba(251, 191, 36, 0.25)',
+                      opacity: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 0.6 : 1,
                       transition: 'all 0.3s ease'
                     }}
                     title={tieneSolicitudPendiente ? 'No puedes inscribirte mientras tengas una solicitud pendiente' : ''}
                   >
-                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : 'Confirmar Inscripción'}
-                  </button>
+                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : isSubmitting ? '⏳ Enviando solicitud...' : 'Confirmar Inscripción'}                  </button>
 
                   <p style={{
                     textAlign: 'center',

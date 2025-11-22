@@ -3,19 +3,24 @@ import { io, Socket } from 'socket.io-client';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
-export const useSocket = (events: { [event: string]: (data: any) => void }, userId?: number) => {
+export const useSocket = (events: { [event: string]: (data: any) => void }, userId?: number, courseIds?: number[]) => {
   const socketRef = useRef<Socket | null>(null);
   const eventsRef = useRef(events);
+  const courseIdsRef = useRef(courseIds);
 
-  // Actualizar la referencia de eventos sin causar re-renders
+  // Actualizar referencias sin causar re-renders
   useEffect(() => {
     eventsRef.current = events;
   }, [events]);
 
+  useEffect(() => {
+    courseIdsRef.current = courseIds;
+  }, [courseIds]);
+
   // Obtener userId de sessionStorage si no se proporciona
   const getUserId = () => {
     if (userId) return userId;
-    
+
     try {
       // Primero intentar obtener de auth_user
       const authUser = sessionStorage.getItem('auth_user');
@@ -24,7 +29,7 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
         console.log('Usuario obtenido de sessionStorage:', userData.id_usuario);
         return userData.id_usuario;
       }
-      
+
       // Si no, intentar decodificar el token JWT
       const token = sessionStorage.getItem('auth_token');
       if (token) {
@@ -35,7 +40,7 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
           return payload.id_usuario;
         }
       }
-      
+
       console.warn('No se encontró auth_user ni token válido');
     } catch (error) {
       console.error('Error obteniendo userId:', error);
@@ -62,7 +67,7 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
         const currentUserId = getUserId();
         const token = sessionStorage.getItem('auth_token');
         let rol = 'unknown';
-        
+
         if (token) {
           try {
             const payload = JSON.parse(atob(token.split('.')[1]));
@@ -72,10 +77,15 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
             console.error('Error decodificando rol:', e);
           }
         }
-        
+
         if (currentUserId) {
-          socket.emit('register', { userId: currentUserId, id_usuario: currentUserId, rol });
-          console.log(`Usuario ${currentUserId} (${rol}) registrado en WebSocket`);
+          socket.emit('register', {
+            userId: currentUserId,
+            id_usuario: currentUserId,
+            rol,
+            cursos: courseIdsRef.current || []
+          });
+          console.log(`Usuario ${currentUserId} (${rol}) registrado en WebSocket con cursos:`, courseIdsRef.current);
         } else {
           console.warn('No se pudo obtener userId para registrar en WebSocket');
         }
@@ -101,7 +111,7 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
       // Registrar los nuevos eventos
       const eventNames = Object.keys(events);
       console.log(`Registrando ${eventNames.length} eventos:`, eventNames);
-      
+
       eventNames.forEach((eventName) => {
         socket.on(eventName, (data: any) => {
           console.log(`[WebSocket] Evento recibido: ${eventName}`, data);
@@ -114,7 +124,7 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
           }
         });
       });
-      
+
       console.log(`Todos los eventos registrados exitosamente`);
     }
 
@@ -122,24 +132,35 @@ export const useSocket = (events: { [event: string]: (data: any) => void }, user
     return () => {
       // Socket se mantiene conectado entre re-renders
     };
-  }, [events]); // Ejecutar cuando cambien los events
+    // Usamos JSON.stringify para evitar re-renders por cambios de referencia en el objeto events
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(Object.keys(events))]);
 
-  // Re-registrar usuario cuando el userId cambie (ej: después de cargar datos)
+  // Re-registrar usuario cuando el userId o courseIds cambien
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected && userId) {
-      console.log(`Re-registrando usuario ${userId} en WebSocket`);
-      socketRef.current.emit('register', userId);
-      console.log(`Usuario ${userId} re-registrado exitosamente`);
-    } else {
-      if (!socketRef.current) {
-        console.log('Socket no existe');
-      } else if (!socketRef.current.connected) {
-        console.log('Socket no está conectado');
-      } else if (!userId) {
-        console.log('userId no disponible:', userId);
+      console.log(`Re-registrando usuario ${userId} en WebSocket con cursos:`, courseIds);
+
+      const token = sessionStorage.getItem('auth_token');
+      let rol = 'unknown';
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          rol = payload.rol;
+        } catch (e) { console.error(e); }
       }
+
+      socketRef.current.emit('register', {
+        userId,
+        id_usuario: userId,
+        rol,
+        cursos: courseIds || []
+      });
+      console.log(`Usuario ${userId} re-registrado exitosamente`);
     }
-  }, [userId]);
+    // Usamos JSON.stringify para evitar re-renders por cambios de referencia en el array courseIds
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, JSON.stringify(courseIds)]);
 
   return socketRef.current;
 };

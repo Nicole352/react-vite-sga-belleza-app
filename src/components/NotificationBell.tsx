@@ -5,7 +5,6 @@ import {
   Bell,
   BellDot,
   CheckSquare,
-  ClipboardList,
   CreditCard,
   GraduationCap,
   Layers,
@@ -72,23 +71,25 @@ const iconPaletteByTipo: Record<Notificacion["tipo"], {
 
 const sanitizeNotificationText = (text: string) =>
   text
-    // Remueve emojis para que solo se muestre el texto en el panel
     .replace(/[\p{Extended_Pictographic}\u2600-\u27BF\uFE0F]+/gu, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 
-const NotificationBell: React.FC<NotificationBellProps> = ({ 
-  notificaciones, 
-  onMarcarTodasLeidas, 
+const NotificationBell: React.FC<NotificationBellProps> = ({
+  notificaciones,
+  onMarcarTodasLeidas,
   darkMode = false,
-  bellColor = "linear-gradient(135deg, #ef4444, #dc2626)" // Rojo por defecto (admin)
+  bellColor = "linear-gradient(135deg, #ef4444, #dc2626)"
 }) => {
   const [mostrarPanel, setMostrarPanel] = useState(false);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false); // Estado para el toggle
   const { isMobile, isTablet } = useBreakpoints();
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  
-  // Cerrar el panel al hacer clic fuera (solo en PC/Tablet)
+
+  const noLeidas = notificaciones.filter(n => !n.leida).length;
+
+  // Cerrar el panel al hacer clic fuera
   useEffect(() => {
     if (!mostrarPanel || isMobile) return;
 
@@ -106,33 +107,36 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mostrarPanel, isMobile]);
-  
-  const noLeidas = notificaciones.filter(n => !n.leida).length;
-  const notificacionesRecientes = notificaciones.slice(0, 10);
 
-  // Determinar ancho del panel según dispositivo
+  // Lógica de filtrado:
+  // Por defecto muestra SOLO no leídas.
+  // Si mostrarHistorial es true, muestra todas.
+  const notificacionesFiltradas = mostrarHistorial
+    ? notificaciones
+    : notificaciones.filter(n => !n.leida);
+
+  const notificacionesRecientes = notificacionesFiltradas.slice(0, 10);
+
   const getModalWidth = () => {
-    if (isMobile) return "calc(100vw - 3rem)"; // Móvil: un poco más de margen
-    if (isTablet) return "340px"; // Tablet: más compacto
-    return "400px"; // PC: más compacto (reducido de 450px)
+    if (isMobile) return "calc(100vw - 3rem)";
+    if (isTablet) return "340px";
+    return "400px";
   };
 
-  // Determinar posición del panel
   const getModalPosition = () => {
     if (isMobile) {
       return {
         position: "fixed" as const,
-        top: "4rem", // Desde arriba, debajo del navbar
+        top: "4rem",
         left: "50%",
         transform: "translateX(-50%)",
         right: "auto"
       };
     }
-    // En PC/Tablet: posición absoluta debajo de la campana
     return {
       position: "absolute" as const,
       top: "calc(100% + 0.75rem)",
-      right: "0", // Alineado a la derecha de la campana
+      right: "0",
       left: "auto",
       transform: "translateX(calc(100% - 100%))"
     };
@@ -203,154 +207,151 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
 
       {mostrarPanel && (
         <>
-          {/* Overlay solo en móvil */}
           {isMobile && (
-            <div 
-              onClick={() => setMostrarPanel(false)} 
-              style={{ 
-                position: "fixed", 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                bottom: 0, 
-                zIndex: 99998, 
-                background: "rgba(0,0,0,0.5)" 
-              }} 
+            <div
+              onClick={() => setMostrarPanel(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 99998,
+                background: "rgba(0,0,0,0.5)"
+              }}
             />
           )}
-          
-          {/* Rabito/Flecha superior (solo en PC/Tablet) */}
+
           {!isMobile && (
             <>
-              {/* Sombra del rabito para efecto 3D suave */}
               <div style={{
                 position: "absolute",
                 top: "calc(100% + 0.5rem)",
-                right: "1.5rem", // Cerca del borde derecho
+                right: "1.5rem",
                 width: 0,
                 height: 0,
                 borderLeft: "0.45rem solid transparent",
                 borderRight: "0.45rem solid transparent",
-                borderBottom: darkMode 
+                borderBottom: darkMode
                   ? "0.45rem solid rgba(0,0,0,0.3)"
                   : "0.45rem solid rgba(0,0,0,0.08)",
                 zIndex: 99998
               }} />
-              {/* Rabito principal */}
               <div style={{
                 position: "absolute",
                 top: "calc(100% + 0.55rem)",
-                right: "1.5rem", // Cerca del borde derecho
+                right: "1.5rem",
                 width: 0,
                 height: 0,
                 borderLeft: "0.45rem solid transparent",
                 borderRight: "0.45rem solid transparent",
-                borderBottom: darkMode 
+                borderBottom: darkMode
                   ? "0.45rem solid rgba(50, 50, 50, 0.98)"
                   : "0.45rem solid #ffffff",
                 zIndex: 100000
               }} />
             </>
           )}
-          
-          <div 
+
+          <div
             ref={panelRef}
             style={{
-            ...getModalPosition(),
-            width: getModalWidth(),
-            maxWidth: isMobile ? "none" : "28rem",
-            maxHeight: isMobile ? "85vh" : "calc(100vh - 7rem)",
-            background: darkMode 
-              ? "linear-gradient(135deg, rgba(38, 38, 38, 0.98) 0%, rgba(38, 38, 38, 0.95) 100%)" 
-              : "#ffffff",
-            border: darkMode 
-              ? "1px solid rgba(255, 255, 255, 0.1)" 
-              : "0.0625rem solid rgba(0,0,0,0.08)",
-            borderRadius: isMobile ? "1.25rem" : "1rem",
-            boxShadow: isMobile 
-              ? "0 1.5625rem 4.375rem rgba(0,0,0,0.3)" 
-              : darkMode 
-                ? "0 1.25rem 3.75rem rgba(0,0,0,0.6), 0 0 0.0625rem rgba(255,255,255,0.1)"
-                : "0 1.25rem 3.75rem rgba(0,0,0,0.2), 0 0 0.0625rem rgba(0,0,0,0.15)",
-            zIndex: 99999,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            animation: isMobile ? "scaleIn 0.2s ease-out" : "slideDown 0.2s ease-out"
-          }}>
-            {/* Header responsive */}
-            <div style={{ 
-              padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem", 
-              background: darkMode 
-                ? "rgba(28, 28, 28, 0.6)" 
-                : "#f8fafc",
-              borderBottom: darkMode 
-                ? "1px solid rgba(255, 255, 255, 0.1)" 
-                : "0.0625rem solid #e2e8f0",
-              display: "flex", 
-              justifyContent: "space-between", 
+              ...getModalPosition(),
+              width: getModalWidth(),
+              maxWidth: isMobile ? "none" : "28rem",
+              maxHeight: isMobile ? "85vh" : "calc(100vh - 7rem)",
+              background: darkMode
+                ? "linear-gradient(135deg, rgba(38, 38, 38, 0.98) 0%, rgba(38, 38, 38, 0.95) 100%)"
+                : "#ffffff",
+              border: darkMode
+                ? "1px solid rgba(255, 255, 255, 0.1)"
+                : "0.0625rem solid rgba(0,0,0,0.08)",
+              borderRadius: isMobile ? "1.25rem" : "1rem",
+              boxShadow: isMobile
+                ? "0 1.5625rem 4.375rem rgba(0,0,0,0.3)"
+                : darkMode
+                  ? "0 1.25rem 3.75rem rgba(0,0,0,0.6), 0 0 0.0625rem rgba(255,255,255,0.1)"
+                  : "0 1.25rem 3.75rem rgba(0,0,0,0.2), 0 0 0.0625rem rgba(0,0,0,0.15)",
+              zIndex: 99999,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              animation: isMobile ? "scaleIn 0.2s ease-out" : "slideDown 0.2s ease-out"
+            }}>
+            <div style={{
+              padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem",
+              background: darkMode ? "rgba(28, 28, 28, 0.6)" : "#f8fafc",
+              borderBottom: darkMode ? "1px solid rgba(255, 255, 255, 0.1)" : "0.0625rem solid #e2e8f0",
+              display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
               flexWrap: isMobile ? "wrap" : "nowrap",
               gap: isMobile ? "0.75rem" : "0"
             }}>
               <div style={{ flex: isMobile ? "1 1 100%" : "1" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-                  <h3 style={{ 
-                    margin: 0, 
-                    fontSize: isMobile ? "0.9rem" : "0.95rem", 
-                    fontWeight: "600", 
-                    color: darkMode ? "#f1f5f9" : "#1e293b", 
-                    letterSpacing: "-0.01em" 
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: isMobile ? "0.9rem" : "0.95rem",
+                    fontWeight: "600",
+                    color: darkMode ? "#f1f5f9" : "#1e293b",
+                    letterSpacing: "-0.01em"
                   }}>
                     Notificaciones
                   </h3>
                   {noLeidas > 0 && (
-                    <span 
-                      onClick={() => {
-                        onMarcarTodasLeidas();
-                        setMostrarPanel(false);
-                      }} 
-                      style={{
-                        fontSize: isMobile ? "0.7rem" : "0.75rem",
-                        fontWeight: "600",
-                        background: bellColor,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        cursor: "pointer",
-                        transition: "opacity 0.2s ease",
-                        userSelect: "none"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.opacity = "0.7";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.opacity = "1";
-                      }}
-                    >
-                      Marcar todas como leídas
+                    <span style={{
+                      background: "#fbbf24",
+                      color: "#000",
+                      padding: "0.1rem 0.4rem",
+                      borderRadius: "1rem",
+                      fontSize: "0.7rem",
+                      fontWeight: "700"
+                    }}>
+                      {noLeidas}
                     </span>
                   )}
                 </div>
-                {noLeidas > 0 && (
-                  <p style={{ 
-                    margin: "0", 
-                    fontSize: isMobile ? "0.7rem" : "0.75rem", 
-                    color: darkMode ? "#94a3b8" : "#64748b" 
+                {noLeidas > 0 ? (
+                  <p style={{
+                    margin: "0",
+                    fontSize: isMobile ? "0.7rem" : "0.75rem",
+                    color: darkMode ? "#94a3b8" : "#64748b"
                   }}>
                     Tienes {noLeidas} {noLeidas === 1 ? 'notificación nueva' : 'notificaciones nuevas'}
                   </p>
+                ) : (
+                  <p style={{
+                    margin: "0",
+                    fontSize: isMobile ? "0.7rem" : "0.75rem",
+                    color: darkMode ? "#94a3b8" : "#64748b"
+                  }}>
+                    No tienes notificaciones nuevas
+                  </p>
                 )}
               </div>
-              
-              <div style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "0.5rem",
-                width: isMobile ? "100%" : "auto",
-                justifyContent: isMobile ? "flex-end" : "flex-start"
-              }}>
-                {/* Botón de cerrar (X) */}
+
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                {noLeidas > 0 && (
+                  <button
+                    onClick={onMarcarTodasLeidas}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#3b82f6",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      padding: "0.25rem 0.5rem",
+                      borderRadius: "0.375rem",
+                      transition: "background 0.2s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    Marcar leídas
+                  </button>
+                )}
                 <button
                   onClick={() => setMostrarPanel(false)}
                   style={{
@@ -367,49 +368,43 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                     color: darkMode ? "#cbd5e1" : "#64748b",
                     flexShrink: 0
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode 
-                      ? "rgba(255, 255, 255, 0.1)" 
-                      : "#e2e8f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                 >
                   <X size={18} />
                 </button>
               </div>
             </div>
 
-            <div style={{ 
-              overflowY: "auto", 
-              flex: 1, 
-              background: darkMode 
-                ? "rgba(38, 38, 38, 0.4)" 
-                : "#ffffff",
-              WebkitOverflowScrolling: "touch" // Smooth scroll en móvil
+            <div style={{
+              overflowY: "auto",
+              flex: 1,
+              background: darkMode ? "rgba(38, 38, 38, 0.4)" : "#ffffff",
+              WebkitOverflowScrolling: "touch"
             }}>
-              {notificaciones.length === 0 ? (
-                <div style={{ 
-                  padding: isMobile ? "3rem 1.5rem" : "4rem 2rem", 
-                  textAlign: "center", 
-                  color: darkMode ? "#64748b" : "#94a3b8" 
+              {notificacionesFiltradas.length === 0 ? (
+                <div style={{
+                  padding: isMobile ? "3rem 1.5rem" : "4rem 2rem",
+                  textAlign: "center",
+                  color: darkMode ? "#64748b" : "#94a3b8"
                 }}>
                   <Bell size={isMobile ? 48 : 56} style={{ margin: "0 auto", opacity: 0.3, strokeWidth: 1.5 }} />
-                  <p style={{ 
-                    marginTop: "1.25rem", 
-                    fontSize: isMobile ? "0.9rem" : "0.95rem", 
-                    fontWeight: "500" 
+                  <p style={{
+                    marginTop: "1.25rem",
+                    fontSize: isMobile ? "0.9rem" : "0.95rem",
+                    fontWeight: "500"
                   }}>
-                    No hay notificaciones
+                    {mostrarHistorial ? 'No hay notificaciones en el historial' : 'Estás al día'}
                   </p>
-                  <p style={{ 
-                    marginTop: "0.5rem", 
-                    fontSize: isMobile ? "0.75rem" : "0.8rem", 
-                    opacity: 0.7 
-                  }}>
-                    Cuando recibas notificaciones aparecerán aquí
-                  </p>
+                  {!mostrarHistorial && (
+                    <p style={{
+                      marginTop: "0.5rem",
+                      fontSize: isMobile ? "0.75rem" : "0.8rem",
+                      opacity: 0.7
+                    }}>
+                      No tienes notificaciones sin leer
+                    </p>
+                  )}
                 </div>
               ) : (
                 <>
@@ -427,8 +422,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                           padding: isMobile ? "1rem 1.25rem" : "1.25rem 1.5rem",
                           borderBottom: `0.0625rem solid ${darkMode ? "#334155" : "#f1f5f9"}`,
                           cursor: "default",
-                          background: !notif.leida 
-                            ? (darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(150, 150, 150, 0.05)") 
+                          background: !notif.leida
+                            ? (darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(150, 150, 150, 0.05)")
                             : "transparent",
                           transition: "all 0.15s ease",
                           position: "relative"
@@ -451,18 +446,18 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                             <IconComponent size={isMobile ? 18 : 20} color={iconVisual.color} strokeWidth={1.65} />
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ 
+                            <div style={{
                               fontSize: isMobile ? "0.825rem" : "0.875rem",
-                              fontWeight: notif.leida ? "500" : "600", 
-                              color: darkMode ? "#f1f5f9" : "#1e293b", 
+                              fontWeight: notif.leida ? "500" : "600",
+                              color: darkMode ? "#f1f5f9" : "#1e293b",
                               marginBottom: "0.375rem",
                               lineHeight: "1.4",
                               wordBreak: "break-word"
                             }}>
                               {tituloLimpio}
                             </div>
-                            <div style={{ 
-                              fontSize: isMobile ? "0.75rem" : "0.8rem", 
+                            <div style={{
+                              fontSize: isMobile ? "0.75rem" : "0.8rem",
                               color: darkMode ? "#cbd5e1" : "#64748b",
                               lineHeight: "1.5",
                               marginBottom: "0.5rem",
@@ -470,8 +465,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                             }}>
                               {mensajeLimpio}
                             </div>
-                            <div style={{ 
-                              fontSize: isMobile ? "0.675rem" : "0.7rem", 
+                            <div style={{
+                              fontSize: isMobile ? "0.675rem" : "0.7rem",
                               color: darkMode ? "#64748b" : "#94a3b8",
                               fontWeight: "500"
                             }}>
@@ -479,10 +474,10 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                             </div>
                           </div>
                           {!notif.leida && (
-                            <span style={{ 
-                              width: isMobile ? "0.5rem" : "0.625rem", 
-                              height: isMobile ? "0.5rem" : "0.625rem", 
-                              borderRadius: "50%", 
+                            <span style={{
+                              width: isMobile ? "0.5rem" : "0.625rem",
+                              height: isMobile ? "0.5rem" : "0.625rem",
+                              borderRadius: "50%",
                               background: bellColor,
                               flexShrink: 0,
                               marginTop: "0.25rem",
@@ -493,21 +488,31 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
                       </div>
                     );
                   })}
-                  {notificaciones.length > 10 && (
-                    <div style={{
-                      padding: isMobile ? "0.875rem 1.25rem" : "1rem 1.5rem",
-                      textAlign: "center",
-                      fontSize: isMobile ? "0.75rem" : "0.8rem",
-                      color: darkMode ? "#94a3b8" : "#64748b",
-                      fontWeight: "500",
-                      background: darkMode ? "#0f172a" : "#f8fafc",
-                      borderTop: `0.0625rem solid ${darkMode ? "#334155" : "#e2e8f0"}`
-                    }}>
-                      Y {notificaciones.length - 10} notificación{notificaciones.length - 10 !== 1 ? 'es' : ''} más
-                    </div>
-                  )}
                 </>
               )}
+            </div>
+
+            {/* Footer para historial (Toggle sutil) */}
+            <div style={{
+              padding: "0.75rem",
+              textAlign: "center",
+              borderTop: darkMode ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid #e2e8f0",
+              background: darkMode ? "rgba(28, 28, 28, 0.6)" : "#f8fafc"
+            }}>
+              <button
+                onClick={() => setMostrarHistorial(!mostrarHistorial)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: darkMode ? "#94a3b8" : "#64748b",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  textDecoration: "underline"
+                }}
+              >
+                {mostrarHistorial ? 'Ocultar historial' : 'Ver historial completo'}
+              </button>
             </div>
           </div>
 

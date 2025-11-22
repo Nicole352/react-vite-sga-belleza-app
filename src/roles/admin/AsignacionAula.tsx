@@ -1303,7 +1303,19 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     required
                     defaultValue={selectedAsignacion?.id_curso || ''}
                     placeholder="Seleccionar curso"
-                    options={cursos.filter(c => c.estado === 'activo' || c.estado === 'planificado').map(c => {
+                    options={cursos.filter(c => {
+                      // 1. Validar estado (whitelist)
+                      const estadoValido = c.estado === 'activo' || c.estado === 'planificado';
+
+                      // 2. Validar que no esté ya asignado (excepto si es la asignación que estamos editando)
+                      const yaAsignado = asignaciones.some(a =>
+                        a.id_curso === c.id_curso &&
+                        a.estado === 'activa' && // Solo nos importa si la asignación está activa
+                        (modalType === 'create' || a.id_asignacion !== selectedAsignacion?.id_asignacion)
+                      );
+
+                      return estadoValido && !yaAsignado;
+                    }).map(c => {
                       const horario = c.horario ? ` - ${c.horario.charAt(0).toUpperCase() + c.horario.slice(1)}` : '';
                       return {
                         value: c.id_curso,

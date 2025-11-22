@@ -87,16 +87,16 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
       const saved = localStorage.getItem('estudiante-dark-mode');
       setDarkMode(saved !== null ? JSON.parse(saved) : false);
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     // También escuchar cambios directos en el mismo tab
     const interval = setInterval(() => {
       const saved = localStorage.getItem('estudiante-dark-mode');
       const currentMode = saved !== null ? JSON.parse(saved) : false;
       setDarkMode(currentMode);
     }, 100);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
@@ -205,28 +205,32 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   useSocket({
     calificacion_actualizada: (data: any) => {
       console.log("Calificación actualizada:", data);
-      
+
       showToast.success(`Nueva calificación disponible`, darkMode);
-      
+
       // Recargar calificaciones
       fetchCalificaciones();
     },
     entrega_calificada: (data: any) => {
       console.log("Entrega calificada:", data);
-      
+
       showToast.success(`Tu tarea "${data.tarea_titulo || 'ha sido'}" calificada`, darkMode);
-      
+
       // Recargar calificaciones
       fetchCalificaciones();
     },
     promedio_actualizado: (data: any) => {
       console.log("Promedio actualizado:", data);
-      
+
       showToast.success(`Promedio actualizado`, darkMode);
-      
+
       // Recargar calificaciones
       fetchCalificaciones();
     },
+    promedios_visibilidad_actualizada: (data: any) => {
+      console.log("Visibilidad de promedios actualizada:", data);
+      fetchCalificaciones();
+    }
   });
 
   useEffect(() => {
@@ -690,12 +694,12 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                     <div style={{ textAlign: "right" }}>
                       <div
                         style={{
-                          color: getColorByGrade(promedio),
+                          color: modulos.every(m => m.promedios_publicados) ? getColorByGrade(promedio) : theme.textMuted,
                           fontSize: "1.125rem",
                           fontWeight: "800",
                         }}
                       >
-                        {promedio.toFixed(1)}
+                        {modulos.every(m => m.promedios_publicados) ? promedio.toFixed(1) : "Parcial"}
                       </div>
                       <div
                         style={{
@@ -704,7 +708,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                           marginTop: "0.125rem",
                         }}
                       >
-                        {getGradeLabel(promedio)}
+                        {modulos.every(m => m.promedios_publicados) ? getGradeLabel(promedio) : "Promedios ocultos"}
                       </div>
                     </div>
                     {expandedCursos[curso.id_curso] ? (
@@ -727,188 +731,53 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                     {/* Mostrar promedios ponderados por módulo SI ESTÁN PUBLICADOS */}
                     {modulos.filter((m) => m.promedios_publicados).length >
                       0 && (
-                      <div
-                        style={{ marginTop: "1rem", marginBottom: "1.5rem" }}
-                      >
                         <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            marginBottom: "0.75rem",
-                          }}
+                          style={{ marginTop: "1rem", marginBottom: "1.5rem" }}
                         >
-                          <BarChart3
-                            size={18}
-                            style={{ color: theme.accent }}
-                          />
-                          <h4
-                            style={{
-                              color: theme.textPrimary,
-                              fontSize: "0.9rem",
-                              fontWeight: "700",
-                              margin: 0,
-                              textTransform: "uppercase",
-                              letterSpacing: "0.5px",
-                            }}
-                          >
-                            Promedios por Módulo
-                          </h4>
-                        </div>
-
-                        {/* PROMEDIO GLOBAL BALANCEADO */}
-                        {promediosGlobales[curso.id_curso] && (
                           <div
                             style={{
-                              background: darkMode
-                                ? "linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1))"
-                                : "linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05))",
-                              border: `2px solid ${theme.accent}`,
-                              borderRadius: "0.75rem",
-                              padding: "1rem 1.25rem",
-                              marginBottom: "1rem",
-                              boxShadow: darkMode
-                                ? "0 4px 16px rgba(251, 191, 36, 0.2)"
-                                : "0 4px 16px rgba(251, 191, 36, 0.15)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              marginBottom: "0.75rem",
                             }}
                           >
-                            <div
+                            <BarChart3
+                              size={18}
+                              style={{ color: theme.accent }}
+                            />
+                            <h4
                               style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
+                                color: theme.textPrimary,
+                                fontSize: "0.9rem",
+                                fontWeight: "700",
+                                margin: 0,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.5px",
                               }}
                             >
-                              <div>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    marginBottom: "0.25rem",
-                                  }}
-                                >
-                                  <TrendingUp
-                                    size={18}
-                                    style={{ color: theme.accent }}
-                                  />
-                                  <span
-                                    style={{
-                                      color: theme.accent,
-                                      fontSize: "0.85rem",
-                                      fontWeight: "700",
-                                      textTransform: "uppercase",
-                                      letterSpacing: "0.5px",
-                                    }}
-                                  >
-                                    Promedio Global del Curso
-                                  </span>
-                                </div>
-                                <div>
-                                  <p
-                                    style={{
-                                      color: theme.textMuted,
-                                      fontSize: "0.75rem",
-                                      margin: "0 0 0.25rem 0",
-                                    }}
-                                  >
-                                    Sobre 10 puntos • Cada módulo aporta{" "}
-                                    {promediosGlobales[curso.id_curso]
-                                      .peso_por_modulo
-                                      ? promediosGlobales[
-                                          curso.id_curso
-                                        ].peso_por_modulo.toFixed(2)
-                                      : "0.00"}{" "}
-                                    puntos
-                                  </p>
-                                  <p
-                                    style={{
-                                      color: theme.textMuted,
-                                      fontSize: "0.7rem",
-                                      margin: 0,
-                                      fontStyle: "italic",
-                                    }}
-                                  >
-                                    {promediosGlobales[curso.id_curso]
-                                      .total_modulos || 0}{" "}
-                                    módulos con calificaciones
-                                  </p>
-                                </div>
-                              </div>
-                              <div style={{ textAlign: "right" }}>
-                                <div
-                                  style={{
-                                    color: getColorByGrade10(
-                                      promediosGlobales[curso.id_curso]
-                                        .promedio_global || 0,
-                                    ),
-                                    fontSize: "2.5rem",
-                                    fontWeight: "900",
-                                    lineHeight: 1,
-                                  }}
-                                >
-                                  {(
-                                    promediosGlobales[curso.id_curso]
-                                      .promedio_global || 0
-                                  ).toFixed(2)}
-                                </div>
-                                <div
-                                  style={{
-                                    color: theme.textMuted,
-                                    fontSize: "0.8rem",
-                                    marginTop: "0.25rem",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  / 10 puntos
-                                </div>
-                              </div>
-                            </div>
+                              Promedios por Módulo
+                            </h4>
                           </div>
-                        )}
 
-                        {loadingPromedioGlobal[curso.id_curso] &&
-                          !promediosGlobales[curso.id_curso] && (
+                          {/* PROMEDIO GLOBAL BALANCEADO */}
+                          {promediosGlobales[curso.id_curso] && (
                             <div
                               style={{
-                                background: theme.cardBg,
-                                border: `1px solid ${theme.border}`,
+                                background: darkMode
+                                  ? "linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1))"
+                                  : "linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05))",
+                                border: `2px solid ${theme.accent}`,
                                 borderRadius: "0.75rem",
-                                padding: "1rem",
+                                padding: "1rem 1.25rem",
                                 marginBottom: "1rem",
-                                textAlign: "center",
+                                boxShadow: darkMode
+                                  ? "0 4px 16px rgba(251, 191, 36, 0.2)"
+                                  : "0 4px 16px rgba(251, 191, 36, 0.15)",
                               }}
                             >
-                              <span
-                                style={{
-                                  color: theme.textMuted,
-                                  fontSize: "0.85rem",
-                                }}
-                              >
-                                Calculando promedio global...
-                              </span>
-                            </div>
-                          )}
-
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0.5rem",
-                          }}
-                        >
-                          {modulos
-                            .filter((m) => m.promedios_publicados)
-                            .map((modulo) => (
                               <div
-                                key={modulo.id_modulo}
                                 style={{
-                                  background: darkMode
-                                    ? "rgba(59, 130, 246, 0.1)"
-                                    : "rgba(59, 130, 246, 0.05)",
-                                  border: `1px solid ${getColorByGrade10(modulo.promedio_ponderado)}40`,
-                                  borderRadius: "0.5rem",
-                                  padding: "0.75rem 1rem",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   alignItems: "center",
@@ -917,54 +786,189 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                 <div>
                                   <div
                                     style={{
-                                      color: theme.textPrimary,
-                                      fontWeight: "600",
-                                      fontSize: "0.95rem",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.5rem",
+                                      marginBottom: "0.25rem",
                                     }}
                                   >
-                                    {modulo.nombre}
+                                    <TrendingUp
+                                      size={18}
+                                      style={{ color: theme.accent }}
+                                    />
+                                    <span
+                                      style={{
+                                        color: theme.accent,
+                                        fontSize: "0.85rem",
+                                        fontWeight: "700",
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.5px",
+                                      }}
+                                    >
+                                      Promedio Global del Curso
+                                    </span>
                                   </div>
-                                  <div
-                                    style={{
-                                      color: theme.textMuted,
-                                      fontSize: "0.75rem",
-                                      marginTop: "0.125rem",
-                                    }}
-                                  >
-                                    {modulo.tareas_calificadas}{" "}
-                                    {modulo.tareas_calificadas === 1
-                                      ? "tarea calificada"
-                                      : "tareas calificadas"}
+                                  <div>
+                                    <p
+                                      style={{
+                                        color: theme.textMuted,
+                                        fontSize: "0.75rem",
+                                        margin: "0 0 0.25rem 0",
+                                      }}
+                                    >
+                                      Sobre 10 puntos • Cada módulo aporta{" "}
+                                      {promediosGlobales[curso.id_curso]
+                                        .peso_por_modulo
+                                        ? promediosGlobales[
+                                          curso.id_curso
+                                        ].peso_por_modulo.toFixed(2)
+                                        : "0.00"}{" "}
+                                      puntos
+                                    </p>
+                                    <p
+                                      style={{
+                                        color: theme.textMuted,
+                                        fontSize: "0.7rem",
+                                        margin: 0,
+                                        fontStyle: "italic",
+                                      }}
+                                    >
+                                      {promediosGlobales[curso.id_curso]
+                                        .total_modulos || 0}{" "}
+                                      módulos con calificaciones
+                                    </p>
                                   </div>
                                 </div>
                                 <div style={{ textAlign: "right" }}>
                                   <div
                                     style={{
                                       color: getColorByGrade10(
-                                        modulo.promedio_ponderado,
+                                        promediosGlobales[curso.id_curso]
+                                          .promedio_global || 0,
                                       ),
-                                      fontSize: "1.5rem",
+                                      fontSize: "2.5rem",
                                       fontWeight: "900",
                                       lineHeight: 1,
                                     }}
                                   >
-                                    {modulo.promedio_ponderado.toFixed(1)}
+                                    {(
+                                      promediosGlobales[curso.id_curso]
+                                        .promedio_global || 0
+                                    ).toFixed(2)}
                                   </div>
                                   <div
                                     style={{
                                       color: theme.textMuted,
-                                      fontSize: "0.7rem",
-                                      marginTop: "0.125rem",
+                                      fontSize: "0.8rem",
+                                      marginTop: "0.25rem",
+                                      fontWeight: "600",
                                     }}
                                   >
-                                    Promedio
+                                    / 10 puntos
                                   </div>
                                 </div>
                               </div>
-                            ))}
+                            </div>
+                          )}
+
+                          {loadingPromedioGlobal[curso.id_curso] &&
+                            !promediosGlobales[curso.id_curso] && (
+                              <div
+                                style={{
+                                  background: theme.cardBg,
+                                  border: `1px solid ${theme.border}`,
+                                  borderRadius: "0.75rem",
+                                  padding: "1rem",
+                                  marginBottom: "1rem",
+                                  textAlign: "center",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: theme.textMuted,
+                                    fontSize: "0.85rem",
+                                  }}
+                                >
+                                  Calculando promedio global...
+                                </span>
+                              </div>
+                            )}
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            {modulos
+                              .filter((m) => m.promedios_publicados)
+                              .map((modulo) => (
+                                <div
+                                  key={modulo.id_modulo}
+                                  style={{
+                                    background: darkMode
+                                      ? "rgba(59, 130, 246, 0.1)"
+                                      : "rgba(59, 130, 246, 0.05)",
+                                    border: `1px solid ${getColorByGrade10(modulo.promedio_ponderado)}40`,
+                                    borderRadius: "0.5rem",
+                                    padding: "0.75rem 1rem",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <div>
+                                    <div
+                                      style={{
+                                        color: theme.textPrimary,
+                                        fontWeight: "600",
+                                        fontSize: "0.95rem",
+                                      }}
+                                    >
+                                      {modulo.nombre}
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: theme.textMuted,
+                                        fontSize: "0.75rem",
+                                        marginTop: "0.125rem",
+                                      }}
+                                    >
+                                      {modulo.tareas_calificadas}{" "}
+                                      {modulo.tareas_calificadas === 1
+                                        ? "tarea calificada"
+                                        : "tareas calificadas"}
+                                    </div>
+                                  </div>
+                                  <div style={{ textAlign: "right" }}>
+                                    <div
+                                      style={{
+                                        color: getColorByGrade10(
+                                          modulo.promedio_ponderado,
+                                        ),
+                                        fontSize: "1.5rem",
+                                        fontWeight: "900",
+                                        lineHeight: 1,
+                                      }}
+                                    >
+                                      {modulo.promedio_ponderado.toFixed(1)}
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: theme.textMuted,
+                                        fontSize: "0.7rem",
+                                        marginTop: "0.125rem",
+                                      }}
+                                    >
+                                      Promedio
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {calificaciones.length === 0 ? (
                       <div
@@ -1017,7 +1021,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                         {modulos.map((modulo) => {
                           const moduloKey = `${curso.id_curso}-${modulo.id_modulo}`;
                           const isModuloExpanded = expandedModulos[moduloKey] || false;
-                          
+
                           return (
                             <div
                               key={modulo.id_modulo}
@@ -1043,8 +1047,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                   background: darkMode
                                     ? "rgba(251, 191, 36, 0.08)"
                                     : "rgba(251, 191, 36, 0.05)",
-                                  borderBottom: isModuloExpanded 
-                                    ? `1px solid ${theme.border}` 
+                                  borderBottom: isModuloExpanded
+                                    ? `1px solid ${theme.border}`
                                     : "none",
                                 }}
                               >
@@ -1080,25 +1084,56 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                   </div>
                                 </div>
                                 <div style={{ textAlign: "right" }}>
-                                  <div
-                                    style={{
-                                      color: getColorByGrade10(modulo.promedio_ponderado),
-                                      fontSize: "1.5rem",
-                                      fontWeight: "900",
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    {modulo.promedio_ponderado.toFixed(1)}
-                                  </div>
-                                  <div
-                                    style={{
-                                      color: theme.textMuted,
-                                      fontSize: "0.7rem",
-                                      marginTop: "0.125rem",
-                                    }}
-                                  >
-                                    Promedio
-                                  </div>
+                                  {modulo.promedios_publicados ? (
+                                    <>
+                                      <div
+                                        style={{
+                                          color: getColorByGrade10(modulo.promedio_ponderado),
+                                          fontSize: "1.5rem",
+                                          fontWeight: "900",
+                                          lineHeight: 1,
+                                        }}
+                                      >
+                                        {modulo.promedio_ponderado.toFixed(1)}
+                                      </div>
+                                      <div
+                                        style={{
+                                          color: theme.textMuted,
+                                          fontSize: "0.7rem",
+                                          marginTop: "0.125rem",
+                                        }}
+                                      >
+                                        Promedio
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-end",
+                                        gap: "0.25rem"
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          background: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                                          borderRadius: "0.5rem",
+                                          padding: "0.25rem 0.75rem",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: "0.5rem"
+                                        }}
+                                      >
+                                        <span style={{ fontSize: "0.85rem", color: theme.textMuted, fontWeight: "600" }}>
+                                          Oculto
+                                        </span>
+                                      </div>
+                                      <span style={{ fontSize: "0.65rem", color: theme.textMuted }}>
+                                        Por el docente
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
@@ -1244,7 +1279,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                   (parseFloat(
                                                     calificacion.nota_maxima as any,
                                                   ) || 20)) *
-                                                  20,
+                                                20,
                                               ) + "20",
                                             borderRadius: "0.5rem",
                                             padding: "0.2rem 0.5rem",
@@ -1258,7 +1293,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                   (parseFloat(
                                                     calificacion.nota_maxima as any,
                                                   ) || 20)) *
-                                                  20,
+                                                20,
                                               ),
                                               fontSize: "0.75rem",
                                               fontWeight: "600",
@@ -1270,7 +1305,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                 (parseFloat(
                                                   calificacion.nota_maxima as any,
                                                 ) || 20)) *
-                                                20,
+                                              20,
                                             )}
                                           </span>
                                         </div>

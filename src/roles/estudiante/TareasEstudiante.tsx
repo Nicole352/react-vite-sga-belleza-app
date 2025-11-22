@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { showToast } from '../../config/toastConfig';
-import { useBreakpoints } from '../../hooks/useMediaQuery';
+// import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000/api';
@@ -29,6 +29,8 @@ interface Tarea {
   nota: number | null;
   resultado: string | null;
   comentario_docente: string | null;
+  archivo_url?: string;
+  archivo_public_id?: string;
 }
 
 interface ModuloAgrupado {
@@ -49,7 +51,7 @@ interface TareasEstudianteProps {
 const TareasEstudiante: React.FC<TareasEstudianteProps> = ({ darkMode = false }) => {
   const { id_curso } = useParams<{ id_curso: string }>();
   const navigate = useNavigate();
-  const { isMobile } = useBreakpoints();
+  // const { isMobile } = useBreakpoints();
   const [curso, setCurso] = useState<Curso | null>(null);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [modulosAgrupados, setModulosAgrupados] = useState<ModuloAgrupado[]>([]);
@@ -661,7 +663,13 @@ const TareasEstudiante: React.FC<TareasEstudianteProps> = ({ darkMode = false })
                                 {(tarea.estado_estudiante === 'entregado' || tarea.estado_estudiante === 'calificado') && tarea.id_entrega && (
                                   <>
                                     <button
-                                      onClick={() => window.open(`${API_BASE}/entregas/${tarea.id_entrega}/archivo`, '_blank')}
+                                      onClick={() => {
+                                        if (tarea.archivo_url) {
+                                          window.open(tarea.archivo_url, '_blank');
+                                        } else {
+                                          showToast.error('No hay archivo adjunto', darkMode);
+                                        }
+                                      }}
                                       style={{
                                         background: 'rgba(245, 158, 11, 0.1)',
                                         border: '0.0625rem solid rgba(245, 158, 11, 0.3)',
@@ -750,364 +758,366 @@ const TareasEstudiante: React.FC<TareasEstudianteProps> = ({ darkMode = false })
       </div>
 
       {/* Modal de Entrega - Diseño Mejorado */}
-      {showModalEntrega && tareaSeleccionada && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.85)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '1.25em',
-            animation: 'fadeIn 0.3s ease'
-          }}
-          onClick={() => setShowModalEntrega(false)}
-        >
-          <div 
+      {
+        showModalEntrega && tareaSeleccionada && (
+          <div
             style={{
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-              borderRadius: '1.5em',
-              maxWidth: '42rem',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              border: '1px solid rgba(251, 191, 36, 0.3)',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.5), 0 0 100px rgba(251, 191, 36, 0.1)',
-              animation: 'slideUp 0.3s ease'
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.85)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '1.25em',
+              animation: 'fadeIn 0.3s ease'
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setShowModalEntrega(false)}
           >
-            {/* Header del Modal */}
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(249, 115, 22, 0.1) 100%)',
-              borderBottom: '1px solid rgba(251, 191, 36, 0.2)',
-              padding: '1.75em 2em',
-              borderRadius: '1.5em 1.5em 0 0',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => setShowModalEntrega(false)}
-                style={{
-                  position: 'absolute',
-                  top: '1.5em',
-                  right: '1.5em',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '0.5em',
-                  width: '2.5em',
-                  height: '2.5em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  color: '#ef4444'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.transform = 'rotate(90deg) scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                  e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
-                }}
-              >
-                <X size={20} />
-              </button>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '0.5em' }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-                  borderRadius: '0.75em',
-                  padding: '0.75em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 16px rgba(251, 191, 36, 0.3)'
-                }}>
-                  <FileCheck size={24} style={{ color: '#fff' }} />
-                </div>
-                <h3 style={{ 
-                  color: '#fff', 
-                  fontSize: '1.75rem', 
-                  fontWeight: '700',
-                  margin: 0,
-                  paddingRight: '3em'
-                }}>
-                  {tareaSeleccionada.id_entrega ? 'Editar Entrega' : 'Entregar Tarea'}
-                </h3>
-              </div>
-              <p style={{ 
-                color: 'rgba(255,255,255,0.8)', 
-                fontSize: '1.05rem',
-                margin: 0,
-                fontWeight: '500'
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                borderRadius: '1.5em',
+                maxWidth: '42rem',
+                width: '100%',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                boxShadow: '0 25px 50px rgba(0,0,0,0.5), 0 0 100px rgba(251, 191, 36, 0.1)',
+                animation: 'slideUp 0.3s ease'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header del Modal */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                borderBottom: '1px solid rgba(251, 191, 36, 0.2)',
+                padding: '1.75em 2em',
+                borderRadius: '1.5em 1.5em 0 0',
+                position: 'relative'
               }}>
-                {tareaSeleccionada.titulo}
-              </p>
-            </div>
-
-            {/* Contenido del Modal */}
-            <div style={{ padding: '2em' }}>
-              {tareaSeleccionada.instrucciones && (
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  borderRadius: '1em',
-                  padding: '1.25em',
-                  marginBottom: '1.5em',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
+                <button
+                  onClick={() => setShowModalEntrega(false)}
+                  style={{
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '4px',
-                    height: '100%',
-                    background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)'
-                  }} />
-                  <div style={{ 
-                    color: '#f59e0b', 
-                    fontSize: '0.95rem', 
-                    fontWeight: '700', 
-                    marginBottom: '0.75em',
+                    top: '1.5em',
+                    right: '1.5em',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.5em',
+                    width: '2.5em',
+                    height: '2.5em',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5em'
-                  }}>
-                    <FileText size={18} />
-                    Instrucciones de la Tarea
-                  </div>
-                  <p style={{ 
-                    color: 'rgba(255,255,255,0.85)', 
-                    fontSize: '0.95rem', 
-                    margin: 0, 
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.6'
-                  }}>
-                    {tareaSeleccionada.instrucciones}
-                  </p>
-                </div>
-              )}
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    color: '#ef4444'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.transform = 'rotate(90deg) scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
+                  }}
+                >
+                  <X size={20} />
+                </button>
 
-              {/* Upload de Archivo */}
-              <div style={{ marginBottom: '1.5em' }}>
-                <label style={{ 
-                  color: '#fff', 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5em',
-                  marginBottom: '0.75em', 
-                  fontWeight: '700',
-                  fontSize: '1rem'
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', marginBottom: '0.5em' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                    borderRadius: '0.75em',
+                    padding: '0.75em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 16px rgba(251, 191, 36, 0.3)'
+                  }}>
+                    <FileCheck size={24} style={{ color: '#fff' }} />
+                  </div>
+                  <h3 style={{
+                    color: '#fff',
+                    fontSize: '1.75rem',
+                    fontWeight: '700',
+                    margin: 0,
+                    paddingRight: '3em'
+                  }}>
+                    {tareaSeleccionada.id_entrega ? 'Editar Entrega' : 'Entregar Tarea'}
+                  </h3>
+                </div>
+                <p style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '1.05rem',
+                  margin: 0,
+                  fontWeight: '500'
                 }}>
-                  <Upload size={18} style={{ color: '#fbbf24' }} />
-                  Archivo de Entrega *
-                </label>
-                <div style={{
-                  position: 'relative',
-                  border: '2px dashed rgba(251, 191, 36, 0.4)',
-                  borderRadius: '1em',
-                  padding: '2em',
-                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  overflow: 'hidden'
-                }}>
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                    onChange={handleFileChange}
-                    style={{
+                  {tareaSeleccionada.titulo}
+                </p>
+              </div>
+
+              {/* Contenido del Modal */}
+              <div style={{ padding: '2em' }}>
+                {tareaSeleccionada.instrucciones && (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '1em',
+                    padding: '1.25em',
+                    marginBottom: '1.5em',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
                       position: 'absolute',
                       top: 0,
                       left: 0,
-                      width: '100%',
+                      width: '4px',
                       height: '100%',
-                      opacity: 0,
-                      cursor: 'pointer'
-                    }}
-                  />
-                  {!archivo ? (
-                    <div>
-                      <div style={{
-                        width: '4em',
-                        height: '4em',
-                        margin: '0 auto 1em',
-                        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%)',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <Upload size={28} style={{ color: '#fbbf24' }} />
-                      </div>
-                      <p style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5em' }}>
-                        Haz clic o arrastra tu archivo aquí
-                      </p>
-                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0 }}>
-                        PDF, JPG, PNG, WEBP (máx. 5MB)
-                      </p>
-                    </div>
-                  ) : (
+                      background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)'
+                    }} />
                     <div style={{
+                      color: '#f59e0b',
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      marginBottom: '0.75em',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '1em',
-                      padding: '1em',
-                      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                      borderRadius: '0.75em',
-                      border: '1px solid rgba(16, 185, 129, 0.3)'
+                      gap: '0.5em'
                     }}>
-                      <div style={{
-                        background: 'rgba(16, 185, 129, 0.2)',
-                        borderRadius: '0.5em',
-                        padding: '0.75em',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <FileCheck size={24} style={{ color: '#10b981' }} />
-                      </div>
-                      <div style={{ flex: 1, textAlign: 'left' }}>
-                        <p style={{ color: '#10b981', fontSize: '1rem', fontWeight: '600', margin: 0, marginBottom: '0.25em' }}>
-                          {archivo.name}
-                        </p>
-                        <p style={{ color: 'rgba(16, 185, 129, 0.8)', fontSize: '0.85rem', margin: 0 }}>
-                          {(archivo.size / 1024).toFixed(2)} KB
-                        </p>
-                      </div>
+                      <FileText size={18} />
+                      Instrucciones de la Tarea
                     </div>
-                  )}
-                </div>
-              </div>
+                    <p style={{
+                      color: 'rgba(255,255,255,0.85)',
+                      fontSize: '0.95rem',
+                      margin: 0,
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: '1.6'
+                    }}>
+                      {tareaSeleccionada.instrucciones}
+                    </p>
+                  </div>
+                )}
 
-              {/* Comentario */}
-              <div style={{ marginBottom: '2em' }}>
-                <label style={{ 
-                  color: '#fff', 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5em',
-                  marginBottom: '0.75em', 
-                  fontWeight: '700',
-                  fontSize: '1rem'
-                }}>
-                  <FileText size={18} style={{ color: '#fbbf24' }} />
-                  Comentario (Opcional)
-                </label>
-                <textarea
-                  value={comentario}
-                  onChange={(e) => setComentario(e.target.value)}
-                  placeholder="Escribe un comentario sobre tu entrega..."
-                  style={{
-                    width: '100%',
-                    minHeight: '7em',
-                    padding: '1em',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '0.75em',
+                {/* Upload de Archivo */}
+                <div style={{ marginBottom: '1.5em' }}>
+                  <label style={{
                     color: '#fff',
-                    fontSize: '0.95rem',
-                    resize: 'vertical',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.5)'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'}
-                />
-              </div>
-
-              {/* Botones de Acción */}
-              <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                <button
-                  onClick={() => setShowModalEntrega(false)}
-                  disabled={uploading}
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    borderRadius: '0.75em',
-                    padding: '0.875em 1.75em',
-                    color: '#fff',
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    cursor: uploading ? 'not-allowed' : 'pointer',
-                    opacity: uploading ? 0.5 : 1,
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => !uploading && (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSubmitEntrega}
-                  disabled={uploading || (!archivo && !tareaSeleccionada.id_entrega)}
-                  style={{
-                    background: uploading || (!archivo && !tareaSeleccionada.id_entrega)
-                      ? 'rgba(251, 191, 36, 0.3)'
-                      : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-                    border: 'none',
-                    borderRadius: '0.75em',
-                    padding: '0.875em 2em',
-                    color: '#fff',
-                    fontWeight: '700',
-                    fontSize: '1rem',
-                    cursor: uploading || (!archivo && !tareaSeleccionada.id_entrega) ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.625em',
-                    boxShadow: uploading || (!archivo && !tareaSeleccionada.id_entrega) 
-                      ? 'none' 
-                      : '0 8px 16px rgba(251, 191, 36, 0.3)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!uploading && (archivo || tareaSeleccionada.id_entrega)) {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(251, 191, 36, 0.4)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = uploading || (!archivo && !tareaSeleccionada.id_entrega) 
-                      ? 'none' 
-                      : '0 8px 16px rgba(251, 191, 36, 0.3)';
-                  }}
-                >
-                  {uploading ? (
-                    <>
+                    gap: '0.5em',
+                    marginBottom: '0.75em',
+                    fontWeight: '700',
+                    fontSize: '1rem'
+                  }}>
+                    <Upload size={18} style={{ color: '#fbbf24' }} />
+                    Archivo de Entrega *
+                  </label>
+                  <div style={{
+                    position: 'relative',
+                    border: '2px dashed rgba(251, 191, 36, 0.4)',
+                    borderRadius: '1em',
+                    padding: '2em',
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden'
+                  }}>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.webp"
+                      onChange={handleFileChange}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0,
+                        cursor: 'pointer'
+                      }}
+                    />
+                    {!archivo ? (
+                      <div>
+                        <div style={{
+                          width: '4em',
+                          height: '4em',
+                          margin: '0 auto 1em',
+                          background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <Upload size={28} style={{ color: '#fbbf24' }} />
+                        </div>
+                        <p style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5em' }}>
+                          Haz clic o arrastra tu archivo aquí
+                        </p>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', margin: 0 }}>
+                          PDF, JPG, PNG, WEBP (máx. 5MB)
+                        </p>
+                      </div>
+                    ) : (
                       <div style={{
-                        width: '1.125rem',
-                        height: '1.125rem',
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        borderTop: '2px solid #fff',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      Subiendo...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={20} />
-                      {tareaSeleccionada.id_entrega ? 'Actualizar Entrega' : 'Entregar Tarea'}
-                    </>
-                  )}
-                </button>
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1em',
+                        padding: '1em',
+                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                        borderRadius: '0.75em',
+                        border: '1px solid rgba(16, 185, 129, 0.3)'
+                      }}>
+                        <div style={{
+                          background: 'rgba(16, 185, 129, 0.2)',
+                          borderRadius: '0.5em',
+                          padding: '0.75em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <FileCheck size={24} style={{ color: '#10b981' }} />
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'left' }}>
+                          <p style={{ color: '#10b981', fontSize: '1rem', fontWeight: '600', margin: 0, marginBottom: '0.25em' }}>
+                            {archivo.name}
+                          </p>
+                          <p style={{ color: 'rgba(16, 185, 129, 0.8)', fontSize: '0.85rem', margin: 0 }}>
+                            {(archivo.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Comentario */}
+                <div style={{ marginBottom: '2em' }}>
+                  <label style={{
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5em',
+                    marginBottom: '0.75em',
+                    fontWeight: '700',
+                    fontSize: '1rem'
+                  }}>
+                    <FileText size={18} style={{ color: '#fbbf24' }} />
+                    Comentario (Opcional)
+                  </label>
+                  <textarea
+                    value={comentario}
+                    onChange={(e) => setComentario(e.target.value)}
+                    placeholder="Escribe un comentario sobre tu entrega..."
+                    style={{
+                      width: '100%',
+                      minHeight: '7em',
+                      padding: '1em',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '0.75em',
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      resize: 'vertical',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.5)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'}
+                  />
+                </div>
+
+                {/* Botones de Acción */}
+                <div style={{ display: 'flex', gap: '0.75em', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => setShowModalEntrega(false)}
+                    disabled={uploading}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '0.75em',
+                      padding: '0.875em 1.75em',
+                      color: '#fff',
+                      fontWeight: '600',
+                      fontSize: '1rem',
+                      cursor: uploading ? 'not-allowed' : 'pointer',
+                      opacity: uploading ? 0.5 : 1,
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => !uploading && (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSubmitEntrega}
+                    disabled={uploading || (!archivo && !tareaSeleccionada.id_entrega)}
+                    style={{
+                      background: uploading || (!archivo && !tareaSeleccionada.id_entrega)
+                        ? 'rgba(251, 191, 36, 0.3)'
+                        : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                      border: 'none',
+                      borderRadius: '0.75em',
+                      padding: '0.875em 2em',
+                      color: '#fff',
+                      fontWeight: '700',
+                      fontSize: '1rem',
+                      cursor: uploading || (!archivo && !tareaSeleccionada.id_entrega) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.625em',
+                      boxShadow: uploading || (!archivo && !tareaSeleccionada.id_entrega)
+                        ? 'none'
+                        : '0 8px 16px rgba(251, 191, 36, 0.3)',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!uploading && (archivo || tareaSeleccionada.id_entrega)) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(251, 191, 36, 0.4)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = uploading || (!archivo && !tareaSeleccionada.id_entrega)
+                        ? 'none'
+                        : '0 8px 16px rgba(251, 191, 36, 0.3)';
+                    }}
+                  >
+                    {uploading ? (
+                      <>
+                        <div style={{
+                          width: '1.125rem',
+                          height: '1.125rem',
+                          border: '2px solid rgba(255,255,255,0.3)',
+                          borderTop: '2px solid #fff',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }} />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={20} />
+                        {tareaSeleccionada.id_entrega ? 'Actualizar Entrega' : 'Entregar Tarea'}
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <style>{`
         @keyframes spin {
@@ -1137,102 +1147,104 @@ const TareasEstudiante: React.FC<TareasEstudianteProps> = ({ darkMode = false })
       `}</style>
 
       {/* Modal de Confirmación de Eliminación */}
-      {showConfirmDelete && createPortal(
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 99999,
-          backdropFilter: 'blur(8px)',
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
+      {
+        showConfirmDelete && createPortal(
           <div style={{
-            background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-            borderRadius: '1rem',
-            border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
-            padding: '1.5rem',
-            width: '90%',
-            maxWidth: '400px',
-            boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
-            animation: 'scaleIn 0.2s ease-out'
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            backdropFilter: 'blur(8px)',
+            animation: 'fadeIn 0.2s ease-out'
           }}>
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              marginBottom: '1rem'
+              background: darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+              borderRadius: '1rem',
+              border: `1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
+              padding: '1.5rem',
+              width: '90%',
+              maxWidth: '400px',
+              boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
+              animation: 'scaleIn 0.2s ease-out'
             }}>
-              <AlertCircle size={24} color="#ef4444" />
-              <h3 style={{
-                color: darkMode ? '#fff' : '#1e293b',
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                margin: 0
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '1rem'
               }}>
-                Confirmar Eliminación
-              </h3>
+                <AlertCircle size={24} color="#ef4444" />
+                <h3 style={{
+                  color: darkMode ? '#fff' : '#1e293b',
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  margin: 0
+                }}>
+                  Confirmar Eliminación
+                </h3>
+              </div>
+              <p style={{
+                color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
+                fontSize: '0.95rem',
+                lineHeight: '1.5',
+                margin: '0 0 1.5rem 0'
+              }}>
+                ¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '0.75rem',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={() => {
+                    setShowConfirmDelete(false);
+                    setEntregaToDelete(null);
+                  }}
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : '#f1f5f9',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0'}`,
+                    borderRadius: '0.5rem',
+                    color: darkMode ? '#fff' : '#475569',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleEliminarEntrega}
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+                  }}
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
-            <p style={{
-              color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-              fontSize: '0.95rem',
-              lineHeight: '1.5',
-              margin: '0 0 1.5rem 0'
-            }}>
-              ¿Estás seguro de eliminar esta entrega? Esta acción no se puede deshacer.
-            </p>
-            <div style={{
-              display: 'flex',
-              gap: '0.75rem',
-              justifyContent: 'flex-end'
-            }}>
-              <button
-                onClick={() => {
-                  setShowConfirmDelete(false);
-                  setEntregaToDelete(null);
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : '#f1f5f9',
-                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0'}`,
-                  borderRadius: '0.5rem',
-                  color: darkMode ? '#fff' : '#475569',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleEliminarEntrega}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
-                }}
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
+          </div>,
+          document.body
+        )
+      }
+    </div >
   );
 };
 

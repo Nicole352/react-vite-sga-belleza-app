@@ -60,16 +60,19 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
   const loadCurrentPhoto = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/api/usuarios/${userData.id_usuario}/foto-perfil`, {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        setCurrentPhotoUrl(url);
+        const data = await response.json();
+        if (data.foto_perfil) {
+          setCurrentPhotoUrl(data.foto_perfil);
+        } else {
+          setCurrentPhotoUrl(null);
+        }
       } else {
         setCurrentPhotoUrl(null);
       }
@@ -132,12 +135,12 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
       if (response.ok) {
         setSelectedFile(null);
         setPreviewUrl(null);
-        await loadCurrentPhoto();
-        if (onPhotoUpdated) onPhotoUpdated();
+        setCurrentPhotoUrl(data.data?.cloudinary_url || null);
         // Cerrar modal primero
         onClose();
-        // Mostrar toast después de cerrar el modal
+        // Notificar al padre DESPUÉS de cerrar
         setTimeout(() => {
+          if (onPhotoUpdated) onPhotoUpdated();
           showToast.success('Foto de perfil actualizada correctamente', darkMode);
         }, 100);
       } else {
@@ -178,11 +181,11 @@ const PerfilModal = ({ isOpen, onClose, darkMode, theme, userData, onPhotoUpdate
         setCurrentPhotoUrl(null);
         setSelectedFile(null);
         setPreviewUrl(null);
-        if (onPhotoUpdated) onPhotoUpdated();
         // Cerrar modal primero
         onClose();
-        // Mostrar toast después de cerrar el modal
+        // Notificar al padre DESPUÉS de cerrar
         setTimeout(() => {
+          if (onPhotoUpdated) onPhotoUpdated();
           showToast.success('Foto de perfil eliminada correctamente', darkMode);
         }, 100);
       } else {

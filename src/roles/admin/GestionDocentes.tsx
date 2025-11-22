@@ -32,6 +32,7 @@ interface Docente {
   password_temporal?: string;
   experiencia_anos: number;
   estado: 'activo' | 'inactivo';
+  foto_perfil?: string | null; // URL de Cloudinary
 }
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -715,12 +716,13 @@ const GestionDocentes = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                     <UserAvatar
-                      userId={docente.id_usuario || docente.id_docente}
+                      userId={docente.id_usuario || 0}
                       nombre={docente.nombres}
                       apellido={docente.apellidos}
                       size={2}
                       showBorder={true}
                       borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
+                      fotoUrl={docente.foto_perfil}
                     />
                     <h3 style={{
                       color: theme.textPrimary,

@@ -16,27 +16,78 @@ export interface Notificacion {
 type RolUsuario = "admin" | "docente" | "estudiante";
 
 export const useNotifications = (rol: RolUsuario) => {
-  const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() => {
-    const saved = localStorage.getItem(`notificaciones_${rol}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map((n: any) => ({
-          ...n,
-          fecha: new Date(n.fecha),
-          fechaLeida: n.fechaLeida ? new Date(n.fechaLeida) : undefined
-        }));
-      } catch (error) {
-        console.error("Error parsing saved notifications:", error);
-        return [];
-      }
-    }
-    return [];
-  });
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Helper para determinar link basado en tipo y rol
+  const obtenerLinkPorTipo = (tipo: string, rol: RolUsuario): string | undefined => {
+    if (rol === 'admin') {
+      if (tipo === 'matricula') return '/admin/matriculas';
+      if (tipo === 'pago') return '/admin/pagos';
+      if (tipo === 'general') return '/admin/usuarios';
+    } else if (rol === 'estudiante') {
+      if (tipo === 'modulo') return '/estudiante/cursos';
+      if (tipo === 'tarea' || tipo === 'calificacion') return '/estudiante/tareas';
+      if (tipo === 'pago') return '/estudiante/pagos';
+      if (tipo === 'matricula') return '/estudiante/cursos';
+      if (tipo === 'general') return '/estudiante/perfil';
+    } else if (rol === 'docente') {
+      if (tipo === 'tarea') return '/docente/tareas';
+    }
+    return undefined;
+  };
+
+  // Función para obtener notificaciones de la API
+  const fetchNotifications = useCallback(async (retryCount = 0) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+
+      if (!token) {
+        if (retryCount < 3) {
+          console.log(`useNotifications: Token no encontrado, reintentando (${retryCount + 1}/3)...`);
+          setTimeout(() => fetchNotifications(retryCount + 1), 1000);
+        }
+        return;
+      }
+
+      console.log('useNotifications: Obteniendo notificaciones del servidor...');
+      const response = await fetch('http://localhost:3000/api/notificaciones/mis-notificaciones', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`useNotifications: ${data.notificaciones?.length || 0} notificaciones obtenidas`);
+
+        if (data.success && Array.isArray(data.notificaciones)) {
+          // Mapear notificaciones de la BD al formato del frontend
+          const mappedNotifications: Notificacion[] = data.notificaciones.map((n: any) => ({
+            id: n.id_notificacion.toString(),
+            tipo: n.tipo || 'general',
+            titulo: n.titulo,
+            mensaje: n.mensaje,
+            leida: Boolean(n.leida),
+            fecha: new Date(n.fecha_creacion),
+            fechaLeida: n.fecha_lectura ? new Date(n.fecha_lectura) : undefined,
+            link: obtenerLinkPorTipo(n.tipo, rol), // Helper para determinar link
+            data: n // Guardar datos originales por si acaso
+          }));
+          setNotificaciones(mappedNotifications);
+        }
+      } else {
+        console.error('useNotifications: Error en respuesta del servidor', response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [rol]);
+
+  // Cargar notificaciones al montar
   useEffect(() => {
-    localStorage.setItem(`notificaciones_${rol}`, JSON.stringify(notificaciones));
-  }, [notificaciones, rol]);
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const agregarNotificacion = useCallback(
     (notif: Omit<Notificacion, "id" | "leida" | "fecha">) => {
@@ -47,6 +98,7 @@ export const useNotifications = (rol: RolUsuario) => {
         fecha: new Date()
       };
       setNotificaciones((prev) => [nueva, ...prev].slice(0, 50));
+
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(notif.titulo, {
           body: notif.mensaje,
@@ -57,7 +109,8 @@ export const useNotifications = (rol: RolUsuario) => {
     []
   );
 
-  const marcarTodasLeidas = useCallback(() => {
+  const marcarTodasLeidas = useCallback(async () => {
+    // Optimistic update
     const ahora = new Date();
     setNotificaciones((prev) =>
       prev.map((n) => ({
@@ -67,31 +120,22 @@ export const useNotifications = (rol: RolUsuario) => {
       }))
     );
 
-    setTimeout(() => {
-      setNotificaciones([]);
-    }, 2000);
+    // Call API
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (token) {
+        await fetch('http://localhost:3000/api/notificaciones/marcar-todas-leidas', {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+      // Revertir si falla? Por ahora no, para no molestar al usuario
+    }
   }, []);
 
-  useEffect(() => {
-    const intervalo = setInterval(() => {
-      const ahora = new Date();
-      setNotificaciones((prev) =>
-        prev.filter((n) => {
-          if (!n.leida) return true;
-
-          if (n.fechaLeida) {
-            const diffMinutos = (ahora.getTime() - n.fechaLeida.getTime()) / (1000 * 60);
-            return diffMinutos < 60;
-          }
-
-          return true;
-        })
-      );
-    }, 60000);
-
-    return () => clearInterval(intervalo);
-  }, []);
-
+  // Solicitar permisos de notificación
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -289,14 +333,38 @@ export const useNotifications = (rol: RolUsuario) => {
     };
   }
 
+  // Obtener userId del sessionStorage o token
+  const getUserId = () => {
+    try {
+      const authUser = sessionStorage.getItem('auth_user');
+      if (authUser) {
+        const userData = JSON.parse(authUser);
+        return userData.id_usuario;
+      }
+
+      const token = sessionStorage.getItem('auth_token');
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          return payload.id_usuario;
+        }
+      }
+    } catch (error) {
+      console.error('Error obteniendo userId:', error);
+    }
+    return undefined;
+  };
+
   // Conectar socket con los eventos definidos
-  useSocket(events);
+  useSocket(events, getUserId());
 
   const noLeidas = notificaciones.filter((n) => !n.leida).length;
 
   return {
     notificaciones,
     noLeidas,
-    marcarTodasLeidas
+    marcarTodasLeidas,
+    loading
   };
 };

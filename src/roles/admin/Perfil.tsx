@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { User, Mail, Phone, MapPin, Calendar, Users, Lock, CheckCircle, Eye, EyeOff, X, ShieldCheck } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 import '../../styles/responsive.css';
 
 const API_BASE = 'http://localhost:3000';
@@ -23,9 +24,10 @@ interface UserProfile {
 
 interface PerfilProps {
   darkMode?: boolean;
+  onPhotoUpdate?: () => void;
 }
 
-const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
+const Perfil: React.FC<PerfilProps> = ({ darkMode = true, onPhotoUpdate }) => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [activeTab, setActiveTab] = useState<'info' | 'password'>('info');
   const [loading, setLoading] = useState(false);
@@ -61,6 +63,24 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
     loadFoto();
   }, []);
 
+  // Listener WebSocket para actualización de foto en tiempo real
+  useSocket({
+    'profile_picture_updated': (data: any) => {
+      console.log('📸 Foto de perfil actualizada en tiempo real (Perfil):', data);
+      if (data.id_usuario === userData?.id_usuario) {
+        if (data.deleted) {
+          // Foto eliminada
+          setFotoUrl(null);
+          console.log('✓ Foto eliminada correctamente (Perfil)');
+        } else if (data.foto_perfil_url) {
+          // Foto actualizada
+          setFotoUrl(data.foto_perfil_url);
+          console.log('✓ Foto actualizada correctamente (Perfil)');
+        }
+      }
+    }
+  }, userData?.id_usuario);
+
   const fetchUserData = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
@@ -93,16 +113,16 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
       const response = await fetch(`${API_BASE}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        const fotoResponse = await fetch(`${API_BASE}/api/usuarios/${data.id_usuario}/foto-perfil`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (fotoResponse.ok) {
-          const blob = await fotoResponse.blob();
-          setFotoUrl(URL.createObjectURL(blob));
+        // Usar directamente la URL de Cloudinary si existe
+        if (data.foto_perfil) {
+          setFotoUrl(data.foto_perfil);
+          console.log('Foto cargada en Perfil:', data.foto_perfil);
+        } else {
+          setFotoUrl(null);
+          console.log('No hay foto de perfil');
         }
       }
     } catch (error) {
@@ -201,8 +221,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
       {/* Header sin ícono */}
       <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ 
-            color: 'var(--admin-text-primary, #1e293b)', 
+          <h2 style={{
+            color: 'var(--admin-text-primary, #1e293b)',
             margin: '0 0 0.375rem 0',
             fontSize: isMobile ? '1.25rem' : '1.5rem',
             fontWeight: '700'
@@ -277,7 +297,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
               {/* Foto de perfil */}
-              <div 
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowPhotoPreview(true);
@@ -308,14 +328,14 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
                   e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
                 }}>
                 {fotoUrl ? (
-                  <img 
-                    src={fotoUrl} 
-                    alt="Foto de perfil" 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
+                  <img
+                    src={fotoUrl}
+                    alt="Foto de perfil"
+                    style={{
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover'
-                    }} 
+                    }}
                   />
                 ) : (
                   <span>
@@ -330,7 +350,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
               <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.8125rem', margin: '0 0 0.375rem 0' }}>
                 @{userData?.email?.split('@')[0]}
               </p>
-              
+
               <div style={{
                 padding: '0.375rem 0.75rem',
                 background: 'rgba(239, 68, 68, 0.1)',
@@ -464,10 +484,10 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
               backdropFilter: 'blur(20px)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
             }}>
-              <h3 style={{ 
-                color: 'var(--admin-text-primary, #1e293b)', 
-                fontSize: isMobile ? '0.8rem' : '0.875rem', 
-                fontWeight: '700', 
+              <h3 style={{
+                color: 'var(--admin-text-primary, #1e293b)',
+                fontSize: isMobile ? '0.8rem' : '0.875rem',
+                fontWeight: '700',
                 margin: '0 0 1rem 0',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -723,8 +743,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
 
       {activeTab === 'password' && (
         <form onSubmit={handleChangePassword}>
-          <div style={{ 
-            maxWidth: '500px', 
+          <div style={{
+            maxWidth: '500px',
             margin: '0 auto',
             background: 'var(--theme-card-bg)',
             border: '1px solid var(--theme-border)',
@@ -733,10 +753,10 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
             backdropFilter: 'blur(20px)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
           }}>
-            <h3 style={{ 
-              color: 'var(--admin-text-primary, #1e293b)', 
-              fontSize: '0.875rem', 
-              fontWeight: '700', 
+            <h3 style={{
+              color: 'var(--admin-text-primary, #1e293b)',
+              fontSize: '0.875rem',
+              fontWeight: '700',
               margin: '0 0 1rem 0',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
@@ -1020,44 +1040,44 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true }) => {
           </button>
 
           {/* Foto ampliada en el centro */}
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             onMouseEnter={() => setIsPhotoHovered(true)}
             onMouseLeave={() => setIsPhotoHovered(false)}
             style={{
-            position: 'fixed',
-            left: '50%',
-            top: '50%',
-            width: '320px',
-            height: '320px',
-            borderRadius: '50%',
-            background: fotoUrl ? 'transparent' : 'var(--admin-card-bg, linear-gradient(135deg, #6b7280, #4b5563))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '6rem',
-            fontWeight: '700',
-            color: 'var(--admin-text-primary, #fff)',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--admin-border, rgba(255, 255, 255, 0.1))',
-            border: '4px solid var(--admin-border, rgba(255, 255, 255, 0.15))',
-            overflow: 'hidden',
-            animation: isPhotoHovered 
-              ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
-              : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            cursor: 'default',
-            transition: 'transform 0.3s ease'
-          }}>
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              width: '320px',
+              height: '320px',
+              borderRadius: '50%',
+              background: fotoUrl ? 'transparent' : 'var(--admin-card-bg, linear-gradient(135deg, #6b7280, #4b5563))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '6rem',
+              fontWeight: '700',
+              color: 'var(--admin-text-primary, #fff)',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--admin-border, rgba(255, 255, 255, 0.1))',
+              border: '4px solid var(--admin-border, rgba(255, 255, 255, 0.15))',
+              overflow: 'hidden',
+              animation: isPhotoHovered
+                ? 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, rotatePhoto 3s linear infinite'
+                : 'photoScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              cursor: 'default',
+              transition: 'transform 0.3s ease'
+            }}>
             {fotoUrl ? (
-              <img 
-                src={fotoUrl} 
-                alt="Foto de perfil" 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
+              <img
+                src={fotoUrl}
+                alt="Foto de perfil"
+                style={{
+                  width: '100%',
+                  height: '100%',
                   objectFit: 'cover'
-                }} 
+                }}
               />
             ) : (
               <span style={{

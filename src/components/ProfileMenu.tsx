@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, LogOut } from 'lucide-react';
 import PerfilModal from './PerfilModal';
 import { useBreakpoints } from '../hooks/useMediaQuery';
+import { useSocket } from '../hooks/useSocket';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -31,6 +32,25 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
   const navigate = useNavigate();
   const { isMobile } = useBreakpoints();
 
+  // Listener WebSocket para actualización de foto en tiempo real
+  useSocket({
+    'profile_picture_updated': (data: any) => {
+      console.log('📸 Foto de perfil actualizada en tiempo real:', data);
+      if (data.id_usuario === userData?.id_usuario) {
+        if (data.deleted) {
+          // Foto eliminada
+          setCurrentFotoUrl(null);
+          console.log('✓ Foto eliminada correctamente');
+        } else if (data.foto_perfil || data.foto_perfil_url) {
+          // Foto actualizada - usar foto_perfil primero, luego foto_perfil_url como fallback
+          const newPhotoUrl = data.foto_perfil || data.foto_perfil_url;
+          setCurrentFotoUrl(newPhotoUrl);
+          console.log('✓ Foto actualizada correctamente:', newPhotoUrl);
+        }
+      }
+    }
+  }, userData?.id_usuario);
+
   // Cargar foto de perfil al montar y cuando userData cambie
   useEffect(() => {
     const loadFoto = async () => {
@@ -38,25 +58,30 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
         try {
           // First try to use foto_perfil from userData if available
           if (userData.foto_perfil) {
+            console.log('📸 Actualizando foto desde userData:', userData.foto_perfil);
             setCurrentFotoUrl(userData.foto_perfil);
             return;
           }
           
-          // Fallback to fetching from API
+          // Fetch user data to get Cloudinary URL
           const token = sessionStorage.getItem('auth_token');
-          const response = await fetch(`${API_BASE}/api/usuarios/${userData.id_usuario}/foto-perfil`, {
+          const response = await fetch(`${API_BASE}/api/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
+          
           if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            setCurrentFotoUrl(url);
+            const data = await response.json();
+            console.log('📸 Datos recibidos de /api/auth/me:', data);
+            if (data.foto_perfil) {
+              setCurrentFotoUrl(data.foto_perfil);
+            } else {
+              setCurrentFotoUrl(null);
+            }
           } else {
-            // 404 means no photo exists, which is normal - don't log error
             setCurrentFotoUrl(null);
           }
         } catch (error) {
-          // Silently handle errors - user simply doesn't have a photo
+          console.error('Error cargando foto:', error);
           if (userData.foto_perfil) {
             setCurrentFotoUrl(userData.foto_perfil);
           } else {
@@ -65,6 +90,7 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
         }
       } else if (userData?.foto_perfil) {
         // If we have userData but no id_usuario, still try to use foto_perfil
+        console.log('📸 Actualizando foto desde userData (sin id):', userData.foto_perfil);
         setCurrentFotoUrl(userData.foto_perfil);
       } else {
         setCurrentFotoUrl(null);
@@ -74,26 +100,31 @@ const ProfileMenu = ({ darkMode, toggleDarkMode, theme, userData, avatarColor = 
   }, [userData?.id_usuario, userData?.foto_perfil]);
 
   // Función para recargar la foto cuando se actualiza
-  const handlePhotoUpdate = () => {
-    if (userData?.id_usuario) {
-      const loadFoto = async () => {
-        try {
-          const token = sessionStorage.getItem('auth_token');
-          const response = await fetch(`${API_BASE}/api/usuarios/${userData.id_usuario}/foto-perfil?t=${Date.now()}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            setCurrentFotoUrl(url);
-          }
-        } catch (error) {
-          console.error('Error recargando foto:', error);
-        }
-      };
-      loadFoto();
+  const handlePhotoUpdate = async () => {
+    console.log('🔄 handlePhotoUpdate llamado');
+    // Notificar al componente padre PRIMERO para que actualice userData
+    if (onPhotoUpdated) {
+      console.log('📞 Llamando a onPhotoUpdated del padre');
+      await onPhotoUpdated();
     }
-    if (onPhotoUpdated) onPhotoUpdated();
+    
+    // Luego recargar la foto local
+    if (userData?.id_usuario) {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📸 Foto recibida en handlePhotoUpdate:', data.foto_perfil);
+          setCurrentFotoUrl(data.foto_perfil || null);
+        }
+      } catch (error) {
+        console.error('Error recargando foto:', error);
+      }
+    }
   };
 
   // Función para obtener iniciales del usuario

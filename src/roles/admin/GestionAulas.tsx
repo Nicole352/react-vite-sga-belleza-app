@@ -380,7 +380,7 @@ const GestionAulas = () => {
 
             {/* Filtros */}
             <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 20vw)', flex: isMobile ? '1' : 'initial' }}>
-            
+
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -1509,25 +1509,26 @@ const GestionAulas = () => {
                   }}>
                     Estado
                   </label>
-                  <select
+                  <StyledSelect
+                    name="estado"
                     value={formData.estado}
                     onChange={(e) => setFormData(prev => ({ ...prev, estado: e.target.value as FormState['estado'] }))}
+                    options={[
+                      { value: 'activa', label: 'Activa' },
+                      { value: 'inactiva', label: 'Inactiva' },
+                      { value: 'mantenimiento', label: 'Mantenimiento' },
+                      { value: 'reservada', label: 'Reservada' }
+                    ]}
                     style={{
                       width: '100%',
                       padding: '10px 0.75rem',
-                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       borderRadius: '0.5rem',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
                       background: 'rgba(255,255,255,0.08)',
                       color: textPrimary,
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
+                      fontSize: '0.9rem'
                     }}
-                  >
-                    <option value="activa" style={{ background: '#1a1a1a' }}>Activa</option>
-                    <option value="inactiva" style={{ background: '#1a1a1a' }}>Inactiva</option>
-                    <option value="mantenimiento" style={{ background: '#1a1a1a' }}>Mantenimiento</option>
-                    <option value="reservada" style={{ background: '#1a1a1a' }}>Reservada</option>
-                  </select>
+                  />
                 </div>
               </div>
 

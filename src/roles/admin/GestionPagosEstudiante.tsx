@@ -24,6 +24,8 @@ interface Pago {
   numero_comprobante: string | null;
   banco_comprobante: string | null;
   fecha_transferencia: string | null;
+  comprobante_pago_url?: string | null;
+  comprobante_pago_public_id?: string | null;
   estado: 'pendiente' | 'pagado' | 'verificado' | 'vencido';
   observaciones: string | null;
   verificado_por: number | null;
@@ -330,22 +332,40 @@ const GestionPagosEstudiante = () => {
     return `${dia}/${mes}/${año}`;
   };
 
-  const openComprobanteModal = (pago: Pago) => {
-    // Obtener el token de autenticación
-    const token = sessionStorage.getItem('auth_token');
+  const openComprobanteModal = async (pago: Pago) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
 
-    // Agregar el token como parámetro de query para que funcione con <img>
-    const url = `${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante?token=${token}`;
+      console.log('[Pagos] Obteniendo URL del comprobante:', {
+        id_pago: pago.id_pago,
+        numero_comprobante: pago.numero_comprobante
+      });
 
-    console.log('[Pagos] Abriendo modal de comprobante:', {
-      id_pago: pago.id_pago,
-      numero_comprobante: pago.numero_comprobante,
-      url: url.replace(token || '', '***TOKEN***') // Ocultar token en logs
-    });
-    setComprobanteUrl(url);
-    setComprobanteNumero(pago.numero_comprobante || 'N/A');
-    setComprobanteModalError(false);
-    setShowComprobanteModal(true);
+      // Obtener la URL de Cloudinary desde el endpoint
+      const response = await fetch(`${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo obtener el comprobante');
+      }
+
+      const data = await response.json();
+
+      if (!data.success || !data.comprobante_pago_url) {
+        throw new Error('Comprobante no disponible');
+      }
+
+      // Usar directamente la URL de Cloudinary
+      setComprobanteUrl(data.comprobante_pago_url);
+      setComprobanteNumero(pago.numero_comprobante || 'N/A');
+      setComprobanteModalError(false);
+      setShowComprobanteModal(true);
+    } catch (error) {
+      console.error('Error obteniendo comprobante:', error);
+      setComprobanteModalError(true);
+      showToast.error('No se pudo cargar el comprobante', darkMode);
+    }
   };
 
   const handleVerificarPago = (pago: Pago) => {
@@ -1796,7 +1816,7 @@ const GestionPagosEstudiante = () => {
               )}
 
               {/* Comprobante de Pago - Imagen */}
-              {selectedPago.numero_comprobante && (
+              {selectedPago.numero_comprobante && selectedPago.comprobante_pago_url && (
                 <div style={{
                   background: 'rgba(16, 185, 129, 0.08)',
                   borderRadius: '0.65rem',
@@ -1822,22 +1842,24 @@ const GestionPagosEstudiante = () => {
                   <div style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center',
-                    background: 'rgba(0,0,0,0.35)',
-                    borderRadius: '0.5rem',
+                    alignItems: 'flex-start',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,250,251,0.98) 100%)',
+                    borderRadius: '0.75rem',
                     padding: '0.75rem',
-                    maxHeight: '340px',
-                    overflow: 'auto'
+                    maxHeight: '80vh',
+                    overflow: 'auto',
+                    border: '1px solid rgba(16, 185, 129, 0.15)',
+                    boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.04)'
                   }}>
                     <img
-                      src={`${API_BASE}/api/admin/pagos/${selectedPago.id_pago}/comprobante?token=${sessionStorage.getItem('auth_token')}`}
+                      src={selectedPago.comprobante_pago_url}
                       alt="Comprobante de pago"
                       style={{
-                        width: '90%',
+                        width: '75%',
                         height: 'auto',
-                        maxHeight: '280px',
                         objectFit: 'contain',
-                        borderRadius: '0.375rem'
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                       }}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
@@ -1956,7 +1978,7 @@ const GestionPagosEstudiante = () => {
               borderRadius: '0.9rem',
               width: isMobile ? '92vw' : '650px',
               maxWidth: isMobile ? '92vw' : '650px',
-              maxHeight: '85vh',
+              maxHeight: '95vh',
               padding: isMobile ? '0.75rem 0.9rem' : '1.25rem 1.5rem',
               margin: 'auto',
               color: theme.textPrimary,
@@ -2060,23 +2082,24 @@ const GestionPagosEstudiante = () => {
                 flex: 1,
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'center',
-                background: 'rgba(15,23,42,0.04)',
+                alignItems: 'flex-start',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(249,250,251,1) 100%)',
                 borderRadius: '0.85rem',
-                padding: '0.85rem',
+                padding: '0.5rem',
                 overflow: 'auto',
-                maxHeight: '55vh',
-                border: '1px dashed rgba(148,163,184,0.25)'
+                maxHeight: '80vh',
+                border: '2px solid rgba(16, 185, 129, 0.12)',
+                boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.03)'
               }}>
                 <img
                   src={comprobanteUrl}
                   alt="Comprobante de pago"
                   style={{
-                    maxWidth: '92%',
+                    maxWidth: '50%',
                     height: 'auto',
                     objectFit: 'contain',
-                    borderRadius: '0.65rem',
-                    boxShadow: '0 12px 24px rgba(15,23,42,0.12)'
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05)'
                   }}
                   onLoad={() => {
                     console.log('Imagen del comprobante cargada correctamente');

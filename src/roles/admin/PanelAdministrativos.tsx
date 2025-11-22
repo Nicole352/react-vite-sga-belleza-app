@@ -53,7 +53,7 @@ const PanelAdministrativos = () => {
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string; id_usuario?: number } | null>(null);
+  const [userData, setUserData] = useState<{ nombre?: string; apellido?: string; nombres?: string; apellidos?: string; id_usuario?: number; foto_perfil?: string } | null>(null);
 
   // Hook de notificaciones con WebSocket
   const { 
@@ -61,37 +61,40 @@ const PanelAdministrativos = () => {
     marcarTodasLeidas
   } = useNotifications('admin');
 
-  // Obtener datos del usuario
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = sessionStorage.getItem('auth_token');
-        console.log('Token para obtener datos:', token ? 'Existe' : 'No existe');
-        if (!token) return;
+  // Función para obtener datos del usuario (reutilizable)
+  const fetchUserData = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      console.log('Token para obtener datos:', token ? 'Existe' : 'No existe');
+      if (!token) return;
 
-        const response = await fetch('http://localhost:3000/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+      const response = await fetch('http://localhost:3000/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-        console.log('Status de /api/auth/me:', response.status);
+      console.log('Status de /api/auth/me:', response.status);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Datos del usuario recibidos:', data);
-          // Handle both nombre/nombres and apellido/apellidos for compatibility
-          const nombres = data.nombres || data.nombre || '';
-          const apellidos = data.apellidos || data.apellido || '';
-          console.log('Nombres:', nombres);
-          console.log('Apellidos:', apellidos);
-          console.log('Todas las propiedades:', Object.keys(data));
-          setUserData(data);
-        } else {
-          console.error('Error en respuesta:', response.status);
-        }
-      } catch (error) {
-        console.error('Error obteniendo datos del usuario:', error);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Datos del usuario recibidos:', data);
+        // Handle both nombre/nombres and apellido/apellidos for compatibility
+        const nombres = data.nombres || data.nombre || '';
+        const apellidos = data.apellidos || data.apellido || '';
+        console.log('Nombres:', nombres);
+        console.log('Apellidos:', apellidos);
+        console.log('Foto perfil:', data.foto_perfil);
+        console.log('Todas las propiedades:', Object.keys(data));
+        setUserData(data);
+      } else {
+        console.error('Error en respuesta:', response.status);
       }
-    };
+    } catch (error) {
+      console.error('Error obteniendo datos del usuario:', error);
+    }
+  };
+
+  // Obtener datos del usuario al cargar
+  useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -488,6 +491,7 @@ const PanelAdministrativos = () => {
                 toggleDarkMode={toggleDarkMode}
                 theme={theme}
                 userData={userData}
+                onPhotoUpdated={fetchUserData}
               />
             </div>
           </div>
@@ -514,7 +518,7 @@ const PanelAdministrativos = () => {
             {activeTab === 'asignacion-aulas' && <AdminThemeWrapper darkMode={darkMode}><AsignacionAula /></AdminThemeWrapper>}
             {activeTab === 'pagos' && <AdminThemeWrapper darkMode={darkMode}><GestionPagosEstudiante /></AdminThemeWrapper>}
             {activeTab === 'reportes' && <AdminThemeWrapper darkMode={darkMode}><Reportes darkMode={darkMode} /></AdminThemeWrapper>}
-            {activeTab === 'perfil' && <AdminThemeWrapper darkMode={darkMode}><Perfil darkMode={darkMode} /></AdminThemeWrapper>}
+            {activeTab === 'perfil' && <AdminThemeWrapper darkMode={darkMode}><Perfil darkMode={darkMode} onPhotoUpdate={fetchUserData} /></AdminThemeWrapper>}
           </div>
         </div>
       </div>
