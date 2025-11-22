@@ -110,9 +110,10 @@ const AulaVirtual = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: name === 'identifier' ? value.toLowerCase() : value
     });
   };
 
