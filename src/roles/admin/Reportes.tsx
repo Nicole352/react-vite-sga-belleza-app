@@ -1,9 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Download, BarChart3, Users, BookOpen, DollarSign,
-  Eye, FileSpreadsheet, Loader2, AlertCircle, TrendingUp, CheckCircle2,
-  History, Clock, User, Calendar, Search, ArrowUpDown, ArrowUp, ArrowDown,
-  Award, Target
+  FileText,
+  Download,
+  Filter,
+  Search,
+  Calendar,
+  ChevronDown,
+  Users,
+  DollarSign,
+  BookOpen,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ArrowRight,
+  Loader2,
+  FileSpreadsheet,
+  BarChart3,
+  History,
+  Eye,
+  User,
+  Award,
+  Target,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
@@ -248,7 +270,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
   // Estados principales
   const [tipoReporte, setTipoReporte] = useState<'estudiantes' | 'cursos' | 'financiero'>('estudiantes');
-  const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos');
+  const [periodosSeleccionados, setPeriodosSeleccionados] = useState({
+    estudiantes: 'todos',
+    cursos: 'todos',
+    financiero: 'todos'
+  });
   const [periodosDisponibles, setPeriodosDisponibles] = useState<Periodo[]>([]);
   const [fechaInicio, setFechaInicio] = useState('2025-01-01');
   const [fechaFin, setFechaFin] = useState('2025-12-31');
@@ -329,16 +355,19 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   }, []);
 
   // Actualizar fechas cuando cambia el período seleccionado
+  // Actualizar fechas cuando cambia el período seleccionado del reporte actual
   useEffect(() => {
-    if (periodoSeleccionado === 'todos') {
+    const periodoActual = periodosSeleccionados[tipoReporte];
+
+    if (periodoActual === 'todos') {
       setFechaInicio('2020-01-01');
       setFechaFin('2030-12-31');
-    } else if (periodoSeleccionado !== '') {
-      const [inicio, fin] = periodoSeleccionado.split('|');
+    } else if (periodoActual !== '') {
+      const [inicio, fin] = periodoActual.split('|');
       setFechaInicio(inicio);
       setFechaFin(fin);
     }
-  }, [periodoSeleccionado]);
+  }, [periodosSeleccionados, tipoReporte]);
 
   // Cargar períodos disponibles desde cursos
   const cargarPeriodosDisponibles = async () => {
@@ -391,24 +420,9 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
         setPeriodosDisponibles(periodosArray);
 
-        // Establecer período por defecto (el más reciente o año actual)
-        const hoy = new Date();
-        const añoActual = hoy.getFullYear();
-        const periodoActual = periodosArray.find(p =>
-          p.inicio.startsWith(añoActual.toString())
-        );
-
-        if (periodoActual) {
-          setPeriodoSeleccionado(periodoActual.key);
-        } else if (periodosArray.length > 0) {
-          setPeriodoSeleccionado(periodosArray[0].key);
-        } else {
-          // Si no hay períodos, usar año actual
-          const inicioAno = `${añoActual}-01-01`;
-          const finAno = `${añoActual}-12-31`;
-          setFechaInicio(inicioAno);
-          setFechaFin(finAno);
-        }
+        // Establecer período por defecto: TODOS
+        // Establecer período por defecto: TODOS (ya está inicializado en el estado)
+        // setPeriodosSeleccionados se mantiene con los valores iniciales 'todos'
       } else {
         // Si no hay cursos, usar año actual
         const hoy = new Date();
@@ -496,16 +510,18 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   }, [vistaActual]);
 
   // Filtrar cursos según el período seleccionado
+  // Filtrar cursos según el período seleccionado
   useEffect(() => {
+    const periodoActual = periodosSeleccionados[tipoReporte];
     console.log('Filtrando cursos');
-    console.log('Período seleccionado:', periodoSeleccionado);
+    console.log('Período seleccionado:', periodoActual);
     console.log('Cursos disponibles:', cursosDisponibles.length);
 
-    if (periodoSeleccionado === 'todos') {
+    if (periodoActual === 'todos') {
       console.log('Mostrando todos los cursos');
       setCursosFiltrados(cursosDisponibles);
     } else {
-      const periodo = periodosDisponibles.find(p => p.key === periodoSeleccionado);
+      const periodo = periodosDisponibles.find(p => p.key === periodoActual);
       console.log('Período encontrado:', periodo);
 
       if (periodo) {
@@ -526,7 +542,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     }
     // Resetear el curso seleccionado cuando cambia el período
     setFiltroCurso('');
-  }, [periodoSeleccionado, cursosDisponibles, periodosDisponibles]);
+  }, [periodosSeleccionados, tipoReporte, cursosDisponibles, periodosDisponibles]);
 
   // Generar reporte (vista previa)
   const generarReporte = async () => {
@@ -1792,7 +1808,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     <div
                       key={reporte.id}
                       onClick={() => {
-                        setTipoReporte(reporte.id);
+                        setTipoReporte(reporte.id as 'estudiantes' | 'cursos' | 'financiero');
                         setDatosReporte(null);
                         setEstadisticas(null);
                         // Resetear filtros específicos
@@ -1904,8 +1920,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     {/* Selector de Período */}
                     <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
                       <select
-                        value={periodoSeleccionado}
-                        onChange={(e) => setPeriodoSeleccionado(e.target.value)}
+                        value={periodosSeleccionados[tipoReporte]}
+                        onChange={(e) => setPeriodosSeleccionados(prev => ({
+                          ...prev,
+                          [tipoReporte]: e.target.value
+                        }))}
                         style={{
                           ...baseSelectStyle,
                           padding: '10px 0.75rem',
@@ -2166,6 +2185,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                       const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
                       const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
 
+                      // Verificar si hay datos relevantes para mostrar en el snapshot
+                      const hasSnapshotData = reporte.snapshot && (
+                        (reporte.id_tipo_reporte === 1 && Number(reporte.snapshot.total_estudiantes || 0) > 0) ||
+                        (reporte.id_tipo_reporte === 2 && (Number(reporte.snapshot.monto_total || 0) > 0 || Number(reporte.snapshot.total_transacciones || 0) > 0)) ||
+                        (reporte.id_tipo_reporte === 3 && Number(reporte.snapshot.total_cursos || 0) > 0)
+                      );
+
                       return (
                         <div key={idx} style={{
                           background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
@@ -2267,6 +2293,65 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                   })}</span>
                                 </div>
                               </div>
+
+                              {/* SNAPSHOT DATA DISPLAY */}
+                              {hasSnapshotData && (
+                                <div style={{
+                                  marginTop: '0.5rem',
+                                  padding: '0.5rem',
+                                  background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)',
+                                  borderRadius: '0.375rem',
+                                  fontSize: '0.75rem',
+                                  display: 'flex',
+                                  flexWrap: 'wrap',
+                                  gap: '0.75rem',
+                                  borderLeft: `2px solid ${tipoColor}`
+                                }}>
+                                  {/* Reporte Estudiantes */}
+                                  {reporte.id_tipo_reporte === 1 && (
+                                    <>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Users size={12} color={themeColors.textSecondary} />
+                                        <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_estudiantes || 0}</span> estudiantes
+                                      </span>
+                                      {reporte.snapshot.nuevos_inscritos > 0 && (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981' }}>
+                                          <TrendingUp size={12} />
+                                          +{reporte.snapshot.nuevos_inscritos} nuevos
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {/* Reporte Financiero */}
+                                  {reporte.id_tipo_reporte === 2 && (
+                                    <>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <DollarSign size={12} color="#10b981" />
+                                        <span style={{ fontWeight: 700, color: '#10b981' }}>${reporte.snapshot.monto_total || '0.00'}</span>
+                                      </span>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <FileText size={12} color={themeColors.textSecondary} />
+                                        {reporte.snapshot.total_transacciones || 0} pagos
+                                      </span>
+                                    </>
+                                  )}
+
+                                  {/* Reporte Cursos */}
+                                  {reporte.id_tipo_reporte === 3 && (
+                                    <>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <BookOpen size={12} color={themeColors.textSecondary} />
+                                        <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_cursos || 0}</span> cursos
+                                      </span>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <BarChart3 size={12} color={themeColors.textSecondary} />
+                                        {reporte.snapshot.promedio_ocupacion || '0'}% ocupación
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
