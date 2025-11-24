@@ -32,6 +32,8 @@ interface Pago {
   fecha_verificacion: string | null;
   admin_nombre?: string;
   admin_identificacion?: string;
+  verificado_por_nombre?: string;
+  verificado_por_apellido?: string;
   estudiante_nombre: string;
   estudiante_apellido: string;
   estudiante_cedula: string;
@@ -1610,6 +1612,59 @@ const GestionPagosEstudiante = () => {
                     {selectedPago.estado}
                   </span>
                 </div>
+
+                {/* Verificado Por - Solo si está verificado */}
+                {(selectedPago.estado === 'verificado' && selectedPago.verificado_por_nombre) && (
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    borderRadius: '0.6rem',
+                    padding: '0.65rem',
+                    border: '1px solid rgba(16, 185, 129, 0.22)',
+                    boxShadow: '0 8px 18px rgba(16, 185, 129, 0.08)'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      marginBottom: '0.3rem'
+                    }}>
+                      <div style={{
+                        background: 'rgba(16, 185, 129, 0.18)',
+                        borderRadius: '0.4rem',
+                        padding: '0.4rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <CheckCircle2 size={15} style={{ color: '#10b981' }} />
+                      </div>
+                      <span style={{
+                        color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>Verificado Por</span>
+                    </div>
+                    <div style={{
+                      color: '#10b981',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}>
+                      {selectedPago.verificado_por_nombre} {selectedPago.verificado_por_apellido}
+                    </div>
+                    {selectedPago.fecha_verificacion && (
+                      <div style={{
+                        color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
+                        fontSize: '0.7rem',
+                        marginTop: '0.2rem'
+                      }}>
+                        {formatearFecha(selectedPago.fecha_verificacion)}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Estudiante */}
                 <div style={{

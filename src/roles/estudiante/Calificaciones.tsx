@@ -296,8 +296,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   };
 
   const getColorByGrade = (grade: number) => {
-    if (grade >= 18) return theme.success;
-    if (grade >= 14) return theme.warning;
+    if (grade >= 9) return theme.success;
+    if (grade >= 7) return theme.warning;
     return theme.danger;
   };
 

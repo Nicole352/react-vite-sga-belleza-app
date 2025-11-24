@@ -22,7 +22,7 @@ import './utils/modalScrollHelper';
 
 const ToasterWithTheme = () => {
   const { theme } = useTheme();
-  
+
   return (
     <Toaster
       position="bottom-right"
@@ -36,12 +36,12 @@ const ToasterWithTheme = () => {
       toastOptions={{
         duration: 4000,
         style: {
-          background: theme === 'dark' 
+          background: theme === 'dark'
             ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
             : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
           color: theme === 'dark' ? '#fff' : '#1a1a1a',
-          border: theme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)' 
+          border: theme === 'dark'
+            ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '12px',
           padding: '16px 20px',
@@ -113,64 +113,64 @@ const App: React.FC = () => {
       }}>
         <div className="App">
           <Routes>
-          {/* Rutas públicas con PublicLayout */}
-          <Route path="/" element={<PublicLayout><PaginaInicio /></PublicLayout>} />
-          <Route path="/cursos" element={<PublicLayout><PaginaCursos /></PublicLayout>} />
-          <Route path="/avales" element={<PublicLayout><PaginaAvales /></PublicLayout>} />
-          <Route path="/sobre-nosotros" element={<PublicLayout><PaginaSobreNosotros /></PublicLayout>} />
-          <Route path="/aula-virtual" element={<PublicLayout><PaginaAulaVirtual /></PublicLayout>} />
-          <Route path="/contactenos" element={<PublicLayout><PaginaContactenos /></PublicLayout>} />
-          <Route path="/detalle-curso" element={<PublicLayout><DetalleCurso /></PublicLayout>} />
-          <Route path="/pago" element={<PublicLayout><Pago /></PublicLayout>} />
+            {/* Rutas públicas con PublicLayout */}
+            <Route path="/" element={<PublicLayout><PaginaInicio /></PublicLayout>} />
+            <Route path="/cursos" element={<PublicLayout><PaginaCursos /></PublicLayout>} />
+            <Route path="/avales" element={<PublicLayout><PaginaAvales /></PublicLayout>} />
+            <Route path="/sobre-nosotros" element={<PublicLayout><PaginaSobreNosotros /></PublicLayout>} />
+            <Route path="/aula-virtual" element={<PublicLayout><PaginaAulaVirtual /></PublicLayout>} />
+            <Route path="/contactenos" element={<PublicLayout><PaginaContactenos /></PublicLayout>} />
+            <Route path="/detalle-curso" element={<PublicLayout><DetalleCurso /></PublicLayout>} />
+            <Route path="/pago" element={<PublicLayout><Pago /></PublicLayout>} />
 
-          {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
-          <Route
-            path="/panel/superadmin"
-            element={
-              <ProtectedRoute allowRoles={['superadmin']}>
-                <PanelSuperAdmin />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/panel/superadmin/:tab"
-            element={
-              <ProtectedRoute allowRoles={['superadmin']}>
-                <PanelSuperAdmin />
-              </ProtectedRoute>
-            }
-          />
-          {/* Panel Administrativos */}
-          <Route
-            path="/panel/administrativo"
-            element={
-              <ProtectedRoute allowRoles={['administrativo', 'superadmin']}>
-                <PanelAdministrativos />
-              </ProtectedRoute>
-            }
-          />
-          {/* Panel Estudiantes */}
-          <Route
-            path="/panel/estudiante/*" element={
-              <ProtectedRoute allowRoles={['estudiante']}>
-                <PanelEstudiantes />
-              </ProtectedRoute>
-            }
-          />
-          {/* Panel Docentes */}
-          <Route
-            path="/panel/docente/*"
-            element={
-              <ProtectedRoute allowRoles={['docente']}>
-                <PanelDocentes />
-              </ProtectedRoute>
-            }
-          />
+            {/* Panel SuperAdmin standalone (sin DashboardLayout) */}
+            <Route
+              path="/panel/superadmin"
+              element={
+                <ProtectedRoute allowRoles={['superadmin']}>
+                  <PanelSuperAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/panel/superadmin/:tab"
+              element={
+                <ProtectedRoute allowRoles={['superadmin']}>
+                  <PanelSuperAdmin />
+                </ProtectedRoute>
+              }
+            />
+            {/* Panel Administrativos */}
+            <Route
+              path="/panel/administrativo"
+              element={
+                <ProtectedRoute allowRoles={['administrativo', 'superadmin']}>
+                  <PanelAdministrativos />
+                </ProtectedRoute>
+              }
+            />
+            {/* Panel Estudiantes */}
+            <Route
+              path="/panel/estudiante/*" element={
+                <ProtectedRoute allowRoles={['estudiante']}>
+                  <PanelEstudiantes />
+                </ProtectedRoute>
+              }
+            />
+            {/* Panel Docentes */}
+            <Route
+              path="/panel/docente/*"
+              element={
+                <ProtectedRoute allowRoles={['docente']}>
+                  <PanelDocentes />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
-          {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
-          <Route path="/dashboard/*" element={<RoleRedirect />} />
-        </Routes>
+            {/* Rutas del dashboard sin Header (tiene su propia navegación) */}
+            {/* Al acceder a /dashboard redirigimos según el rol; no mostramos nada por defecto */}
+            <Route path="/dashboard/*" element={<RoleRedirect />} />
+          </Routes>
         </div>
       </Router>
     </>

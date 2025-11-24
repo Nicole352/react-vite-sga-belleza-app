@@ -79,7 +79,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
   const id_curso = id;
   const { isMobile, isSmallScreen } = useBreakpoints();
   const navigate = useNavigate();
-  
+
   // Obtener darkMode del localStorage o usar el prop
   const [darkMode, setDarkMode] = useState(() => {
     if (darkModeProp !== undefined) return darkModeProp;
@@ -93,16 +93,16 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
       const saved = localStorage.getItem('docente-dark-mode');
       setDarkMode(saved !== null ? JSON.parse(saved) : true);
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     // También escuchar cambios directos en el mismo tab
     const interval = setInterval(() => {
       const saved = localStorage.getItem('docente-dark-mode');
       const currentMode = saved !== null ? JSON.parse(saved) : true;
       setDarkMode(currentMode);
     }, 100);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
@@ -234,17 +234,17 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     },
     nueva_tarea: (data: any) => {
       console.log("Nueva tarea creada:", data);
-      
+
       // No mostrar notificación aquí porque el modal ya la muestra
-      
+
       // Actualizar contadores y lista de módulos inmediatamente
       fetchModulos();
-      
+
       // Hacer un segundo fetch después de 200ms para asegurar datos actualizados
       setTimeout(() => {
         fetchModulos();
       }, 200);
-      
+
       // Si el módulo está expandido, recargar sus tareas
       if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
         fetchTareasModulo(data.id_modulo);
@@ -256,15 +256,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     },
     tarea_entregada_docente: (data: any) => {
       console.log("Nueva entrega recibida:", data);
-      
+
       // Mostrar notificación con nombre del estudiante
       const nombreEstudiante = data.estudiante_nombre || 'Un estudiante';
-      
+
       showToast.success(`${nombreEstudiante} entregó una tarea`, darkMode);
-      
+
       // Recargar módulos para actualizar contadores
       fetchModulos();
-      
+
       // Si el módulo está expandido, recargar sus tareas inmediatamente
       if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
         console.log(`Recargando tareas del módulo ${data.id_modulo}`);
@@ -273,17 +273,17 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     },
     entrega_actualizada: (data: any) => {
       console.log("Entrega actualizada:", data);
-      
+
       // Mostrar notificación
       const nombreEstudiante = data.entrega?.estudiante_nombre && data.entrega?.estudiante_apellido
         ? `${data.entrega.estudiante_nombre} ${data.entrega.estudiante_apellido}`
         : 'Un estudiante';
-      
+
       showToast.info(`${nombreEstudiante} actualizó su entrega`, darkMode);
-      
+
       // Recargar módulos y tareas
       fetchModulos();
-      
+
       // Si el módulo está expandido, recargar sus tareas inmediatamente
       if (data.id_modulo && modulosExpandidos[data.id_modulo]) {
         console.log(`Recargando tareas del módulo ${data.id_modulo}`);
@@ -349,8 +349,36 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 
     try {
       setShowModalConfirmEliminarTarea(false);
-      // TODO: Implementar eliminación de tarea en el backend
-      showToast.warning("Funcionalidad de eliminación pendiente", darkMode);
+
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) {
+        showToast.error('Sesión expirada', darkMode);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/api/tareas/${tareaParaEliminar.id_tarea}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        showToast.success('Tarea eliminada exitosamente', darkMode);
+
+        // Refrescar módulos para actualizar contadores
+        await fetchModulos();
+
+        // Si hay un módulo con tareas cargadas, refrescarlas
+        if (tareaParaEliminar.id_modulo && tareasPorModulo[tareaParaEliminar.id_modulo]) {
+          await fetchTareasModulo(tareaParaEliminar.id_modulo);
+        }
+      } else {
+        const errorData = await response.json();
+        showToast.error(errorData.message || 'Error al eliminar la tarea', darkMode);
+      }
+
       setTareaParaEliminar(null);
     } catch (error: any) {
       console.error("Error eliminando tarea:", error);
@@ -400,7 +428,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
         // El servidor respondió con un código de error
         showToast.error(
           error.response.data.error ||
-            `Error ${error.response.status}: ${error.response.statusText}`, darkMode
+          `Error ${error.response.status}: ${error.response.statusText}`, darkMode
         );
       } else if (error.request) {
         // La solicitud fue hecha pero no se recibió respuesta
@@ -455,7 +483,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
         // El servidor respondió con un código de error
         showToast.error(
           error.response.data.error ||
-            `Error ${error.response.status}: ${error.response.statusText}`, darkMode
+          `Error ${error.response.status}: ${error.response.statusText}`, darkMode
         );
       } else if (error.request) {
         // La solicitud fue hecha pero no se recibió respuesta
@@ -566,160 +594,160 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 
   return (
     <>
-    <div style={{
-      minHeight: '100%',
-      backgroundColor: 'transparent',
-      color: theme.textPrimary,
-      padding: '0',
-      paddingBottom: '0',
-      paddingTop: '0'
-    }}>
-      {/* Botón Volver */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <button
-          onClick={() => navigate("/panel/docente")}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: 'none',
-            color: '#3b82f6',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            transition: 'all 0.2s',
-            boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
-            e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-            e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
-          }}
-        >
-          <ArrowLeft size={16} />
-          Volver a Mis Cursos
-        </button>
-      </div>
-
-      {/* Header */}
-      <div style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
-          <div style={{
-            width: '3rem',
-            height: '3rem',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            borderRadius: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-          }}>
-            <BookOpen size={24} strokeWidth={2.5} color="#fff" />
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
-              {curso?.nombre || 'Detalle del Curso'}
-            </h1>
-            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
-              Código: {curso?.codigo_curso} • {curso?.total_estudiantes || 0} estudiantes matriculados
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Herramientas de Gestión */}
       <div style={{
-        background: theme.cardBg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: '0.625rem',
-        padding: '1rem',
-        marginBottom: '0.75rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem'
+        minHeight: '100%',
+        backgroundColor: 'transparent',
+        color: theme.textPrimary,
+        padding: '0',
+        paddingBottom: '0',
+        paddingTop: '0'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div>
-            <div style={{ fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.125rem' }}>
-              Herramientas de Gestión
+        {/* Botón Volver */}
+        <div style={{ marginBottom: '0.75rem' }}>
+          <button
+            onClick={() => navigate("/panel/docente")}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: 'none',
+              color: '#3b82f6',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+            }}
+          >
+            <ArrowLeft size={16} />
+            Volver a Mis Cursos
+          </button>
+        </div>
+
+        {/* Header */}
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+            <div style={{
+              width: '3rem',
+              height: '3rem',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              borderRadius: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            }}>
+              <BookOpen size={24} strokeWidth={2.5} color="#fff" />
             </div>
-            <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
-              Módulos, tareas y configuración disponibles
+            <div>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
+                {curso?.nombre || 'Detalle del Curso'}
+              </h1>
+              <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+                Código: {curso?.codigo_curso} • {curso?.total_estudiantes || 0} estudiantes matriculados
+              </p>
             </div>
           </div>
         </div>
-        
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button
-            onClick={() => {
-              fetchModulos();
-              showToast.success("Actualizado", darkMode);
-            }}
-            style={{
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.2)",
-              borderRadius: "0.5rem",
-              padding: "0.5rem 1rem",
-              color: "#10b981",
-              fontWeight: "600",
-              fontSize: "0.875rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              transition: "all 0.2s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(16, 185, 129, 0.15)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
-            }}
-          >
-            <RefreshCw size={16} />
-          </button>
 
-          <button
-            onClick={handleCrearModulo}
-            style={{
-              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-              border: "none",
-              borderRadius: "0.5rem",
-              padding: "0.5rem 1rem",
-              color: "#fff",
-              fontWeight: "600",
-              fontSize: "0.875rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              boxShadow: "0 2px 4px rgba(59, 130, 246, 0.25)"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-1px)";
-              e.currentTarget.style.boxShadow = "0 4px 8px rgba(59, 130, 246, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 4px rgba(59, 130, 246, 0.25)";
-            }}
-          >
-            <Plus size={16} />
-            Crear Módulo
-          </button>
+        {/* Herramientas de Gestión */}
+        <div style={{
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.625rem',
+          padding: '1rem',
+          marginBottom: '0.75rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div>
+              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.125rem' }}>
+                Herramientas de Gestión
+              </div>
+              <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
+                Módulos, tareas y configuración disponibles
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => {
+                fetchModulos();
+                showToast.success("Actualizado", darkMode);
+              }}
+              style={{
+                background: "rgba(16, 185, 129, 0.1)",
+                border: "1px solid rgba(16, 185, 129, 0.2)",
+                borderRadius: "0.5rem",
+                padding: "0.5rem 1rem",
+                color: "#10b981",
+                fontWeight: "600",
+                fontSize: "0.875rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(16, 185, 129, 0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
+              }}
+            >
+              <RefreshCw size={16} />
+            </button>
+
+            <button
+              onClick={handleCrearModulo}
+              style={{
+                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                border: "none",
+                borderRadius: "0.5rem",
+                padding: "0.5rem 1rem",
+                color: "#fff",
+                fontWeight: "600",
+                fontSize: "0.875rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 4px rgba(59, 130, 246, 0.25)"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow = "0 4px 8px rgba(59, 130, 246, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 2px 4px rgba(59, 130, 246, 0.25)";
+              }}
+            >
+              <Plus size={16} />
+              Crear Módulo
+            </button>
+          </div>
         </div>
-      </div>
 
 
         {/* Lista de Módulos */}
@@ -1555,77 +1583,77 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
           </div>
         )}
 
-      {/* Modales envueltos con DocenteThemeWrapper */}
-      <DocenteThemeWrapper darkMode={darkMode}>
-        <ModalModulo
-          isOpen={showModalModulo}
-          onClose={() => setShowModalModulo(false)}
-          onSuccess={fetchModulos}
-          id_curso={id_curso || ""}
-          darkMode={darkMode}
-        />
+        {/* Modales envueltos con DocenteThemeWrapper */}
+        <DocenteThemeWrapper darkMode={darkMode}>
+          <ModalModulo
+            isOpen={showModalModulo}
+            onClose={() => setShowModalModulo(false)}
+            onSuccess={fetchModulos}
+            id_curso={id_curso || ""}
+            darkMode={darkMode}
+          />
 
-        <ModalTarea
-          isOpen={showModalTarea}
-          onClose={() => {
-            setShowModalTarea(false);
-            setTareaEditar(null);
-          }}
-          onSuccess={() => {
-            // Actualizar lista de módulos para refrescar contadores
-            fetchModulos();
-            // Si hay un módulo seleccionado, actualizar sus tareas
-            if (moduloSeleccionado) {
-              fetchTareasModulo(moduloSeleccionado);
-            }
-            setTareaEditar(null);
-          }}
-          id_modulo={moduloSeleccionado || 0}
-          tareaEditar={tareaEditar}
-          darkMode={darkMode}
-        />
-
-        <ModalEntregas
-          isOpen={showModalEntregas}
-          onClose={() => setShowModalEntregas(false)}
-          onSuccess={() => {
-            if (moduloSeleccionado) {
-              fetchTareasModulo(moduloSeleccionado);
-            }
-          }}
-          id_tarea={tareaSeleccionada?.id || 0}
-          nombre_tarea={tareaSeleccionada?.nombre || ""}
-          nota_maxima={tareaSeleccionada?.nota_maxima || 10}
-          ponderacion={tareaSeleccionada?.ponderacion || 1}
-          darkMode={darkMode}
-        />
-      </DocenteThemeWrapper>
-
-      {/* Modal de Confirmación - Cerrar Módulo */}
-      {showModalConfirmCerrar && createPortal(
-        <>
-          {/* Overlay */}
-          <div
-            onClick={() => setShowModalConfirmCerrar(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: '100vw',
-              height: '100vh',
-              background: 'rgba(0, 0, 0, 0.65)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              zIndex: 99998,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              animation: 'fadeIn 0.3s ease-out'
+          <ModalTarea
+            isOpen={showModalTarea}
+            onClose={() => {
+              setShowModalTarea(false);
+              setTareaEditar(null);
             }}
-          >
-            <style>{`
+            onSuccess={() => {
+              // Actualizar lista de módulos para refrescar contadores
+              fetchModulos();
+              // Si hay un módulo seleccionado, actualizar sus tareas
+              if (moduloSeleccionado) {
+                fetchTareasModulo(moduloSeleccionado);
+              }
+              setTareaEditar(null);
+            }}
+            id_modulo={moduloSeleccionado || 0}
+            tareaEditar={tareaEditar}
+            darkMode={darkMode}
+          />
+
+          <ModalEntregas
+            isOpen={showModalEntregas}
+            onClose={() => setShowModalEntregas(false)}
+            onSuccess={() => {
+              if (moduloSeleccionado) {
+                fetchTareasModulo(moduloSeleccionado);
+              }
+            }}
+            id_tarea={tareaSeleccionada?.id || 0}
+            nombre_tarea={tareaSeleccionada?.nombre || ""}
+            nota_maxima={tareaSeleccionada?.nota_maxima || 10}
+            ponderacion={tareaSeleccionada?.ponderacion || 1}
+            darkMode={darkMode}
+          />
+        </DocenteThemeWrapper>
+
+        {/* Modal de Confirmación - Cerrar Módulo */}
+        {showModalConfirmCerrar && createPortal(
+          <>
+            {/* Overlay */}
+            <div
+              onClick={() => setShowModalConfirmCerrar(false)}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0, 0, 0, 0.65)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                zIndex: 99998,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                animation: 'fadeIn 0.3s ease-out'
+              }}
+            >
+              <style>{`
               @keyframes fadeIn {
                 from { opacity: 0; }
                 to { opacity: 1; }
@@ -1641,575 +1669,575 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                 }
               }
             `}</style>
-            
-            {/* Modal */}
+
+              {/* Modal */}
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: 'var(--docente-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  maxWidth: "28rem",
+                  width: '90%',
+                  border: `1px solid var(--docente-border, rgba(255, 255, 255, 0.1))`,
+                  boxShadow: darkMode
+                    ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)'
+                    : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
+                  animation: "scaleIn 0.3s ease-out"
+                }}
+              >
+                {/* Icono de Alerta */}
+                <div
+                  style={{
+                    width: "4rem",
+                    height: "4rem",
+                    background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 1.5rem",
+                    boxShadow: "0 8px 24px rgba(59, 130, 246, 0.4)",
+                    animation: "pulse 2s ease-in-out infinite",
+                  }}
+                >
+                  <AlertCircle size={32} style={{ color: "#fff" }} />
+                </div>
+
+                {/* Título */}
+                <h3
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "700",
+                    color: 'var(--docente-text-primary, #fff)',
+                    textAlign: "center",
+                    marginBottom: "0.75rem",
+                    letterSpacing: "-0.01em",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  ¿Cerrar este módulo?
+                </h3>
+
+                {/* Mensaje */}
+                <p
+                  style={{
+                    fontSize: "0.95rem",
+                    color: 'var(--docente-text-secondary, rgba(255,255,255,0.7))',
+                    textAlign: "center",
+                    lineHeight: "1.6",
+                    marginBottom: "2rem",
+                  }}
+                >
+                  Los estudiantes{" "}
+                  <strong style={{ color: theme.textPrimary }}>
+                    ya no podrán enviar tareas
+                  </strong>{" "}
+                  una vez que cierres este módulo. Esta acción puede revertirse más
+                  tarde.
+                </p>
+
+                {/* Botones */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.75rem",
+                    justifyContent: "center",
+                  }}
+                >
+                  <button
+                    onClick={() => setShowModalConfirmCerrar(false)}
+                    style={{
+                      flex: 1,
+                      padding: "0.75rem 1.5rem",
+                      background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
+                      border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
+                      borderRadius: "12px",
+                      color: 'var(--docente-text-primary, #fff)',
+                      fontSize: "0.9rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      letterSpacing: "0.01em",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = darkMode
+                        ? "rgba(255, 255, 255, 0.12)"
+                        : "rgba(0, 0, 0, 0.08)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = darkMode
+                        ? "rgba(255, 255, 255, 0.08)"
+                        : "rgba(0, 0, 0, 0.05)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    onClick={confirmarCerrarModulo}
+                    style={{
+                      flex: 1,
+                      padding: "0.75rem 1.5rem",
+                      background:
+                        "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                      border: "none",
+                      borderRadius: "12px",
+                      color: "#fff",
+                      fontSize: "0.9rem",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                      letterSpacing: "0.01em",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 6px 20px rgba(59, 130, 246, 0.4)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 12px rgba(59, 130, 246, 0.3)";
+                    }}
+                  >
+                    Sí, cerrar módulo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>,
+          document.body
+        )}
+
+        {/* Modal de Confirmación - Reabrir Módulo */}
+        {showModalConfirmReabrir && createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              animation: 'fadeIn 0.3s ease-out'
+            }}
+            onClick={() => setShowModalConfirmReabrir(false)}
+          >
             <div
-              onClick={(e) => e.stopPropagation()}
               style={{
-                background: 'var(--docente-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
+                background: darkMode
+                  ? 'rgba(15, 23, 42, 0.95)'
+                  : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 borderRadius: '12px',
                 padding: '2rem',
-                maxWidth: "28rem",
+                maxWidth: '28rem',
                 width: '90%',
-                border: `1px solid var(--docente-border, rgba(255, 255, 255, 0.1))`,
-                boxShadow: darkMode 
-                  ? '0 20px 60px -12px rgba(0, 0, 0, 0.5)' 
-                  : '0 20px 60px -12px rgba(0, 0, 0, 0.15)',
-                animation: "scaleIn 0.3s ease-out"
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                boxShadow: darkMode
+                  ? '0 20px 60px rgba(0, 0, 0, 0.5)'
+                  : '0 20px 60px rgba(0, 0, 0, 0.15)',
+                animation: 'scaleIn 0.3s ease-out'
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-            {/* Icono de Alerta */}
-            <div
-              style={{
-                width: "4rem",
-                height: "4rem",
-                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1.5rem",
-                boxShadow: "0 8px 24px rgba(59, 130, 246, 0.4)",
-                animation: "pulse 2s ease-in-out infinite",
-              }}
-            >
-              <AlertCircle size={32} style={{ color: "#fff" }} />
-            </div>
-
-            {/* Título */}
-            <h3
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "700",
-                color: 'var(--docente-text-primary, #fff)',
-                textAlign: "center",
-                marginBottom: "0.75rem",
-                letterSpacing: "-0.01em",
-                lineHeight: "1.2",
-              }}
-            >
-              ¿Cerrar este módulo?
-            </h3>
-
-            {/* Mensaje */}
-            <p
-              style={{
-                fontSize: "0.95rem",
-                color: 'var(--docente-text-secondary, rgba(255,255,255,0.7))',
-                textAlign: "center",
-                lineHeight: "1.6",
-                marginBottom: "2rem",
-              }}
-            >
-              Los estudiantes{" "}
-              <strong style={{ color: theme.textPrimary }}>
-                ya no podrán enviar tareas
-              </strong>{" "}
-              una vez que cierres este módulo. Esta acción puede revertirse más
-              tarde.
-            </p>
-
-            {/* Botones */}
-            <div
-              style={{
-                display: "flex",
-                gap: "0.75rem",
-                justifyContent: "center",
-              }}
-            >
-              <button
-                onClick={() => setShowModalConfirmCerrar(false)}
+              {/* Icono de Check */}
+              <div
                 style={{
-                  flex: 1,
-                  padding: "0.75rem 1.5rem",
-                  background: 'var(--docente-input-bg, rgba(255,255,255,0.05))',
-                  border: '1px solid var(--docente-border, rgba(255,255,255,0.1))',
-                  borderRadius: "12px",
-                  color: 'var(--docente-text-primary, #fff)',
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  letterSpacing: "0.01em",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.12)"
-                    : "rgba(0, 0, 0, 0.08)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.05)";
-                  e.currentTarget.style.transform = "translateY(0)";
+                  width: "4rem",
+                  height: "4rem",
+                  background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.5rem",
+                  boxShadow: "0 8px 24px rgba(59, 130, 246, 0.4)",
+                  animation: "pulse 2s ease-in-out infinite",
                 }}
               >
-                Cancelar
-              </button>
+                <CheckCircle size={32} style={{ color: "#fff" }} />
+              </div>
 
-              <button
-                onClick={confirmarCerrarModulo}
+              {/* Título */}
+              <h3
                 style={{
-                  flex: 1,
-                  padding: "0.75rem 1.5rem",
-                  background:
-                    "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                  border: "none",
-                  borderRadius: "12px",
-                  color: "#fff",
-                  fontSize: "0.9rem",
+                  fontSize: "1.5rem",
                   fontWeight: "700",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-                  letterSpacing: "0.01em",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 20px rgba(59, 130, 246, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(59, 130, 246, 0.3)";
-                }}
-              >
-                Sí, cerrar módulo
-              </button>
-            </div>
-          </div>
-          </div>
-        </>,
-        document.body
-      )}
-
-      {/* Modal de Confirmación - Reabrir Módulo */}
-      {showModalConfirmReabrir && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.65)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            animation: 'fadeIn 0.3s ease-out'
-          }}
-          onClick={() => setShowModalConfirmReabrir(false)}
-        >
-          <div
-            style={{
-              background: darkMode 
-                ? 'rgba(15, 23, 42, 0.95)' 
-                : 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              borderRadius: '12px',
-              padding: '2rem',
-              maxWidth: '28rem',
-              width: '90%',
-              border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-              boxShadow: darkMode 
-                ? '0 20px 60px rgba(0, 0, 0, 0.5)' 
-                : '0 20px 60px rgba(0, 0, 0, 0.15)',
-              animation: 'scaleIn 0.3s ease-out'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Icono de Check */}
-            <div
-              style={{
-                width: "4rem",
-                height: "4rem",
-                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1.5rem",
-                boxShadow: "0 8px 24px rgba(59, 130, 246, 0.4)",
-                animation: "pulse 2s ease-in-out infinite",
-              }}
-            >
-              <CheckCircle size={32} style={{ color: "#fff" }} />
-            </div>
-
-            {/* Título */}
-            <h3
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "700",
-                color: theme.textPrimary,
-                textAlign: "center",
-                marginBottom: "0.5rem",
-              }}
-            >
-              ¿Reabrir este módulo?
-            </h3>
-
-            {/* Mensaje */}
-            <p
-              style={{
-                fontSize: "0.95rem",
-                color: theme.textSecondary,
-                textAlign: "center",
-                lineHeight: "1.5",
-                marginBottom: "1.5rem",
-              }}
-            >
-              Los estudiantes{" "}
-              <strong style={{ color: theme.textPrimary }}>
-                podrán enviar tareas
-              </strong>{" "}
-              nuevamente una vez que reabras este módulo.
-            </p>
-
-            {/* Botones */}
-            <div
-              style={{
-                display: "flex",
-                gap: "0.75rem",
-                justifyContent: "center",
-              }}
-            >
-              <button
-                onClick={() => setShowModalConfirmReabrir(false)}
-                style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  flex: 1,
-                  padding: "0.75rem 1.5rem",
-                  background: darkMode
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.05)",
-                  border: darkMode
-                    ? "1px solid rgba(255, 255, 255, 0.15)"
-                    : "1px solid rgba(0, 0, 0, 0.1)",
-                  borderRadius: "12px",
                   color: theme.textPrimary,
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  letterSpacing: "0.01em",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.12)"
-                    : "rgba(0, 0, 0, 0.08)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.05)";
-                  e.currentTarget.style.transform = "translateY(0)";
+                  textAlign: "center",
+                  marginBottom: "0.5rem",
                 }}
               >
-                Cancelar
-              </button>
+                ¿Reabrir este módulo?
+              </h3>
 
-              <button
-                onClick={confirmarReabrirModulo}
+              {/* Mensaje */}
+              <p
                 style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  flex: 1,
-                  padding: "0.75rem 1.5rem",
-                  background:
-                    "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                  border: "none",
-                  borderRadius: "12px",
-                  color: "#fff",
-                  fontSize: "0.9rem",
-                  fontWeight: "700",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-                  letterSpacing: "0.01em",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 20px rgba(59, 130, 246, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(59, 130, 246, 0.3)";
+                  fontSize: "0.95rem",
+                  color: theme.textSecondary,
+                  textAlign: "center",
+                  lineHeight: "1.5",
+                  marginBottom: "1.5rem",
                 }}
               >
-                Sí, reabrir módulo
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+                Los estudiantes{" "}
+                <strong style={{ color: theme.textPrimary }}>
+                  podrán enviar tareas
+                </strong>{" "}
+                nuevamente una vez que reabras este módulo.
+              </p>
 
-      {/* Modal de Confirmación - Eliminar Módulo */}
-      {showModalConfirmEliminarModulo && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.65)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            animation: 'fadeIn 0.3s ease-out'
-          }}
-          onClick={() => setShowModalConfirmEliminarModulo(false)}
-        >
+              {/* Botones */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "0.75rem",
+                  justifyContent: "center",
+                }}
+              >
+                <button
+                  onClick={() => setShowModalConfirmReabrir(false)}
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    flex: 1,
+                    padding: "0.75rem 1.5rem",
+                    background: darkMode
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "rgba(0, 0, 0, 0.05)",
+                    border: darkMode
+                      ? "1px solid rgba(255, 255, 255, 0.15)"
+                      : "1px solid rgba(0, 0, 0, 0.1)",
+                    borderRadius: "12px",
+                    color: theme.textPrimary,
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    letterSpacing: "0.01em",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = darkMode
+                      ? "rgba(255, 255, 255, 0.12)"
+                      : "rgba(0, 0, 0, 0.08)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "rgba(0, 0, 0, 0.05)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={confirmarReabrirModulo}
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    flex: 1,
+                    padding: "0.75rem 1.5rem",
+                    background:
+                      "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                    border: "none",
+                    borderRadius: "12px",
+                    color: "#fff",
+                    fontSize: "0.9rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                    letterSpacing: "0.01em",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(59, 130, 246, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(59, 130, 246, 0.3)";
+                  }}
+                >
+                  Sí, reabrir módulo
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Modal de Confirmación - Eliminar Módulo */}
+        {showModalConfirmEliminarModulo && createPortal(
           <div
             style={{
-              background: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.65)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderRadius: '12px',
-              padding: '2rem',
-              maxWidth: '28rem',
-              width: '90%',
-              border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-              boxShadow: darkMode ? '0 20px 60px rgba(0, 0, 0, 0.5)' : '0 20px 60px rgba(0, 0, 0, 0.15)',
-              animation: 'scaleIn 0.3s ease-out'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              animation: 'fadeIn 0.3s ease-out'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={() => setShowModalConfirmEliminarModulo(false)}
           >
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{
-                width: '4rem',
-                height: '4rem',
-                background: 'rgba(239, 68, 68, 0.1)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1rem'
-              }}>
-                <AlertTriangle size={32} color="#ef4444" />
-              </div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: darkMode ? '#fff' : '#1e293b',
-                marginBottom: '0.5rem'
-              }}>
-                ¿Eliminar módulo?
-              </h3>
-              <p style={{
-                color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                fontSize: '0.95rem',
-                lineHeight: '1.5'
-              }}>
-                Se eliminarán todas las tareas asociadas. Esta acción no se puede deshacer.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => setShowModalConfirmEliminarModulo(false)}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1.5rem',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                  border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
-                  borderRadius: '8px',
+            <div
+              style={{
+                background: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '12px',
+                padding: '2rem',
+                maxWidth: '28rem',
+                width: '90%',
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                boxShadow: darkMode ? '0 20px 60px rgba(0, 0, 0, 0.5)' : '0 20px 60px rgba(0, 0, 0, 0.15)',
+                animation: 'scaleIn 0.3s ease-out'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={{
+                  width: '4rem',
+                  height: '4rem',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem'
+                }}>
+                  <AlertTriangle size={32} color="#ef4444" />
+                </div>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
                   color: darkMode ? '#fff' : '#1e293b',
+                  marginBottom: '0.5rem'
+                }}>
+                  ¿Eliminar módulo?
+                </h3>
+                <p style={{
+                  color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
                   fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = darkMode ? '0 4px 12px rgba(255, 255, 255, 0.1)' : '0 4px 12px rgba(0, 0, 0, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarEliminarModulo}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1.5rem',
-                  background: '#ef4444',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-                }}
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+                  lineHeight: '1.5'
+                }}>
+                  Se eliminarán todas las tareas asociadas. Esta acción no se puede deshacer.
+                </p>
+              </div>
 
-      {/* Modal de Confirmación - Eliminar Tarea */}
-      {showModalConfirmEliminarTarea && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.65)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            animation: 'fadeIn 0.3s ease-out'
-          }}
-          onClick={() => setShowModalConfirmEliminarTarea(false)}
-        >
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  onClick={() => setShowModalConfirmEliminarModulo(false)}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1.5rem',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                    border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+                    borderRadius: '8px',
+                    color: darkMode ? '#fff' : '#1e293b',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = darkMode ? '0 4px 12px rgba(255, 255, 255, 0.1)' : '0 4px 12px rgba(0, 0, 0, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarEliminarModulo}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1.5rem',
+                    background: '#ef4444',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                  }}
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Modal de Confirmación - Eliminar Tarea */}
+        {showModalConfirmEliminarTarea && createPortal(
           <div
             style={{
-              background: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.65)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderRadius: '12px',
-              padding: '2rem',
-              maxWidth: '28rem',
-              width: '90%',
-              border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-              boxShadow: darkMode ? '0 20px 60px rgba(0, 0, 0, 0.5)' : '0 20px 60px rgba(0, 0, 0, 0.15)',
-              animation: 'scaleIn 0.3s ease-out'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              animation: 'fadeIn 0.3s ease-out'
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={() => setShowModalConfirmEliminarTarea(false)}
           >
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{
-                width: '4rem',
-                height: '4rem',
-                background: 'rgba(239, 68, 68, 0.1)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1rem'
-              }}>
-                <AlertTriangle size={32} color="#ef4444" />
-              </div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: darkMode ? '#fff' : '#1e293b',
-                marginBottom: '0.5rem'
-              }}>
-                ¿Eliminar tarea?
-              </h3>
-              <p style={{
-                color: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(30,41,59,0.9)',
-                fontSize: '1rem',
-                fontWeight: '600',
-                marginBottom: '0.5rem'
-              }}>
-                {tareaParaEliminar?.titulo}
-              </p>
-              <p style={{
-                color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                fontSize: '0.95rem',
-                lineHeight: '1.5'
-              }}>
-                Esta acción no se puede deshacer.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => setShowModalConfirmEliminarTarea(false)}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1.5rem',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                  border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
-                  borderRadius: '8px',
+            <div
+              style={{
+                background: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '12px',
+                padding: '2rem',
+                maxWidth: '28rem',
+                width: '90%',
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                boxShadow: darkMode ? '0 20px 60px rgba(0, 0, 0, 0.5)' : '0 20px 60px rgba(0, 0, 0, 0.15)',
+                animation: 'scaleIn 0.3s ease-out'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={{
+                  width: '4rem',
+                  height: '4rem',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem'
+                }}>
+                  <AlertTriangle size={32} color="#ef4444" />
+                </div>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
                   color: darkMode ? '#fff' : '#1e293b',
-                  fontSize: '0.95rem',
+                  marginBottom: '0.5rem'
+                }}>
+                  ¿Eliminar tarea?
+                </h3>
+                <p style={{
+                  color: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(30,41,59,0.9)',
+                  fontSize: '1rem',
                   fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = darkMode ? '0 4px 12px rgba(255, 255, 255, 0.1)' : '0 4px 12px rgba(0, 0, 0, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarEliminarTarea}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1.5rem',
-                  background: '#ef4444',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
+                  marginBottom: '0.5rem'
+                }}>
+                  {tareaParaEliminar?.titulo}
+                </p>
+                <p style={{
+                  color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
                   fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-                }}
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+                  lineHeight: '1.5'
+                }}>
+                  Esta acción no se puede deshacer.
+                </p>
+              </div>
 
-      <style>{`
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  onClick={() => setShowModalConfirmEliminarTarea(false)}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1.5rem',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                    border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+                    borderRadius: '8px',
+                    color: darkMode ? '#fff' : '#1e293b',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = darkMode ? '0 4px 12px rgba(255, 255, 255, 0.1)' : '0 4px 12px rgba(0, 0, 0, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarEliminarTarea}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1.5rem',
+                    background: '#ef4444',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                  }}
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -2247,7 +2275,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
         }
       `}</style>
 
-    </div>
+      </div>
     </>
   );
 };

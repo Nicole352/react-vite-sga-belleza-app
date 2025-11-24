@@ -314,7 +314,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
           </div>
           <span style={{ color: '#10b981', fontSize: '1.5rem', fontWeight: '800' }}>
             {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.calificacion !== undefined && curso.calificacion !== null) ?
-              (cursosMatriculados.reduce((acc, curso) => acc + (curso.calificacion || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
+              (cursosMatriculados.reduce((acc, curso) => acc + (Number(curso.calificacion) || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
           </span>
         </div>
 
@@ -471,7 +471,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.2em' }}>
                       <Star size={12} color={theme.accent} strokeWidth={2} />
                       <span style={{ color: theme.accent, fontSize: '0.8rem', fontWeight: '600' }}>
-                        {curso.calificacion !== undefined && curso.calificacion !== null ? Number(curso.calificacion).toFixed(1) : '0.0'}/10
+                        {curso.calificacion !== undefined && curso.calificacion !== null && !isNaN(Number(curso.calificacion)) ? Number(curso.calificacion).toFixed(1) : '0.0'}/10
                       </span>
                     </div>
                     <div style={{ fontSize: '0.7rem', color: theme.textMuted }}>
@@ -636,7 +636,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                             fontSize: '0.65rem',
                             fontWeight: '700'
                           }}>
-                            {curso.calificacion !== undefined && curso.calificacion !== null ? Number(curso.calificacion).toFixed(1) : '0.0'}
+                            {curso.calificacion !== undefined && curso.calificacion !== null && !isNaN(Number(curso.calificacion)) ? Number(curso.calificacion).toFixed(1) : '0.0'}
                           </span>
                         </div>
                       </div>

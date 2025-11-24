@@ -32,6 +32,7 @@ interface Estudiante {
   id_estudiante: number;
   nombre: string;
   apellido: string;
+  identificacion?: string;
   calificaciones: { [tareaId: number]: number | null };
   promedio: number;
   promedio_global?: number;
@@ -79,6 +80,26 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     } catch {
       return null;
     }
+  };
+  const loadImageDataUrl = (url: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(null);
+          return;
+        }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
   };
 
   const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -133,11 +154,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
     // Aplicar filtro
     if (filtro === "aprobados") {
-      result = result.filter((est) => est.promedio >= 14); // Asumiendo 14 como nota mínima de aprobación
+      result = result.filter((est) => (parseFloat(String(est.promedio_global)) || 0) >= 7); // Nota mínima de aprobación: 7.0/10
     } else if (filtro === "reprobados") {
-      result = result.filter((est) => est.promedio < 14);
+      result = result.filter((est) => (parseFloat(String(est.promedio_global)) || 0) < 7);
     }
-
     setFilteredEstudiantes(result);
   }, [estudiantes, busqueda, filtro]);
 
@@ -322,6 +342,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           id_estudiante: est.id_estudiante,
           nombre: est.nombre,
           apellido: est.apellido,
+          identificacion: est.cedula || "N/A",
           calificaciones: califs,
           promedio: count > 0 ? suma / count : 0,
           promedio_global: parseFloat(String(promediosEst.promedio_global)) || 0,
@@ -338,63 +359,157 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     } finally {
       setLoading(false);
     }
-  };
-
-  const descargarPDF = async () => {
+  }; const descargarPDF = async () => {
     try {
       setDownloadingPDF(true);
 
       const { jsPDF }: any = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default as any;
 
-      const orientation = tareas.length > 6 ? "landscape" : "portrait";
-      const doc = new jsPDF({ orientation });
+      // SIEMPRE usar orientación horizontal para mejor visualización
+      const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-      // Encabezado
-      doc.setFontSize(14);
-      doc.text("Calificaciones del Curso", 14, 14);
-      doc.setFontSize(11);
-      doc.text(String(cursoNombre || ""), 14, 22);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
-      // Logo (opcional) desde /public/vite.svg
+      // ============================================
+      // ENCABEZADO PROFESIONAL (NEGRO/DORADO)
+      // ============================================
+
+      // Fondo oscuro para el encabezado
+      doc.setFillColor(26, 26, 26); // Negro suave #1a1a1a
+      doc.rect(0, 0, pageWidth, 40, 'F');
+
+      // Línea dorada inferior del encabezado
+      doc.setDrawColor(251, 191, 36); // Dorado #fbbf24
+      doc.setLineWidth(1.5);
+      doc.line(0, 40, pageWidth, 40);
+
+      // Logo de la empresa (esquina superior derecha)
       try {
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const logoDataUrl = await loadSvgAsPngDataUrl("/vite.svg", 24, 24);
+        // Usar el logo de Cloudinary
+        const logoUrl = "https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png";
+        const logoDataUrl = await loadImageDataUrl(logoUrl);
         if (logoDataUrl) {
-          doc.addImage(logoDataUrl, "PNG", pageWidth - 14 - 24, 10, 24, 24);
+          doc.addImage(logoDataUrl, "PNG", pageWidth - 45, 2, 36, 36);
         }
-      } catch { }
+      } catch (e) {
+        console.error("Error cargando logo:", e);
+      }
 
-      // Construir head y body
+      // Título principal
+      doc.setTextColor(251, 191, 36); // Dorado #fbbf24
+      doc.setFontSize(22);
+      doc.setFont(undefined, 'bold');
+      doc.text("REPORTE DE CALIFICACIONES", 14, 18);
+
+      // Subtítulo (nombre del curso)
+      doc.setTextColor(255, 255, 255); // Blanco
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'normal');
+      doc.text(String(cursoNombre || ""), 14, 28);
+
+      // Fecha de generación
+      doc.setTextColor(200, 200, 200); // Gris claro
+      doc.setFontSize(9);
+      const fechaActual = new Date().toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      doc.text(`Generado el: ${fechaActual}`, 14, 35);
+
+      // ============================================
+      // TABLA DE CALIFICACIONES
+      // ============================================
+
+      // Construir encabezados
       const head = [
         [
+          "Identificación",
           "Estudiante",
-          ...tareas.map((t) => `${t.titulo} (/${t.nota_maxima})`),
-          "Promedio",
+          "Promedio Global",
+          "Estado"
         ],
       ];
-      const body = estudiantes.map((est) => [
-        `${est.nombre} ${est.apellido}`,
-        ...tareas.map((t) => {
-          const v = est.calificaciones[t.id_tarea];
-          return v !== null && Number.isFinite(v)
-            ? (v as number).toFixed(1)
-            : "-";
-        }),
-        est.promedio.toFixed(1),
-      ]);
+
+      // Construir filas de datos
+      const body = estudiantes.map((est, index) => {
+        const promedioGlobal = parseFloat(String(est.promedio_global)) || 0;
+        const estado = promedioGlobal >= 7 ? "APROBADO" : "REPROBADO";
+
+        return [
+          est.identificacion || "N/A",
+          `${est.apellido}, ${est.nombre}`,
+          promedioGlobal.toFixed(2),
+          estado
+        ];
+      });
 
       autoTable(doc, {
         head,
         body,
-        startY: 28,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [59, 130, 246], textColor: 255 },
-        alternateRowStyles: { fillColor: [245, 247, 250] },
+        startY: 50,
+        theme: 'grid',
+        styles: {
+          fontSize: 10,
+          cellPadding: 5,
+          halign: 'center',
+          valign: 'middle',
+          lineColor: [200, 200, 200],
+          lineWidth: 0.1
+        },
+        headStyles: {
+          fillColor: [26, 26, 26], // Negro suave
+          textColor: [251, 191, 36], // Dorado
+          fontStyle: 'bold',
+          fontSize: 11,
+          lineWidth: 0 // Sin bordes en el header para look más limpio
+        },
+        columnStyles: {
+          0: { cellWidth: 45, halign: 'center' },
+          1: { cellWidth: 'auto', halign: 'left' },
+          2: { cellWidth: 40, halign: 'center' },
+          3: { cellWidth: 40, halign: 'center' }
+        },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        didParseCell: function (data: any) {
+          // Colorear la columna "Estado"
+          if (data.column.index === 3 && data.section === 'body') {
+            const estado = data.cell.raw;
+            if (estado === 'APROBADO') {
+              data.cell.styles.textColor = [22, 163, 74]; // Verde
+              data.cell.styles.fontStyle = 'bold';
+            } else if (estado === 'REPROBADO') {
+              data.cell.styles.textColor = [220, 38, 38]; // Rojo
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
+        }
       });
 
+      // ============================================
+      // PIE DE PÁGINA
+      // ============================================
+
+      // Fondo negro
+      doc.setFillColor(26, 26, 26);
+      doc.rect(0, pageHeight - 12, pageWidth, 12, 'F');
+
+      // Texto dorado
+      doc.setTextColor(251, 191, 36);
+      doc.setFontSize(8);
+      doc.setFont(undefined, 'normal');
+      doc.text(
+        "Jessica Vélez - Escuela de Esteticistas | Educación Certificada",
+        pageWidth / 2,
+        pageHeight - 5,
+        { align: 'center' }
+      );
+
+      // Guardar PDF
       doc.save(
-        `Calificaciones_${cursoNombre}_${new Date().toISOString().split("T")[0]}.pdf`,
+        `Calificaciones_${cursoNombre.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`,
       );
       showToast.success('PDF descargado correctamente', darkMode);
     } catch (error) {
@@ -410,22 +525,66 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       setDownloadingExcel(true);
 
       // Dynamically import xlsx
-      const XLSX = await import("xlsx");
-
+      const XLSX = await import("xlsx-js-style");
       // Hoja 1: Detalle de calificaciones por tarea
-      const datosDetalle = estudiantes.map((est) => {
-        const fila: any = {
-          Apellido: est.apellido,
-          Nombre: est.nombre,
-        };
+      // ============================================
+      // Hoja 1: CALIFICACIONES CON ENCABEZADOS DE 2 NIVELES
+      // ============================================
 
-        tareas.forEach((tarea) => {
-          const nota = est.calificaciones[tarea.id_tarea];
-          fila[tarea.titulo] =
-            nota !== null && Number.isFinite(nota) ? nota.toFixed(1) : "-";
+      // Agrupar tareas por módulo
+      const tareasPorModulo: { [modulo: string]: typeof tareas } = {};
+      tareas.forEach((tarea) => {
+        const moduloNombre = tarea.modulo_nombre || "Sin Módulo";
+        if (!tareasPorModulo[moduloNombre]) {
+          tareasPorModulo[moduloNombre] = [];
+        }
+        tareasPorModulo[moduloNombre].push(tarea);
+      });
+
+      // Crear encabezados de 2 niveles
+      const encabezadoNivel1: any[] = ["", ""]; // Apellido, Nombre
+      const encabezadoNivel2: any[] = ["Apellido", "Nombre"];
+
+      // Agregar módulos y tareas a los encabezados
+      Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
+        const tareasDelModulo = tareasPorModulo[moduloNombre];
+
+        // Nivel 1: Nombre del módulo (se extiende sobre todas las tareas)
+        encabezadoNivel1.push(moduloNombre);
+        for (let i = 1; i < tareasDelModulo.length; i++) {
+          encabezadoNivel1.push(""); // Celdas vacías para merge
+        }
+
+        // Nivel 2: Nombres de las tareas
+        tareasDelModulo.forEach((tarea) => {
+          encabezadoNivel2.push(tarea.titulo);
+        });
+      });
+
+      // Agregar columnas de promedios
+      modulos.forEach((modulo) => {
+        encabezadoNivel1.push("");
+        encabezadoNivel2.push(`Promedio ${modulo}`);
+      });
+
+      // Promedio Global
+      encabezadoNivel1.push("");
+      encabezadoNivel2.push("Promedio Global (/10pts)");
+
+      // Crear filas de datos
+      const filasEstudiantes = estudiantes.map((est) => {
+        const fila: any[] = [est.apellido, est.nombre];
+
+        // Agregar calificaciones por módulo
+        Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
+          const tareasDelModulo = tareasPorModulo[moduloNombre];
+          tareasDelModulo.forEach((tarea) => {
+            const nota = est.calificaciones[tarea.id_tarea];
+            fila.push(nota !== null && Number.isFinite(nota) ? nota.toFixed(1) : "-");
+          });
         });
 
-        // Agregar columnas de promedio por módulo
+        // Agregar promedios por módulo
         modulos.forEach((modulo) => {
           const moduloDetalle = est.modulos_detalle?.find(
             (m) => m.nombre_modulo === modulo,
@@ -433,22 +592,138 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           const promedioModulo = moduloDetalle
             ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10))
             : 0;
-          fila[`Promedio ${modulo}`] =
-            promedioModulo > 0 ? promedioModulo.toFixed(2) : "-";
-
+          fila.push(promedioModulo > 0 ? promedioModulo.toFixed(2) : "-");
         });
 
         // Agregar promedio global
-        fila["Promedio Global (/10pts)"] = est.promedio_global
+        const promedioGlobal = est.promedio_global
           ? typeof est.promedio_global === "number"
             ? est.promedio_global.toFixed(2)
             : parseFloat(String(est.promedio_global)).toFixed(2)
           : "0.00";
+        fila.push(promedioGlobal);
 
         return fila;
       });
 
-      // Hoja 2: Promedios por Módulo (sobre 10 puntos)
+      // Combinar encabezados y datos
+      const datosCompletos = [encabezadoNivel1, encabezadoNivel2, ...filasEstudiantes];
+
+      // Crear hoja de Excel con array of arrays
+      const wsDetalle = XLSX.utils.aoa_to_sheet(datosCompletos);
+
+      // Aplicar merge a los encabezados de módulos (nivel 1)
+      const merges: any[] = [];
+      let colIndex = 2; // Empieza después de Apellido y Nombre
+
+      Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
+        const tareasDelModulo = tareasPorModulo[moduloNombre];
+        if (tareasDelModulo.length > 1) {
+          merges.push({
+            s: { r: 0, c: colIndex },
+            e: { r: 0, c: colIndex + tareasDelModulo.length - 1 }
+          });
+        }
+        colIndex += tareasDelModulo.length;
+      });
+
+      wsDetalle['!merges'] = merges;
+      // ============================================
+      // APLICAR ESTILOS AL EXCEL
+      // ============================================
+      // Definir estilos para los encabezados
+      const estiloModulo = {
+        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },
+        fill: { fgColor: { rgb: "0284C7" } }, // Azul cielo
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      const estiloTarea = {
+        font: { bold: true, color: { rgb: "0C4A6E" }, sz: 10 }, // Texto azul oscuro
+        fill: { fgColor: { rgb: "BAE6FD" } }, // Celeste claro
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      const estiloApellidoNombre = {
+        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
+        fill: { fgColor: { rgb: "0369A1" } }, // Azul medio
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      // Aplicar estilos a las celdas
+      const range = XLSX.utils.decode_range(wsDetalle['!ref'] || 'A1');
+
+      // Estilo para fila 1 (encabezados de módulos)
+      for (let C = 0; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!wsDetalle[cellAddress]) wsDetalle[cellAddress] = { t: 's', v: '' };
+        wsDetalle[cellAddress].s = C < 2 ? estiloApellidoNombre : estiloModulo;
+      }
+
+      // Estilo para fila 2 (encabezados de tareas)
+      for (let C = 0; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 1, c: C });
+        if (!wsDetalle[cellAddress]) continue;
+        wsDetalle[cellAddress].s = C < 2 ? estiloApellidoNombre : estiloTarea;
+      }
+
+      // Aplicar bordes a todas las celdas de datos
+      for (let R = 2; R <= range.e.r; ++R) {
+        for (let C = 0; C <= range.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!wsDetalle[cellAddress]) continue;
+          wsDetalle[cellAddress].s = {
+            border: {
+              top: { style: "thin", color: { rgb: "E5E7EB" } },
+              bottom: { style: "thin", color: { rgb: "E5E7EB" } },
+              left: { style: "thin", color: { rgb: "E5E7EB" } },
+              right: { style: "thin", color: { rgb: "E5E7EB" } }
+            },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+      }
+
+      // Ajustar ancho de columnas automáticamente
+      const colWidths: any[] = [];
+      for (let C = 0; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = 0; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = wsDetalle[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = String(cell.v).length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth + 2, 30) });
+      }
+      wsDetalle['!cols'] = colWidths;
+
+      // Crear libro de Excel
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, wsDetalle, "Calificaciones por Tarea");
+      // ============================================
+      // Hoja 2: Promedios por Módulo
+      // ============================================
       const datosModulos = estudiantes.map((est) => {
         const fila: any = {
           Apellido: est.apellido,
@@ -479,7 +754,9 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         return fila;
       });
 
-      // Hoja 3: Estadísticas del curso (SIMPLES Y RELEVANTES)
+      // ============================================
+      // Hoja 3: Estadísticas del curso
+      // ============================================
       const aprobadosGlobal = estudiantes.filter(
         (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
       ).length;
@@ -527,7 +804,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         { Métrica: "Total de Módulos en el Curso", Valor: modulos.length },
         {
           Métrica: "Peso por Módulo",
-          Valor: pesoPorModulo.toFixed(2) + " pts",
+          Valor: (typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2) + " pts",
         },
         { Métrica: "", Valor: "" },
         { Métrica: "Nota Mínima de Aprobación", Valor: "7.0 / 10 puntos" },
@@ -536,23 +813,71 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           Valor: "Todos los módulos tienen igual peso",
         },
       ];
-
-      // Crear libro de Excel
-      const wb = XLSX.utils.book_new();
-
-      // Agregar hoja de detalle de tareas
-      const wsDetalle = XLSX.utils.json_to_sheet(datosDetalle);
-      XLSX.utils.book_append_sheet(wb, wsDetalle, "Calificaciones por Tarea");
-
       // Agregar hoja de promedios por módulo (SIEMPRE se crea)
       console.log("Intentando crear hoja de módulos...");
       console.log("datosModulos.length:", datosModulos.length);
       console.log("modulos.length:", modulos.length);
 
       if (datosModulos.length > 0) {
-        console.log(" Creando hoja 'Promedios por Módulo'");
+        console.log(" ✓ Creando hoja 'Promedios por Módulo'");
         const wsModulos = XLSX.utils.json_to_sheet(datosModulos);
+
+        // Aplicar estilos a la hoja de Promedios por Módulo
+        const rangeModulos = XLSX.utils.decode_range(wsModulos['!ref'] || 'A1');
+        const estiloEncabezadoModulos = {
+          font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
+          fill: { fgColor: { rgb: "0284C7" } }, // Azul cielo
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+
+        // Aplicar estilo a encabezados (fila 0)
+        for (let C = 0; C <= rangeModulos.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+          if (!wsModulos[cellAddress]) continue;
+          wsModulos[cellAddress].s = estiloEncabezadoModulos;
+        }
+
+        // Aplicar bordes y alineación a datos
+        for (let R = 1; R <= rangeModulos.e.r; ++R) {
+          for (let C = 0; C <= rangeModulos.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!wsModulos[cellAddress]) continue;
+            wsModulos[cellAddress].s = {
+              border: {
+                top: { style: "thin", color: { rgb: "E5E7EB" } },
+                bottom: { style: "thin", color: { rgb: "E5E7EB" } },
+                left: { style: "thin", color: { rgb: "E5E7EB" } },
+                right: { style: "thin", color: { rgb: "E5E7EB" } }
+              },
+              alignment: { horizontal: "center", vertical: "center" }
+            };
+          }
+        }
+
+        // Ajustar ancho de columnas
+        const colWidthsModulos: any[] = [];
+        for (let C = 0; C <= rangeModulos.e.c; ++C) {
+          let maxWidth = 10;
+          for (let R = 0; R <= rangeModulos.e.r; ++R) {
+            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+            const cell = wsModulos[cellAddress];
+            if (cell && cell.v) {
+              const cellLength = String(cell.v).length;
+              maxWidth = Math.max(maxWidth, cellLength);
+            }
+          }
+          colWidthsModulos.push({ wch: Math.min(maxWidth + 2, 30) });
+        }
+        wsModulos['!cols'] = colWidthsModulos;
+
         XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
+        console.log(" ✓ Hoja 'Promedios por Módulo' creada");
       } else {
         console.warn(" Creando hoja de módulos vacía (sin datos)");
         // Crear hoja vacía con encabezados
@@ -567,9 +892,56 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
       }
 
-      // Agregar hoja de estadísticas
+      // Agregar hoja de estadísticas con estilos
       const wsEstadisticas = XLSX.utils.json_to_sheet(datosEstadisticas);
+
+      // Aplicar estilos a la hoja de Estadísticas
+      const rangeEstadisticas = XLSX.utils.decode_range(wsEstadisticas['!ref'] || 'A1');
+      const estiloEncabezadoEstadisticas = {
+        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
+        fill: { fgColor: { rgb: "0369A1" } }, // Azul medio
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      // Aplicar estilo a encabezados (fila 0)
+      for (let C = 0; C <= rangeEstadisticas.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!wsEstadisticas[cellAddress]) continue;
+        wsEstadisticas[cellAddress].s = estiloEncabezadoEstadisticas;
+      }
+
+      // Aplicar bordes y alineación a datos
+      for (let R = 1; R <= rangeEstadisticas.e.r; ++R) {
+        for (let C = 0; C <= rangeEstadisticas.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!wsEstadisticas[cellAddress]) continue;
+          wsEstadisticas[cellAddress].s = {
+            border: {
+              top: { style: "thin", color: { rgb: "E5E7EB" } },
+              bottom: { style: "thin", color: { rgb: "E5E7EB" } },
+              left: { style: "thin", color: { rgb: "E5E7EB" } },
+              right: { style: "thin", color: { rgb: "E5E7EB" } }
+            },
+            alignment: { horizontal: C === 0 ? "left" : "center", vertical: "center" },
+            font: { bold: C === 0 }
+          };
+        }
+      }
+
+      // Ajustar ancho de columnas
+      wsEstadisticas['!cols'] = [
+        { wch: 35 }, // Columna Métrica más ancha
+        { wch: 20 }  // Columna Valor
+      ];
+
       XLSX.utils.book_append_sheet(wb, wsEstadisticas, "Estadísticas");
+      console.log(" ✓ Hoja 'Estadísticas' creada");
 
       // Generar nombre del archivo
       const nombreCurso = cursoNombre.replace(/\s+/g, "_") || "Curso";
@@ -590,7 +962,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       return { total: 0, aprobados: 0, reprobados: 0, promedioGeneral: 0 };
 
     const aprobados = filteredEstudiantes.filter(
-      (est) => est.promedio >= 14,
+      (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
     ).length;
     const reprobados = filteredEstudiantes.length - aprobados;
     const promedioGeneral =
@@ -692,28 +1064,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         </div>
 
         {/* Header */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
-            <div style={{
-              width: '3rem',
-              height: '3rem',
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              borderRadius: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-            }}>
-              <GraduationCap size={24} strokeWidth={2.5} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
-                {cursoNombre || 'Calificaciones del Curso'}
-              </h1>
-              <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
-                Gestiona las calificaciones y evaluaciones de los estudiantes
-              </p>
-            </div>
+        <div style={{ marginBottom: '0.25rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
+              {cursoNombre || 'Calificaciones del Curso'}
+            </h1>
+            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+              Gestiona las calificaciones y evaluaciones de los estudiantes
+            </p>
           </div>
         </div>
 
@@ -1364,7 +1722,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                         >
                           Estudiante
                         </th>
-                        {tareasFiltradas.map((tarea) => (
+                        {moduloActivo !== "todos" && tareasFiltradas.map((tarea) => (
                           <th
                             key={tarea.id_tarea}
                             style={{
@@ -1521,7 +1879,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                           >
                             {estudiante.apellido}, {estudiante.nombre}
                           </td>
-                          {tareasFiltradas.map((tarea) => {
+                          {moduloActivo !== "todos" && tareasFiltradas.map((tarea) => {
                             const notaVal =
                               estudiante.calificaciones[tarea.id_tarea];
                             const nota =

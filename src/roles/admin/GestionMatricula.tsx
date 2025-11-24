@@ -375,6 +375,20 @@ const GestionMatricula = () => {
         throw new Error('No se encontró token de autenticación');
       }
 
+      // Obtener el ID del usuario logueado
+      let aprobadoPor = 1; // Fallback
+      try {
+        const userRaw = sessionStorage.getItem('auth_user');
+        if (userRaw) {
+          const user = JSON.parse(userRaw);
+          if (user?.id_usuario) {
+            aprobadoPor = user.id_usuario;
+          }
+        }
+      } catch (e) {
+        console.error('Error obteniendo usuario logueado:', e);
+      }
+
       const response = await fetch(`${API_BASE}/api/estudiantes/crear-desde-solicitud`, {
         method: 'POST',
         headers: {
@@ -383,7 +397,7 @@ const GestionMatricula = () => {
         },
         body: JSON.stringify({
           id_solicitud: approvalData.id_solicitud,
-          aprobado_por: 1 // TODO: Obtener del contexto de usuario logueado
+          aprobado_por: aprobadoPor
         })
       });
 
@@ -437,10 +451,23 @@ const GestionMatricula = () => {
     try {
       setDecidiendo(true);
       setError(null);
+
+      // Obtener el ID del usuario logueado
+      let verificadoPor = null;
+      try {
+        const userRaw = sessionStorage.getItem('auth_user');
+        if (userRaw) {
+          const user = JSON.parse(userRaw);
+          verificadoPor = user?.id_usuario || null;
+        }
+      } catch (e) {
+        console.error('Error obteniendo usuario logueado:', e);
+      }
+
       const res = await fetch(`${API_BASE}/api/solicitudes/${targetId}/decision`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado, observaciones: observaciones || null, verificado_por: null })
+        body: JSON.stringify({ estado, observaciones: observaciones || null, verificado_por: verificadoPor })
       });
       if (!res.ok) {
         const msg = await res.text();

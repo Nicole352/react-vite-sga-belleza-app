@@ -139,12 +139,11 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
           est.apellido.toLowerCase().includes(term),
       );
     }
-
     // Aplicar filtro
     if (filtro === "aprobados") {
-      result = result.filter((est) => est.promedio >= 14); // Asumiendo 14 como nota mínima de aprobación
+      result = result.filter((est) => (parseFloat(String(est.promedio_global)) || 0) >= 7); // Nota mínima de aprobación: 7.0/10
     } else if (filtro === "reprobados") {
-      result = result.filter((est) => est.promedio < 14);
+      result = result.filter((est) => (parseFloat(String(est.promedio_global)) || 0) < 7);
     }
 
     setFilteredEstudiantes(result);
@@ -338,7 +337,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
         if (logoDataUrl) {
           doc.addImage(logoDataUrl, "PNG", pageWidth - 14 - 24, 10, 24, 24);
         }
-      } catch {}
+      } catch { }
 
       // Construir head y body
       const head = [
@@ -466,19 +465,19 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       const promedioGeneral =
         estudiantes.length > 0
           ? (
-              estudiantes.reduce((sum, est) => sum + est.promedio, 0) /
-              estudiantes.length
-            ).toFixed(2)
+            estudiantes.reduce((sum, est) => sum + est.promedio, 0) /
+            estudiantes.length
+          ).toFixed(2)
           : "0.00";
 
       const promedioGlobalCurso =
         estudiantes.length > 0
           ? (
-              estudiantes.reduce(
-                (sum, est) => sum + (parseFloat(est.promedio_global) || 0),
-                0,
-              ) / estudiantes.length
-            ).toFixed(2)
+            estudiantes.reduce(
+              (sum, est) => sum + (parseFloat(est.promedio_global) || 0),
+              0,
+            ) / estudiantes.length
+          ).toFixed(2)
           : "0.00";
 
       const porcentajeAprobacion =
@@ -568,8 +567,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       return { total: 0, aprobados: 0, reprobados: 0, promedioGeneral: 0 };
 
     const aprobados = filteredEstudiantes.filter(
-      (est) => est.promedio >= 14,
-    ).length;
+      (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
+    ).length; 
     const reprobados = filteredEstudiantes.length - aprobados;
     const promedioGeneral =
       filteredEstudiantes.reduce((sum, est) => sum + est.promedio, 0) /
@@ -1530,10 +1529,10 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                                 );
                               const promedioModulo = moduloDetalle
                                 ? parseFloat(
-                                    String(
-                                      moduloDetalle.promedio_modulo_sobre_10,
-                                    ),
-                                  )
+                                  String(
+                                    moduloDetalle.promedio_modulo_sobre_10,
+                                  ),
+                                )
                                 : 0;
                               const aprobado = promedioModulo >= 7;
 
@@ -1578,10 +1577,10 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                                 );
                               const promedioModulo = moduloDetalle
                                 ? parseFloat(
-                                    String(
-                                      moduloDetalle.promedio_modulo_sobre_10,
-                                    ),
-                                  )
+                                  String(
+                                    moduloDetalle.promedio_modulo_sobre_10,
+                                  ),
+                                )
                                 : 0;
                               const aprobado = promedioModulo >= 7;
 
@@ -1653,8 +1652,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                                     "number"
                                     ? estudiante.promedio_global.toFixed(2)
                                     : parseFloat(
-                                        estudiante.promedio_global,
-                                      ).toFixed(2)
+                                      estudiante.promedio_global,
+                                    ).toFixed(2)
                                   : "0.00"}
                               </div>
                             </td>

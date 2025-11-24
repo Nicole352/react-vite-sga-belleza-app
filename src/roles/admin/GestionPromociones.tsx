@@ -26,7 +26,7 @@ type Promocion = {
   cupos_disponibles?: number | null;
   cupos_utilizados?: number;
   created_at?: string;
-  
+
   // Datos del curso principal (JOIN)
   nombre_curso_principal?: string;
   codigo_curso_principal?: string;
@@ -34,7 +34,7 @@ type Promocion = {
   capacidad_curso_principal?: number;
   cupos_curso_principal?: number;
   modalidad_principal?: 'mensual' | 'clases';
-  
+
   // Datos del curso promocional (JOIN)
   nombre_curso_promocional?: string;
   codigo_curso_promocional?: string;
@@ -44,7 +44,7 @@ type Promocion = {
   modalidad_promocional?: 'mensual' | 'clases';
   precio_base?: number;
   precio_por_clase?: number;
-  
+
   // Estadísticas
   total_aceptaciones?: number;
   total_matriculados?: number;
@@ -112,7 +112,7 @@ const GestionPromociones: React.FC = () => {
         setDarkMode(newMode);
       }
     }, 100);
-    
+
     return () => clearInterval(interval);
   }, [darkMode]);
 
@@ -210,6 +210,28 @@ const GestionPromociones: React.FC = () => {
     return cursos.find(c => c.id_curso === selectedCursoId) || null;
   }, [cursos, selectedCursoId]);
 
+  // Obtener IDs de cursos que ya están siendo usados en otras promociones
+  const cursosUsadosEnOtrasPromociones = useMemo(() => {
+    const cursosUsados = new Set<number>();
+
+    promociones.forEach(promo => {
+      // Si estamos editando, excluir la promoción actual
+      if (modalType === 'edit' && selected && promo.id_promocion === selected.id_promocion) {
+        return;
+      }
+
+      // Agregar cursos principales y promocionales de otras promociones
+      if (promo.id_curso_principal) {
+        cursosUsados.add(promo.id_curso_principal);
+      }
+      if (promo.id_curso_promocional) {
+        cursosUsados.add(promo.id_curso_promocional);
+      }
+    });
+
+    return cursosUsados;
+  }, [promociones, modalType, selected]);
+
   // Filtrado y paginación
   const filteredPromociones = useMemo(() => {
     let result = promociones;
@@ -263,7 +285,7 @@ const GestionPromociones: React.FC = () => {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || 'No se pudo cargar las promociones');
       }
-      
+
       const data = await res.json();
       setPromociones(Array.isArray(data) ? data : []);
     } catch (e: any) {
@@ -281,7 +303,7 @@ const GestionPromociones: React.FC = () => {
       const res = await fetch(`${API_BASE}/api/cursos?limit=500`);
       if (!res.ok) throw new Error('No se pudo cargar los cursos');
       const data = await res.json();
-      
+
       // Filtrar solo cursos activos
       const cursosList = Array.isArray(data) ? data : [];
       setCursos(cursosList.filter((c: Curso) => c.estado === 'activo'));
@@ -340,7 +362,7 @@ const GestionPromociones: React.FC = () => {
   const handleToggleActiva = async (id: number, activa: boolean) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      
+
       const res = await fetch(`${API_BASE}/api/promociones/${id}/toggle`, {
         method: 'PATCH',
         headers: {
@@ -351,7 +373,7 @@ const GestionPromociones: React.FC = () => {
       });
 
       if (!res.ok) throw new Error('No se pudo cambiar el estado');
-      
+
       showToast.success(activa ? 'Promoción desactivada' : 'Promoción activada', darkMode);
       await fetchPromociones();
     } catch (e: any) {
@@ -411,11 +433,11 @@ const GestionPromociones: React.FC = () => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       const url = modalType === 'create'
         ? `${API_BASE}/api/promociones`
         : `${API_BASE}/api/promociones/${selected?.id_promocion}`;
-      
+
       const method = modalType === 'create' ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
@@ -779,9 +801,8 @@ const GestionPromociones: React.FC = () => {
                   const esCupoCritico = typeof cuposRestantes === 'number' && cuposRestantes <= 0;
 
                   const vigencia = promo.fecha_inicio || promo.fecha_fin
-                    ? `${promo.fecha_inicio ? new Date(promo.fecha_inicio).toLocaleDateString('es-EC') : 'Desde'} → ${
-                        promo.fecha_fin ? new Date(promo.fecha_fin).toLocaleDateString('es-EC') : 'Indefinida'
-                      }`
+                    ? `${promo.fecha_inicio ? new Date(promo.fecha_inicio).toLocaleDateString('es-EC') : 'Desde'} → ${promo.fecha_fin ? new Date(promo.fecha_fin).toLocaleDateString('es-EC') : 'Indefinida'
+                    }`
                     : 'Sin definir';
 
                   return (
@@ -1453,11 +1474,29 @@ const GestionPromociones: React.FC = () => {
                     }}
                     options={[
                       { value: '', label: 'Selecciona curso principal...' },
-                      ...cursos.map(c => ({
-                        value: String(c.id_curso),
-                        label: `${c.codigo_curso} - ${c.nombre}`
-                      }))
-                    ]}
+                      ...cursos
+                        .filter(c => {
+                          // Solo cursos activos
+                          if (c.estado !== 'activo') return false;
+                          
+                          // Si estamos editando, permitir el curso que ya está seleccionado
+                          if (modalType === 'edit' && selected && c.id_curso === selected.id_curso_principal) {
+                            return true;
+                          }
+                          
+                          // Excluir cursos que ya están en otras promociones
+                          if (cursosUsadosEnOtrasPromociones.has(c.id_curso)) return false;
+                          
+                          // Excluir el curso promocional seleccionado actualmente
+                          if (selectedCursoId && c.id_curso === selectedCursoId) return false;
+                          
+                          return true;
+                        })
+                        .map(c => ({
+                          value: String(c.id_curso),
+                          label: `${c.codigo_curso} - ${c.nombre}`
+                        }))
+                      ]}
                     required
                   />
                 </div>
@@ -1479,7 +1518,23 @@ const GestionPromociones: React.FC = () => {
                     options={[
                       { value: '', label: 'Selecciona curso promocional...' },
                       ...cursos
-                        .filter(c => c.id_curso !== selectedCursoPrincipalId) // Excluir el curso principal
+                                                .filter(c => {
+                          // Solo cursos activos
+                          if (c.estado !== 'activo') return false;
+                          
+                          // Si estamos editando, permitir el curso que ya está seleccionado
+                          if (modalType === 'edit' && selected && c.id_curso === selected.id_curso_promocional) {
+                            return true;
+                          }
+                          
+                          // Excluir cursos que ya están en otras promociones
+                          if (cursosUsadosEnOtrasPromociones.has(c.id_curso)) return false;
+                          
+                          // Excluir el curso principal seleccionado actualmente
+                          if (selectedCursoPrincipalId && c.id_curso === selectedCursoPrincipalId) return false;
+                          
+                          return true;
+                        })
                         .map(c => ({
                           value: String(c.id_curso),
                           label: `${c.codigo_curso} - ${c.nombre} (${c.modalidad_pago === 'clases' ? 'Por Clases' : 'Mensual'})`
@@ -1583,60 +1638,60 @@ const GestionPromociones: React.FC = () => {
               </div>
 
               {/* Botones */}
-            <div style={{
-              display: 'flex',
-              gap: '8px',
-              marginTop: isMobile ? 12 : 14,
-              paddingTop: isMobile ? 10 : 12,
-              borderTop: `1px solid ${theme.modalDivider}`
-            }}>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0.5rem',
-                  background: pick('rgba(255,255,255,0.88)', 'rgba(255,255,255,0.05)'),
-                  border: `1px solid ${theme.modalDivider}`,
-                  borderRadius: '0.625rem',
-                  color: theme.textPrimary,
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: pick('0 10px 20px rgba(15,23,42,0.08)', 'none')
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0.5rem',
-                  background: loading ? 'rgba(239, 68, 68, 0.35)' : accentGradient,
-                  border: 'none',
-                  borderRadius: '0.625rem',
-                  color: '#fff',
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  boxShadow: loading ? 'none' : '0 16px 30px rgba(239,68,68,0.25)'
-                }}
-              >
-                <Save size={14} />
-                {loading ? 'Guardando...' : modalType === 'create' ? 'Crear Promoción' : 'Actualizar'}
-              </button>
-            </div>
-          </form>
-          {/* Animaciones CSS */}
-          <style>{`
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                marginTop: isMobile ? 12 : 14,
+                paddingTop: isMobile ? 10 : 12,
+                borderTop: `1px solid ${theme.modalDivider}`
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '0.625rem 0.5rem',
+                    background: pick('rgba(255,255,255,0.88)', 'rgba(255,255,255,0.05)'),
+                    border: `1px solid ${theme.modalDivider}`,
+                    borderRadius: '0.625rem',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: pick('0 10px 20px rgba(15,23,42,0.08)', 'none')
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '0.625rem 0.5rem',
+                    background: loading ? 'rgba(239, 68, 68, 0.35)' : accentGradient,
+                    border: 'none',
+                    borderRadius: '0.625rem',
+                    color: '#fff',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    boxShadow: loading ? 'none' : '0 16px 30px rgba(239,68,68,0.25)'
+                  }}
+                >
+                  <Save size={14} />
+                  {loading ? 'Guardando...' : modalType === 'create' ? 'Crear Promoción' : 'Actualizar'}
+                </button>
+              </div>
+            </form>
+            {/* Animaciones CSS */}
+            <style>{`
             @keyframes scaleIn {
               from {
                 opacity: 0;
@@ -1648,10 +1703,10 @@ const GestionPromociones: React.FC = () => {
               }
             }
           `}</style>
-        </div>
-      </div>,
-      document.body
-    )}
+          </div>
+        </div>,
+        document.body
+      )}
 
       {deleteTarget && createPortal(
         <div
@@ -1774,7 +1829,7 @@ const GestionPromociones: React.FC = () => {
         </div>,
         document.body
       )}
-  </div>
+    </div>
   );
 };
 
