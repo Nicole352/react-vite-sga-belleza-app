@@ -268,14 +268,14 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
               c.id_tarea === tarea.id_tarea,
           );
           const raw = calif ? calif.nota_obtenida : null;
-          const val = raw === null || raw === undefined ? null : Number(raw);
+          const val = raw === null || raw === undefined ? 0 : Number(raw); // ← CAMBIADO
           califs[tarea.id_tarea] = Number.isFinite(val as number)
             ? (val as number)
-            : null;
-          if (Number.isFinite(val as number)) {
-            suma += val as number;
-            count++;
-          }
+            : 0;
+
+          // Siempre sumar y contar, incluso si es 0
+          suma += val as number;
+          count++;
         });
 
         // Obtener promedios del mapa
@@ -458,7 +458,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
       // Hoja 3: Estadísticas del curso (SIMPLES Y RELEVANTES)
       const aprobadosGlobal = estudiantes.filter(
-        (est) => (parseFloat(est.promedio_global) || 0) >= 7,
+        (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
       ).length;
       const reprobadosGlobal = estudiantes.length - aprobadosGlobal;
 
@@ -474,7 +474,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
         estudiantes.length > 0
           ? (
             estudiantes.reduce(
-              (sum, est) => sum + (parseFloat(est.promedio_global) || 0),
+              (sum, est) => sum + (parseFloat(String(est.promedio_global)) || 0),
               0,
             ) / estudiantes.length
           ).toFixed(2)
@@ -568,7 +568,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
 
     const aprobados = filteredEstudiantes.filter(
       (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
-    ).length; 
+    ).length;
     const reprobados = filteredEstudiantes.length - aprobados;
     const promedioGeneral =
       filteredEstudiantes.reduce((sum, est) => sum + est.promedio, 0) /
@@ -1634,12 +1634,11 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
                                   padding: "0.25rem 0.75rem",
                                   borderRadius: "0.375rem",
                                   background:
-                                    (parseFloat(estudiante.promedio_global) ||
-                                      0) >= 7
+                                    (parseFloat(String(estudiante.promedio_global)) || 0) >= 7
                                       ? "rgba(16, 185, 129, 0.2)"
                                       : "rgba(239, 68, 68, 0.2)",
                                   color:
-                                    (parseFloat(estudiante.promedio_global) ||
+                                    (parseFloat(String(estudiante.promedio_global)) ||
                                       0) >= 7
                                       ? theme.success
                                       : theme.danger,

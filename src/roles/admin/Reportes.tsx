@@ -890,6 +890,28 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               <option value="graduado">Graduados</option>
             </select>
           </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: '0.5rem',
+            flex: isMobile ? '1' : 'initial'
+          }}>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
+            <select
+              value={filtroHorario}
+              onChange={(e) => setFiltroHorario(e.target.value as 'todos' | 'matutino' | 'vespertino')}
+              style={{
+                ...baseSelectStyle,
+                width: isMobile ? '100%' : 'auto'
+              }}
+            >
+              <option value="todos">Todos</option>
+              <option value="matutino">Matutino</option>
+              <option value="vespertino">Vespertino</option>
+            </select>
+          </div>
         </>
       );
     }
@@ -1961,24 +1983,6 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     {/* Filtros específicos */}
                     {renderFiltrosEspecificos()}
 
-                    {/* Nuevo: Filtro por Horario (solo para estudiantes) */}
-                    {tipoReporte === 'estudiantes' && (
-                      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: '0.5rem', flex: isMobile ? '1' : 'initial' }}>
-                        <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
-                        <select
-                          value={filtroHorario}
-                          onChange={(e) => setFiltroHorario(e.target.value as any)}
-                          style={{
-                            ...baseSelectStyle,
-                            width: isMobile ? '100%' : 'auto'
-                          }}
-                        >
-                          <option value="todos">Todos</option>
-                          <option value="matutino">Matutino</option>
-                          <option value="vespertino">Vespertino</option>
-                        </select>
-                      </div>
-                    )}
                   </div>
 
                   {/* Botón Ver Reporte */}

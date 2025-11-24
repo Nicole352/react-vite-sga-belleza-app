@@ -322,14 +322,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               c.id_tarea === tarea.id_tarea,
           );
           const raw = calif ? calif.nota_obtenida : null;
-          const val = raw === null || raw === undefined ? null : Number(raw);
+          const val = raw === null || raw === undefined ? 0 : Number(raw); // ← CAMBIADO: null se convierte en 0
           califs[tarea.id_tarea] = Number.isFinite(val as number)
             ? (val as number)
-            : null;
-          if (Number.isFinite(val as number)) {
-            suma += val as number;
-            count++;
-          }
+            : 0; // Guardar 0 
+
+          // Siempre sumar y contar, incluso si es 0
+          suma += val as number;
+          count++;
         });
 
         // Obtener promedios del mapa
