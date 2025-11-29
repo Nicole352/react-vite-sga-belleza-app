@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, Search, Eye, Power, KeyRound, AlertCircle, Shield, GraduationCap, UserCheck, X, UserCircle, Clock, Activity, BookOpen, Monitor, Globe, Calendar, CheckCircle, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, Lock, Unlock, ArrowLeftRight, Hash, CreditCard, Building, RefreshCcw, Tag, Mail, Phone, Paperclip, Star, MessageSquare, Timer, AlignLeft, Info, FileSignature, type LucideIcon } from 'lucide-react';
+import { Users, UserCheck, Power, Shield, GraduationCap, Search, Eye, CheckCircle, Lock, Unlock, Clock, KeyRound, AlertCircle, X, UserCircle, Activity, BookOpen, Monitor, Globe, Calendar, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, ArrowLeftRight, Hash, CreditCard, Building, RefreshCcw, Tag, Mail, Phone, Paperclip, Star, MessageSquare, Timer, AlignLeft, Info, FileSignature, type LucideIcon } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
@@ -189,8 +189,7 @@ const ControlUsuarios = () => {
 
   // Modal de confirmación
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear', usuario: Usuario } | null>(null);
-  const [motivoBloqueo, setMotivoBloqueo] = useState('');
+  const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear' | 'desbloqueo-temporal', usuario: Usuario } | null>(null); const [motivoBloqueo, setMotivoBloqueo] = useState('');
 
   // Modal de credenciales
   const [showCredencialesModal, setShowCredencialesModal] = useState(false);
@@ -241,10 +240,11 @@ const ControlUsuarios = () => {
         console.error('Error obteniendo usuario logueado:', err);
       }
 
-      // SEGURIDAD: Filtrar SuperAdmin y el admin logueado - no deben aparecer en Control de Usuarios
+      // SEGURIDAD: Filtrar SuperAdmin Y Administrativo y el admin logueado - no deben aparecer en Control de Usuarios
       const usuariosFiltrados = (data.usuarios || []).filter(
         (usuario: Usuario) =>
           usuario.nombre_rol?.toLowerCase() !== 'superadmin' &&
+          usuario.nombre_rol?.toLowerCase() !== 'administrativo' &&
           usuario.id_usuario !== idUsuarioLogueado
       );
 
@@ -481,6 +481,11 @@ const ControlUsuarios = () => {
     setShowConfirmModal(true);
   };
 
+  const confirmarDesbloqueoTemporal = (usuario: Usuario) => {
+    setAccionConfirmar({ tipo: 'desbloqueo-temporal', usuario });
+    setShowConfirmModal(true);
+  };
+
   const ejecutarAccion = async () => {
     if (!accionConfirmar) return;
 
@@ -499,6 +504,13 @@ const ControlUsuarios = () => {
         });
       } else if (accionConfirmar.tipo === 'desbloquear') {
         response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/desbloquear`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } else if (accionConfirmar.tipo === 'desbloqueo-temporal') {
+        response = await fetch(`${API_BASE}/usuarios/${accionConfirmar.usuario.id_usuario}/desbloqueo-temporal`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -823,7 +835,7 @@ const ControlUsuarios = () => {
             }}
           >
             <option value="todos">Todos los roles</option>
-            <option value="administrativo">Administrativo</option>
+
             <option value="docente">Docente</option>
             <option value="estudiante">Estudiante</option>
           </select>
@@ -848,7 +860,6 @@ const ControlUsuarios = () => {
             <option value="todos">Todos los estados</option>
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
-            <option value="pendiente">Pendiente</option>
             <option value="bloqueado">Bloqueado</option>
           </select>
         </div>
@@ -933,7 +944,7 @@ const ControlUsuarios = () => {
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.1875rem', fontSize: '0.8rem' }}>
-                          {usuario.nombre} {usuario.apellido}
+                          {usuario.apellido}, {usuario.nombre}
                         </div>
                         <div style={{ fontSize: '0.7rem', color: textMutedColor }}>{usuario.cedula}</div>
                       </td>
@@ -1044,6 +1055,31 @@ const ControlUsuarios = () => {
                               <Lock style={{ width: '1rem', height: '1rem' }} />
                             )}
                           </button>
+                          {usuario.cuenta_bloqueada && (
+                            <button
+                              onClick={() => confirmarDesbloqueoTemporal(usuario)}
+                              style={{
+                                padding: '0.5rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #ff9800',
+                                backgroundColor: 'transparent',
+                                color: '#ff9800',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ff9800';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#ff9800';
+                              }}
+                              title="Desbloqueo temporal (24h)"
+                            >
+                              <Clock style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                          )}
                           <button
                             onClick={() => resetearPassword(usuario)}
                             style={{
@@ -2341,8 +2377,7 @@ const ModalDetalle = ({
 
 interface ModalConfirmacionProps {
   show: boolean;
-  accion: { tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear', usuario: Usuario } | null;
-  onConfirm: () => void;
+  accion: { tipo: 'activar' | 'desactivar' | 'resetear' | 'bloquear' | 'desbloquear' | 'desbloqueo-temporal', usuario: Usuario } | null; onConfirm: () => void;
   onCancel: () => void;
   motivoBloqueo?: string;
   setMotivoBloqueo?: (motivo: string) => void;
@@ -2358,6 +2393,7 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
       case 'resetear': return 'Resetear Contraseña';
       case 'bloquear': return 'Bloquear Usuario';
       case 'desbloquear': return 'Desbloquear Usuario';
+      case 'desbloqueo-temporal': return 'Desbloqueo Temporal';
       default: return '';
     }
   };
@@ -2373,6 +2409,17 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
         return '¿Estás seguro de bloquear financieramente a ';
       case 'desbloquear':
         return '¿Estás seguro de desbloquear a ';
+      case 'desbloqueo-temporal':
+        return (
+          <>
+            <p>El estudiante <strong>{accion.usuario.nombre} {accion.usuario.apellido}</strong> tendrá <strong>24 horas</strong> para:</p>
+            <ul style={{ textAlign: 'left', marginLeft: '20px', marginTop: '10px' }}>
+              <li>Acceder al sistema</li>
+              <li>Subir evidencia de pago</li>
+            </ul>
+            <p style={{ color: '#ff9800', fontWeight: 'bold', marginTop: '10px' }}>⚠️ Si no sube evidencia en 24 horas, se bloqueará automáticamente.</p>
+          </>
+        );
       default:
         return '';
     }
@@ -2385,6 +2432,7 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
       case 'resetear': return 'Resetear';
       case 'bloquear': return 'Bloquear';
       case 'desbloquear': return 'Desbloquear';
+      case 'desbloqueo-temporal': return 'Desbloquear Temporal';
       default: return 'Confirmar';
     }
   };
@@ -2432,9 +2480,9 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
         <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
           {getTitulo()}
         </h3>
-        <p style={{ marginBottom: '1.25rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontSize: '0.95rem' }}>
-          {getMensaje()}<strong style={{ color: 'var(--admin-text-primary, #fff)' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>?
-        </p>
+        <div style={{ marginBottom: '1.25rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontSize: '0.95rem' }}>
+          {getMensaje()}{accion.tipo !== 'desbloqueo-temporal' && <strong style={{ color: 'var(--admin-text-primary, #fff)' }}>{accion.usuario.nombre} {accion.usuario.apellido}</strong>}{accion.tipo !== 'desbloqueo-temporal' && '?'}
+        </div>
 
         {/* Input para motivo de bloqueo */}
         {accion.tipo === 'bloquear' && setMotivoBloqueo && (

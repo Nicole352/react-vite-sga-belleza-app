@@ -220,10 +220,10 @@ const GestionEstudiantes = () => {
       return matchesEstado;
     })
     .sort((a, b) => {
-      // Ordenar por fecha de registro, más recientes primero
-      const dateA = new Date(a.fecha_registro).getTime();
-      const dateB = new Date(b.fecha_registro).getTime();
-      return dateB - dateA;
+      // Ordenar alfabéticamente por apellidos, luego por nombres
+      const apellidoCompare = a.apellido.localeCompare(b.apellido);
+      if (apellidoCompare !== 0) return apellidoCompare;
+      return a.nombre.localeCompare(b.nombre);
     });
 
   const handleViewEstudiante = (estudiante: Estudiante) => {
@@ -620,7 +620,7 @@ const GestionEstudiantes = () => {
                         fotoUrl={estudiante.foto_perfil}
                       />
                       <h3 style={{ color: theme.textPrimary, margin: 0 }}>
-                        {estudiante.nombre} {estudiante.apellido}
+                        {estudiante.apellido}, {estudiante.nombre}
                       </h3>
                     </div>
                   </div>
@@ -856,7 +856,7 @@ const GestionEstudiantes = () => {
                             />
                             <div>
                               <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.9rem' }}>
-                                {estudiante.nombre} {estudiante.apellido}
+                                {estudiante.apellido}, {estudiante.nombre}
                               </div>
                               {estudiante.telefono && (
                                 <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
@@ -1236,7 +1236,7 @@ const GestionEstudiantes = () => {
                     <div style={{ flex: 1 }}>
                       <div style={{ color: modalLabelColor, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Estudiante</div>
                       <div style={{ color: modalValueColor, fontSize: isMobile ? '0.98rem' : '1.08rem', fontWeight: 700 }}>
-                        {selectedEstudiante.nombre} {selectedEstudiante.apellido}
+                        {selectedEstudiante.apellido}, {selectedEstudiante.nombre}
                       </div>
                       <div style={{ color: modalLabelColor, fontSize: '0.76rem', marginTop: '0.32rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                         <IdCard size={14} color={modalAccent} />

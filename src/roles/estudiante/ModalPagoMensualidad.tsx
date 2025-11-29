@@ -32,7 +32,15 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
   const [montoPagar, setMontoPagar] = useState<string>(cuota.monto.toString());
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
-  const [fechaTransferencia, setFechaTransferencia] = useState('');
+  // Inicializar con la fecha actual de Ecuador (UTC-5)
+  const getFechaEcuador = () => {
+    const now = new Date();
+    const ecuadorOffset = -5 * 60; // Ecuador está en UTC-5
+    const localOffset = now.getTimezoneOffset();
+    const ecuadorTime = new Date(now.getTime() + (localOffset + ecuadorOffset) * 60000);
+    return ecuadorTime.toISOString().split('T')[0];
+  };
+  const [fechaTransferencia, setFechaTransferencia] = useState(getFechaEcuador());
   const [recibidoPor, setRecibidoPor] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
@@ -281,6 +289,20 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               transform: scale(1);
             }
           }
+          /* Forzar que los botones de incrementar/decrementar siempre sean visibles */
+          input[type="number"]::-webkit-inner-spin-button,
+          input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1 !important;
+            -webkit-appearance: auto !important;
+            height: auto !important;
+          }
+          input[type="number"] {
+            -moz-appearance: textfield !important;
+          }
+          input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: inner-spin-button !important;
+            display: inline-block !important;
+          }
         `}</style>
         <div
           className="modal-content responsive-modal"
@@ -374,10 +396,10 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             }}>
               <div>
                 <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Monto de la Cuota
+                  Monto a Pagar
                 </div>
                 <div style={{ color: '#10b981', fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: '700' }}>
-                  {formatearMonto(cuota.monto)}
+                  {formatearMonto(parseFloat(montoPagar) || cuota.monto)}
                 </div>
               </div>
               <div>
@@ -401,79 +423,150 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
               }}>
                 Monto a Pagar *
               </label>
-              <input
-                type="number"
-                step={cuota.modalidad_pago === 'mensual' ? '90' : (cuota.modalidad_pago === 'clases' ? pasoClases : '0.01')}
-                min={cuota.modalidad_pago === 'mensual' ? '90' : (cuota.modalidad_pago === 'clases' ? pasoClases : '0.01')}
-                max={cuota.modalidad_pago === 'mensual' ? (90 * (cuota.meses_duracion || 12)) : undefined}
-                value={montoPagar}
-                readOnly={false}
-                onChange={(e) => {
-                  const valor = e.target.value;
-                  const numero = parseFloat(valor);
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch' }}>
+                {/* Botón decrementar */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const montoActual = parseFloat(montoPagar) || 0;
+                    const paso = cuota.modalidad_pago === 'mensual' ? 90 : (cuota.modalidad_pago === 'clases' ? montoPorClase : 0.01);
+                    const nuevoMonto = Math.max(paso, montoActual - paso);
+                    setMontoPagar(nuevoMonto.toFixed(2));
+                  }}
+                  style={{
+                    flex: isMobile ? '1' : '0 0 3rem',
+                    padding: '0.625em',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(16, 185, 129, 0.1)',
+                    border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: '#10b981',
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(16, 185, 129, 0.1)'}
+                >
+                  −
+                </button>
 
-                  if (valor === '' || numero === 0) {
+                {/* Input de monto */}
+                <input
+                  type="number"
+                  step={cuota.modalidad_pago === 'mensual' ? '90' : (cuota.modalidad_pago === 'clases' ? pasoClases : '0.01')}
+                  min={cuota.modalidad_pago === 'mensual' ? '90' : (cuota.modalidad_pago === 'clases' ? pasoClases : '0.01')}
+                  max={cuota.modalidad_pago === 'mensual' ? (90 * (cuota.meses_duracion || 12)) : undefined}
+                  value={montoPagar}
+                  readOnly={false}
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    const numero = parseFloat(valor);
+
+                    if (valor === '' || numero === 0) {
+                      setMontoPagar(valor);
+                      return;
+                    }
+
+                    if (cuota.modalidad_pago === 'mensual') {
+                      if (numero % 90 === 0 && numero >= 90) {
+                        setMontoPagar(valor);
+                      } else {
+                        showToast.warning('Solo se permiten múltiplos de $90 (90, 180, 270, 360...)', darkMode);
+                      }
+                      return;
+                    }
+
+                    if (cuota.modalidad_pago === 'clases') {
+                      if (numero >= montoPorClase && esMultiploDe(numero, montoPorClase)) {
+                        setMontoPagar(valor);
+                      } else {
+                        showToast.warning(
+                          `Solo se permiten múltiplos de ${formatearMonto(montoPorClase)} (por clase).`,
+                          darkMode
+                        );
+                      }
+                      return;
+                    }
+
                     setMontoPagar(valor);
-                    return;
-                  }
-
-                  if (cuota.modalidad_pago === 'mensual') {
-                    if (numero % 90 === 0 && numero >= 90) {
-                      setMontoPagar(valor);
-                    } else {
-                      showToast.warning('Solo se permiten múltiplos de $90 (90, 180, 270, 360...)', darkMode);
+                  }}
+                  onBlur={(e) => {
+                    // Al perder el foco, si está vacío o es inválido, restaurar al monto de la cuota
+                    if (cuota.modalidad_pago === 'mensual') {
+                      const numero = parseFloat(e.target.value);
+                      if (!numero || numero < 90 || numero % 90 !== 0) {
+                        setMontoPagar(cuota.monto.toString());
+                        showToast.error('Monto inválido. Se restauró al valor de la cuota.', darkMode);
+                      }
+                      return;
                     }
-                    return;
-                  }
 
-                  if (cuota.modalidad_pago === 'clases') {
-                    if (numero >= montoPorClase && esMultiploDe(numero, montoPorClase)) {
-                      setMontoPagar(valor);
-                    } else {
-                      showToast.warning(
-                        `Solo se permiten múltiplos de ${formatearMonto(montoPorClase)} (por clase).`,
-                        darkMode
-                      );
+                    if (cuota.modalidad_pago === 'clases') {
+                      const numero = parseFloat(e.target.value);
+                      if (!numero || numero < montoPorClase || !esMultiploDe(numero, montoPorClase)) {
+                        setMontoPagar(cuota.monto.toString());
+                        showToast.error(`Monto inválido. Solo múltiplos de ${formatearMonto(montoPorClase)}.`, darkMode);
+                      }
+                      return;
                     }
-                    return;
-                  }
+                  }}
+                  required
+                  style={{
+                    flex: 1,
+                    padding: '0.625em 0.875em',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
+                    border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: theme.textPrimary,
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    outline: 'none',
+                    transition: 'all 0.2s ease',
+                    textAlign: 'center'
+                  }}
+                />
 
-                  setMontoPagar(valor);
-                }}
-                onBlur={(e) => {
-                  // Al perder el foco, si está vacío o es inválido, restaurar al monto de la cuota
-                  if (cuota.modalidad_pago === 'mensual') {
-                    const numero = parseFloat(e.target.value);
-                    if (!numero || numero < 90 || numero % 90 !== 0) {
-                      setMontoPagar(cuota.monto.toString());
-                      showToast.error('Monto inválido. Se restauró al valor de la cuota.', darkMode);
-                    }
-                    return;
-                  }
+                {/* Botón incrementar */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const montoActual = parseFloat(montoPagar) || 0;
+                    const paso = cuota.modalidad_pago === 'mensual' ? 90 : (cuota.modalidad_pago === 'clases' ? montoPorClase : 0.01);
+                    const maxMonto = cuota.modalidad_pago === 'mensual' ? (90 * (cuota.meses_duracion || 12)) : undefined;
+                    const nuevoMonto = montoActual + paso;
 
-                  if (cuota.modalidad_pago === 'clases') {
-                    const numero = parseFloat(e.target.value);
-                    if (!numero || numero < montoPorClase || !esMultiploDe(numero, montoPorClase)) {
-                      setMontoPagar(cuota.monto.toString());
-                      showToast.error(`Monto inválido. Solo múltiplos de ${formatearMonto(montoPorClase)}.`, darkMode);
+                    if (maxMonto && nuevoMonto > maxMonto) {
+                      showToast.warning(`El monto máximo es ${formatearMonto(maxMonto)}`, darkMode);
+                      return;
                     }
-                    return;
-                  }
-                }}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.625em 0.875em',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
-                  border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
-                  borderRadius: '0.5rem',
-                  color: theme.textPrimary,
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  outline: 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              />
+
+                    setMontoPagar(nuevoMonto.toFixed(2));
+                  }}
+                  style={{
+                    flex: isMobile ? '1' : '0 0 3rem',
+                    padding: '0.625em',
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(16, 185, 129, 0.1)',
+                    border: `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: '#10b981',
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(16, 185, 129, 0.1)'}
+                >
+                  +
+                </button>
+              </div>
               <div style={{
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -600,8 +693,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={numeroComprobante}
-                      onChange={(e) => setNumeroComprobante(e.target.value)}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        // Solo permitir números
+                        if (/^\d*$/.test(valor)) {
+                          setNumeroComprobante(valor);
+                        }
+                      }}
                       placeholder="Ej: 1234567890"
                       required
                       style={{
@@ -631,17 +732,20 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     <input
                       type="date"
                       value={fechaTransferencia}
-                      onChange={(e) => setFechaTransferencia(e.target.value)}
+                      readOnly
+                      disabled
                       required
                       style={{
                         width: '100%',
                         padding: '0.625em 0.875em',
-                        background: theme.inputBg,
+                        background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
                         border: `0.0625rem solid ${theme.inputBorder}`,
                         borderRadius: '0.5em',
-                        color: theme.textPrimary,
+                        color: theme.textMuted,
                         fontSize: '0.8rem',
-                        outline: 'none'
+                        outline: 'none',
+                        cursor: 'not-allowed',
+                        opacity: 0.7
                       }}
                     />
                   </div>
@@ -666,8 +770,16 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9-]*"
                       value={numeroComprobante}
-                      onChange={(e) => setNumeroComprobante(e.target.value)}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        // Solo permitir números y guiones para formato 001-001-0001234
+                        if (/^[0-9-]*$/.test(valor)) {
+                          setNumeroComprobante(valor);
+                        }
+                      }}
                       placeholder="Ej: 001-001-0001234"
                       required
                       style={{
@@ -697,8 +809,11 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     <input
                       type="text"
                       value={recibidoPor}
-                      onChange={(e) => setRecibidoPor(e.target.value)}
-                      placeholder="Nombre completo"
+                      onChange={(e) => {
+                        // Convertir automáticamente a mayúsculas
+                        setRecibidoPor(e.target.value.toUpperCase());
+                      }}
+                      placeholder="NOMBRE COMPLETO"
                       required
                       style={{
                         width: '100%',
@@ -708,7 +823,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                         borderRadius: '0.5em',
                         color: theme.textPrimary,
                         fontSize: '0.8rem',
-                        outline: 'none'
+                        outline: 'none',
+                        textTransform: 'uppercase'
                       }}
                     />
                   </div>

@@ -994,7 +994,7 @@ const GestionMatricula = () => {
                     margin: '0 0 0.5rem 0'
                   }}
                 >
-                  {sol.nombre_solicitante} {sol.apellido_solicitante}
+                  {sol.apellido_solicitante}, {sol.nombre_solicitante}
                 </h3>
               </div>
 
@@ -1445,7 +1445,7 @@ const GestionMatricula = () => {
             }}>
               <div>
                 <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Nombre Completo</div>
-                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600', fontSize: '0.9rem' }}>{selected.nombre_solicitante} {selected.apellido_solicitante}</div>
+                <div style={{ color: 'var(--admin-text-primary, #fff)', fontWeight: '600', fontSize: '0.9rem' }}>{selected.apellido_solicitante}, {selected.nombre_solicitante}</div>
               </div>
               <div>
                 <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Identificación</div>

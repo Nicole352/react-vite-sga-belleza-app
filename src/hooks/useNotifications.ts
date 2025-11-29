@@ -331,6 +331,17 @@ export const useNotifications = (rol: RolUsuario) => {
         data
       });
     };
+
+    events.desbloqueo_temporal = (data: any) => {
+      const horas = data.horas_restantes || 24;
+      agregarNotificacion({
+        tipo: "pago",
+        titulo: "⏰ Desbloqueo Temporal Concedido",
+        mensaje: `Tienes ${horas} horas para subir la evidencia de pago. Si no lo haces, tu cuenta se bloqueará automáticamente.`,
+        link: "/estudiante/pagos",
+        data
+      });
+    };
   }
 
   // Obtener userId del sessionStorage o token

@@ -43,6 +43,7 @@ interface Pago {
   modalidad_pago?: 'mensual' | 'clases';
   numero_clases?: number;
   precio_por_clase?: number;
+  curso_horario?: string;
 }
 
 interface EstudianteAgrupado {
@@ -68,6 +69,7 @@ const GestionPagosEstudiante = () => {
   const [filtroPrioridad, setFiltroPrioridad] = useState<string>('pendientes_primero');
   const [selectedPago, setSelectedPago] = useState<Pago | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedHorario, setSelectedHorario] = useState<string>('todos');
   const [procesando, setProcesando] = useState(false);
   const [showComprobanteModal, setShowComprobanteModal] = useState(false);
   const [comprobanteUrl, setComprobanteUrl] = useState<string>('');
@@ -93,7 +95,7 @@ const GestionPagosEstudiante = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   // Trigger to refetch data when socket notifies of changes.
   const [socketTrigger, setSocketTrigger] = useState(0);
@@ -479,11 +481,17 @@ const GestionPagosEstudiante = () => {
   };
 
   const cursosDisponibles = useMemo(() => {
-    const map = new Map<number, { id: number; nombre: string }>();
+    const map = new Map<string, { id: number; nombre: string }>();
     estudiantes.forEach(est => {
       est.cursos.forEach(curso => {
-        if (!map.has(curso.id_curso)) {
-          map.set(curso.id_curso, { id: curso.id_curso, nombre: curso.curso_nombre });
+        // Solo incluir cursos con pagos (cursos activos)
+        const primerPago = curso.pagos[0];
+
+        if (primerPago && !map.has(curso.curso_nombre)) {
+          map.set(curso.curso_nombre, {
+            id: curso.id_curso,
+            nombre: curso.curso_nombre
+          });
         }
       });
     });
@@ -499,22 +507,43 @@ const GestionPagosEstudiante = () => {
   }, [cursosDisponibles, selectedCursoTab]);
 
   // Filtrar y ordenar estudiantes
-  const estudiantesFiltrados = estudiantes
-    .filter(est => {
+  const estudiantesFiltrados = useMemo(() => {
+    let result = estudiantes;
+
+    // Filtrar por horario si no es 'todos'
+    if (selectedHorario !== 'todos') {
+      result = result.map(est => ({
+        ...est,
+        cursos: est.cursos.filter(curso => {
+          const horario = curso.pagos[0]?.curso_horario;
+          return horario === selectedHorario;
+        })
+      })).filter(est => est.cursos.length > 0);
+    }
+
+    // Filtrar por curso seleccionado
+    result = result.filter(est => {
       if (selectedCursoTab === 'todos') return true;
-      return est.cursos.some(curso => curso.id_curso === selectedCursoTab);
-    })
-    .filter(est => {
+      // Buscar el nombre del curso seleccionado
+      const cursoSeleccionado = cursosDisponibles.find(c => c.id === selectedCursoTab);
+      if (!cursoSeleccionado) return false;
+      // Filtrar por nombre de curso en lugar de id
+      return est.cursos.some(curso => curso.curso_nombre === cursoSeleccionado.nombre);
+    });
+
+    // Filtrar por búsqueda
+    result = result.filter(est => {
       const matchSearch =
         est.estudiante_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         est.estudiante_apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
         est.estudiante_cedula.includes(searchTerm);
 
       return matchSearch;
-    })
-    .sort((a, b) => {
+    });
+
+    // Ordenar
+    return result.sort((a, b) => {
       if (filtroPrioridad === 'pendientes_primero') {
-        // Obtener pagos pendientes de cada estudiante
         const pagosPendientesA = a.cursos.flatMap(curso =>
           curso.pagos.filter(pago => pago.estado === 'pagado')
         );
@@ -522,12 +551,10 @@ const GestionPagosEstudiante = () => {
           curso.pagos.filter(pago => pago.estado === 'pagado')
         );
 
-        // Prioridad: estudiantes con pagos pendientes primero
         if (pagosPendientesA.length > 0 && pagosPendientesB.length === 0) return -1;
         if (pagosPendientesB.length > 0 && pagosPendientesA.length === 0) return 1;
       }
 
-      // Ordenamiento por defecto: fecha de vencimiento
       const pagoA = a.cursos[0]?.pagos[0];
       const pagoB = b.cursos[0]?.pagos[0];
       if (!pagoA || !pagoB) return 0;
@@ -535,6 +562,7 @@ const GestionPagosEstudiante = () => {
       const dateB = new Date(pagoB.fecha_vencimiento).getTime();
       return dateA - dateB;
     });
+  }, [estudiantes, selectedHorario, selectedCursoTab, searchTerm, filtroPrioridad]);
 
   // Paginación
   const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage);
@@ -661,6 +689,21 @@ const GestionPagosEstudiante = () => {
                 { value: 'pagado', label: 'Pagados' },
                 { value: 'verificado', label: 'Verificados' },
                 { value: 'vencido', label: 'Vencidos' },
+              ]}
+            />
+          </div>
+          <div style={{
+            minWidth: isSmallScreen ? 'auto' : 180,
+            width: isSmallScreen ? '100%' : 'auto'
+          }}>
+            <StyledSelect
+              name="filterHorario"
+              value={selectedHorario}
+              onChange={(e) => setSelectedHorario(e.target.value)}
+              options={[
+                { value: 'todos', label: 'Todos los horarios' },
+                { value: 'matutino', label: 'Matutino' },
+                { value: 'vespertino', label: 'Vespertino' },
               ]}
             />
           </div>
@@ -804,12 +847,14 @@ const GestionPagosEstudiante = () => {
                   <div style={{ textAlign: 'left' }}>
                     <div className="admin-course-tab-title" style={{ color: textColor }}>{cursoInfo.nombre}</div>
                     {!isAll && (
-                      <div
-                        className="admin-course-tab-subtitle"
-                        style={{ color: isActive ? detailActiveColor : detailText, fontSize: '0.7rem', fontWeight: 500 }}
-                      >
-                        {isActive ? 'Mostrando este curso' : 'Ver pagos'}
-                      </div>
+                      <>
+                        <div
+                          className="admin-course-tab-subtitle"
+                          style={{ color: isActive ? detailActiveColor : detailText, fontSize: '0.7rem', fontWeight: 500 }}
+                        >
+                          {isActive ? 'Mostrando este curso' : 'Ver pagos'}
+                        </div>
+                      </>
                     )}
                   </div>
                 </button>
@@ -929,7 +974,7 @@ const GestionPagosEstudiante = () => {
                   color: theme.textPrimary,
                   margin: '0 0 0.5rem 0'
                 }}>
-                  {pago.estudiante_nombre} {pago.estudiante_apellido}
+                  {pago.estudiante_apellido} {pago.estudiante_nombre}
                 </h3>
               </div>
 

@@ -51,7 +51,7 @@ const GestionDocentes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit] = useState(3); // 3 docentes por página
+  const [limit] = useState(5); // 5 docentes por página
   const [totalCount, setTotalCount] = useState(0);
   const [previewUsername, setPreviewUsername] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
@@ -310,9 +310,11 @@ const GestionDocentes = () => {
       return matchesEstado;
     })
     .sort((a, b) => {
-      // Ordenar por ID (más antiguos primero - los que se registraron primero)
-      return a.id_docente - b.id_docente;
-    });
+      // Ordenar alfabéticamente por apellidos, luego por nombres
+      const apellidoCompare = a.apellidos.localeCompare(b.apellidos);
+      if (apellidoCompare !== 0) return apellidoCompare;
+      return a.nombres.localeCompare(b.nombres);
+    })
 
   const handleViewDocente = (docente: Docente) => {
     setSelectedDocente(docente);
@@ -730,7 +732,7 @@ const GestionDocentes = () => {
                       fontSize: '0.95rem',
                       fontWeight: 600
                     }}>
-                      {docente.nombres} {docente.apellidos}
+                      {docente.apellidos}, {docente.nombres}
                     </h3>
                   </div>
                 </div>
