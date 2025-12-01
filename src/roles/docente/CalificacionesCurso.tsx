@@ -518,439 +518,310 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     } finally {
       setDownloadingPDF(false);
     }
-  };
-
-  const descargarExcel = async () => {
+  }; const descargarExcel = async () => {
     try {
       setDownloadingExcel(true);
 
-      // Dynamically import xlsx
-      const XLSX = await import("xlsx-js-style");
-      // Hoja 1: Detalle de calificaciones por tarea
-      // ============================================
-      // Hoja 1: CALIFICACIONES CON ENCABEZADOS DE 2 NIVELES
-      // ============================================
+      const ExcelJS = await import('exceljs');
+      const { saveAs } = await import('file-saver');
 
-      // Agrupar tareas por módulo
+      const workbook = new ExcelJS.Workbook();
+
+      // Función auxiliar para ajustar ancho de columnas automáticamente
+      const ajustarAnchoColumnas = (worksheet: any) => {
+        worksheet.columns.forEach((column: any) => {
+          let maxLength = 0;
+          column.eachCell({ includeEmpty: true }, (cell: any) => {
+            const columnLength = cell.value ? cell.value.toString().length : 10;
+            if (columnLength > maxLength) {
+              maxLength = columnLength;
+            }
+          });
+          // Añadir un poco de "aire" extra (aprox 2 caracteres)
+          column.width = maxLength + 2;
+        });
+      };
+
+      // ============================================
+      // Hoja 1: Calificaciones por Tarea
+      // ============================================
+      const wsDetalle = workbook.addWorksheet('Calificaciones por Tarea', {
+        pageSetup: {
+          paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+        }
+      });
+
+      // 1. Preparar datos
       const tareasPorModulo: { [modulo: string]: typeof tareas } = {};
       tareas.forEach((tarea) => {
         const moduloNombre = tarea.modulo_nombre || "Sin Módulo";
-        if (!tareasPorModulo[moduloNombre]) {
-          tareasPorModulo[moduloNombre] = [];
-        }
+        if (!tareasPorModulo[moduloNombre]) tareasPorModulo[moduloNombre] = [];
         tareasPorModulo[moduloNombre].push(tarea);
       });
 
-      // Crear encabezados de 2 niveles
-      const encabezadoNivel1: any[] = ["", ""]; // Apellido, Nombre
-      const encabezadoNivel2: any[] = ["Apellido", "Nombre"];
+      // Fila 1 y 2: Encabezados
+      const row1 = wsDetalle.addRow(['#', 'Apellido', 'Nombre']); // Se combinarán verticalmente
+      const row2 = wsDetalle.addRow(['', '', '']); // Espacio reservado
 
-      // Agregar módulos y tareas a los encabezados
+      // Combinar #, Apellido y Nombre (Fila 1 y 2)
+      wsDetalle.mergeCells(1, 1, 2, 1); // A1:A2 (#)
+      wsDetalle.mergeCells(1, 2, 2, 2); // B1:B2 (Apellido)
+      wsDetalle.mergeCells(1, 3, 2, 3); // C1:C2 (Nombre)
+
+      let colIndex = 4;
+
+      // Columnas de Tareas (Agrupadas por Módulo)
       Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
         const tareasDelModulo = tareasPorModulo[moduloNombre];
 
-        // Nivel 1: Nombre del módulo (se extiende sobre todas las tareas)
-        encabezadoNivel1.push(moduloNombre);
-        for (let i = 1; i < tareasDelModulo.length; i++) {
-          encabezadoNivel1.push(""); // Celdas vacías para merge
+        // Escribir nombre del módulo en Fila 1
+        const cellModulo = row1.getCell(colIndex);
+        cellModulo.value = moduloNombre;
+
+        // Merge horizontal para el módulo en Fila 1
+        if (tareasDelModulo.length > 0) {
+          wsDetalle.mergeCells(1, colIndex, 1, colIndex + tareasDelModulo.length - 1);
         }
 
-        // Nivel 2: Nombres de las tareas
+        // Escribir nombres de tareas en Fila 2
         tareasDelModulo.forEach((tarea) => {
-          encabezadoNivel2.push(tarea.titulo);
+          const cellTarea = row2.getCell(colIndex);
+          cellTarea.value = tarea.titulo;
+          colIndex++;
         });
       });
 
-      // Agregar columnas de promedios
+      // Columnas de Promedios por Módulo
       modulos.forEach((modulo) => {
-        encabezadoNivel1.push("");
-        encabezadoNivel2.push(`Promedio ${modulo}`);
+        // Escribir en Fila 1 y combinar con Fila 2
+        const cellProm = row1.getCell(colIndex);
+        cellProm.value = `Promedio ${modulo}`;
+        wsDetalle.mergeCells(1, colIndex, 2, colIndex);
+        colIndex++;
       });
 
-      // Promedio Global
-      encabezadoNivel1.push("");
-      encabezadoNivel2.push("Promedio Global (/10pts)");
+      // Columna Promedio Global
+      const cellGlobal = row1.getCell(colIndex);
+      cellGlobal.value = "Promedio Global (/10pts)";
+      wsDetalle.mergeCells(1, colIndex, 2, colIndex);
 
-      // Crear filas de datos
-      const filasEstudiantes = estudiantes.map((est) => {
-        const fila: any[] = [est.apellido, est.nombre];
+      // 2. Estilos de Encabezados
+      const estiloBaseHeader = {
+        alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } as any,
+        border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } as any
+      };
 
-        // Agregar calificaciones por módulo
+      // Aplicar estilos a todo el rango de encabezados (Filas 1 y 2)
+      for (let r = 1; r <= 2; r++) {
+        const row = wsDetalle.getRow(r);
+        row.eachCell((cell, colNumber) => {
+          // Colores:
+          // Apellido/Nombre (Cols 1-2): Azul Medio
+          // Módulos/Tareas (Cols > 2): 
+          //    - Fila 1 (Módulos): Azul Cielo
+          //    - Fila 2 (Tareas): Celeste Claro
+          //    - Promedios (Cols finales): Azul Cielo (porque están en Fila 1 merged)
+
+          let fillColor = '0284C7'; // Azul cielo default
+
+          if (colNumber <= 3) {
+            fillColor = '0369A1'; // Azul medio (Apellido/Nombre)
+          } else {
+            // Si es fila 2 y NO es una celda combinada que viene de arriba (esto es difícil de detectar directo, pero por lógica de negocio):
+            // Las celdas de tareas están en fila 2 y no tienen merge vertical.
+            // Las celdas de promedios tienen merge vertical, así que "pertenecen" visualmente a la fila 1.
+
+            // Simplificación visual:
+            // Fila 1 siempre Azul Cielo (Módulos y Promedios)
+            // Fila 2 (Tareas) Celeste Claro
+            if (r === 2 && cell.value) { // Si tiene valor en fila 2, es una tarea
+              fillColor = 'BAE6FD'; // Celeste claro
+            }
+            // Si es celda combinada de Promedio, usará el estilo de la celda master (Fila 1), así que este bloque no afecta.
+          }
+
+          // Corrección para texto de tareas: Azul oscuro
+          const fontColor = (fillColor === 'BAE6FD') ? '0C4A6E' : 'FFFFFF';
+
+          cell.style = {
+            ...estiloBaseHeader,
+            font: { bold: true, color: { argb: fontColor }, size: 11 },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } }
+          };
+        });
+      }
+
+      row1.height = 30;
+      row2.height = 40;
+
+      // 3. Datos de Estudiantes
+      estudiantes.forEach((est, index) => {
+        const rowData: any[] = [index + 1, est.apellido, est.nombre]; // Agregar índice numérico
+
+        // Calificaciones
         Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
           const tareasDelModulo = tareasPorModulo[moduloNombre];
           tareasDelModulo.forEach((tarea) => {
             const nota = est.calificaciones[tarea.id_tarea];
-            fila.push(nota !== null && Number.isFinite(nota) ? nota.toFixed(1) : "-");
+            rowData.push(nota !== null && Number.isFinite(nota) ? nota : "-");
           });
         });
 
-        // Agregar promedios por módulo
+        // Promedios Módulos
         modulos.forEach((modulo) => {
-          const moduloDetalle = est.modulos_detalle?.find(
-            (m) => m.nombre_modulo === modulo,
-          );
-          const promedioModulo = moduloDetalle
-            ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10))
-            : 0;
-          fila.push(promedioModulo > 0 ? promedioModulo.toFixed(2) : "-");
+          const moduloDetalle = est.modulos_detalle?.find((m) => m.nombre_modulo === modulo);
+          const promedioModulo = moduloDetalle ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10)) : 0;
+          rowData.push(promedioModulo > 0 ? promedioModulo : "-");
         });
 
-        // Agregar promedio global
+        // Promedio Global
         const promedioGlobal = est.promedio_global
           ? typeof est.promedio_global === "number"
-            ? est.promedio_global.toFixed(2)
-            : parseFloat(String(est.promedio_global)).toFixed(2)
-          : "0.00";
-        fila.push(promedioGlobal);
+            ? est.promedio_global
+            : parseFloat(String(est.promedio_global))
+          : 0;
+        rowData.push(promedioGlobal);
 
-        return fila;
-      });
+        const row = wsDetalle.addRow(rowData);
 
-      // Combinar encabezados y datos
-      const datosCompletos = [encabezadoNivel1, encabezadoNivel2, ...filasEstudiantes];
+        row.eachCell((cell, colNumber) => {
+          cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
+          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
 
-      // Crear hoja de Excel con array of arrays
-      const wsDetalle = XLSX.utils.aoa_to_sheet(datosCompletos);
-
-      // Aplicar merge a los encabezados de módulos (nivel 1)
-      const merges: any[] = [];
-      let colIndex = 2; // Empieza después de Apellido y Nombre
-
-      Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
-        const tareasDelModulo = tareasPorModulo[moduloNombre];
-        if (tareasDelModulo.length > 1) {
-          merges.push({
-            s: { r: 0, c: colIndex },
-            e: { r: 0, c: colIndex + tareasDelModulo.length - 1 }
-          });
-        }
-        colIndex += tareasDelModulo.length;
-      });
-
-      wsDetalle['!merges'] = merges;
-      // ============================================
-      // APLICAR ESTILOS AL EXCEL
-      // ============================================
-      // Definir estilos para los encabezados
-      const estiloModulo = {
-        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },
-        fill: { fgColor: { rgb: "0284C7" } }, // Azul cielo
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-          top: { style: "thin", color: { rgb: "000000" } },
-          bottom: { style: "thin", color: { rgb: "000000" } },
-          left: { style: "thin", color: { rgb: "000000" } },
-          right: { style: "thin", color: { rgb: "000000" } }
-        }
-      };
-
-      const estiloTarea = {
-        font: { bold: true, color: { rgb: "0C4A6E" }, sz: 10 }, // Texto azul oscuro
-        fill: { fgColor: { rgb: "BAE6FD" } }, // Celeste claro
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-          top: { style: "thin", color: { rgb: "000000" } },
-          bottom: { style: "thin", color: { rgb: "000000" } },
-          left: { style: "thin", color: { rgb: "000000" } },
-          right: { style: "thin", color: { rgb: "000000" } }
-        }
-      };
-
-      const estiloApellidoNombre = {
-        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
-        fill: { fgColor: { rgb: "0369A1" } }, // Azul medio
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-          top: { style: "thin", color: { rgb: "000000" } },
-          bottom: { style: "thin", color: { rgb: "000000" } },
-          left: { style: "thin", color: { rgb: "000000" } },
-          right: { style: "thin", color: { rgb: "000000" } }
-        }
-      };
-
-      // Aplicar estilos a las celdas
-      const range = XLSX.utils.decode_range(wsDetalle['!ref'] || 'A1');
-
-      // Estilo para fila 1 (encabezados de módulos)
-      for (let C = 0; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!wsDetalle[cellAddress]) wsDetalle[cellAddress] = { t: 's', v: '' };
-        wsDetalle[cellAddress].s = C < 2 ? estiloApellidoNombre : estiloModulo;
-      }
-
-      // Estilo para fila 2 (encabezados de tareas)
-      for (let C = 0; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 1, c: C });
-        if (!wsDetalle[cellAddress]) continue;
-        wsDetalle[cellAddress].s = C < 2 ? estiloApellidoNombre : estiloTarea;
-      }
-
-      // Aplicar bordes a todas las celdas de datos
-      for (let R = 2; R <= range.e.r; ++R) {
-        for (let C = 0; C <= range.e.c; ++C) {
-          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          if (!wsDetalle[cellAddress]) continue;
-          wsDetalle[cellAddress].s = {
-            border: {
-              top: { style: "thin", color: { rgb: "E5E7EB" } },
-              bottom: { style: "thin", color: { rgb: "E5E7EB" } },
-              left: { style: "thin", color: { rgb: "E5E7EB" } },
-              right: { style: "thin", color: { rgb: "E5E7EB" } }
-            },
-            alignment: { horizontal: "center", vertical: "center" }
-          };
-        }
-      }
-
-      // Ajustar ancho de columnas automáticamente
-      const colWidths: any[] = [];
-      for (let C = 0; C <= range.e.c; ++C) {
-        let maxWidth = 10;
-        for (let R = 0; R <= range.e.r; ++R) {
-          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          const cell = wsDetalle[cellAddress];
-          if (cell && cell.v) {
-            const cellLength = String(cell.v).length;
-            maxWidth = Math.max(maxWidth, cellLength);
+          // Formato numérico para columna # (índice)
+          if (colNumber === 1 && typeof cell.value === 'number') {
+            cell.numFmt = '0'; // Número entero sin decimales
           }
-        }
-        colWidths.push({ wch: Math.min(maxWidth + 2, 30) });
-      }
-      wsDetalle['!cols'] = colWidths;
+          // Formato numérico para calificaciones y promedios
+          else if (colNumber > 3 && typeof cell.value === 'number') {
+            cell.numFmt = '0.00'; // Dos decimales
+          }
+        });
+      });
 
-      // Crear libro de Excel
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, wsDetalle, "Calificaciones por Tarea");
+      ajustarAnchoColumnas(wsDetalle);
+
+
       // ============================================
       // Hoja 2: Promedios por Módulo
       // ============================================
-      const datosModulos = estudiantes.map((est) => {
-        const fila: any = {
-          Apellido: est.apellido,
-          Nombre: est.nombre,
-        };
-
-        // Agregar promedio de cada módulo
-        modulos.forEach((modulo) => {
-          const moduloDetalle = est.modulos_detalle?.find(
-            (m) => m.nombre_modulo === modulo,
-          );
-          const promedioModulo = moduloDetalle
-            ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10))
-            : 0;
-          const pesoModulo =
-            typeof pesoPorModulo === "number" ? pesoPorModulo : 0;
-          fila[`${modulo} (/${pesoModulo.toFixed(2)}pts)`] =
-            promedioModulo > 0 ? promedioModulo.toFixed(2) : "-";
-        });
-
-        // Agregar promedio global
-        fila["PROMEDIO GLOBAL (/10pts)"] = est.promedio_global
-          ? typeof est.promedio_global === "number"
-            ? est.promedio_global.toFixed(2)
-            : parseFloat(String(est.promedio_global)).toFixed(2)
-          : "0.00";
-
-        return fila;
+      const wsModulos = workbook.addWorksheet('Promedios por Módulo', {
+        pageSetup: {
+          paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+        }
       });
 
+      const headersModulos = ['#', 'Apellido', 'Nombre', ...modulos.map(m => `${m} (/${(typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2)}pts)`), 'PROMEDIO GLOBAL (/10pts)']; const rowHeaderMod = wsModulos.addRow(headersModulos);
+
+      rowHeaderMod.eachCell((cell) => {
+        cell.style = {
+          font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+          fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
+          alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, // Wrap text activado
+          border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
+        };
+      });
+      rowHeaderMod.height = 30; // Altura extra para encabezados largos
+
+      estudiantes.forEach((est, index) => {
+        const rowData = [index + 1, est.apellido, est.nombre]; // Agregar índice numérico
+        modulos.forEach(modulo => {
+          const moduloDetalle = est.modulos_detalle?.find((m) => m.nombre_modulo === modulo);
+          const promedioModulo = moduloDetalle ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10)) : 0;
+          rowData.push(promedioModulo > 0 ? promedioModulo : "-");
+        });
+        const promedioGlobal = est.promedio_global ? (typeof est.promedio_global === "number" ? est.promedio_global : parseFloat(String(est.promedio_global))) : 0;
+        rowData.push(promedioGlobal);
+
+        const row = wsModulos.addRow(rowData);
+        row.eachCell((cell, colNumber) => {
+          cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
+          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
+
+          // Formato numérico para columna # (índice)
+          if (colNumber === 1 && typeof cell.value === 'number') {
+            cell.numFmt = '0'; // Número entero sin decimales
+          }
+          // Formato numérico para promedios
+          else if (colNumber > 3 && typeof cell.value === 'number') {
+            cell.numFmt = '0.00'; // Dos decimales
+          }
+        });
+      });
+
+      ajustarAnchoColumnas(wsModulos);
+
+
       // ============================================
-      // Hoja 3: Estadísticas del curso
+      // Hoja 3: Estadísticas
       // ============================================
-      const aprobadosGlobal = estudiantes.filter(
-        (est) => (parseFloat(String(est.promedio_global)) || 0) >= 7,
-      ).length;
+      const wsEstadisticas = workbook.addWorksheet('Estadísticas', {
+        pageSetup: {
+          paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+        }
+      });
+
+      const aprobadosGlobal = estudiantes.filter((est) => (parseFloat(String(est.promedio_global)) || 0) >= 7).length;
       const reprobadosGlobal = estudiantes.length - aprobadosGlobal;
-
-      const promedioGeneral =
-        estudiantes.length > 0
-          ? (
-            estudiantes.reduce((sum, est) => sum + est.promedio, 0) /
-            estudiantes.length
-          ).toFixed(2)
-          : "0.00";
-
-      const promedioGlobalCurso =
-        estudiantes.length > 0
-          ? (
-            estudiantes.reduce(
-              (sum, est) => sum + (parseFloat(String(est.promedio_global)) || 0),
-              0,
-            ) / estudiantes.length
-          ).toFixed(2)
-          : "0.00";
-
-      const porcentajeAprobacion =
-        estudiantes.length > 0
-          ? ((aprobadosGlobal / estudiantes.length) * 100).toFixed(1) + "%"
-          : "0%";
+      const promedioGeneral = estudiantes.length > 0 ? (estudiantes.reduce((sum, est) => sum + est.promedio, 0) / estudiantes.length) : 0;
+      const promedioGlobalCurso = estudiantes.length > 0 ? (estudiantes.reduce((sum, est) => sum + (parseFloat(String(est.promedio_global)) || 0), 0) / estudiantes.length) : 0;
+      const porcentajeAprobacion = estudiantes.length > 0 ? (aprobadosGlobal / estudiantes.length) : 0;
 
       const datosEstadisticas = [
-        { Métrica: "Total de Estudiantes", Valor: estudiantes.length },
-        { Métrica: "Estudiantes Aprobados (≥7/10)", Valor: aprobadosGlobal },
-        { Métrica: "Estudiantes Reprobados (<7/10)", Valor: reprobadosGlobal },
-        { Métrica: "Porcentaje de Aprobación", Valor: porcentajeAprobacion },
-        { Métrica: "", Valor: "" },
-        {
-          Métrica: "Promedio Global del Curso (/10pts)",
-          Valor: promedioGlobalCurso,
-        },
-        {
-          Métrica: "Promedio General (tareas)",
-          Valor: promedioGeneral,
-        },
-        { Métrica: "", Valor: "" },
-        { Métrica: "Total de Tareas Evaluadas", Valor: tareas.length },
-        { Métrica: "Total de Módulos en el Curso", Valor: modulos.length },
-        {
-          Métrica: "Peso por Módulo",
-          Valor: (typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2) + " pts",
-        },
-        { Métrica: "", Valor: "" },
-        { Métrica: "Nota Mínima de Aprobación", Valor: "7.0 / 10 puntos" },
-        {
-          Métrica: "Sistema de Calificación",
-          Valor: "Todos los módulos tienen igual peso",
-        },
+        ["Métrica", "Valor"],
+        ["Total de Estudiantes", estudiantes.length],
+        ["Estudiantes Aprobados (≥7/10)", aprobadosGlobal],
+        ["Estudiantes Reprobados (<7/10)", reprobadosGlobal],
+        ["Porcentaje de Aprobación", porcentajeAprobacion],
+        ["", ""],
+        ["Promedio Global del Curso (/10pts)", promedioGlobalCurso],
+        ["Promedio General (tareas)", promedioGeneral],
+        ["", ""],
+        ["Total de Tareas Evaluadas", tareas.length],
+        ["Total de Módulos en el Curso", modulos.length],
+        ["Peso por Módulo", (typeof pesoPorModulo === "number" ? pesoPorModulo : 0)],
+        ["", ""],
+        ["Nota Mínima de Aprobación", "7.0 / 10 puntos"],
+        ["Sistema de Calificación", "Todos los módulos tienen igual peso"],
       ];
-      // Agregar hoja de promedios por módulo (SIEMPRE se crea)
-      console.log("Intentando crear hoja de módulos...");
-      console.log("datosModulos.length:", datosModulos.length);
-      console.log("modulos.length:", modulos.length);
 
-      if (datosModulos.length > 0) {
-        console.log(" ✓ Creando hoja 'Promedios por Módulo'");
-        const wsModulos = XLSX.utils.json_to_sheet(datosModulos);
-
-        // Aplicar estilos a la hoja de Promedios por Módulo
-        const rangeModulos = XLSX.utils.decode_range(wsModulos['!ref'] || 'A1');
-        const estiloEncabezadoModulos = {
-          font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
-          fill: { fgColor: { rgb: "0284C7" } }, // Azul cielo
-          alignment: { horizontal: "center", vertical: "center" },
-          border: {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } }
-          }
-        };
-
-        // Aplicar estilo a encabezados (fila 0)
-        for (let C = 0; C <= rangeModulos.e.c; ++C) {
-          const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-          if (!wsModulos[cellAddress]) continue;
-          wsModulos[cellAddress].s = estiloEncabezadoModulos;
-        }
-
-        // Aplicar bordes y alineación a datos
-        for (let R = 1; R <= rangeModulos.e.r; ++R) {
-          for (let C = 0; C <= rangeModulos.e.c; ++C) {
-            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-            if (!wsModulos[cellAddress]) continue;
-            wsModulos[cellAddress].s = {
-              border: {
-                top: { style: "thin", color: { rgb: "E5E7EB" } },
-                bottom: { style: "thin", color: { rgb: "E5E7EB" } },
-                left: { style: "thin", color: { rgb: "E5E7EB" } },
-                right: { style: "thin", color: { rgb: "E5E7EB" } }
-              },
-              alignment: { horizontal: "center", vertical: "center" }
+      datosEstadisticas.forEach((data, index) => {
+        const row = wsEstadisticas.addRow(data);
+        if (index === 0) {
+          row.eachCell(cell => {
+            cell.style = {
+              font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+              fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
+              alignment: { horizontal: 'center', vertical: 'middle' },
+              border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
             };
-          }
+          });
+        } else {
+          row.eachCell((cell, colNumber) => {
+            cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
+            cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'left' : 'center' };
+            if (colNumber === 1) cell.font = { bold: true };
+            if (data[0] === "Porcentaje de Aprobación" && colNumber === 2) cell.numFmt = '0.0%';
+            else if (typeof cell.value === 'number') cell.numFmt = '0.00';
+          });
         }
+      });
 
-        // Ajustar ancho de columnas
-        const colWidthsModulos: any[] = [];
-        for (let C = 0; C <= rangeModulos.e.c; ++C) {
-          let maxWidth = 10;
-          for (let R = 0; R <= rangeModulos.e.r; ++R) {
-            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-            const cell = wsModulos[cellAddress];
-            if (cell && cell.v) {
-              const cellLength = String(cell.v).length;
-              maxWidth = Math.max(maxWidth, cellLength);
-            }
-          }
-          colWidthsModulos.push({ wch: Math.min(maxWidth + 2, 30) });
-        }
-        wsModulos['!cols'] = colWidthsModulos;
+      ajustarAnchoColumnas(wsEstadisticas);
 
-        XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
-        console.log(" ✓ Hoja 'Promedios por Módulo' creada");
-      } else {
-        console.warn(" Creando hoja de módulos vacía (sin datos)");
-        // Crear hoja vacía con encabezados
-        const datosVacios = [
-          {
-            Apellido: "-",
-            Nombre: "-",
-            "PROMEDIO GLOBAL (/10pts)": "0.00",
-          },
-        ];
-        const wsModulos = XLSX.utils.json_to_sheet(datosVacios);
-        XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
-      }
-
-      // Agregar hoja de estadísticas con estilos
-      const wsEstadisticas = XLSX.utils.json_to_sheet(datosEstadisticas);
-
-      // Aplicar estilos a la hoja de Estadísticas
-      const rangeEstadisticas = XLSX.utils.decode_range(wsEstadisticas['!ref'] || 'A1');
-      const estiloEncabezadoEstadisticas = {
-        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
-        fill: { fgColor: { rgb: "0369A1" } }, // Azul medio
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-          top: { style: "thin", color: { rgb: "000000" } },
-          bottom: { style: "thin", color: { rgb: "000000" } },
-          left: { style: "thin", color: { rgb: "000000" } },
-          right: { style: "thin", color: { rgb: "000000" } }
-        }
-      };
-
-      // Aplicar estilo a encabezados (fila 0)
-      for (let C = 0; C <= rangeEstadisticas.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!wsEstadisticas[cellAddress]) continue;
-        wsEstadisticas[cellAddress].s = estiloEncabezadoEstadisticas;
-      }
-
-      // Aplicar bordes y alineación a datos
-      for (let R = 1; R <= rangeEstadisticas.e.r; ++R) {
-        for (let C = 0; C <= rangeEstadisticas.e.c; ++C) {
-          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-          if (!wsEstadisticas[cellAddress]) continue;
-          wsEstadisticas[cellAddress].s = {
-            border: {
-              top: { style: "thin", color: { rgb: "E5E7EB" } },
-              bottom: { style: "thin", color: { rgb: "E5E7EB" } },
-              left: { style: "thin", color: { rgb: "E5E7EB" } },
-              right: { style: "thin", color: { rgb: "E5E7EB" } }
-            },
-            alignment: { horizontal: C === 0 ? "left" : "center", vertical: "center" },
-            font: { bold: C === 0 }
-          };
-        }
-      }
-
-      // Ajustar ancho de columnas
-      wsEstadisticas['!cols'] = [
-        { wch: 35 }, // Columna Métrica más ancha
-        { wch: 20 }  // Columna Valor
-      ];
-
-      XLSX.utils.book_append_sheet(wb, wsEstadisticas, "Estadísticas");
-      console.log(" ✓ Hoja 'Estadísticas' creada");
-
-      // Generar nombre del archivo
+      const buffer = await workbook.xlsx.writeBuffer();
       const nombreCurso = cursoNombre.replace(/\s+/g, "_") || "Curso";
       const nombreArchivo = `Calificaciones_${nombreCurso}_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      // Descargar archivo
-      XLSX.writeFile(wb, nombreArchivo);
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, nombreArchivo);
+
     } catch (error) {
       console.error("Error generando Excel:", error);
+      showToast.error('Error al generar el Excel', darkMode);
     } finally {
       setDownloadingExcel(false);
     }

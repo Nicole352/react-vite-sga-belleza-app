@@ -63,18 +63,22 @@ const AulaVirtual = () => {
         delay(1000) // Forzar 1 segundo de espera
       ]);
 
-      // Verificar si la cuenta está bloqueada (HTTP 403)
-      if (res.status === 403) {
-        const errorData = await res.json();
-        if (errorData.bloqueada) {
-          setErrorMsg(errorData.motivo || 'Su cuenta ha sido bloqueada. Por favor, contacte con el área administrativa.');
-          return;
-        }
-      }
-
+      // Manejar errores de autenticación
       if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || 'Credenciales inválidas');
+        let errorMessage = 'Credenciales inválidas';
+
+        try {
+          const errorData = await res.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.bloqueada) {
+            errorMessage = errorData.motivo || 'Su cuenta ha sido bloqueada. Por favor, contacte con el área administrativa.';
+          }
+        } catch {
+          // Si no se puede parsear como JSON, usar el mensaje por defecto
+        }
+
+        throw new Error(errorMessage);
       }
       const data = await res.json();
       if (!data?.token || !data?.user) throw new Error('Respuesta inválida del servidor');

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, Users, TrendingUp, Award, Clock, FileCheck, 
-  Download, BarChart3
+import {
+  ArrowLeft, Users, TrendingUp, Award, Clock, FileCheck,
+  Download, BarChart3, FileSpreadsheet
 } from 'lucide-react';
 import axios from 'axios';
 import { showToast } from '../../config/toastConfig';
@@ -40,9 +40,9 @@ const AnalisisEntregas: React.FC = () => {
       const saved = localStorage.getItem('docente-dark-mode');
       setDarkMode(saved !== null ? JSON.parse(saved) : true);
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     // También escuchar cambios directos en el mismo tab
     const interval = setInterval(() => {
       const saved = localStorage.getItem('docente-dark-mode');
@@ -51,7 +51,7 @@ const AnalisisEntregas: React.FC = () => {
         setDarkMode(currentMode);
       }
     }, 100);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
@@ -62,22 +62,22 @@ const AnalisisEntregas: React.FC = () => {
   useSocket({
     'entrega_nueva': (data: any) => {
       console.log('[WebSocket Docente] Nueva entrega recibida:', data);
-      
+
       // Verificar si la entrega es de la tarea actual
       if (data.id_tarea === parseInt(id_tarea || '0')) {
         showToast.success(`Nueva entrega de ${data.entrega?.estudiante_nombre || 'un estudiante'}`, darkMode);
-        
+
         // Recargar las entregas para mostrar la nueva
         fetchData();
       }
     },
     'entrega_actualizada': (data: any) => {
       console.log('[WebSocket Docente] Entrega actualizada:', data);
-      
+
       // Si es de esta tarea, recargar
       if (data.id_tarea === parseInt(id_tarea || '0')) {
         showToast.success(`${data.entrega?.estudiante_nombre || 'Un estudiante'} actualizó su entrega`, darkMode);
-        
+
         fetchData();
       }
     }
@@ -93,19 +93,19 @@ const AnalisisEntregas: React.FC = () => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       // Obtener entregas
       const responseEntregas = await axios.get(`${API_BASE}/api/entregas/tarea/${id_tarea}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       // Obtener info de la tarea (incluye módulo y curso)
       const responseTarea = await axios.get(`${API_BASE}/api/tareas/${id_tarea}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       console.log('Datos de la tarea:', responseTarea.data.tarea);
-      
+
       setEntregas(responseEntregas.data.entregas || []);
       setTareaInfo(responseTarea.data.tarea || {});
     } catch (error) {
@@ -122,13 +122,13 @@ const AnalisisEntregas: React.FC = () => {
     const calificadas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined).length;
     const pendientes = total - calificadas;
     const porcentajeCompletado = total > 0 ? Math.round((calificadas / total) * 100) : 0;
-    
+
     // Promedio de calificaciones
     const calificacionesValidas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined);
     const promedio = calificacionesValidas.length > 0
       ? (calificacionesValidas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificacionesValidas.length).toFixed(2)
       : '0.00';
-    
+
     // Notas máxima y mínima
     const notaMaxima = calificacionesValidas.length > 0
       ? Math.max(...calificacionesValidas.map(e => e.calificacion || 0))
@@ -136,19 +136,19 @@ const AnalisisEntregas: React.FC = () => {
     const notaMinima = calificacionesValidas.length > 0
       ? Math.min(...calificacionesValidas.map(e => e.calificacion || 0))
       : 0;
-    
+
     // Estado de entregas (basado en fecha límite)
     const fechaLimite = tareaInfo?.fecha_limite ? new Date(tareaInfo.fecha_limite) : null;
     const ahora = new Date();
-    
+
     const entregadas = entregas.length;
     const atrasadas = fechaLimite ? entregas.filter(e => new Date(e.fecha_entrega) > fechaLimite).length : 0;
     const noEntregadas = 0; // Por ahora, solo contamos las que están en el sistema
-    
+
     // Estado de la tarea (Activa o Cerrada)
     const estadoTarea = fechaLimite && ahora > fechaLimite ? 'Cerrada' : 'Activa';
     const colorEstado = estadoTarea === 'Activa' ? '#10b981' : '#ef4444';
-    
+
     return {
       total,
       calificadas,
@@ -283,9 +283,9 @@ const AnalisisEntregas: React.FC = () => {
         border: '1px solid var(--docente-border)',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '0.75rem'
@@ -298,49 +298,210 @@ const AnalisisEntregas: React.FC = () => {
               Exportación, filtros y estadísticas disponibles
             </p>
           </div>
-          
+
           {/* Botón Exportar a Excel */}
           <button
-            onClick={() => {
-              // Crear datos para Excel
-              const excelData = entregas.map(e => ({
-                'Apellido': e.estudiante_apellido,
-                'Nombre': e.estudiante_nombre,
-                'Fecha Entrega': new Date(e.fecha_entrega).toLocaleString('es-EC'),
-                'Calificación': e.calificacion !== null ? e.calificacion : 'Sin calificar',
-                'Estado': e.calificacion !== null ? 'Calificada' : 'Pendiente',
-                'Comentario': e.comentario || 'Sin comentario'
-              }));
+            onClick={async () => {
+              try {
+                const ExcelJS = await import('exceljs');
+                const { saveAs } = await import('file-saver');
 
-              // Convertir a CSV
-              const headers = Object.keys(excelData[0] || {});
-              const csvContent = [
-                headers.join(','),
-                ...excelData.map(row => headers.map(h => `"${row[h as keyof typeof row]}"`).join(','))
-              ].join('\n');
+                const workbook = new ExcelJS.Workbook();
 
-              // Limpiar nombres para el archivo
-              const limpiarNombre = (texto: string) => {
-                return texto
-                  .normalize('NFD')
-                  .replace(/[\u0300-\u036f]/g, '')
-                  .replace(/[^a-zA-Z0-9]/g, '_')
-                  .replace(/_+/g, '_')
-                  .replace(/^_|_$/g, '');
-              };
+                // Función auxiliar para ajustar ancho de columnas
+                const ajustarAnchoColumnas = (worksheet: any) => {
+                  worksheet.columns.forEach((column: any) => {
+                    let maxLength = 0;
+                    column.eachCell({ includeEmpty: true }, (cell: any) => {
+                      const columnLength = cell.value ? cell.value.toString().length : 10;
+                      if (columnLength > maxLength) {
+                        maxLength = columnLength;
+                      }
+                    });
+                    column.width = maxLength + 2;
+                  });
+                };
 
-              const cursoNombre = limpiarNombre(tareaInfo?.curso_nombre || 'Curso');
-              const moduloNombre = limpiarNombre(tareaInfo?.modulo_nombre || 'Modulo');
-              const tareaNombre = limpiarNombre(tareaInfo?.titulo || 'Tarea');
-              const fecha = new Date().toLocaleDateString('es-EC').replace(/\//g, '_');
+                // Crear hoja de Excel
+                const ws = workbook.addWorksheet('Entregas', {
+                  pageSetup: {
+                    paperSize: 9, // A4
+                    orientation: 'landscape',
+                    fitToPage: true,
+                    fitToWidth: 1,
+                    fitToHeight: 0,
+                    margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+                  }
+                });
 
-              // Descargar
-              const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(blob);
-              link.download = `Entregas_${cursoNombre}_${moduloNombre}_${tareaNombre}_${fecha}.csv`;
-              link.click();
-              showToast.success('Archivo Excel descargado', darkMode);
+                // Encabezados
+                const headers = ['#', 'Apellido', 'Nombre', 'Fecha Entrega', 'Calificación', 'Estado', 'Comentario'];
+                const headerRow = ws.addRow(headers);
+
+                // Estilos de encabezados
+                headerRow.eachCell((cell) => {
+                  cell.style = {
+                    font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+                    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
+                    alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
+                    border: {
+                      top: { style: 'thin' },
+                      bottom: { style: 'thin' },
+                      left: { style: 'thin' },
+                      right: { style: 'thin' }
+                    }
+                  };
+                });
+                headerRow.height = 30;
+
+                // Datos
+                entregas.forEach((e, index) => {
+                  const rowData = [
+                    index + 1,
+                    e.estudiante_apellido,
+                    e.estudiante_nombre,
+                    new Date(e.fecha_entrega).toLocaleString('es-EC', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }),
+                    e.calificacion !== null ? e.calificacion : '-',
+                    e.calificacion !== null ? 'Calificada' : 'Pendiente',
+                    e.comentario || 'Sin comentario'
+                  ];
+
+                  const row = ws.addRow(rowData);
+
+                  row.eachCell((cell, colNumber) => {
+                    cell.border = {
+                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    };
+                    cell.alignment = {
+                      vertical: 'middle',
+                      horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center')
+                    };
+
+                    // Formato numérico para columna # (índice)
+                    if (colNumber === 1 && typeof cell.value === 'number') {
+                      cell.numFmt = '0';
+                    }
+                    // Formato numérico para calificación
+                    else if (colNumber === 5 && typeof cell.value === 'number') {
+                      cell.numFmt = '0.00';
+                    }
+                  });
+                });
+                // ============================================
+                // SECCIÓN DE RESUMEN ESTADÍSTICO
+                // ============================================
+
+                // Agregar fila vacía de separación
+                ws.addRow([]);
+                ws.addRow([]);
+
+                // Calcular estadísticas
+                const totalEntregas = entregas.length;
+                const calificadas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined).length;
+                const pendientes = totalEntregas - calificadas;
+                const aprobadas = entregas.filter(e => (e.calificacion || 0) >= 7).length;
+                const promedioGeneral = calificadas > 0
+                  ? (entregas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificadas)
+                  : 0;
+
+                // Título del resumen
+                const tituloResumen = ws.addRow(['RESUMEN ESTADÍSTICO']);
+                ws.mergeCells(tituloResumen.number, 1, tituloResumen.number, 7);
+                tituloResumen.getCell(1).style = {
+                  font: { bold: true, color: { argb: 'FFFFFF' }, size: 12 },
+                  fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
+                  alignment: { horizontal: 'center', vertical: 'middle' },
+                  border: {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                  }
+                };
+                tituloResumen.height = 25;
+
+                // Datos del resumen
+                const datosResumen = [
+                  ['Total de Entregas', totalEntregas],
+                  ['Tareas Calificadas', calificadas],
+                  ['Tareas Pendientes de Calificar', pendientes],
+                  ['Tareas Aprobadas (≥7.0)', aprobadas],
+                  ['Promedio General', promedioGeneral > 0 ? promedioGeneral : '-']
+                ];
+
+                datosResumen.forEach((dato) => {
+                  const row = ws.addRow(['', dato[0], dato[1]]);
+
+                  // Estilo para la etiqueta (columna B)
+                  row.getCell(2).style = {
+                    font: { bold: true, size: 10 },
+                    alignment: { horizontal: 'left', vertical: 'middle' },
+                    border: {
+                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    }
+                  };
+
+                  // Estilo para el valor (columna C)
+                  row.getCell(3).style = {
+                    font: { bold: true, size: 11, color: { argb: '0284C7' } },
+                    alignment: { horizontal: 'center', vertical: 'middle' },
+                    border: {
+                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    }
+                  };
+
+                  // Formato numérico para el promedio
+                  if (dato[0] === 'Promedio General' && typeof row.getCell(3).value === 'number') {
+                    row.getCell(3).numFmt = '0.00';
+                  }
+                });
+
+                ajustarAnchoColumnas(ws);
+
+                // Limpiar nombres para el archivo
+                const limpiarNombre = (texto: string) => {
+                  return texto
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-zA-Z0-9]/g, '_')
+                    .replace(/_+/g, '_')
+                    .replace(/^_|_$/g, '');
+                };
+
+                const cursoNombre = limpiarNombre(tareaInfo?.curso_nombre || 'Curso');
+                const moduloNombre = limpiarNombre(tareaInfo?.modulo_nombre || 'Modulo');
+                const tareaNombre = limpiarNombre(tareaInfo?.titulo || 'Tarea');
+                const fecha = new Date().toISOString().split('T')[0];
+
+                // Generar y descargar
+                const buffer = await workbook.xlsx.writeBuffer();
+                const nombreArchivo = `Entregas_${cursoNombre}_${moduloNombre}_${tareaNombre}_${fecha}.xlsx`;
+
+                const blob = new Blob([buffer], {
+                  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+                saveAs(blob, nombreArchivo);
+
+                showToast.success('Archivo Excel descargado', darkMode);
+              } catch (error) {
+                console.error('Error generando Excel:', error);
+                showToast.error('Error al generar el Excel', darkMode);
+              }
             }}
             style={{
               background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -366,9 +527,10 @@ const AnalisisEntregas: React.FC = () => {
               e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
             }}
           >
-            <Download size={16} />
+            <FileSpreadsheet size={16} />
             Exportar a Excel
           </button>
+
         </div>
       </div>
 
@@ -738,10 +900,10 @@ const AnalisisEntregas: React.FC = () => {
             <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
               Estado
             </p>
-            <p style={{ 
-              color: stats.colorEstado, 
-              fontSize: '1.25rem', 
-              fontWeight: '800', 
+            <p style={{
+              color: stats.colorEstado,
+              fontSize: '1.25rem',
+              fontWeight: '800',
               margin: 0
             }}>
               {stats.estadoTarea}

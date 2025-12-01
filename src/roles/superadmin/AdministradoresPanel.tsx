@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
-  Users, UserPlus, Edit3, X, Key, Trash2, Lock, Unlock, Save,
-  AlertCircle, Check, Search, Filter, RefreshCw, Download, Clock, CheckCircle,
-  GraduationCap, DollarSign, Database, Settings, BarChart3, AlertTriangle, Eye, EyeOff
+  Search, UserPlus, Edit, X, Save, CheckCircle2, Ban, Lock, Unlock, Grid, List, Eye, EyeOff,
+  Users, GraduationCap, BarChart3, Settings, DollarSign, Database, Check, Phone, MapPin, Calendar, User
 } from 'lucide-react';
+import { showToast } from '../../config/toastConfig';
+import { StyledSelect } from '../../components/StyledSelect';
+import GlassEffect from '../../components/GlassEffect';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
+import '../../styles/responsive.css';
 
-// Tipos
+// Tipos completos
 interface Admin {
   id: number;
-  // nombre completo para mostrar en la lista
-  nombre: string;
-  // nombres y apellidos separados para edición
+  nombre: string; // Nombre completo para lista
   firstName?: string;
   lastName?: string;
-  // campos adicionales
   cedula?: string;
-  apellido?: string; // mantener compatibilidad si se usa en otra parte
+  apellido?: string;
   email: string;
   telefono?: string;
   fechaCreacion?: string;
@@ -30,153 +33,120 @@ interface Admin {
   rolId?: number;
 }
 
-// Tooltip component
-const Tooltip = ({ content, children }) => (
-  <div className="relative inline-flex group">
-    {children}
-    <div className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-gray-900/95 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg z-50">
-      {content}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-gray-900/95" />
-    </div>
-  </div>
-);
+// Permisos disponibles (del archivo original)
+const permisosDisponibles = [
+  { id: 'usuarios', nombre: 'Gestión de Usuarios', descripcion: 'Crear, editar y eliminar usuarios', icon: Users },
+  { id: 'cursos', nombre: 'Gestión de Cursos', descripcion: 'Administrar cursos y programas', icon: GraduationCap },
+  { id: 'reportes', nombre: 'Reportes y Estadísticas', descripcion: 'Acceso a reportes del sistema', icon: BarChart3 },
+  { id: 'configuracion', nombre: 'Configuración del Sistema', descripcion: 'Cambiar configuraciones generales', icon: Settings },
+  { id: 'pagos', nombre: 'Gestión de Pagos', descripcion: 'Administrar pagos y facturación', icon: DollarSign },
+  { id: 'inventario', nombre: 'Control de Inventario', descripcion: 'Gestionar productos e inventario', icon: Database }
+];
 
-// Notificación local
-const Notification: React.FC<{ message: string; type: 'success' | 'error' }>
-  = ({ message, type }) => (
-  <div
-    style={{
-      position: 'fixed', top: 20, right: 20, zIndex: 1000,
-      background: type === 'success' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-      border: `1px solid ${type === 'success' ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`,
-      color: type === 'success' ? '#10b981' : '#ef4444',
-      padding: '12px 16px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 8,
-      boxShadow: '0 10px 24px rgba(0,0,0,0.25)', backdropFilter: 'blur(10px)'
-    }}
-  >
-    {type === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}
-    <span style={{ fontWeight: 600 }}>{message}</span>
+// Componente de Input reutilizable - FUERA del componente principal para evitar re-creación
+const InputField = React.memo(({ label, type = 'text', value, onChange, placeholder = '', icon: Icon, error, themeColors, darkMode }: any) => (
+  <div style={{ marginBottom: '0.5rem' }}>
+    <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>{label}</label>
+    <div style={{ position: 'relative' }}>
+      {Icon && <Icon size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: darkMode ? 'rgba(255,255,255,0.5)' : '#64748b' }} />}
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        style={{
+          width: '100%',
+          padding: Icon ? '0.5rem 0.5rem 0.5rem 2.5rem' : '0.5rem',
+          borderRadius: '0.625rem',
+          background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+          border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+          color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b',
+          fontSize: '0.85rem'
+        }}
+      />
+    </div>
+    {error && <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem', display: 'block' }}>{error}</span>}
   </div>
-);
+));
 
 const AdministradoresPanel: React.FC = () => {
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
-  const [showEditAdminModal, setShowEditAdminModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [roles, setRoles] = useState<Array<{ id_rol: number; nombre_rol: string; descripcion?: string }>>([]);
-  const API_BASE = 'http://localhost:3000/api';
-  
-  const [newAdmin, setNewAdmin] = useState({
-    cedula: '', nombre: '', apellido: '', email: '', telefono: '', fecha_nacimiento: '',
-    direccion: '', genero: '', foto_perfil: '', password: '', confirmPassword: '', permisos: [] as string[], rolId: ''
+  const { isMobile, isSmallScreen } = useBreakpoints();
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('superadmin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
   });
 
-  // Validaciones del primer archivo
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [cedulaError, setCedulaError] = useState<string | null>(null);
-  const [cedulaValue, setCedulaValue] = useState<string>('');
-  const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
-  const [pwdError, setPwdError] = useState<string | null>(null);
-  const [pwdConfirmError, setPwdConfirmError] = useState<string | null>(null);
-  const [showPwd, setShowPwd] = useState<boolean>(false);
-  const [showPwdConfirm, setShowPwdConfirm] = useState<boolean>(false);
-
-  // Roles visibles: SOLO 'administrativo'
-  const visibleRoles = roles.filter(r => r.nombre_rol?.toLowerCase() === 'administrativo');
-
-  // Cargar admins del backend
-  const loadAdmins = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-      if (!token) return;
-      const res = await fetch(`${API_BASE}/admins`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        const mapped: Admin[] = data.map((d: any) => ({
-          id: d.id || d.id_usuario || 0,
-          // Mostrar nombre completo en la lista
-          nombre: d.nombre ? `${d.nombre}${d.apellido ? ' ' + d.apellido : ''}` : (d.nombre_completo || d.fullName || d.email || 'Sin nombre'),
-          // Guardar nombres y apellidos por separado para el modal de edición
-          firstName: d.nombre || d.firstName || '',
-          lastName: d.apellido || d.lastName || '',
-          cedula: d.cedula || d.num_documento || '',
-          email: d.email || d.correo || '',
-          telefono: d.telefono || '',
-          fechaCreacion: d.fecha_registro || d.fechaCreacion || '',
-          fecha_nacimiento: d.fecha_nacimiento || d.fechaNacimiento || '',
-          direccion: d.direccion || d.dirección || '',
-          genero: d.genero || d.genero_sexo || '',
-          foto_perfil: d.foto_perfil || d.foto || d.avatar || '',
-          ultimoAcceso: d.fecha_ultima_conexion || d.ultimo_acceso || d.ultimoAcceso || '',
-          estado: (d.estado === 'activo' || d.estado === 'inactivo') ? d.estado : 'activo',
-          permisos: Array.isArray(d.permisos) ? d.permisos : [],
-          rol: d.rol?.nombre || d.nombre_rol || d.rol || 'Administrador',
-          rolId: d.rol?.id_rol || d.id_rol || d.rolId || undefined
-        }));
-        setAdministradores(mapped);
-      }
-    } catch (e) {
-      console.error('Error cargando administradores', e);
-    }
-  };
-
-  // Helper para mostrar fechas legibles en la tabla: dd/MM/yyyy HH:mm
-  const formatDateTime = (d?: string): string => {
-    if (!d) return '-';
-    try {
-      // Si ya viene en formato ISO o fecha válida
-      const date = new Date(d);
-      if (isNaN(date.getTime())) return d; // Dejar como viene si no parsea
-      const pad = (n: number) => String(n).padStart(2, '0');
-      const day = pad(date.getDate());
-      const month = pad(date.getMonth() + 1);
-      const year = date.getFullYear();
-      const hours = pad(date.getHours());
-      const mins = pad(date.getMinutes());
-      return `${day}/${month}/${year} ${hours}:${mins}`;
-    } catch {
-      return d;
-    }
-  };
-
-  // Cargar roles y admins al montar
-  useEffect(() => {
-    (async () => {
-      try {
-        const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-        const res = await fetch(`${API_BASE}/roles`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) setRoles(data);
-        }
-      } catch (e) {
-        console.error('Error cargando roles', e);
-      }
-    })();
-    loadAdmins();
-  }, []);
-  // Administradores data
+  // Estados principales
   const [administradores, setAdministradores] = useState<Admin[]>([]);
+  const [roles, setRoles] = useState<Array<{ id_rol: number; nombre_rol: string; descripcion?: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('todos');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>(isMobile ? 'cards' : 'table');
 
-  // Permisos disponibles
-  const permisosDisponibles = [
-    { id: 'usuarios', nombre: 'Gestión de Usuarios', descripcion: 'Crear, editar y eliminar usuarios', icon: Users },
-    { id: 'cursos', nombre: 'Gestión de Cursos', descripcion: 'Administrar cursos y programas', icon: GraduationCap },
-    { id: 'reportes', nombre: 'Reportes y Estadísticas', descripcion: 'Acceso a reportes del sistema', icon: BarChart3 },
-    { id: 'configuracion', nombre: 'Configuración del Sistema', descripcion: 'Cambiar configuraciones generales', icon: Settings },
-    { id: 'pagos', nombre: 'Gestión de Pagos', descripcion: 'Administrar pagos y facturación', icon: DollarSign },
-    { id: 'inventario', nombre: 'Control de Inventario', descripcion: 'Gestionar productos e inventario', icon: Database }
-  ];
+  // Modales
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
 
-  // Validador estricto de cédula ecuatoriana (del primer archivo)
+  // Formularios con TODOS los campos
+  const [formData, setFormData] = useState({
+    cedula: '', nombre: '', apellido: '', email: '', telefono: '',
+    fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
+    rolId: '', permisos: [] as string[]
+  });
+  const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
+
+  // Estados de UI para formularios
+  const [showPwd, setShowPwd] = useState(false);
+  const [showPwdConfirm, setShowPwdConfirm] = useState(false);
+  const [cedulaError, setCedulaError] = useState<string | null>(null);
+
+  const API_BASE = 'http://localhost:3000/api';
+
+  // Sincronizar darkMode
+  useEffect(() => {
+    const syncDarkMode = () => {
+      const saved = localStorage.getItem('superadmin-dark-mode');
+      setDarkMode(saved !== null ? JSON.parse(saved) : true);
+    };
+    const interval = setInterval(syncDarkMode, 150);
+    window.addEventListener('storage', syncDarkMode);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', syncDarkMode);
+    };
+  }, []);
+
+  // Tema de colores
+  const themeColors = useMemo(() => ({
+    textPrimary: darkMode ? 'rgba(255,255,255,0.95)' : '#1e293b',
+    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#64748b',
+    textMuted: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
+    controlBg: darkMode ? 'rgba(255,255,255,0.05)' : '#ffffff',
+    controlBorder: darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+    tableHeaderBg: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.5)',
+    tableHeaderText: darkMode ? '#fca5a5' : '#b91c1c',
+    tableRowHover: darkMode ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+    tableRowAltBg: darkMode ? 'rgba(255,255,255,0.02)' : '#fcfcfc',
+    iconMuted: darkMode ? 'rgba(255,255,255,0.4)' : '#94a3b8',
+    toggleGroupBg: darkMode ? 'rgba(0,0,0,0.2)' : '#f1f5f9',
+    toggleActiveBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
+    toggleActiveText: darkMode ? '#fff' : '#0f172a',
+    toggleInactiveText: darkMode ? 'rgba(255,255,255,0.5)' : '#64748b',
+    sectionSurface: darkMode ? 'rgba(20,20,25,0.6)' : '#ffffff',
+    sectionBorder: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+  }), [darkMode]);
+
+  const primaryActionButtonStyles = {
+    base: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    hover: 'linear-gradient(135deg, #f87171, #ef4444)',
+    text: '#ffffff',
+    shadow: '0 4px 12px rgba(239, 68, 68, 0.25)'
+  };
+
+  // Validación de Cédula EC (Restaurada)
   const validateCedulaEC = (ced: string): { ok: boolean; reason?: string } => {
     if (!/^\d{10}$/.test(ced)) return { ok: false, reason: 'La cédula debe tener exactamente 10 dígitos' };
     if (/^(\d)\1{9}$/.test(ced)) return { ok: false, reason: 'La cédula es inválida (repetitiva)' };
@@ -194,96 +164,100 @@ const AdministradoresPanel: React.FC = () => {
     }
     const nextTen = Math.ceil(sum / 10) * 10;
     const verifier = (nextTen - sum) % 10;
-    if (verifier !== digits[9]) return { ok: false, reason: 'Cédula incorrecta: Por favor verifique y corrija el número ingresado' };
+    if (verifier !== digits[9]) return { ok: false, reason: 'Cédula incorrecta' };
     return { ok: true };
   };
 
-  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 4000);
-  };
-
-  const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null)?.value?.trim() || '';
-
-  // Helper para normalizar fechas al formato yyyy-MM-dd que esperan los inputs type="date"
-  const formatDateForInput = (d?: string): string => {
+  // Cargar datos
+  const loadData = async () => {
     try {
-      if (!d) return '';
-      // Si ya viene en formato yyyy-MM-dd lo devolvemos tal cual
-      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-      const date = new Date(d);
-      if (isNaN(date.getTime())) return '';
-      return date.toISOString().split('T')[0];
-    } catch {
-      return '';
+      setLoading(true);
+      const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Cargar roles
+      const rolesRes = await fetch(`${API_BASE}/roles`, { headers });
+      if (rolesRes.ok) {
+        const rolesData = await rolesRes.json();
+        setRoles(Array.isArray(rolesData) ? rolesData : []);
+      }
+
+      // Cargar admins
+      const adminsRes = await fetch(`${API_BASE}/admins`, { headers });
+      if (adminsRes.ok) {
+        const data = await adminsRes.json();
+        if (Array.isArray(data)) {
+          const mapped: Admin[] = data.map((d: any) => ({
+            id: d.id || d.id_usuario || 0,
+            nombre: d.nombre ? `${d.nombre}${d.apellido ? ' ' + d.apellido : ''}` : (d.nombre_completo || 'Sin nombre'),
+            firstName: d.nombre || '',
+            lastName: d.apellido || '',
+            cedula: d.cedula || '',
+            email: d.email || '',
+            telefono: d.telefono || '',
+            fechaCreacion: d.fecha_registro || '',
+            fecha_nacimiento: d.fecha_nacimiento || '',
+            direccion: d.direccion || '',
+            genero: d.genero || '',
+            foto_perfil: d.foto_perfil || '',
+            ultimoAcceso: d.fecha_ultima_conexion || '',
+            estado: (d.estado === 'activo' || d.estado === 'inactivo') ? d.estado : 'activo',
+            permisos: Array.isArray(d.permisos) ? d.permisos : [],
+            rol: d.rol?.nombre || d.nombre_rol || d.rol || 'Administrador',
+            rolId: d.rol?.id_rol || d.id_rol || undefined
+          }));
+          setAdministradores(mapped);
+        }
+      }
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+      showToast.error('Error al cargar datos', darkMode);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Funciones principales con validaciones del primer archivo
-  const handleCreateAdmin = async () => {
-    try {
-      const cedula = cedulaValue || getVal('new-admin-cedula');
-      const nombre = getVal('new-admin-nombre');
-      const apellido = getVal('new-admin-apellido');
-      const email = getVal('new-admin-email');
-      const telefono = getVal('new-admin-telefono');
-      const fecha_nacimiento = getVal('new-admin-fecha-nacimiento');
-      const genero = getVal('new-admin-genero');
-      const direccion = getVal('new-admin-direccion');
-      const password = getVal('new-admin-password');
-      const confirmPassword = getVal('new-admin-confirm');
+  useEffect(() => {
+    loadData();
+  }, []);
 
-      if (!cedula || !nombre || !apellido || !email || !password) {
-        showNotification('Cédula, Nombre, Apellido, Email y Contraseña son obligatorios', 'error');
+  // Handlers
+  const handleCreate = async () => {
+    try {
+      // Validaciones
+      if (!formData.cedula || !formData.nombre || !formData.apellido || !formData.email || !formData.password) {
+        showToast.error('Por favor completa los campos obligatorios', darkMode);
         return;
       }
 
-      // Validación estricta de cédula ecuatoriana
-      const cedRes = validateCedulaEC(cedula);
+      const cedRes = validateCedulaEC(formData.cedula);
       if (!cedRes.ok) {
         setCedulaError(cedRes.reason || 'Cédula inválida');
-        showNotification(`Cédula inválida: ${cedRes.reason || ''}`.trim(), 'error');
-        return;
-      } else {
-        setCedulaError(null);
-      }
-
-      if (password !== confirmPassword) {
-        setPwdConfirmError('Las contraseñas no coinciden');
-        return;
-      } else {
-        setPwdConfirmError(null);
-      }
-
-      if (password.length < 6) {
-        setPwdError('La contraseña debe tener al menos 6 caracteres');
-        return;
-      } else {
-        setPwdError(null);
-      }
-
-
-
-      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-      if (!token) {
-        showNotification('Sesión expirada. Vuelve a iniciar sesión.', 'error');
+        showToast.error(cedRes.reason || 'Cédula inválida', darkMode);
         return;
       }
 
-      // Construir FormData para backend
+      if (formData.password !== formData.confirmPassword) {
+        showToast.error('Las contraseñas no coinciden', darkMode);
+        return;
+      }
+      if (formData.password.length < 6) {
+        showToast.error('La contraseña debe tener al menos 6 caracteres', darkMode);
+        return;
+      }
+
+      const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
       const fd = new FormData();
-      fd.append('cedula', cedula);
-      fd.append('nombre', nombre);
-      fd.append('apellido', apellido);
-      fd.append('email', email);
-      if (telefono) fd.append('telefono', telefono);
-      if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
-      if (direccion) fd.append('direccion', direccion);
-      // No enviar genero para evitar problemas de ENUM en la BD
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'confirmPassword' && key !== 'permisos' && value) fd.append(key, value as string);
+      });
+      // Permisos
+      formData.permisos.forEach(p => fd.append('permisos[]', p));
 
-      fd.append('password', password);
-      // Rol por nombre como en el backend
-      const roleName = getVal('new-admin-role') || 'administrativo';
+      // Rol
+      const roleName = roles.find(r => r.id_rol === Number(formData.rolId))?.nombre_rol || 'administrativo';
       fd.append('roleName', roleName);
 
       const res = await fetch(`${API_BASE}/admins`, {
@@ -291,1627 +265,700 @@ const AdministradoresPanel: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
         body: fd
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        showNotification(`(${res.status}) ${txt || 'No se pudo crear el administrador'}`, 'error');
-        return;
-      }
 
-      await loadAdmins();
-      setShowCreateAdminModal(false);
-      ['new-admin-cedula','new-admin-nombre','new-admin-apellido','new-admin-email','new-admin-telefono','new-admin-fecha-nacimiento','new-admin-genero','new-admin-direccion','new-admin-password','new-admin-confirm','new-admin-role']
-        .forEach((id) => {
-          const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
-          if (el) (el as any).value = '';
-        });
-      setNewAdmin({ ...newAdmin, permisos: [] });
-      setCedulaValue('');
-      setFileError(null);
-      setCedulaError(null);
-      setPwdError(null);
-      setPwdConfirmError(null);
-      setShowPwd(false);
-      setShowPwdConfirm(false);
-      showNotification('Administrador creado exitosamente');
-    } catch (e) {
-      console.error(e);
-      showNotification('Error inesperado creando administrador', 'error');
-    }
-  };
+      if (!res.ok) throw new Error(await res.text());
 
-  const handleEditAdmin = async () => {
-    // Capturar valores del formulario
-    const firstName = getVal('edit-admin-nombre').trim();
-    const lastName = getVal('edit-admin-apellido').trim();
-    const email = getVal('edit-admin-email').trim();
-    const telefono = getVal('edit-admin-telefono');
-    const rolId = getVal('edit-admin-rol');
-    const fecha_nacimiento = getVal('edit-admin-fecha-nacimiento');
-    const genero = getVal('edit-admin-genero');
-    const direccion = getVal('edit-admin-direccion');
-
-    if (!firstName || !email) {
-      showNotification('Nombres y Email son obligatorios para actualizar', 'error');
-      return;
-    }
-
-    try {
-      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-
-      // Revisar si hay archivo de foto
-      const fotoInput = document.getElementById('edit-admin-foto-file') as HTMLInputElement | null;
-      const fotoFile = fotoInput?.files?.[0] || null;
-
-      let res: Response;
-      // Derivar roleName desde el rolId seleccionado (cuando exista)
-      const roleIdNum = Number(rolId) || undefined;
-      const roleName = roleIdNum ? (visibleRoles.find(r => r.id_rol === roleIdNum)?.nombre_rol || '') : '';
-
-      if (fotoFile) {
-        // Usar FormData si se adjunta foto
-        const fd = new FormData();
-        fd.append('nombre', firstName);
-        if (lastName) fd.append('apellido', lastName);
-        fd.append('email', email);
-        if (telefono) fd.append('telefono', telefono);
-        if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
-        if (genero) fd.append('genero', genero);
-        if (direccion) fd.append('direccion', direccion);
-        if (roleIdNum) fd.append('rolId', String(roleIdNum));
-        if (roleName) fd.append('roleName', roleName);
-        // Enviar permisos como array en FormData
-        (selectedAdmin?.permisos || []).forEach((p: string) => fd.append('permisos[]', p));
-        fd.append('foto_perfil', fotoFile);
-
-        res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
-          method: 'PUT',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
-          body: fd
-        });
-      } else {
-        // JSON normal si no hay foto
-        const payload: any = {
-          nombre: firstName,
-          apellido: lastName || undefined,
-          email,
-          telefono,
-          fecha_nacimiento: fecha_nacimiento || undefined,
-          genero: genero || undefined,
-          direccion: direccion || undefined,
-          rolId: roleIdNum,
-          roleName: roleName || undefined,
-          permisos: selectedAdmin?.permisos || []
-        };
-
-        res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify(payload)
-        });
-      }
-
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error('Error al actualizar admin', res.status, errText);
-        showNotification(`Error actualizando (${res.status}): ${errText || 'sin detalle'}`, 'error');
-        return;
-      }
-      await loadAdmins();
-    } catch (e) {
-      console.error(e);
-      showNotification('Error inesperado al actualizar', 'error');
-      return;
-    }
-    setShowEditAdminModal(false);
-    setSelectedAdmin(null);
-    showNotification('Administrador actualizado exitosamente');
-  };
-
-  const handleDeleteAdmin = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}`, {
-        method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      showToast.success('Administrador creado exitosamente', darkMode);
+      setShowCreateModal(false);
+      setFormData({
+        cedula: '', nombre: '', apellido: '', email: '', telefono: '',
+        fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
+        rolId: '', permisos: []
       });
-      if (!res.ok) {
-        const err = await res.text();
-        showNotification(`Error eliminando: ${err || res.status}`, 'error');
-        return;
-      }
-      await loadAdmins();
-      setShowDeleteModal(false);
-      setSelectedAdmin(null);
-      showNotification('Administrador eliminado exitosamente');
-    } catch (e) {
-      console.error(e);
-      showNotification('Error inesperado al eliminar', 'error');
+      loadData();
+    } catch (error: any) {
+      showToast.error(error.message || 'Error al crear administrador', darkMode);
     }
   };
 
-  const handlePasswordReset = async () => {
-    if (!passwordData.newPassword || !passwordData.confirmPassword) {
-      showNotification('Todos los campos son obligatorios', 'error');
-      return;
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showNotification('Las contraseñas no coinciden', 'error');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
-      return;
-    }
-
+  const handleUpdate = async () => {
     try {
-      const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const res = await fetch(`${API_BASE}/admins/${selectedAdmin?.id}/password`, {
+      if (!selectedAdmin) return;
+      const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+
+      const roleName = roles.find(r => r.id_rol === Number(formData.rolId))?.nombre_rol || 'administrativo';
+
+      const payload = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        email: formData.email,
+        telefono: formData.telefono,
+        fecha_nacimiento: formData.fecha_nacimiento,
+        direccion: formData.direccion,
+        genero: formData.genero,
+        rolId: formData.rolId ? Number(formData.rolId) : undefined,
+        roleName: roleName,
+        permisos: formData.permisos
+      };
+
+      const res = await fetch(`${API_BASE}/admins/${selectedAdmin.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      showToast.success('Administrador actualizado exitosamente', darkMode);
+      setShowEditModal(false);
+      loadData();
+    } catch (error: any) {
+      showToast.error(error.message || 'Error al actualizar', darkMode);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      if (!selectedAdmin) return;
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        showToast.error('Las contraseñas no coinciden', darkMode);
+        return;
+      }
+      if (passwordData.newPassword.length < 6) {
+        showToast.error('La contraseña debe tener al menos 6 caracteres', darkMode);
+        return;
+      }
+
+      const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+      const res = await fetch(`${API_BASE}/admins/${selectedAdmin.id}/password`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ password: passwordData.newPassword })
       });
-      if (!res.ok) {
-        const err = await res.text();
-        showNotification(`Error actualizando contraseña: ${err || res.status}`, 'error');
-        return;
-      }
+
+      if (!res.ok) throw new Error(await res.text());
+
+      showToast.success('Contraseña actualizada exitosamente', darkMode);
       setShowPasswordModal(false);
       setPasswordData({ newPassword: '', confirmPassword: '' });
-      setSelectedAdmin(null);
-      showNotification('Contraseña actualizada exitosamente');
-    } catch (e) {
-      console.error(e);
-      showNotification('Error inesperado al actualizar contraseña', 'error');
+    } catch (error: any) {
+      showToast.error(error.message || 'Error al cambiar contraseña', darkMode);
     }
   };
 
-  const toggleAdminStatus = (admin) => {
-    const newStatus = admin.estado === 'activo' ? 'inactivo' : 'activo';
-    setAdministradores(administradores.map(a => 
-      a.id === admin.id ? { ...a, estado: newStatus } : a
-    ));
-    showNotification(`Administrador ${newStatus === 'activo' ? 'activado' : 'desactivado'} exitosamente`);
+  const toggleStatus = async (admin: Admin) => {
+    try {
+      const newStatus = admin.estado === 'activo' ? 'inactivo' : 'activo';
+      const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+
+      const res = await fetch(`${API_BASE}/admins/${admin.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ estado: newStatus })
+      });
+
+      if (!res.ok) throw new Error('Error actualizando estado');
+
+      setAdministradores(prev => prev.map(a =>
+        a.id === admin.id ? { ...a, estado: newStatus } : a
+      ));
+
+      showToast.success(`Administrador ${newStatus === 'activo' ? 'activado' : 'desactivado'}`, darkMode);
+    } catch (error) {
+      showToast.error('No se pudo cambiar el estado', darkMode);
+    }
   };
 
-  const filteredAdministradores = administradores.filter(admin => {
+  // Filtrado
+  const filteredAdmins = administradores.filter(admin => {
     const matchesSearch = admin.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         admin.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || admin.estado === filterStatus;
+      admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.cedula?.includes(searchTerm);
+    const matchesFilter = filterStatus === 'todos' || admin.estado === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
+  // Renderizado de Modales con GlassEffect
+  const renderModal = (title: string, icon: any, onClose: () => void, content: React.ReactNode, footer: React.ReactNode) => {
+    const Icon = icon;
+    return createPortal(
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+        zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '1rem'
+      }}>
+        <div style={{
+          background: darkMode
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+          borderRadius: '12px',
+          width: '100%', maxWidth: '800px',
+          maxHeight: '85vh', overflowY: 'auto',
+          boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+          border: '1px solid rgba(239, 68, 68, 0.2)'
+        }}>
+          <div style={{
+            padding: '1rem 1.5rem', borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {Icon && <Icon size={20} style={{ color: '#ef4444' }} />}
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: darkMode ? '#fff' : '#1e293b' }}>{title}</h3>
+            </div>
+            <button onClick={onClose} style={{
+              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.15)',
+              borderRadius: '8px', padding: '6px', cursor: 'pointer', color: '#ef4444', display: 'flex'
+            }}>
+              <X size={18} />
+            </button>
+          </div>
+          <div style={{ padding: '1rem 1.5rem' }}>{content}</div>          <div style={{
+            padding: '1.25rem 1.5rem', borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+            display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'transparent'
+          }}>
+            {footer}
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {notification && <Notification message={notification.message} type={notification.type} />}
-      
-      {/* CSS Animations */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          
-          .admin-card {
-        animation: fadeIn 0.5s ease-out;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      
-      .admin-card:hover {
-        transform: translateY(-2px);
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.04)) !important;
-        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
-      }
-      
-      .action-btn {
-        transition: all 0.2s ease;
-      }
-      
-      .action-btn:hover {
-        transform: scale(1.1);
-      }
-
-      /* Error text in red - force override */
-      .error-text-red {
-        color: #ef4444 !important;
-      }
-
-      /* Tabla responsive */
-      .admins-grid {
-        display: grid;
-        grid-template-columns: minmax(200px, 1.2fr) minmax(180px, 1fr) minmax(100px, 0.6fr) minmax(140px, 0.8fr) 140px;
-        gap: 16px;
-        align-items: center;
-      }
-      .admins-grid-header {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
-        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
-        padding: 20px 24px;
-      }
-
-      @media (max-width: 1100px) {
-        .admins-grid {
-          grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1fr) minmax(110px, 0.6fr) minmax(160px, 0.8fr) 140px;
-        }
-      }
-      @media (max-width: 900px) {
-        .admins-grid {
-          grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(110px, 0.8fr) 140px;
-        }
-        .col-estado { display: none; }
-      }
-      @media (max-width: 720px) {
-        .admins-grid {
-          grid-template-columns: minmax(200px, 1.6fr) minmax(160px, 1fr) 120px;
-        }
-        .col-email { display: none; }
-        .col-estado { display: none; }
-      }
-      @media (max-width: 520px) {
-        .admins-grid {
-          grid-template-columns: 1fr 1fr; /* Admin | Último acceso; Acciones caerá abajo */
-        }
-        .col-acciones { grid-column: 1 / span 2; justify-content: flex-end; }
-      }
-    `}
-  </style>
-
-  {/* Header Principal */}
-  <div style={{ marginBottom: '0.75rem' }}>
-    <h2 style={{
-      color: 'rgba(255,255,255,0.95)',
-      margin: '0 0 0.375rem 0',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.625rem',
-      fontSize: '1.625rem',
-      fontWeight: '700'
-    }}>
-      <Users size={26} color="#ef4444" />
-      Gestión de Administradores
-    </h2>
-    <p style={{
-      color: 'rgba(255,255,255,0.7)',
-      margin: 0,
-      fontSize: '0.85rem',
-    }}>
-      Administra los usuarios con permisos del sistema institucional
-    </p>
-  </div>
-
-  {/* Barra de Búsqueda y Controles */}
-  <div style={{
-    background: 'rgba(255,255,255,0.05)',
-    backdropFilter: 'blur(1.25rem)',
-    border: '0.0625rem solid rgba(255,255,255,0.1)',
-    borderRadius: '0.875em',
-    padding: '1em',
-    marginBottom: '1em'
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', flex: 1, minWidth: '15rem' }}>
-        <div style={{ flex: 1, position: 'relative', minWidth: '17.5rem' }}>
-          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.625em 0.625em 0.625em 2.375em',
-              background: 'rgba(255,255,255,0.1)',
-              border: '0.0625rem solid rgba(255,255,255,0.2)',
-              borderRadius: '0.625em',
-              color: '#fff',
-              fontSize: '0.875rem'
-            }}
-          />
-        </div>
-
-        <div style={{ minWidth: '12.5rem' }}>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.625em 0.75em',
-              background: 'rgba(255,255,255,0.1)',
-              border: '0.0625rem solid rgba(255,255,255,0.2)',
-              borderRadius: '0.625em',
-              color: '#fff',
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="activo">Activos</option>
-            <option value="inactivo">Inactivos</option>
-          </select>
-        </div>
-      </div>
-
-      <button
-        onClick={() => setShowCreateAdminModal(true)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5em',
-          padding: '0.75em 1.5em',
-          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-          border: 'none',
-          borderRadius: '0.625em',
-          color: '#fff',
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          cursor: 'pointer',
-          boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-1px)';
-          e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(239, 68, 68, 0.4)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)';
-        }}
-      >
-        <UserPlus size={16} />
-        Nuevo Administrador
-      </button>
-    </div>
-  </div>
-
-  {/* Lista de Administradores */}
-  <div style={{
-    background: 'rgba(255,255,255,0.05)',
-    backdropFilter: 'blur(1.25rem)',
-    border: '0.0625rem solid rgba(255,255,255,0.1)',
-    borderRadius: '0.875em',
-    overflow: 'hidden',
-    boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
-  }}>
-    {/* Header de la tabla */}
-    <div className="admins-grid admins-grid-header" style={{
-      background: 'rgba(248, 113, 113, 0.15)',
-      borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)',
-      padding: '1em 1.5em'
-    }}>
-      <div className="col-admin" style={{ 
-        color: '#fff', 
-        fontWeight: '600', 
-        fontSize: '0.75rem', 
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Administrador
-      </div>
-      <div className="col-email" style={{ 
-        color: '#fff', 
-        fontWeight: '600', 
-        fontSize: '0.75rem', 
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Email
-      </div>
-      <div className="col-estado" style={{ 
-        color: '#fff', 
-        fontWeight: '600', 
-        fontSize: '0.75rem', 
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Estado
-      </div>
-      <div className="col-ultimo" style={{ 
-        color: '#fff', 
-        fontWeight: '600', 
-        fontSize: '0.75rem', 
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        Último Acceso
-      </div>
-      <div className="col-acciones" style={{ 
-        color: 'var(--superadmin-text-primary, var(--admin-text-primary, #fff))', 
-        fontWeight: '800', 
-        fontSize: '0.95rem', 
-        textTransform: 'uppercase', 
-        textAlign: 'center',
-        letterSpacing: '0.5px'
-      }}>
-        Acciones
-      </div>
-    </div>
-
-    {/* Filas de administradores */}
     <div>
-      {filteredAdministradores.length === 0 ? (
-        <div style={{ padding: '3.75em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-          <Users size={48} style={{ marginBottom: '1em', opacity: 0.5 }} />
-          <div style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5em' }}>
-            No se encontraron administradores
+      <AdminSectionHeader
+        title="Gestión de Administradores"
+        subtitle="Administra los usuarios con permisos administrativos del sistema"
+        marginBottom={isMobile ? '12px' : '1.125rem'}
+      />
+
+      {/* Controles */}
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '1rem' }}>
+        <div className="responsive-filters">
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', flex: 1 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, email o cédula..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%', padding: '0.625em 0.625em 0.625em 2.375em',
+                  background: darkMode ? 'rgba(255,255,255,0.1)' : themeColors.controlBg,
+                  border: `0.0625rem solid ${themeColors.controlBorder}`,
+                  borderRadius: '0.625em',
+                  color: themeColors.textPrimary
+                }}
+              />
+            </div>
+            <div style={{ minWidth: '200px' }}>
+              <StyledSelect
+                name="filterStatus"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                darkMode={darkMode}
+                options={[
+                  { value: 'todos', label: 'Todos los estados' },
+                  { value: 'activo', label: 'Activos' },
+                  { value: 'inactivo', label: 'Inactivos' }
+                ]}
+              />
+            </div>
+
+            <div style={{ display: 'flex', background: themeColors.toggleGroupBg, borderRadius: '0.65rem', padding: '0.1875rem' }}>
+              <button onClick={() => setViewMode('cards')} style={{ padding: '0.45em 0.8em', background: viewMode === 'cards' ? themeColors.toggleActiveBg : 'transparent', border: 'none', borderRadius: '0.5em', color: viewMode === 'cards' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, cursor: 'pointer' }}><Grid size={16} /></button>
+              <button onClick={() => setViewMode('table')} style={{ padding: '0.45em 0.8em', background: viewMode === 'table' ? themeColors.toggleActiveBg : 'transparent', border: 'none', borderRadius: '0.5em', color: viewMode === 'table' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, cursor: 'pointer' }}><List size={16} /></button>
+            </div>
           </div>
-        </div>
-      ) : (
-        filteredAdministradores.map((admin, index) => (
-          <div
-            key={admin.id}
-            className="admin-card admins-grid"
-            style={{
-              padding: '1em 1.5em',
-              borderBottom: index < filteredAdministradores.length - 1 ? '0.0625rem solid rgba(255,255,255,0.08)' : 'none',
-              background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+
+          <button
+            onClick={() => {
+              setFormData({
+                cedula: '', nombre: '', apellido: '', email: '', telefono: '',
+                fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
+                rolId: '', permisos: []
+              });
+              setShowCreateModal(true);
+            }} style={{
+              padding: '0.75em 1.5em', background: primaryActionButtonStyles.base,
+              border: 'none', borderRadius: '0.625em', color: '#fff', fontWeight: 600,
+              cursor: 'pointer', boxShadow: primaryActionButtonStyles.shadow,
+              display: 'flex', alignItems: 'center', gap: '0.5em'
             }}
           >
-            {/* Información del administrador */}
-            <div className="col-admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
-              <div style={{
-                width: '2.75em', 
-                height: '2.75em', 
-                minWidth: '2.75em',
-                minHeight: '2.75em',
-                borderRadius: '0.625em',
-                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                boxShadow: '0 0.25em 0.75em rgba(239, 68, 68, 0.25)', 
-                position: 'relative',
-                flexShrink: 0
-              }}>
-                <span style={{ 
-                  color: '#fff', 
-                  fontWeight: '700', 
-                  fontSize: '0.875rem',
-                  textAlign: 'center',
-                  lineHeight: '1'
-                }}>
-                  {admin.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                </span>
-                <div style={{
-                  position: 'absolute', 
-                  bottom: '-0.125em', 
-                  right: '-0.125em',
-                  width: '0.875em', 
-                  height: '0.875em', 
-                  borderRadius: '50%',
-                  background: admin.estado === 'activo' ? '#10b981' : '#6b7280',
-                  border: '0.125em solid rgba(0,0,0,0.9)',
-                  boxShadow: '0 0 0.5em rgba(0,0,0,0.3)'
-                }} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ 
-                  color: '#fff', 
-                  fontWeight: '600', 
-                  fontSize: '0.9rem', 
-                  marginBottom: '0.1875em',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {admin.nombre}
-                </div>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.6)', 
-                  fontSize: '0.75rem', 
-                  marginBottom: '0.125em'
-                }}>
-                  {admin.rol}
-                </div>
-                {admin.telefono && (
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.5)', 
-                    fontSize: '0.7rem'
-                  }}>
-                    {admin.telefono}
-                  </div>
-                )}
-              </div>
-            </div>
+            <UserPlus size={18} /> Nuevo Admin
+          </button>
+        </div>
+      </GlassEffect>
 
-            {/* Email */}
-            <div className="col-email" style={{ 
-              color: 'rgba(255,255,255,0.8)', 
-              fontSize: '0.8rem', 
-              wordBreak: 'break-word'
-            }}>
-              {admin.email}
-            </div>
-
-            {/* Estado */}
-            <div className="col-estado">
-              <span style={{
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '0.375em',
-                padding: '0.3125em 0.625em', 
-                borderRadius: '0.5em', 
-                fontSize: '0.7rem', 
-                fontWeight: '600',
-                background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(107, 114, 128, 0.15)',
-                color: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
-                border: `0.0625rem solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
-                textTransform: 'capitalize'
-              }}>
-                <div style={{
-                  width: '0.375em', 
-                  height: '0.375em', 
-                  borderRadius: '50%',
-                  background: admin.estado === 'activo' ? '#10b981' : '#9ca3af',
-                  boxShadow: admin.estado === 'activo' ? '0 0 0.5em rgba(16, 185, 129, 0.6)' : 'none'
-                }} />
-                {admin.estado}
-              </span>
-            </div>
-
-            {/* Último acceso */}
-            <div className="col-ultimo" style={{ 
-              color: 'rgba(255,255,255,0.7)', 
-              fontSize: '0.75rem', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.375em'
-            }}>
-              <Clock size={12} />
-              {formatDateTime(admin.ultimoAcceso)}
-            </div>
-
-            {/* Acciones - Grid 2x2 */}
-            <div className="col-acciones" style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
+      {/* Lista de Administradores */}
+      {viewMode === 'cards' ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          {filteredAdmins.map(admin => (
+            <GlassEffect key={admin.id} variant="card" tint="neutral" intensity="light" hover>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                   <div style={{
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '0.375em'
+                    width: '3rem', height: '3rem', borderRadius: '0.75rem',
+                    background: admin.foto_perfil ? 'transparent' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontWeight: 700, fontSize: '1.2rem',
+                    overflow: 'hidden'
                   }}>
-                  {/* Fila 1 */}
-                  <Tooltip content="Editar">
-                    <button
-                      onClick={() => {
-                        // Intentar inferir rolId si no existe usando el nombre del rol
-                        const matchedRole = visibleRoles.find(r => r.nombre_rol?.toLowerCase() === (admin.rol || '').toLowerCase());
-                        // Derivar nombres si faltan usando el nombre completo
-                        const full = (admin.nombre || '').trim();
-                        const parts = full.split(/\s+/);
-                        const derivedFirst = admin.firstName && admin.firstName.trim().length > 0
-                          ? admin.firstName
-                          : (parts.length > 1 ? parts.slice(0, parts.length - 1).join(' ') : parts[0] || '');
-                        const derivedLast = admin.lastName && admin.lastName.trim().length > 0
-                          ? admin.lastName
-                          : (parts.length > 1 ? parts[parts.length - 1] : (admin.apellido || ''));
-                        setSelectedAdmin({
-                          ...admin,
-                          firstName: derivedFirst,
-                          lastName: derivedLast,
-                          permisos: (admin.permisos || []),
-                          rolId: admin.rolId || matchedRole?.id_rol
-                        });
-                        setShowEditAdminModal(true);
-                      }}
-                      className="action-btn"
-                      style={{
-                        width: '2.25em', 
-                        height: '2.25em', 
-                        borderRadius: '0.5em', 
-                        border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
-                        background: 'rgba(59, 130, 246, 0.1)',
-                        color: '#3b82f6', 
-                        cursor: 'pointer', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(59, 130, 246, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Edit3 size={14} />
-                    </button>
-                  </Tooltip>
-
-                  <Tooltip content="Cambiar contraseña">
-                    <button
-                      onClick={() => {
-                        setSelectedAdmin(admin);
-                        setShowPasswordModal(true);
-                      }}
-                      className="action-btn"
-                      style={{
-                        width: '2.25em', 
-                        height: '2.25em', 
-                        borderRadius: '0.5em', 
-                        border: '0.0625rem solid rgba(245, 158, 11, 0.3)',
-                        background: 'rgba(245, 158, 11, 0.1)',
-                        color: '#f59e0b', 
-                        cursor: 'pointer', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(245, 158, 11, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(245, 158, 11, 0.1)';
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Key size={14} />
-                    </button>
-                  </Tooltip>
-
-                  {/* Fila 2 */}
-                  <Tooltip content={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}>
-                    <button
-                      onClick={() => toggleAdminStatus(admin)}
-                      className="action-btn"
-                      style={{
-                        width: '2.25em', 
-                        height: '2.25em', 
-                        borderRadius: '0.5em', 
-                        border: admin.estado === 'activo' ? 
-                          '0.0625rem solid rgba(239, 68, 68, 0.3)' :
-                          '0.0625rem solid rgba(16, 185, 129, 0.3)',
-                        background: admin.estado === 'activo' ? 
-                          'rgba(239, 68, 68, 0.1)' :
-                          'rgba(16, 185, 129, 0.1)',
-                        color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
-                        cursor: 'pointer', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = admin.estado === 'activo' ? 
-                          'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = admin.estado === 'activo' ? 
-                          '0 0.25em 0.75em rgba(239, 68, 68, 0.3)' : '0 0.25em 0.75em rgba(16, 185, 129, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = admin.estado === 'activo' ? 
-                          'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      {admin.estado === 'activo' ? <Lock size={14} /> : <Unlock size={14} />}
-                    </button>
-                  </Tooltip>
-
-                  <Tooltip content="Eliminar administrador">
-                    <button
-                      onClick={() => {
-                        setSelectedAdmin(admin);
-                        setShowDeleteModal(true);
-                      }}
-                      className="action-btn"
-                      style={{
-                        width: '2.25em', 
-                        height: '2.25em', 
-                        borderRadius: '0.5em', 
-                        border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#ef4444', 
-                        cursor: 'pointer', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = '0 0.25em 0.75em rgba(239, 68, 68, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </Tooltip>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Modal para crear administrador con validaciones del primer archivo */}
-      {showCreateAdminModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '20px',
-          paddingTop: '40px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            borderRadius: '24px',
-            padding: '32px',
-            width: '100%',
-            maxWidth: '700px',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-                }}>
-                  <UserPlus size={24} color="#fff" />
-                </div>
-                <div>
-                  <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                    Crear Nuevo Administrador
-                  </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', margin: 0 }}>
-                    Completa la información del nuevo administrador
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setShowCreateAdminModal(false);
-                  setCedulaValue('');
-                  setCedulaError(null);
-                  setFileError(null);
-                }}
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ef4444',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Formulario con validaciones */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-              {/* Cédula con validación estricta */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Cédula *
-                </label>
-                <input
-                  id="new-admin-cedula"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={10}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: `1px solid ${cedulaError ? 'rgba(239, 68, 68, 0.6)' : 'rgba(255,255,255,0.2)'}`,
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                  placeholder="Ej: 0102030405"
-                  value={cedulaValue}
-                  autoFocus
-                  onChange={(e) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    const onlyDigits = val.replace(/\D/g, '').slice(0, 10);
-                    setCedulaValue(onlyDigits);
-                    if (val !== onlyDigits) {
-                      setCedulaError('Este dato es solo numérico');
-                    } else if (onlyDigits.length === 10) {
-                      const res = validateCedulaEC(onlyDigits);
-                      setCedulaError(res.ok ? null : (res.reason || 'Cédula inválida'));
-                    } else if (onlyDigits.length > 0 && onlyDigits.length < 10) {
-                      setCedulaError('Debe tener 10 dígitos');
-                    } else {
-                      setCedulaError(null);
-                    }
-                  }}
-                />
-                <div style={{ marginTop: '8px' }}>
-                  {cedulaError && (
-                    <p className="error-text-red" style={{ margin: '6px 0 0 0', fontSize: '0.8rem', fontWeight: '600' }}>
-                      {cedulaError}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Rol (ocultando Superadmin) */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Rol *
-                </label>
-                <select
-                  id="new-admin-role"
-                  defaultValue={visibleRoles.find(r => r.nombre_rol?.toLowerCase() === 'administrativo') ? 'administrativo' : ''}
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <option value="" style={{ color: '#000' }} disabled>Seleccionar rol</option>
-                  {visibleRoles.map(r => (
-                    <option key={r.id_rol} value={r.nombre_rol} style={{ color: '#000' }}>{r.nombre_rol}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Nombres con validación */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Nombres *
-                </label>
-                <input
-                  id="new-admin-nombre"
-                  type="text"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                  placeholder="Ej: Juan Carlos"
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
-                  }}
-                />
-              </div>
-
-              {/* Apellidos con validación */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Apellidos *
-                </label>
-                <input
-                  id="new-admin-apellido"
-                  type="text"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                  placeholder="Ej: Pérez Gómez"
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Email *
-                </label>
-                <input
-                  id="new-admin-email"
-                  type="email"
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                  placeholder="admin@instituto.edu"
-                />
-              </div>
-
-              {/* Teléfono con validación */}
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Teléfono
-                </label>
-                <input
-                  id="new-admin-telefono"
-                  type="tel"
-                  inputMode="numeric"
-                  pattern="\\d*"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                  placeholder="+593 99 123 4567"
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/\D/g, '');
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Fecha de Nacimiento
-                </label>
-                <input
-                  id="new-admin-fecha-nacimiento"
-                  type="date"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Género
-                </label>
-                <select
-                  id="new-admin-genero"
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <option value="" style={{ color: '#000' }}>Seleccionar</option>
-                  <option value="masculino" style={{ color: '#000' }}>Masculino</option>
-                  <option value="femenino" style={{ color: '#000' }}>Femenino</option>
-                  <option value="otro" style={{ color: '#000' }}>Otro</option>
-                </select>
-              </div>
-
-              {/* Dirección con validación - ocupa toda la fila */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Dirección
-                </label>
-                <textarea
-                  id="new-admin-direccion"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    transition: 'all 0.2s',
-                    resize: 'vertical'
-                  }}
-                  placeholder="Calle Ejemplo 123, Ciudad&#10;Sector, Barrio&#10;Ciudad, Provincia"
-                  onInput={(e) => {
-                    const t = e.target as HTMLTextAreaElement;
-                    t.value = t.value.toUpperCase();
-                  }}
-                />
-              </div>
-
-
-
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Contraseña *
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="new-admin-password"
-                    type={showPwd ? 'text' : 'password'}
-                    required
-                    onInput={(e) => {
-                      const v = (e.target as HTMLInputElement).value || '';
-                      if (v.length < 6) {
-                        setPwdError('Inserte una contraseña mínimo de 6 caracteres');
-                      } else {
-                        setPwdError(null);
-                      }
-                      // Si cambia la contraseña, revalidar confirmación
-                      const confirmEl = document.getElementById('new-admin-confirm') as HTMLInputElement | null;
-                      if (confirmEl) {
-                        const c = confirmEl.value || '';
-                        setPwdConfirmError(c && v !== c ? 'Las contraseñas no coinciden' : null);
-                      }
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '14px 46px 14px 16px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: `1px solid ${pwdError ? 'rgba(239, 68, 68, 0.6)' : 'rgba(255,255,255,0.2)'}`,
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      transition: 'all 0.2s'
-                    }}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPwd(v => !v)}
-                    aria-label={showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    style={{
-                      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                      background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer'
-                    }}
-                  >
-                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {pwdError && (
-                  <div style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{pwdError}</div>
-                )}
-              </div>
-
-              <div>
-                <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                  Confirmar Contraseña *
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="new-admin-confirm"
-                    type={showPwdConfirm ? 'text' : 'password'}
-                    required
-                    onInput={(e) => {
-                      const c = (e.target as HTMLInputElement).value || '';
-                      const pEl = document.getElementById('new-admin-password') as HTMLInputElement | null;
-                      const p = pEl?.value || '';
-                      setPwdConfirmError(c && p !== c ? 'Las contraseñas no coinciden' : null);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '14px 46px 14px 16px',
-                      background: 'rgba(255,255,255,0.1)',
-                      border: `1px solid ${pwdConfirmError ? 'rgba(239, 68, 68, 0.6)' : 'rgba(255,255,255,0.2)'}`,
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      transition: 'all 0.2s'
-                    }}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPwdConfirm(v => !v)}
-                    aria-label={showPwdConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'}
-                    style={{
-                      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                      background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer'
-                    }}
-                  >
-                    {showPwdConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {pwdConfirmError && (
-                  <div style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{pwdConfirmError}</div>
-                )}
-              </div>
-            </div>
-
-            {/* Permisos */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', fontWeight: '600', marginBottom: '16px', display: 'block' }}>
-                Permisos del Sistema
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
-                {permisosDisponibles.map(permiso => {
-                  const IconComponent = permiso.icon;
-                  return (
-                    <div 
-                      key={permiso.id}
-                      style={{
-                        background: newAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
-                        border: `1px solid ${newAdmin.permisos.includes(permiso.id) ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
-                        borderRadius: '12px',
-                        padding: '16px',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        transform: newAdmin.permisos.includes(permiso.id) ? 'scale(1.02)' : 'scale(1)'
-                      }}
-                      onClick={() => {
-                        const nuevos = newAdmin.permisos.includes(permiso.id)
-                          ? newAdmin.permisos.filter(p => p !== permiso.id)
-                          : [...newAdmin.permisos, permiso.id];
-                        setNewAdmin({...newAdmin, permisos: nuevos});
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <div style={{
-                          width: '24px',
-                          height: '24px',
-                          border: '2px solid rgba(239, 68, 68, 0.5)',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: newAdmin.permisos.includes(permiso.id) ? '#ef4444' : 'transparent',
-                          transition: 'all 0.2s'
-                        }}>
-                          {newAdmin.permisos.includes(permiso.id) && <Check size={14} color="#fff" />}
-                        </div>
-                        <IconComponent size={20} color="rgba(255,255,255,0.8)" />
-                        <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>
-                          {permiso.nombre}
-                        </span>
-                      </div>
-                      <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', margin: 0, paddingLeft: '36px' }}>
-                        {permiso.descripcion}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Botones */}
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowCreateAdminModal(false);
-                  setCedulaValue('');
-                  setCedulaError(null);
-                  setFileError(null);
-                }}
-                style={{
-                  padding: '14px 28px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
-                  color: 'rgba(255,255,255,0.8)',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCreateAdmin}
-                style={{
-                  padding: '14px 28px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <Save size={16} />
-                Crear Administrador
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Admin Modal: estilos unificados con el de crear */}
-      {showEditAdminModal && selectedAdmin && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '20px',
-          paddingTop: '40px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-            borderRadius: '24px',
-            padding: '32px',
-            width: '100%',
-            maxWidth: '700px',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-                }}>
-                  <Edit3 size={24} color="#fff" />
-                </div>
-                <div>
-                  <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                    Editar Administrador
-                  </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', margin: 0 }}>
-                    Actualiza la información del administrador seleccionado
-                  </p>
-                </div>
-              </div>
-              <button onClick={() => setShowEditAdminModal(false)}
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ef4444',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {/* Cédula (solo lectura para evitar cambios accidentales) */}
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Cédula</label>
-                <input id="edit-admin-cedula" defaultValue={selectedAdmin?.cedula || ''} readOnly style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#9ca3af' }} />
-              </div>
-              {/* Rol */}
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Rol</label>
-                <select id="edit-admin-rol" defaultValue={selectedAdmin?.rolId ? String(selectedAdmin.rolId) : ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}>
-                  <option value="">Sin cambio</option>
-                  {visibleRoles.map(r => (
-                    <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Nombres y Apellidos */}
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Nombres</label>
-                <input
-                  id="edit-admin-nombre"
-                  defaultValue={selectedAdmin?.firstName || ''}
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
-                  }}
-                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Apellidos</label>
-                <input
-                  id="edit-admin-apellido"
-                  defaultValue={selectedAdmin?.lastName || selectedAdmin?.apellido || ''}
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/[^a-zA-ZÁÉÍÓÚÜÑáéíóúüñ\s]/g, '').toUpperCase();
-                  }}
-                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
-                />
-              </div>
-
-              {/* Email y Teléfono */}
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Email</label>
-                <input id="edit-admin-email" type="email" defaultValue={selectedAdmin?.email} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-              </div>
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Teléfono</label>
-                <input
-                  id="edit-admin-telefono"
-                  defaultValue={selectedAdmin?.telefono || ''}
-                  onInput={(e) => {
-                    const t = e.target as HTMLInputElement;
-                    t.value = t.value.replace(/\D/g, '');
-                  }}
-                  style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}
-                />
-              </div>
-
-              {/* Fecha de Nacimiento y Género */}
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Fecha de Nacimiento</label>
-                <input id="edit-admin-fecha-nacimiento" type="date" defaultValue={formatDateForInput(selectedAdmin?.fecha_nacimiento)} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-              </div>
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Género</label>
-                <select id="edit-admin-genero" defaultValue={selectedAdmin?.genero || ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }}>
-                  <option value="">Sin especificar</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-
-              {/* Dirección (ocupa dos columnas) */}
-              <div style={{ gridColumn: '1 / span 2' }}>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Dirección</label>
-                <input id="edit-admin-direccion" defaultValue={selectedAdmin?.direccion || ''} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-              </div>
-
-              {/* Foto de perfil (opcional) */}
-              <div style={{ gridColumn: '1 / span 2' }}>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Foto de Perfil (opcional)</label>
-                <input id="edit-admin-foto-file" type="file" accept="image/png,image/jpeg,image/webp" style={{ width: '100%', padding: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-                {selectedAdmin?.foto_perfil && (
-                  <div style={{ marginTop: 8, color: '#9ca3af', fontSize: 12 }}>
-                    Imagen actual:
-                    {(selectedAdmin.foto_perfil.startsWith('http') || selectedAdmin.foto_perfil.startsWith('data:')) ? (
-                      <div style={{ marginTop: 8 }}>
-                        <img src={selectedAdmin.foto_perfil} alt="Foto actual" style={{ maxWidth: '100%', maxHeight: 160, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }} />
-                      </div>
+                    {admin.foto_perfil ? (
+                      <img src={admin.foto_perfil} alt={admin.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                      <span> {selectedAdmin.foto_perfil}</span>
+                      (admin.firstName && admin.lastName)
+                        ? `${admin.firstName.charAt(0)}${admin.lastName.charAt(0)}`.toUpperCase()
+                        : admin.nombre.substring(0, 2).toUpperCase()
                     )}
                   </div>
-                )}
-              </div>
-
-              {/* Permisos - estilo tarjetas con íconos, sincronizados con selectedAdmin */}
-              <div style={{ gridColumn: '1 / span 2', marginTop: 8 }}>
-                <label style={{ color: '#e5e7eb', fontSize: 12, display: 'block', marginBottom: 10 }}>Permisos del Sistema</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
-                  {permisosDisponibles.map(permiso => {
-                    const IconComponent = permiso.icon;
-                    const isActive = selectedAdmin?.permisos?.includes(permiso.id);
-                    return (
-                      <div
-                        key={permiso.id}
-                        style={{
-                          background: isActive ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${isActive ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255,255,255,0.1)'}`,
-                          borderRadius: '12px',
-                          padding: '16px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          transform: isActive ? 'scale(1.02)' : 'scale(1)'
-                        }}
-                        onClick={() => {
-                          setSelectedAdmin((prev: Admin | null) => {
-                            if (!prev) return prev;
-                            const has = (prev.permisos || []).includes(permiso.id);
-                            return {
-                              ...prev,
-                              permisos: has
-                                ? (prev.permisos || []).filter((p: string) => p !== permiso.id)
-                                : [ ...(prev.permisos || []), permiso.id ]
-                            } as Admin;
-                          });
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                          <div style={{
-                            width: '24px', height: '24px', border: '2px solid rgba(239, 68, 68, 0.5)', borderRadius: '6px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: isActive ? '#ef4444' : 'transparent', transition: 'all 0.2s'
-                          }}>
-                            {isActive && <Check size={14} color="#fff" />}
-                          </div>
-                          <IconComponent size={20} color="rgba(255,255,255,0.8)" />
-                          <span style={{ color: '#fff', fontWeight: '600', fontSize: '0.9rem' }}>{permiso.nombre}</span>
-                        </div>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', margin: 0, paddingLeft: '36px' }}>{permiso.descripcion}</p>
-                      </div>
-                    );
-                  })}
+                  <div>
+                    <h3 style={{ margin: 0, color: themeColors.textPrimary, fontSize: '1rem' }}>{admin.nombre}</h3>
+                    <p style={{ margin: 0, color: themeColors.textSecondary, fontSize: '0.8rem' }}>{admin.email}</p>
+                  </div>
+                </div>
+                <div style={{
+                  padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600,
+                  background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                  color: admin.estado === 'activo' ? '#10b981' : '#ef4444',
+                  height: 'fit-content'
+                }}>
+                  {admin.estado.toUpperCase()}
                 </div>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowEditAdminModal(false)}
-                style={{
-                  padding: '14px 28px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
-                  color: 'rgba(255,255,255,0.8)',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleEditAdmin}
-                style={{
-                  padding: '14px 28px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <Save size={16} />
-                Actualizar
-              </button>
-            </div>
-          </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.85rem' }}>
+                <div><span style={{ color: themeColors.textMuted }}>Cédula:</span> <div style={{ color: themeColors.textPrimary }}>{admin.cedula || 'N/A'}</div></div>
+                <div><span style={{ color: themeColors.textMuted }}>Teléfono:</span> <div style={{ color: themeColors.textPrimary }}>{admin.telefono || 'N/A'}</div></div>
+                <div><span style={{ color: themeColors.textMuted }}>Rol:</span> <div style={{ color: themeColors.textPrimary }}>{admin.rol}</div></div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', borderTop: `1px solid ${themeColors.controlBorder}`, paddingTop: '1rem' }}>
+                <button
+                  onClick={() => {
+                    setSelectedAdmin(admin);
+                    setFormData({
+                      cedula: admin.cedula || '',
+                      nombre: admin.firstName || '',
+                      apellido: admin.lastName || '',
+                      email: admin.email,
+                      telefono: admin.telefono || '',
+                      fecha_nacimiento: admin.fecha_nacimiento ? new Date(admin.fecha_nacimiento).toISOString().split('T')[0] : '',
+                      direccion: admin.direccion || '',
+                      genero: admin.genero || '',
+                      password: '', confirmPassword: '',
+                      rolId: admin.rolId ? String(admin.rolId) : '',
+                      permisos: admin.permisos || []
+                    });
+                    setShowEditModal(true);
+                  }}
+                  style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <Edit size={16} /> Editar
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedAdmin(admin);
+                    setShowPasswordModal(true);
+                  }}
+                  style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                  title="Cambiar Contraseña"
+                >
+                  <Lock size={16} />
+                </button>
+                <button
+                  onClick={() => toggleStatus(admin)}
+                  style={{
+                    padding: '0.5rem', borderRadius: '0.5rem', border: 'none',
+                    background: admin.estado === 'activo' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                    color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
+                    cursor: 'pointer'
+                  }}
+                  title={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}
+                >
+                  {admin.estado === 'activo' ? <Ban size={16} /> : <CheckCircle2 size={16} />}
+                </button>
+              </div>
+            </GlassEffect>
+          ))}
+        </div>
+      ) : (
+        <div className="responsive-table-container" style={{
+          background: themeColors.sectionSurface,
+          border: `1px solid ${themeColors.sectionBorder}`,
+          borderRadius: '1rem',
+          overflow: 'hidden'
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: themeColors.tableHeaderBg }}>
+                <th style={{ padding: '1rem', textAlign: 'left', color: themeColors.tableHeaderText }}>Administrador</th>
+                <th style={{ padding: '1rem', textAlign: 'left', color: themeColors.tableHeaderText }}>Contacto</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: themeColors.tableHeaderText }}>Estado</th>
+                <th style={{ padding: '1rem', textAlign: 'center', color: themeColors.tableHeaderText }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAdmins.map((admin, idx) => (
+                <tr key={admin.id} style={{ borderBottom: `1px solid ${themeColors.controlBorder}`, background: idx % 2 === 0 ? themeColors.tableRowAltBg : 'transparent' }}>
+                  <td style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{
+                        width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem',
+                        background: admin.foto_perfil ? 'transparent' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', fontWeight: 700,
+                        overflow: 'hidden'
+                      }}>
+                        {admin.foto_perfil ? (
+                          <img src={admin.foto_perfil} alt={admin.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          (admin.firstName && admin.lastName)
+                            ? `${admin.firstName.charAt(0)}${admin.lastName.charAt(0)}`.toUpperCase()
+                            : admin.nombre.substring(0, 2).toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <div style={{ color: themeColors.textPrimary, fontWeight: 600 }}>{admin.nombre}</div>
+                        <div style={{ color: themeColors.textMuted, fontSize: '0.8rem' }}>{admin.cedula}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <div style={{ color: themeColors.textPrimary }}>{admin.email}</div>
+                    <div style={{ color: themeColors.textSecondary, fontSize: '0.8rem' }}>{admin.telefono}</div>
+                  </td>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600,
+                      background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                      color: admin.estado === 'activo' ? '#10b981' : '#ef4444'
+                    }}>
+                      {admin.estado.toUpperCase()}
+                    </span>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => {
+                          setSelectedAdmin(admin);
+                          setFormData({
+                            cedula: admin.cedula || '',
+                            nombre: admin.firstName || '',
+                            apellido: admin.lastName || '',
+                            email: admin.email,
+                            telefono: admin.telefono || '',
+                            fecha_nacimiento: admin.fecha_nacimiento ? new Date(admin.fecha_nacimiento).toISOString().split('T')[0] : '',
+                            direccion: admin.direccion || '',
+                            genero: admin.genero || '',
+                            password: '', confirmPassword: '',
+                            rolId: admin.rolId ? String(admin.rolId) : '',
+                            permisos: admin.permisos || []
+                          });
+                          setShowEditModal(true);
+                        }}
+                        style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedAdmin(admin);
+                          setShowPasswordModal(true);
+                        }}
+                        style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                      >
+                        <Lock size={16} />
+                      </button>
+                      <button
+                        onClick={() => toggleStatus(admin)}
+                        style={{
+                          padding: '0.5rem', borderRadius: '0.5rem', border: 'none',
+                          background: admin.estado === 'activo' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                          color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
+                          cursor: 'pointer'
+                        }}
+                        title={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}
+                      >
+                        {admin.estado === 'activo' ? <Ban size={16} /> : <CheckCircle2 size={16} />}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {/* Password Modal */}
-      {showPasswordModal && selectedAdmin && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ width: '500px', maxWidth: '90%', background: 'linear-gradient(180deg, #0b0b0b, #1a1a1a)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: 16, padding: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ color: '#fff', margin: 0 }}>Cambiar Contraseña</h3>
-              <button onClick={() => setShowPasswordModal(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Nueva contraseña</label>
-                <input type="password" value={passwordData.newPassword} onChange={(e)=>setPasswordData(p=>({...p, newPassword: e.target.value}))} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-              </div>
-              <div>
-                <label style={{ color: '#e5e7eb', fontSize: 12 }}>Confirmar contraseña</label>
-                <input type="password" value={passwordData.confirmPassword} onChange={(e)=>setPasswordData(p=>({...p, confirmPassword: e.target.value}))} style={{ width: '100%', padding: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff' }} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-              <button onClick={() => setShowPasswordModal(false)} style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, color: '#e5e7eb', cursor: 'pointer' }}>
-                Cancelar
-              </button>
-              <button onClick={handlePasswordReset} style={{ padding: '10px 16px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', borderRadius: 10, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Key size={16} /> Actualizar
-              </button>
+      {/* Modal Crear - CON TODOS LOS CAMPOS */}
+      {showCreateModal && renderModal(
+        "Nuevo Administrador",
+        UserPlus,
+        () => setShowCreateModal(false),
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.5rem' }}>
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Cédula *" value={formData.cedula} onChange={(e: any) => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+            setFormData({ ...formData, cedula: val });
+            if (val.length === 10) {
+              const res = validateCedulaEC(val);
+              setCedulaError(res.ok ? null : (res.reason || 'Cédula inválida'));
+            } else {
+              setCedulaError(null);
+            }
+          }} error={cedulaError} />
+          <div style={{ marginBottom: '0.5rem' }}>
+            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Rol *</label>
+            <select
+              value={formData.rolId}
+              onChange={e => setFormData({ ...formData, rolId: e.target.value })}
+              style={{
+                width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
+                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
+              }}
+            >
+              <option value="">Seleccionar rol</option>
+              {roles.filter(r => r.nombre_rol.toLowerCase() === 'administrativo').map(r => (
+                <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
+              ))}
+            </select>
+          </div>
+
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Nombres *" value={formData.nombre} onChange={(e: any) => setFormData({ ...formData, nombre: e.target.value.toUpperCase() })} />
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Apellidos *" value={formData.apellido} onChange={(e: any) => setFormData({ ...formData, apellido: e.target.value.toUpperCase() })} />
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Email *" type="email" value={formData.email} onChange={(e: any) => setFormData({ ...formData, email: e.target.value })} />
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Teléfono" type="tel" value={formData.telefono} onChange={(e: any) => setFormData({ ...formData, telefono: e.target.value.replace(/\D/g, '') })} icon={Phone} />
+
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
+
+          <div style={{ marginBottom: '0.5rem' }}>
+            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género</label>
+            <select
+              value={formData.genero}
+              onChange={e => setFormData({ ...formData, genero: e.target.value })}
+              style={{
+                width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
+                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
+              }}
+            >
+              <option value="">Seleccionar</option>
+              <option value="masculino">Masculino</option>
+              <option value="femenino">Femenino</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div style={{ gridColumn: '1 / -1' }}>
+            <InputField themeColors={themeColors} darkMode={darkMode} label="Dirección" value={formData.direccion} onChange={(e: any) => setFormData({ ...formData, direccion: e.target.value.toUpperCase() })} icon={MapPin} />
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <InputField themeColors={themeColors} darkMode={darkMode} label="Contraseña *" type={showPwd ? 'text' : 'password'} value={formData.password} onChange={(e: any) => setFormData({ ...formData, password: e.target.value })} />
+            <button onClick={() => setShowPwd(!showPwd)} style={{ position: 'absolute', right: '10px', top: '29px', background: 'none', border: 'none', color: themeColors.textSecondary, cursor: 'pointer' }}>
+              {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <InputField themeColors={themeColors} darkMode={darkMode} label="Confirmar *" type={showPwdConfirm ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e: any) => setFormData({ ...formData, confirmPassword: e.target.value })} />
+            <button onClick={() => setShowPwdConfirm(!showPwdConfirm)} style={{ position: 'absolute', right: '10px', top: '29px', background: 'none', border: 'none', color: themeColors.textSecondary, cursor: 'pointer' }}>
+              {showPwdConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {/* Permisos Grid */}
+          <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
+            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.5rem', fontSize: '0.8rem', fontWeight: 600 }}>Permisos del Sistema</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              {permisosDisponibles.map(permiso => {
+                const Icon = permiso.icon;
+                const isSelected = formData.permisos.includes(permiso.id);
+                return (
+                  <div
+                    key={permiso.id}
+                    onClick={() => {
+                      const newPermisos = isSelected
+                        ? formData.permisos.filter(p => p !== permiso.id)
+                        : [...formData.permisos, permiso.id];
+                      setFormData({ ...formData, permisos: newPermisos });
+                    }}
+                    style={{
+                      padding: '0.75rem', borderRadius: '0.5rem', cursor: 'pointer',
+                      background: isSelected ? 'rgba(239, 68, 68, 0.1)' : (darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'),
+                      border: isSelected ? '1px solid #ef4444' : (darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)'),
+                      display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ color: isSelected ? '#ef4444' : themeColors.textMuted }}><Icon size={18} /></div>
+                    <div style={{ fontSize: '0.85rem', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500 }}>{permiso.nombre}</div>
+                    {isSelected && <Check size={16} color="#ef4444" style={{ marginLeft: 'auto' }} />}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
+        </div>,
+        <>
+          <button onClick={() => {
+            setShowCreateModal(false);
+            setFormData({
+              cedula: '', nombre: '', apellido: '', email: '', telefono: '',
+              fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
+              rolId: '', permisos: []
+            });
+          }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={handleCreate} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Crear Administrador</button>
+        </>
       )}
 
-      {/* Delete Modal */}
-      {showDeleteModal && selectedAdmin && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ width: '480px', maxWidth: '90%', background: 'linear-gradient(180deg, #0b0b0b, #1a1a1a)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 16, padding: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ color: '#fff', margin: 0 }}>Eliminar Administrador</h3>
-              <button onClick={() => setShowDeleteModal(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-            <div style={{ color: '#e5e7eb', marginBottom: 12 }}>
-              ¿Está seguro que desea eliminar a <strong>{selectedAdmin?.nombre}</strong>? Esta acción no se puede deshacer.
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setShowDeleteModal(false)} style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, color: '#e5e7eb', cursor: 'pointer' }}>
-                Cancelar
-              </button>
-              <button onClick={handleDeleteAdmin} style={{ padding: '10px 16px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', borderRadius: 10, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Trash2 size={16} /> Eliminar
-              </button>
-            </div>
+      {/* Modal Editar - CON TODOS LOS CAMPOS */}
+      {showEditModal && renderModal(
+        "Editar Administrador",
+        Edit,
+        () => {
+          setShowEditModal(false);
+          setFormData({
+            cedula: '', nombre: '', apellido: '', email: '', telefono: '',
+            fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
+            rolId: '', permisos: []
+          });
+        }, <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.5rem' }}>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Cédula</label>
+          <input value={formData.cedula} readOnly style={{
+            width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
+            background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+            border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+            color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)', fontSize: '0.85rem'
+          }} />
+        </div>
+
+        <div style={{ marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Rol</label>
+          <select
+            value={formData.rolId}
+            onChange={e => setFormData({ ...formData, rolId: e.target.value })}
+            style={{
+              width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
+              background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+              border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+              color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
+            }}
+          >
+            <option value="">Sin cambio</option>
+            {roles.filter(r => r.nombre_rol.toLowerCase() === 'administrativo').map(r => (
+              <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>
+            ))}
+          </select>
+        </div>
+
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Nombres" value={formData.nombre} onChange={(e: any) => setFormData({ ...formData, nombre: e.target.value.toUpperCase() })} />
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Apellidos" value={formData.apellido} onChange={(e: any) => setFormData({ ...formData, apellido: e.target.value.toUpperCase() })} />
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Email" type="email" value={formData.email} onChange={(e: any) => setFormData({ ...formData, email: e.target.value })} />
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Teléfono" type="tel" value={formData.telefono} onChange={(e: any) => setFormData({ ...formData, telefono: e.target.value.replace(/\D/g, '') })} icon={Phone} />
+
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
+
+        <div style={{ marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género</label>
+          <select
+            value={formData.genero}
+            onChange={e => setFormData({ ...formData, genero: e.target.value })}
+            style={{
+              width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
+              background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+              border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+              color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
+            }}
+          >
+            <option value="">Seleccionar</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <div style={{ gridColumn: '1 / -1' }}>
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Dirección" value={formData.direccion} onChange={(e: any) => setFormData({ ...formData, direccion: e.target.value.toUpperCase() })} icon={MapPin} />
+        </div>
+
+        {/* Permisos Grid */}
+        <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
+          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.5rem', fontSize: '0.8rem', fontWeight: 600 }}>Permisos del Sistema</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+            {permisosDisponibles.map(permiso => {
+              const Icon = permiso.icon;
+              const isSelected = formData.permisos.includes(permiso.id);
+              return (
+                <div
+                  key={permiso.id}
+                  onClick={() => {
+                    const newPermisos = isSelected
+                      ? formData.permisos.filter(p => p !== permiso.id)
+                      : [...formData.permisos, permiso.id];
+                    setFormData({ ...formData, permisos: newPermisos });
+                  }}
+                  style={{
+                    padding: '0.75rem', borderRadius: '0.5rem', cursor: 'pointer',
+                    background: isSelected ? 'rgba(239, 68, 68, 0.1)' : (darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'),
+                    border: isSelected ? '1px solid #ef4444' : (darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)'),
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s'
+                  }}
+                >
+                  <div style={{ color: isSelected ? '#ef4444' : themeColors.textMuted }}><Icon size={18} /></div>
+                  <div style={{ fontSize: '0.85rem', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500 }}>{permiso.nombre}</div>
+                  {isSelected && <Check size={16} color="#ef4444" style={{ marginLeft: 'auto' }} />}
+                </div>
+              );
+            })}
           </div>
         </div>
+      </div>,
+        <>
+          <button onClick={() => setShowEditModal(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={handleUpdate} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Guardar Cambios</button>
+        </>
+      )}
+
+      {/* Modal Password */}
+      {showPasswordModal && renderModal(
+        "Cambiar Contraseña",
+        Lock,
+        () => setShowPasswordModal(false),
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ position: 'relative' }}>
+            <InputField themeColors={themeColors} darkMode={darkMode} label="Nueva Contraseña" type={showPwd ? 'text' : 'password'} value={passwordData.newPassword} onChange={(e: any) => setPasswordData({ ...passwordData, newPassword: e.target.value })} />
+            <button onClick={() => setShowPwd(!showPwd)} style={{ position: 'absolute', right: '10px', top: '29px', background: 'none', border: 'none', color: themeColors.textSecondary, cursor: 'pointer' }}>
+              {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <InputField themeColors={themeColors} darkMode={darkMode} label="Confirmar Contraseña" type={showPwdConfirm ? 'text' : 'password'} value={passwordData.confirmPassword} onChange={(e: any) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} />
+            <button onClick={() => setShowPwdConfirm(!showPwdConfirm)} style={{ position: 'absolute', right: '10px', top: '29px', background: 'none', border: 'none', color: themeColors.textSecondary, cursor: 'pointer' }}>
+              {showPwdConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>,
+        <>
+          <button onClick={() => setShowPasswordModal(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={handleChangePassword} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Actualizar Contraseña</button>
+        </>
       )}
     </div>
   );
