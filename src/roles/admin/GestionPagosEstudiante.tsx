@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink } from 'lucide-react';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink, Bell, ClipboardCheck } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
@@ -175,6 +175,10 @@ const GestionPagosEstudiante = () => {
     }
     .admin-course-tab[data-dark="true"][data-active="true"] .admin-course-tab-subtitle {
       color: rgba(255,255,255,0.85) !important;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
     }
   `;
 
@@ -480,6 +484,21 @@ const GestionPagosEstudiante = () => {
     }
   };
 
+  // Contador de pagos pendientes por verificar (estado = 'pagado')
+  const pagosPorVerificar = useMemo(() => {
+    let count = 0;
+    estudiantes.forEach(est => {
+      est.cursos.forEach(curso => {
+        curso.pagos.forEach(pago => {
+          if (pago.estado === 'pagado') {
+            count++;
+          }
+        });
+      });
+    });
+    return count;
+  }, [estudiantes]);
+
   const cursosDisponibles = useMemo(() => {
     const map = new Map<string, { id: number; nombre: string }>();
     estudiantes.forEach(est => {
@@ -639,6 +658,108 @@ const GestionPagosEstudiante = () => {
         subtitle="Verifica y administra los pagos mensuales de los estudiantes"
       />
 
+      {/* Contador de pagos por verificar */}
+      <div
+        onClick={() => pagosPorVerificar > 0 && setFiltroEstado('pagado')}
+        style={{
+          background: pagosPorVerificar > 0
+            ? (darkMode 
+                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)'
+                : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.06) 100%)')
+            : (darkMode
+                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%)'
+                : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.06) 100%)'),
+          border: pagosPorVerificar > 0 
+            ? '1px solid rgba(239, 68, 68, 0.35)' 
+            : '1px solid rgba(16, 185, 129, 0.35)',
+          borderRadius: '0.75rem',
+          padding: isMobile ? '0.75rem' : '1rem 1.25rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          cursor: pagosPorVerificar > 0 ? 'pointer' : 'default',
+          transition: 'all 0.3s ease',
+          boxShadow: pagosPorVerificar > 0 
+            ? '0 4px 15px rgba(239, 68, 68, 0.15)' 
+            : '0 4px 15px rgba(16, 185, 129, 0.1)',
+          animation: pagosPorVerificar > 0 ? 'pulse 2s infinite' : 'none'
+        }}
+        onMouseEnter={(e) => {
+          if (pagosPorVerificar > 0) {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(239, 68, 68, 0.25)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = pagosPorVerificar > 0 
+            ? '0 4px 15px rgba(239, 68, 68, 0.15)' 
+            : '0 4px 15px rgba(16, 185, 129, 0.1)';
+        }}
+      >
+        <div style={{
+          background: pagosPorVerificar > 0 
+            ? 'rgba(239, 68, 68, 0.15)' 
+            : 'rgba(16, 185, 129, 0.15)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative'
+        }}>
+          {pagosPorVerificar > 0 ? (
+            <>
+              <ClipboardCheck size={24} color="#ef4444" />
+              <div style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+              }}>
+                {pagosPorVerificar}
+              </div>
+            </>
+          ) : (
+            <CheckCircle2 size={24} color="#10b981" />
+          )}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            color: pagosPorVerificar > 0 ? '#ef4444' : '#10b981',
+            fontSize: isMobile ? '0.95rem' : '1.05rem',
+            fontWeight: 700,
+            marginBottom: '0.2rem'
+          }}>
+            {pagosPorVerificar > 0 
+              ? `${pagosPorVerificar} ${pagosPorVerificar === 1 ? 'pago pendiente' : 'pagos pendientes'} por verificar`
+              : '¡Al día! No tiene pagos por verificar'
+            }
+          </div>
+          <div style={{
+            color: theme.textSecondary,
+            fontSize: '0.8rem'
+          }}>
+            {pagosPorVerificar > 0 
+              ? 'Haz clic aquí para ver los pagos que requieren tu verificación'
+              : 'Todos los pagos han sido verificados correctamente'
+            }
+          </div>
+        </div>
+        {pagosPorVerificar > 0 && <Bell size={20} color="#ef4444" style={{ opacity: 0.7 }} />}
+      </div>
+
       {/* Controles */}
       <div style={{
         background: theme.surface,
@@ -710,16 +831,24 @@ const GestionPagosEstudiante = () => {
           <button
             onClick={async () => {
               try {
-                const response = await fetch(`${API_BASE}/api/pagos-mensuales/reporte/excel`);
+                // Construir URL con filtros
+                const params = new URLSearchParams();
+                if (filtroEstado !== 'todos') params.set('estado', filtroEstado);
+                if (selectedHorario !== 'todos') params.set('horario', selectedHorario);
+                if (selectedCursoTab !== 'todos') params.set('cursoId', String(selectedCursoTab));
+                if (searchTerm) params.set('search', searchTerm);
+                
+                const fetchUrl = `${API_BASE}/api/pagos-mensuales/reporte/excel${params.toString() ? '?' + params.toString() : ''}`;
+                const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error('Error descargando reporte');
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = blobUrl;
                 a.download = `Reporte_Pagos_${new Date().toISOString().split('T')[0]}.xlsx`;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
+                window.URL.revokeObjectURL(blobUrl);
                 document.body.removeChild(a);
                 showToast.success('Reporte descargado correctamente', darkMode);
               } catch (error) {
