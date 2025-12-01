@@ -156,9 +156,13 @@ const GestionEstudiantes = () => {
   const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
+  const [filterEstadoCurso, setFilterEstadoCurso] = useState('todos');
+  const [filterTipoCurso, setFilterTipoCurso] = useState('todos');
+  const [tiposCurso, setTiposCurso] = useState<{id: number, nombre: string}[]>([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10); // 10 estudiantes por página
+  const [limit] = useState(9); // 9 estudiantes por página
   const [totalCount, setTotalCount] = useState(0);
+  const [totalActivos, setTotalActivos] = useState(0);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Función para obtener estudiantes
@@ -173,6 +177,9 @@ const GestionEstudiantes = () => {
       params.set('page', String(page));
       params.set('limit', String(limit));
       if (searchTerm) params.set('search', searchTerm);
+      if (filterEstado !== 'todos') params.set('estado', filterEstado);
+      if (filterEstadoCurso !== 'todos') params.set('estadoCurso', filterEstadoCurso);
+      if (filterTipoCurso !== 'todos') params.set('tipoCurso', filterTipoCurso);
 
       const response = await fetch(`${API_BASE}/api/estudiantes?${params.toString()}`, {
         headers: {
@@ -187,6 +194,10 @@ const GestionEstudiantes = () => {
       const data = await response.json();
       const headerVal = response.headers.get('X-Total-Count');
       const totalHeader = headerVal !== null ? Number(headerVal) : NaN;
+      
+      // Leer total de activos del header
+      const activosHeader = response.headers.get('X-Total-Activos');
+      const totalActivosVal = activosHeader !== null ? Number(activosHeader) : 0;
 
       // Fallbacks si el backend no envía X-Total-Count
       const computedTotal = Number.isFinite(totalHeader) && totalHeader >= 0
@@ -195,6 +206,7 @@ const GestionEstudiantes = () => {
 
       setEstudiantes(Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []));
       setTotalCount(computedTotal);
+      setTotalActivos(totalActivosVal);
 
       if (options?.successMessage) {
         showToast.success(options.successMessage, darkMode);
@@ -212,19 +224,34 @@ const GestionEstudiantes = () => {
 
   useEffect(() => {
     fetchEstudiantes();
-  }, [page, limit, searchTerm]);
+  }, [page, limit, searchTerm, filterEstado, filterEstadoCurso, filterTipoCurso]);
 
-  const estudiantesFiltrados = estudiantes
-    .filter(estudiante => {
-      const matchesEstado = filterEstado === 'todos' || estudiante.estado === filterEstado;
-      return matchesEstado;
-    })
-    .sort((a, b) => {
-      // Ordenar alfabéticamente por apellidos, luego por nombres
-      const apellidoCompare = a.apellido.localeCompare(b.apellido);
-      if (apellidoCompare !== 0) return apellidoCompare;
-      return a.nombre.localeCompare(b.nombre);
-    });
+  // Resetear página cuando cambia el filtro o búsqueda
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, filterEstado, filterEstadoCurso, filterTipoCurso]);
+
+  // Cargar tipos de curso al iniciar
+  useEffect(() => {
+    const fetchTiposCurso = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        const response = await fetch(`${API_BASE}/api/tipos-cursos`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setTiposCurso(Array.isArray(data) ? data.map((t: any) => ({ id: t.id_tipo_curso, nombre: t.nombre })) : []);
+        }
+      } catch (err) {
+        console.error('Error cargando tipos de curso:', err);
+      }
+    };
+    fetchTiposCurso();
+  }, []);
+
+  // Los estudiantes ya vienen filtrados y paginados del backend
+  const estudiantesFiltrados = estudiantes;
 
   const handleViewEstudiante = (estudiante: Estudiante) => {
     setSelectedEstudiante(estudiante);
@@ -352,8 +379,8 @@ const GestionEstudiantes = () => {
               />
             </div>
 
-            {/* Filtros */}
-            <div style={{ minWidth: isSmallScreen ? 'auto' : 200, width: isSmallScreen ? '100%' : 'auto' }}>
+            {/* Filtro Estado Estudiante */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
@@ -361,8 +388,34 @@ const GestionEstudiantes = () => {
                 options={[
                   { value: 'todos', label: 'Todos los estados' },
                   { value: 'activo', label: 'Activos' },
-                  { value: 'inactivo', label: 'Inactivos' },
-                  { value: 'pendiente', label: 'Pendientes' }
+                  { value: 'inactivo', label: 'Inactivos' }
+                ]}
+              />
+            </div>
+
+            {/* Filtro Estado Curso */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterEstadoCurso"
+                value={filterEstadoCurso}
+                onChange={(e) => setFilterEstadoCurso(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los cursos' },
+                  { value: 'activo', label: 'Cursos Activos' },
+                  { value: 'finalizado', label: 'Cursos Finalizados' }
+                ]}
+              />
+            </div>
+
+            {/* Filtro Tipo Curso */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterTipoCurso"
+                value={filterTipoCurso}
+                onChange={(e) => setFilterTipoCurso(e.target.value)}
+                options={[
+                  { value: 'todos', label: 'Todos los tipos' },
+                  ...tiposCurso.map(tc => ({ value: String(tc.id), label: tc.nombre }))
                 ]}
               />
             </div>
@@ -421,20 +474,31 @@ const GestionEstudiantes = () => {
                 try {
                   showToast.info('Generando reporte de estudiantes...', darkMode);
                   const token = sessionStorage.getItem('auth_token');
-                  const response = await fetch(`${API_BASE}/api/estudiantes/reporte/excel`, {
+                  
+                  // Construir URL con filtros
+                  const params = new URLSearchParams();
+                  if (searchTerm) params.set('search', searchTerm);
+                  if (filterEstado !== 'todos') params.set('estado', filterEstado);
+                  if (filterEstadoCurso !== 'todos') params.set('estadoCurso', filterEstadoCurso);
+                  if (filterTipoCurso !== 'todos') params.set('tipoCurso', filterTipoCurso);
+                  
+                  const queryString = params.toString();
+                  const url = `${API_BASE}/api/estudiantes/reporte/excel${queryString ? '?' + queryString : ''}`;
+                  
+                  const response = await fetch(url, {
                     headers: {
                       Authorization: `Bearer ${token}`
                     }
                   });
                   if (!response.ok) throw new Error('Error descargando reporte');
                   const blob = await response.blob();
-                  const url = window.URL.createObjectURL(blob);
+                  const blobUrl = window.URL.createObjectURL(blob);
                   const a = document.createElement('a');
-                  a.href = url;
+                  a.href = blobUrl;
                   a.download = `Reporte_Estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`;
                   document.body.appendChild(a);
                   a.click();
-                  window.URL.revokeObjectURL(url);
+                  window.URL.revokeObjectURL(blobUrl);
                   document.body.removeChild(a);
                   showToast.success('Reporte descargado correctamente.', darkMode);
                 } catch (error) {
@@ -520,7 +584,7 @@ const GestionEstudiantes = () => {
 
         <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: theme.contentBackground }}>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: pick('#2563eb', mapToRedScheme('#3b82f6')), marginBottom: '0.25rem' }}>
-            {estudiantes.filter(e => e.estado === 'activo').length}
+            {totalActivos}
           </div>
           <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
             Estudiantes Activos
