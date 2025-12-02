@@ -377,8 +377,18 @@ const GestionDocentes = () => {
 
     const formData = new FormData(e.target as HTMLFormElement);
 
+    const identificacion = formData.get('identificacion') as string;
+
+    // Validación de longitud de cédula
+    if (identificacion.length !== 10) {
+      setError('La identificación debe tener exactamente 10 dígitos.');
+      showToast.error('La identificación debe tener exactamente 10 dígitos.', darkMode);
+      setSubmitting(false);
+      return;
+    }
+
     const docenteData = {
-      identificacion: formData.get('identificacion') as string,
+      identificacion,
       nombres: formData.get('nombres') as string,
       apellidos: formData.get('apellidos') as string,
       fecha_nacimiento: formData.get('fecha_nacimiento') as string || null,
@@ -1421,7 +1431,19 @@ const GestionDocentes = () => {
                       type="text"
                       name="identificacion"
                       required
+                      maxLength={10}
                       defaultValue={selectedDocente?.identificacion || ''}
+                      onChange={(e) => {
+                        // Permitir solo números
+                        const formattedValue = e.target.value.replace(/\D/g, '');
+                        e.target.value = formattedValue;
+                      }}
+                      onKeyPress={(e) => {
+                        // Prevenir entrada de caracteres no numéricos
+                        if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                          e.preventDefault();
+                        }
+                      }}
                       style={{
                         width: '100%',
                         padding: '6px 10px',

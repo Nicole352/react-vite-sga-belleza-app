@@ -140,7 +140,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setEstudiantes(data.estudiantes || []);
+        const estudiantesData = data.estudiantes || [];
+
+        // Sort students alphabetically by apellido
+        estudiantesData.sort((a: Estudiante, b: Estudiante) => {
+          const apellidoA = (a.apellido || '').trim().toUpperCase();
+          const apellidoB = (b.apellido || '').trim().toUpperCase();
+          return apellidoA.localeCompare(apellidoB, 'es');
+        });
+
+        setEstudiantes(estudiantesData);
         setAsistencias(new Map());
         setAsistenciaGuardada(false);
       }

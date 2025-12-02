@@ -1133,7 +1133,7 @@ const GestionAulas = () => {
                     type="text"
                     value={formData.nombre}
                     onChange={async (e) => {
-                      const nombre = e.target.value;
+                      const nombre = e.target.value.toUpperCase();
                       setFormData(prev => ({ ...prev, nombre }));
 
                       if (nombre.trim().length > 2) {
@@ -1483,7 +1483,7 @@ const GestionAulas = () => {
                   <input
                     type="text"
                     value={formData.nombre}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value.toUpperCase() }))}
                     placeholder="Ej: Aula de Teoría 1"
                     style={{
                       width: '100%',

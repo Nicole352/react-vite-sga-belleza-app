@@ -822,13 +822,27 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     if (!datosProcesados || datosProcesados.length === 0) return null;
 
     if (tipoReporte === 'estudiantes') {
-      const total = datosProcesados.length;
+      // Get unique students
+      const uniqueStudents = new Set(datosProcesados.map((e: any) => e.id_usuario));
+      const total = uniqueStudents.size;
+
+      // Helper to count unique students by condition
+      const countUniqueByCondition = (condition: (e: any) => boolean) => {
+        const matchingStudents = new Set();
+        datosProcesados.forEach((e: any) => {
+          if (condition(e)) {
+            matchingStudents.add(e.id_usuario);
+          }
+        });
+        return matchingStudents.size;
+      };
+
       // Aprobados: estado 'aprobado', 'graduado' o nota >= 7
-      const aprobados = datosProcesados.filter((e: any) =>
+      const aprobados = countUniqueByCondition((e: any) =>
         e.estado_academico === 'aprobado' ||
         e.estado_academico === 'graduado' ||
         (e.nota_final && parseFloat(e.nota_final) >= 7)
-      ).length;
+      );
 
       const tasaAprobacion = total > 0 ? ((aprobados / total) * 100).toFixed(1) : '0';
 
@@ -837,11 +851,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         aprobados,
         tasaAprobacion,
         // En curso: 'inscrito' o 'activo' y que no estén aprobados/graduados
-        enCurso: datosProcesados.filter((e: any) =>
+        enCurso: countUniqueByCondition((e: any) =>
           (!e.estado_academico || ['inscrito', 'activo'].includes(e.estado_academico)) &&
           (!e.nota_final || parseFloat(e.nota_final) < 7)
-        ).length,
-        reprobados: datosProcesados.filter((e: any) => e.estado_academico === 'reprobado').length
+        ),
+        reprobados: countUniqueByCondition((e: any) => e.estado_academico === 'reprobado')
       };
     } else if (tipoReporte === 'financiero') {
       const total = datosProcesados.length;
@@ -1228,7 +1242,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             <Target size={28} color="#3b82f6" />
             <div>
               <div style={metricValueStyle('#3b82f6')}>{enCurso}</div>
-              <div style={metricLabelStyle}>En Curso</div>
+              <div style={metricLabelStyle}>Estudiantes Activos</div>
             </div>
           </div>
         </div>

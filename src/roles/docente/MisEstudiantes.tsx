@@ -60,9 +60,11 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
         console.log('Estudiantes del docente (raw data):', data);
 
         // Sort students alphabetically by apellido
-        const sortedData = data.sort((a: Estudiante, b: Estudiante) =>
-          a.apellido.localeCompare(b.apellido, 'es', { sensitivity: 'base' })
-        );
+        const sortedData = [...data].sort((a: Estudiante, b: Estudiante) => {
+          const apellidoA = (a.apellido || '').trim().toUpperCase();
+          const apellidoB = (b.apellido || '').trim().toUpperCase();
+          return apellidoA.localeCompare(apellidoB, 'es');
+        });
         setEstudiantes(sortedData);
       } else {
         console.error('Error al cargar estudiantes');
@@ -130,6 +132,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
       (estadoFiltro === 'finalizados' && studentEstado === 'finalizado');
 
     return matchTexto && matchCurso && matchEstado;
+  }).sort((a, b) => {
+    const apellidoA = (a.apellido || '').trim().toUpperCase();
+    const apellidoB = (b.apellido || '').trim().toUpperCase();
+    return apellidoA.localeCompare(apellidoB, 'es');
   });
 
   // Pagination logic
@@ -444,7 +450,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                         {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                       </div>
                       <div style={{ overflow: 'hidden', color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '700', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {estudiante.nombre} {estudiante.apellido}
+                        {estudiante.apellido}, {estudiante.nombre}
                       </div>
                     </div>
 
@@ -693,7 +699,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700' }}>
-                          {estudiante.nombre} {estudiante.apellido}
+                          {estudiante.apellido}, {estudiante.nombre}
                         </div>
                         <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
                           {estudiante.cedula}

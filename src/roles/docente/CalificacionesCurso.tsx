@@ -158,6 +158,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     } else if (filtro === "reprobados") {
       result = result.filter((est) => (parseFloat(String(est.promedio_global)) || 0) < 7);
     }
+
+    // Ordenar estudiantes por apellido
+    result.sort((a, b) => {
+      const apellidoA = (a.apellido || '').trim().toUpperCase();
+      const apellidoB = (b.apellido || '').trim().toUpperCase();
+      return apellidoA.localeCompare(apellidoB, 'es');
+    });
+
     setFilteredEstudiantes(result);
   }, [estudiantes, busqueda, filtro]);
 
@@ -351,8 +359,16 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         };
       });
 
+
+      // Sort students alphabetically by apellido
+      const sortedEstudiantes = estudiantesConCalificaciones.sort((a, b) => {
+        const apellidoA = (a.apellido || '').trim().toUpperCase();
+        const apellidoB = (b.apellido || '').trim().toUpperCase();
+        return apellidoA.localeCompare(apellidoB, 'es');
+      });
+
       setTareas(tareasArr);
-      setEstudiantes(estudiantesConCalificaciones);
+      setEstudiantes(sortedEstudiantes);
       setTareasFiltradas(tareasArr); // Inicialmente mostrar todas
     } catch (error) {
       console.error("Error al cargar calificaciones:", error);
