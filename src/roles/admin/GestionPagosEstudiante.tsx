@@ -241,7 +241,7 @@ const GestionPagosEstudiante = () => {
       if (filtroEstado !== 'todos') {
         params.set('estado', filtroEstado);
       }
-      params.set('limit', '200');
+      params.set('limit', '999999');
 
       const res = await fetch(`${API_BASE}/api/admin/pagos?${params.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }

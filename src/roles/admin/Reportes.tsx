@@ -753,11 +753,39 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         }
       });
 
+      // Obtener nombre del archivo desde el header Content-Disposition del servidor
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let nombreArchivo = `Reporte_${tipoReporte}_${Date.now()}.${formato === 'pdf' ? 'pdf' : 'xlsx'}`;
+      
+      console.log('📥 Content-Disposition recibido:', contentDisposition);
+      
+      if (contentDisposition) {
+        // Intentar varios patrones de extracción
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition);
+        
+        if (matches != null && matches[1]) {
+          nombreArchivo = matches[1].replace(/['"]/g, '').trim();
+          console.log('✅ Nombre extraído del header:', nombreArchivo);
+        } else {
+          // Intentar con filename*=UTF-8''
+          const utf8Regex = /filename\*=UTF-8''([^;\n]*)/;
+          const utf8Matches = utf8Regex.exec(contentDisposition);
+          if (utf8Matches != null && utf8Matches[1]) {
+            nombreArchivo = decodeURIComponent(utf8Matches[1]);
+            console.log('✅ Nombre extraído (UTF-8):', nombreArchivo);
+          }
+        }
+      } else {
+        console.warn('⚠️ No se recibió Content-Disposition del servidor');
+      }
+
       const blob = await response.blob();
       const urlBlob = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = urlBlob;
-      link.download = `Reporte_${tipoReporte}_${fechaInicio}_${fechaFin}.${formato === 'pdf' ? 'pdf' : 'xlsx'}`;
+      link.download = nombreArchivo;
+      console.log('📥 Descargando archivo como:', nombreArchivo);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
