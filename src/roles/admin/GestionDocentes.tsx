@@ -700,7 +700,7 @@ const GestionDocentes = () => {
                 }}
               >
                 <div style={{ marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem', gap: '0.5rem' }}>
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -710,10 +710,13 @@ const GestionDocentes = () => {
                       background: theme.badgeBg,
                       padding: '3px 0.5rem',
                       borderRadius: '0.3125rem',
-                      border: `1px solid ${theme.surfaceBorder}`
+                      border: `1px solid ${theme.surfaceBorder}`,
+                      minWidth: 0,
+                      maxWidth: '65%',
+                      flex: '1 1 auto'
                     }}>
-                      <Mail size={14} color={theme.badgeText} />
-                      <span>{docente.gmail || 'Sin correo'}</span>
+                      <Mail size={14} color={theme.badgeText} style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{docente.gmail || 'Sin correo'}</span>
                     </span>
                     <span style={{
                       display: 'flex',
@@ -765,7 +768,7 @@ const GestionDocentes = () => {
                   }}>
                     <div>
                       <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                        Cédula
+                        Identificación
                       </div>
                       <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
                         {docente.identificacion}

@@ -259,11 +259,20 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
       }
       params.set('limit', '100');
 
+      const token = sessionStorage.getItem('auth_token');
       const [asignacionesRes, aulasRes, cursosRes, docentesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/asignaciones-aulas?${params.toString()}`),
-        fetch(`${API_BASE}/api/aulas?limit=100`),
-        fetch(`${API_BASE}/api/cursos?limit=100`),
-        fetch(`${API_BASE}/api/docentes?limit=100`)
+        fetch(`${API_BASE}/api/asignaciones-aulas?${params.toString()}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${API_BASE}/api/aulas?limit=100`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${API_BASE}/api/cursos?limit=100`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${API_BASE}/api/docentes?limit=100`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
       ]);
 
       if (!asignacionesRes.ok) throw new Error('Error cargando asignaciones');
@@ -469,9 +478,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
       setSaving(true);
 
       if (modalType === 'create') {
+        const token = sessionStorage.getItem('auth_token');
         const res = await fetch(`${API_BASE}/api/asignaciones-aulas`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(asignacionData)
         });
 
@@ -482,9 +495,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
 
         showToast.success('Asignación creada exitosamente', darkMode);
       } else if (modalType === 'edit' && selectedAsignacion) {
+        const token = sessionStorage.getItem('auth_token');
         const res = await fetch(`${API_BASE}/api/asignaciones-aulas/${selectedAsignacion.id_asignacion}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(asignacionData)
         });
 

@@ -1032,11 +1032,9 @@ const GestionPromociones: React.FC = () => {
                     boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
                   }}>
                     <Sparkles size={10} color="#ffffff" />
-                    Ahorra {formatPrice(ahorro)}
+                    PROMOCION
                   </div>
                 )}
-
-                {/* Header */}
                 <div style={{ marginBottom: '0.75rem' }}>
                   <div style={{
                     display: 'flex',
@@ -1478,25 +1476,25 @@ const GestionPromociones: React.FC = () => {
                         .filter(c => {
                           // Solo cursos activos
                           if (c.estado !== 'activo') return false;
-                          
+
                           // Si estamos editando, permitir el curso que ya está seleccionado
                           if (modalType === 'edit' && selected && c.id_curso === selected.id_curso_principal) {
                             return true;
                           }
-                          
+
                           // Excluir cursos que ya están en otras promociones
                           if (cursosUsadosEnOtrasPromociones.has(c.id_curso)) return false;
-                          
+
                           // Excluir el curso promocional seleccionado actualmente
                           if (selectedCursoId && c.id_curso === selectedCursoId) return false;
-                          
+
                           return true;
                         })
                         .map(c => ({
                           value: String(c.id_curso),
                           label: `${c.codigo_curso} - ${c.nombre}`
                         }))
-                      ]}
+                    ]}
                     required
                   />
                 </div>
@@ -1518,21 +1516,21 @@ const GestionPromociones: React.FC = () => {
                     options={[
                       { value: '', label: 'Selecciona curso promocional...' },
                       ...cursos
-                                                .filter(c => {
+                        .filter(c => {
                           // Solo cursos activos
                           if (c.estado !== 'activo') return false;
-                          
+
                           // Si estamos editando, permitir el curso que ya está seleccionado
                           if (modalType === 'edit' && selected && c.id_curso === selected.id_curso_promocional) {
                             return true;
                           }
-                          
+
                           // Excluir cursos que ya están en otras promociones
                           if (cursosUsadosEnOtrasPromociones.has(c.id_curso)) return false;
-                          
+
                           // Excluir el curso principal seleccionado actualmente
                           if (selectedCursoPrincipalId && c.id_curso === selectedCursoPrincipalId) return false;
-                          
+
                           return true;
                         })
                         .map(c => ({

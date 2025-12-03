@@ -64,7 +64,7 @@ const HistorialAuditoria: React.FC = () => {
       : 'linear-gradient(135deg, #f8f9fa 0%, #fff5f5 50%, #f8f9fa 100%)',
     cardBg: darkMode ? 'rgba(20, 20, 28, 0.95)' : '#ffffff',
     cardBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)',
-    cardShadow: darkMode 
+    cardShadow: darkMode
       ? '0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)'
       : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     textPrimary: darkMode ? 'rgba(255, 255, 255, 0.95)' : '#111827',
@@ -221,26 +221,26 @@ const HistorialAuditoria: React.FC = () => {
 
   const getOperacionBadge = (operacion: string) => {
     const badges: Record<string, { bg: string; text: string; label: string }> = {
-      INSERT: { 
-        bg: darkMode ? 'rgba(34, 197, 94, 0.2)' : '#d1fae5', 
+      INSERT: {
+        bg: darkMode ? 'rgba(34, 197, 94, 0.2)' : '#d1fae5',
         text: darkMode ? '#4ade80' : '#047857',
         label: 'CREACIÓN'
       },
-      UPDATE: { 
-        bg: darkMode ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe', 
+      UPDATE: {
+        bg: darkMode ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
         text: darkMode ? '#60a5fa' : '#1d4ed8',
         label: 'MODIFICACIÓN'
       },
-      DELETE: { 
-        bg: darkMode ? 'rgba(239, 68, 68, 0.25)' : '#fee2e2', 
+      DELETE: {
+        bg: darkMode ? 'rgba(239, 68, 68, 0.25)' : '#fee2e2',
         text: darkMode ? '#f87171' : '#b91c1c',
         label: 'ELIMINACIÓN'
       },
     };
-    return badges[operacion] || { 
-      bg: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6', 
-      text: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#6b7280', 
-      label: operacion 
+    return badges[operacion] || {
+      bg: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6',
+      text: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#6b7280',
+      label: operacion
     };
   };
 
@@ -270,7 +270,8 @@ const HistorialAuditoria: React.FC = () => {
     };
 
     // Función para formatear valores
-    const formatearValor = (valor: any) => {
+    const formatearValor = (valor: any, key?: string) => {
+      console.log('formatearValor:', { key, valor, type: typeof valor });
       if (typeof valor === 'boolean') {
         return valor ? 'Sí' : 'No';
       }
@@ -285,6 +286,15 @@ const HistorialAuditoria: React.FC = () => {
         return 'N/A';
       }
       if (typeof valor === 'string') {
+        // Formateo específico para días
+        if (key && key.toLowerCase() === 'dias') {
+          return valor
+            .split(',')
+            .map(d => d.trim())
+            .map(d => d.charAt(0).toUpperCase() + d.slice(1).toLowerCase())
+            .join(', ');
+        }
+
         // Si es una fecha (formato ISO)
         if (/^\d{4}-\d{2}-\d{2}/.test(valor)) {
           try {
@@ -386,7 +396,7 @@ const HistorialAuditoria: React.FC = () => {
                 color: theme.textPrimary,
                 wordBreak: 'break-word'
               }}>
-                {formatearValor(value)}
+                {formatearValor(value, key)}
               </p>
             </div>
           ))}
@@ -996,8 +1006,8 @@ const HistorialAuditoria: React.FC = () => {
                       e.currentTarget.style.backgroundColor = theme.recordBgHover;
                       e.currentTarget.style.borderColor = theme.recordBorderHover;
                       e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = darkMode 
-                        ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? '0 4px 12px rgba(0, 0, 0, 0.3)'
                         : '0 4px 12px rgba(0, 0, 0, 0.1)';
                     }}
                     onMouseLeave={(e) => {
@@ -1306,7 +1316,7 @@ const HistorialAuditoria: React.FC = () => {
                 maxWidth: '600px',
                 maxHeight: '85vh',
                 overflow: 'auto',
-                boxShadow: darkMode 
+                boxShadow: darkMode
                   ? '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
                   : '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
                 border: `1px solid ${theme.cardBorder}`,
@@ -1544,14 +1554,14 @@ const HistorialAuditoria: React.FC = () => {
                       >
                         {detallesFiltrados.map(([key, value], index) => {
                           // Detectar si el campo es un nombre de usuario
-                          const isNombreUsuario = key.toLowerCase().includes('nombre') || 
-                                                   key.toLowerCase().includes('usuario') ||
-                                                   key.toLowerCase().includes('solicitante') ||
-                                                   key.toLowerCase().includes('estudiante') ||
-                                                   key.toLowerCase().includes('docente') ||
-                                                   key.toLowerCase().includes('creado') ||
-                                                   key.toLowerCase().includes('eliminado');
-                          
+                          const isNombreUsuario = key.toLowerCase().includes('nombre') ||
+                            key.toLowerCase().includes('usuario') ||
+                            key.toLowerCase().includes('solicitante') ||
+                            key.toLowerCase().includes('estudiante') ||
+                            key.toLowerCase().includes('docente') ||
+                            key.toLowerCase().includes('creado') ||
+                            key.toLowerCase().includes('eliminado');
+
                           return (
                             <div
                               key={key}
@@ -1592,8 +1602,8 @@ const HistorialAuditoria: React.FC = () => {
                                 lineHeight: 1.4,
                                 textTransform: isNombreUsuario ? 'uppercase' : 'none',
                               }}>
-                                {isNombreUsuario && typeof value === 'string' 
-                                  ? value.toUpperCase() 
+                                {isNombreUsuario && typeof value === 'string'
+                                  ? value.toUpperCase()
                                   : formatearValor(value)}
                               </p>
                             </div>

@@ -150,7 +150,12 @@ const GestionAulas = () => {
     const initials = generateInitials(nombreAula);
 
     try {
-      const response = await fetch(`${API_BASE}/api/aulas?limit=1000`);
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/api/aulas?limit=1000`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         return `${initials}-AUL-001`;
       }
@@ -183,7 +188,12 @@ const GestionAulas = () => {
       if (searchTerm) params.set('search', searchTerm);
       if (filterEstado !== 'todos') params.set('estado', filterEstado);
 
-      const response = await fetch(`${API_BASE}/api/aulas?${params.toString()}`);
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/api/aulas?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -212,10 +222,12 @@ const GestionAulas = () => {
         codigo_aula: codigo
       };
 
+      const token = sessionStorage.getItem('auth_token');
       const response = await fetch(`${API_BASE}/api/aulas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(aulaData),
       });
@@ -243,10 +255,12 @@ const GestionAulas = () => {
 
     try {
       setLoading(true);
+      const token = sessionStorage.getItem('auth_token');
       const response = await fetch(`${API_BASE}/api/aulas/${selectedAula.id_aula}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData),
       });

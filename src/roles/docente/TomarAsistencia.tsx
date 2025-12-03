@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaCheckCircle, FaTimesCircle, FaClock, FaFileAlt, FaSave, FaCalendarAlt, FaChalkboardTeacher, FaUsers, FaFileExcel } from 'react-icons/fa';
 import { ClipboardList } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import LoadingModal from '../../components/LoadingModal';
 import { showToast } from '../../config/toastConfig';
 
@@ -697,20 +697,124 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
 
     try {
-      // Hoja 1: Detalle de Asistencia
-      const datosDetalle = estudiantes.map((est, index) => {
-        const registro = asistencias.get(est.id_estudiante);
-        return {
-          'N°': index + 1,
-          'Cédula': est.cedula,
-          'Apellidos': est.apellido,
-          'Nombres': est.nombre,
-          'Estado': registro ? registro.estado.toUpperCase() : 'SIN REGISTRAR',
-          'Observaciones': registro?.observaciones || ''
-        };
+      const workbook = new ExcelJS.Workbook();
+      
+      // HOJA 1: Detalle de Asistencia
+      const wsDetalle = workbook.addWorksheet('Detalle de Asistencia', {
+        pageSetup: {
+          paperSize: 9, // A4
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0
+        }
       });
 
-      // Hoja 2: Resumen Estadístico
+      // Configurar columnas
+      wsDetalle.columns = [
+        { header: 'N°', key: 'num', width: 5 },
+        { header: 'Identificación', key: 'identificacion', width: 16 },
+        { header: 'Apellidos', key: 'apellidos', width: 22 },
+        { header: 'Nombres', key: 'nombres', width: 22 },
+        { header: 'Estado', key: 'estado', width: 14 },
+        { header: 'Observaciones', key: 'observaciones', width: 40 }
+      ];
+
+      // Estilo de encabezado
+      wsDetalle.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 12,
+          name: 'Calibri'
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+        };
+      });
+      wsDetalle.getRow(1).height = 20;
+
+      // Agregar datos
+      estudiantes.forEach((est, index) => {
+        const registro = asistencias.get(est.id_estudiante);
+        const row = wsDetalle.addRow({
+          num: index + 1,
+          identificacion: est.cedula,
+          apellidos: est.apellido,
+          nombres: est.nombre,
+          estado: registro ? registro.estado.toUpperCase() : 'SIN REGISTRAR',
+          observaciones: registro?.observaciones || ''
+        });
+
+        // Aplicar estilos con filas alternadas
+        const isAltRow = (index + 1) % 2 === 0;
+        row.eachCell((cell, colNumber) => {
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+            bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+            left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+            right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+          };
+          
+          // Filas alternadas
+          if (isAltRow) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFF3F4F6' }
+            };
+          }
+          
+          // Colores de texto para la columna Estado (columna 5)
+          if (colNumber === 5) {
+            const estado = cell.value?.toString().toLowerCase();
+            if (estado === 'ausente') {
+              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFDC2626' } }; // Rojo
+            } else if (estado === 'tardanza') {
+              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFEA580C' } }; // Naranja
+            } else if (estado === 'justificado') {
+              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF2563EB' } }; // Azul
+            } else if (estado === 'presente') {
+              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF059669' } }; // Verde
+            } else {
+              cell.font = { size: 11, name: 'Calibri' };
+            }
+          } else {
+            cell.font = { size: 11, name: 'Calibri' };
+          }
+          
+          cell.alignment = { vertical: 'middle', wrapText: true };
+          
+          // Centrar N° y Estado
+          if (colNumber === 1 || colNumber === 5) {
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+          }
+        });
+      });
+
+      // Aplicar autofiltro
+      wsDetalle.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: estudiantes.length + 1, column: 6 }
+      };
+
+      // HOJA 2: Resumen
+      const wsResumen = workbook.addWorksheet('Resumen', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'portrait'
+        }
+      });
+
       const stats = contarEstados();
       const totalEstudiantes = estudiantes.length;
       const totalRegistrados = asistencias.size;
@@ -719,60 +823,107 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         ? ((stats.presentes / totalEstudiantes) * 100).toFixed(2)
         : '0.00';
 
+      wsResumen.columns = [
+        { header: 'INFORMACIÓN', key: 'info', width: 38 },
+        { header: 'VALOR', key: 'valor', width: 35 }
+      ];
+
+      // Estilo encabezado resumen
+      wsResumen.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 12,
+          name: 'Calibri'
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+        };
+      });
+
+      // Agregar datos de resumen
       const datosResumen = [
-        { 'INFORMACIÓN': 'Curso', 'VALOR': cursoActual?.nombre_curso || '' },
-        { 'INFORMACIÓN': 'Tipo de Curso', 'VALOR': cursoActual?.tipo_curso_nombre || '' },
-        { 'INFORMACIÓN': 'Horario', 'VALOR': cursoActual?.horario || '' },
-        { 'INFORMACIÓN': 'Fecha', 'VALOR': fechaSeleccionada },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'ESTADÍSTICAS', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Total Estudiantes', 'VALOR': totalEstudiantes.toString() },
-        { 'INFORMACIÓN': 'Total Registrados', 'VALOR': totalRegistrados.toString() },
-        { 'INFORMACIÓN': 'Sin Registrar', 'VALOR': sinRegistrar.toString() },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Presentes', 'VALOR': stats.presentes.toString() },
-        { 'INFORMACIÓN': 'Ausentes', 'VALOR': stats.ausentes.toString() },
-        { 'INFORMACIÓN': 'Tardanzas', 'VALOR': stats.tardanzas.toString() },
-        { 'INFORMACIÓN': 'Justificados', 'VALOR': stats.justificados.toString() },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Porcentaje de Asistencia', 'VALOR': `${porcentajeAsistencia}%` }
+        ['Curso', cursoActual?.nombre_curso || ''],
+        ['Tipo de Curso', cursoActual?.tipo_curso_nombre || ''],
+        ['Horario', cursoActual?.horario || ''],
+        ['Fecha', fechaSeleccionada],
+        ['', ''],
+        ['ESTADÍSTICAS DE ASISTENCIA', ''],
+        ['Total Estudiantes', totalEstudiantes.toString()],
+        ['Total Registrados', totalRegistrados.toString()],
+        ['Sin Registrar', sinRegistrar.toString()],
+        ['', ''],
+        ['Presentes', stats.presentes.toString()],
+        ['Ausentes', stats.ausentes.toString()],
+        ['Tardanzas', stats.tardanzas.toString()],
+        ['Justificados', stats.justificados.toString()],
+        ['', ''],
+        ['Porcentaje de Asistencia', `${porcentajeAsistencia}%`]
       ];
 
-      // Crear libro de Excel
-      const wb = XLSX.utils.book_new();
+      datosResumen.forEach(([info, valor], index) => {
+        const row = wsResumen.addRow({ info, valor });
+        
+        row.eachCell((cell, colNumber) => {
+          if (info === 'ESTADÍSTICAS DE ASISTENCIA' || info === 'Porcentaje de Asistencia') {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FF3B82F6' }
+            };
+            cell.font = {
+              color: { argb: 'FFFFFFFF' },
+              bold: true,
+              size: 12,
+              name: 'Calibri'
+            };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+              top: { style: 'medium', color: { argb: 'FF2563EB' } },
+              bottom: { style: 'medium', color: { argb: 'FF2563EB' } },
+              left: { style: 'medium', color: { argb: 'FF2563EB' } },
+              right: { style: 'medium', color: { argb: 'FF2563EB' } }
+            };
+          } else if (info !== '') {
+            cell.border = {
+              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+            };
+            cell.font = {
+              size: 11,
+              name: 'Calibri',
+              bold: colNumber === 1
+            };
+            if (colNumber === 2) {
+              cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+            }
+          }
+        });
+      });
 
-      // Agregar hoja de detalle
-      const wsDetalle = XLSX.utils.json_to_sheet(datosDetalle);
-
-      // Ajustar anchos de columnas para la hoja de detalle
-      wsDetalle['!cols'] = [
-        { wch: 5 },  // N°
-        { wch: 12 }, // Cédula
-        { wch: 20 }, // Apellidos
-        { wch: 20 }, // Nombres
-        { wch: 15 }, // Estado
-        { wch: 30 }  // Observaciones
-      ];
-
-      XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle de Asistencia');
-
-      // Agregar hoja de resumen
-      const wsResumen = XLSX.utils.json_to_sheet(datosResumen);
-
-      // Ajustar anchos de columnas para la hoja de resumen
-      wsResumen['!cols'] = [
-        { wch: 30 }, // INFORMACIÓN
-        { wch: 25 }  // VALOR
-      ];
-
-      XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
-
-      // Generar nombre del archivo
+      // Generar archivo
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const nombreCurso = cursoActual?.nombre_curso.replace(/\s+/g, '_') || 'Curso';
       const nombreArchivo = `Asistencia_${nombreCurso}_${fechaSeleccionada}.xlsx`;
-
-      // Descargar archivo
-      XLSX.writeFile(wb, nombreArchivo);
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nombreArchivo;
+      link.click();
+      window.URL.revokeObjectURL(url);
 
       showToast.success('¡Excel descargado correctamente!', darkMode);
     } catch (error) {
@@ -788,9 +939,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
 
     if (!fechaInicio || !fechaFin) {
-      // Cerrar modal primero
       setShowRangoFechasModal(false);
-      // Mostrar notificación después de un pequeño delay
       setTimeout(() => {
         showToast.error('Selecciona el rango de fechas', darkMode);
       }, 100);
@@ -798,9 +947,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
 
     if (new Date(fechaInicio) > new Date(fechaFin)) {
-      // Cerrar modal primero
       setShowRangoFechasModal(false);
-      // Mostrar notificación después de un pequeño delay
       setTimeout(() => {
         showToast.error('La fecha de inicio debe ser anterior a la fecha fin', darkMode);
       }, 100);
@@ -810,7 +957,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     try {
       const token = sessionStorage.getItem('auth_token');
 
-      // Obtener TODOS los registros de asistencia del rango
+      // Obtener registros de asistencia del rango
       const responseDetalle = await fetch(
         `${API_BASE}/api/asistencias/curso/${cursoSeleccionado}/rango?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
@@ -828,11 +975,36 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         return;
       }
 
-      // Crear libro de Excel
-      const wb = XLSX.utils.book_new();
+      // Crear workbook con ExcelJS
+      const workbook = new ExcelJS.Workbook();
 
-      // HOJA 1: Resumen por Estudiante
-      const resumenEstudiantes = estudiantes.map((est, index) => {
+      // ============ HOJA 1: Resumen por Estudiante ============
+      const wsResumen = workbook.addWorksheet('Resumen por Estudiante', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0
+        }
+      });
+
+      // Definir columnas
+      wsResumen.columns = [
+        { header: 'N°', key: 'num', width: 5 },
+        { header: 'Identificación', key: 'identificacion', width: 16 },
+        { header: 'Apellido', key: 'apellido', width: 22 },
+        { header: 'Nombre', key: 'nombre', width: 22 },
+        { header: 'Total Clases', key: 'totalClases', width: 12 },
+        { header: 'Presentes', key: 'presentes', width: 10 },
+        { header: 'Ausentes', key: 'ausentes', width: 10 },
+        { header: 'Tardanzas', key: 'tardanzas', width: 11 },
+        { header: 'Justificados', key: 'justificados', width: 13 },
+        { header: '% Asistencia', key: 'porcentaje', width: 13 }
+      ];
+
+      // Agregar datos
+      estudiantes.forEach((est, index) => {
         const registrosEst = registros.filter((r: any) => r.id_estudiante === est.id_estudiante);
         const totalClases = registrosEst.length;
         const presentes = registrosEst.filter((r: any) => r.estado === 'presente').length;
@@ -841,62 +1013,261 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         const justificados = registrosEst.filter((r: any) => r.estado === 'justificado').length;
         const porcentaje = totalClases > 0 ? ((presentes / totalClases) * 100).toFixed(2) : '0.00';
 
-        return {
-          'N°': index + 1,
-          'Cédula': est.cedula,
-          'Apellido': est.apellido,
-          'Nombre': est.nombre,
-          'Total Clases': totalClases,
-          'Presentes': presentes,
-          'Ausentes': ausentes,
-          'Tardanzas': tardanzas,
-          'Justificados': justificados,
-          '% Asistencia': `${porcentaje}%`
+        wsResumen.addRow({
+          num: index + 1,
+          identificacion: est.cedula,
+          apellido: est.apellido,
+          nombre: est.nombre,
+          totalClases,
+          presentes,
+          ausentes,
+          tardanzas,
+          justificados,
+          porcentaje: `${porcentaje}%`
+        });
+      });
+
+      // Estilos para encabezados
+      wsResumen.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 12,
+          name: 'Calibri'
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
         };
       });
 
-      const wsResumen = XLSX.utils.json_to_sheet(resumenEstudiantes);
-      wsResumen['!cols'] = [
-        { wch: 5 },   // N°
-        { wch: 12 },  // Cédula
-        { wch: 18 },  // Apellido
-        { wch: 18 },  // Nombre
-        { wch: 12 },  // Total Clases
-        { wch: 10 },  // Presentes
-        { wch: 10 },  // Ausentes
-        { wch: 10 },  // Tardanzas
-        { wch: 12 },  // Justificados
-        { wch: 12 }   // % Asistencia
-      ];
-      XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen por Estudiante');
+      // Estilos para filas de datos
+      wsResumen.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) {
+          const isAltRow = rowNumber % 2 === 0;
+          row.eachCell((cell, colNumber) => {
+            // Filas alternadas
+            if (isAltRow) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFF3F4F6' }
+              };
+            }
+            
+            cell.font = { size: 11, name: 'Calibri' };
+            cell.border = {
+              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+            };
 
-      // HOJA 2: Detalle Día por Día
-      const detalleCompleto = registros.map((r: any, index: number) => {
-        const estudiante = estudiantes.find(e => e.id_estudiante === r.id_estudiante);
-        return {
-          'N°': index + 1,
-          'Fecha': r.fecha,
-          'Cédula': estudiante?.cedula || '',
-          'Apellido': estudiante?.apellido || '',
-          'Nombre': estudiante?.nombre || '',
-          'Estado': r.estado.toUpperCase(),
-          'Observaciones': r.observaciones || ''
+            // Centrar columnas numéricas (N° y columnas 5-10)
+            if (colNumber === 1 || colNumber >= 5) {
+              cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            } else {
+              cell.alignment = { vertical: 'middle', wrapText: true };
+            }
+          });
+        }
+      });
+
+      // Auto-filtro
+      wsResumen.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: 1, column: 10 }
+      };
+
+      // ============ HOJA 2: Detalle Día por Día (Agrupado por Fecha) ============
+      const wsDetalle = workbook.addWorksheet('Detalle Día por Día', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0
+        }
+      });
+
+      wsDetalle.columns = [
+        { header: 'Clase/Fecha', key: 'clase', width: 15 },
+        { header: 'N°', key: 'num', width: 5 },
+        { header: 'Identificación', key: 'identificacion', width: 16 },
+        { header: 'Apellido', key: 'apellido', width: 22 },
+        { header: 'Nombre', key: 'nombre', width: 22 },
+        { header: 'Estado', key: 'estado', width: 13 },
+        { header: 'Observaciones', key: 'observaciones', width: 40 }
+      ];
+
+      // Agrupar registros por fecha
+      const registrosPorFecha = new Map<string, any[]>();
+      registros.forEach((r: any) => {
+        if (!registrosPorFecha.has(r.fecha)) {
+          registrosPorFecha.set(r.fecha, []);
+        }
+        registrosPorFecha.get(r.fecha)!.push(r);
+      });
+
+      // Ordenar fechas
+      const fechasOrdenadas = Array.from(registrosPorFecha.keys()).sort();
+
+      let numeroClase = 1;
+      let filaActual = 2; // Empezamos después del encabezado
+
+      fechasOrdenadas.forEach((fecha) => {
+        const registrosFecha = registrosPorFecha.get(fecha)!;
+        
+        // Formatear fecha
+        let fechaFormateada = fecha;
+        if (typeof fecha === 'string') {
+          const soloFecha = fecha.split('T')[0];
+          const partes = soloFecha.split('-');
+          fechaFormateada = `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+
+        const filaInicio = filaActual;
+
+        // Agregar cada estudiante de esta fecha
+        registrosFecha.forEach((r: any, index: number) => {
+          const estudiante = estudiantes.find(e => e.id_estudiante === r.id_estudiante);
+          
+          wsDetalle.addRow({
+            clase: filaActual === filaInicio ? `Clase ${numeroClase}\n${fechaFormateada}` : '',
+            num: index + 1,
+            identificacion: estudiante?.cedula || '',
+            apellido: estudiante?.apellido || '',
+            nombre: estudiante?.nombre || '',
+            estado: r.estado.toUpperCase(),
+            observaciones: r.observaciones || ''
+          });
+
+          filaActual++;
+        });
+
+        // Combinar celdas de la columna Clase/Fecha para este grupo
+        if (registrosFecha.length > 1) {
+          wsDetalle.mergeCells(filaInicio, 1, filaActual - 1, 1);
+        }
+
+        numeroClase++;
+      });
+
+      // Estilos para encabezados
+      wsDetalle.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 12,
+          name: 'Calibri'
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
         };
       });
 
-      const wsDetalle = XLSX.utils.json_to_sheet(detalleCompleto);
-      wsDetalle['!cols'] = [
-        { wch: 5 },   // N°
-        { wch: 12 },  // Fecha
-        { wch: 12 },  // Cédula
-        { wch: 18 },  // Apellido
-        { wch: 18 },  // Nombre
-        { wch: 12 },  // Estado
-        { wch: 30 }   // Observaciones
-      ];
-      XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle Día por Día');
+      // Estilos para filas de datos
+      wsDetalle.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) {
+          row.eachCell((cell, colNumber) => {
+            // Estilo para columna Clase/Fecha (columna 1)
+            if (colNumber === 1) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFDBEAFE' } // Morado claro
+              };
+              cell.font = {
+                size: 11,
+                name: 'Calibri',
+                bold: true,
+                color: { argb: 'FF1E40AF' }
+              };
+              cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            } else {
+              // Filas alternadas para las demás columnas
+              const isAltRow = rowNumber % 2 === 0;
+              if (isAltRow) {
+                cell.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: { argb: 'FFF3F4F6' }
+                };
+              }
+              
+              // Colores de texto para la columna Estado (columna 6)
+              if (colNumber === 6) {
+                const estado = cell.value?.toString().toLowerCase();
+                if (estado === 'ausente') {
+                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFDC2626' } };
+                } else if (estado === 'tardanza') {
+                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFEA580C' } };
+                } else if (estado === 'justificado') {
+                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF2563EB' } };
+                } else if (estado === 'presente') {
+                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF059669' } };
+                } else {
+                  cell.font = { size: 11, name: 'Calibri' };
+                }
+              } else {
+                cell.font = { size: 11, name: 'Calibri' };
+              }
+            }
+            
+            cell.border = {
+              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+            };
 
-      // HOJA 3: Estadísticas Generales
+            // Centrar columnas: Clase, N° y Estado
+            if (colNumber === 1 || colNumber === 2 || colNumber === 6) {
+              cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            } else {
+              cell.alignment = { vertical: 'middle', wrapText: true };
+            }
+          });
+        }
+      });
+
+      // Auto-filtro
+      wsDetalle.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: 1, column: 7 }
+      };
+
+      // ============ HOJA 3: Estadísticas Generales ============
+      const wsEstadisticas = workbook.addWorksheet('Estadísticas Generales', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'portrait'
+        }
+      });
+
+      wsEstadisticas.columns = [
+        { header: 'INFORMACIÓN', key: 'info', width: 38 },
+        { header: 'VALOR', key: 'valor', width: 35 }
+      ];
+
+      // Calcular estadísticas
       const totalClases = [...new Set(registros.map((r: any) => r.fecha))].length;
       const totalRegistros = registros.length;
       const totalPresentes = registros.filter((r: any) => r.estado === 'presente').length;
@@ -905,38 +1276,116 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const totalJustificados = registros.filter((r: any) => r.estado === 'justificado').length;
       const promedioAsistencia = totalRegistros > 0 ? ((totalPresentes / totalRegistros) * 100).toFixed(2) : '0.00';
 
-      const estadisticas = [
-        { 'INFORMACIÓN': 'Curso', 'VALOR': cursoActual?.nombre_curso || '' },
-        { 'INFORMACIÓN': 'Tipo de Curso', 'VALOR': cursoActual?.tipo_curso_nombre || '' },
-        { 'INFORMACIÓN': 'Horario', 'VALOR': cursoActual?.horario || '' },
-        { 'INFORMACIÓN': 'Periodo', 'VALOR': `${fechaInicio} al ${fechaFin}` },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'ESTADÍSTICAS GENERALES', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Total Estudiantes', 'VALOR': estudiantes.length.toString() },
-        { 'INFORMACIÓN': 'Total Clases Registradas', 'VALOR': totalClases.toString() },
-        { 'INFORMACIÓN': 'Total Registros', 'VALOR': totalRegistros.toString() },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Total Presentes', 'VALOR': totalPresentes.toString() },
-        { 'INFORMACIÓN': 'Total Ausentes', 'VALOR': totalAusentes.toString() },
-        { 'INFORMACIÓN': 'Total Tardanzas', 'VALOR': totalTardanzas.toString() },
-        { 'INFORMACIÓN': 'Total Justificados', 'VALOR': totalJustificados.toString() },
-        { 'INFORMACIÓN': '', 'VALOR': '' },
-        { 'INFORMACIÓN': 'Promedio General de Asistencia', 'VALOR': `${promedioAsistencia}%` }
+      // Agregar datos
+      const estadisticasData = [
+        { info: 'Curso', valor: cursoActual?.nombre_curso || '' },
+        { info: 'Tipo de Curso', valor: cursoActual?.tipo_curso_nombre || '' },
+        { info: 'Horario', valor: cursoActual?.horario || '' },
+        { info: 'Periodo', valor: `${fechaInicio} al ${fechaFin}` },
+        { info: '', valor: '' },
+        { info: 'ESTADÍSTICAS DE ASISTENCIA', valor: '' },
+        { info: 'Total Estudiantes', valor: estudiantes.length.toString() },
+        { info: 'Total Clases Registradas', valor: totalClases.toString() },
+        { info: 'Total Registros', valor: totalRegistros.toString() },
+        { info: '', valor: '' },
+        { info: 'Total Presentes', valor: totalPresentes.toString() },
+        { info: 'Total Ausentes', valor: totalAusentes.toString() },
+        { info: 'Total Tardanzas', valor: totalTardanzas.toString() },
+        { info: 'Total Justificados', valor: totalJustificados.toString() },
+        { info: '', valor: '' },
+        { info: 'Promedio General de Asistencia', valor: `${promedioAsistencia}%` }
       ];
 
-      const wsEstadisticas = XLSX.utils.json_to_sheet(estadisticas);
-      wsEstadisticas['!cols'] = [
-        { wch: 35 }, // INFORMACIÓN
-        { wch: 25 }  // VALOR
-      ];
-      XLSX.utils.book_append_sheet(wb, wsEstadisticas, 'Estadísticas Generales');
+      estadisticasData.forEach(data => {
+        wsEstadisticas.addRow(data);
+      });
 
-      // Generar nombre del archivo
+      // Estilos para encabezados
+      wsEstadisticas.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 12,
+          name: 'Calibri'
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
+          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+        };
+      });
+
+      // Estilos para datos
+      wsEstadisticas.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) {
+          row.eachCell((cell, colNumber) => {
+            const cellValue = cell.value?.toString() || '';
+
+            // Títulos especiales
+            if (cellValue === 'ESTADÍSTICAS DE ASISTENCIA' || cellValue === 'Promedio General de Asistencia') {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF3B82F6' }
+              };
+              cell.font = {
+                color: { argb: 'FFFFFFFF' },
+                bold: true,
+                size: 12,
+                name: 'Calibri'
+              };
+              cell.alignment = { horizontal: 'center', vertical: 'middle' };
+              cell.border = {
+                top: { style: 'medium', color: { argb: 'FF2563EB' } },
+                bottom: { style: 'medium', color: { argb: 'FF2563EB' } },
+                left: { style: 'medium', color: { argb: 'FF2563EB' } },
+                right: { style: 'medium', color: { argb: 'FF2563EB' } }
+              };
+            } else if (cellValue === '') {
+              // Filas vacías
+              cell.alignment = { vertical: 'middle' };
+            } else {
+              cell.font = {
+                size: 11,
+                name: 'Calibri',
+                bold: colNumber === 1
+              };
+              cell.border = {
+                top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+              };
+              
+              if (colNumber === 2) {
+                cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+              } else {
+                cell.alignment = { vertical: 'middle', wrapText: true };
+              }
+            }
+          });
+        }
+      });
+
+      // Generar archivo
       const nombreCurso = cursoActual?.nombre_curso.replace(/\s+/g, '_') || 'Curso';
       const nombreArchivo = `Reporte_Asistencia_${nombreCurso}_${fechaInicio}_a_${fechaFin}.xlsx`;
 
-      // Descargar archivo
-      XLSX.writeFile(wb, nombreArchivo);
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nombreArchivo;
+      link.click();
+      window.URL.revokeObjectURL(url);
 
       showToast.success('¡Reporte descargado correctamente!', darkMode);
       setShowRangoFechasModal(false);

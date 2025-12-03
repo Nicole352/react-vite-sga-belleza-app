@@ -14,7 +14,6 @@ import { useBreakpoints } from '../../hooks/useMediaQuery';
 
 // Importar los nuevos componentes
 import AdministradoresPanel from './AdministradoresPanel';
-import LogsPanel from './LogsPanel';
 import ConfiguracionPanel from './ConfiguracionPanel';
 import PanelDashboardSuperAdmin from './PanelDashboardSuperAdmin';
 import HistorialAuditoria from './HistorialAuditoria';
@@ -96,7 +95,6 @@ const PanelSuperAdmin: React.FC = () => {
     { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
     { id: 'administradores', name: 'Administradores', icon: Users },
     { id: 'auditoria', name: 'Historial de Auditoría', icon: Shield },
-    { id: 'logs', name: 'Logs del Sistema', icon: FileText },
     { id: 'config', name: 'Configuración', icon: Settings },
   ];
 
@@ -370,7 +368,6 @@ const PanelSuperAdmin: React.FC = () => {
             {activeTab === 'dashboard' && <PanelDashboardSuperAdmin />}
             {activeTab === 'administradores' && <AdministradoresPanel />}
             {activeTab === 'auditoria' && <HistorialAuditoria />}
-            {activeTab === 'logs' && <LogsPanel />}
             {activeTab === 'config' && <ConfiguracionPanel />}
           </AdminThemeWrapper>
         </div>
