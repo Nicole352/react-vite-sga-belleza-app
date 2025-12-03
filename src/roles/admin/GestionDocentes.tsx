@@ -411,9 +411,14 @@ const GestionDocentes = () => {
 
       const method = modalMode === 'edit' ? 'PUT' : 'POST';
 
+      const token = sessionStorage.getItem('auth_token');
+
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(docenteData)
       });
 

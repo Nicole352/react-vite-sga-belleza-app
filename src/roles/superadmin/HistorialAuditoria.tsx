@@ -1,233 +1,185 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Search, Filter, X, ChevronLeft, ChevronRight, Eye, Download, User, Database, Activity } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { createPortal } from 'react-dom';
+import {
+  Activity, Search, Filter, User, GraduationCap,
+  BookOpen, DollarSign, FileText, Users, Building, Package,
+  Clock, ChevronLeft, ChevronRight, X, Database, TrendingUp,
+  Tag, Send, FileCheck, Star, Bell, LogIn, ClipboardList
+} from 'lucide-react';
+import LoadingModal from '../../components/LoadingModal';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 
-// Tipos
 interface Auditoria {
   id_auditoria: number;
   tabla_afectada: string;
   operacion: 'INSERT' | 'UPDATE' | 'DELETE';
-  id_registro: number;
-  usuario_id: number;
-  datos_anteriores: any;
-  datos_nuevos: any;
-  ip_address: string;
-  user_agent: string;
+  descripcion: string;
+  detalles: string;
+  usuario: {
+    id: number;
+    nombre: string;
+    apellido: string;
+    username: string;
+    email: string;
+    cedula: string;
+    rol: string;
+  };
   fecha_operacion: string;
-  usuario_nombre: string;
-  usuario_apellido: string;
-  usuario_username: string;
+  ip_address: string | null;
+  user_agent: string | null;
 }
 
-interface Estadisticas {
+interface Stats {
   total: number;
-  actividadReciente: number;
-  porTabla: Array<{ tabla_afectada: string; cantidad: number }>;
-  porUsuario: Array<{ usuario_id: number; nombre: string; apellido: string; cantidad: number }>;
-  porOperacion: Array<{ operacion: string; cantidad: number }>;
+  hoy: number;
+  porTabla: { tabla: string; cantidad: number }[];
+  porUsuario: { usuario_id: number; nombre: string; apellido: string; cantidad: number }[];
 }
 
 const HistorialAuditoria: React.FC = () => {
-  // Estados
+  // ========== THEME - Sincronizado con PanelSuperAdmin ==========
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('superadmin-dark-mode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    const syncDarkMode = () => {
+      const saved = localStorage.getItem('superadmin-dark-mode');
+      const newMode = saved !== null ? JSON.parse(saved) : true;
+      setDarkMode(prev => (prev === newMode ? prev : newMode));
+    };
+    const interval = setInterval(syncDarkMode, 150);
+    window.addEventListener('storage', syncDarkMode);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', syncDarkMode);
+    };
+  }, []);
+
+  // Sistema de colores mejorado
+  const theme = {
+    pageBg: darkMode
+      ? 'linear-gradient(135deg, #0a0a0f 0%, #0f0f15 50%, #0a0a0f 100%)'
+      : 'linear-gradient(135deg, #f8f9fa 0%, #fff5f5 50%, #f8f9fa 100%)',
+    cardBg: darkMode ? 'rgba(20, 20, 28, 0.95)' : '#ffffff',
+    cardBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)',
+    cardShadow: darkMode 
+      ? '0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)'
+      : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    textPrimary: darkMode ? 'rgba(255, 255, 255, 0.95)' : '#111827',
+    textSecondary: darkMode ? 'rgba(255, 255, 255, 0.75)' : '#4b5563',
+    textMuted: darkMode ? 'rgba(255, 255, 255, 0.55)' : '#6b7280',
+    inputBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+    inputBorder: darkMode ? 'rgba(255, 255, 255, 0.15)' : '#d1d5db',
+    inputBorderHover: darkMode ? 'rgba(239, 68, 68, 0.4)' : '#ef4444',
+    recordBg: darkMode ? 'rgba(30, 30, 38, 0.8)' : '#f9fafb',
+    recordBgHover: darkMode ? 'rgba(40, 40, 48, 0.9)' : '#f3f4f6',
+    recordBorder: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e5e7eb',
+    recordBorderHover: darkMode ? 'rgba(239, 68, 68, 0.3)' : '#d1d5db',
+    iconBg: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+    modalBg: darkMode ? 'rgba(15, 15, 20, 0.98)' : '#ffffff',
+    modalOverlay: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.6)',
+    buttonSecondary: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6',
+    buttonSecondaryHover: darkMode ? 'rgba(255, 255, 255, 0.15)' : '#e5e7eb',
+    buttonSecondaryText: darkMode ? 'rgba(255, 255, 255, 0.9)' : '#374151',
+  };
+
+  const pick = (light: string, dark: string) => (darkMode ? dark : light);
+
+  // ========== ESTADOS ==========
   const [auditorias, setAuditorias] = useState<Auditoria[]>([]);
-  const [estadisticas, setEstadisticas] = useState<Estadisticas | null>(null);
-  const [tablasDisponibles, setTablasDisponibles] = useState<string[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
+    hoy: 0,
+    porTabla: [],
+    porUsuario: [],
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingText, setLoadingText] = useState('Cargando...');
 
   // Filtros
   const [filtros, setFiltros] = useState({
     busqueda: '',
     tabla: '',
     operacion: '',
+    rol: '',
     fecha_inicio: '',
     fecha_fin: '',
-    id_registro: '',
-    usuario_id: ''
+    usuario_id: '',
   });
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
-  const [total, setTotal] = useState(0);
-  const limite = 10;
+  const limite = 15;
 
   // Modal
   const [modalDetalle, setModalDetalle] = useState<Auditoria | null>(null);
-  const [showModal, setShowModal] = useState(false);
 
-  // Cargar datos iniciales
-  useEffect(() => {
-    cargarEstadisticas();
-    cargarTablasDisponibles();
-  }, []);
-
-  // Cargar auditorías cuando cambian filtros o página
+  // ========== EFFECTS ==========
   useEffect(() => {
     cargarAuditorias();
   }, [paginaActual, filtros]);
 
-  /**
-   * Cargar auditorías con filtros y paginación
-   */
+  // ========== FUNCIONES DE CARGA ==========
   const cargarAuditorias = async () => {
     setLoading(true);
-    setError(null);
+    setLoadingText('Cargando historial de auditoría...');
 
     try {
       const token = sessionStorage.getItem('auth_token');
       if (!token) {
-        setError('Sesión expirada. Por favor, inicie sesión nuevamente.');
-        return;
+        throw new Error('No hay sesión activa');
       }
 
-      // Construir query params
       const params = new URLSearchParams({
         pagina: paginaActual.toString(),
         limite: limite.toString(),
-        ...(filtros.busqueda && { busqueda: filtros.busqueda }),
-        ...(filtros.tabla && { tabla: filtros.tabla }),
-        ...(filtros.operacion && { operacion: filtros.operacion }),
-        ...(filtros.fecha_inicio && { fecha_inicio: filtros.fecha_inicio }),
-        ...(filtros.fecha_fin && { fecha_fin: filtros.fecha_fin }),
-        ...(filtros.id_registro && { id_registro: filtros.id_registro }),
-        ...(filtros.usuario_id && { usuario_id: filtros.usuario_id })
       });
 
-      const response = await fetch(`http://localhost:3000/api/auditoria?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      if (filtros.busqueda) params.append('busqueda', filtros.busqueda);
+      if (filtros.tabla) params.append('tabla', filtros.tabla);
+      if (filtros.operacion) params.append('operacion', filtros.operacion);
+      if (filtros.rol) params.append('rol', filtros.rol);
+      if (filtros.fecha_inicio) params.append('fecha_inicio', filtros.fecha_inicio);
+      if (filtros.fecha_fin) params.append('fecha_fin', filtros.fecha_fin);
+      if (filtros.usuario_id) params.append('usuario_id', filtros.usuario_id);
+
+      const response = await fetch(
+        `http://localhost:3000/api/auditoria/historial-completo?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Error al cargar auditorías');
+        throw new Error('Error al cargar el historial');
       }
 
       const data = await response.json();
 
       if (data.success) {
         setAuditorias(data.data.auditorias);
-        setTotal(data.data.total);
+        setStats({
+          total: data.data.total,
+          hoy: data.data.hoy || 0,
+          porTabla: data.data.porTabla || [],
+          porUsuario: data.data.porUsuario || [],
+        });
         setTotalPaginas(data.data.totalPaginas);
       }
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar auditorías');
-      console.error('Error:', err);
+    } catch (err: unknown) {
+      console.error('Error al cargar auditorías:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * Cargar estadísticas
-   */
-  const cargarEstadisticas = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      if (!token) return;
-
-      const response = await fetch('http://localhost:3000/api/auditoria/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setEstadisticas(data.data);
-        }
-      }
-    } catch (err) {
-      console.error('Error al cargar estadísticas:', err);
-    }
-  };
-
-  /**
-   * Cargar tablas disponibles
-   */
-  const cargarTablasDisponibles = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      if (!token) return;
-
-      const response = await fetch('http://localhost:3000/api/auditoria/tablas', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setTablasDisponibles(data.data);
-        }
-      }
-    } catch (err) {
-      console.error('Error al cargar tablas:', err);
-    }
-  };
-
-  /**
-   * Manejar cambio de filtros
-   */
-  const handleFiltroChange = (campo: string, valor: string) => {
-    setFiltros(prev => ({ ...prev, [campo]: valor }));
-    setPaginaActual(1); // Resetear a primera página
-  };
-
-  /**
-   * Limpiar filtros
-   */
-  const limpiarFiltros = () => {
-    setFiltros({
-      busqueda: '',
-      tabla: '',
-      operacion: '',
-      fecha_inicio: '',
-      fecha_fin: '',
-      id_registro: '',
-      usuario_id: ''
-    });
-    setPaginaActual(1);
-  };
-
-  /**
-   * Ver detalle de auditoría
-   */
-  const verDetalle = (auditoria: Auditoria) => {
-    setModalDetalle(auditoria);
-    setShowModal(true);
-  };
-
-  /**
-   * Exportar a Excel
-   */
-  const exportarExcel = () => {
-    const datosExcel = auditorias.map(a => ({
-      'ID': a.id_auditoria,
-      'Fecha/Hora': formatearFecha(a.fecha_operacion),
-      'Usuario': `${a.usuario_nombre} ${a.usuario_apellido}`,
-      'Username': a.usuario_username,
-      'Operación': a.operacion,
-      'Tabla': a.tabla_afectada,
-      'ID Registro': a.id_registro,
-      'IP': a.ip_address
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(datosExcel);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Auditoría');
-    XLSX.writeFile(wb, `auditoria_${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
-
-  /**
-   * Formatear fecha
-   */
+  // ========== FUNCIONES AUXILIARES ==========
   const formatearFecha = (fecha: string) => {
     return new Date(fecha).toLocaleString('es-EC', {
       year: 'numeric',
@@ -235,301 +187,498 @@ const HistorialAuditoria: React.FC = () => {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
     });
   };
 
-  /**
-   * Obtener color según operación
-   */
-  const getColorOperacion = (operacion: string) => {
-    switch (operacion) {
-      case 'INSERT':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'UPDATE':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'DELETE':
-        return 'bg-red-100 text-red-800 border-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
+  const getTablaIcon = (tabla: string) => {
+    const iconMap: Record<string, JSX.Element> = {
+      cursos: <BookOpen size={18} />,
+      tipos_cursos: <Package size={18} />,
+      matriculas: <GraduationCap size={18} />,
+      solicitudes_matricula: <ClipboardList size={18} />,
+      pagos_mensuales: <DollarSign size={18} />,
+      docentes: <Users size={18} />,
+      estudiantes: <Users size={18} />,
+      estudiante_curso: <GraduationCap size={18} />,
+      estudiante_promocion: <Tag size={18} />,
+      promociones: <Tag size={18} />,
+      aulas: <Building size={18} />,
+      asignaciones_aulas: <Clock size={18} />,
+      modulos_curso: <Package size={18} />,
+      usuarios: <User size={18} />,
+      asistencias: <FileCheck size={18} />,
+      calificaciones_tareas: <Star size={18} />,
+      entregas_tareas: <Send size={18} />,
+      tareas_modulo: <FileText size={18} />,
+      sesiones_usuario: <LogIn size={18} />,
+      notificaciones: <Bell size={18} />,
+      reportes_generados: <FileText size={18} />,
+      roles: <Users size={18} />,
+      configuracion_sistema: <Database size={18} />,
+    };
+    return iconMap[tabla] || <Database size={18} />;
   };
 
-  /**
-   * Renderizar diff de cambios
-   */
-  const renderDiff = () => {
-    if (!modalDetalle) return null;
+  const getOperacionBadge = (operacion: string) => {
+    const badges: Record<string, { bg: string; text: string; label: string }> = {
+      INSERT: { 
+        bg: darkMode ? 'rgba(34, 197, 94, 0.2)' : '#d1fae5', 
+        text: darkMode ? '#4ade80' : '#047857',
+        label: 'CREACIÓN'
+      },
+      UPDATE: { 
+        bg: darkMode ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe', 
+        text: darkMode ? '#60a5fa' : '#1d4ed8',
+        label: 'MODIFICACIÓN'
+      },
+      DELETE: { 
+        bg: darkMode ? 'rgba(239, 68, 68, 0.25)' : '#fee2e2', 
+        text: darkMode ? '#f87171' : '#b91c1c',
+        label: 'ELIMINACIÓN'
+      },
+    };
+    return badges[operacion] || { 
+      bg: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6', 
+      text: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#6b7280', 
+      label: operacion 
+    };
+  };
 
-    const anterior = modalDetalle.datos_anteriores ? JSON.parse(modalDetalle.datos_anteriores) : null;
-    const nuevo = modalDetalle.datos_nuevos ? JSON.parse(modalDetalle.datos_nuevos) : null;
+  const limpiarFiltros = () => {
+    setFiltros({
+      busqueda: '',
+      tabla: '',
+      operacion: '',
+      rol: '',
+      fecha_inicio: '',
+      fecha_fin: '',
+      usuario_id: '',
+    });
+    setPaginaActual(1);
+  };
 
-    if (!anterior && !nuevo) {
-      return <p className="text-gray-500">No hay datos de cambios disponibles</p>;
+  const renderDetalles = () => {
+    if (!modalDetalle || !modalDetalle.detalles) return null;
+
+    // Función para formatear nombres de campos
+    const formatearNombreCampo = (campo: string) => {
+      return campo
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    };
+
+    // Función para formatear valores
+    const formatearValor = (valor: any) => {
+      if (typeof valor === 'boolean') {
+        return valor ? 'Sí' : 'No';
+      }
+      if (typeof valor === 'number') {
+        // Si parece un monto (tiene decimales o es un campo de dinero)
+        if (valor % 1 !== 0 || String(valor).includes('.')) {
+          return `$${valor.toFixed(2)}`;
+        }
+        return valor.toString();
+      }
+      if (valor === null || valor === undefined) {
+        return 'N/A';
+      }
+      if (typeof valor === 'string') {
+        // Si es una fecha (formato ISO)
+        if (/^\d{4}-\d{2}-\d{2}/.test(valor)) {
+          try {
+            return new Date(valor).toLocaleDateString('es-EC', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          } catch {
+            // Si falla, capitalizar la primera letra
+            return valor.charAt(0).toUpperCase() + valor.slice(1);
+          }
+        }
+        // Capitalizar la primera letra de strings
+        if (valor.length > 0) {
+          return valor.charAt(0).toUpperCase() + valor.slice(1);
+        }
+        return valor;
+      }
+      return String(valor);
+    };
+
+    // Asegurar que detalles sea un objeto (si viene como string JSON)
+    let detallesObj = modalDetalle.detalles;
+    if (typeof detallesObj === 'string') {
+      try {
+        detallesObj = JSON.parse(detallesObj);
+      } catch (e) {
+        console.error('Error al parsear detalles:', e);
+        return <p style={{ color: '#fff' }}>{String(detallesObj)}</p>;
+      }
     }
 
-    return (
-      <div className="grid grid-cols-2 gap-4">
-        {/* Datos anteriores */}
-        <div>
-          <h4 className="font-semibold mb-2 text-red-600">Antes:</h4>
-          <div className="bg-red-50 p-3 rounded border border-red-200 max-h-96 overflow-auto">
-            <pre className="text-xs whitespace-pre-wrap">
-              {anterior ? JSON.stringify(anterior, null, 2) : 'N/A'}
-            </pre>
-          </div>
-        </div>
+    // Filtrar campos que no queremos mostrar
+    const camposIgnorados = ['id', 'id_curso', 'id_estudiante', 'id_docente', 'password', 'token'];
+    const detallesFiltrados = Object.entries(detallesObj).filter(([key, value]) => {
+      if (camposIgnorados.includes(key)) return false;
+      if (key.startsWith('id_')) return false; // Ignorar IDs foráneos
+      return true;
+    });
 
-        {/* Datos nuevos */}
-        <div>
-          <h4 className="font-semibold mb-2 text-green-600">Después:</h4>
-          <div className="bg-green-50 p-3 rounded border border-green-200 max-h-96 overflow-auto">
-            <pre className="text-xs whitespace-pre-wrap">
-              {nuevo ? JSON.stringify(nuevo, null, 2) : 'N/A'}
-            </pre>
-          </div>
+    if (detallesFiltrados.length === 0) return null;
+
+    return (
+      <div style={{ marginTop: '1.5rem' }}>
+        <h4 style={{
+          margin: '0 0 1rem 0',
+          fontSize: '1rem',
+          fontWeight: '600',
+          color: theme.textPrimary,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <FileText size={18} color="#ef4444" />
+          Información Detallada
+        </h4>
+        <div
+          style={{
+            backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : '#f9fafb',
+            border: `1px solid ${theme.recordBorder}`,
+            borderRadius: '10px',
+            overflow: 'hidden',
+          }}
+        >
+          {detallesFiltrados.map(([key, value], index) => (
+            <div
+              key={key}
+              style={{
+                padding: '0.875rem 1rem',
+                borderBottom: index < detallesFiltrados.length - 1
+                  ? `1px solid ${theme.recordBorder}`
+                  : 'none',
+                display: 'grid',
+                gridTemplateColumns: '1fr 2fr',
+                gap: '1rem',
+                alignItems: 'start',
+                transition: 'background-color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <p style={{
+                margin: 0,
+                fontSize: '0.8125rem',
+                fontWeight: '500',
+                color: theme.textMuted
+              }}>
+                {formatearNombreCampo(key)}
+              </p>
+              <p style={{
+                margin: 0,
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: theme.textPrimary,
+                wordBreak: 'break-word'
+              }}>
+                {formatearValor(value)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     );
   };
 
+  // ========== RENDER ==========
   return (
     <>
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
-        color: '#fff',
-      }}>
-        {/* Header */}
-        <div style={{ marginBottom: '1em' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1em' }}>
-            <div>
-              <h2 style={{
-                color: 'rgba(255,255,255,0.95)',
-                margin: '0 0 0.375rem 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.625rem',
-                fontSize: '1.625rem',
-                fontWeight: '700'
-              }}>
-                <FileText size={26} color="#ef4444" />
-                Historial de Auditoría
-              </h2>
-              <p style={{
-                color: 'rgba(255,255,255,0.7)',
-                margin: 0,
-                fontSize: '0.85rem',
-              }}>
-                Registro completo de operaciones del sistema
-              </p>
-            </div>
+      <LoadingModal isOpen={loading} message={loadingText} />
 
-            <button
-              onClick={exportarExcel}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5em',
-                padding: '0.75em 1.5em',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                border: 'none',
-                borderRadius: '0.625em',
-                color: '#fff',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 0.5rem 1rem rgba(16, 185, 129, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 0.25rem 0.75em rgba(16, 185, 129, 0.3)';
-              }}
-            >
-              <Download size={16} />
-              Exportar Excel
-            </button>
+      <div
+        style={{
+          minHeight: '100vh',
+          background: theme.pageBg,
+          padding: '2rem',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        {/* Header */}
+        <AdminSectionHeader
+          title="Historial de Auditoría"
+          subtitle="Seguimiento completo de todas las operaciones del sistema"
+        />
+
+        {/* Estadísticas */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          {/* Total de registros */}
+          <div
+            style={{
+              backgroundColor: theme.cardBg,
+              borderRadius: '10px',
+              padding: '1rem',
+              boxShadow: theme.cardShadow,
+              border: `1px solid ${theme.cardBorder}`,
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Activity size={20} color="#ef4444" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                  Total de Registros
+                </p>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                  {stats.total.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actividad hoy */}
+          <div
+            style={{
+              backgroundColor: theme.cardBg,
+              borderRadius: '10px',
+              padding: '1rem',
+              boxShadow: theme.cardShadow,
+              border: `1px solid ${theme.cardBorder}`,
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: darkMode ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <TrendingUp size={20} color="#22c55e" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                  Actividad Hoy
+                </p>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                  {stats.hoy.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tablas afectadas */}
+          <div
+            style={{
+              backgroundColor: theme.cardBg,
+              borderRadius: '10px',
+              padding: '1rem',
+              boxShadow: theme.cardShadow,
+              border: `1px solid ${theme.cardBorder}`,
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Database size={20} color="#3b82f6" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                  Tablas Afectadas
+                </p>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                  {stats.porTabla.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Usuarios activos */}
+          <div
+            style={{
+              backgroundColor: theme.cardBg,
+              borderRadius: '10px',
+              padding: '1rem',
+              boxShadow: theme.cardShadow,
+              border: `1px solid ${theme.cardBorder}`,
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: darkMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Users size={20} color="#a855f7" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                  Usuarios Activos
+                </p>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                  {stats.porUsuario.length}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Estadísticas */}
-        {estadisticas && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(15rem, 90vw), 1fr))',
-            gap: '0.875em',
-            marginBottom: '1.125em'
-          }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '0.0625rem solid rgba(255,255,255,0.08)',
-              borderRadius: '0.75em',
-              padding: '0.625em',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
-                <div style={{
-                  background: 'rgba(59, 130, 246, 0.12)',
-                  borderRadius: '0.375em',
-                  padding: '0.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Database size={14} color="#3b82f6" strokeWidth={2} />
-                </div>
-                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Total Registros</h3>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
-                {estadisticas.total.toLocaleString()}
-              </p>
-            </div>
-
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '0.0625rem solid rgba(255,255,255,0.08)',
-              borderRadius: '0.75em',
-              padding: '0.625em',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
-                <div style={{
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  borderRadius: '0.375em',
-                  padding: '0.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Activity size={14} color="#10b981" strokeWidth={2} />
-                </div>
-                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Últimas 24h</h3>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
-                {estadisticas.actividadReciente.toLocaleString()}
-              </p>
-            </div>
-
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '0.0625rem solid rgba(255,255,255,0.08)',
-              borderRadius: '0.75em',
-              padding: '0.625em',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
-                <div style={{
-                  background: 'rgba(168, 85, 247, 0.12)',
-                  borderRadius: '0.375em',
-                  padding: '0.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Database size={14} color="#a855f7" strokeWidth={2} />
-                </div>
-                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Tablas Auditadas</h3>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
-                {estadisticas.porTabla.length.toLocaleString()}
-              </p>
-            </div>
-
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '0.0625rem solid rgba(255,255,255,0.08)',
-              borderRadius: '0.75em',
-              padding: '0.625em',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
-                <div style={{
-                  background: 'rgba(245, 158, 11, 0.12)',
-                  borderRadius: '0.375em',
-                  padding: '0.3em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <User size={14} color="#f59e0b" strokeWidth={2} />
-                </div>
-                <h3 style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>Usuarios Activos</h3>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.98)', fontSize: '1.5rem', fontWeight: '700', margin: 0, lineHeight: '1', letterSpacing: '-0.02em' }}>
-                {estadisticas.porUsuario.length.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Filtros */}
-        <div style={{
-          background: 'rgba(255,255,255,0.05)',
-          backdropFilter: 'blur(1.25rem)',
-          border: '0.0625rem solid rgba(255,255,255,0.1)',
-          borderRadius: '0.875em',
-          padding: '1em',
-          marginBottom: '1em'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '1em' }}>
-            <Filter size={18} color="rgba(255,255,255,0.9)" />
-            <h2 style={{
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: '1rem',
-              fontWeight: '600',
-              margin: 0,
-            }}>Filtros</h2>
+        <div
+          style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: '10px',
+            padding: '1.25rem',
+            marginBottom: '1.5rem',
+            boxShadow: theme.cardShadow,
+            border: `1px solid ${theme.cardBorder}`,
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Filter size={18} color="#ef4444" />
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: theme.textPrimary }}>
+                Filtros de Búsqueda
+              </h3>
+            </div>
+            <button
+              onClick={limpiarFiltros}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: theme.buttonSecondary,
+                color: theme.buttonSecondaryText,
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme.buttonSecondary;
+              }}
+            >
+              <X size={14} />
+              Limpiar Filtros
+            </button>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(12.5rem, 100%), 1fr))',
-            gap: '0.75em'
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '0.875rem',
+            }}
+          >
             {/* Búsqueda */}
             <div>
-              <label style={{
-                display: 'block',
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.75rem',
-                fontWeight: '500',
-                marginBottom: '0.375em',
-              }}>
-                Búsqueda
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
+                Buscar
               </label>
               <div style={{ position: 'relative' }}>
-                <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
+                <Search
+                  size={16}
+                  style={{
+                    position: 'absolute',
+                    left: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: theme.textMuted,
+                    pointerEvents: 'none',
+                  }}
+                />
                 <input
                   type="text"
+                  placeholder="Buscar en descripción..."
                   value={filtros.busqueda}
-                  onChange={(e) => handleFiltroChange('busqueda', e.target.value)}
-                  placeholder="Usuario, tabla..."
+                  onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '0.625em 0.625em 0.625em 2.375em',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '0.0625rem solid rgba(255,255,255,0.2)',
-                    borderRadius: '0.625em',
-                    color: '#fff',
-                    fontSize: '0.875rem',
+                    padding: '0.5rem 0.625rem 0.5rem 2.25rem',
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    backgroundColor: theme.inputBg,
+                    color: theme.textPrimary,
+                    outline: 'none',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = theme.inputBorderHover;
+                    e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = theme.inputBorder;
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 />
               </div>
@@ -537,481 +686,928 @@ const HistorialAuditoria: React.FC = () => {
 
             {/* Tabla */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
                 Tabla
               </label>
               <select
                 value={filtros.tabla}
-                onChange={(e) => handleFiltroChange('tabla', e.target.value)}
+                onChange={(e) => setFiltros({ ...filtros, tabla: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
+                  padding: '0.5rem 0.625rem',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: theme.inputBg,
+                  color: theme.textPrimary,
+                  outline: 'none',
                   cursor: 'pointer',
-                                  }}
+                  transition: 'all 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorderHover;
+                  e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
-                {tablasDisponibles.map(tabla => (
-                  <option key={tabla} value={tabla} style={{ background: '#1a1a2e', color: '#fff' }}>{tabla}</option>
-                ))}
+                <option value="">Todas las tablas</option>
+                <optgroup label="Académico">
+                  <option value="cursos">Cursos</option>
+                  <option value="tipos_cursos">Tipos de Cursos</option>
+                  <option value="modulos_curso">Módulos</option>
+                  <option value="tareas_modulo">Tareas</option>
+                  <option value="calificaciones_tareas">Calificaciones</option>
+                  <option value="entregas_tareas">Entregas de Tareas</option>
+                  <option value="asistencias">Asistencias</option>
+                </optgroup>
+                <optgroup label="Matrícula y Pagos">
+                  <option value="solicitudes_matricula">Solicitudes de Matrícula</option>
+                  <option value="matriculas">Matrículas</option>
+                  <option value="pagos_mensuales">Pagos Mensuales</option>
+                  <option value="promociones">Promociones</option>
+                  <option value="estudiante_promocion">Estudiantes con Promoción</option>
+                </optgroup>
+                <optgroup label="Usuarios">
+                  <option value="usuarios">Usuarios</option>
+                  <option value="docentes">Docentes</option>
+                  <option value="estudiantes">Estudiantes</option>
+                  <option value="estudiante_curso">Inscripciones a Cursos</option>
+                  <option value="sesiones_usuario">Sesiones</option>
+                </optgroup>
+                <optgroup label="Infraestructura">
+                  <option value="aulas">Aulas</option>
+                  <option value="asignaciones_aulas">Asignaciones de Aulas</option>
+                </optgroup>
+                <optgroup label="Sistema">
+                  <option value="notificaciones">Notificaciones</option>
+                  <option value="reportes_generados">Reportes Generados</option>
+                  <option value="roles">Roles</option>
+                  <option value="configuracion_sistema">Configuración del Sistema</option>
+                </optgroup>
               </select>
             </div>
 
             {/* Operación */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
                 Operación
               </label>
               <select
                 value={filtros.operacion}
-                onChange={(e) => handleFiltroChange('operacion', e.target.value)}
+                onChange={(e) => setFiltros({ ...filtros, operacion: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
+                  padding: '0.5rem 0.625rem',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: theme.inputBg,
+                  color: theme.textPrimary,
+                  outline: 'none',
                   cursor: 'pointer',
-                                  }}
+                  transition: 'all 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorderHover;
+                  e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <option value="" style={{ background: '#1a1a2e', color: '#fff' }}>Todas</option>
-                <option value="INSERT" style={{ background: '#1a1a2e', color: '#fff' }}>INSERT</option>
-                <option value="UPDATE" style={{ background: '#1a1a2e', color: '#fff' }}>UPDATE</option>
-                <option value="DELETE" style={{ background: '#1a1a2e', color: '#fff' }}>DELETE</option>
+                <option value="">Todas las operaciones</option>
+                <option value="INSERT">Creaciones</option>
+                <option value="UPDATE">Modificaciones</option>
+                <option value="DELETE">Eliminaciones</option>
               </select>
             </div>
 
-            {/* ID Registro */}
+            {/* Rol */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
-                ID Registro
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
+                Rol
               </label>
-              <input
-                type="number"
-                value={filtros.id_registro}
-                onChange={(e) => handleFiltroChange('id_registro', e.target.value)}
-                placeholder="ID..."
+              <select
+                value={filtros.rol}
+                onChange={(e) => setFiltros({ ...filtros, rol: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                                  }}
-              />
+                  padding: '0.5rem 0.625rem',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: theme.inputBg,
+                  color: theme.textPrimary,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorderHover;
+                  e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <option value="">Todos los roles</option>
+                <option value="administrativo">Administrador</option>
+                <option value="docente">Docente</option>
+                <option value="estudiante">Estudiante</option>
+              </select>
             </div>
 
-            {/* Fecha Inicio */}
+            {/* Fecha inicio */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
                 Fecha Inicio
               </label>
               <input
                 type="date"
                 value={filtros.fecha_inicio}
-                onChange={(e) => handleFiltroChange('fecha_inicio', e.target.value)}
+                onChange={(e) => setFiltros({ ...filtros, fecha_inicio: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                                  }}
+                  padding: '0.5rem 0.625rem',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: theme.inputBg,
+                  color: theme.textPrimary,
+                  outline: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorderHover;
+                  e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
             </div>
 
-            {/* Fecha Fin */}
+            {/* Fecha fin */}
             <div>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '500', marginBottom: '0.375em', }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '0.375rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  color: theme.textSecondary,
+                }}
+              >
                 Fecha Fin
               </label>
               <input
                 type="date"
                 value={filtros.fecha_fin}
-                onChange={(e) => handleFiltroChange('fecha_fin', e.target.value)}
+                onChange={(e) => setFiltros({ ...filtros, fecha_fin: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.75em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                                  }}
-              />
-            </div>
-
-            {/* Botón limpiar */}
-            <div style={{ display: 'flex', alignItems: 'end' }}>
-              <button
-                onClick={limpiarFiltros}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5em',
-                  padding: '0.625em 1em',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '0.0625rem solid rgba(255,255,255,0.2)',
-                  borderRadius: '0.625em',
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
+                  padding: '0.5rem 0.625rem',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: theme.inputBg,
+                  color: theme.textPrimary,
+                  outline: 'none',
                   transition: 'all 0.2s ease',
-                                  }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorderHover;
+                  e.currentTarget.style.boxShadow = `0 0 0 3px ${darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'}`;
                 }}
-              >
-                <X size={14} />
-                Limpiar
-              </button>
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = theme.inputBorder;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Tabla de auditorías */}
-        <div style={{
-          background: 'rgba(255,255,255,0.05)',
-          backdropFilter: 'blur(1.25rem)',
-          border: '0.0625rem solid rgba(255,255,255,0.1)',
-          borderRadius: '0.875em',
-          overflow: 'hidden',
-          boxShadow: '0 0.5em 1.5em rgba(0, 0, 0, 0.3)'
-        }}>
-          {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3em' }}>
-              <div style={{
-                width: '3em',
-                height: '3em',
-                border: '0.1875em solid rgba(239, 68, 68, 0.2)',
-                borderTop: '0.1875em solid #ef4444',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
+        {/* Lista de Auditorías */}
+        <div
+          style={{
+            backgroundColor: theme.cardBg,
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: theme.cardShadow,
+            border: `1px solid ${theme.cardBorder}`,
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <FileText size={20} color="#ef4444" />
+              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: '600', color: theme.textPrimary }}>
+                Registros de Auditoría
+              </h3>
+              <span
+                style={{
+                  padding: '0.25rem 0.75rem',
+                  backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                }}
+              >
+                {auditorias.length} registros
+              </span>
             </div>
-          ) : error ? (
-            <div style={{ padding: '2em', textAlign: 'center', color: '#ef4444' }}>
-              <p>{error}</p>
-            </div>
-          ) : auditorias.length === 0 ? (
-            <div style={{ padding: '3em', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-              <FileText size={48} style={{ margin: '0 auto 1em', opacity: 0.5 }} />
-              <p style={{ }}>No se encontraron registros de auditoría</p>
+          </div>
+
+          {/* Lista de auditorías */}
+          {auditorias.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1rem',
+                color: theme.textMuted,
+              }}
+            >
+              <Database size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <p style={{ margin: 0, fontSize: '1rem' }}>No se encontraron registros de auditoría</p>
             </div>
           ) : (
-            <>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{
-                      background: 'rgba(248, 113, 113, 0.15)',
-                      borderBottom: '0.0625rem solid rgba(248, 113, 113, 0.3)'
-                    }}>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>ID</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Fecha/Hora</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Usuario</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Operación</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Tabla</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>ID Registro</th>
-                      <th style={{ padding: '0.75em', textAlign: 'left', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>IP</th>
-                      <th style={{ padding: '0.75em', textAlign: 'center', color: '#fff', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', }}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {auditorias.map((auditoria, index) => (
-                      <tr
-                        key={auditoria.id_auditoria}
-                        style={{
-                          borderBottom: '0.0625rem solid rgba(255,255,255,0.05)',
-                          background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
-                        }}
-                      >
-                        <td style={{ padding: '0.75em', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', fontWeight: '600' }}>
-                          {auditoria.id_auditoria}
-                        </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', }}>
-                          {formatearFecha(auditoria.fecha_operacion)}
-                        </td>
-                        <td style={{ padding: '0.75em' }}>
-                          <div>
-                            <p style={{ fontSize: '0.8rem', fontWeight: '600', color: 'rgba(255,255,255,0.95)', margin: '0 0 0.125em 0', }}>
-                              {auditoria.usuario_nombre} {auditoria.usuario_apellido}
-                            </p>
-                            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>
-                              @{auditoria.usuario_username}
-                            </p>
-                          </div>
-                        </td>
-                        <td style={{ padding: '0.75em' }}>
-                          <span style={{
-                            display: 'inline-flex',
-                            padding: '0.25em 0.625em',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            borderRadius: '0.5em',
-                            textTransform: 'uppercase',
-                            background: auditoria.operacion === 'INSERT' ? 'rgba(16, 185, 129, 0.15)' :
-                              auditoria.operacion === 'UPDATE' ? 'rgba(245, 158, 11, 0.15)' :
-                                'rgba(239, 68, 68, 0.15)',
-                            color: auditoria.operacion === 'INSERT' ? '#10b981' :
-                              auditoria.operacion === 'UPDATE' ? '#f59e0b' :
-                                '#ef4444',
-                            border: `0.0625rem solid ${auditoria.operacion === 'INSERT' ? 'rgba(16, 185, 129, 0.3)' :
-                              auditoria.operacion === 'UPDATE' ? 'rgba(245, 158, 11, 0.3)' :
-                                'rgba(239, 68, 68, 0.3)'}`,
-                                                      }}>
-                            {auditoria.operacion}
-                          </span>
-                        </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>
-                          {auditoria.tabla_afectada}
-                        </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
-                          #{auditoria.id_registro}
-                        </td>
-                        <td style={{ padding: '0.75em', fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)' }}>
-                          {auditoria.ip_address}
-                        </td>
-                        <td style={{ padding: '0.75em', textAlign: 'center' }}>
-                          <button
-                            onClick={() => verDetalle(auditoria)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {auditorias.map((auditoria) => {
+                return (
+                  <div
+                    key={auditoria.id_auditoria}
+                    style={{
+                      backgroundColor: theme.recordBg,
+                      border: `1px solid ${theme.recordBorder}`,
+                      borderRadius: '10px',
+                      padding: '1.25rem',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = theme.recordBgHover;
+                      e.currentTarget.style.borderColor = theme.recordBorderHover;
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = darkMode 
+                        ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
+                        : '0 4px 12px rgba(0, 0, 0, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = theme.recordBg;
+                      e.currentTarget.style.borderColor = theme.recordBorder;
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    onClick={() => setModalDetalle(auditoria)}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '1rem',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {/* Icono y descripción */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: '1' }}>
+                        <div
+                          style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '10px',
+                            backgroundColor: theme.iconBg,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#ef4444',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {getTablaIcon(auditoria.tabla_afectada)}
+                        </div>
+                        <div style={{ flex: '1', minWidth: 0 }}>
+                          <p
                             style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.375em',
-                              padding: '0.5em 0.875em',
-                              background: 'rgba(59, 130, 246, 0.1)',
-                              border: '0.0625rem solid rgba(59, 130, 246, 0.3)',
-                              borderRadius: '0.5em',
-                              color: '#3b82f6',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                                                          }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
-                              e.currentTarget.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                              e.currentTarget.style.transform = 'scale(1)';
+                              margin: 0,
+                              fontSize: '0.95rem',
+                              fontWeight: '500',
+                              color: theme.textPrimary,
+                              lineHeight: '1.4',
                             }}
                           >
-                            <Eye size={14} />
-                            Ver
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            {auditoria.descripcion}
+                          </p>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.75rem',
+                              marginTop: '0.5rem',
+                              flexWrap: 'wrap',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: '0.75rem',
+                                color: theme.textMuted,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <User size={12} />
+                              {auditoria.usuario.nombre} {auditoria.usuario.apellido}
+                            </span>
+                            {(() => {
+                              const badge = getOperacionBadge(auditoria.operacion);
+                              return (
+                                <span
+                                  style={{
+                                    padding: '0.125rem 0.5rem',
+                                    backgroundColor: badge.bg,
+                                    color: badge.text,
+                                    borderRadius: '4px',
+                                    fontSize: '0.65rem',
+                                    fontWeight: '600',
+                                  }}
+                                >
+                                  {badge.label}
+                                </span>
+                              );
+                            })()}
+                            <span
+                              style={{
+                                padding: '0.125rem 0.5rem',
+                                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6',
+                                color: theme.textMuted,
+                                borderRadius: '6px',
+                                fontSize: '0.7rem',
+                                fontWeight: '500',
+                              }}
+                            >
+                              {auditoria.usuario.rol}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Paginación */}
-              <div style={{
-                background: 'rgba(255,255,255,0.03)',
-                padding: '1em 1.5em',
+                      {/* Fecha e IP */}
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: '0.8rem',
+                            color: theme.textSecondary,
+                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            justifyContent: 'flex-end',
+                          }}
+                        >
+                          <Clock size={12} />
+                          {formatearFecha(auditoria.fecha_operacion)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Paginación */}
+          {(totalPaginas > 1 || stats.total > 0) && (
+            <div
+              style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                borderTop: '0.0625rem solid rgba(255,255,255,0.08)',
+                gap: '1rem',
+                marginTop: '2rem',
+                padding: '1rem',
+                backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.02)',
+                borderRadius: '8px',
                 flexWrap: 'wrap',
-                gap: '1em'
-              }}>
-                <div style={{
-                  fontSize: '0.8rem',
-                  color: 'rgba(255,255,255,0.7)',
-                                  }}>
-                  Mostrando {((paginaActual - 1) * limite) + 1} - {Math.min(paginaActual * limite, total)} de {total} registros
-                </div>
+              }}
+            >
+              {/* Información a la izquierda */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span style={{ color: theme.textSecondary, fontSize: '0.8125rem' }}>
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+                <span style={{ color: theme.textMuted, fontSize: '0.8125rem' }}>
+                  • Total: {stats.total} registros
+                </span>
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+              {/* Controles de paginación a la derecha */}
+              {totalPaginas > 1 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {/* Botón Anterior */}
                   <button
-                    onClick={() => setPaginaActual(prev => Math.max(1, prev - 1))}
+                    onClick={() => setPaginaActual(Math.max(1, paginaActual - 1))}
                     disabled={paginaActual === 1}
                     style={{
-                      padding: '0.5em',
-                      background: paginaActual === 1 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                      border: '0.0625rem solid rgba(255,255,255,0.2)',
-                      borderRadius: '0.5em',
-                      color: paginaActual === 1 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.9)',
+                      padding: '0.5rem 0.875rem',
+                      backgroundColor: paginaActual === 1 ? theme.buttonSecondary : theme.buttonSecondary,
+                      color: paginaActual === 1 ? theme.textMuted : theme.buttonSecondaryText,
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
+                      fontWeight: '500',
                       cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      gap: '0.375rem',
+                      opacity: paginaActual === 1 ? 0.5 : 1,
                       transition: 'all 0.2s ease',
-                      opacity: paginaActual === 1 ? 0.5 : 1
                     }}
                     onMouseEnter={(e) => {
                       if (paginaActual !== 1) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                        e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (paginaActual !== 1) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                        e.currentTarget.style.backgroundColor = theme.buttonSecondary;
                       }
                     }}
                   >
-                    <ChevronLeft size={18} />
+                    <ChevronLeft size={14} />
+                    Anterior
                   </button>
 
-                  <span style={{
-                    padding: '0.5em 1em',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    color: 'rgba(255,255,255,0.9)',
-                                      }}>
-                    Página {paginaActual} de {totalPaginas}
-                  </span>
+                  {/* Botones de números de página */}
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => {
+                    const isActive = num === paginaActual;
+                    return (
+                      <button
+                        key={num}
+                        onClick={() => setPaginaActual(num)}
+                        style={{
+                          minWidth: '36px',
+                          height: '36px',
+                          padding: '0 0.5rem',
+                          backgroundColor: isActive ? '#dc2626' : theme.buttonSecondary,
+                          color: isActive ? '#ffffff' : theme.buttonSecondaryText,
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '0.8125rem',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
+                          } else {
+                            e.currentTarget.style.backgroundColor = '#ef4444';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.backgroundColor = theme.buttonSecondary;
+                          } else {
+                            e.currentTarget.style.backgroundColor = '#dc2626';
+                          }
+                        }}
+                      >
+                        {num}
+                      </button>
+                    );
+                  })}
 
+                  {/* Botón Siguiente */}
                   <button
-                    onClick={() => setPaginaActual(prev => Math.min(totalPaginas, prev + 1))}
+                    onClick={() => setPaginaActual(Math.min(totalPaginas, paginaActual + 1))}
                     disabled={paginaActual === totalPaginas}
                     style={{
-                      padding: '0.5em',
-                      background: paginaActual === totalPaginas ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                      border: '0.0625rem solid rgba(255,255,255,0.2)',
-                      borderRadius: '0.5em',
-                      color: paginaActual === totalPaginas ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.9)',
+                      padding: '0.5rem 0.875rem',
+                      backgroundColor: paginaActual === totalPaginas ? theme.buttonSecondary : theme.buttonSecondary,
+                      color: paginaActual === totalPaginas ? theme.textMuted : theme.buttonSecondaryText,
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
+                      fontWeight: '500',
                       cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      gap: '0.375rem',
+                      opacity: paginaActual === totalPaginas ? 0.5 : 1,
                       transition: 'all 0.2s ease',
-                      opacity: paginaActual === totalPaginas ? 0.5 : 1
                     }}
                     onMouseEnter={(e) => {
                       if (paginaActual !== totalPaginas) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                        e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (paginaActual !== totalPaginas) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                        e.currentTarget.style.backgroundColor = theme.buttonSecondary;
                       }
                     }}
                   >
-                    <ChevronRight size={18} />
+                    Siguiente
+                    <ChevronRight size={14} />
                   </button>
                 </div>
-              </div>
-            </>
+              )}
+            </div>
           )}
         </div>
+      </div>
 
-        {/* Modal de detalle */}
-        {showModal && modalDetalle && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+      {/* Modal de Detalle */}
+      {modalDetalle &&
+        createPortal(
+          <div
+            onClick={() => setModalDetalle(null)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: theme.modalOverlay,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '1rem',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: theme.modalBg,
+                borderRadius: '12px',
+                width: '90%',
+                maxWidth: '600px',
+                maxHeight: '85vh',
+                overflow: 'auto',
+                boxShadow: darkMode 
+                  ? '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
+                  : '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
+                border: `1px solid ${theme.cardBorder}`,
+                backdropFilter: 'blur(10px)',
+              }}
+            >
               {/* Header del modal */}
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-6 h-6" />
-                  <h3 className="text-xl font-bold">Detalle de Auditoría #{modalDetalle.id_auditoria}</h3>
+              <div
+                style={{
+                  padding: '1.25rem',
+                  borderBottom: `1px solid ${theme.recordBorder}`,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : '#f9fafb',
+                  borderTopLeftRadius: '12px',
+                  borderTopRightRadius: '12px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ef4444',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {getTablaIcon(modalDetalle.tabla_afectada)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, marginBottom: '0.375rem' }}>
+                      Detalle de Auditoría
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: theme.textSecondary, lineHeight: 1.4 }}>
+                      {modalDetalle.descripcion}
+                    </p>
+                  </div>
                 </div>
                 <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-purple-500 rounded-lg transition-colors"
+                  onClick={() => setModalDetalle(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: theme.textMuted,
+                    padding: '0.375rem',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s ease',
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+                    e.currentTarget.style.color = theme.textPrimary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = theme.textMuted;
+                  }}
                 >
-                  <X className="w-5 h-5" />
+                  <X size={20} />
                 </button>
               </div>
 
               {/* Contenido del modal */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div style={{ padding: '1.25rem' }}>
                 {/* Información general */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Operación</p>
-                    <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getColorOperacion(modalDetalle.operacion)}`}>
-                      {modalDetalle.operacion}
-                    </span>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Tabla</p>
-                    <p className="font-semibold text-gray-900 font-mono">{modalDetalle.tabla_afectada}</p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">ID Registro</p>
-                    <p className="font-semibold text-gray-900">#{modalDetalle.id_registro}</p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">Fecha/Hora</p>
-                    <p className="font-semibold text-gray-900 text-sm">{formatearFecha(modalDetalle.fecha_operacion)}</p>
-                  </div>
-                </div>
-
-                {/* Usuario e IP */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="w-5 h-5 text-blue-600" />
-                      <p className="text-sm font-semibold text-blue-900">Usuario</p>
-                    </div>
-                    <p className="font-medium text-gray-900">
-                      {modalDetalle.usuario_nombre} {modalDetalle.usuario_apellido}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem',
+                    marginBottom: '1.5rem',
+                    padding: '1rem',
+                    backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : '#f9fafb',
+                    borderRadius: '10px',
+                    border: `1px solid ${theme.recordBorder}`,
+                  }}
+                >
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: '600', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.375rem' }}>
+                      Usuario
                     </p>
-                    <p className="text-sm text-gray-600">@{modalDetalle.usuario_username}</p>
-                    <p className="text-xs text-gray-500 mt-1">ID: {modalDetalle.usuario_id}</p>
-                  </div>
-
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Activity className="w-5 h-5 text-purple-600" />
-                      <p className="text-sm font-semibold text-purple-900">Conexión</p>
-                    </div>
-                    <p className="font-mono text-sm text-gray-900">{modalDetalle.ip_address}</p>
-                    <p className="text-xs text-gray-600 mt-2 truncate" title={modalDetalle.user_agent}>
-                      {modalDetalle.user_agent}
+                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, lineHeight: 1.3 }}>
+                      {modalDetalle.usuario.nombre.toUpperCase()} {modalDetalle.usuario.apellido.toUpperCase()}
+                    </p>
+                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: theme.textMuted }}>
+                      {modalDetalle.usuario.email}
                     </p>
                   </div>
+
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: '600', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.375rem' }}>
+                      Rol
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary }}>
+                      {modalDetalle.usuario.rol.charAt(0).toUpperCase() + modalDetalle.usuario.rol.slice(1).toLowerCase()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: '600', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.375rem' }}>
+                      Tipo de Acción
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary }}>
+                      {modalDetalle.operacion === 'INSERT' ? 'Creación' : modalDetalle.operacion === 'UPDATE' ? 'Modificación' : 'Eliminación'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: '600', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.375rem' }}>
+                      Fecha y Hora
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary }}>
+                      {formatearFecha(modalDetalle.fecha_operacion)}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Diff de cambios */}
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Cambios Realizados</h4>
-                  {renderDiff()}
-                </div>
+                {/* Detalles formateados */}
+                {modalDetalle.detalles && (() => {
+                  // Función para formatear nombres de campos
+                  const formatearNombreCampo = (campo: string) => {
+                    return campo
+                      .replace(/_/g, ' ')
+                      .split(' ')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ');
+                  };
+
+                  // Función para formatear valores
+                  const formatearValor = (valor: any) => {
+                    if (typeof valor === 'boolean') {
+                      return valor ? 'Sí' : 'No';
+                    }
+                    if (typeof valor === 'number') {
+                      // Si parece un monto (tiene decimales o es un campo de dinero)
+                      if (valor % 1 !== 0 || String(valor).includes('.')) {
+                        return `$${valor.toFixed(2)}`;
+                      }
+                      return valor.toString();
+                    }
+                    if (valor === null || valor === undefined) {
+                      return 'N/A';
+                    }
+                    // Si es una fecha (formato ISO)
+                    if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}/.test(valor)) {
+                      try {
+                        return new Date(valor).toLocaleDateString('es-EC', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        });
+                      } catch {
+                        return valor;
+                      }
+                    }
+                    // Capitalizar primera letra de strings
+                    if (typeof valor === 'string') {
+                      const str = String(valor).trim();
+                      if (str.length === 0) return 'N/A';
+                      // Capitalizar primera letra y mantener el resto
+                      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+                    }
+                    return String(valor);
+                  };
+
+                  // Asegurar que detalles sea un objeto (si viene como string JSON)
+                  let detallesObj = modalDetalle.detalles;
+                  if (typeof detallesObj === 'string') {
+                    try {
+                      detallesObj = JSON.parse(detallesObj);
+                    } catch (e) {
+                      console.error('Error al parsear detalles:', e);
+                      // Si falla el parseo, mostrar como texto plano o manejar error
+                      return <p style={{ color: '#fff' }}>{String(detallesObj)}</p>;
+                    }
+                  }
+
+                  // Filtrar campos que no queremos mostrar
+                  const camposIgnorados = ['id', 'id_curso', 'id_estudiante', 'id_docente', 'password', 'token'];
+                  const detallesFiltrados = Object.entries(detallesObj).filter(([key, value]) => {
+                    if (camposIgnorados.includes(key)) return false;
+                    if (key.startsWith('id_')) return false; // Ignorar IDs foráneos
+                    return true;
+                  });
+
+                  if (detallesFiltrados.length === 0) return null;
+
+                  return (
+                    <div>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '1rem',
+                        paddingBottom: '0.75rem',
+                        borderBottom: `1px solid ${theme.recordBorder}`,
+                      }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
+                            backgroundColor: theme.iconBg,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#ef4444',
+                          }}
+                        >
+                          <FileText size={16} color="#ef4444" />
+                        </div>
+                        <h4 style={{
+                          margin: 0,
+                          fontSize: '0.9375rem',
+                          fontWeight: '600',
+                          color: theme.textPrimary,
+                        }}>
+                          Información Detallada
+                        </h4>
+                      </div>
+                      <div
+                        style={{
+                          backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : '#ffffff',
+                          border: `1px solid ${theme.recordBorder}`,
+                          borderRadius: '10px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {detallesFiltrados.map(([key, value], index) => {
+                          // Detectar si el campo es un nombre de usuario
+                          const isNombreUsuario = key.toLowerCase().includes('nombre') || 
+                                                   key.toLowerCase().includes('usuario') ||
+                                                   key.toLowerCase().includes('solicitante') ||
+                                                   key.toLowerCase().includes('estudiante') ||
+                                                   key.toLowerCase().includes('docente') ||
+                                                   key.toLowerCase().includes('creado') ||
+                                                   key.toLowerCase().includes('eliminado');
+                          
+                          return (
+                            <div
+                              key={key}
+                              style={{
+                                padding: '0.75rem 1rem',
+                                borderBottom: index < detallesFiltrados.length - 1
+                                  ? `1px solid ${theme.recordBorder}`
+                                  : 'none',
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1.5fr',
+                                gap: '1rem',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f9fafb';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
+                            >
+                              <p style={{
+                                margin: 0,
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                color: theme.textMuted,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.3px',
+                              }}>
+                                {formatearNombreCampo(key)}
+                              </p>
+                              <p style={{
+                                margin: 0,
+                                fontSize: '0.8125rem',
+                                fontWeight: '500',
+                                color: theme.textPrimary,
+                                wordBreak: 'break-word',
+                                lineHeight: 1.4,
+                                textTransform: isNombreUsuario ? 'uppercase' : 'none',
+                              }}>
+                                {isNombreUsuario && typeof value === 'string' 
+                                  ? value.toUpperCase() 
+                                  : formatearValor(value)}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
-      </div>
-
-      <style>{`
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `}</style>
     </>
   );
 };

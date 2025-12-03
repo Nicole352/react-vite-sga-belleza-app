@@ -325,6 +325,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   const [busquedaCursos, setBusquedaCursos] = useState('');
   const [paginaActualEstudiantes, setPaginaActualEstudiantes] = useState(1);
   const ITEMS_POR_PAGINA_ESTUDIANTES = 12;
+  const [paginaActualHistorial, setPaginaActualHistorial] = useState(1);
+  const ITEMS_POR_PAGINA_HISTORIAL = 5;
 
   const reportesDisponibles = [
     {
@@ -549,6 +551,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       cargarHistorial();
     }
   }, [vistaActual]);
+
+  // Resetear página del historial cuando cambia el filtro
+  useEffect(() => {
+    setPaginaActualHistorial(1);
+  }, [filtroTipoHistorial]);
 
   // Filtrar cursos según el período seleccionado
   // Filtrar cursos según el período seleccionado
@@ -2844,10 +2851,22 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>No hay reportes generados aún</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {historialReportes
-                    .filter(r => filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial))
-                    .map((reporte, idx) => {
+                (() => {
+                  // Filtrar reportes
+                  const reportesFiltrados = historialReportes.filter(r =>
+                    filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial)
+                  );
+
+                  // Calcular paginación
+                  const totalPaginasHistorial = Math.ceil(reportesFiltrados.length / ITEMS_POR_PAGINA_HISTORIAL);
+                  const indiceInicioHistorial = (paginaActualHistorial - 1) * ITEMS_POR_PAGINA_HISTORIAL;
+                  const indiceFinHistorial = indiceInicioHistorial + ITEMS_POR_PAGINA_HISTORIAL;
+                  const reportesPaginados = reportesFiltrados.slice(indiceInicioHistorial, indiceFinHistorial);
+
+                  return (
+                    <>
+                      <div style={{ display: 'grid', gap: '0.75rem' }}>
+                        {reportesPaginados.map((reporte, idx) => {
                       const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
                       const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
 
@@ -3023,7 +3042,80 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         </div>
                       );
                     })}
-                </div>
+                  </div>
+
+                  {/* Controles de Paginación */}
+                  {(() => {
+                    const reportesFiltrados = historialReportes.filter(r =>
+                      filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial)
+                    );
+                    const totalPaginasHistorial = Math.ceil(reportesFiltrados.length / ITEMS_POR_PAGINA_HISTORIAL);
+
+                    return totalPaginasHistorial > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginTop: '1.5rem',
+                        paddingTop: '1rem',
+                        borderTop: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
+                      }}>
+                        <button
+                          onClick={() => setPaginaActualHistorial(prev => Math.max(1, prev - 1))}
+                          disabled={paginaActualHistorial === 1}
+                          style={{
+                            padding: '0.5rem 0.75rem',
+                            background: paginaActualHistorial === 1
+                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                            border: `1px solid ${paginaActualHistorial === 1 ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
+                            borderRadius: '0.5rem',
+                            color: paginaActualHistorial === 1 ? themeColors.textMuted : '#ef4444',
+                            cursor: paginaActualHistorial === 1 ? 'not-allowed' : 'pointer',
+                            fontSize: '0.85rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Anterior
+                        </button>
+
+                        <span style={{
+                          padding: '0.5rem 1rem',
+                          background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '0.5rem',
+                          color: themeColors.textPrimary,
+                          fontSize: '0.85rem',
+                          fontWeight: '600'
+                        }}>
+                          Página {paginaActualHistorial} de {totalPaginasHistorial}
+                        </span>
+
+                        <button
+                          onClick={() => setPaginaActualHistorial(prev => Math.min(totalPaginasHistorial, prev + 1))}
+                          disabled={paginaActualHistorial === totalPaginasHistorial}
+                          style={{
+                            padding: '0.5rem 0.75rem',
+                            background: paginaActualHistorial === totalPaginasHistorial
+                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                            border: `1px solid ${paginaActualHistorial === totalPaginasHistorial ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
+                            borderRadius: '0.5rem',
+                            color: paginaActualHistorial === totalPaginasHistorial ? themeColors.textMuted : '#ef4444',
+                            cursor: paginaActualHistorial === totalPaginasHistorial ? 'not-allowed' : 'pointer',
+                            fontSize: '0.85rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Siguiente
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </>
+              );
+            })()
               )}
             </div>
           )}
