@@ -381,9 +381,8 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
     try {
       setDownloadingExcel(true);
 
-      // Dynamically import xlsx
-      const XLSX = await import("xlsx");
-
+      const ExcelJS = await import("exceljs");
+      const { saveAs } = await import("file-saver");
       // Hoja 1: Detalle de calificaciones por tarea
       const datosDetalle = estudiantes.map((est) => {
         const fila: any = {
@@ -515,45 +514,61 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       ];
 
       // Crear libro de Excel
-      const wb = XLSX.utils.book_new();
+      const workbook = new ExcelJS.Workbook();
 
-      // Agregar hoja de detalle de tareas
-      const wsDetalle = XLSX.utils.json_to_sheet(datosDetalle);
-      XLSX.utils.book_append_sheet(wb, wsDetalle, "Calificaciones por Tarea");
-
-      // Agregar hoja de promedios por módulo (SIEMPRE se crea)
-      console.log("Intentando crear hoja de módulos...");
-      console.log("   - datosModulos.length:", datosModulos.length);
-      console.log("   - modulos.length:", modulos.length);
-
-      if (datosModulos.length > 0) {
-        console.log("Creando hoja 'Promedios por Módulo'");
-        const wsModulos = XLSX.utils.json_to_sheet(datosModulos);
-        XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
-      } else {
-        console.warn("Creando hoja de módulos vacía (sin datos)");
-        // Crear hoja vacía con encabezados
-        const datosVacios = [
-          {
-            Apellido: "-",
-            Nombre: "-",
-            "PROMEDIO GLOBAL (/10pts)": "0.00",
-          },
-        ];
-        const wsModulos = XLSX.utils.json_to_sheet(datosVacios);
-        XLSX.utils.book_append_sheet(wb, wsModulos, "Promedios por Módulo");
+      // HOJA 1: Detalle de calificaciones por tarea
+      const wsDetalle = workbook.addWorksheet("Calificaciones por Tarea");
+      if (datosDetalle.length > 0) {
+        wsDetalle.addRow(Object.keys(datosDetalle[0]));
+        datosDetalle.forEach((fila) => {
+          wsDetalle.addRow(Object.values(fila));
+        });
       }
 
-      // Agregar hoja de estadísticas
-      const wsEstadisticas = XLSX.utils.json_to_sheet(datosEstadisticas);
-      XLSX.utils.book_append_sheet(wb, wsEstadisticas, "Estadísticas");
+      // HOJA 2: Promedios por Módulo
+      const wsModulos = workbook.addWorksheet("Promedios por Módulo");
+      if (datosModulos.length > 0) {
+        wsModulos.addRow(Object.keys(datosModulos[0]));
+        datosModulos.forEach((fila) => {
+          wsModulos.addRow(Object.values(fila));
+        });
+      } else {
+        wsModulos.addRow(["Apellido", "Nombre", "PROMEDIO GLOBAL (/10pts)"]);
+        wsModulos.addRow(["-", "-", "0.00"]);
+      }
 
-      // Generar nombre del archivo
+      // HOJA 3: Estadísticas
+      const wsEstadisticas = workbook.addWorksheet("Estadísticas");
+      const estadisticasArray = [
+        ["Métrica", "Valor"],
+        ["Total de Estudiantes", estudiantes.length],
+        ["Estudiantes Aprobados (≥7/10)", aprobadosGlobal],
+        ["Estudiantes Reprobados (<7/10)", reprobadosGlobal],
+        ["Porcentaje de Aprobación", porcentajeAprobacion],
+        ["", ""],
+        ["Promedio Global del Curso (/10pts)", promedioGlobalCurso],
+        ["Promedio General (tareas)", promedioGeneral],
+        ["", ""],
+        ["Total de Tareas Evaluadas", tareas.length],
+        ["Total de Módulos en el Curso", modulos.length],
+        ["Peso por Módulo", pesoPorModulo.toFixed(2) + " pts"],
+        ["", ""],
+        ["Nota Mínima de Aprobación", "7.0 / 10 puntos"],
+        ["Sistema de Calificación", "Todos los módulos tienen igual peso"],
+      ];
+      estadisticasArray.forEach((fila) => {
+        wsEstadisticas.addRow(fila);
+      });
+
+      // Generar y descargar archivo
+      const buffer = await workbook.xlsx.writeBuffer();
       const nombreCurso = cursoNombre.replace(/\s+/g, "_") || "Curso";
       const nombreArchivo = `Calificaciones_${nombreCurso}_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      // Descargar archivo
-      XLSX.writeFile(wb, nombreArchivo);
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(blob, nombreArchivo);
     } catch (error) {
       console.error("Error generando Excel:", error);
     } finally {

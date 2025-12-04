@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { 
-  Settings, Server, Database, 
-  Mail, Activity, CheckCircle, User, Phone, MapPin, Calendar, Users, ShieldCheck, X
+  User, Phone, MapPin, Calendar, Users, ShieldCheck, X, Mail, CheckCircle
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
@@ -23,17 +22,38 @@ interface UserProfile {
   estado: string;
 }
 
+interface Stats {
+  totalAdmins: number;
+  activeAdmins: number;
+  sessionsToday: number;
+}
+
+interface Activity {
+  action: string;
+  time: string;
+  color: string;
+}
+
 const ConfiguracionPanel: React.FC = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [isPhotoHovered, setIsPhotoHovered] = useState(false);
+  const [stats, setStats] = useState<Stats>({
+    totalAdmins: 0,
+    activeAdmins: 0,
+    sessionsToday: 0
+  });
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Cargar datos del usuario
   useEffect(() => {
     fetchUserData();
     loadFoto();
+    loadStats();
+    loadRecentActivity();
   }, []);
 
   // Listener WebSocket para actualización de foto en tiempo real
@@ -90,6 +110,99 @@ const ConfiguracionPanel: React.FC = () => {
     }
   };
 
+  const loadStats = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      
+      // Cargar total de admins
+      const adminsRes = await fetch(`${API_BASE}/api/admins`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (adminsRes.ok) {
+        const adminsData = await adminsRes.json();
+        const total = adminsData.length;
+        const active = adminsData.filter((a: any) => a.estado === 'activo').length;
+        
+        setStats(prev => ({
+          ...prev,
+          totalAdmins: total,
+          activeAdmins: active
+        }));
+      }
+
+      // Cargar sesiones de hoy (desde auditoría)
+      const today = new Date().toISOString().split('T')[0];
+      const auditRes = await fetch(`${API_BASE}/api/auditoria/historial-completo?fecha_inicio=${today}&fecha_fin=${today}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (auditRes.ok) {
+        const auditData = await auditRes.json();
+        const sessions = auditData.data?.auditorias?.filter((a: any) => 
+          a.tabla_afectada === 'sesiones_usuario' && a.operacion === 'INSERT'
+        ).length || 0;
+        
+        setStats(prev => ({
+          ...prev,
+          sessionsToday: sessions
+        }));
+      }
+
+
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+    }
+  };
+
+  const loadRecentActivity = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/api/auditoria/historial-completo?limite=4`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const activities = data.data?.auditorias?.map((audit: any) => {
+          const timeAgo = getTimeAgo(audit.fecha_operacion);
+          let action = audit.descripcion;
+          let color = '#3b82f6';
+
+          // Determinar color según la operación
+          if (audit.operacion === 'INSERT') color = '#10b981';
+          else if (audit.operacion === 'UPDATE') color = '#f59e0b';
+          else if (audit.operacion === 'DELETE') color = '#ef4444';
+
+          return {
+            action,
+            time: timeAgo,
+            color
+          };
+        }) || [];
+
+        setRecentActivity(activities);
+      }
+    } catch (error) {
+      console.error('Error cargando actividad reciente:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins !== 1 ? 's' : ''}`;
+    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours !== 1 ? 's' : ''}`;
+    return `Hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`;
+  };
+
   const getInitials = () => {
     if (!userData) return 'SA';
     return `${userData.nombre.charAt(0)}${userData.apellido.charAt(0)}`.toUpperCase();
@@ -111,16 +224,113 @@ const ConfiguracionPanel: React.FC = () => {
           fontSize: isMobile ? '1.25rem' : '1.625rem',
           fontWeight: '700'
         }}>
-          <Settings size={26} color="#ef4444" />
-          Configuración del Sistema
+          <User size={26} color="#ef4444" />
+          Mi Perfil
         </h2>
         <p style={{
           color: 'var(--superadmin-text-muted)',
           margin: 0,
           fontSize: isMobile ? '0.75rem' : '0.85rem'
         }}>
-          Configuraciones generales y perfil del Super Administrador
+          Información personal del Super Administrador
         </p>
+      </div>
+
+      {/* Estadísticas rápidas */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'), 
+        gap: isMobile ? '0.75rem' : '1rem',
+        marginBottom: isMobile ? '1rem' : '1.5rem'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '1rem',
+          padding: isMobile ? '1rem' : '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            borderRadius: '0.75rem',
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+          }}>
+            <Users size={20} color="#fff" />
+          </div>
+          <div>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Total Admins</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+              {loading ? '...' : stats.totalAdmins}
+            </p>
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+          border: '1px solid rgba(59, 130, 246, 0.2)',
+          borderRadius: '1rem',
+          padding: isMobile ? '1rem' : '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            borderRadius: '0.75rem',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+          }}>
+            <ShieldCheck size={20} color="#fff" />
+          </div>
+          <div>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Activos</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+              {loading ? '...' : stats.activeAdmins}
+            </p>
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+          border: '1px solid rgba(16, 185, 129, 0.2)',
+          borderRadius: '1rem',
+          padding: isMobile ? '1rem' : '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            borderRadius: '0.75rem',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+          }}>
+            <CheckCircle size={20} color="#fff" />
+          </div>
+          <div>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Sesiones Hoy</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+              {loading ? '...' : stats.sessionsToday}
+            </p>
+          </div>
+        </div>
+
+
       </div>
 
       {/* Sección Perfil del SuperAdmin - Solo Lectura */}
@@ -415,159 +625,78 @@ const ConfiguracionPanel: React.FC = () => {
         </div>
       </div>
 
-
-
-      {/* Configuraciones del Sistema */}
+      {/* Actividad Reciente */}
       <div style={{
         background: 'var(--superadmin-card-bg)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid var(--superadmin-border)',
-        borderRadius: '20px',
-        padding: isMobile ? '1.25rem' : '2rem',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)'
+        backdropFilter: 'blur(1.25rem)',
+        border: '0.0625rem solid var(--superadmin-border)',
+        borderRadius: '1.25rem',
+        padding: isMobile ? '1.25rem' : '1.5rem',
+        boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: isMobile ? '1.25rem' : '2rem' }}>
-          <div style={{
-            width: '3rem',
-            height: '3rem',
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-            borderRadius: '0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0.5rem 1.25rem rgba(245, 158, 11, 0.3)'
-          }}>
-            <Server size={24} color="#fff" />
-          </div>
-          <h2 style={{ color: 'var(--superadmin-text-primary)', fontSize: isMobile ? '1.125rem' : '1.4rem', fontWeight: '700', margin: 0 }}>
-            Configuraciones del Sistema
-          </h2>
-        </div>
+        <h3 style={{
+          color: 'var(--superadmin-text-primary)',
+          fontSize: isMobile ? '0.875rem' : '1rem',
+          fontWeight: '700',
+          margin: '0 0 1rem 0',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          opacity: 0.9,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <CheckCircle size={18} color="#ef4444" />
+          ACTIVIDAD RECIENTE
+        </h3>
 
-        <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(auto-fit, minmax(18.75rem, 1fr))', gap: isMobile ? '1rem' : '1.5rem' }}>
-          {/* Configuración de Backup */}
-          <div style={{
-            background: 'var(--superadmin-input-bg)',
-            border: '1px solid var(--superadmin-input-border)',
-            borderRadius: '1rem',
-            padding: isMobile ? '1.25rem' : '1.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <Database size={20} color="#10b981" />
-              <h3 style={{ color: 'var(--superadmin-text-primary)', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
-                Backup Automático
-              </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--superadmin-text-muted)' }}>
+              Cargando actividad...
             </div>
-            <p style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Configura la frecuencia de respaldos automáticos
-            </p>
-            <select style={{
-              width: '100%',
-              padding: '0.75rem 1rem',
+          ) : recentActivity.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--superadmin-text-muted)' }}>
+              No hay actividad reciente
+            </div>
+          ) : (
+            recentActivity.map((activity, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '0.75rem',
               background: 'var(--superadmin-input-bg)',
               border: '1px solid var(--superadmin-input-border)',
-              borderRadius: '0.5rem',
-              color: 'var(--superadmin-text-primary)',
-              fontSize: '0.9rem',
-              marginBottom: '1rem'
+              borderRadius: '0.625rem',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--superadmin-hover-bg)';
+              e.currentTarget.style.transform = 'translateX(4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--superadmin-input-bg)';
+              e.currentTarget.style.transform = 'translateX(0)';
             }}>
-              <option value="daily">Diario</option>
-              <option value="weekly">Semanal</option>
-              <option value="monthly">Mensual</option>
-            </select>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.85rem' }}>
-              <CheckCircle size={16} />
-              Último backup: Hoy 22:00
+              <div style={{
+                width: '0.5rem',
+                height: '0.5rem',
+                borderRadius: '50%',
+                background: activity.color,
+                boxShadow: `0 0 8px ${activity.color}`
+              }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '500' }}>
+                  {activity.action}
+                </p>
+                <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>
+                  {activity.time}
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* Configuración de Notificaciones */}
-          <div style={{
-            background: 'var(--superadmin-input-bg)',
-            border: '1px solid var(--superadmin-input-border)',
-            borderRadius: '1rem',
-            padding: isMobile ? '1.25rem' : '1.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <Mail size={20} color="#3b82f6" />
-              <h3 style={{ color: 'var(--superadmin-text-primary)', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
-                Notificaciones
-              </h3>
-            </div>
-            <p style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Gestiona las notificaciones del sistema
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--superadmin-text-secondary)', fontSize: '0.85rem' }}>
-                <input type="checkbox" defaultChecked style={{ accentColor: '#3b82f6' }} />
-                Errores críticos
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--superadmin-text-secondary)', fontSize: '0.85rem' }}>
-                <input type="checkbox" defaultChecked style={{ accentColor: '#3b82f6' }} />
-                Nuevos registros
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--superadmin-text-secondary)', fontSize: '0.85rem' }}>
-                <input type="checkbox" style={{ accentColor: '#3b82f6' }} />
-                Actualizaciones del sistema
-              </label>
-            </div>
-          </div>
-
-          {/* Configuración de Mantenimiento */}
-          <div style={{
-            background: 'var(--superadmin-input-bg)',
-            border: '1px solid var(--superadmin-input-border)',
-            borderRadius: '1rem',
-            padding: isMobile ? '1.25rem' : '1.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <Activity size={20} color="#f59e0b" />
-              <h3 style={{ color: 'var(--superadmin-text-primary)', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
-                Mantenimiento
-              </h3>
-            </div>
-            <p style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Herramientas de mantenimiento del sistema
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(245, 158, 11, 0.2)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '0.375rem',
-                color: '#f59e0b',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)';
-              }}>
-                Limpiar caché
-              </button>
-              <button style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(16, 185, 129, 0.2)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '0.375rem',
-                color: '#10b981',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)';
-              }}>
-                Optimizar BD
-              </button>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
 

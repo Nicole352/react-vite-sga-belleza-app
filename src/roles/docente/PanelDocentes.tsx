@@ -419,82 +419,105 @@ const PanelDocentes = () => {
           <div style={{
             background: theme.navbarBg,
             border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '1.25rem',
-            padding: '1em 1.5em',
-            marginBottom: '1rem',
+            borderRadius: isMobile ? '0.875rem' : '1.25rem',
+            padding: isMobile ? '0.75em 1em' : (isSmallScreen ? '0.875em 1.25em' : '1em 1.5em'),
+            marginBottom: isMobile ? '0.75rem' : '1rem',
             backdropFilter: 'blur(1.25rem)',
             boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
-            zIndex: 2
+            zIndex: 2,
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            gap: isMobile ? '0.75rem' : '0'
           }}>
-            {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-              {/* Botón hamburguesa móvil */}
-              {isSmallScreen && (
-                <button
-                  onClick={() => setMobileMenuOpen(true)}
-                  style={{
-                    width: '2.5rem',
-                    height: '2.5rem',
-                    borderRadius: '0.625em',
-                    border: `0.0625rem solid ${theme.border}`,
-                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-                    color: theme.accent,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    flexShrink: 0
-                  }}
-                >
-                  <Menu size={20} />
-                </button>
-              )}
+            {/* Botón hamburguesa móvil */}
+            {isSmallScreen && (
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.5rem',
+                  border: `0.0625rem solid ${theme.border}`,
+                  background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                  color: theme.accent,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
+                }}
+              >
+                <Menu size={20} />
+              </button>
+            )}
 
+            {/* Información del módulo activo */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: isMobile ? '0.625em' : '1em',
+              flex: 1,
+              minWidth: 0
+            }}>
               <div style={{
-                width: '3rem',
-                height: '3rem',
+                width: isMobile ? '2.5rem' : (isSmallScreen ? '2.5rem' : '3rem'),
+                height: isMobile ? '2.5rem' : (isSmallScreen ? '2.5rem' : '3rem'),
                 background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)'
+                boxShadow: '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)',
+                flexShrink: 0
               }}>
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
                   const IconComponent = activeTabData?.icon || BarChart3;
-                  return <IconComponent size={22} color="#fff" />;
+                  return <IconComponent size={isMobile ? 18 : (isSmallScreen ? 18 : 22)} color="#fff" />;
                 })()}
               </div>
-              <div>
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
                 <h1 style={{
-                  fontSize: '1.2rem',
+                  fontSize: isMobile ? '0.95rem' : (isSmallScreen ? '1rem' : '1.2rem'),
                   fontWeight: '700',
                   color: theme.textPrimary,
-                  margin: 0,
                   textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
+                  letterSpacing: '0.05em',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}>
                   Panel Docente
                 </h1>
-                <p style={{
-                  color: theme.textSecondary,
-                  margin: 0,
-                  fontSize: '0.8rem',
-                  marginTop: '0.125em'
-                }}>
-                  Sistema de gestión académica
-                </p>
+                {!isMobile && (
+                  <p style={{
+                    color: theme.textSecondary,
+                    margin: 0,
+                    fontSize: isSmallScreen ? '0.7rem' : '0.8rem',
+                    marginTop: '0.125em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    Sistema de gestión académica
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: isMobile ? '0.5em' : '0.75em', 
+              position: 'relative',
+              flexShrink: 0
+            }}>
               <NotificationBell
                 notificaciones={notificaciones}
                 onMarcarTodasLeidas={marcarTodasLeidas}

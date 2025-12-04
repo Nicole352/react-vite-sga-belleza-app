@@ -5,7 +5,8 @@ import {
   Settings,
   Users,
   Shield,
-  Menu
+  Menu,
+  X
 } from 'lucide-react';
 import AdminThemeWrapper from '../../components/AdminThemeWrapper';
 import SchoolLogo from '../../components/SchoolLogo';
@@ -21,12 +22,21 @@ import HistorialAuditoria from './HistorialAuditoria';
 const PanelSuperAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('superadmin-dark-mode');
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [userData, setUserData] = useState<any>(null);
   const { isMobile, isSmallScreen } = useBreakpoints();
+
+  // Auto-colapsar sidebar en móvil
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarCollapsed(true);
+      setMobileMenuOpen(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     localStorage.setItem('superadmin-dark-mode', JSON.stringify(darkMode));
@@ -57,7 +67,11 @@ const PanelSuperAdmin: React.FC = () => {
   };
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
+    if (isMobile) {
+      setMobileMenuOpen(!mobileMenuOpen);
+    } else {
+      setSidebarCollapsed(!sidebarCollapsed);
+    }
   };
 
   // Funciones para obtener colores según el tema (igual que Admin)
@@ -151,56 +165,99 @@ const PanelSuperAdmin: React.FC = () => {
           fontSize: '0.8rem'
         }}
       >
+        {/* Overlay para móvil */}
+        {isMobile && mobileMenuOpen && (
+          <div
+            data-modal-overlay="true"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 999,
+              transition: 'opacity 0.3s ease'
+            }}
+          />
+        )}
+
         {/* Sidebar */}
         <div style={{
-          width: sidebarCollapsed ? '4.5rem' : '16rem',
+          width: isMobile ? '16rem' : (sidebarCollapsed ? '4.5rem' : '16rem'),
           background: theme.sidebarBg,
           border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '0 1em 1em 0',
-          padding: sidebarCollapsed ? '0.625em 0.375em 1.25em 0.375em' : '0.625em 1em 1.25em 1em',
+          borderRadius: isMobile ? '0' : '0 1em 1em 0',
+          padding: (isMobile || !sidebarCollapsed) ? '0.625em 1em 1.25em 1em' : '0.625em 0.375em 1.25em 0.375em',
           position: 'fixed',
           height: '100vh',
-          left: '0',
+          left: isMobile ? (mobileMenuOpen ? '0' : '-16rem') : '0',
           top: 0,
           zIndex: 1000,
           boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          overflowY: 'hidden',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflowY: isMobile ? 'auto' : 'hidden',
+          overflowX: 'hidden',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Botón hamburguesa */}
-          <button
-            onClick={toggleSidebar}
-            style={{
-              position: 'absolute',
-              top: '1rem',
-              right: sidebarCollapsed ? '50%' : '1rem',
-              transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
-              width: '2.25rem',
-              height: '2.25rem',
-              borderRadius: '0.5rem',
-              border: `0.0625rem solid ${theme.border}`,
-              background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
-              color: theme.accent,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-              zIndex: 10
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
-              e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
-            }}
-          >
-            <Menu size={20} />
-          </button>
+          {/* Botón hamburguesa - Desktop */}
+          {!isMobile && (
+            <button
+              onClick={toggleSidebar}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: sidebarCollapsed ? '50%' : '1rem',
+                transform: sidebarCollapsed ? 'translateX(50%)' : 'none',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
+                border: `0.0625rem solid ${theme.border}`,
+                background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+                color: theme.accent,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%) scale(1.05)' : 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)';
+                e.currentTarget.style.transform = sidebarCollapsed ? 'translateX(50%)' : 'none';
+              }}
+            >
+              <Menu size={20} />
+            </button>
+          )}
+
+          {/* Botón cerrar - Móvil */}
+          {isMobile && (
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '0.5rem',
+                border: `0.0625rem solid ${theme.border}`,
+                background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+                color: theme.accent,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                zIndex: 10
+              }}
+            >
+              <X size={20} />
+            </button>
+          )}
 
           {/* Header del Sidebar - Solo Logo */}
           <div style={{
@@ -211,9 +268,9 @@ const PanelSuperAdmin: React.FC = () => {
             paddingBottom: '0.25rem',
             borderBottom: `0.0625rem solid ${theme.border}`,
             paddingTop: '0',
-            marginTop: !sidebarCollapsed ? '0' : '3rem'
+            marginTop: (isMobile || !sidebarCollapsed) ? '0' : '3rem'
           }}>
-            {!sidebarCollapsed && <SchoolLogo size={140} darkMode={darkMode} />}
+            {(isMobile || !sidebarCollapsed) && <SchoolLogo size={140} darkMode={darkMode} />}
           </div>
         
           {/* Navegación del Sidebar */}
@@ -223,18 +280,22 @@ const PanelSuperAdmin: React.FC = () => {
           }}>
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
+              const showText = isMobile || !sidebarCollapsed;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  title={sidebarCollapsed ? tab.name : ''}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    if (isMobile) setMobileMenuOpen(false);
+                  }}
+                  title={(!isMobile && sidebarCollapsed) ? tab.name : ''}
                   style={{
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                    justifyContent: showText ? 'flex-start' : 'center',
                     gap: '0.625em',
-                    padding: sidebarCollapsed ? '0.75em 0.5em' : '0.75em 1em',
+                    padding: showText ? '0.75em 1em' : '0.75em 0.5em',
                     marginBottom: '0.375em',
                     borderRadius: '0.75em',
                     border: 'none',
@@ -242,7 +303,7 @@ const PanelSuperAdmin: React.FC = () => {
                       'linear-gradient(135deg, #ef4444, #dc2626)' :
                       'transparent',
                     color: activeTab === tab.id ? '#fff' : theme.textMuted,
-                    fontSize: '0.75rem',
+                    fontSize: isMobile ? '0.875rem' : '0.75rem',
                     fontWeight: '500',
                     letterSpacing: '0.05em',
                     cursor: 'pointer',
@@ -266,7 +327,7 @@ const PanelSuperAdmin: React.FC = () => {
                   }}
                 >
                   <IconComponent size={18} style={{ flexShrink: 0 }} />
-                  {!sidebarCollapsed && <span>{tab.name}</span>}
+                  {showText && <span>{tab.name}</span>}
                 </button>
             );
           })}
@@ -276,9 +337,9 @@ const PanelSuperAdmin: React.FC = () => {
 
         {/* Contenido Principal */}
         <div style={{
-          marginLeft: sidebarCollapsed ? '4.375rem' : '17.5rem',
+          marginLeft: isMobile ? '0' : (sidebarCollapsed ? '4.375rem' : '17.5rem'),
           flex: 1,
-          padding: '1.25rem',
+          padding: isMobile ? '0.75rem' : (isSmallScreen ? '1rem' : '1.25rem'),
           minHeight: '100vh',
           transition: 'margin-left 0.3s ease',
           width: 'auto',
@@ -290,59 +351,105 @@ const PanelSuperAdmin: React.FC = () => {
           <div style={{
             background: theme.navbarBg,
             border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '1.25rem',
-            padding: '1em 1.5em',
-            marginBottom: '1rem',
+            borderRadius: isMobile ? '0.875rem' : '1.25rem',
+            padding: isMobile ? '0.75em 1em' : (isSmallScreen ? '0.875em 1.25em' : '1em 1.5em'),
+            marginBottom: isMobile ? '0.75rem' : '1rem',
             backdropFilter: 'blur(1.25rem)',
             boxShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.2)' : '0 0.5rem 1.5rem rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             position: 'relative',
-            zIndex: 2
+            zIndex: 2,
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            gap: isMobile ? '0.75rem' : '0'
           }}>
+            {/* Botón hamburguesa en móvil */}
+            {isMobile && (
+              <button
+                onClick={toggleSidebar}
+                style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.5rem',
+                  border: `0.0625rem solid ${theme.border}`,
+                  background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.08)',
+                  color: theme.accent,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
+                }}
+              >
+                <Menu size={20} />
+              </button>
+            )}
+
             {/* Información del módulo activo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: isMobile ? '0.625em' : '1em',
+              flex: 1,
+              minWidth: 0
+            }}>
               <div style={{
-                width: '3rem',
-                height: '3rem',
+                width: isMobile ? '2.5rem' : (isSmallScreen ? '2.5rem' : '3rem'),
+                height: isMobile ? '2.5rem' : (isSmallScreen ? '2.5rem' : '3rem'),
                 background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)'
+                boxShadow: '0 0.5rem 1.25rem rgba(239, 68, 68, 0.3)',
+                flexShrink: 0
               }}>
                 {(() => {
                   const activeTabData = tabs.find(t => t.id === activeTab);
                   const IconComponent = activeTabData?.icon || BarChart3;
-                  return <IconComponent size={22} color="#fff" />;
+                  return <IconComponent size={isMobile ? 18 : (isSmallScreen ? 18 : 22)} color="#fff" />;
                 })()}
               </div>
-              <div>
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
                 <h1 style={{
-                  fontSize: '1.2rem',
+                  fontSize: isMobile ? '0.95rem' : (isSmallScreen ? '1rem' : '1.2rem'),
                   fontWeight: '700',
                   color: theme.textPrimary,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  margin: 0
-                }}>
-                  Panel Super Admin
-                </h1>
-                <p style={{
-                  color: theme.textSecondary,
                   margin: 0,
-                  fontSize: '0.8rem',
-                  marginTop: '0.125em'
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}>
-                  Sistema de gestión académica
-                </p>
+                  {isMobile ? 'Super Admin' : 'Panel Super Admin'}
+                </h1>
+                {!isMobile && (
+                  <p style={{
+                    color: theme.textSecondary,
+                    margin: 0,
+                    fontSize: isSmallScreen ? '0.7rem' : '0.8rem',
+                    marginTop: '0.125em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    Sistema de gestión académica
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Iconos del lado derecho */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em', position: 'relative' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: isMobile ? '0.5em' : '0.75em', 
+              position: 'relative',
+              flexShrink: 0
+            }}>
               <ProfileMenu
                 darkMode={darkMode}
                 toggleDarkMode={toggleDarkMode}

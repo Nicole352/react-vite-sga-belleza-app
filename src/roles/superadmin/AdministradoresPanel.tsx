@@ -82,7 +82,7 @@ const AdministradoresPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>(isMobile ? 'cards' : 'table');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
   // Modales
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -394,26 +394,38 @@ const AdministradoresPanel: React.FC = () => {
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-        zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '1rem'
+        zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'center',
+        padding: isMobile ? '0' : '1rem',
+        overflowY: isMobile ? 'auto' : 'hidden'
       }}>
         <div style={{
           background: darkMode
             ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
             : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-          borderRadius: '12px',
-          width: '100%', maxWidth: '800px',
-          maxHeight: '85vh', overflowY: 'auto',
+          borderRadius: isMobile ? '0' : '12px',
+          width: '100%', maxWidth: isMobile ? '100%' : '800px',
+          maxHeight: isMobile ? '100vh' : '85vh', 
+          minHeight: isMobile ? '100vh' : 'auto',
+          overflowY: 'auto',
           boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
-          border: '1px solid rgba(239, 68, 68, 0.2)'
+          border: isMobile ? 'none' : '1px solid rgba(239, 68, 68, 0.2)',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           <div style={{
-            padding: '1rem 1.5rem', borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            padding: isMobile ? '1rem' : '1rem 1.5rem', 
+            borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            position: isMobile ? 'sticky' : 'relative',
+            top: 0,
+            background: darkMode
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
+            zIndex: 1
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {Icon && <Icon size={20} style={{ color: '#ef4444' }} />}
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: darkMode ? '#fff' : '#1e293b' }}>{title}</h3>
+              {Icon && <Icon size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />}
+              <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.1rem', fontWeight: 600, color: darkMode ? '#fff' : '#1e293b' }}>{title}</h3>
             </div>
             <button onClick={onClose} style={{
               background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
@@ -423,9 +435,20 @@ const AdministradoresPanel: React.FC = () => {
               <X size={18} />
             </button>
           </div>
-          <div style={{ padding: '1rem 1.5rem' }}>{content}</div>          <div style={{
-            padding: '1.25rem 1.5rem', borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
-            display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'transparent'
+          <div style={{ padding: isMobile ? '1rem' : '1rem 1.5rem', flex: 1 }}>{content}</div>
+          <div style={{
+            padding: isMobile ? '1rem' : '1.25rem 1.5rem', 
+            borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'flex-end', 
+            gap: isMobile ? '0.75rem' : '1rem', 
+            background: darkMode
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
+            position: isMobile ? 'sticky' : 'relative',
+            bottom: 0,
+            zIndex: 1
           }}>
             {footer}
           </div>
@@ -445,8 +468,19 @@ const AdministradoresPanel: React.FC = () => {
 
       {/* Controles */}
       <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '1rem' }}>
-        <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', flex: 1 }}>
+        <div className="responsive-filters" style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row', 
+          gap: '0.75rem',
+          alignItems: isMobile ? 'stretch' : 'center'
+        }}>
+          {/* Búsqueda y filtro */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isSmallScreen ? 'column' : 'row', 
+            gap: '0.75rem',
+            flex: 1
+          }}>
             <div style={{ position: 'relative', flex: 1 }}>
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
               <input
@@ -463,7 +497,7 @@ const AdministradoresPanel: React.FC = () => {
                 }}
               />
             </div>
-            <div style={{ minWidth: '200px' }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : '200px' }}>
               <StyledSelect
                 name="filterStatus"
                 value={filterStatus}
@@ -476,13 +510,63 @@ const AdministradoresPanel: React.FC = () => {
                 ]}
               />
             </div>
-
-            <div style={{ display: 'flex', background: themeColors.toggleGroupBg, borderRadius: '0.65rem', padding: '0.1875rem' }}>
-              <button onClick={() => setViewMode('cards')} style={{ padding: '0.45em 0.8em', background: viewMode === 'cards' ? themeColors.toggleActiveBg : 'transparent', border: 'none', borderRadius: '0.5em', color: viewMode === 'cards' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, cursor: 'pointer' }}><Grid size={16} /></button>
-              <button onClick={() => setViewMode('table')} style={{ padding: '0.45em 0.8em', background: viewMode === 'table' ? themeColors.toggleActiveBg : 'transparent', border: 'none', borderRadius: '0.5em', color: viewMode === 'table' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, cursor: 'pointer' }}><List size={16} /></button>
-            </div>
           </div>
 
+          {/* Toggle de vista */}
+          <div style={{ 
+            display: 'flex', 
+            background: themeColors.toggleGroupBg, 
+            borderRadius: '0.65rem', 
+            padding: '0.25rem',
+            gap: '0.25rem'
+          }}>
+            <button 
+              onClick={() => setViewMode('cards')} 
+              style={{ 
+                flex: isMobile ? 1 : 'none',
+                padding: isMobile ? '0.75em 1em' : '0.45em 0.8em', 
+                background: viewMode === 'cards' ? themeColors.toggleActiveBg : 'transparent', 
+                border: 'none', 
+                borderRadius: '0.5em', 
+                color: viewMode === 'cards' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5em',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: viewMode === 'cards' ? 600 : 400,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Grid size={isMobile ? 18 : 16} />
+              {isMobile && <span>Tarjetas</span>}
+            </button>
+            <button 
+              onClick={() => setViewMode('table')} 
+              style={{ 
+                flex: isMobile ? 1 : 'none',
+                padding: isMobile ? '0.75em 1em' : '0.45em 0.8em', 
+                background: viewMode === 'table' ? themeColors.toggleActiveBg : 'transparent', 
+                border: 'none', 
+                borderRadius: '0.5em', 
+                color: viewMode === 'table' ? themeColors.toggleActiveText : themeColors.toggleInactiveText, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5em',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: viewMode === 'table' ? 600 : 400,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <List size={isMobile ? 18 : 16} />
+              {isMobile && <span>Tabla</span>}
+            </button>
+          </div>
+
+          {/* Botón Nuevo Admin */}
           <button
             onClick={() => {
               setFormData({
@@ -492,10 +576,20 @@ const AdministradoresPanel: React.FC = () => {
               });
               setShowCreateModal(true);
             }} style={{
-              padding: '0.75em 1.5em', background: primaryActionButtonStyles.base,
-              border: 'none', borderRadius: '0.625em', color: '#fff', fontWeight: 600,
-              cursor: 'pointer', boxShadow: primaryActionButtonStyles.shadow,
-              display: 'flex', alignItems: 'center', gap: '0.5em'
+              padding: isMobile ? '0.75em 1em' : '0.75em 1.5em', 
+              background: primaryActionButtonStyles.base,
+              border: 'none', 
+              borderRadius: '0.625em', 
+              color: '#fff', 
+              fontWeight: 600,
+              cursor: 'pointer', 
+              boxShadow: primaryActionButtonStyles.shadow,
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              gap: '0.5em',
+              fontSize: isMobile ? '0.9rem' : '1rem',
+              whiteSpace: 'nowrap'
             }}
           >
             <UserPlus size={18} /> Nuevo Admin
@@ -505,7 +599,7 @@ const AdministradoresPanel: React.FC = () => {
 
       {/* Lista de Administradores */}
       {viewMode === 'cards' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: isMobile ? '0.75rem' : '1rem' }}>
           {filteredAdmins.map(admin => (
             <GlassEffect key={admin.id} variant="card" tint="neutral" intensity="light" hover>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -600,9 +694,14 @@ const AdministradoresPanel: React.FC = () => {
           background: themeColors.sectionSurface,
           border: `1px solid ${themeColors.sectionBorder}`,
           borderRadius: '1rem',
-          overflow: 'hidden'
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse',
+            minWidth: '800px'
+          }}>
             <thead>
               <tr style={{ background: themeColors.tableHeaderBg }}>
                 <th style={{ padding: '1rem', textAlign: 'left', color: themeColors.tableHeaderText }}>Administrador</th>
@@ -709,7 +808,7 @@ const AdministradoresPanel: React.FC = () => {
         "Nuevo Administrador",
         UserPlus,
         () => setShowCreateModal(false),
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.5rem' }}>
           <InputField themeColors={themeColors} darkMode={darkMode} label="Cédula *" value={formData.cedula} onChange={(e: any) => {
             const val = e.target.value.replace(/\D/g, '').slice(0, 10);
             setFormData({ ...formData, cedula: val });
@@ -785,7 +884,7 @@ const AdministradoresPanel: React.FC = () => {
           {/* Permisos Grid */}
           <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
             <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.5rem', fontSize: '0.8rem', fontWeight: 600 }}>Permisos del Sistema</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
               {permisosDisponibles.map(permiso => {
                 const Icon = permiso.icon;
                 const isSelected = formData.permisos.includes(permiso.id);
@@ -822,8 +921,29 @@ const AdministradoresPanel: React.FC = () => {
               fecha_nacimiento: '', direccion: '', genero: '', password: '', confirmPassword: '',
               rolId: '', permisos: []
             });
-          }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={handleCreate} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Crear Administrador</button>
+          }} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', 
+            color: themeColors.textSecondary, 
+            cursor: 'pointer',
+            width: isMobile ? '100%' : 'auto'
+          }}>Cancelar</button>
+          <button onClick={handleCreate} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: primaryActionButtonStyles.base, 
+            color: '#fff', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '0.5rem',
+            width: isMobile ? '100%' : 'auto'
+          }}><Save size={18} /> Crear Administrador</button>
         </>
       )}
 
@@ -931,8 +1051,29 @@ const AdministradoresPanel: React.FC = () => {
         </div>
       </div>,
         <>
-          <button onClick={() => setShowEditModal(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={handleUpdate} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Guardar Cambios</button>
+          <button onClick={() => setShowEditModal(false)} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', 
+            color: themeColors.textSecondary, 
+            cursor: 'pointer',
+            width: isMobile ? '100%' : 'auto'
+          }}>Cancelar</button>
+          <button onClick={handleUpdate} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: primaryActionButtonStyles.base, 
+            color: '#fff', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '0.5rem',
+            width: isMobile ? '100%' : 'auto'
+          }}><Save size={18} /> Guardar Cambios</button>
         </>
       )}
 
@@ -956,8 +1097,29 @@ const AdministradoresPanel: React.FC = () => {
           </div>
         </div>,
         <>
-          <button onClick={() => setShowPasswordModal(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', color: themeColors.textSecondary, cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={handleChangePassword} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', background: primaryActionButtonStyles.base, color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> Actualizar Contraseña</button>
+          <button onClick={() => setShowPasswordModal(false)} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', 
+            color: themeColors.textSecondary, 
+            cursor: 'pointer',
+            width: isMobile ? '100%' : 'auto'
+          }}>Cancelar</button>
+          <button onClick={handleChangePassword} style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '0.5rem', 
+            border: 'none', 
+            background: primaryActionButtonStyles.base, 
+            color: '#fff', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '0.5rem',
+            width: isMobile ? '100%' : 'auto'
+          }}><Save size={18} /> Actualizar Contraseña</button>
         </>
       )}
     </div>

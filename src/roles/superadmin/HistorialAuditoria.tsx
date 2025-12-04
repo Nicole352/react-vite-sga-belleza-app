@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import LoadingModal from '../../components/LoadingModal';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
+import { useBreakpoints } from '../../hooks/useMediaQuery';
 
 interface Auditoria {
   id_auditoria: number;
@@ -37,6 +38,9 @@ interface Stats {
 }
 
 const HistorialAuditoria: React.FC = () => {
+  // ========== BREAKPOINTS ==========
+  const { isMobile, isSmallScreen } = useBreakpoints();
+
   // ========== THEME - Sincronizado con PanelSuperAdmin ==========
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('superadmin-dark-mode');
@@ -414,7 +418,7 @@ const HistorialAuditoria: React.FC = () => {
         style={{
           minHeight: '100vh',
           background: theme.pageBg,
-          padding: '2rem',
+          padding: isMobile ? '1rem' : (isSmallScreen ? '1.5rem' : '2rem'),
           transition: 'all 0.3s ease',
         }}
       >
@@ -428,9 +432,9 @@ const HistorialAuditoria: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1rem',
-            marginBottom: '1.5rem',
+            gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))'),
+            gap: isMobile ? '0.75rem' : '1rem',
+            marginBottom: isMobile ? '1rem' : '1.5rem',
           }}
         >
           {/* Total de registros */}
@@ -637,8 +641,8 @@ const HistorialAuditoria: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '0.875rem',
+              gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))'),
+              gap: isMobile ? '0.75rem' : '0.875rem',
             }}
           >
             {/* Búsqueda */}
@@ -1300,40 +1304,47 @@ const HistorialAuditoria: React.FC = () => {
               bottom: 0,
               backgroundColor: theme.modalOverlay,
               display: 'flex',
-              alignItems: 'center',
+              alignItems: isMobile ? 'flex-start' : 'center',
               justifyContent: 'center',
               zIndex: 9999,
-              padding: '1rem',
+              padding: isMobile ? '0' : '1rem',
               backdropFilter: 'blur(4px)',
+              overflowY: isMobile ? 'auto' : 'hidden',
             }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
                 backgroundColor: theme.modalBg,
-                borderRadius: '12px',
-                width: '90%',
-                maxWidth: '600px',
-                maxHeight: '85vh',
+                borderRadius: isMobile ? '0' : '12px',
+                width: isMobile ? '100%' : '90%',
+                maxWidth: isMobile ? '100%' : '600px',
+                maxHeight: isMobile ? '100vh' : '85vh',
+                minHeight: isMobile ? '100vh' : 'auto',
                 overflow: 'auto',
                 boxShadow: darkMode
                   ? '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
                   : '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
-                border: `1px solid ${theme.cardBorder}`,
+                border: isMobile ? 'none' : `1px solid ${theme.cardBorder}`,
                 backdropFilter: 'blur(10px)',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               {/* Header del modal */}
               <div
                 style={{
-                  padding: '1.25rem',
+                  padding: isMobile ? '1rem' : '1.25rem',
                   borderBottom: `1px solid ${theme.recordBorder}`,
                   display: 'flex',
                   alignItems: 'flex-start',
                   justifyContent: 'space-between',
                   backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : '#f9fafb',
-                  borderTopLeftRadius: '12px',
-                  borderTopRightRadius: '12px',
+                  borderTopLeftRadius: isMobile ? '0' : '12px',
+                  borderTopRightRadius: isMobile ? '0' : '12px',
+                  position: isMobile ? 'sticky' : 'relative',
+                  top: 0,
+                  zIndex: 1,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1, minWidth: 0 }}>
@@ -1353,10 +1364,10 @@ const HistorialAuditoria: React.FC = () => {
                     {getTablaIcon(modalDetalle.tabla_afectada)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, marginBottom: '0.375rem' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? '1rem' : '1.125rem', fontWeight: '700', color: theme.textPrimary, marginBottom: '0.375rem' }}>
                       Detalle de Auditoría
                     </h3>
-                    <p style={{ margin: 0, fontSize: '0.8125rem', color: theme.textSecondary, lineHeight: 1.4 }}>
+                    <p style={{ margin: 0, fontSize: isMobile ? '0.75rem' : '0.8125rem', color: theme.textSecondary, lineHeight: 1.4 }}>
                       {modalDetalle.descripcion}
                     </p>
                   </div>
@@ -1387,15 +1398,15 @@ const HistorialAuditoria: React.FC = () => {
               </div>
 
               {/* Contenido del modal */}
-              <div style={{ padding: '1.25rem' }}>
+              <div style={{ padding: isMobile ? '1rem' : '1.25rem', flex: 1 }}>
                 {/* Información general */}
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '1rem',
-                    marginBottom: '1.5rem',
-                    padding: '1rem',
+                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+                    gap: isMobile ? '0.75rem' : '1rem',
+                    marginBottom: isMobile ? '1rem' : '1.5rem',
+                    padding: isMobile ? '0.875rem' : '1rem',
                     backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.15)' : '#f9fafb',
                     borderRadius: '10px',
                     border: `1px solid ${theme.recordBorder}`,

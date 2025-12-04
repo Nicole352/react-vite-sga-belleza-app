@@ -218,33 +218,69 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
-  const generarExcel = () => {
-    const worksheetData = Array.from(asistencias.values()).map((asistencia) => ({
-      'ID Estudiante': asistencia.id_estudiante,
-      'Estado': asistencia.estado,
-      'Observaciones': asistencia.observaciones || '',
-      'Tiene Documento': asistencia.tiene_documento ? 'Sí' : 'No',
-      'Tamaño Documento (KB)': asistencia.documento_size_kb || 0,
-      'Nombre Documento Original': asistencia.documento_nombre_original || '',
-    }));
+  const generarExcel = async () => {
+    try {
+      const ExcelJS = await import('exceljs');
+      const { saveAs } = await import('file-saver');
 
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencias');
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Asistencias');
 
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'asistencias.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+      // Definir columnas
+      worksheet.columns = [
+        { header: 'ID Estudiante', key: 'id_estudiante', width: 15 },
+        { header: 'Estado', key: 'estado', width: 15 },
+        { header: 'Observaciones', key: 'observaciones', width: 40 },
+        { header: 'Tiene Documento', key: 'tiene_documento', width: 18 },
+        { header: 'Tamaño Documento (KB)', key: 'documento_size_kb', width: 22 },
+        { header: 'Nombre Documento Original', key: 'documento_nombre_original', width: 35 },
+      ];
+
+      // Estilo del encabezado
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1E40AF' }
+        };
+        cell.font = {
+          color: { argb: 'FFFFFFFF' },
+          bold: true,
+          size: 11
+        };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = {
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+      });
+
+      // Agregar datos
+      Array.from(asistencias.values()).forEach((asistencia) => {
+        worksheet.addRow({
+          id_estudiante: asistencia.id_estudiante,
+          estado: asistencia.estado.toUpperCase(),
+          observaciones: asistencia.observaciones || '',
+          tiene_documento: asistencia.tiene_documento ? 'Sí' : 'No',
+          documento_size_kb: asistencia.documento_size_kb || 0,
+          documento_nombre_original: asistencia.documento_nombre_original || '',
+        });
+      });
+
+      // Generar y descargar
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      saveAs(blob, 'asistencias.xlsx');
+
+      showToast.success('Archivo Excel descargado', darkMode);
+    } catch (error) {
+      console.error('Error generando Excel:', error);
+      showToast.error('Error al generar el Excel', darkMode);
+    }
   };
 
   const handleShowObservaciones = (idEstudiante: number) => {
@@ -698,7 +734,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
     try {
       const workbook = new ExcelJS.Workbook();
-      
+
       // HOJA 1: Detalle de Asistencia
       const wsDetalle = workbook.addWorksheet('Detalle de Asistencia', {
         pageSetup: {
@@ -764,7 +800,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
             right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
           };
-          
+
           // Filas alternadas
           if (isAltRow) {
             cell.fill = {
@@ -773,7 +809,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               fgColor: { argb: 'FFF3F4F6' }
             };
           }
-          
+
           // Colores de texto para la columna Estado (columna 5)
           if (colNumber === 5) {
             const estado = cell.value?.toString().toLowerCase();
@@ -791,9 +827,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           } else {
             cell.font = { size: 11, name: 'Calibri' };
           }
-          
+
           cell.alignment = { vertical: 'middle', wrapText: true };
-          
+
           // Centrar N° y Estado
           if (colNumber === 1 || colNumber === 5) {
             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
@@ -872,7 +908,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       datosResumen.forEach(([info, valor], index) => {
         const row = wsResumen.addRow({ info, valor });
-        
+
         row.eachCell((cell, colNumber) => {
           if (info === 'ESTADÍSTICAS DE ASISTENCIA' || info === 'Porcentaje de Asistencia') {
             cell.fill = {
@@ -917,7 +953,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const nombreCurso = cursoActual?.nombre_curso.replace(/\s+/g, '_') || 'Curso';
       const nombreArchivo = `Asistencia_${nombreCurso}_${fechaSeleccionada}.xlsx`;
-      
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1062,7 +1098,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 fgColor: { argb: 'FFF3F4F6' }
               };
             }
-            
+
             cell.font = { size: 11, name: 'Calibri' };
             cell.border = {
               top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -1125,7 +1161,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       fechasOrdenadas.forEach((fecha) => {
         const registrosFecha = registrosPorFecha.get(fecha)!;
-        
+
         // Formatear fecha
         let fechaFormateada = fecha;
         if (typeof fecha === 'string') {
@@ -1139,7 +1175,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         // Agregar cada estudiante de esta fecha
         registrosFecha.forEach((r: any, index: number) => {
           const estudiante = estudiantes.find(e => e.id_estudiante === r.id_estudiante);
-          
+
           wsDetalle.addRow({
             clase: filaActual === filaInicio ? `Clase ${numeroClase}\n${fechaFormateada}` : '',
             num: index + 1,
@@ -1211,7 +1247,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   fgColor: { argb: 'FFF3F4F6' }
                 };
               }
-              
+
               // Colores de texto para la columna Estado (columna 6)
               if (colNumber === 6) {
                 const estado = cell.value?.toString().toLowerCase();
@@ -1230,7 +1266,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 cell.font = { size: 11, name: 'Calibri' };
               }
             }
-            
+
             cell.border = {
               top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
               bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -1363,7 +1399,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
                 right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
               };
-              
+
               if (colNumber === 2) {
                 cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
               } else {
