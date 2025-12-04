@@ -4408,7 +4408,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     </div>
                                     <div style={{ marginBottom: '8px' }}>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Academia SGA Belleza</span>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Escuela Jéssica Vélez</span>
                                     </div>
                                     <div>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>

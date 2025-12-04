@@ -843,7 +843,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                   lineHeight: '1.3'
                 }}>
                   <Info size={12} style={{ flexShrink: 0, marginTop: '0.0625em' }} />
-                  <span>Ingresa el número de factura y el nombre de la persona que te atendió en la academia</span>
+                  <span>Ingresa el número de factura y el nombre de la persona que te atendió en la escuela</span>
                 </div>
               </div>
             )}

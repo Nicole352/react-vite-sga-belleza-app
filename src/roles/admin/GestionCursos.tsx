@@ -712,7 +712,7 @@ const GestionCursos = () => {
       {/* Header */}
       <AdminSectionHeader
         title="Gestión de Cursos"
-        subtitle="Administra los cursos disponibles en la academia"
+        subtitle="Administra los cursos disponibles en la escuela"
         marginBottom={isMobile ? '12px' : '1.125rem'}
       />
 

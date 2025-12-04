@@ -170,7 +170,7 @@ const PanelDocentes = () => {
   const theme = getThemeColors();
 
   const tabs = [
-    { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
+    { id: 'dashboard', name: 'Mi Aula', icon: BarChart3 },
     { id: 'cursos', name: 'Mis Cursos', icon: BookOpen },
     { id: 'estudiantes', name: 'Mis Estudiantes', icon: Users },
     { id: 'asistencia', name: 'Asistencia', icon: ClipboardList },
