@@ -415,7 +415,7 @@ const GestionDocentes = () => {
 
       const response = await fetch(url, {
         method,
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -1534,6 +1534,10 @@ const GestionDocentes = () => {
                       name="titulo_profesional"
                       required
                       defaultValue={selectedDocente?.titulo_profesional || ''}
+                      onChange={(e) => {
+                        const formattedValue = toUpperCase(e.target.value);
+                        e.target.value = formattedValue;
+                      }}
                       style={{
                         width: '100%',
                         padding: '6px 10px',

@@ -1075,7 +1075,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         textAlign: 'center'
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5em' }}>
-                          {/* Botón Calificar - PRIMERO */}
+                          {/* Botón Calificar */}
                           <button
                             onClick={() => abrirModalCalificar(entrega)}
                             style={{
@@ -1105,32 +1105,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             ) : (
                               <Award size={18} />
                             )}
-                          </button>
-
-                          {/* Botón Descargar - SEGUNDO */}
-                          <button
-                            onClick={() => handleDescargar(entrega.id_entrega, entrega.archivo_nombre)}
-                            style={{
-                              padding: '0.5em',
-                              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                              border: `1px solid ${theme.inputBorder}`,
-                              borderRadius: '0.5em',
-                              color: theme.textPrimary,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.2s ease'
-                            }}
-                            title="Descargar archivo"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = 'scale(1.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = 'scale(1)';
-                            }}
-                          >
-                            <Download size={18} />
                           </button>
                         </div>
                       </td>
@@ -1687,6 +1661,60 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                   }}
                 >
                   Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    // Cerrar la vista previa y abrir el modal de calificación
+                    const entrega = archivoPreview.entrega;
+                    setArchivoPreview(null);
+                    abrirModalCalificar(entrega);
+                  }}
+                  style={{
+                    background: archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null
+                      ? darkMode 
+                        ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%)'
+                        : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%)'
+                      : 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                    border: archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null
+                      ? `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(59, 130, 246, 0.3)'}`
+                      : 'none',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    color: archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null
+                      ? '#3b82f6'
+                      : '#fff',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null
+                      ? '0 2px 4px rgba(59, 130, 246, 0.2)'
+                      : '0 2px 4px rgba(6, 182, 212, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    if (archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null) {
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+                    } else {
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(6, 182, 212, 0.3)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    if (archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null) {
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+                    } else {
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(6, 182, 212, 0.25)';
+                    }
+                  }}
+                >
+                  <Award size={16} />
+                  {archivoPreview.entrega.calificacion !== undefined && archivoPreview.entrega.calificacion !== null
+                    ? 'Editar Calificación'
+                    : 'Calificar'}
                 </button>
                 <button
                   onClick={handleDescargarDesdePreview}
