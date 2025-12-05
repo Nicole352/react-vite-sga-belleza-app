@@ -175,34 +175,34 @@ const SobreNosotros: React.FC = () => {
 
   const historia: HistoriaItem[] = [
     {
-      año: '2010',
-      evento: 'Fundación de la Escuela',
-      descripcion: 'Jessica Vélez funda la escuela con una visión clara: formar profesionales de excelencia en estética'
-    },
-    {
-      año: '2015',
-      evento: 'Expansión de Instalaciones',
-      descripcion: 'Ampliación de las instalaciones con tecnología de última generación y nuevos laboratorios'
-    },
-    {
-      año: '2018',
-      evento: 'Certificación Ministerial',
-      descripcion: 'Obtención del reconocimiento oficial del Ministerio del Trabajo del Ecuador'
-    },
-    {
       año: '2020',
-      evento: 'Modalidad Virtual',
-      descripcion: 'Implementación de plataforma virtual manteniendo la calidad educativa'
+      evento: 'Fundación de la Escuela',
+      descripcion: 'Jessica Vélez crea la Escuela como un centro de capacitación en estética, con el propósito de formar profesionales íntegros, competentes y altamente capacitados.'
     },
     {
-      año: '2023',
-      evento: 'Aval SENESCYT',
-      descripcion: 'Reconocimiento como institución de educación técnica superior'
+      año: '2021',
+      evento: 'Crecimiento Académico',
+      descripcion: 'Se amplían los programas formativos y se incorpora una metodología más práctica y personalizada para fortalecer el aprendizaje técnico.'
+    },
+    {
+      año: '2022',
+      evento: 'Modernización de Espacios',
+      descripcion: 'La escuela renueva sus instalaciones con ambientes especializados diseñados exclusivamente para la formación en estética.'
     },
     {
       año: '2024',
-      evento: 'Más de 1000 Egresadas',
-      descripcion: 'Celebramos más de 1000 profesionales graduadas transformando el sector'
+      evento: 'Reconocimiento por la Comunidad Estudiantil',
+      descripcion: 'La escuela alcanza un crecimiento significativo, consolidándose como una institución líder en capacitación estética dentro de la provincia.'
+    },
+    {
+      año: '2025',
+      evento: 'Apertura de un Nuevo Edificio',
+      descripcion: 'Con el crecimiento de la demanda, la institución inaugura un segundo edificio destinado a nuevas aulas, laboratorios de práctica y espacios para cursos especializados.'
+    },
+    {
+      año: '2026',
+      evento: 'Proyección y Expansión',
+      descripcion: 'La Escuela Jessica Vélez continúa su crecimiento, ampliando su oferta de cursos especializados y fortaleciendo su modelo educativo para nuevas generaciones de esteticistas.'
     }
   ];
 
@@ -210,8 +210,8 @@ const SobreNosotros: React.FC = () => {
     {
       nombre: 'Jessica Vélez',
       cargo: 'Directora y Fundadora',
-      especializacion: 'Cosmetología Avanzada y Medicina Estética',
-      experiencia: '15+ años',
+      especializacion: 'Cosmetología Avanzada',
+      experiencia: '+15 años',
       descripcion: 'Pionera en la formación de esteticistas profesionales, con especialización en técnicas avanzadas de rejuvenecimiento facial',
       imagen: 'https://www.lahora.com.ec/__export/1753063265364/sites/lahora/img/2025/07/20/jexssica_vexlez.jpeg_1981115046.jpeg'
     }

@@ -32,13 +32,13 @@ const PaginaInicio: React.FC = () => {
     },
     {
       url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758897992/DSC00484c_x0rcwl.jpg',
-      title: 'Tratamientos Faciales de Lujo',
-      subtitle: 'Formación integral en cuidado facial profesional'
+      title: 'Formación Especializada en Cuidado Facial',
+      subtitle: 'Aprende protocolos faciales de manera totalmente práctica'
     },
     {
       url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758922216/DSC00505cc_arsvkf.jpg',
-      title: 'Medicina Estética Moderna',
-      subtitle: 'Cursos especializados en las últimas tendencias'
+      title: 'Tendencias Modernas en Estética Profesional',
+      subtitle: 'Cursos actualizados según las últimas innovaciones del sector'
     },
     {
       url: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846970/WhatsApp_Image_2025-09-25_at_4.59.46_PM_yueit3.jpg',
@@ -227,7 +227,7 @@ const PaginaInicio: React.FC = () => {
                 </div>
               </div>
               <div className="stat-card" data-aos="fade-up" data-aos-delay="100">
-                <div className="stat-number">15+</div>
+                <div className="stat-number">8</div>
                 <div className="stat-text">
                   <Sparkles size={16} />
                   Cursos Especializados
@@ -267,10 +267,12 @@ const PaginaInicio: React.FC = () => {
                   <span className="gradient-text">Escuela Jessica Vélez</span>
                 </h2>
                 <p className="video-description">
-                  Descubre cómo hemos transformado la vida de cientos de estudiantes a través de 
-                  una educación de excelencia en estética. Con más de 15 años de experiencia, 
-                  somos líderes en formación profesional con instalaciones modernas y 
-                  tecnología de vanguardia.
+                  Somos un centro de capacitación en estética con 6 años de experiencia, fundado en 2020, 
+                  dedicado a formar profesionales altamente competentes en el área. Nuestra escuela se 
+                  destaca por su metodología práctica, acompañamiento personalizado, instructores especializados
+                   y espacios modernos equipados con tecnología actual para fortalecer el aprendizaje. 
+                   En la Escuela Jessica Vélez impulsamos el crecimiento de nuestras estudiantes mediante 
+                   formación de calidad, disciplina y excelencia educativa.
                 </p>
                 <Link to="/sobre-nosotros" className="video-cta-button">
                   <Heart size={18} />
