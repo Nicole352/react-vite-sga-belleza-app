@@ -4379,17 +4379,40 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 marginBottom: '24px'
                               }}>
                                 <div style={{
-                                  width: '150px',
-                                  height: '150px',
+                                  width: '220px',
+                                  height: '220px',
                                   background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
                                   borderRadius: '12px',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  overflow: 'hidden'
                                 }}>
-                                  <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
+                                  {bancoComprobante === 'pichincha' ? (
+                                    <img
+                                      src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906337/sutkifytxyh6co1radby.jpg"
+                                      alt="QR Banco Pichincha"
+                                      style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                      }}
+                                    />
+                                  ) : bancoComprobante === 'pacifico' ? (
+                                    <img
+                                      src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg"
+                                      alt="QR Banco del Pacífico"
+                                      style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                      }}
+                                    />
+                                  ) : (
+                                    <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
+                                  )}
                                 </div>
                                 <div style={{ flex: 1 }}>
                                   <div style={{
@@ -4400,15 +4423,27 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   }}>
                                     <div style={{ marginBottom: '8px' }}>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Banco Nacional</span>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                        {bancoComprobante === 'pichincha' ? 'Banco Pichincha' :
+                                          bancoComprobante === 'pacifico' ? 'Banco del Pacífico' :
+                                            bancoComprobante === 'produbanco' ? 'Produbanco' :
+                                              'Selecciona un banco'}
+                                      </span>
                                     </div>
                                     <div style={{ marginBottom: '8px' }}>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>123-456789-0</span>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                        {bancoComprobante === 'pichincha' ? '2203141379 (Cuenta de ahorros)' :
+                                          bancoComprobante === 'pacifico' ? '00000-000 (Cuenta corriente)' :
+                                            bancoComprobante === 'produbanco' ? '12060263933 (Cuenta de ahorros)' :
+                                              'Selecciona un banco primero'}
+                                      </span>
                                     </div>
                                     <div style={{ marginBottom: '8px' }}>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>Escuela Jéssica Vélez</span>
+                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                        {bancoComprobante === 'produbanco' ? 'RICARDO XAVIER PILAGUANO' : 'JÉSSICA VELEZ'}
+                                      </span>
                                     </div>
                                     <div>
                                       <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
@@ -4476,15 +4511,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     >
                                       <option value="">Selecciona el banco</option>
                                       <option value="pichincha">Banco Pichincha</option>
-                                      <option value="guayaquil">Banco de Guayaquil</option>
                                       <option value="pacifico">Banco del Pacífico</option>
                                       <option value="produbanco">Produbanco</option>
-                                      <option value="bolivariano">Banco Bolivariano</option>
-                                      <option value="internacional">Banco Internacional</option>
-                                      <option value="machala">Banco de Machala</option>
-                                      <option value="austro">Banco del Austro</option>
-                                      <option value="cooperativa">Cooperativa</option>
-                                      <option value="otro">Otro</option>
                                     </select>
                                   </div>
 
