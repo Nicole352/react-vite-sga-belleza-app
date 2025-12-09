@@ -12,7 +12,7 @@ import AdminSectionHeader from '../../components/AdminSectionHeader';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface Pago {
   id_pago: number;
@@ -184,21 +184,17 @@ const GestionPagosEstudiante = () => {
 
   useSocket({
     'nuevo_pago': (data: any) => {
-      console.log('[Pagos] Nuevo pago recibido:', data);
       showToast.success('Nuevo pago registrado', darkMode);
       setSocketTrigger(prev => prev + 1);
     },
     'nuevo_pago_pendiente': (data: any) => {
-      console.log('[Pagos] Nuevo pago pendiente:', data);
       showToast.success(`Nuevo pago de ${data.estudiante_nombre} - Cuota #${data.numero_cuota}`, darkMode);
       setSocketTrigger(prev => prev + 1);
     },
     'pago_verificado': (data: any) => {
-      console.log('[Pagos] Pago verificado:', data);
       setSocketTrigger(prev => prev + 1);
     },
     'pago_rechazado': (data: any) => {
-      console.log('[Pagos] Pago rechazado:', data);
       setSocketTrigger(prev => prev + 1);
     }
   });
@@ -343,11 +339,6 @@ const GestionPagosEstudiante = () => {
   const openComprobanteModal = async (pago: Pago) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-
-      console.log('[Pagos] Obteniendo URL del comprobante:', {
-        id_pago: pago.id_pago,
-        numero_comprobante: pago.numero_comprobante
-      });
 
       // Obtener la URL de Cloudinary desde el endpoint
       const response = await fetch(`${API_BASE}/api/admin/pagos/${pago.id_pago}/comprobante`, {
@@ -663,14 +654,14 @@ const GestionPagosEstudiante = () => {
         onClick={() => pagosPorVerificar > 0 && setFiltroEstado('pagado')}
         style={{
           background: pagosPorVerificar > 0
-            ? (darkMode 
-                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)'
-                : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.06) 100%)')
+            ? (darkMode
+              ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)'
+              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.06) 100%)')
             : (darkMode
-                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%)'
-                : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.06) 100%)'),
-          border: pagosPorVerificar > 0 
-            ? '1px solid rgba(239, 68, 68, 0.35)' 
+              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%)'
+              : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.06) 100%)'),
+          border: pagosPorVerificar > 0
+            ? '1px solid rgba(239, 68, 68, 0.35)'
             : '1px solid rgba(16, 185, 129, 0.35)',
           borderRadius: '0.75rem',
           padding: isMobile ? '0.75rem' : '1rem 1.25rem',
@@ -680,8 +671,8 @@ const GestionPagosEstudiante = () => {
           gap: '1rem',
           cursor: pagosPorVerificar > 0 ? 'pointer' : 'default',
           transition: 'all 0.3s ease',
-          boxShadow: pagosPorVerificar > 0 
-            ? '0 4px 15px rgba(239, 68, 68, 0.15)' 
+          boxShadow: pagosPorVerificar > 0
+            ? '0 4px 15px rgba(239, 68, 68, 0.15)'
             : '0 4px 15px rgba(16, 185, 129, 0.1)',
           animation: pagosPorVerificar > 0 ? 'pulse 2s infinite' : 'none'
         }}
@@ -693,14 +684,14 @@ const GestionPagosEstudiante = () => {
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = pagosPorVerificar > 0 
-            ? '0 4px 15px rgba(239, 68, 68, 0.15)' 
+          e.currentTarget.style.boxShadow = pagosPorVerificar > 0
+            ? '0 4px 15px rgba(239, 68, 68, 0.15)'
             : '0 4px 15px rgba(16, 185, 129, 0.1)';
         }}
       >
         <div style={{
-          background: pagosPorVerificar > 0 
-            ? 'rgba(239, 68, 68, 0.15)' 
+          background: pagosPorVerificar > 0
+            ? 'rgba(239, 68, 68, 0.15)'
             : 'rgba(16, 185, 129, 0.15)',
           borderRadius: '0.75rem',
           padding: '0.75rem',
@@ -742,7 +733,7 @@ const GestionPagosEstudiante = () => {
             fontWeight: 700,
             marginBottom: '0.2rem'
           }}>
-            {pagosPorVerificar > 0 
+            {pagosPorVerificar > 0
               ? `${pagosPorVerificar} ${pagosPorVerificar === 1 ? 'pago pendiente' : 'pagos pendientes'} por verificar`
               : '¡Al día! No tiene pagos por verificar'
             }
@@ -751,7 +742,7 @@ const GestionPagosEstudiante = () => {
             color: theme.textSecondary,
             fontSize: '0.8rem'
           }}>
-            {pagosPorVerificar > 0 
+            {pagosPorVerificar > 0
               ? 'Haz clic aquí para ver los pagos que requieren tu verificación'
               : 'Todos los pagos han sido verificados correctamente'
             }
@@ -837,7 +828,7 @@ const GestionPagosEstudiante = () => {
                 if (selectedHorario !== 'todos') params.set('horario', selectedHorario);
                 if (selectedCursoTab !== 'todos') params.set('cursoId', String(selectedCursoTab));
                 if (searchTerm) params.set('search', searchTerm);
-                
+
                 const fetchUrl = `${API_BASE}/api/pagos-mensuales/reporte/excel${params.toString() ? '?' + params.toString() : ''}`;
                 const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error('Error descargando reporte');

@@ -11,7 +11,7 @@ import { useSocket } from '../../hooks/useSocket';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL ? `${(import.meta as any).env.VITE_API_URL}/api` : 'http://localhost:3000/api';
 
 interface Modulo {
   id_modulo: number;
@@ -27,6 +27,7 @@ interface Tarea {
   descripcion: string;
   fecha_limite: string;
   nota_maxima: number;
+  ponderacion: number;
   permite_archivo: boolean;
   formatos_permitidos: string;
   tamano_maximo_mb: number;
@@ -179,8 +180,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
 
   useSocket({
     'nuevo_modulo': (data: any) => {
-      console.log('Nuevo módulo disponible:', data);
-
       // Solo mostrar notificación si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
         showToast.success(`Nuevo módulo disponible: ${data.nombre_modulo}`, darkMode);
@@ -188,8 +187,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       }
     },
     'nueva_tarea': (data: any) => {
-      console.log('Nueva tarea asignada:', data);
-
       // Mostrar notificación con información completa
       showToast.success(`Nueva tarea: ${data.titulo_tarea} - ${data.curso_nombre}`, darkMode);
 
@@ -202,8 +199,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       }
     },
     'tarea_calificada': (data: any) => {
-      console.log('Tarea calificada:', data);
-
       // Obtener el ID del usuario actual desde sessionStorage
       const authData = sessionStorage.getItem('auth_data');
       if (authData) {
@@ -229,8 +224,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       });
     },
     'modulo_cerrado': (data: any) => {
-      console.log('Módulo cerrado:', data);
-
       // Solo procesar si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
         showToast.info(`Módulo "${data.nombre}" ha sido cerrado`, darkMode);
@@ -240,8 +233,6 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
       }
     },
     'modulo_reabierto': (data: any) => {
-      console.log('Módulo reabierto:', data);
-
       // Solo procesar si es del curso actual
       if (data.id_curso === parseInt(id || '0')) {
         showToast.success(`Módulo "${data.nombre}" ha sido reabierto`, darkMode);
@@ -579,7 +570,7 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                 </span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
                                   <FileText size={13} color={theme.textMuted} />
-                                  Nota máx: {tarea.nota_maxima}
+                                  Nota: {Number(tarea.nota_maxima).toFixed(2)} | Peso: {tarea.ponderacion}pts
                                 </span>
                               </div>
                             </div>

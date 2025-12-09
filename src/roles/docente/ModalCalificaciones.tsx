@@ -226,10 +226,7 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       if (calificacionesCompletasResponse.ok) {
         try {
           datosCompletos = await calificacionesCompletasResponse.json();
-          console.log("Datos completos recibidos:", datosCompletos);
           if (datosCompletos.success) {
-            console.log("Módulos encontrados:", datosCompletos.modulos);
-            console.log("Peso por módulo:", datosCompletos.peso_por_modulo);
             setModulos(datosCompletos.modulos || []);
             setPesoPorModulo(datosCompletos.peso_por_modulo || 0);
           }
@@ -421,8 +418,6 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
       // Debug: Verificar datos antes de crear Excel
       console.log("Generando Excel...");
       console.log("Total estudiantes:", estudiantes.length);
-      console.log("Módulos disponibles:", modulos);
-      console.log("Peso por módulo:", pesoPorModulo);
 
       // Hoja 2: Promedios por Módulo (sobre 10 puntos)
       const datosModulos = estudiantes.map((est) => {

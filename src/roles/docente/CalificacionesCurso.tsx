@@ -172,8 +172,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
   // Escuchar eventos de WebSocket para actualizaciones en tiempo real
   useSocket({
     calificacion_actualizada: (data: any) => {
-      console.log("[WebSocket Docente] Calificación actualizada:", data);
-
       // Verificar si la calificación pertenece a este curso
       if (data.id_curso === cursoId) {
         showToast.success('Calificación actualizada', darkMode);
@@ -183,8 +181,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       }
     },
     entrega_calificada: (data: any) => {
-      console.log("[WebSocket Docente] Entrega calificada:", data);
-
       // Verificar si la entrega pertenece a este curso
       if (data.id_curso === cursoId) {
         const nombreEstudiante = data.estudiante_nombre && data.estudiante_apellido
@@ -288,10 +284,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       if (calificacionesCompletasResponse.ok) {
         try {
           datosCompletos = await calificacionesCompletasResponse.json();
-          console.log("Datos completos recibidos:", datosCompletos);
           if (datosCompletos.success) {
-            console.log("Módulos encontrados:", datosCompletos.modulos);
-            console.log("Peso por módulo:", datosCompletos.peso_por_modulo);
             setModulos(datosCompletos.modulos || []);
             setPesoPorModulo(datosCompletos.peso_por_modulo || 0);
           }
@@ -576,19 +569,36 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         tareasPorModulo[moduloNombre].push(tarea);
       });
 
-      // Fila 1 y 2: Encabezados
-      const row1 = wsDetalle.addRow(['#', 'Apellido', 'Nombre']); // Se combinarán verticalmente
-      const row2 = wsDetalle.addRow(['', '', '']); // Espacio reservado
+      // Fila 1, 2 y 3: Encabezados
+      const row1 = wsDetalle.addRow(['#', 'Apellido', 'Nombre']); // Módulos
+      const row2 = wsDetalle.addRow(['', '', '']); // Tareas
+      const row3 = wsDetalle.addRow(['', '', '']); // Ponderación
 
-      // Combinar #, Apellido y Nombre (Fila 1 y 2)
-      wsDetalle.mergeCells(1, 1, 2, 1); // A1:A2 (#)
-      wsDetalle.mergeCells(1, 2, 2, 2); // B1:B2 (Apellido)
-      wsDetalle.mergeCells(1, 3, 2, 3); // C1:C2 (Nombre)
+      // Combinar #, Apellido y Nombre (Fila 1, 2 y 3)
+      wsDetalle.mergeCells(1, 1, 3, 1); // A1:A3 (#)
+      wsDetalle.mergeCells(1, 2, 3, 2); // B1:B3 (Apellido)
+      wsDetalle.mergeCells(1, 3, 3, 3); // C1:C3 (Nombre)
 
       let colIndex = 4;
 
       // Columnas de Tareas (Agrupadas por Módulo)
-      Object.keys(tareasPorModulo).sort().forEach((moduloNombre) => {
+      // Usar el orden de 'modulos' (que viene del backend ordenado por ID)
+      const ordenModulos = [...modulos];
+      if (tareasPorModulo["Sin Módulo"]) {
+        ordenModulos.push("Sin Módulo");
+      }
+
+      // Asegurar que no duplicamos y procesar solo los que tienen tareas
+      const modulosConTareas = ordenModulos.filter(m => tareasPorModulo[m]);
+
+      // Si hay módulos en 'tareasPorModulo' que no están en la lista oficial, agregarlos al final
+      Object.keys(tareasPorModulo).forEach(m => {
+        if (!modulosConTareas.includes(m)) {
+          modulosConTareas.push(m);
+        }
+      });
+
+      modulosConTareas.forEach((moduloNombre) => {
         const tareasDelModulo = tareasPorModulo[moduloNombre];
 
         // Escribir nombre del módulo en Fila 1
@@ -600,11 +610,38 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           wsDetalle.mergeCells(1, colIndex, 1, colIndex + tareasDelModulo.length - 1);
         }
 
-        // Escribir nombres de tareas en Fila 2
+        // Escribir nombres de tareas en Fila 2 y Ponderación en Fila 3
         tareasDelModulo.forEach((tarea) => {
+          // Fila 2: Título Tarea
           const cellTarea = row2.getCell(colIndex);
           cellTarea.value = tarea.titulo;
+
+          // Fila 3: Ponderación
+          const cellPonderacion = row3.getCell(colIndex);
+          cellPonderacion.value = `${tarea.ponderacion || 0} pts`;
+          cellPonderacion.font = { italic: true, size: 9, color: { argb: 'FF666666' } };
+          cellPonderacion.alignment = { horizontal: 'center' };
+
           colIndex++;
+        });
+      });
+
+      // Estilos para headers
+      [row1, row2, row3].forEach(row => {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF3F4F6' } // Gris claro
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+          cell.font = { bold: true };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
         });
       });
 

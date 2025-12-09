@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { 
+import {
   User, Phone, MapPin, Calendar, Users, ShieldCheck, X, Mail, CheckCircle
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface UserProfile {
   id_usuario: number;
@@ -59,14 +59,11 @@ const ConfiguracionPanel: React.FC = () => {
   // Listener WebSocket para actualización de foto en tiempo real
   useSocket({
     'profile_picture_updated': (data: any) => {
-      console.log('📸 Foto de perfil actualizada en tiempo real (ConfiguracionPanel):', data);
       if (data.id_usuario === userData?.id_usuario) {
         if (data.deleted) {
           setFotoUrl(null);
-          console.log('✓ Foto eliminada correctamente (ConfiguracionPanel)');
         } else if (data.foto_perfil_url) {
           setFotoUrl(data.foto_perfil_url);
-          console.log('✓ Foto actualizada correctamente (ConfiguracionPanel)');
         }
       }
     }
@@ -99,10 +96,8 @@ const ConfiguracionPanel: React.FC = () => {
         const data = await response.json();
         if (data.foto_perfil) {
           setFotoUrl(data.foto_perfil);
-          console.log('Foto cargada en ConfiguracionPanel:', data.foto_perfil);
         } else {
           setFotoUrl(null);
-          console.log('No hay foto de perfil');
         }
       }
     } catch (error) {
@@ -113,17 +108,17 @@ const ConfiguracionPanel: React.FC = () => {
   const loadStats = async () => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      
+
       // Cargar total de admins
       const adminsRes = await fetch(`${API_BASE}/api/admins`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (adminsRes.ok) {
         const adminsData = await adminsRes.json();
         const total = adminsData.length;
         const active = adminsData.filter((a: any) => a.estado === 'activo').length;
-        
+
         setStats(prev => ({
           ...prev,
           totalAdmins: total,
@@ -139,10 +134,10 @@ const ConfiguracionPanel: React.FC = () => {
 
       if (auditRes.ok) {
         const auditData = await auditRes.json();
-        const sessions = auditData.data?.auditorias?.filter((a: any) => 
+        const sessions = auditData.data?.auditorias?.filter((a: any) =>
           a.tabla_afectada === 'sesiones_usuario' && a.operacion === 'INSERT'
         ).length || 0;
-        
+
         setStats(prev => ({
           ...prev,
           sessionsToday: sessions
@@ -237,9 +232,9 @@ const ConfiguracionPanel: React.FC = () => {
       </div>
 
       {/* Estadísticas rápidas */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'), 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'),
         gap: isMobile ? '0.75rem' : '1rem',
         marginBottom: isMobile ? '1rem' : '1.5rem'
       }}>
@@ -465,10 +460,10 @@ const ConfiguracionPanel: React.FC = () => {
               INFORMACIÓN PERSONAL
             </h3>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(2, 1fr)', 
-              gap: '1rem' 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(2, 1fr)',
+              gap: '1rem'
             }}>
               {/* Nombres */}
               <div>
@@ -661,40 +656,40 @@ const ConfiguracionPanel: React.FC = () => {
             </div>
           ) : (
             recentActivity.map((activity, index) => (
-            <div key={index} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              padding: '0.75rem',
-              background: 'var(--superadmin-input-bg)',
-              border: '1px solid var(--superadmin-input-border)',
-              borderRadius: '0.625rem',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--superadmin-hover-bg)';
-              e.currentTarget.style.transform = 'translateX(4px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--superadmin-input-bg)';
-              e.currentTarget.style.transform = 'translateX(0)';
-            }}>
-              <div style={{
-                width: '0.5rem',
-                height: '0.5rem',
-                borderRadius: '50%',
-                background: activity.color,
-                boxShadow: `0 0 8px ${activity.color}`
-              }} />
-              <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '500' }}>
-                  {activity.action}
-                </p>
-                <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>
-                  {activity.time}
-                </p>
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '0.75rem',
+                background: 'var(--superadmin-input-bg)',
+                border: '1px solid var(--superadmin-input-border)',
+                borderRadius: '0.625rem',
+                transition: 'all 0.2s ease'
+              }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--superadmin-hover-bg)';
+                  e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--superadmin-input-bg)';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}>
+                <div style={{
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  borderRadius: '50%',
+                  background: activity.color,
+                  boxShadow: `0 0 8px ${activity.color}`
+                }} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '500' }}>
+                    {activity.action}
+                  </p>
+                  <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>
+                    {activity.time}
+                  </p>
+                </div>
               </div>
-            </div>
             ))
           )}
         </div>

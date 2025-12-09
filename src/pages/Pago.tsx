@@ -83,7 +83,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSocket } from '../hooks/useSocket';
 
 // Backend API base (sin proxy de Vite)
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:3000/api';
 
 type CacheBucket = 'cupos' | 'tiposCursos';
 
@@ -511,8 +511,6 @@ const Pago: React.FC = () => {
 
           // Mostrar cursos matriculados si existen
           if (data.cursos_matriculados && data.cursos_matriculados.length > 0) {
-            console.log('Cursos actuales del estudiante:', data.cursos_matriculados);
-
             // VALIDAR CURSO DUPLICADO: Verificar si ya está inscrito en este curso
             const yaInscritoEnEsteCurso = data.cursos_matriculados.some(
               (curso: any) => curso.id_tipo_curso === tipoCursoId
@@ -741,7 +739,6 @@ const Pago: React.FC = () => {
 
       setCuposDisponibles(cupos);
       writeCacheEntry('cupos', cupos);
-      console.log('Cupos disponibles cargados:', cupos);
       console.log('Total de registros:', cupos.length);
 
       // TOAST DE ÉXITO (solo si showToast es true)
@@ -777,20 +774,16 @@ const Pago: React.FC = () => {
   };
 
   useSocket({
-    'cupos_actualizados': (data: any) => {
-      console.log('Cupos actualizados (WS) - Refrescando datos (debounced)', data);
+    'cupos_actualizados': () => {
       debouncedReload();
     },
-    'matricula_aprobada': (data: any) => {
-      console.log('Matrícula aprobada - Actualizando cupos y disponibilidad (debounced)', data);
+    'matricula_aprobada': () => {
       debouncedReload();
     },
-    'solicitud_actualizada': (data: any) => {
-      console.log('Solicitud actualizada - Actualizando cupos y disponibilidad (debounced)', data);
+    'solicitud_actualizada': () => {
       debouncedReload();
     },
-    'nueva_solicitud': (data: any) => {
-      console.log('Nueva solicitud - Actualizando cupos y disponibilidad (debounced)', data);
+    'nueva_solicitud': () => {
       debouncedReload();
     }
   });
@@ -1412,9 +1405,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       // Guardar datos de la solicitud creada
       setSolicitudCreada(data);
 
-      console.log('Solicitud creada:', data);
-      console.log('Tipo de curso seleccionado:', tipoCursoId);
-
       // Verificar si hay promociones disponibles para este tipo de curso
       try {
         const promosResponse = await fetch(`${API_BASE}/promociones/activas`);
@@ -1422,36 +1412,30 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
         if (promosResponse.ok) {
           const todasPromos = await promosResponse.json();
-          console.log('Total promociones activas:', todasPromos.length, todasPromos);
+          console.log('Total promociones activas:', todasPromos.length);
 
           // Filtrar promociones que apliquen al tipo de curso actual
           // Las promociones ahora tienen id_curso_principal (el que el estudiante paga)
           const cursosResponse = await fetch(`${API_BASE}/cursos?tipo=${tipoCursoId}`);
-          console.log('Response cursos del tipo:', cursosResponse.status);
 
           if (cursosResponse.ok) {
             const cursosDelTipo = await cursosResponse.json();
-            console.log('Cursos del tipo', tipoCursoId, ':', cursosDelTipo);
 
             const idsCursos = cursosDelTipo
               .filter((c: any) => c.estado === 'activo')
               .map((c: any) => c.id_curso);
 
-            console.log('IDs de cursos activos:', idsCursos);
-
             // Filtrar promociones cuyo id_curso_principal esté en la lista
             const promosAplicables = todasPromos.filter((promo: any) => {
               const aplica = idsCursos.includes(promo.id_curso_principal);
-              console.log(`  🔍 Promo "${promo.nombre_promocion}" (id_curso_principal: ${promo.id_curso_principal}) → ${aplica ? '✅ APLICA' : '❌ NO APLICA'}`);
               return aplica;
             });
 
-            console.log('Promociones aplicables:', promosAplicables.length, promosAplicables);
+            console.log('Promociones aplicables:', promosAplicables.length);
 
             if (promosAplicables.length > 0) {
               setPromocionesDisponibles(promosAplicables);
               setShowPromoModal(true);
-              console.log('showPromoModal establecido a TRUE');
               // NO mostrar success ni redirigir aún
               return;
             } else {
@@ -1518,12 +1502,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       console.log(' Solicitud actualizada con promoción en el backend');
 
       // Mostrar mensaje de éxito
-      console.log('Promoción seleccionada:', {
-        id_promocion,
-        id_solicitud: solicitudCreada.id_solicitud || solicitudCreada.codigo_solicitud,
-        nombre_promocion: promoSeleccionada?.nombre_promocion
-      });
-
       const beneficioTexto = promoSeleccionada?.modalidad_pago === 'clases'
         ? `${promoSeleccionada?.clases_gratis} ${promoSeleccionada?.clases_gratis === 1 ? 'clase gratis' : 'clases gratis'}`
         : `${promoSeleccionada?.meses_gratis} ${promoSeleccionada?.meses_gratis === 1 ? 'mes gratis' : 'meses gratis'}`;
@@ -2406,18 +2384,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               {/* Mostrar cupos por horario */}
                               {(() => {
-                                console.log(' Filtrando cupos para tipoCursoId:', tipoCursoId);
-                                console.log(' Cupos disponibles:', cuposDisponibles);
-                                console.log(' Detalle de cada cupo:', cuposDisponibles.map((c: any) => ({
-                                  id_tipo_curso: c.id_tipo_curso,
-                                  tipo: typeof c.id_tipo_curso,
-                                  nombre: c.tipo_curso_nombre,
-                                  horario: c.horario,
-                                  cupos: c.cupos_totales
-                                })));
                                 const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
-                                console.log('Cupos filtrados:', cuposFiltrados);
-                                console.log('Comparación:', cuposDisponibles.map((c: any) => `${c.id_tipo_curso} === ${tipoCursoId} ? ${c.id_tipo_curso === tipoCursoId}`));
 
                                 if (cuposFiltrados.length === 0) {
                                   return (

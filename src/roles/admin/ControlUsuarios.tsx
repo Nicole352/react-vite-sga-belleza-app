@@ -12,7 +12,7 @@ import '../../utils/modalScrollHelper';
 
 type CSSPropertiesWithVars = CSSProperties & Record<string, string | number>;
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL ? `${(import.meta as any).env.VITE_API_URL}/api` : 'http://localhost:3000/api';
 
 interface Usuario {
   id_usuario: number;
@@ -222,10 +222,6 @@ const ControlUsuarios = () => {
 
       const data = await response.json();
 
-      // DEBUG: Verificar fotos (simplificado para no mostrar base64 completo)
-      const conFoto = data.usuarios?.filter((u: any) => u.foto_perfil).length || 0;
-      console.log(' Usuarios con foto:', conFoto, 'de', data.usuarios?.length);
-
       // Obtener ID del usuario logueado
       let idUsuarioLogueado = null;
       try {
@@ -332,7 +328,6 @@ const ControlUsuarios = () => {
         });
         if (usuarioRes.ok) {
           const usuarioData = await usuarioRes.json();
-          console.log('?? Usuario completo recibido:', usuarioData);
           setUsuarioSeleccionado(usuarioData.usuario);
         } else {
           console.error('? Error al cargar usuario:', usuarioRes.status);
@@ -350,7 +345,6 @@ const ControlUsuarios = () => {
         });
         if (sesionesRes.ok) {
           const sesionesData = await sesionesRes.json();
-          console.log('?? Sesiones recibidas:', sesionesData);
           setSesiones(sesionesData.sesiones || []);
         } else {
           console.error('? Error al cargar sesiones:', sesionesRes.status);
@@ -368,7 +362,6 @@ const ControlUsuarios = () => {
         });
         if (historialRes.ok) {
           const historialData = await historialRes.json();
-          console.log('Historial detallado recibido:', historialData);
           setAcciones(historialData.data?.acciones || []);
         } else {
           console.error('Error al cargar historial:', historialRes.status);
@@ -387,7 +380,6 @@ const ControlUsuarios = () => {
           });
           if (pagosRes.ok) {
             const pagosData = await pagosRes.json();
-            console.log('?? Pagos recibidos:', pagosData);
             setPagos(pagosData.pagos || []);
           } else {
             console.error('? Error al cargar pagos:', pagosRes.status);
@@ -405,7 +397,6 @@ const ControlUsuarios = () => {
           });
           if (deberesRes.ok) {
             const deberesData = await deberesRes.json();
-            console.log('?? Deberes recibidos:', deberesData);
             setDeberes(deberesData.deberes || []);
           } else {
             console.error('? Error al cargar deberes:', deberesRes.status);
@@ -440,7 +431,6 @@ const ControlUsuarios = () => {
       });
       if (historialRes.ok) {
         const historialData = await historialRes.json();
-        console.log('Historial detallado recibido:', historialData);
 
         const accionesParsed = (historialData.data?.acciones || []).map((accion: any) => {
           if (typeof accion.detalles === 'string') {

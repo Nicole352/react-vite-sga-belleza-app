@@ -6,7 +6,7 @@ import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import '../../styles/responsive.css';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 interface UserProfile {
   id_usuario: number;
@@ -66,16 +66,13 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true, onPhotoUpdate }) => {
   // Listener WebSocket para actualización de foto en tiempo real
   useSocket({
     'profile_picture_updated': (data: any) => {
-      console.log('📸 Foto de perfil actualizada en tiempo real (Perfil):', data);
       if (data.id_usuario === userData?.id_usuario) {
         if (data.deleted) {
           // Foto eliminada
           setFotoUrl(null);
-          console.log('✓ Foto eliminada correctamente (Perfil)');
         } else if (data.foto_perfil_url) {
           // Foto actualizada
           setFotoUrl(data.foto_perfil_url);
-          console.log('✓ Foto actualizada correctamente (Perfil)');
         }
       }
     }
@@ -119,10 +116,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode = true, onPhotoUpdate }) => {
         // Usar directamente la URL de Cloudinary si existe
         if (data.foto_perfil) {
           setFotoUrl(data.foto_perfil);
-          console.log('Foto cargada en Perfil:', data.foto_perfil);
         } else {
           setFotoUrl(null);
-          console.log('No hay foto de perfil');
         }
       }
     } catch (error) {

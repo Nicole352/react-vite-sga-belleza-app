@@ -197,13 +197,11 @@ const GestionMatricula = () => {
 
   useSocket({
     'nueva_solicitud_matricula': (data: any) => {
-      console.log('Nueva solicitud recibida:', data);
       showToast.success(`Nueva solicitud: ${data.nombre_solicitante} ${data.apellido_solicitante}`, darkMode);
       void fetchSolicitudes();
       void fetchCounters();
     },
     'solicitud_actualizada': (data: any) => {
-      console.log('Solicitud actualizada:', data);
       void fetchSolicitudes();
       void fetchCounters();
     }
@@ -342,18 +340,6 @@ const GestionMatricula = () => {
 
   // Función para abrir modal de aprobación
   const openApprovalModal = (solicitud: Solicitud) => {
-    console.log('Datos de la solicitud para aprobar:', solicitud);
-    console.log('Campos específicos:', {
-      nombre: solicitud.nombre_solicitante,
-      apellido: solicitud.apellido_solicitante,
-      telefono: solicitud.telefono_solicitante,
-      email: solicitud.email_solicitante,
-      identificacion: solicitud.identificacion_solicitante,
-      fecha_nacimiento: solicitud.fecha_nacimiento_solicitante,
-      horario: solicitud.horario_preferido,
-      tipo_curso: (solicitud as any).tipo_curso_nombre
-    });
-
     setApprovalData(solicitud);
 
     // Generar username automáticamente
