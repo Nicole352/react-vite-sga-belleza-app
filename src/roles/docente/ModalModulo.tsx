@@ -120,15 +120,20 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    // Convertir a mayúsculas solo el nombre del módulo
+    const finalValue = name === 'nombre' ? value.toUpperCase() : value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: finalValue
     });
   };
 
   const handleCategoriaChange = (index: number, field: string, value: string) => {
     const newCategorias = [...formData.categorias];
-    (newCategorias[index] as any)[field] = field === 'ponderacion' ? (value === '' ? '' : parseFloat(value)) : value;
+    // Convertir a mayúsculas el nombre de la categoría
+    const finalValue = field === 'nombre' ? value.toUpperCase() : (field === 'ponderacion' ? (value === '' ? '' : parseFloat(value)) : value);
+    (newCategorias[index] as any)[field] = finalValue;
     setFormData({ ...formData, categorias: newCategorias });
   };
 

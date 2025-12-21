@@ -108,14 +108,9 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         return tarea.modulo_nombre === moduloActivo;
       });
 
-      // Ordenar por categoría para agrupación visual
+      // Ordenar por ID de tarea (orden de creación) en lugar de alfabético
       tareasDelModulo.sort((a, b) => {
-        const catA = a.categoria_nombre || 'Sin Categoría';
-        const catB = b.categoria_nombre || 'Sin Categoría';
-        if (catA === catB) return 0;
-        if (catA === 'Sin Categoría') return 1;
-        if (catB === 'Sin Categoría') return -1;
-        return catA.localeCompare(catB);
+        return a.id_tarea - b.id_tarea;
       });
 
       setTareasFiltradas(tareasDelModulo);
@@ -934,7 +929,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     ).length;
     const reprobados = filteredEstudiantes.length - aprobados;
     const promedioGeneral =
-      filteredEstudiantes.reduce((sum, est) => sum + est.promedio, 0) /
+      filteredEstudiantes.reduce((sum, est) => sum + (parseFloat(String(est.promedio_global)) || 0), 0) /
       filteredEstudiantes.length;
 
     return {

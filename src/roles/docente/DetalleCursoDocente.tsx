@@ -1412,11 +1412,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                             "0 1px 3px rgba(0,0,0,0.05)";
                                       }}
                                       onClick={() => {
+                                        const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
+                                          ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
+                                          : tarea.ponderacion;
+
                                         setTareaSeleccionada({
                                           id: tarea.id_tarea,
                                           nombre: tarea.titulo,
                                           nota_maxima: tarea.nota_maxima,
-                                          ponderacion: tarea.ponderacion,
+                                          ponderacion: pesoReal,
                                         });
                                         setShowModalEntregas(true);
                                       }}
@@ -1529,11 +1533,15 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                               onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
+                                                const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
+                                                  ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
+                                                  : tarea.ponderacion;
+
                                                 setTareaSeleccionada({
                                                   id: tarea.id_tarea,
                                                   nombre: tarea.titulo,
                                                   nota_maxima: tarea.nota_maxima,
-                                                  ponderacion: tarea.ponderacion,
+                                                  ponderacion: pesoReal,
                                                 });
                                                 setShowModalEntregas(true);
                                               }}

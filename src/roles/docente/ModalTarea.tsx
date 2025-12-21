@@ -410,29 +410,41 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
 
             </div>
 
-            {/* Categoría */}
-            {categorias.length > 0 && (
-              <div>
-                <label style={labelStyle}>Categoría *</label>
-                <select
-                  name="id_categoria"
-                  value={formData.id_categoria}
-                  onChange={handleChange}
-                  style={inputStyle}
-                >
-                  <option value="">
-                    {categorias.length > 0
-                      ? 'Seleccione una categoría *'
-                      : 'Seleccione una categoría (opcional)'}
+            {/* Categoría - Siempre visible */}
+            <div>
+              <label style={labelStyle}>Categoría *</label>
+              <select
+                name="id_categoria"
+                value={formData.id_categoria}
+                onChange={handleChange}
+                style={inputStyle}
+                required
+              >
+                <option value="">
+                  {categorias.length > 0
+                    ? 'Seleccione una categoría *'
+                    : 'No hay categorías. Crea categorías en el módulo primero.'}
+                </option>
+                {categorias.map((cat: any) => (
+                  <option key={cat.id_categoria} value={cat.id_categoria}>
+                    {cat.nombre} ({cat.ponderacion} pts)
                   </option>
-                  {categorias.map((cat: any) => (
-                    <option key={cat.id_categoria} value={cat.id_categoria}>
-                      {cat.nombre} (Vale {cat.ponderacion} pts)
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+                ))}
+              </select>
+              {categorias.length === 0 && (
+                <p style={{
+                  color: '#f59e0b',
+                  fontSize: '0.75rem',
+                  marginTop: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <AlertTriangle size={12} />
+                  Debes crear categorías en el módulo antes de crear tareas.
+                </p>
+              )}
+            </div>
 
             {/* Fila: Descripción e Instrucciones en 2 columnas */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -474,7 +486,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
             </div>
 
             {/* Calificación y Ponderación */}
-            <div style={{ display: 'grid', gridTemplateColumns: formData.id_categoria ? '1fr 1fr' : '1fr 1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: categorias.length > 0 ? '1fr 1fr' : '1fr 1fr 1fr', gap: '10px' }}>
               <div>
                 <label style={labelStyle}>
                   Nota Máxima *
@@ -527,7 +539,8 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
                 </p>
               </div>
 
-              {!formData.id_categoria && (
+              {/* Solo mostrar Ponderación si NO hay categorías en el módulo */}
+              {categorias.length === 0 && (
                 <div>
                   <label style={labelStyle}>
                     Ponderación *
@@ -556,8 +569,8 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
               )}
             </div>
 
-            {/* Advertencia de suma de ponderaciones (Solo visible si NO hay categoría) */}
-            {!formData.id_categoria && formData.ponderacion && parseFloat(formData.ponderacion) > 0 && (
+            {/* Advertencia de suma de ponderaciones (Solo visible si NO hay categorías en el módulo) */}
+            {categorias.length === 0 && formData.ponderacion && parseFloat(formData.ponderacion) > 0 && (
               <div style={{
                 padding: '0.625em 0.75em',
                 background: (sumaPonderaciones + parseFloat(formData.ponderacion)) > 10
