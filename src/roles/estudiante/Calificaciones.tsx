@@ -881,20 +881,38 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                             <div style={{
                                               display: 'flex',
                                               alignItems: 'center',
-                                              gap: '0.5rem',
-                                              marginBottom: '0.5rem',
-                                              paddingLeft: '0.25rem',
-                                              marginTop: '0.75rem'
+                                              gap: '0.75rem',
+                                              marginBottom: '1rem',
+                                              marginTop: '1.5rem',
+                                              padding: '0.75rem 1rem',
+                                              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+                                              borderLeft: `4px solid ${theme.accent}`,
+                                              borderRadius: '0 0.5rem 0.5rem 0',
+                                              boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
                                             }}>
-                                              <Award size={14} color={theme.accent} />
+                                              <Award size={20} color={theme.accent} />
                                               <h5 style={{
                                                 margin: 0,
-                                                fontSize: '0.85rem',
-                                                fontWeight: '700',
-                                                color: theme.textPrimary
+                                                fontSize: '1rem',
+                                                fontWeight: '800',
+                                                color: theme.textPrimary,
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.05em',
+                                                flex: 1
                                               }}>
-                                                {nombreCat} <span style={{ color: theme.textMuted, fontWeight: '400', fontSize: '0.75rem' }}>({ponderacionCat} pts)</span>
+                                                {nombreCat}
                                               </h5>
+                                              <div style={{
+                                                background: theme.accent,
+                                                color: '#fff',
+                                                padding: '0.25rem 0.75rem',
+                                                borderRadius: '1rem',
+                                                fontSize: '0.75rem',
+                                                fontWeight: '700',
+                                                boxShadow: '0 2px 4px rgba(251, 191, 36, 0.3)'
+                                              }}>
+                                                {ponderacionCat} pts
+                                              </div>
                                             </div>
                                           )}
 
@@ -950,35 +968,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                       calificacion.nota_maxima as any,
                                                     ) || 10}
                                                   </span>
-                                                  {calificacion.categoria_nombre ? (
-                                                    <>
-                                                      <span
-                                                        style={{
-                                                          color: theme.textMuted,
-                                                          fontSize: "0.75rem",
-                                                          marginLeft: "0.5rem",
-                                                          borderLeft: `1px solid ${theme.border}`,
-                                                          paddingLeft: "0.5rem"
-                                                        }}
-                                                      >
-                                                        {calificacion.categoria_nombre} ({calificacion.categoria_ponderacion} pts)
-                                                      </span>
-                                                    </>
-                                                  ) : (
-                                                    calificacion.ponderacion && (
-                                                      <span
-                                                        style={{
-                                                          color: theme.textMuted,
-                                                          fontSize: "0.75rem",
-                                                          marginLeft: "0.5rem",
-                                                          borderLeft: `1px solid ${theme.border}`,
-                                                          paddingLeft: "0.5rem"
-                                                        }}
-                                                      >
-                                                        Peso: {calificacion.ponderacion}pts
-                                                      </span>
-                                                    )
-                                                  )}
+                                                  {/* Eliminado info de categoría redundante aqui */}
                                                 </div>
                                               );
                                             } else if (fueEntregada) {

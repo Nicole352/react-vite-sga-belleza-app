@@ -565,19 +565,38 @@ const DetalleCursoEstudiante: React.FC<DetalleCursoEstudianteProps> = ({ darkMod
                                 <div style={{
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '0.5em',
-                                  marginBottom: '0.75em',
-                                  paddingLeft: '0.25em'
+                                  gap: '0.75rem',
+                                  marginBottom: '1rem',
+                                  marginTop: '1.5rem',
+                                  padding: '0.75rem 1rem',
+                                  background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+                                  borderLeft: `4px solid ${theme.accent}`,
+                                  borderRadius: '0 0.5rem 0.5rem 0',
+                                  boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
                                 }}>
-                                  <Award size={14} color={theme.accent} />
-                                  <h4 style={{
+                                  <Award size={20} color={theme.accent} />
+                                  <h5 style={{
                                     margin: 0,
-                                    fontSize: '0.85rem',
-                                    fontWeight: '700',
-                                    color: theme.textPrimary
+                                    fontSize: '1rem',
+                                    fontWeight: '800',
+                                    color: theme.textPrimary,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                    flex: 1
                                   }}>
-                                    {nombreCat} <span style={{ color: theme.textMuted, fontWeight: '400', fontSize: '0.75rem' }}>({ponderacionCat} pts)</span>
-                                  </h4>
+                                    {nombreCat}
+                                  </h5>
+                                  <div style={{
+                                    background: theme.accent,
+                                    color: '#000',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '1rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    boxShadow: '0 2px 4px rgba(251, 191, 36, 0.3)'
+                                  }}>
+                                    {ponderacionCat} pts
+                                  </div>
                                 </div>
                               )}
 

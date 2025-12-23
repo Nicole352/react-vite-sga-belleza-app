@@ -75,7 +75,10 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
             fecha_fin: modulo.fecha_fin ? modulo.fecha_fin.split('T')[0] : '',
             estado: modulo.estado || 'activo',
             categorias: modulo.categorias && modulo.categorias.length > 0
-              ? modulo.categorias
+              ? modulo.categorias.map((cat: any) => ({
+                ...cat,
+                id: (cat.id && !String(cat.id).includes('-')) ? Number(cat.id) : cat.id
+              }))
               : [{ id: crypto.randomUUID(), nombre: '', ponderacion: '' }]
           });
         } catch (error) {
@@ -138,6 +141,10 @@ const ModalModulo: React.FC<ModalModuloProps> = ({
   };
 
   const addCategoria = () => {
+    if (totalPonderacion >= 10) {
+      showToast.error('Las categorías ya suman 10 puntos. Por favor, disminuye puntos en otra categoría si deseas crear otra categoría', darkMode);
+      return;
+    }
     setFormData({
       ...formData,
       categorias: [...formData.categorias, { id: crypto.randomUUID(), nombre: '', ponderacion: '' }]

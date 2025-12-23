@@ -1353,20 +1353,38 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                                   <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '0.5rem',
-                                    marginBottom: '0.5rem',
-                                    paddingLeft: '0.25rem',
-                                    marginTop: '1rem'
+                                    gap: '0.75rem',
+                                    marginBottom: '1rem',
+                                    marginTop: '1.5rem',
+                                    padding: '0.75rem 1rem',
+                                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                                    borderLeft: `4px solid ${theme.accent}`,
+                                    borderRadius: '0 0.5rem 0.5rem 0',
+                                    boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
                                   }}>
-                                    <Award size={14} color={isMobile ? (darkMode ? '#fff' : '#000') : theme.accent} />
+                                    <Award size={20} color={theme.accent} />
                                     <h5 style={{
                                       margin: 0,
-                                      fontSize: '0.85rem',
-                                      fontWeight: '700',
-                                      color: theme.textPrimary
+                                      fontSize: '1rem',
+                                      fontWeight: '800',
+                                      color: theme.textPrimary,
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.05em',
+                                      flex: 1
                                     }}>
-                                      {nombreCat} <span style={{ color: theme.textMuted, fontWeight: '400', fontSize: '0.75rem' }}>({ponderacionCat} pts)</span>
+                                      {nombreCat}
                                     </h5>
+                                    <div style={{
+                                      background: theme.accent,
+                                      color: '#fff',
+                                      padding: '0.25rem 0.75rem',
+                                      borderRadius: '1rem',
+                                      fontSize: '0.75rem',
+                                      fontWeight: '700',
+                                      boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                                    }}>
+                                      {ponderacionCat} pts
+                                    </div>
                                   </div>
                                 )}
 
