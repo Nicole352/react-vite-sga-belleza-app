@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Users, Award, Star, Calendar, BookOpen, ChevronLeft, ChevronRight, Grid, List } from 'lucide-react';
-import { useBreakpoints } from '../../hooks/useMediaQuery';
 import '../../styles/responsive.css';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -27,7 +26,6 @@ interface Estudiante {
 }
 
 const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
-  const { isMobile } = useBreakpoints();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,24 +76,24 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.05)',
-        textPrimary: '#fff',
-        textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        textPrimary: '#f8fafc',
+        textSecondary: '#cbd5e1',
+        textMuted: '#94a3b8',
+        border: 'rgba(255, 255, 255, 0.08)',
         accent: '#3b82f6',
-        success: '#10b981',
-        warning: '#f59e0b',
-        danger: '#ef4444'
+        success: '#34d399',
+        warning: '#fbbf24',
+        danger: '#f87171'
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
-        accent: '#3b82f6',
+        cardBg: '#ffffff',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#64748b',
+        border: 'rgba(15, 23, 42, 0.08)',
+        accent: '#2563eb',
         success: '#059669',
         warning: '#d97706',
         danger: '#dc2626'
@@ -162,87 +160,82 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ marginBottom: '1em' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.375rem 0' }}>
+      <div style={{ marginBottom: '0.75rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.15rem 0', letterSpacing: '-0.02em' }}>
           Mis Estudiantes
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
-          Gestiona y monitorea el progreso de tus estudiantes
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0, fontWeight: 500 }}>
+          Gestiona y monitorea el progreso de tus estudiantes en todos tus cursos
         </p>
       </div>
 
-      {/* Estadísticas (ultra-compactas, una sola línea) */}
-      <div className="responsive-grid-4" style={{ gap: '0.375em', marginBottom: '0.75em' }}>
-        <div style={{ background: `linear-gradient(135deg, #3b82f6, #2563eb)`, borderRadius: '0.625em', padding: '0.375em' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
-            <Users size={12} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Total:</span>
-            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length}</span>
+      {/* Estadísticas (ultra-compactas) */}
+      <div className="responsive-grid-4" style={{ gap: '0.4rem', marginBottom: '0.75rem' }}>
+        <div style={{ background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)', border: `1px solid ${theme.border}`, borderRadius: '0.5rem', padding: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap', color: theme.textSecondary }}>
+            <Users size={12} color={theme.accent} />
+            <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>Total:</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.textPrimary }}>{estudiantesFiltrados.length}</span>
           </div>
         </div>
-        <div style={{ background: `linear-gradient(135deg, #10b981, #059669)`, borderRadius: '0.625em', padding: '0.375em' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
-            <Award size={12} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Destacados:</span>
-            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}</span>
+        <div style={{ background: darkMode ? 'rgba(52, 211, 153, 0.08)' : 'rgba(5, 150, 105, 0.04)', border: `1px solid ${theme.border}`, borderRadius: '0.5rem', padding: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap', color: theme.textSecondary }}>
+            <Award size={12} color={theme.success} />
+            <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>Exitosos:</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.success }}>{estudiantesFiltrados.filter(e => e.promedio && e.promedio >= 8).length}</span>
           </div>
         </div>
-        <div style={{ background: `linear-gradient(135deg, #f59e0b, #d97706)`, borderRadius: '0.625em', padding: '0.375em' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
-            <Star size={12} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Promedio:</span>
-            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}</span>
+        <div style={{ background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(217, 119, 6, 0.04)', border: `1px solid ${theme.border}`, borderRadius: '0.5rem', padding: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap', color: theme.textSecondary }}>
+            <Star size={12} color={theme.warning} />
+            <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>Promedio:</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.warning }}>{estudiantesFiltrados.length > 0 ? (estudiantesFiltrados.reduce((acc, e) => acc + (e.promedio || 0), 0) / estudiantesFiltrados.length).toFixed(1) : '0.0'}</span>
           </div>
         </div>
-        <div style={{ background: `linear-gradient(135deg, #8b5cf6, #7c3aed)`, borderRadius: '0.625em', padding: '0.375em' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375em', whiteSpace: 'nowrap', color: '#fff' }}>
-            <BookOpen size={12} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '700' }}>Cursos:</span>
-            <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>{cursosUnicos.length}</span>
+        <div style={{ background: darkMode ? 'rgba(139, 92, 246, 0.08)' : 'rgba(124, 58, 237, 0.04)', border: `1px solid ${theme.border}`, borderRadius: '0.5rem', padding: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap', color: theme.textSecondary }}>
+            <BookOpen size={12} color={darkMode ? '#8b5cf6' : '#7c3aed'} />
+            <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>Cursos:</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.textPrimary }}>{cursosUnicos.length}</span>
           </div>
         </div>
       </div>
 
-      {/* Filtros y Toggle de vista en una sola línea */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      {/* Filtros y Toggle de vista */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           type="text"
-          placeholder="Buscar por nombre, cédula o curso..."
+          placeholder="Buscar estudiante..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             flex: '1 1 auto',
-            minWidth: '200px',
-            padding: '0.5rem 0.75rem',
-            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            minWidth: '150px',
+            padding: '0.4rem 0.65rem',
+            background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
             border: `1px solid ${theme.border}`,
-            borderRadius: '0.5rem',
+            borderRadius: '0.375rem',
             color: theme.textPrimary,
-            fontSize: '0.875rem',
+            fontSize: '0.8rem',
             outline: 'none',
-            transition: 'border-color 0.3s ease'
+            transition: 'border-color 0.2s ease'
           }}
-          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
-          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
         />
         <select
           value={cursoFiltro}
           onChange={(e) => setCursoFiltro(e.target.value)}
           style={{
             flex: '0 1 auto',
-            minWidth: '150px',
-            padding: '0.5rem 0.75rem',
-            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            minWidth: '140px',
+            padding: '0.4rem 0.65rem',
+            background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
             border: `1px solid ${theme.border}`,
-            borderRadius: '0.5rem',
+            borderRadius: '0.375rem',
             color: theme.textPrimary,
-            fontSize: '0.875rem',
+            fontSize: '0.8rem',
             outline: 'none',
-            cursor: 'pointer',
-            transition: 'border-color 0.3s ease'
+            cursor: 'pointer'
           }}
-          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
-          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
         >
           <option value="">Todos los cursos</option>
           {cursosUnicos.map(c => (
@@ -254,70 +247,64 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
           onChange={(e) => setEstadoFiltro(e.target.value as 'todos' | 'activos' | 'finalizados')}
           style={{
             flex: '0 1 auto',
-            minWidth: '150px',
-            padding: '0.5rem 0.75rem',
-            background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+            minWidth: '140px',
+            padding: '0.4rem 0.65rem',
+            background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
             border: `1px solid ${theme.border}`,
-            borderRadius: '0.5rem',
+            borderRadius: '0.375rem',
             color: theme.textPrimary,
-            fontSize: '0.875rem',
+            fontSize: '0.8rem',
             outline: 'none',
-            cursor: 'pointer',
-            transition: 'border-color 0.3s ease'
+            cursor: 'pointer'
           }}
-          onFocus={(e) => e.currentTarget.style.borderColor = theme.accent}
-          onBlur={(e) => e.currentTarget.style.borderColor = theme.border}
         >
           <option value="todos">Todos los estados</option>
           <option value="activos">Cursos Activos</option>
           <option value="finalizados">Cursos Finalizados</option>
         </select>
 
-        {/* Toggle de vista */}
-        <button
-          onClick={() => setViewMode('cards')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: viewMode === 'cards'
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
-              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-            border: `1px solid ${viewMode === 'cards' ? theme.accent : theme.border}`,
-            borderRadius: '0.5rem',
-            color: viewMode === 'cards' ? '#fff' : theme.textPrimary,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <Grid size={16} />
-          Tarjetas
-        </button>
-        <button
-          onClick={() => setViewMode('table')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: viewMode === 'table'
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
-              : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-            border: `1px solid ${viewMode === 'table' ? theme.accent : theme.border}`,
-            borderRadius: '0.5rem',
-            color: viewMode === 'table' ? '#fff' : theme.textPrimary,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <List size={16} />
-          Tabla
-        </button>
+        <div style={{ display: 'flex', gap: '2px', background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', padding: '2px', borderRadius: '0.375rem' }}>
+          <button
+            onClick={() => setViewMode('cards')}
+            style={{
+              padding: '0.35rem 0.65rem',
+              background: viewMode === 'cards' ? theme.cardBg : 'transparent',
+              border: 'none',
+              borderRadius: '0.25rem',
+              color: viewMode === 'cards' ? theme.accent : theme.textMuted,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              transition: 'all 0.2s ease',
+              boxShadow: viewMode === 'cards' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <Grid size={14} /> Tarjetas
+          </button>
+          <button
+            onClick={() => setViewMode('table')}
+            style={{
+              padding: '0.35rem 0.65rem',
+              background: viewMode === 'table' ? theme.cardBg : 'transparent',
+              border: 'none',
+              borderRadius: '0.25rem',
+              color: viewMode === 'table' ? theme.accent : theme.textMuted,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              transition: 'all 0.2s ease',
+              boxShadow: viewMode === 'table' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            <List size={14} /> Tabla
+          </button>
+        </div>
       </div>
 
       <div style={{ flex: 1 }}>
@@ -350,17 +337,17 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             {/* Header de la tabla mejorado */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '2fr 1fr 1.5fr 1fr 1fr 1fr',
-              gap: '0.75rem',
-              padding: '0.75rem 1rem',
-              background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+              gridTemplateColumns: '1.5fr 1fr 1.5fr 0.8fr 0.8fr 0.8fr',
+              gap: '0.5rem',
+              padding: '0.65rem 1rem',
+              background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
               borderBottom: `1px solid ${theme.border}`,
               fontWeight: '700',
-              fontSize: '0.7rem',
-              color: darkMode ? theme.accent : '#1e40af',
+              fontSize: '0.65rem',
+              color: theme.textMuted,
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
-              minWidth: '800px'
+              minWidth: '700px'
             }}>
               <div>Estudiante</div>
               <div>Cédula</div>
@@ -371,11 +358,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
             </div>
 
             {/* Filas de estudiantes */}
-            <div style={{ display: 'grid', gap: '0', padding: '0.5rem 1rem 1rem 1rem', minWidth: '800px' }}>
+            <div style={{ display: 'grid', gap: '0', padding: '0', minWidth: '700px' }}>
               {estudiantesPaginados.map((estudiante) => {
                 // Determine status color
                 let statusColor = theme.textMuted;
-                let statusBg = 'rgba(156, 163, 175, 0.2)';
                 let statusText = 'Desconocido';
 
                 const studentEstado = estudiante.estado_curso || 'activo';
@@ -383,26 +369,22 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 switch (studentEstado) {
                   case 'activo':
                     statusColor = theme.success;
-                    statusBg = 'rgba(16, 185, 129, 0.2)';
                     statusText = 'Activo';
                     break;
                   case 'finalizado':
                     statusColor = theme.textMuted;
-                    statusBg = 'rgba(156, 163, 175, 0.2)';
                     statusText = 'Finalizado';
                     break;
                   case 'planificado':
                     statusColor = theme.warning;
-                    statusBg = 'rgba(245, 158, 11, 0.2)';
                     statusText = 'Planificado';
                     break;
                   case 'cancelado':
                     statusColor = theme.danger;
-                    statusBg = 'rgba(239, 68, 68, 0.2)';
                     statusText = 'Cancelado';
                     break;
                   default:
-                    statusText = studentEstado || 'Activo (asumido)';
+                    statusText = studentEstado || 'Activo';
                 }
 
                 return (
@@ -410,71 +392,65 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     key={`${estudiante.id_usuario}-${estudiante.codigo_curso}`}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '2fr 1fr 1.5fr 1fr 1fr 1fr',
-                      gap: '0.75rem',
-                      padding: '0.75rem 0.5rem',
-                      background: estudiantesPaginados.indexOf(estudiante) % 2 === 0
-                        ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
-                        : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'),
-                      borderRadius: '0.375rem',
+                      gridTemplateColumns: '1.5fr 1fr 1.5fr 0.8fr 0.8fr 0.8fr',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      borderBottom: `1px solid ${theme.border}`,
                       alignItems: 'center',
                       transition: 'all 0.2s ease',
                       cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)';
+                      e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)';
                     }}
                     onMouseLeave={(e) => {
-                      const index = estudiantesPaginados.indexOf(estudiante);
-                      e.currentTarget.style.background = index % 2 === 0
-                        ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
-                        : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)');
+                      e.currentTarget.style.background = 'transparent';
                     }}
                   >
                     {/* Columna: Estudiante */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625em', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
                       <div style={{
-                        width: '1.75rem',
-                        height: '1.75rem',
+                        width: '1.25rem',
+                        height: '1.25rem',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
-                        fontSize: '0.8rem',
+                        fontSize: '0.6rem',
                         fontWeight: '800',
                         flexShrink: 0
                       }}>
                         {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                       </div>
-                      <div style={{ overflow: 'hidden', color: theme.textPrimary, fontSize: '0.85rem', fontWeight: '700', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ overflow: 'hidden', color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {estudiante.apellido}, {estudiante.nombre}
                       </div>
                     </div>
 
                     {/* Columna: Cédula */}
-                    <div style={{ color: theme.textSecondary, fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                    <div style={{ color: theme.textSecondary, fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
                       {estudiante.cedula}
                     </div>
 
                     {/* Columna: Curso */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', overflow: 'hidden', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden', minWidth: 0 }}>
                       <span style={{
-                        background: `${theme.accent}20`,
+                        background: `${theme.accent}15`,
                         color: theme.accent,
-                        padding: '0.1875em 0.5em',
-                        borderRadius: '0.625em',
-                        fontSize: '0.7rem',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.6rem',
                         fontWeight: '700',
                         flexShrink: 0
                       }}>
                         {estudiante.codigo_curso}
                       </span>
                       <span style={{
-                        color: theme.textPrimary,
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
+                        color: theme.textSecondary,
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
@@ -484,13 +460,10 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Columna: Estado */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <span style={{
-                        background: statusBg,
                         color: statusColor,
-                        padding: '0.1875em 0.5em',
-                        borderRadius: '0.625em',
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         fontWeight: '700',
                         whiteSpace: 'nowrap'
                       }}>
@@ -499,19 +472,13 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     </div>
 
                     {/* Columna: Fecha Inicio */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                      <Calendar size={12} color={theme.textMuted} />
-                      <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                        {formatDate(estudiante.fecha_inicio_curso)}
-                      </span>
+                    <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                      {formatDate(estudiante.fecha_inicio_curso)}
                     </div>
 
                     {/* Columna: Fecha Fin */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                      <Calendar size={12} color={theme.textMuted} />
-                      <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
-                        {formatDate(estudiante.fecha_fin_curso)}
-                      </span>
+                    <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                      {formatDate(estudiante.fecha_fin_curso)}
                     </div>
                   </div>
                 );
@@ -524,97 +491,70 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingTop: '1rem',
-                borderTop: `1px solid ${theme.border}`,
-                marginTop: '1rem'
+                padding: '0.75rem 1rem',
+                borderTop: `1px solid ${theme.border}`
               }}>
-                <div style={{ color: theme.textMuted, fontSize: '0.875rem' }}>
-                  Mostrando {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length} estudiantes
+                <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                  {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
                     style={{
-                      padding: '0.5rem',
-                      background: currentPage === 1
-                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      padding: '0.35rem',
+                      background: 'transparent',
                       border: `1px solid ${theme.border}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      opacity: currentPage === 1 ? 0.5 : 1,
-                      transition: 'all 0.2s ease'
+                      opacity: currentPage === 1 ? 0.4 : 1,
+                      color: theme.textPrimary
                     }}
                   >
-                    <ChevronLeft size={18} color={theme.textPrimary} />
+                    <ChevronLeft size={14} />
                   </button>
 
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
+                  <div style={{ display: 'flex', gap: '2px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                      .map((page, i, arr) => (
+                        <div key={page} style={{ display: 'flex', alignItems: 'center' }}>
+                          {i > 0 && arr[i - 1] !== page - 1 && <span style={{ padding: '0 4px', color: theme.textMuted }}>...</span>}
+                          <button
+                            onClick={() => goToPage(page)}
+                            style={{
+                              width: '1.75rem',
+                              height: '1.75rem',
+                              background: page === currentPage ? theme.accent : 'transparent',
+                              border: page === currentPage ? 'none' : `1px solid ${theme.border}`,
+                              borderRadius: '0.375rem',
+                              color: page === currentPage ? '#fff' : theme.textPrimary,
+                              cursor: 'pointer',
+                              fontSize: '0.75rem',
+                              fontWeight: '700'
+                            }}
+                          >
+                            {page}
+                          </button>
+                        </div>
+                      ))
                     }
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => goToPage(page)}
-                        style={{
-                          padding: '0.5rem 0.75rem',
-                          background: page === currentPage
-                            ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
-                            : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-                          border: `1px solid ${page === currentPage ? theme.accent : theme.border}`,
-                          borderRadius: '0.5rem',
-                          color: page === currentPage ? '#fff' : theme.textPrimary,
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          fontWeight: page === currentPage ? '700' : '600',
-                          transition: 'all 0.2s ease',
-                          minWidth: '2.5rem'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (page !== currentPage) {
-                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (page !== currentPage) {
-                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                          }
-                        }}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                  </div>
 
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     style={{
-                      padding: '0.5rem',
-                      background: currentPage === totalPages
-                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      padding: '0.35rem',
+                      background: 'transparent',
                       border: `1px solid ${theme.border}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      opacity: currentPage === totalPages ? 0.5 : 1,
-                      transition: 'all 0.2s ease'
+                      opacity: currentPage === totalPages ? 0.4 : 1,
+                      color: theme.textPrimary
                     }}
                   >
-                    <ChevronRight size={18} color={theme.textPrimary} />
+                    <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
@@ -627,34 +567,28 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
               {estudiantesPaginados.map((estudiante) => {
                 // Determine status color
                 let statusColor = theme.textMuted;
-                let statusBg = 'rgba(156, 163, 175, 0.2)';
                 let statusText = 'Desconocido';
-
                 const studentEstado = estudiante.estado_curso || 'activo';
 
                 switch (studentEstado) {
                   case 'activo':
                     statusColor = theme.success;
-                    statusBg = 'rgba(34, 197, 94, 0.2)';
                     statusText = 'Activo';
                     break;
                   case 'finalizado':
                     statusColor = theme.textMuted;
-                    statusBg = 'rgba(156, 163, 175, 0.2)';
                     statusText = 'Finalizado';
                     break;
                   case 'planificado':
                     statusColor = theme.warning;
-                    statusBg = 'rgba(245, 158, 11, 0.2)';
                     statusText = 'Planificado';
                     break;
                   case 'cancelado':
                     statusColor = theme.danger;
-                    statusBg = 'rgba(239, 68, 68, 0.2)';
                     statusText = 'Cancelado';
                     break;
                   default:
-                    statusText = studentEstado || 'Activo (asumido)';
+                    statusText = studentEstado || 'Activo';
                 }
 
                 return (
@@ -680,36 +614,33 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     }}
                   >
                     {/* Header: Avatar, Nombre y Estado */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
                       <div style={{
-                        width: '2rem',
-                        height: '2rem',
+                        width: '1.5rem',
+                        height: '1.5rem',
                         borderRadius: '50%',
                         background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
-                        fontSize: '0.75rem',
+                        fontSize: '0.65rem',
                         fontWeight: '800',
                         flexShrink: 0
                       }}>
                         {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.8rem', fontWeight: '700' }}>
                           {estudiante.apellido}, {estudiante.nombre}
                         </div>
-                        <div style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                        <div style={{ color: theme.textMuted, fontSize: '0.65rem' }}>
                           {estudiante.cedula}
                         </div>
                       </div>
                       <span style={{
-                        background: statusBg,
                         color: statusColor,
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.65rem',
+                        fontSize: '0.6rem',
                         fontWeight: '700',
                         whiteSpace: 'nowrap'
                       }}>
@@ -721,64 +652,37 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.5rem',
-                      background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
+                      gap: '0.5rem',
+                      padding: '0.4rem',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
+                      border: `1px solid ${theme.border}`,
                       borderRadius: '0.375rem',
-                      fontSize: '0.7rem'
+                      fontSize: '0.65rem'
                     }}>
                       {/* Curso */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flex: 1, minWidth: 0 }}>
-                        <BookOpen size={14} color={theme.accent} />
-                        <span style={{
-                          background: `${theme.accent}30`,
-                          color: theme.accent,
-                          padding: '0.1rem 0.4rem',
-                          borderRadius: '0.25rem',
-                          fontSize: '0.65rem',
-                          fontWeight: '700',
-                          flexShrink: 0
-                        }}>
-                          {estudiante.codigo_curso}
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1, minWidth: 0 }}>
+                        <BookOpen size={10} color={theme.accent} />
                         <span style={{
                           color: theme.textPrimary,
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: '600',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap'
                         }}>
-                          {estudiante.curso_nombre}
+                          {estudiante.codigo_curso}: {estudiante.curso_nombre}
                         </span>
                       </div>
 
                       {/* Separador */}
-                      <div style={{ width: '1px', height: '1.5rem', background: theme.border, flexShrink: 0 }} />
+                      <div style={{ width: '1px', height: '1rem', background: theme.border, flexShrink: 0 }} />
 
-                      {/* Inicio */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
-                        <Calendar size={12} color={theme.textMuted} />
-                        <div>
-                          <div style={{ color: theme.textMuted, fontSize: '0.6rem' }}>Inicio</div>
-                          <div style={{ color: theme.textPrimary, fontWeight: '600', fontSize: '0.7rem' }}>
-                            {formatDate(estudiante.fecha_inicio_curso)}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Separador */}
-                      <div style={{ width: '1px', height: '1.5rem', background: theme.border, flexShrink: 0 }} />
-
-                      {/* Fin */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
-                        <Calendar size={12} color={theme.textMuted} />
-                        <div>
-                          <div style={{ color: theme.textMuted, fontSize: '0.6rem' }}>Fin</div>
-                          <div style={{ color: theme.textPrimary, fontWeight: '600', fontSize: '0.7rem' }}>
-                            {formatDate(estudiante.fecha_fin_curso)}
-                          </div>
-                        </div>
+                      {/* Fechas */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+                        <Calendar size={10} color={theme.textMuted} />
+                        <span style={{ color: theme.textSecondary, fontWeight: '500' }}>
+                          {formatDate(estudiante.fecha_inicio_curso).substring(0, 5)} - {formatDate(estudiante.fecha_fin_curso).substring(0, 5)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -792,97 +696,71 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingTop: '1rem',
+                paddingTop: '0.75rem',
                 borderTop: `1px solid ${theme.border}`,
-                marginTop: '1rem'
+                marginTop: '0.5rem'
               }}>
-                <div style={{ color: theme.textMuted, fontSize: '0.875rem' }}>
-                  Mostrando {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length} estudiantes
+                <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                  {startIndex + 1}-{Math.min(endIndex, estudiantesFiltrados.length)} de {estudiantesFiltrados.length}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
                     style={{
-                      padding: '0.5rem',
-                      background: currentPage === 1
-                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      padding: '0.35rem',
+                      background: 'transparent',
                       border: `1px solid ${theme.border}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      opacity: currentPage === 1 ? 0.5 : 1,
-                      transition: 'all 0.2s ease'
+                      opacity: currentPage === 1 ? 0.4 : 1,
+                      color: theme.textPrimary
                     }}
                   >
-                    <ChevronLeft size={18} color={theme.textPrimary} />
+                    <ChevronLeft size={14} />
                   </button>
 
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
+                  <div style={{ display: 'flex', gap: '2px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                      .map((page, i, arr) => (
+                        <div key={page} style={{ display: 'flex', alignItems: 'center' }}>
+                          {i > 0 && arr[i - 1] !== page - 1 && <span style={{ padding: '0 4px', color: theme.textMuted }}>...</span>}
+                          <button
+                            onClick={() => goToPage(page)}
+                            style={{
+                              width: '1.75rem',
+                              height: '1.75rem',
+                              background: page === currentPage ? theme.accent : 'transparent',
+                              border: page === currentPage ? 'none' : `1px solid ${theme.border}`,
+                              borderRadius: '0.375rem',
+                              color: page === currentPage ? '#fff' : theme.textPrimary,
+                              cursor: 'pointer',
+                              fontSize: '0.75rem',
+                              fontWeight: '700'
+                            }}
+                          >
+                            {page}
+                          </button>
+                        </div>
+                      ))
                     }
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => goToPage(page)}
-                        style={{
-                          padding: '0.5rem 0.75rem',
-                          background: page === currentPage
-                            ? `linear-gradient(135deg, ${theme.accent}, #2563eb)`
-                            : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-                          border: `1px solid ${page === currentPage ? theme.accent : theme.border}`,
-                          borderRadius: '0.5rem',
-                          color: page === currentPage ? '#fff' : theme.textPrimary,
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          fontWeight: page === currentPage ? '700' : '600',
-                          transition: 'all 0.2s ease',
-                          minWidth: '2.5rem'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (page !== currentPage) {
-                            e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (page !== currentPage) {
-                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                          }
-                        }}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                  </div>
 
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     style={{
-                      padding: '0.5rem',
-                      background: currentPage === totalPages
-                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                        : (darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'),
+                      padding: '0.35rem',
+                      background: 'transparent',
                       border: `1px solid ${theme.border}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      opacity: currentPage === totalPages ? 0.5 : 1,
-                      transition: 'all 0.2s ease'
+                      opacity: currentPage === totalPages ? 0.4 : 1,
+                      color: theme.textPrimary
                     }}
                   >
-                    <ChevronRight size={18} color={theme.textPrimary} />
+                    <ChevronRight size={14} />
                   </button>
                 </div>
               </div>

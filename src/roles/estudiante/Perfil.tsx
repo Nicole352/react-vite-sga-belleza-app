@@ -51,6 +51,13 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
     confirmar_password: ''
   });
 
+  // Validaciones dinámicas
+  const hasMinLength = passwordData.password_nueva.length >= 8;
+  const hasUppercase = /[A-Z]/.test(passwordData.password_nueva);
+  const hasLowercase = /[a-z]/.test(passwordData.password_nueva);
+  const hasNumber = /[0-9]/.test(passwordData.password_nueva);
+  const isPasswordSecure = hasMinLength && hasUppercase && hasLowercase && hasNumber;
+
   useEffect(() => {
     fetchPerfil();
   }, []);
@@ -116,8 +123,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
 
       // Limpiar datos: convertir undefined a null o cadena vacía
       const cleanedData = {
-        nombres: formData.nombres || '',
-        apellidos: formData.apellidos || '',
+        nombre: formData.nombres || '',
+        apellido: formData.apellidos || '',
         email: formData.email || '',
         telefono: formData.telefono || '',
         direccion: formData.direccion || '',
@@ -158,8 +165,8 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       return;
     }
 
-    if (passwordData.password_nueva.length < 8) {
-      showToast.error('La contraseña debe tener al menos 8 caracteres', darkMode);
+    if (!isPasswordSecure) {
+      showToast.error('La contraseña no cumple con todos los requisitos de seguridad', darkMode);
       return;
     }
 
@@ -266,16 +273,19 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ marginBottom: '1.25em' }}>
+      <div style={{ marginBottom: '0.5rem' }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: isMobile ? '1rem' : '1.25rem',
           fontWeight: '700',
           color: theme.textPrimary,
-          margin: '0 0 0.375rem 0'
+          margin: '0 0 0.1rem 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
         }}>
           Mi Perfil
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
           Gestiona tu información personal y seguridad
         </p>
       </div>
@@ -284,45 +294,45 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginBottom: '1rem',
+        marginBottom: '0.75rem',
         borderBottom: `1px solid ${theme.border}`
       }}>
         <button
           onClick={() => setActiveTab('info')}
           style={{
-            padding: '0.625rem 1.25rem',
+            padding: '0.4rem 0.75rem',
             background: 'transparent',
             border: 'none',
             borderBottom: activeTab === 'info' ? '2px solid #f59e0b' : '2px solid transparent',
             color: activeTab === 'info' ? theme.textPrimary : theme.textMuted,
-            fontSize: '0.8125rem',
-            fontWeight: '600',
+            fontSize: '0.75rem',
+            fontWeight: '700',
             cursor: 'pointer',
             transition: 'all 0.2s',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.4rem'
           }}>
-          <User size={14} color={activeTab === 'info' ? theme.textPrimary : theme.textMuted} />
+          <User size={13} color={activeTab === 'info' ? theme.textPrimary : theme.textMuted} />
           Información Personal
         </button>
         <button
           onClick={() => setActiveTab('password')}
           style={{
-            padding: '0.625rem 1.25rem',
+            padding: '0.4rem 0.75rem',
             background: 'transparent',
             border: 'none',
             borderBottom: activeTab === 'password' ? '2px solid #f59e0b' : '2px solid transparent',
             color: activeTab === 'password' ? theme.textPrimary : theme.textMuted,
-            fontSize: '0.8125rem',
-            fontWeight: '600',
+            fontSize: '0.75rem',
+            fontWeight: '700',
             cursor: 'pointer',
             transition: 'all 0.2s',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.4rem'
           }}>
-          <Lock size={14} color={activeTab === 'password' ? theme.textPrimary : theme.textMuted} />
+          <Lock size={13} color={activeTab === 'password' ? theme.textPrimary : theme.textMuted} />
           Cambiar Contraseña
         </button>
       </div>
@@ -335,30 +345,30 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
             <div style={{
               background: theme.cardBg,
               border: `1px solid ${theme.border}`,
-              borderRadius: '20px',
-              padding: '24px',
+              borderRadius: '0.5rem',
+              padding: '1rem',
               textAlign: 'center',
               backdropFilter: 'blur(20px)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
+              boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
             }}>
               {/* Foto de perfil */}
               <div
                 onClick={() => setShowPhotoPreview(true)}
                 style={{
-                  width: '5.25rem',
-                  height: '5.25rem',
+                  width: '4rem',
+                  height: '4rem',
                   borderRadius: '50%',
                   background: fotoUrl ? 'transparent' : `linear-gradient(135deg, ${theme.accent}, ${darkMode ? '#d97706' : '#f59e0b'})`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2rem',
+                  fontSize: '1.5rem',
                   fontWeight: '800',
                   color: '#fff',
                   overflow: 'hidden',
                   cursor: 'pointer',
-                  margin: '0 auto 0.75rem',
-                  boxShadow: `0 0.5rem 1.5rem ${theme.accent}40`,
+                  margin: '0 auto 0.5rem',
+                  boxShadow: `0 0.25rem 0.75rem ${theme.accent}40`,
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -443,53 +453,55 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
               </div>
 
               {/* Botones Editar/Guardar */}
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: `1px solid ${theme.border}` }}>
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: `1px solid ${theme.border}` }}>
                 {!isEditing ? (
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
                     style={{
                       width: '100%',
-                      padding: '0.5rem 1rem',
+                      padding: '0.4rem 0.75rem',
                       background: `linear-gradient(135deg, ${theme.accent}, ${darkMode ? '#d97706' : '#f59e0b'})`,
                       color: '#fff',
                       border: 'none',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.85rem',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.75rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.5rem',
-                      transition: 'all 0.2s'
+                      gap: '0.4rem',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}>
-                    <User size={14} color="#fff" />
+                    <User size={13} color="#fff" />
                     Editar Perfil
                   </button>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <button
                       type="submit"
                       disabled={loading}
                       style={{
                         width: '100%',
-                        padding: '0.5rem 1rem',
+                        padding: '0.4rem 0.75rem',
                         background: `linear-gradient(135deg, ${theme.accent}, ${darkMode ? '#d97706' : '#f59e0b'})`,
                         color: '#fff',
                         border: 'none',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.85rem',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.75rem',
                         fontWeight: '700',
                         cursor: loading ? 'not-allowed' : 'pointer',
                         opacity: loading ? 0.7 : 1,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem',
-                        transition: 'all 0.2s'
+                        gap: '0.4rem',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                       }}>
-                      <CheckCircle size={14} color="#fff" />
+                      <CheckCircle size={13} color="#fff" />
                       {loading ? 'Guardando...' : 'Guardar'}
                     </button>
                     <button
@@ -500,21 +512,21 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.5rem 1rem',
+                        padding: '0.4rem 0.75rem',
                         background: 'transparent',
                         color: theme.textSecondary,
                         border: `1px solid ${theme.border}`,
-                        borderRadius: '0.5rem',
-                        fontSize: '0.85rem',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.75rem',
                         fontWeight: '700',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
                         transition: 'all 0.2s'
                       }}>
-                      <X size={16} />
+                      <X size={14} />
                       Cancelar
                     </button>
                   </div>
@@ -752,10 +764,17 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                       fontSize: '0.8125rem',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem'
+                      gap: '0.5rem',
+                      opacity: isEditing ? 0.7 : 1
                     }}>
                       <Cake size={14} color='#6b7280' />
-                      {new Date(formData.fecha_nacimiento).toLocaleDateString()}
+                      {(() => {
+                        const parts = formData.fecha_nacimiento.split('-');
+                        if (parts.length === 3) {
+                          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        }
+                        return formData.fecha_nacimiento;
+                      })()}
                     </div>
                   </div>
                 )}
@@ -804,41 +823,21 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   <label style={{ color: theme.textMuted, fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.25rem' }}>
                     Género
                   </label>
-                  {isEditing ? (
-                    <select
-                      value={formData.genero || ''}
-                      onChange={(e) => setFormData({ ...formData, genero: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem 0.75rem',
-                        background: theme.inputBg,
-                        border: `1px solid ${theme.border}`,
-                        borderRadius: '0.5rem',
-                        color: theme.textPrimary,
-                        fontSize: '0.8125rem'
-                      }}
-                    >
-                      <option value="">Seleccionar...</option>
-                      <option value="Masculino">Masculino</option>
-                      <option value="Femenino">Femenino</option>
-                      <option value="Otro">Otro</option>
-                    </select>
-                  ) : (
-                    <div style={{
-                      padding: '0.5rem 0.75rem',
-                      background: theme.inputBg,
-                      border: `1px solid ${theme.border}`,
-                      borderRadius: '0.5rem',
-                      color: theme.textPrimary,
-                      fontSize: '0.8125rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <Users size={14} color='#6b7280' />
-                      {formData.genero ? (formData.genero.charAt(0).toUpperCase() + formData.genero.slice(1)) : 'No especificado'}
-                    </div>
-                  )}
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    color: theme.textPrimary,
+                    fontSize: '0.8125rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    opacity: isEditing ? 0.7 : 1
+                  }}>
+                    <Users size={14} color='#6b7280' />
+                    {formData.genero || 'No especificado'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -956,10 +955,63 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
                   {showNewPassword ? <EyeOff size={14} color="#9ca3af" /> : <Eye size={14} color="#9ca3af" />}
                 </button>
               </div>
-              <p style={{ fontSize: '0.7rem', color: theme.textMuted, margin: '0.375rem 0 0 0', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <CheckCircle size={12} color={passwordData.password_nueva.length >= 8 ? '#fbbf24' : '#9ca3af'} />
-                Mínimo 8 caracteres
-              </p>
+
+              {/* Checklist de requisitos de seguridad */}
+              <div style={{
+                marginTop: '0.75rem',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.5rem',
+                padding: '0.75rem',
+                background: theme.inputBg,
+                borderRadius: '0.5rem',
+                border: `1px solid ${theme.border}`
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  fontSize: '0.65rem',
+                  color: hasMinLength ? theme.accent : theme.textMuted,
+                  transition: 'all 0.2s'
+                }}>
+                  <CheckCircle size={10} color={hasMinLength ? theme.accent : '#9ca3af'} />
+                  Min. 8 caracteres
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  fontSize: '0.65rem',
+                  color: hasUppercase ? theme.accent : theme.textMuted,
+                  transition: 'all 0.2s'
+                }}>
+                  <CheckCircle size={10} color={hasUppercase ? theme.accent : '#9ca3af'} />
+                  Una Mayúscula
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  fontSize: '0.65rem',
+                  color: hasLowercase ? theme.accent : theme.textMuted,
+                  transition: 'all 0.2s'
+                }}>
+                  <CheckCircle size={10} color={hasLowercase ? theme.accent : '#9ca3af'} />
+                  Una Minúscula
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  fontSize: '0.65rem',
+                  color: hasNumber ? theme.accent : theme.textMuted,
+                  transition: 'all 0.2s'
+                }}>
+                  <CheckCircle size={10} color={hasNumber ? theme.accent : '#9ca3af'} />
+                  Un Número
+                </div>
+              </div>
             </div>
 
             {/* Confirmar Nueva Contraseña */}

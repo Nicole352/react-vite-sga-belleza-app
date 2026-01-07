@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Download,
   Award,
   Search,
   BarChart3,
   User,
   BookOpen,
-  FileSpreadsheet,
+  Table2,
   ArrowLeft,
 } from "lucide-react";
 import { useSocket } from "../../hooks/useSocket";
@@ -53,27 +52,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
   const navigate = useNavigate();
   const cursoId = parseInt(id || "0");
   const [cursoNombre, setCursoNombre] = useState<string>("");
+  const [cursoActual, setCursoActual] = useState<any>(null);
 
-  const loadImageDataUrl = (url: string): Promise<string | null> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(null);
-          return;
-        }
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
-      };
-      img.onerror = () => resolve(null);
-      img.src = url;
-    });
-  };
 
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
@@ -81,7 +61,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     [],
   );
   const [loading, setLoading] = useState(false);
-  const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [downloadingExcel, setDownloadingExcel] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState<"todos" | "aprobados" | "reprobados">(
@@ -188,6 +167,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       );
       if (cursoResponse.ok) {
         const cursoData = await cursoResponse.json();
+        setCursoActual(cursoData);
         setCursoNombre(cursoData.nombre || `Curso ID: ${cursoId}`);
       }
 
@@ -347,165 +327,6 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     } finally {
       setLoading(false);
     }
-  }; const descargarPDF = async () => {
-    try {
-      setDownloadingPDF(true);
-
-      const { jsPDF }: any = await import("jspdf");
-      const autoTable = (await import("jspdf-autotable")).default as any;
-
-      // SIEMPRE usar orientación horizontal para mejor visualización
-      const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-
-      // ============================================
-      // ENCABEZADO PROFESIONAL (NEGRO/DORADO)
-      // ============================================
-
-      // Fondo oscuro para el encabezado
-      doc.setFillColor(26, 26, 26); // Negro suave #1a1a1a
-      doc.rect(0, 0, pageWidth, 40, 'F');
-
-      // Línea dorada inferior del encabezado
-      doc.setDrawColor(251, 191, 36); // Dorado #fbbf24
-      doc.setLineWidth(1.5);
-      doc.line(0, 40, pageWidth, 40);
-
-      // Logo de la empresa (esquina superior derecha)
-      try {
-        // Usar el logo de Cloudinary
-        const logoUrl = "https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png";
-        const logoDataUrl = await loadImageDataUrl(logoUrl);
-        if (logoDataUrl) {
-          doc.addImage(logoDataUrl, "PNG", pageWidth - 45, 2, 36, 36);
-        }
-      } catch (e) {
-        console.error("Error cargando logo:", e);
-      }
-
-      // Título principal
-      doc.setTextColor(251, 191, 36); // Dorado #fbbf24
-      doc.setFontSize(22);
-      doc.setFont(undefined, 'bold');
-      doc.text("REPORTE DE CALIFICACIONES", 14, 18);
-
-      // Subtítulo (nombre del curso)
-      doc.setTextColor(255, 255, 255); // Blanco
-      doc.setFontSize(14);
-      doc.setFont(undefined, 'normal');
-      doc.text(String(cursoNombre || ""), 14, 28);
-
-      // Fecha de generación
-      doc.setTextColor(200, 200, 200); // Gris claro
-      doc.setFontSize(9);
-      const fechaActual = new Date().toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-      doc.text(`Generado el: ${fechaActual}`, 14, 35);
-
-      // ============================================
-      // TABLA DE CALIFICACIONES
-      // ============================================
-
-      // Construir encabezados
-      const head = [
-        [
-          "Identificación",
-          "Estudiante",
-          "Promedio Global",
-          "Estado"
-        ],
-      ];
-
-      // Construir filas de datos
-      const body = estudiantes.map((est, index) => {
-        const promedioGlobal = parseFloat(String(est.promedio_global)) || 0;
-        const estado = promedioGlobal >= 7 ? "APROBADO" : "REPROBADO";
-
-        return [
-          est.identificacion || "N/A",
-          `${est.apellido}, ${est.nombre}`,
-          promedioGlobal.toFixed(2),
-          estado
-        ];
-      });
-
-      autoTable(doc, {
-        head,
-        body,
-        startY: 50,
-        theme: 'grid',
-        styles: {
-          fontSize: 10,
-          cellPadding: 5,
-          halign: 'center',
-          valign: 'middle',
-          lineColor: [200, 200, 200],
-          lineWidth: 0.1
-        },
-        headStyles: {
-          fillColor: [26, 26, 26], // Negro suave
-          textColor: [251, 191, 36], // Dorado
-          fontStyle: 'bold',
-          fontSize: 11,
-          lineWidth: 0 // Sin bordes en el header para look más limpio
-        },
-        columnStyles: {
-          0: { cellWidth: 45, halign: 'center' },
-          1: { cellWidth: 'auto', halign: 'left' },
-          2: { cellWidth: 40, halign: 'center' },
-          3: { cellWidth: 40, halign: 'center' }
-        },
-        alternateRowStyles: { fillColor: [250, 250, 250] },
-        didParseCell: function (data: any) {
-          // Colorear la columna "Estado"
-          if (data.column.index === 3 && data.section === 'body') {
-            const estado = data.cell.raw;
-            if (estado === 'APROBADO') {
-              data.cell.styles.textColor = [22, 163, 74]; // Verde
-              data.cell.styles.fontStyle = 'bold';
-            } else if (estado === 'REPROBADO') {
-              data.cell.styles.textColor = [220, 38, 38]; // Rojo
-              data.cell.styles.fontStyle = 'bold';
-            }
-          }
-        }
-      });
-
-      // ============================================
-      // PIE DE PÁGINA
-      // ============================================
-
-      // Fondo negro
-      doc.setFillColor(26, 26, 26);
-      doc.rect(0, pageHeight - 12, pageWidth, 12, 'F');
-
-      // Texto dorado
-      doc.setTextColor(251, 191, 36);
-      doc.setFontSize(8);
-      doc.setFont(undefined, 'normal');
-      doc.text(
-        "Jessica Vélez - Escuela de Esteticistas | Educación Certificada",
-        pageWidth / 2,
-        pageHeight - 5,
-        { align: 'center' }
-      );
-
-      // Guardar PDF
-      doc.save(
-        `Calificaciones_${cursoNombre.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`,
-      );
-      showToast.success('PDF descargado correctamente', darkMode);
-    } catch (error) {
-      console.error("Error al generar PDF:", error);
-      showToast.error('Error al generar el PDF', darkMode);
-    } finally {
-      setDownloadingPDF(false);
-    }
   }; const descargarExcel = async () => {
     try {
       setDownloadingExcel(true);
@@ -515,18 +336,62 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       const workbook = new ExcelJS.Workbook();
 
-      // Función auxiliar para ajustar ancho de columnas automáticamente
-      const ajustarAnchoColumnas = (worksheet: any) => {
-        worksheet.columns.forEach((column: any) => {
+      const docenteStr = sessionStorage.getItem('auth_user');
+      const docenteObj = docenteStr ? JSON.parse(docenteStr) : null;
+      // Ajuste para manejar tanto 'nombre'/'apellido' como 'nombres'/'apellidos'
+      const rawNombre = docenteObj?.nombre || docenteObj?.nombres || '';
+      const rawApellido = docenteObj?.apellido || docenteObj?.apellidos || '';
+      const nombreDocente = (rawApellido || rawNombre) ? `${rawApellido}, ${rawNombre}`.trim() : 'Docente';
+
+      const standardFooter = {
+        oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
+      };
+
+      // Función auxiliar para ajustar ancho de columnas automáticamente (con límites)
+      const ajustarAnchoColumnas = (worksheet: any, customOptions: { maxNameWidth?: number, maxModuleWidth?: number } = {}) => {
+        worksheet.columns.forEach((column: any, colIdx: number) => {
           let maxLength = 0;
-          column.eachCell({ includeEmpty: true }, (cell: any) => {
-            const columnLength = cell.value ? cell.value.toString().length : 10;
-            if (columnLength > maxLength) {
-              maxLength = columnLength;
+          column.eachCell({ includeEmpty: true }, (cell: any, rowIdx: number) => {
+            // Ignorar filas 1 y 2 (títulos dinámicos que están merged)
+            if (rowIdx <= 2) return;
+
+            const cellValue = cell.value ? cell.value.toString() : "";
+            let currentLen = cellValue.length;
+
+            // Si es un header (Fila 4-6 en Detalle, Fila 4 en Modulos) y es muy largo, lo limitamos
+            // para forzar el wrapText que ya está activado.
+            if (rowIdx >= 4 && rowIdx <= 6) {
+              if (currentLen > 15) currentLen = 15;
             }
+
+            if (currentLen > maxLength) maxLength = currentLen;
           });
-          // Añadir un poco de "aire" extra (aprox 2 caracteres)
-          column.width = maxLength + 2;
+
+          // Ajustes específicos por contenido conocido
+          let finalWidth = maxLength + 3;
+
+          // Si es Estadísticas, usamos lógica diferente para la primera columna
+          if (worksheet.name === 'Estadísticas') {
+            if (colIdx === 0) finalWidth = 40; // Columna Métrica
+            else finalWidth = 15; // Columna Valor (Suficiente ya que se combinará)
+          } else {
+            // Columna # (índice 0)
+            if (colIdx === 0) finalWidth = 6;
+            // Apellido y Nombre (índice 1 y 2)
+            else if (colIdx === 1 || colIdx === 2) {
+              const limit = customOptions.maxNameWidth || 30;
+              if (finalWidth > limit) finalWidth = limit;
+              if (finalWidth < 18) finalWidth = 18;
+            }
+            // Columnas de datos/módulos
+            else {
+              const limit = customOptions.maxModuleWidth || 15;
+              if (finalWidth > limit) finalWidth = limit;
+              if (finalWidth < 12) finalWidth = 12;
+            }
+          }
+
+          column.width = finalWidth;
         });
       };
 
@@ -537,8 +402,19 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
           margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
-        }
+        },
+        headerFooter: standardFooter
       });
+
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsDetalle.spliceRows(1, 0, [], [], []);
+
+      // Fila 1 y 2 se configurarán al final cuando sepamos el total de columnas
+      const totalHeaderRow1 = wsDetalle.getRow(1);
+      const totalHeaderRow2 = wsDetalle.getRow(2);
+
+      totalHeaderRow1.height = 25;
+      totalHeaderRow2.height = 35;
 
       // 1. Preparar datos
       const tareasPorModulo: { [modulo: string]: typeof tareas } = {};
@@ -565,10 +441,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const row2 = wsDetalle.addRow(['', '', '']); // Categorías (MERGED)
       const row3 = wsDetalle.addRow(['', '', '']); // Tareas
 
-      // Combinar #, Apellido y Nombre (Fila 1, 2 y 3)
-      wsDetalle.mergeCells(1, 1, 3, 1); // A1:A3 (#)
-      wsDetalle.mergeCells(1, 2, 3, 2); // B1:B3 (Apellido)
-      wsDetalle.mergeCells(1, 3, 3, 3); // C1:C3 (Nombre)
+      // Combinar #, Apellido y Nombre (Fila 4, 5 y 6)
+      wsDetalle.mergeCells(4, 1, 6, 1); // #
+      wsDetalle.mergeCells(4, 2, 6, 2); // Apellido
+      wsDetalle.mergeCells(4, 3, 6, 3); // Nombre
 
       let colIndex = 4;
 
@@ -596,9 +472,9 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         const cellModulo = row1.getCell(colIndex);
         cellModulo.value = moduloNombre;
 
-        // Merge horizontal para el módulo en Fila 1
+        // Merge horizontal para el módulo en Fila 4
         if (tareasDelModulo.length > 0) {
-          wsDetalle.mergeCells(1, colIndex, 1, colIndex + tareasDelModulo.length - 1);
+          wsDetalle.mergeCells(4, colIndex, 4, colIndex + tareasDelModulo.length - 1);
         }
 
         // Agrupar por categoría para generar encabezados de Fila 2
@@ -623,7 +499,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             const cellCat = row2.getCell(categoryStartCol);
             cellCat.value = `${currentCategory} (${categoryPond} pts)`;
             if (categoryCount > 1) {
-              wsDetalle.mergeCells(2, categoryStartCol, 2, categoryStartCol + categoryCount - 1);
+              wsDetalle.mergeCells(5, categoryStartCol, 5, categoryStartCol + categoryCount - 1);
             }
 
             // Iniciar nuevo grupo
@@ -640,7 +516,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             const cellCat = row2.getCell(categoryStartCol);
             cellCat.value = `${currentCategory} (${categoryPond} pts)`;
             if (categoryCount > 1) {
-              wsDetalle.mergeCells(2, categoryStartCol, 2, categoryStartCol + categoryCount - 1);
+              wsDetalle.mergeCells(5, categoryStartCol, 5, categoryStartCol + categoryCount - 1);
             }
           }
         });
@@ -680,7 +556,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             right: { style: 'thin' }
           };
           cell.font = { bold: true };
-          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         });
       });
 
@@ -689,14 +565,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         // Escribir en Fila 1 y combinar con Fila 2
         const cellProm = row1.getCell(colIndex);
         cellProm.value = `Promedio ${modulo}`;
-        wsDetalle.mergeCells(1, colIndex, 2, colIndex);
+        wsDetalle.mergeCells(4, colIndex, 6, colIndex);
         colIndex++;
       });
 
       // Columna Promedio Global
       const cellGlobal = row1.getCell(colIndex);
       cellGlobal.value = "Promedio Global (/10pts)";
-      wsDetalle.mergeCells(1, colIndex, 2, colIndex);
+      wsDetalle.mergeCells(4, colIndex, 6, colIndex);
 
       // 2. Estilos de Encabezados
       const estiloBaseHeader = {
@@ -704,8 +580,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } as any
       };
 
-      // Aplicar estilos a todo el rango de encabezados (Filas 1 y 2)
-      for (let r = 1; r <= 2; r++) {
+      // Aplicar estilos a todo el rango de encabezados (Filas 4, 5 y 6)
+      for (let r = 4; r <= 6; r++) {
         const row = wsDetalle.getRow(r);
         row.eachCell((cell, colNumber) => {
           // Colores:
@@ -725,9 +601,9 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             // Las celdas de promedios tienen merge vertical, así que "pertenecen" visualmente a la fila 1.
 
             // Simplificación visual:
-            // Fila 1 siempre Azul Cielo (Módulos y Promedios)
-            // Fila 2 (Tareas) Celeste Claro
-            if (r === 2 && cell.value) { // Si tiene valor en fila 2, es una tarea
+            // Fila 4 siempre Azul Cielo (Módulos y Promedios)
+            // Fila 5 (Tareas) Celeste Claro
+            if (r === 5 && cell.value) { // Si tiene valor en fila 5, es una tarea
               fillColor = 'BAE6FD'; // Celeste claro
             }
             // Si es celda combinada de Promedio, usará el estilo de la celda master (Fila 1), así que este bloque no afecta.
@@ -738,14 +614,15 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
           cell.style = {
             ...estiloBaseHeader,
-            font: { bold: true, color: { argb: fontColor }, size: 11 },
+            font: { bold: true, color: { argb: fontColor }, size: 10 },
             fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } }
           };
         });
       }
 
-      row1.height = 30;
-      row2.height = 40;
+      wsDetalle.getRow(4).height = 35;
+      wsDetalle.getRow(5).height = 45;
+      wsDetalle.getRow(6).height = 45; // Fila de tareas individuales
 
       // 3. Datos de Estudiantes
       estudiantes.forEach((est, index) => {
@@ -780,6 +657,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         row.eachCell((cell, colNumber) => {
           cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
           cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
+          cell.font = { size: 10 };
 
           // Formato numérico para columna # (índice)
           if (colNumber === 1 && typeof cell.value === 'number') {
@@ -792,7 +670,27 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         });
       });
 
-      ajustarAnchoColumnas(wsDetalle);
+      ajustarAnchoColumnas(wsDetalle, { maxNameWidth: 30, maxModuleWidth: 15 });
+
+      // --- CONFIGURACIÓN FINAL DE ENCABEZADOS SUPERIORES (Merge Dinámico) ---
+      const totalColsDetalle = colIndex - 1;
+      if (totalColsDetalle > 0) {
+        // Fila 1: Título
+        wsDetalle.mergeCells(1, 1, 1, totalColsDetalle);
+        const cellTitle = wsDetalle.getCell(1, 1);
+        cellTitle.value = `REPORTE DE CALIFICACIONES POR TAREA - ${cursoNombre}`;
+        cellTitle.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+        cellTitle.alignment = { horizontal: 'center', vertical: 'middle' };
+        cellTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+
+        // Fila 2: Info Docente
+        wsDetalle.mergeCells(2, 1, 2, totalColsDetalle);
+        const cellInfo = wsDetalle.getCell(2, 1);
+        cellInfo.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
+        cellInfo.font = { size: 10, name: 'Calibri' };
+        cellInfo.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cellInfo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      }
 
 
       // ============================================
@@ -802,14 +700,39 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
           margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
-        }
+        },
+        headerFooter: standardFooter
       });
 
-      const headersModulos = ['#', 'Apellido', 'Nombre', ...modulos.map(m => `${m} (/${(typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2)}pts)`), 'PROMEDIO GLOBAL (/10pts)']; const rowHeaderMod = wsModulos.addRow(headersModulos);
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsModulos.spliceRows(1, 0, [], [], []);
+      wsModulos.getRow(1).height = 25;
+      wsModulos.getRow(2).height = 35;
+
+      const headersModulos = ['#', 'Apellido', 'Nombre', ...modulos.map(m => `${m} (/${(typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2)}pts)`), 'PROMEDIO GLOBAL (/10pts)'];
+      const totalColsModulos = headersModulos.length;
+
+      // Fila 1: Título Merge Dinámico
+      wsModulos.mergeCells(1, 1, 1, totalColsModulos);
+      const cellTitleMod = wsModulos.getCell(1, 1);
+      cellTitleMod.value = `REPORTE DE PROMEDIOS POR MÓDULO - ${cursoNombre}`;
+      cellTitleMod.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      cellTitleMod.alignment = { horizontal: 'center', vertical: 'middle' };
+      cellTitleMod.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+
+      // Fila 2: Info Docente Merge Dinámico
+      wsModulos.mergeCells(2, 1, 2, totalColsModulos);
+      const cellInfoMod = wsModulos.getCell(2, 1);
+      cellInfoMod.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
+      cellInfoMod.font = { size: 10, name: 'Calibri' };
+      cellInfoMod.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cellInfoMod.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+
+      const rowHeaderMod = wsModulos.addRow(headersModulos);
 
       rowHeaderMod.eachCell((cell) => {
         cell.style = {
-          font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+          font: { bold: true, color: { argb: 'FFFFFF' }, size: 10 },
           fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
           alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, // Wrap text activado
           border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
@@ -831,6 +754,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         row.eachCell((cell, colNumber) => {
           cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
           cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
+          cell.font = { size: 10 };
 
           // Formato numérico para columna # (índice)
           if (colNumber === 1 && typeof cell.value === 'number') {
@@ -843,7 +767,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         });
       });
 
-      ajustarAnchoColumnas(wsModulos);
+      ajustarAnchoColumnas(wsModulos, { maxNameWidth: 30, maxModuleWidth: 15 });
 
 
       // ============================================
@@ -853,8 +777,32 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
           margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
-        }
+        },
+        headerFooter: standardFooter
       });
+
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsEstadisticas.spliceRows(1, 0, [], [], []);
+
+
+
+      // Fila 1: Título Merge (Usamos un rango más amplio para evitar recortes)
+      wsEstadisticas.mergeCells(1, 1, 1, 6);
+      const cellTitleEst = wsEstadisticas.getCell(1, 1);
+      cellTitleEst.value = `ESTADÍSTICAS DE CALIFICACIONES - ${cursoNombre}`;
+      cellTitleEst.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      cellTitleEst.alignment = { horizontal: 'center', vertical: 'middle' };
+      cellTitleEst.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsEstadisticas.getRow(1).height = 25;
+
+      // Fila 2: Info Docente Merge
+      wsEstadisticas.mergeCells(2, 1, 2, 6);
+      const cellInfoEst = wsEstadisticas.getCell(2, 1);
+      cellInfoEst.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
+      cellInfoEst.font = { size: 10, name: 'Calibri' };
+      cellInfoEst.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cellInfoEst.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsEstadisticas.getRow(2).height = 35;
 
       const aprobadosGlobal = estudiantes.filter((est) => (parseFloat(String(est.promedio_global)) || 0) >= 7).length;
       const reprobadosGlobal = estudiantes.length - aprobadosGlobal;
@@ -882,31 +830,37 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       datosEstadisticas.forEach((data, index) => {
         const row = wsEstadisticas.addRow(data);
+        const rowIndex = row.number;
+
+        // Combinar columna Valor (B) con C, D, E y F para que no se corte el texto
+        wsEstadisticas.mergeCells(rowIndex, 2, rowIndex, 6);
+
         if (index === 0) {
           row.eachCell(cell => {
             cell.style = {
-              font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+              font: { bold: true, color: { argb: 'FFFFFF' }, size: 10 },
               fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
-              alignment: { horizontal: 'center', vertical: 'middle' },
+              alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
               border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
             };
           });
         } else {
           row.eachCell((cell, colNumber) => {
             cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
-            cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'left' : 'center' };
-            if (colNumber === 1) cell.font = { bold: true };
+            cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'left' : 'center', wrapText: true };
+            if (colNumber === 1) cell.font = { bold: true, size: 10 };
+            else cell.font = { size: 10 };
             if (data[0] === "Porcentaje de Aprobación" && colNumber === 2) cell.numFmt = '0.0%';
             else if (typeof cell.value === 'number') cell.numFmt = '0.00';
           });
         }
       });
 
-      ajustarAnchoColumnas(wsEstadisticas);
+      ajustarAnchoColumnas(wsEstadisticas, { maxNameWidth: 35, maxModuleWidth: 20 });
 
       const buffer = await workbook.xlsx.writeBuffer();
       const nombreCurso = cursoNombre.replace(/\s+/g, "_") || "Curso";
-      const nombreArchivo = `Calificaciones_${nombreCurso}_${new Date().toISOString().split("T")[0]}.xlsx`;
+      const nombreArchivo = `Calificaciones_${nombreCurso}_${new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guayaquil' })}.xlsx`;
 
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       saveAs(blob, nombreArchivo);
@@ -956,7 +910,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     success: "#10b981",
     warning: "#f59e0b",
     danger: "#ef4444",
-    info: "var(--docente-accent)", // Usar el color de acento del tema docente
+    accent: "var(--docente-accent)",
+    info: "var(--docente-accent)",
   };
 
   return (
@@ -992,302 +947,211 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         }}
       >
         {/* Botón Volver */}
-        <div style={{ marginBottom: '0.75rem' }}>
+        <div style={{ marginBottom: '0.5rem' }}>
           <button
             onClick={() => navigate('/panel/docente/calificaciones')}
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              background: 'rgba(59, 130, 246, 0.1)',
+              gap: '0.35rem',
+              background: 'transparent',
               border: 'none',
-              color: '#3b82f6',
-              fontSize: '0.875rem',
-              fontWeight: '600',
+              color: theme.accent,
+              fontSize: '0.75rem',
+              fontWeight: '700',
               cursor: 'pointer',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '0.375rem',
               transition: 'all 0.2s',
-              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
+              opacity: 0.8
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+              e.currentTarget.style.opacity = '0.8';
+              e.currentTarget.style.background = 'transparent';
             }}
           >
-            <ArrowLeft size={16} />
-            Volver a Calificaciones
+            <ArrowLeft size={14} />
+            Volver a la lista
           </button>
         </div>
 
         {/* Header */}
-        <div style={{ marginBottom: '0.25rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
-              {cursoNombre || 'Calificaciones del Curso'}
-            </h1>
-            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
-              Gestiona las calificaciones y evaluaciones de los estudiantes
-            </p>
-          </div>
-        </div>
-
-        {/* Acciones rápidas */}
         <div style={{
-          background: theme.cardBg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: '0.625rem',
-          padding: '1rem',
-          marginBottom: '0.75rem',
+          marginBottom: '1rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div>
-              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.125rem' }}>
-                Herramientas de Gestión
-              </div>
-              <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
-                Exportación, filtros y estadísticas disponibles
-              </div>
-            </div>
+          <div>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '0 0 0.15rem 0', color: theme.textPrimary, letterSpacing: '-0.02em' }}>
+              {cursoNombre || 'Calificaciones del Curso'}
+            </h2>
+            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0, fontWeight: '500' }}>
+              Gestiona las evaluaciones y descarga reportes de rendimiento académico
+            </p>
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={descargarExcel}
-              disabled={downloadingExcel || loading}
-              style={{
-                background: downloadingExcel
-                  ? "rgba(34, 197, 94, 0.5)"
-                  : darkMode
-                    ? "rgba(34, 197, 94, 0.15)"
-                    : "rgba(34, 197, 94, 0.1)",
-                border: `1px solid ${downloadingExcel ? "rgba(34, 197, 94, 0.5)" : "rgba(34, 197, 94, 0.3)"}`,
-                borderRadius: "0.5rem",
-                padding: "0.5rem 0.75rem",
-                color: downloadingExcel ? "#fff" : "#22c55e",
-                cursor: downloadingExcel || loading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                transition: "all 0.2s ease",
-                fontSize: "0.875rem",
-                fontWeight: "600",
-              }}
-              onMouseEnter={(e) => {
-                if (!downloadingExcel && !loading) {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(34, 197, 94, 0.25)"
-                    : "rgba(34, 197, 94, 0.15)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = downloadingExcel
-                  ? "rgba(34, 197, 94, 0.5)"
-                  : darkMode
-                    ? "rgba(34, 197, 94, 0.15)"
-                    : "rgba(34, 197, 94, 0.1)";
-              }}
-            >
-              <FileSpreadsheet size={18} />
-              {downloadingExcel ? "Generando..." : "Excel"}
-            </button>
-
-            <button
-              onClick={descargarPDF}
-              disabled={downloadingPDF || loading}
-              style={{
-                background: downloadingPDF
-                  ? "rgba(59, 130, 246, 0.5)"
-                  : darkMode
-                    ? "rgba(59, 130, 246, 0.15)"
-                    : "rgba(59, 130, 246, 0.1)",
-                border: `1px solid ${downloadingPDF ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"}`,
-                borderRadius: "0.5rem",
-                padding: "0.5rem 0.75rem",
-                color: downloadingPDF ? "#fff" : "#3b82f6",
-                cursor: downloadingPDF || loading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                transition: "all 0.2s ease",
-                fontSize: "0.875rem",
-                fontWeight: "600",
-              }}
-              onMouseEnter={(e) => {
-                if (!downloadingPDF && !loading) {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(59, 130, 246, 0.25)"
-                    : "rgba(59, 130, 246, 0.15)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = downloadingPDF
-                  ? "rgba(59, 130, 246, 0.5)"
-                  : darkMode
-                    ? "rgba(59, 130, 246, 0.15)"
-                    : "rgba(59, 130, 246, 0.1)";
-              }}
-            >
-              <Download size={18} />
-              {downloadingPDF ? "Generando..." : "PDF"}
-            </button>
-          </div>
-        </div>
-
-        {/* Estadísticas */}
-        <div
-          style={{
-            padding: "0",
-            marginBottom: "0.75rem",
-          }}
-        >
-          <div
+          <button
+            onClick={descargarExcel}
+            disabled={downloadingExcel || loading}
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-              gap: "0.75rem",
+              background: downloadingExcel
+                ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
+                : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              border: 'none',
+              borderRadius: "0.5rem",
+              padding: "0.5rem 1rem",
+              color: "#fff",
+              cursor: downloadingExcel || loading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              transition: "all 0.2s ease",
+              fontSize: "0.875rem",
+              fontWeight: "700",
+              boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
+              opacity: downloadingExcel || loading ? 0.7 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!downloadingExcel && !loading) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!downloadingExcel && !loading) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
+              }
             }}
           >
-            <div
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: "0.625rem",
-                padding: "0.75rem",
-                textAlign: "center",
-              }}
-            >
-              <User
-                size={16}
-                color={theme.info}
-                style={{ margin: "0 auto 0.125rem" }}
-              />
-              <div
-                style={{
-                  color: theme.info, // Celeste para el número
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                }}
-              >
-                {stats.total}
+            <Table2 size={18} strokeWidth={2.5} />
+            {downloadingExcel ? "Generando..." : "Descargar Excel"}
+          </button>
+        </div>
+
+        {/* Estadísticas Compactas */}
+        <div style={{ marginBottom: "0.75rem" }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: "0.5rem",
+          }}>
+            <div style={{
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.5rem",
+              padding: "0.45rem 0.6rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{
+                padding: '0.35rem',
+                borderRadius: '0.4rem',
+                background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
+                color: theme.accent
+              }}>
+                <User size={13} />
               </div>
-              <div
-                style={{
-                  color: theme.textSecondary,
-                  fontSize: "0.65rem",
-                }}
-              >
-                Estudiantes
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "800", color: theme.textPrimary, lineHeight: 1 }}>
+                  {stats.total}
+                </span>
+                <span style={{ fontSize: "0.65rem", color: theme.textSecondary, fontWeight: "600" }}>
+                  Estudiantes
+                </span>
               </div>
             </div>
 
-            <div
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: "0.625rem",
-                padding: "0.75rem",
-                textAlign: "center",
-              }}
-            >
-              <Award
-                size={16}
-                color={theme.info}
-                style={{ margin: "0 auto 0.125rem" }}
-              />
-              <div
-                style={{
-                  color: theme.info,
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                }}
-              >
-                {stats.aprobados}
+            <div style={{
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.5rem",
+              padding: "0.45rem 0.6rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{
+                padding: '0.35rem',
+                borderRadius: '0.4rem',
+                background: darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.08)',
+                color: '#10b981'
+              }}>
+                <Award size={13} />
               </div>
-              <div
-                style={{
-                  color: theme.textSecondary,
-                  fontSize: "0.65rem",
-                }}
-              >
-                Aprobados
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "800", color: theme.textPrimary, lineHeight: 1 }}>
+                  {stats.aprobados}
+                </span>
+                <span style={{ fontSize: "0.65rem", color: theme.textSecondary, fontWeight: "600" }}>
+                  Aprobados
+                </span>
               </div>
             </div>
 
-            <div
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: "0.625rem",
-                padding: "0.75rem",
-                textAlign: "center",
-              }}
-            >
-              <BarChart3
-                size={16}
-                color={theme.info}
-                style={{ margin: "0 auto 0.125rem" }}
-              />
-              <div
-                style={{
-                  color: theme.info, // Celeste para el número
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                }}
-              >
-                {stats.reprobados}
+            <div style={{
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.5rem",
+              padding: "0.45rem 0.6rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{
+                padding: '0.35rem',
+                borderRadius: '0.4rem',
+                background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
+                color: '#ef4444'
+              }}>
+                <BarChart3 size={13} />
               </div>
-              <div
-                style={{
-                  color: theme.textSecondary,
-                  fontSize: "0.65rem",
-                }}
-              >
-                Reprobados
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "800", color: theme.textPrimary, lineHeight: 1 }}>
+                  {stats.reprobados}
+                </span>
+                <span style={{ fontSize: "0.65rem", color: theme.textSecondary, fontWeight: "600" }}>
+                  Reprobados
+                </span>
               </div>
             </div>
 
-            <div
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: "0.625rem",
-                padding: "0.75rem",
-                textAlign: "center",
-              }}
-            >
-              <BookOpen
-                size={16}
-                color={theme.info}
-                style={{ margin: "0 auto 0.125rem" }}
-              />
-              <div
-                style={{
-                  color: theme.info,
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                }}
-              >
-                {stats.promedioGeneral}
+            <div style={{
+              background: theme.cardBg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "0.5rem",
+              padding: "0.45rem 0.6rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{
+                padding: '0.35rem',
+                borderRadius: '0.4rem',
+                background: darkMode ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.08)',
+                color: '#f59e0b'
+              }}>
+                <BookOpen size={13} />
               </div>
-              <div
-                style={{
-                  color: theme.textSecondary,
-                  fontSize: "0.65rem",
-                }}
-              >
-                Promedio General
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "800", color: theme.textPrimary, lineHeight: 1 }}>
+                  {stats.promedioGeneral}
+                </span>
+                <span style={{ fontSize: "0.65rem", color: theme.textSecondary, fontWeight: "600" }}>
+                  Promedio Gral.
+                </span>
               </div>
             </div>
           </div>
@@ -1362,59 +1226,54 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               />
             </div>
 
-            {/* Pestañas de Módulos - Estilo chips/pills compacto con scroll horizontal */}
+            {/* Pestañas de Módulos - Estilo chips/pills muy compacto */}
             <div
               style={{
                 display: "flex",
-                gap: "0.5rem",
+                gap: "0.35rem",
                 overflowX: "auto",
                 alignItems: "center",
                 flex: "1 1 auto",
                 minWidth: "0",
-                paddingBottom: "0.25rem",
+                paddingBottom: "0.15rem",
                 WebkitOverflowScrolling: "touch",
-                scrollbarWidth: "thin",
-                scrollbarColor: `${theme.border} transparent`,
+                scrollbarWidth: "none",
               }}
               className="module-buttons-scroll"
             >
               <button
                 onClick={() => setModuloActivo("todos")}
                 style={{
-                  padding: "0.35rem 0.75rem",
+                  padding: "0.3rem 0.65rem",
                   background:
                     moduloActivo === "todos"
-                      ? "linear-gradient(135deg, #3b82f6, #2563eb)"
-                      : theme.inputBg,
-                  border:
-                    moduloActivo === "todos"
-                      ? "none"
-                      : `1px solid ${theme.border}`,
-                  borderRadius: "1.5rem",
+                      ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)`
+                      : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
+                  border: "none",
+                  borderRadius: "0.375rem",
                   color:
                     moduloActivo === "todos" ? "#fff" : theme.textSecondary,
                   cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
+                  fontSize: "0.7rem",
+                  fontWeight: "700",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.35rem",
+                  gap: "0.3rem",
                   transition: "all 0.1s ease-out",
+                  whiteSpace: "nowrap"
                 }}
                 onMouseEnter={(e) => {
                   if (moduloActivo !== "todos") {
-                    e.currentTarget.style.background = theme.cardBg;
-                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (moduloActivo !== "todos") {
-                    e.currentTarget.style.background = theme.inputBg;
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
                   }
                 }}
               >
-                <BookOpen size={13} />
+                <BookOpen size={11} />
                 Todos
               </button>
 
@@ -1423,37 +1282,32 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                   key={`tab-${idx}`}
                   onClick={() => setModuloActivo(modulo)}
                   style={{
-                    padding: "0.35rem 0.75rem",
+                    padding: "0.3rem 0.65rem",
                     background:
                       moduloActivo === modulo
-                        ? "linear-gradient(135deg, #3b82f6, #2563eb)"
-                        : theme.inputBg,
-                    border:
-                      moduloActivo === modulo
-                        ? "none"
-                        : `1px solid ${theme.border}`,
-                    borderRadius: "1.5rem",
+                        ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)`
+                        : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
+                    border: "none",
+                    borderRadius: "0.375rem",
                     color:
                       moduloActivo === modulo ? "#fff" : theme.textSecondary,
                     cursor: "pointer",
-                    fontSize: "0.75rem",
-                    fontWeight: "600",
+                    fontSize: "0.7rem",
+                    fontWeight: "700",
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.35rem",
+                    gap: "0.3rem",
                     transition: "all 0.1s ease-out",
                     whiteSpace: "nowrap",
                   }}
                   onMouseEnter={(e) => {
                     if (moduloActivo !== modulo) {
-                      e.currentTarget.style.background = theme.cardBg;
-                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (moduloActivo !== modulo) {
-                      e.currentTarget.style.background = theme.inputBg;
-                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
                     }
                   }}
                 >
@@ -1462,11 +1316,11 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               ))}
             </div>
 
-            {/* Filtros de estudiantes - wrap on mobile */}
+            {/* Filtros de estudiantes muy compactos */}
             <div
               style={{
                 display: "flex",
-                gap: "0.5rem",
+                gap: "0.35rem",
                 alignItems: "center",
                 flexWrap: "wrap",
               }}
@@ -1474,120 +1328,105 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               <button
                 onClick={() => setFiltro("todos")}
                 style={{
-                  padding: "0.35rem 0.75rem",
+                  padding: "0.3rem 0.65rem",
                   background:
                     filtro === "todos"
-                      ? "linear-gradient(135deg, #3b82f6, #2563eb)"
-                      : theme.inputBg,
-                  border:
-                    filtro === "todos"
-                      ? "none"
-                      : `1px solid ${theme.border}`,
-                  borderRadius: "1.5rem",
+                      ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)`
+                      : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
+                  border: "none",
+                  borderRadius: "0.375rem",
                   color: filtro === "todos" ? "#fff" : theme.textSecondary,
                   cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
+                  fontSize: "0.7rem",
+                  fontWeight: "700",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.35rem",
+                  gap: "0.3rem",
                   transition: "all 0.2s ease",
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   if (filtro !== "todos") {
-                    e.currentTarget.style.background = theme.cardBg;
-                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (filtro !== "todos") {
-                    e.currentTarget.style.background = theme.inputBg;
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
                   }
                 }}
               >
-                <User size={14} />
+                <User size={12} />
                 Todos
               </button>
 
               <button
                 onClick={() => setFiltro("aprobados")}
                 style={{
-                  padding: "0.35rem 0.75rem",
+                  padding: "0.3rem 0.65rem",
                   background:
                     filtro === "aprobados"
-                      ? "linear-gradient(135deg, #3b82f6, #2563eb)"
-                      : theme.inputBg,
-                  border:
-                    filtro === "aprobados"
-                      ? "none"
-                      : `1px solid ${theme.border}`,
-                  borderRadius: "1.5rem",
+                      ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)`
+                      : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
+                  border: "none",
+                  borderRadius: "0.375rem",
                   color: filtro === "aprobados" ? "#fff" : theme.textSecondary,
                   cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
+                  fontSize: "0.7rem",
+                  fontWeight: "700",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.35rem",
+                  gap: "0.3rem",
                   transition: "all 0.2s ease",
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   if (filtro !== "aprobados") {
-                    e.currentTarget.style.background = theme.cardBg;
-                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (filtro !== "aprobados") {
-                    e.currentTarget.style.background = theme.inputBg;
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
                   }
                 }}
               >
-                <Award size={14} />
+                <Award size={12} />
                 Aprobados
               </button>
 
               <button
                 onClick={() => setFiltro("reprobados")}
                 style={{
-                  padding: "0.35rem 0.75rem",
+                  padding: "0.3rem 0.65rem",
                   background:
                     filtro === "reprobados"
-                      ? "linear-gradient(135deg, #3b82f6, #2563eb)"
-                      : theme.inputBg,
-                  border:
-                    filtro === "reprobados"
-                      ? "none"
-                      : `1px solid ${theme.border}`,
-                  borderRadius: "1.5rem",
+                      ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)`
+                      : (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'),
+                  border: "none",
+                  borderRadius: "0.375rem",
                   color: filtro === "reprobados" ? "#fff" : theme.textSecondary,
                   cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
+                  fontSize: "0.7rem",
+                  fontWeight: "700",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.35rem",
+                  gap: "0.3rem",
                   transition: "all 0.2s ease",
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   if (filtro !== "reprobados") {
-                    e.currentTarget.style.background = theme.cardBg;
-                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (filtro !== "reprobados") {
-                    e.currentTarget.style.background = theme.inputBg;
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
                   }
                 }}
               >
-                <BarChart3 size={14} />
+                <BarChart3 size={12} />
                 Reprobados
               </button>
             </div>
@@ -1606,20 +1445,20 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           }}
         >
           {loading ? (
-            <div style={{ textAlign: "center", padding: "3rem" }}>
+            <div style={{ textAlign: "center", padding: "4rem 2rem" }}>
               <div
                 style={{
-                  width: "2.5rem",
-                  height: "2.5rem",
-                  border: "3px solid rgba(59, 130, 246, 0.2)",
-                  borderTop: "3px solid #3b82f6",
+                  width: "1.75rem",
+                  height: "1.75rem",
+                  border: `2.5px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+                  borderTop: `2.5px solid ${theme.accent}`,
                   borderRadius: "50%",
-                  animation: "spin 1s linear infinite",
-                  margin: "0 auto 1rem",
+                  animation: "spin 0.8s linear infinite",
+                  margin: "0 auto 0.75rem",
                 }}
               />
-              <p style={{ color: theme.textSecondary, fontSize: "0.875rem" }}>
-                Cargando calificaciones...
+              <p style={{ color: theme.textSecondary, fontSize: "0.75rem", fontWeight: '600', margin: 0 }}>
+                Cargando datos...
               </p>
             </div>
           ) : (
@@ -1629,19 +1468,30 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                 <div
                   style={{
                     textAlign: "center",
-                    padding: "3rem 1rem",
+                    padding: "3rem 1.5rem",
                     background: theme.cardBg,
                     borderRadius: "0.5rem",
                     border: `1px solid ${theme.border}`,
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
                   }}
                 >
-                  <Award
-                    size={32}
-                    color={theme.textMuted}
-                    style={{ margin: "0 auto 1rem" }}
-                  />
-                  <p style={{ color: theme.textSecondary, margin: 0 }}>
-                    No hay estudiantes que coincidan con los filtros
+                  <div style={{
+                    width: '3rem',
+                    height: '3rem',
+                    background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 1rem'
+                  }}>
+                    <Search size={20} color={theme.textMuted} />
+                  </div>
+                  <h3 style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.textPrimary, marginBottom: '0.25rem' }}>
+                    Sin resultados
+                  </h3>
+                  <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0 }}>
+                    No hay estudiantes que coincidan con los filtros aplicados.
                   </p>
                 </div>
               ) : (
@@ -1723,15 +1573,16 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                             <th
                               rowSpan={2}
                               style={{
-                                padding: "0.75rem 1rem",
+                                padding: "0.5rem 0.75rem",
                                 textAlign: "center",
                                 color: theme.textPrimary,
-                                fontWeight: "600",
+                                fontWeight: "700",
                                 background: darkMode
-                                  ? "rgba(245, 158, 11, 0.1)"
-                                  : "rgba(245, 158, 11, 0.05)",
+                                  ? "rgba(245, 158, 11, 0.15)"
+                                  : "rgba(245, 158, 11, 0.08)",
                                 minWidth: "100px",
-                                borderBottom: `2px solid ${theme.border}`
+                                borderBottom: `1px solid ${theme.border}`,
+                                fontSize: '0.75rem'
                               }}
                             >
                               <div style={{ marginBottom: "0.25rem" }}>
@@ -1764,20 +1615,21 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               <th
                                 key={tarea.id_tarea}
                                 style={{
-                                  padding: "0.75rem 1rem",
+                                  padding: "0.5rem 0.75rem",
                                   textAlign: "center",
                                   color: theme.textPrimary,
-                                  fontWeight: "600",
+                                  fontWeight: "700",
                                   minWidth: "80px",
+                                  fontSize: '0.75rem'
                                 }}
                               >
-                                <div style={{ marginBottom: "0.25rem" }}>
+                                <div style={{ marginBottom: "0.15rem" }}>
                                   {tarea.titulo}
                                 </div>
                                 <div
                                   style={{
-                                    fontSize: "0.75rem",
-                                    color: theme.textMuted,
+                                    fontSize: "0.65rem",
+                                    color: theme.textSecondary,
                                     fontWeight: "500",
                                   }}
                                 >
@@ -1791,23 +1643,23 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                         <tr
                           style={{
                             background: darkMode
-                              ? "rgba(255,255,255,0.05)"
-                              : "rgba(0,0,0,0.02)",
-                            borderBottom: `2px solid ${theme.border}`,
+                              ? "rgba(255,255,255,0.03)"
+                              : "rgba(0,0,0,0.01)",
+                            borderBottom: `1px solid ${theme.border}`,
                           }}
                         >
                           <th
                             style={{
-                              padding: "0.75rem 1rem",
+                              padding: "0.6rem 0.85rem",
                               textAlign: "left",
                               color: theme.textPrimary,
-                              fontWeight: "600",
-                              background: darkMode
-                                ? "rgba(255, 255, 255, 0.05)"
-                                : "rgba(0, 0, 0, 0.02)",
+                              fontWeight: "700",
+                              background: darkMode ? '#1e293b' : '#f8fafc',
                               position: "sticky",
                               left: 0,
                               zIndex: 10,
+                              fontSize: '0.75rem',
+                              borderBottom: `1px solid ${theme.border}`
                             }}
                           >
                             Estudiante
@@ -1816,53 +1668,53 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                             <th
                               key={`modulo-${idx}`}
                               style={{
-                                padding: "0.75rem 1rem",
+                                padding: "0.6rem 0.85rem",
                                 textAlign: "center",
                                 color: theme.textPrimary,
-                                fontWeight: "600",
+                                fontWeight: "700",
                                 background: darkMode
-                                  ? "rgba(245, 158, 11, 0.1)"
-                                  : "rgba(245, 158, 11, 0.05)",
+                                  ? "rgba(245, 158, 11, 0.15)"
+                                  : "rgba(245, 158, 11, 0.08)",
                                 minWidth: "100px",
+                                fontSize: '0.75rem',
+                                borderBottom: `1px solid ${theme.border}`
                               }}
                             >
-                              <div style={{ marginBottom: "0.25rem" }}>
+                              <div style={{ marginBottom: "0.15rem" }}>
                                 {modulo}
                               </div>
                               <div
                                 style={{
-                                  fontSize: "0.7rem",
-                                  color: theme.textMuted,
+                                  fontSize: "0.65rem",
+                                  color: theme.textSecondary,
                                   fontWeight: "500",
                                 }}
                               >
-                                /
-                                {typeof pesoPorModulo === "number"
-                                  ? pesoPorModulo.toFixed(2)
-                                  : "0.00"}{" "}
-                                pts
+                                /{typeof pesoPorModulo === "number" ? pesoPorModulo.toFixed(2) : "0.00"} pts
                               </div>
                             </th>
                           ))}
                           <th
                             style={{
-                              padding: "0.75rem 1rem",
+                              padding: "0.6rem 0.85rem",
                               textAlign: "center",
                               color: theme.textPrimary,
-                              fontWeight: "600",
+                              fontWeight: "700",
                               background: darkMode
-                                ? "rgba(96, 165, 250, 0.15)"
-                                : "rgba(96, 165, 250, 0.1)",
+                                ? "rgba(59, 130, 246, 0.15)"
+                                : "rgba(59, 130, 246, 0.08)",
                               minWidth: "100px",
+                              fontSize: '0.75rem',
+                              borderBottom: `1px solid ${theme.border}`
                             }}
                           >
-                            <div style={{ marginBottom: "0.25rem" }}>
+                            <div style={{ marginBottom: "0.15rem" }}>
                               Promedio Global
                             </div>
                             <div
                               style={{
-                                fontSize: "0.75rem",
-                                color: theme.textMuted,
+                                fontSize: "0.65rem",
+                                color: theme.textSecondary,
                                 fontWeight: "500",
                               }}
                             >
@@ -1890,68 +1742,54 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                         >
                           <td
                             style={{
-                              padding: "0.75rem 1rem",
+                              padding: "0.5rem 0.75rem",
                               color: theme.textPrimary,
-                              fontWeight: "500",
+                              fontWeight: "600",
+                              fontSize: '0.8125rem',
                               position: "sticky",
                               left: 0,
-                              background:
-                                idx % 2 === 0
-                                  ? darkMode
-                                    ? "rgba(255,255,255,0.02)"
-                                    : "transparent"
-                                  : darkMode
-                                    ? "rgba(255,255,255,0.03)"
-                                    : "rgba(0,0,0,0.01)",
+                              background: darkMode ? '#1e293b' : '#f8fafc',
                               zIndex: 9,
+                              borderRight: `1px solid ${theme.border}`
                             }}
                           >
                             {estudiante.apellido}, {estudiante.nombre}
                           </td>
                           {moduloActivo !== "todos" && tareasFiltradas.map((tarea) => {
-                            const notaVal =
-                              estudiante.calificaciones[tarea.id_tarea];
-                            const nota =
-                              notaVal === null || notaVal === undefined
-                                ? null
-                                : typeof notaVal === "number"
-                                  ? notaVal
-                                  : Number(notaVal);
-                            const porcentaje =
-                              nota !== null && Number.isFinite(nota)
-                                ? (nota / tarea.nota_maxima) * 100
-                                : 0;
-                            const color =
-                              nota === null
-                                ? theme.textMuted
-                                : porcentaje >= 70
-                                  ? theme.success
-                                  : porcentaje >= 50
-                                    ? theme.warning
-                                    : theme.danger;
+                            const notaVal = estudiante.calificaciones[tarea.id_tarea];
+                            const nota = notaVal === null || notaVal === undefined ? null : Number(notaVal);
+                            const porcentaje = nota !== null ? (nota / tarea.nota_maxima) * 100 : 0;
+
+                            const getNotaColors = () => {
+                              if (nota === null) return { bg: 'transparent', text: theme.textMuted };
+                              if (porcentaje >= 70) return { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981' };
+                              if (porcentaje >= 50) return { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b' };
+                              return { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' };
+                            };
+
+                            const colors = getNotaColors();
 
                             return (
                               <td
                                 key={tarea.id_tarea}
                                 style={{
-                                  padding: "0.75rem 1rem",
+                                  padding: "0.4rem 0.65rem",
                                   textAlign: "center",
                                 }}
                               >
                                 <div
                                   style={{
                                     display: "inline-block",
-                                    padding: "0.25rem 0.5rem",
-                                    borderRadius: "0.375rem",
-                                    background: `${color}20`,
-                                    color: color,
-                                    fontWeight: "600",
-                                    fontSize: "0.875rem",
+                                    padding: "0.15rem 0.45rem",
+                                    borderRadius: "0.3rem",
+                                    background: colors.bg,
+                                    color: colors.text,
+                                    fontWeight: "800",
+                                    fontSize: "0.8rem",
+                                    minWidth: '1.75rem'
                                   }}
                                 >
-                                  {nota !== null && Number.isFinite(nota)
-                                    ? nota.toFixed(1)
-                                    : "-"}
+                                  {nota !== null ? nota.toFixed(1) : "-"}
                                 </div>
                               </td>
                             );
@@ -1975,26 +1813,23 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               return (
                                 <td
                                   style={{
-                                    padding: "0.75rem 1rem",
+                                    padding: "0.4rem 0.65rem",
                                     textAlign: "center",
-                                    background: darkMode
-                                      ? "rgba(245, 158, 11, 0.05)"
-                                      : "rgba(245, 158, 11, 0.02)",
                                   }}
                                 >
                                   <div
                                     style={{
                                       display: "inline-block",
-                                      padding: "0.25rem 0.5rem",
-                                      borderRadius: "0.375rem",
+                                      padding: "0.15rem 0.45rem",
+                                      borderRadius: "0.3rem",
                                       background: aprobado
-                                        ? "rgba(16, 185, 129, 0.2)"
-                                        : "rgba(239, 68, 68, 0.2)",
+                                        ? "rgba(16, 185, 129, 0.15)"
+                                        : "rgba(239, 68, 68, 0.15)",
                                       color: aprobado
-                                        ? theme.success
-                                        : theme.danger,
-                                      fontWeight: "700",
-                                      fontSize: "0.875rem",
+                                        ? '#10b981'
+                                        : '#ef4444',
+                                      fontWeight: "800",
+                                      fontSize: "0.8rem",
                                     }}
                                   >
                                     {promedioModulo > 0
@@ -2024,26 +1859,23 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 <td
                                   key={`modulo-${idx}-${estudiante.id_estudiante}`}
                                   style={{
-                                    padding: "0.75rem 1rem",
+                                    padding: "0.4rem 0.65rem",
                                     textAlign: "center",
-                                    background: darkMode
-                                      ? "rgba(245, 158, 11, 0.05)"
-                                      : "rgba(245, 158, 11, 0.02)",
                                   }}
                                 >
                                   <div
                                     style={{
                                       display: "inline-block",
-                                      padding: "0.25rem 0.5rem",
-                                      borderRadius: "0.375rem",
+                                      padding: "0.15rem 0.45rem",
+                                      borderRadius: "0.3rem",
                                       background: aprobado
-                                        ? "rgba(16, 185, 129, 0.2)"
-                                        : "rgba(239, 68, 68, 0.2)",
+                                        ? "rgba(16, 185, 129, 0.15)"
+                                        : "rgba(239, 68, 68, 0.15)",
                                       color: aprobado
-                                        ? theme.success
-                                        : theme.danger,
-                                      fontWeight: "700",
-                                      fontSize: "0.875rem",
+                                        ? '#10b981'
+                                        : '#ef4444',
+                                      fontWeight: "800",
+                                      fontSize: "0.8rem",
                                     }}
                                   >
                                     {promedioModulo > 0
@@ -2057,40 +1889,29 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                           {moduloActivo === "todos" && (
                             <td
                               style={{
-                                padding: "0.75rem 1rem",
+                                padding: "0.4rem 0.65rem",
                                 textAlign: "center",
                                 background: darkMode
-                                  ? "rgba(96, 165, 250, 0.08)"
-                                  : "rgba(96, 165, 250, 0.05)",
+                                  ? "rgba(59, 130, 246, 0.08)"
+                                  : "rgba(59, 130, 246, 0.03)",
                               }}
                             >
                               <div
                                 style={{
                                   display: "inline-block",
-                                  padding: "0.25rem 0.75rem",
-                                  borderRadius: "0.375rem",
-                                  background:
-                                    (parseFloat(String(estudiante.promedio_global)) ||
-                                      0) >= 7
-                                      ? "rgba(16, 185, 129, 0.2)"
-                                      : "rgba(239, 68, 68, 0.2)",
-                                  color:
-                                    (parseFloat(String(estudiante.promedio_global)) ||
-                                      0) >= 7
-                                      ? theme.success
-                                      : theme.danger,
+                                  padding: "0.15rem 0.45rem",
+                                  borderRadius: "0.3rem",
+                                  background: (parseFloat(String(estudiante.promedio_global)) || 0) >= 7
+                                    ? "rgba(37, 99, 235, 0.15)"
+                                    : "rgba(239, 68, 68, 0.15)",
+                                  color: (parseFloat(String(estudiante.promedio_global)) || 0) >= 7
+                                    ? (darkMode ? '#60a5fa' : '#2563eb')
+                                    : '#ef4444',
                                   fontWeight: "800",
-                                  fontSize: "1rem",
+                                  fontSize: "0.8rem",
                                 }}
                               >
-                                {estudiante.promedio_global
-                                  ? typeof estudiante.promedio_global ===
-                                    "number"
-                                    ? estudiante.promedio_global.toFixed(2)
-                                    : parseFloat(
-                                      String(estudiante.promedio_global),
-                                    ).toFixed(2)
-                                  : "0.00"}
+                                {(parseFloat(String(estudiante.promedio_global)) || 0).toFixed(2)}
                               </div>
                             </td>
                           )}

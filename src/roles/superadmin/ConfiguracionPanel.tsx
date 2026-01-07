@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
@@ -209,59 +210,43 @@ const ConfiguracionPanel: React.FC = () => {
       color: 'var(--superadmin-text-primary)',
     }}>
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1em' }}>
-        <h2 style={{
-          color: 'var(--superadmin-text-primary)',
-          margin: '0 0 0.375rem 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem',
-          fontSize: isMobile ? '1.25rem' : '1.625rem',
-          fontWeight: '700'
-        }}>
-          <User size={26} color="#ef4444" />
-          Mi Perfil
-        </h2>
-        <p style={{
-          color: 'var(--superadmin-text-muted)',
-          margin: 0,
-          fontSize: isMobile ? '0.75rem' : '0.85rem'
-        }}>
-          Información personal del Super Administrador
-        </p>
-      </div>
+      <AdminSectionHeader
+        title="Configuración del Super Administrador"
+        subtitle="Información personal y configuración del sistema"
+        marginBottom={isMobile ? '0.5rem' : '0.75rem'}
+      />
 
       {/* Estadísticas rápidas */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'),
-        gap: isMobile ? '0.75rem' : '1rem',
-        marginBottom: isMobile ? '1rem' : '1.5rem'
+        gap: isMobile ? '0.5rem' : '0.75rem',
+        marginBottom: isMobile ? '0.5rem' : '0.75rem'
       }}>
         <div style={{
           background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          borderRadius: '1rem',
-          padding: isMobile ? '1rem' : '1.25rem',
+          borderRadius: '0.5rem',
+          padding: '0.625rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem'
+          gap: '0.5rem'
         }}>
           <div style={{
-            width: '3rem',
-            height: '3rem',
-            borderRadius: '0.75rem',
+            width: '2rem',
+            height: '2rem',
+            borderRadius: '0.5rem',
             background: 'linear-gradient(135deg, #ef4444, #dc2626)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+            boxShadow: 'none'
           }}>
-            <Users size={20} color="#fff" />
+            <Users size={14} color="#fff" />
           </div>
           <div>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Total Admins</p>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.65rem' }}>Total Admins</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700' }}>
               {loading ? '...' : stats.totalAdmins}
             </p>
           </div>
@@ -270,27 +255,27 @@ const ConfiguracionPanel: React.FC = () => {
         <div style={{
           background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
           border: '1px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: '1rem',
-          padding: isMobile ? '1rem' : '1.25rem',
+          borderRadius: '0.5rem',
+          padding: '0.625rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem'
+          gap: '0.5rem'
         }}>
           <div style={{
-            width: '3rem',
-            height: '3rem',
-            borderRadius: '0.75rem',
+            width: '2rem',
+            height: '2rem',
+            borderRadius: '0.5rem',
             background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            boxShadow: 'none'
           }}>
-            <ShieldCheck size={20} color="#fff" />
+            <ShieldCheck size={14} color="#fff" />
           </div>
           <div>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Activos</p>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.65rem' }}>Activos</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700' }}>
               {loading ? '...' : stats.activeAdmins}
             </p>
           </div>
@@ -299,46 +284,45 @@ const ConfiguracionPanel: React.FC = () => {
         <div style={{
           background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
           border: '1px solid rgba(16, 185, 129, 0.2)',
-          borderRadius: '1rem',
-          padding: isMobile ? '1rem' : '1.25rem',
+          borderRadius: '0.5rem',
+          padding: '0.625rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem'
+          gap: '0.5rem'
         }}>
           <div style={{
-            width: '3rem',
-            height: '3rem',
-            borderRadius: '0.75rem',
+            width: '2rem',
+            height: '2rem',
+            borderRadius: '0.5rem',
             background: 'linear-gradient(135deg, #10b981, #059669)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+            boxShadow: 'none'
           }}>
-            <CheckCircle size={20} color="#fff" />
+            <CheckCircle size={14} color="#fff" />
           </div>
           <div>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Sesiones Hoy</p>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.5rem', fontWeight: '700' }}>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.65rem' }}>Sesiones Hoy</p>
+            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700' }}>
               {loading ? '...' : stats.sessionsToday}
             </p>
           </div>
         </div>
 
-
       </div>
 
       {/* Sección Perfil del SuperAdmin - Solo Lectura */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 2fr', gap: isMobile ? '0.75rem' : '1rem' }}>
+      <div style={{ marginBottom: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 2fr', gap: isMobile ? '0.5rem' : '0.75rem' }}>
           {/* Card de perfil (izquierda) */}
           <div style={{
             background: 'var(--superadmin-card-bg)',
             backdropFilter: 'blur(1.25rem)',
             border: '0.0625rem solid var(--superadmin-border)',
-            borderRadius: '1.25rem',
-            padding: isMobile ? '1.25rem' : '1.5rem',
-            boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)',
+            borderRadius: '1rem',
+            padding: isMobile ? '1rem' : '1.25rem',
+            boxShadow: '0 0.375rem 1.125rem rgba(0, 0, 0, 0.3)',
             textAlign: 'center'
           }}>
             {/* Foto de perfil */}
@@ -349,20 +333,20 @@ const ConfiguracionPanel: React.FC = () => {
               }}
               style={{
                 position: 'relative',
-                width: '7.5rem',
-                height: '7.5rem',
+                width: '6rem',
+                height: '6rem',
                 borderRadius: '50%',
                 background: fotoUrl ? 'transparent' : 'linear-gradient(135deg, #ef4444, #dc2626)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '2.5rem',
+                fontSize: '2rem',
                 fontWeight: '800',
                 color: '#fff',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                margin: '0 auto 1rem',
-                boxShadow: '0 0.5rem 1.5rem rgba(239, 68, 68, 0.4)',
+                margin: '0 auto 0.75rem',
+                boxShadow: '0 0.375rem 1.125rem rgba(239, 68, 68, 0.4)',
                 transition: 'all 0.3s ease',
                 transform: 'scale(1) rotate(0deg)'
               }}
@@ -387,50 +371,50 @@ const ConfiguracionPanel: React.FC = () => {
               )}
             </div>
 
-            <h3 style={{ color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700', margin: '0 0 0.25rem 0' }}>
+            <h3 style={{ color: 'var(--superadmin-text-primary)', fontSize: '1rem', fontWeight: '700', margin: '0 0 0.2rem 0' }}>
               {userData?.nombre} {userData?.apellido}
             </h3>
-            <p style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.8125rem', margin: '0 0 0.5rem 0' }}>
+            <p style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', margin: '0 0 0.4rem 0' }}>
               @{userData?.email?.split('@')[0]}
             </p>
 
             <div style={{
-              padding: '0.5rem 1rem',
+              padding: '0.4rem 0.75rem',
               background: 'rgba(239, 68, 68, 0.15)',
-              borderRadius: '0.625rem',
+              borderRadius: '0.5rem',
               color: '#ef4444',
-              fontSize: '0.8125rem',
+              fontSize: '0.75rem',
               fontWeight: '600',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              marginTop: '0.5rem'
+              gap: '0.4rem',
+              marginTop: '0.4rem'
             }}>
-              <ShieldCheck size={16} color="#ef4444" />
+              <ShieldCheck size={14} color="#ef4444" />
               Super Administrador
             </div>
 
             <div style={{
-              marginTop: '1.5rem',
-              paddingTop: '1.5rem',
+              marginTop: '1rem',
+              paddingTop: '1rem',
               borderTop: '1px solid var(--superadmin-border)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <CheckCircle size={18} color={userData?.estado === 'activo' ? '#10b981' : '#ef4444'} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
+                <CheckCircle size={16} color={userData?.estado === 'activo' ? '#10b981' : '#ef4444'} />
                 <div style={{ textAlign: 'left', flex: 1 }}>
-                  <div style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Estado</div>
-                  <div style={{ color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '600', textTransform: 'capitalize' }}>
+                  <div style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem' }}>Estado</div>
+                  <div style={{ color: 'var(--superadmin-text-primary)', fontSize: '0.8rem', fontWeight: '600', textTransform: 'capitalize' }}>
                     {userData?.estado}
                   </div>
                 </div>
               </div>
 
               {userData?.cedula && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <User size={18} color='#ef4444' />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <User size={16} color='#ef4444' />
                   <div style={{ textAlign: 'left', flex: 1 }}>
-                    <div style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>Identificación</div>
-                    <div style={{ color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '600' }}>
+                    <div style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem' }}>Identificación</div>
+                    <div style={{ color: 'var(--superadmin-text-primary)', fontSize: '0.8rem', fontWeight: '600' }}>
                       {userData.cedula}
                     </div>
                   </div>
@@ -444,15 +428,15 @@ const ConfiguracionPanel: React.FC = () => {
             background: 'var(--superadmin-card-bg)',
             backdropFilter: 'blur(1.25rem)',
             border: '0.0625rem solid var(--superadmin-border)',
-            borderRadius: '1.25rem',
-            padding: isMobile ? '1.25rem' : '1.5rem',
-            boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
+            borderRadius: '1rem',
+            padding: isMobile ? '1rem' : '1.25rem',
+            boxShadow: '0 0.375rem 1.125rem rgba(0, 0, 0, 0.3)'
           }}>
             <h3 style={{
               color: 'var(--superadmin-text-primary)',
-              fontSize: isMobile ? '0.875rem' : '1rem',
+              fontSize: isMobile ? '0.8rem' : '0.9rem',
               fontWeight: '700',
-              margin: '0 0 1.25rem 0',
+              margin: '0 0 1rem 0',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               opacity: 0.9
@@ -463,109 +447,109 @@ const ConfiguracionPanel: React.FC = () => {
             <div style={{
               display: 'grid',
               gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(2, 1fr)',
-              gap: '1rem'
+              gap: '0.75rem'
             }}>
               {/* Nombres */}
               <div>
-                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                   Nombres
                 </label>
                 <div style={{
-                  padding: '0.625rem 0.875rem',
+                  padding: '0.5rem 0.75rem',
                   background: 'var(--superadmin-input-bg)',
                   border: '1px solid var(--superadmin-input-border)',
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: 'var(--superadmin-text-primary)',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
-                  <User size={16} color='var(--superadmin-text-muted)' />
+                  <User size={14} color='var(--superadmin-text-muted)' />
                   {userData?.nombre || 'No especificado'}
                 </div>
               </div>
 
               {/* Apellidos */}
               <div>
-                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                   Apellidos
                 </label>
                 <div style={{
-                  padding: '0.625rem 0.875rem',
+                  padding: '0.5rem 0.75rem',
                   background: 'var(--superadmin-input-bg)',
                   border: '1px solid var(--superadmin-input-border)',
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: 'var(--superadmin-text-primary)',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
-                  <User size={16} color='var(--superadmin-text-muted)' />
+                  <User size={14} color='var(--superadmin-text-muted)' />
                   {userData?.apellido || 'No especificado'}
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                   Email
                 </label>
                 <div style={{
-                  padding: '0.625rem 0.875rem',
+                  padding: '0.5rem 0.75rem',
                   background: 'var(--superadmin-input-bg)',
                   border: '1px solid var(--superadmin-input-border)',
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: 'var(--superadmin-text-primary)',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
-                  <Mail size={16} color='var(--superadmin-text-muted)' />
+                  <Mail size={14} color='var(--superadmin-text-muted)' />
                   {userData?.email || 'No especificado'}
                 </div>
               </div>
 
               {/* Teléfono */}
               <div>
-                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                   Teléfono
                 </label>
                 <div style={{
-                  padding: '0.625rem 0.875rem',
+                  padding: '0.5rem 0.75rem',
                   background: 'var(--superadmin-input-bg)',
                   border: '1px solid var(--superadmin-input-border)',
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: 'var(--superadmin-text-primary)',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
-                  <Phone size={16} color='var(--superadmin-text-muted)' />
+                  <Phone size={14} color='var(--superadmin-text-muted)' />
                   {userData?.telefono || 'No especificado'}
                 </div>
               </div>
 
               {/* Dirección */}
               <div style={{ gridColumn: isSmallScreen ? '1' : 'span 2' }}>
-                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                   Dirección
                 </label>
                 <div style={{
-                  padding: '0.625rem 0.875rem',
+                  padding: '0.5rem 0.75rem',
                   background: 'var(--superadmin-input-bg)',
                   border: '1px solid var(--superadmin-input-border)',
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: 'var(--superadmin-text-primary)',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
-                  <MapPin size={16} color='var(--superadmin-text-muted)' />
+                  <MapPin size={14} color='var(--superadmin-text-muted)' />
                   {userData?.direccion || 'No especificado'}
                 </div>
               </div>
@@ -573,21 +557,21 @@ const ConfiguracionPanel: React.FC = () => {
               {/* Fecha de nacimiento */}
               {userData?.fecha_nacimiento && (
                 <div>
-                  <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                  <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                     Fecha de Nacimiento
                   </label>
                   <div style={{
-                    padding: '0.625rem 0.875rem',
+                    padding: '0.5rem 0.75rem',
                     background: 'var(--superadmin-input-bg)',
                     border: '1px solid var(--superadmin-input-border)',
-                    borderRadius: '0.625rem',
+                    borderRadius: '0.5rem',
                     color: 'var(--superadmin-text-primary)',
-                    fontSize: '0.875rem',
+                    fontSize: '0.8rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.4rem'
                   }}>
-                    <Calendar size={16} color='var(--superadmin-text-muted)' />
+                    <Calendar size={14} color='var(--superadmin-text-muted)' />
                     {new Date(userData.fecha_nacimiento).toLocaleDateString()}
                   </div>
                 </div>
@@ -596,21 +580,21 @@ const ConfiguracionPanel: React.FC = () => {
               {/* Género */}
               {userData?.genero && (
                 <div>
-                  <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.75rem', fontWeight: '600', display: 'block', marginBottom: '0.375rem' }}>
+                  <label style={{ color: 'var(--superadmin-text-muted)', fontSize: '0.7rem', fontWeight: '600', display: 'block', marginBottom: '0.3rem' }}>
                     Género
                   </label>
                   <div style={{
-                    padding: '0.625rem 0.875rem',
+                    padding: '0.5rem 0.75rem',
                     background: 'var(--superadmin-input-bg)',
                     border: '1px solid var(--superadmin-input-border)',
-                    borderRadius: '0.625rem',
+                    borderRadius: '0.5rem',
                     color: 'var(--superadmin-text-primary)',
-                    fontSize: '0.875rem',
+                    fontSize: '0.8rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.4rem'
                   }}>
-                    <Users size={16} color='var(--superadmin-text-muted)' />
+                    <Users size={14} color='var(--superadmin-text-muted)' />
                     {userData.genero.charAt(0).toUpperCase() + userData.genero.slice(1)}
                   </div>
                 </div>
@@ -625,33 +609,33 @@ const ConfiguracionPanel: React.FC = () => {
         background: 'var(--superadmin-card-bg)',
         backdropFilter: 'blur(1.25rem)',
         border: '0.0625rem solid var(--superadmin-border)',
-        borderRadius: '1.25rem',
-        padding: isMobile ? '1.25rem' : '1.5rem',
-        boxShadow: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.3)'
+        borderRadius: '1rem',
+        padding: isMobile ? '1rem' : '1.25rem',
+        boxShadow: '0 0.375rem 1.125rem rgba(0, 0, 0, 0.3)'
       }}>
         <h3 style={{
           color: 'var(--superadmin-text-primary)',
-          fontSize: isMobile ? '0.875rem' : '1rem',
+          fontSize: isMobile ? '0.8rem' : '0.9rem',
           fontWeight: '700',
-          margin: '0 0 1rem 0',
+          margin: '0 0 0.75rem 0',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
           opacity: 0.9,
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
+          gap: '0.4rem'
         }}>
-          <CheckCircle size={18} color="#ef4444" />
+          <CheckCircle size={16} color="#ef4444" />
           ACTIVIDAD RECIENTE
         </h3>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--superadmin-text-muted)' }}>
+            <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--superadmin-text-muted)' }}>
               Cargando actividad...
             </div>
           ) : recentActivity.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--superadmin-text-muted)' }}>
+            <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--superadmin-text-muted)' }}>
               No hay actividad reciente
             </div>
           ) : (
@@ -659,11 +643,11 @@ const ConfiguracionPanel: React.FC = () => {
               <div key={index} style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
-                padding: '0.75rem',
+                gap: '0.75rem',
+                padding: '0.6rem',
                 background: 'var(--superadmin-input-bg)',
                 border: '1px solid var(--superadmin-input-border)',
-                borderRadius: '0.625rem',
+                borderRadius: '0.5rem',
                 transition: 'all 0.2s ease'
               }}
                 onMouseEnter={(e) => {
@@ -675,17 +659,17 @@ const ConfiguracionPanel: React.FC = () => {
                   e.currentTarget.style.transform = 'translateX(0)';
                 }}>
                 <div style={{
-                  width: '0.5rem',
-                  height: '0.5rem',
+                  width: '0.4rem',
+                  height: '0.4rem',
                   borderRadius: '50%',
                   background: activity.color,
-                  boxShadow: `0 0 8px ${activity.color}`
+                  boxShadow: `0 0 6px ${activity.color}`
                 }} />
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '0.875rem', fontWeight: '500' }}>
+                  <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '0.8rem', fontWeight: '500' }}>
                     {activity.action}
                   </p>
-                  <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.75rem' }}>
+                  <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.7rem' }}>
                     {activity.time}
                   </p>
                 </div>

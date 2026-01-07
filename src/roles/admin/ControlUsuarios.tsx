@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { Users, UserCheck, Power, Shield, GraduationCap, Search, Eye, CheckCircle, Lock, Unlock, Clock, KeyRound, AlertCircle, X, UserCircle, Activity, BookOpen, Monitor, Globe, Calendar, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, ArrowLeftRight, Hash, CreditCard, Building, RefreshCcw, Tag, Mail, Phone, Paperclip, Star, MessageSquare, Timer, AlignLeft, Info, FileSignature, type LucideIcon } from 'lucide-react';
+import { Users, Power, Shield, GraduationCap, Search, Eye, CheckCircle, Lock, Unlock, Clock, KeyRound, AlertCircle, X, UserCircle, Activity, BookOpen, Monitor, Globe, Calendar, XCircle, DollarSign, FileText, ChevronLeft, ChevronRight, User, History, Zap, ArrowLeftRight, Hash, CreditCard, Building, RefreshCcw, Tag, Mail, Phone, Paperclip, Star, MessageSquare, Timer, AlignLeft, Info, FileSignature, type LucideIcon } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import LoadingModal from '../../components/LoadingModal';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
+import GlassEffect from '../../components/GlassEffect';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -71,14 +72,6 @@ interface Accion {
   fecha_hora?: string;
 }
 
-interface Stats {
-  totalUsuarios: number;
-  usuariosActivos: number;
-  usuariosInactivos: number;
-  totalAdministradores: number;
-  totalDocentes: number;
-  totalEstudiantes: number;
-}
 
 const ControlUsuarios = () => {
   const { isMobile, isSmallScreen } = useBreakpoints();
@@ -104,11 +97,6 @@ const ControlUsuarios = () => {
   const textSecondaryColor = pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)');
   const textMutedColor = pick('rgba(100,116,139,0.7)', 'rgba(148,163,184,0.65)');
 
-  const statsCardBg = pick(
-    'linear-gradient(135deg, rgba(255,255,255,0.94) 0%, rgba(248,250,252,0.9) 100%)',
-    'rgba(255,255,255,0.03)'
-  );
-  const statsCardBorder = pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)');
 
   const filterInputBg = pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.1)');
   const filterInputBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.18)');
@@ -158,14 +146,6 @@ const ControlUsuarios = () => {
   };
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    totalUsuarios: 0,
-    usuariosActivos: 0,
-    usuariosInactivos: 0,
-    totalAdministradores: 0,
-    totalDocentes: 0,
-    totalEstudiantes: 0
-  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -197,7 +177,7 @@ const ControlUsuarios = () => {
 
   useEffect(() => {
     cargarUsuarios();
-    cargarStats();
+    cargarUsuarios();
   }, [search, rolFilter, estadoFilter, page]);
 
   const cargarUsuarios = async () => {
@@ -256,23 +236,6 @@ const ControlUsuarios = () => {
     }
   };
 
-  const cargarStats = async () => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/usuarios/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Error al cargar estadísticas');
-
-      const data = await response.json();
-      setStats(data.stats);
-    } catch (err: any) {
-      console.error('Error al cargar stats:', err);
-    }
-  };
 
   const formatFecha = (fecha: string | null) => {
     if (!fecha) return 'Nunca';
@@ -527,7 +490,7 @@ const ControlUsuarios = () => {
       }
 
       await cargarUsuarios();
-      await cargarStats();
+      await cargarUsuarios();
       setShowConfirmModal(false);
       setAccionConfirmar(null);
       setMotivoBloqueo('');
@@ -577,214 +540,34 @@ const ControlUsuarios = () => {
         subtitle="Gestiona todos los usuarios del sistema"
       />
 
-      {/* Estadísticas - Compactas y horizontales */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(6, 1fr)',
-        gap: isMobile ? '0.5rem' : '0.625rem',
-        marginBottom: isMobile ? '1rem' : '1.125rem'
-      }}>
-        {/* Total Usuarios */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Users size={16} color="#ef4444" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Total</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.totalUsuarios}
-            </div>
-          </div>
-        </div>
 
-        {/* Activos */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <UserCheck size={16} color="#10b981" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Activos</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.usuariosActivos}
-            </div>
-          </div>
-        </div>
-
-        {/* Inactivos */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Power size={16} color="#ef4444" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Inactivos</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.usuariosInactivos}
-            </div>
-          </div>
-        </div>
-
-        {/* Admins */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Shield size={16} color="#ef4444" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Admins</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.totalAdministradores}
-            </div>
-          </div>
-        </div>
-
-        {/* Docentes */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(59, 130, 246, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <UserCheck size={16} color="#3b82f6" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Docentes</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.totalDocentes}
-            </div>
-          </div>
-        </div>
-
-        {/* Estudiantes */}
-        <div style={{
-          background: statsCardBg,
-          border: `1px solid ${statsCardBorder}`,
-          borderRadius: '0.625rem',
-          padding: isMobile ? '0.625rem' : '0.5rem 0.75rem',
-          transition: 'all 0.2s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.625rem'
-        }}>
-          <div style={{
-            background: 'rgba(34, 197, 94, 0.12)',
-            borderRadius: '0.375rem',
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <GraduationCap size={16} color="#22c55e" strokeWidth={2.5} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: textMutedColor, fontSize: '0.65rem', fontWeight: '500', marginBottom: '0.125rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Estudiantes</div>
-            <div style={{ color: textPrimaryColor, fontSize: '1.375rem', fontWeight: '700', lineHeight: '1', letterSpacing: '-0.02em' }}>
-              {loading ? '...' : stats.totalEstudiantes}
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Filtros */}
-      <div style={{ marginBottom: isMobile ? '1.25rem' : '2rem' }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '0.75rem' : '1rem',
-          flexWrap: 'wrap'
-        }}>
+      <GlassEffect
+        variant="card"
+        tint="neutral"
+        intensity="light"
+        style={{
+          marginBottom: isMobile ? '0.5rem' : '0.5rem',
+          padding: '0.5rem',
+          boxShadow: 'none',
+          borderRadius: '0.375rem',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+        }}
+      >
+        <div className="responsive-filters" style={{ gap: '0.75rem', alignItems: 'center', display: 'flex', flexWrap: 'wrap' }}>
           <div style={{
-            flex: isMobile ? 'none' : '1',
-            minWidth: isMobile ? 'auto' : '18.75rem',
-            position: 'relative'
+            flex: isMobile ? '1 1 100%' : '2',
+            position: 'relative',
+            width: isMobile ? '100%' : 'auto'
           }}>
             <Search style={{
               position: 'absolute',
-              left: '0.75rem',
+              left: '0.5rem',
               top: '50%',
               transform: 'translateY(-50%)',
-              width: '1.25rem',
-              height: '1.25rem',
+              width: '1rem',
+              height: '1rem',
               color: filterIconColor
             }} />
             <input
@@ -797,12 +580,14 @@ const ControlUsuarios = () => {
               }}
               style={{
                 width: '100%',
-                padding: '0.625em 0.75em 0.625em 2.5em',
-                borderRadius: '0.5em',
-                border: `0.0625rem solid ${filterInputBorder}`,
-                backgroundColor: filterInputBg,
-                fontSize: '0.9rem',
-                color: filterInputText
+                padding: '0 0.5rem 0 2rem',
+                borderRadius: '0.5rem',
+                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
+                fontSize: '0.75rem',
+                color: filterInputText,
+                boxShadow: 'none',
+                height: '2rem'
               }}
             />
           </div>
@@ -814,18 +599,19 @@ const ControlUsuarios = () => {
               setPage(1);
             }}
             style={{
-              padding: '0.625em 1em',
-              borderRadius: '0.5em',
-              border: `0.0625rem solid ${filterInputBorder}`,
+              padding: '0 0.75rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${filterInputBorder}`,
               backgroundColor: filterInputBg,
-              fontSize: '0.9rem',
+              fontSize: '0.75rem',
               cursor: 'pointer',
               color: filterInputText,
-              width: isMobile ? '100%' : 'auto'
+              width: isMobile ? '100%' : 'auto',
+              minWidth: isMobile ? 'auto' : '10rem',
+              height: '2rem'
             }}
           >
             <option value="todos">Todos los roles</option>
-
             <option value="docente">Docente</option>
             <option value="estudiante">Estudiante</option>
           </select>
@@ -837,14 +623,16 @@ const ControlUsuarios = () => {
               setPage(1);
             }}
             style={{
-              padding: '0.625em 1em',
-              borderRadius: '0.5em',
-              border: `0.0625rem solid ${filterInputBorder}`,
+              padding: '0 0.75rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${filterInputBorder}`,
               backgroundColor: filterInputBg,
-              fontSize: '0.9rem',
+              fontSize: '0.75rem',
               color: filterInputText,
               cursor: 'pointer',
-              width: isMobile ? '100%' : 'auto'
+              width: isMobile ? '100%' : 'auto',
+              minWidth: isMobile ? 'auto' : '10rem',
+              height: '2rem'
             }}
           >
             <option value="todos">Todos los estados</option>
@@ -853,7 +641,7 @@ const ControlUsuarios = () => {
             <option value="bloqueado">Bloqueado</option>
           </select>
         </div>
-      </div >
+      </GlassEffect>
 
       {/* Tabla de usuarios */}
       {
@@ -901,7 +689,7 @@ const ControlUsuarios = () => {
               borderRadius: isMobile ? '12px' : '1rem',
               border: `1px solid ${tableBorder}`,
               background: tableContainerBg,
-              marginBottom: isMobile ? '12px' : '1.5rem'
+              marginBottom: isMobile ? '12px' : '0.5rem'
             }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{
@@ -909,13 +697,13 @@ const ControlUsuarios = () => {
                   background: tableHeaderBg
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Email</th>
-                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '10px 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Email</th>
+                    <th style={{ textAlign: 'center', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -927,45 +715,45 @@ const ControlUsuarios = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <td style={{ padding: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
                         <div style={{ fontSize: '0.75rem', color: textPrimaryColor, fontWeight: 600 }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.1875rem', fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.125rem', fontSize: '0.75rem' }}>
                           {usuario.apellido}, {usuario.nombre}
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: textMutedColor }}>{usuario.cedula}</div>
+                        <div style={{ fontSize: '0.65rem', color: textMutedColor }}>{usuario.cedula}</div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRolColor(usuario.nombre_rol)}`}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getRolColor(usuario.nombre_rol)}`}>
                           {usuario.nombre_rol}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
                         {usuario.cuenta_bloqueada ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
-                            <Lock size={12} /> BLOQUEADO
+                          <span className="px-2 py-0.5 rounded-full text-[0.65rem] font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
+                            <Lock size={10} /> BLOQUEADO
                           </span>
                         ) : (
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(usuario.estado)}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getEstadoColor(usuario.estado)}`}>
                             {usuario.estado.toUpperCase()}
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => verDetalle(usuario)}
                             style={{
-                              padding: '0.5rem',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -988,7 +776,7 @@ const ControlUsuarios = () => {
                           <button
                             onClick={() => confirmarCambioEstado(usuario)}
                             style={{
-                              padding: '0.5rem',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${usuario.estado === 'activo' ? '#ef4444' : '#10b981'}`,
                               backgroundColor: 'transparent',
@@ -1019,7 +807,7 @@ const ControlUsuarios = () => {
                           <button
                             onClick={() => usuario.cuenta_bloqueada ? confirmarDesbloqueo(usuario) : confirmarBloqueo(usuario)}
                             style={{
-                              padding: '0.5rem',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${usuario.cuenta_bloqueada ? '#10b981' : '#ef4444'}`,
                               backgroundColor: 'transparent',
@@ -1049,7 +837,7 @@ const ControlUsuarios = () => {
                             <button
                               onClick={() => confirmarDesbloqueoTemporal(usuario)}
                               style={{
-                                padding: '0.5rem',
+                                padding: '0.375rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #ff9800',
                                 backgroundColor: 'transparent',
@@ -1073,7 +861,7 @@ const ControlUsuarios = () => {
                           <button
                             onClick={() => resetearPassword(usuario)}
                             style={{
-                              padding: '0.5rem',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #f59e0b',
                               backgroundColor: 'transparent',
@@ -1109,21 +897,23 @@ const ControlUsuarios = () => {
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
                 gap: isMobile ? '0.75rem' : '0',
-                padding: isMobile ? '16px' : '20px 1.5rem',
+                padding: isMobile ? '8px' : '0.25rem 1rem',
                 background: paginationSurface,
                 border: `1px solid ${paginationBorder}`,
-                borderRadius: '1rem',
+                borderRadius: '0.75rem',
+                marginTop: '0.5rem',
+                marginBottom: isMobile ? '0.75rem' : '0.5rem',
               }}>
                 <div style={{
                   color: paginationText,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
                   textAlign: isMobile ? 'center' : 'left'
                 }}>
                   Página {page} de {totalPages} • Total: {usuarios.length} usuarios
                 </div>
                 <div style={{
                   display: 'flex',
-                  gap: '0.5rem',
+                  gap: '0.375rem',
                   justifyContent: isMobile ? 'center' : 'flex-start',
                   flexWrap: 'wrap'
                 }}>
@@ -1134,20 +924,21 @@ const ControlUsuarios = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: isMobile ? '4px' : '0.375rem',
-                      padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                      gap: isMobile ? '4px' : '0.25rem',
+                      padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                       background: page === 1 ? paginationButtonDisabledBg : paginationButtonBg,
                       border: `1px solid ${paginationButtonBorder}`,
                       borderRadius: '0.625rem',
                       color: page === 1 ? paginationButtonDisabledText : paginationButtonText,
-                      fontSize: isMobile ? '0.8rem' : '0.9rem',
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
                       fontWeight: 600,
                       cursor: page === 1 ? 'not-allowed' : 'pointer',
                       transition: 'all 0.2s ease',
-                      flex: isMobile ? '1' : 'initial'
+                      flex: isMobile ? '1' : 'initial',
+                      boxShadow: 'none'
                     }}
                   >
-                    <ChevronLeft size={isMobile ? 14 : 16} />
+                    <ChevronLeft size={isMobile ? 14 : 14} />
                     {!isMobile && 'Anterior'}
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -1155,16 +946,17 @@ const ControlUsuarios = () => {
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
                       style={{
-                        padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                        padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
                         background: page === pageNum ? activePageBg : inactivePageBg,
                         border: page === pageNum ? `1px solid ${activePageBorder}` : `1px solid ${inactivePageBorder}`,
-                        borderRadius: '0.625rem',
+                        borderRadius: '0.5rem',
                         color: page === pageNum ? '#ffffff' : paginationButtonText,
-                        fontSize: isMobile ? '0.8rem' : '0.9rem',
+                        fontSize: isMobile ? '0.75rem' : '0.8rem',
                         fontWeight: 600,
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        minWidth: isMobile ? '36px' : '2.5rem',
+                        minWidth: isMobile ? '30px' : '2rem',
+                        boxShadow: 'none'
                       }}
                     >
                       {pageNum}
@@ -1177,21 +969,22 @@ const ControlUsuarios = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: isMobile ? '4px' : '0.375rem',
-                      padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                      gap: isMobile ? '4px' : '0.25rem',
+                      padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                       background: page === totalPages ? paginationButtonDisabledBg : paginationButtonBg,
                       border: `1px solid ${paginationButtonBorder}`,
                       borderRadius: '0.625rem',
                       color: page === totalPages ? paginationButtonDisabledText : paginationButtonText,
-                      fontSize: isMobile ? '0.8rem' : '0.9rem',
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
                       fontWeight: 600,
                       cursor: page === totalPages ? 'not-allowed' : 'pointer',
                       transition: 'all 0.2s ease',
-                      flex: isMobile ? '1' : 'initial'
+                      flex: isMobile ? '1' : 'initial',
+                      boxShadow: 'none'
                     }}
                   >
                     {!isMobile && 'Siguiente'}
-                    <ChevronRight size={isMobile ? 14 : 16} />
+                    <ChevronRight size={isMobile ? 14 : 14} />
                   </button>
                 </div>
               </div>
@@ -1234,6 +1027,7 @@ const ControlUsuarios = () => {
         }}
         motivoBloqueo={motivoBloqueo}
         setMotivoBloqueo={setMotivoBloqueo}
+        darkMode={darkMode}
       />
 
       <ModalCredenciales
@@ -1243,6 +1037,7 @@ const ControlUsuarios = () => {
           setShowCredencialesModal(false);
           setCredenciales(null);
         }}
+        darkMode={darkMode}
       />
 
       {/* Modal de carga */}
@@ -1325,7 +1120,7 @@ const ModalDetalle = ({
     accentRedSoft: darkMode ? 'rgba(248,113,113,0.16)' : 'rgba(254,202,202,0.6)',
     sessionActiveBorder: darkMode ? 'rgba(16,185,129,0.55)' : 'rgba(5,150,105,0.35)',
     sessionInactiveBorder: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(203,213,225,0.5)',
-    overlay: darkMode ? 'rgba(6,7,12,0.72)' : 'rgba(15,23,42,0.35)'
+    overlay: darkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(0, 0, 0, 0.45)'
   };
 
   const baseCardStyle: CSSProperties = {
@@ -2371,9 +2166,10 @@ interface ModalConfirmacionProps {
   onCancel: () => void;
   motivoBloqueo?: string;
   setMotivoBloqueo?: (motivo: string) => void;
+  darkMode: boolean;
 }
 
-const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, setMotivoBloqueo }: ModalConfirmacionProps) => {
+const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, setMotivoBloqueo, darkMode }: ModalConfirmacionProps) => {
   if (!show || !accion) return null;
 
   const getTitulo = () => {
@@ -2445,7 +2241,7 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
         zIndex: 99999,
         padding: '1rem',
         backdropFilter: 'blur(8px)',
-        background: 'rgba(0, 0, 0, 0.65)',
+        background: darkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(0, 0, 0, 0.45)',
         overflowY: 'auto',
         overflowX: 'hidden',
         scrollBehavior: 'smooth'
@@ -2560,9 +2356,10 @@ interface ModalCredencialesProps {
   show: boolean;
   credenciales: { username: string, password_temporal: string } | null;
   onClose: () => void;
+  darkMode: boolean;
 }
 
-const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesProps) => {
+const ModalCredenciales = ({ show, credenciales, onClose, darkMode }: ModalCredencialesProps) => {
   if (!show || !credenciales) return null;
 
   return createPortal(
@@ -2583,7 +2380,7 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
         zIndex: 99999,
         padding: '1rem',
         backdropFilter: 'blur(8px)',
-        background: 'rgba(0, 0, 0, 0.65)',
+        background: darkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(0, 0, 0, 0.45)',
         overflowY: 'auto',
         overflowX: 'hidden',
         scrollBehavior: 'smooth'
@@ -2660,8 +2457,8 @@ const ModalCredenciales = ({ show, credenciales, onClose }: ModalCredencialesPro
             transform: scale(1);
           }
         }
-      `}</style >
-    </div >,
+      `}</style>
+    </div>,
     document.body
   );
 };

@@ -34,11 +34,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
   const [bancoComprobante, setBancoComprobante] = useState('');
   // Inicializar con la fecha actual de Ecuador (UTC-5)
   const getFechaEcuador = () => {
-    const now = new Date();
-    const ecuadorOffset = -5 * 60; // Ecuador está en UTC-5
-    const localOffset = now.getTimezoneOffset();
-    const ecuadorTime = new Date(now.getTime() + (localOffset + ecuadorOffset) * 60000);
-    return ecuadorTime.toISOString().split('T')[0];
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Guayaquil',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
   };
   const [fechaTransferencia, setFechaTransferencia] = useState(getFechaEcuador());
   const [recibidoPor, setRecibidoPor] = useState('');
@@ -57,23 +58,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
   const bancos = [
     'Banco Pichincha',
-    'Banco del Guayaquil',
     'Banco del Pacífico',
-    'Produbanco',
-    'Banco Internacional',
-    'Banco Bolivariano',
-    'Banco de Machala',
-    'Banco ProCredit',
-    'Banco Solidario',
-    'Banco Capital',
-    'Banco Comercial de Manabí',
-    'Banco Coopnacional',
-    'Banco D-MIRO',
-    'Banco Finca',
-    'Banco General Rumiñahui',
-    'Banco Loja',
-    'Banco Procredit',
-    'Banco VisionFund Ecuador'
+    'Produbanco'
   ];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -734,20 +720,28 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     <input
                       type="date"
                       value={fechaTransferencia}
-                      readOnly
-                      disabled
+                      onChange={(e) => {
+                        const selectedDate = e.target.value;
+                        const today = getFechaEcuador();
+
+                        if (selectedDate > today) {
+                          showToast.error('No puedes seleccionar una fecha futura para la transferencia.', darkMode);
+                          return;
+                        }
+                        setFechaTransferencia(selectedDate);
+                      }}
                       required
+                      max={getFechaEcuador()}
                       style={{
                         width: '100%',
                         padding: '0.625em 0.875em',
-                        background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                        background: theme.inputBg,
                         border: `0.0625rem solid ${theme.inputBorder}`,
                         borderRadius: '0.5em',
-                        color: theme.textMuted,
+                        color: theme.textPrimary,
                         fontSize: '0.8rem',
                         outline: 'none',
-                        cursor: 'not-allowed',
-                        opacity: 0.7
+                        cursor: 'pointer'
                       }}
                     />
                   </div>

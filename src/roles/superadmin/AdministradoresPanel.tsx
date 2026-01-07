@@ -473,41 +473,42 @@ const AdministradoresPanel: React.FC = () => {
       <AdminSectionHeader
         title="Gestión de Administrativos"
         subtitle="Administra los usuarios con permisos administrativos del sistema"
-        marginBottom={isMobile ? '12px' : '1.125rem'}
+        marginBottom={isMobile ? '0.5rem' : '0.75rem'}
       />
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '1rem' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '0.5rem' : '0.5rem' }}>
         <div className="responsive-filters" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
-          gap: '0.75rem',
+          gap: '0.5rem',
           alignItems: isMobile ? 'stretch' : 'center'
         }}>
           {/* Búsqueda y filtro */}
           <div style={{
             display: 'flex',
             flexDirection: isSmallScreen ? 'column' : 'row',
-            gap: '0.75rem',
+            gap: '0.5rem',
             flex: 1
           }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
+              <Search size={14} style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
               <input
                 type="text"
                 placeholder="Buscar por nombre, email o cédula..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  width: '100%', padding: '0.625em 0.625em 0.625em 2.375em',
+                  width: '100%', padding: '0.5rem 0.5rem 0.5rem 2.25rem',
                   background: darkMode ? 'rgba(255,255,255,0.1)' : themeColors.controlBg,
-                  border: `0.0625rem solid ${themeColors.controlBorder}`,
-                  borderRadius: '0.625em',
-                  color: themeColors.textPrimary
+                  border: `1px solid ${themeColors.controlBorder}`,
+                  borderRadius: '0.5rem',
+                  color: themeColors.textPrimary,
+                  fontSize: '0.8rem'
                 }}
               />
             </div>
-            <div style={{ minWidth: isSmallScreen ? 'auto' : '200px' }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : '150px' }}>
               <StyledSelect
                 name="filterStatus"
                 value={filterStatus}
@@ -526,52 +527,52 @@ const AdministradoresPanel: React.FC = () => {
           <div style={{
             display: 'flex',
             background: themeColors.toggleGroupBg,
-            borderRadius: '0.65rem',
-            padding: '0.25rem',
-            gap: '0.25rem'
+            borderRadius: '0.5rem',
+            padding: '0.1875rem',
+            gap: '0.1875rem'
           }}>
             <button
               onClick={() => setViewMode('cards')}
               style={{
                 flex: isMobile ? 1 : 'none',
-                padding: isMobile ? '0.75em 1em' : '0.45em 0.8em',
+                padding: isMobile ? '0.5rem 0.75rem' : '0.375rem 0.625rem',
                 background: viewMode === 'cards' ? themeColors.toggleActiveBg : 'transparent',
                 border: 'none',
-                borderRadius: '0.5em',
+                borderRadius: '0.375rem',
                 color: viewMode === 'cards' ? themeColors.toggleActiveText : themeColors.toggleInactiveText,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5em',
-                fontSize: isMobile ? '0.9rem' : '1rem',
+                gap: '0.375rem',
+                fontSize: '0.8rem',
                 fontWeight: viewMode === 'cards' ? 600 : 400,
                 transition: 'all 0.2s ease'
               }}
             >
-              <Grid size={isMobile ? 18 : 16} />
+              <Grid size={14} />
               {isMobile && <span>Tarjetas</span>}
             </button>
             <button
               onClick={() => setViewMode('table')}
               style={{
                 flex: isMobile ? 1 : 'none',
-                padding: isMobile ? '0.75em 1em' : '0.45em 0.8em',
+                padding: isMobile ? '0.5rem 0.75rem' : '0.375rem 0.625rem',
                 background: viewMode === 'table' ? themeColors.toggleActiveBg : 'transparent',
                 border: 'none',
-                borderRadius: '0.5em',
+                borderRadius: '0.375rem',
                 color: viewMode === 'table' ? themeColors.toggleActiveText : themeColors.toggleInactiveText,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5em',
-                fontSize: isMobile ? '0.9rem' : '1rem',
+                gap: '0.375rem',
+                fontSize: '0.8rem',
                 fontWeight: viewMode === 'table' ? 600 : 400,
                 transition: 'all 0.2s ease'
               }}
             >
-              <List size={isMobile ? 18 : 16} />
+              <List size={14} />
               {isMobile && <span>Tabla</span>}
             </button>
           </div>
@@ -584,44 +585,44 @@ const AdministradoresPanel: React.FC = () => {
                 cedula: '', nombre: '', apellido: '', email: '', telefono: '',
                 fecha_nacimiento: '', direccion: '', genero: '',
                 password: newPassword,
-                confirmPassword: newPassword, // Auto-confirmar
+                confirmPassword: newPassword,
                 rolId: '', permisos: []
               });
               setShowCreateModal(true);
             }} style={{
-              padding: isMobile ? '0.75em 1em' : '0.75em 1.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: primaryActionButtonStyles.base,
               border: 'none',
-              borderRadius: '0.625em',
+              borderRadius: '0.5rem',
               color: '#fff',
               fontWeight: 600,
               cursor: 'pointer',
-              boxShadow: primaryActionButtonStyles.shadow,
+              boxShadow: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5em',
-              fontSize: isMobile ? '0.9rem' : '1rem',
+              gap: '0.375rem',
+              fontSize: '0.8rem',
               whiteSpace: 'nowrap'
             }}
           >
-            <UserPlus size={18} /> Nuevo Administrativo
+            <UserPlus size={14} /> Nuevo Administrativo
           </button>
         </div>
       </GlassEffect>
 
       {/* Lista de Administradores */}
       {viewMode === 'cards' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: isMobile ? '0.75rem' : '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? '0.5rem' : '0.75rem' }}>
           {filteredAdmins.map(admin => (
             <GlassEffect key={admin.id} variant="card" tint="neutral" intensity="light" hover>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.625rem' }}>
+                <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center' }}>
                   <div style={{
-                    width: '3rem', height: '3rem', borderRadius: '0.75rem',
+                    width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem',
                     background: admin.foto_perfil ? 'transparent' : 'linear-gradient(135deg, #ef4444, #dc2626)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#fff', fontWeight: 700, fontSize: '1.2rem',
+                    color: '#fff', fontWeight: 700, fontSize: '1rem',
                     overflow: 'hidden'
                   }}>
                     {admin.foto_perfil ? (
@@ -633,12 +634,12 @@ const AdministradoresPanel: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <h3 style={{ margin: 0, color: themeColors.textPrimary, fontSize: '1rem' }}>{admin.nombre}</h3>
-                    <p style={{ margin: 0, color: themeColors.textSecondary, fontSize: '0.8rem' }}>{admin.email}</p>
+                    <h3 style={{ margin: 0, color: themeColors.textPrimary, fontSize: '0.85rem' }}>{admin.nombre}</h3>
+                    <p style={{ margin: 0, color: themeColors.textSecondary, fontSize: '0.7rem' }}>{admin.email}</p>
                   </div>
                 </div>
                 <div style={{
-                  padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600,
+                  padding: '0.1875rem 0.5rem', borderRadius: '0.75rem', fontSize: '0.65rem', fontWeight: 600,
                   background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                   color: admin.estado === 'activo' ? '#10b981' : '#ef4444',
                   height: 'fit-content'
@@ -647,13 +648,13 @@ const AdministradoresPanel: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.375rem', marginBottom: '0.625rem', fontSize: '0.75rem' }}>
                 <div><span style={{ color: themeColors.textMuted }}>Cédula:</span> <div style={{ color: themeColors.textPrimary }}>{admin.cedula || 'N/A'}</div></div>
                 <div><span style={{ color: themeColors.textMuted }}>Teléfono:</span> <div style={{ color: themeColors.textPrimary }}>{admin.telefono || 'N/A'}</div></div>
                 <div><span style={{ color: themeColors.textMuted }}>Rol:</span> <div style={{ color: themeColors.textPrimary }}>{admin.rol}</div></div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem', borderTop: `1px solid ${themeColors.controlBorder}`, paddingTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.375rem', borderTop: `1px solid ${themeColors.controlBorder}`, paddingTop: '0.625rem' }}>
                 <button
                   onClick={() => {
                     setSelectedAdmin(admin);
@@ -672,31 +673,31 @@ const AdministradoresPanel: React.FC = () => {
                     });
                     setShowEditModal(true);
                   }}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}
+                  style={{ flex: 1, padding: '0.375rem', borderRadius: '0.375rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer', display: 'flex', justifyContent: 'center', gap: '0.375rem', fontSize: '0.7rem' }}
                 >
-                  <Edit size={16} /> Editar
+                  <Edit size={12} /> Editar
                 </button>
                 <button
                   onClick={() => {
                     setSelectedAdmin(admin);
                     setShowPasswordModal(true);
                   }}
-                  style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                  style={{ padding: '0.375rem', borderRadius: '0.375rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
                   title="Cambiar Contraseña"
                 >
-                  <Lock size={16} />
+                  <Lock size={12} />
                 </button>
                 <button
                   onClick={() => toggleStatus(admin)}
                   style={{
-                    padding: '0.5rem', borderRadius: '0.5rem', border: 'none',
+                    padding: '0.375rem', borderRadius: '0.375rem', border: 'none',
                     background: admin.estado === 'activo' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                     color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
                     cursor: 'pointer'
                   }}
                   title={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}
                 >
-                  {admin.estado === 'activo' ? <Ban size={16} /> : <CheckCircle2 size={16} />}
+                  {admin.estado === 'activo' ? <Ban size={12} /> : <CheckCircle2 size={12} />}
                 </button>
               </div>
             </GlassEffect>
@@ -706,7 +707,7 @@ const AdministradoresPanel: React.FC = () => {
         <div className="responsive-table-container" style={{
           background: themeColors.sectionSurface,
           border: `1px solid ${themeColors.sectionBorder}`,
-          borderRadius: '1rem',
+          borderRadius: '0.75rem',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}>
@@ -717,22 +718,22 @@ const AdministradoresPanel: React.FC = () => {
           }}>
             <thead>
               <tr style={{ background: themeColors.tableHeaderBg }}>
-                <th style={{ padding: '1rem', textAlign: 'left', color: themeColors.tableHeaderText }}>Administrativo</th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: themeColors.tableHeaderText }}>Contacto</th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: themeColors.tableHeaderText }}>Estado</th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: themeColors.tableHeaderText }}>Acciones</th>
+                <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: themeColors.tableHeaderText, fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Administrativo</th>
+                <th style={{ padding: '10px 0.75rem', textAlign: 'left', color: themeColors.tableHeaderText, fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contacto</th>
+                <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: themeColors.tableHeaderText, fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estado</th>
+                <th style={{ padding: '10px 0.75rem', textAlign: 'center', color: themeColors.tableHeaderText, fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredAdmins.map((admin, idx) => (
                 <tr key={admin.id} style={{ borderBottom: `1px solid ${themeColors.controlBorder}`, background: idx % 2 === 0 ? themeColors.tableRowAltBg : 'transparent' }}>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <td style={{ padding: '0.625rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={{
-                        width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem',
+                        width: '2rem', height: '2rem', borderRadius: '0.375rem',
                         background: admin.foto_perfil ? 'transparent' : 'linear-gradient(135deg, #ef4444, #dc2626)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#fff', fontWeight: 700,
+                        color: '#fff', fontWeight: 700, fontSize: '0.75rem',
                         overflow: 'hidden'
                       }}>
                         {admin.foto_perfil ? (
@@ -744,26 +745,28 @@ const AdministradoresPanel: React.FC = () => {
                         )}
                       </div>
                       <div>
-                        <div style={{ color: themeColors.textPrimary, fontWeight: 600 }}>{admin.nombre}</div>
-                        <div style={{ color: themeColors.textMuted, fontSize: '0.8rem' }}>{admin.cedula}</div>
+                        <div style={{ color: themeColors.textPrimary, fontWeight: 600, fontSize: '0.75rem' }}>{admin.nombre}</div>
+                        <div style={{ color: themeColors.textMuted, fontSize: '0.7rem' }}>{admin.cedula}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ color: themeColors.textPrimary }}>{admin.email}</div>
-                    <div style={{ color: themeColors.textSecondary, fontSize: '0.8rem' }}>{admin.telefono}</div>
+                  <td style={{ padding: '0.625rem' }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.75rem' }}>{admin.email}</div>
+                    <div style={{ color: themeColors.textSecondary, fontSize: '0.7rem' }}>{admin.telefono}</div>
                   </td>
-                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     <span style={{
-                      padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600,
+                      padding: '4px 0.625rem', borderRadius: '0.5rem', fontSize: '0.7rem', fontWeight: 700,
                       background: admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                      color: admin.estado === 'activo' ? '#10b981' : '#ef4444'
+                      color: admin.estado === 'activo' ? '#10b981' : '#ef4444',
+                      border: `1px solid ${admin.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                      textTransform: 'uppercase'
                     }}>
                       {admin.estado.toUpperCase()}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                  <td style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.375rem' }}>
                       <button
                         onClick={() => {
                           setSelectedAdmin(admin);
@@ -782,9 +785,9 @@ const AdministradoresPanel: React.FC = () => {
                           });
                           setShowEditModal(true);
                         }}
-                        style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                        style={{ width: '1.875rem', height: '1.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${themeColors.controlBorder}`, borderRadius: '0.375rem', color: themeColors.textPrimary, cursor: 'pointer' }}
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => {
@@ -793,22 +796,22 @@ const AdministradoresPanel: React.FC = () => {
                           setPasswordData({ newPassword: newPass, confirmPassword: newPass });
                           setShowPasswordModal(true);
                         }}
-                        style={{ padding: '0.5rem', borderRadius: '0.5rem', border: `1px solid ${themeColors.controlBorder}`, background: 'transparent', color: themeColors.textPrimary, cursor: 'pointer' }}
+                        style={{ width: '1.875rem', height: '1.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${themeColors.controlBorder}`, borderRadius: '0.375rem', color: themeColors.textPrimary, cursor: 'pointer' }}
                         title="Resetear Contraseña"
                       >
-                        <Lock size={16} />
+                        <Lock size={14} />
                       </button>
                       <button
                         onClick={() => toggleStatus(admin)}
                         style={{
-                          padding: '0.5rem', borderRadius: '0.5rem', border: 'none',
+                          width: '1.875rem', height: '1.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', borderRadius: '0.375rem',
                           background: admin.estado === 'activo' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                           color: admin.estado === 'activo' ? '#ef4444' : '#10b981',
                           cursor: 'pointer'
                         }}
                         title={admin.estado === 'activo' ? 'Desactivar' : 'Activar'}
                       >
-                        {admin.estado === 'activo' ? <Ban size={16} /> : <CheckCircle2 size={16} />}
+                        {admin.estado === 'activo' ? <Ban size={14} /> : <CheckCircle2 size={14} />}
                       </button>
                     </div>
                   </td>

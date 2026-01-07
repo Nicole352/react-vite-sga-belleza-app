@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus, Edit, Trash2, X, Save, Search, Grid, List, ChevronLeft, ChevronRight,
-  FileText, Calendar, DollarSign, CreditCard, Hash, CheckCircle, BookOpen, AlertTriangle
+  FileText, Calendar, DollarSign, CreditCard, Hash, CheckCircle, BookOpen, AlertTriangle, ArrowLeftRight
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -68,57 +68,100 @@ const GestionTiposCurso: React.FC = () => {
     };
   }, [darkMode]);
 
+  // Helper function to pick color based on dark mode (matching ControlUsuarios.tsx exactly)
+  const pick = (light: string, dark: string) => (darkMode ? dark : light);
+
+  // Color variables matching ControlUsuarios.tsx exactly
+  const textPrimaryColor = pick('#0f172a', 'rgba(255,255,255,0.98)');
+  const textSecondaryColor = pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)');
+  const textMutedColor = pick('rgba(100,116,139,0.7)', 'rgba(148,163,184,0.65)');
+
+  const filterInputBg = pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.1)');
+  const filterInputBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.18)');
+  const filterIconColor = pick('rgba(100,116,139,0.6)', 'rgba(226,232,240,0.6)');
+
+  const tableContainerBg = pick(
+    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+  );
+  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
+  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
+  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
+  const tableHeaderText = pick('#9f1239', '#ffffff');
+  const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
+  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+
+  const paginationSurface = pick(
+    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+  );
+  const paginationBorder = pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.25)');
+  const paginationText = pick('rgba(30,41,59,0.85)', 'rgba(226,232,240,0.8)');
+  const paginationButtonBg = pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.1)');
+  const paginationButtonBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.2)');
+  const paginationButtonText = pick('rgba(30,41,59,0.85)', '#f8fafc');
+  const paginationButtonDisabledBg = pick('rgba(226,232,240,0.6)', 'rgba(255,255,255,0.05)');
+  const paginationButtonDisabledText = pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.3)');
+  const activePageBg = pick(
+    `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
+    `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
+  );
+  const activePageBorder = pick('rgba(239,68,68,0.3)', 'rgba(239,68,68,0.4)');
+  const inactivePageBg = pick('rgba(226,232,240,0.9)', 'rgba(255,255,255,0.08)');
+  const inactivePageBorder = pick('rgba(148,163,184,0.45)', 'rgba(255,255,255,0.15)');
+
+  // Legacy theme object for backwards compatibility with existing code
   const theme = useMemo(() => ({
-    cardBg: darkMode
-      ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,245,245,0.92) 100%)',
-    cardBorder: darkMode ? 'var(--admin-border, rgba(239, 68, 68, 0.2))' : 'rgba(239, 68, 68, 0.25)',
-    textPrimary: darkMode ? '#fff' : '#1f2937',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#384152',
-    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280',
+    cardBg: tableContainerBg,
+    cardBorder: tableBorder,
+    textPrimary: textPrimaryColor,
+    textSecondary: textSecondaryColor,
+    textMuted: textMutedColor,
     pillBg: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(239,68,68,0.12)',
     pillText: darkMode ? 'rgba(255,255,255,0.6)' : '#b91c1c',
-    infoText: darkMode ? 'rgba(255,255,255,0.7)' : '#4b5563',
-    inputBg: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(248,113,113,0.08)',
-    inputBorder: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(248,113,113,0.35)',
-    inputIcon: darkMode ? 'rgba(255,255,255,0.6)' : '#9ca3af',
-    toggleContainerBg: darkMode ? 'rgba(255,255,255,0.06)' : '#eef2f7',
-    toggleContainerBorder: 'none',
-    toggleInactive: darkMode ? 'rgba(255,255,255,0.65)' : '#94a3b8',
-    toggleActiveBg: darkMode ? 'rgba(239,68,68,0.18)' : '#ffffff',
-    toggleActiveBorder: 'none',
+    infoText: paginationText,
+    inputBg: filterInputBg,
+    inputBorder: filterInputBorder,
+    inputIcon: filterIconColor,
+    toggleContainerBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+    toggleContainerBorder: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.04)',
+    toggleInactive: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)',
+    toggleActiveBg: darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff',
+    toggleActiveBorder: darkMode ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(239,68,68,0.2)',
     toggleActiveShadow: 'none',
     toggleInactiveBg: 'transparent',
-    toggleInactiveBorder: 'none',
-    tableHeaderBg: darkMode ? 'rgba(248, 113, 113, 0.15)' : 'rgba(248, 113, 113, 0.08)',
-    tableHeaderText: darkMode ? '#fff' : '#1f2937',
-    tableRowAlt: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(248,113,113,0.08)',
-    tableRowHover: darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.18)',
-    tableText: darkMode ? 'rgba(255,255,255,0.9)' : '#1f2937',
-    tableMuted: darkMode ? 'rgba(255,255,255,0.8)' : '#4b5563',
+    toggleInactiveBorder: '1px solid transparent',
+    tableHeaderBg: tableHeaderBg,
+    tableHeaderBorder: tableHeaderBorder,
+    tableHeaderText: tableHeaderText,
+    tableRowDivider: tableRowDivider,
+    tableRowAlt: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(248,113,113,0.04)',
+    tableRowHover: tableRowHover,
+    tableText: textPrimaryColor,
+    tableMuted: textMutedColor,
     emptyStateBg: darkMode
       ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
       : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(254,242,242,0.92) 100%)',
-    emptyStateText: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280',
-    paginationBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(248,113,113,0.12)',
-    paginationBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.25)',
+    emptyStateText: darkMode ? 'rgba(255,255,255,0.5)' : '#6b7280',
+    paginationBg: paginationSurface,
+    paginationBorder: paginationBorder,
     modalBg: darkMode
-      ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+      ? 'linear-gradient(135deg, rgba(15,15,20,0.95) 0%, rgba(26,26,46,0.98) 100%)'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
     modalText: darkMode ? '#fff' : '#1e293b',
-    modalInputBg: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-    modalInputBorder: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.12)',
-    divider: 'rgba(239, 68, 68, 0.2)',
+    modalInputBg: darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+    modalInputBorder: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+    divider: 'rgba(239, 68, 68, 0.15)',
     priceText: darkMode ? mapToRedScheme('#10b981') : '#047857',
-    statusActiveBg: darkMode ? mapToRedScheme('rgba(16,185,129,0.15)') : 'rgba(16,185,129,0.12)',
-    statusActiveText: darkMode ? mapToRedScheme('#10b981') : '#047857',
-    statusInactiveBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.12)',
-    statusInactiveText: darkMode ? RedColorPalette.primary : '#b91c1c',
-  }), [darkMode]);
+    statusActiveBg: 'rgba(16,185,129,0.1)',
+    statusActiveText: '#10b981',
+    statusInactiveBg: 'rgba(239,68,68,0.1)',
+    statusInactiveText: '#ef4444',
+  }), [darkMode, tableContainerBg, tableBorder, textPrimaryColor, textSecondaryColor, textMutedColor, filterInputBg, filterInputBorder, filterIconColor, tableHeaderBg, tableHeaderBorder, tableHeaderText, tableRowDivider, tableRowHover, paginationSurface, paginationBorder, paginationText]);
 
   // Estados para búsqueda, vista y paginación
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
@@ -289,8 +332,8 @@ const GestionTiposCurso: React.FC = () => {
   const textareaPlaceholderColor = darkMode ? 'rgba(255,255,255,0.55)' : '#94a3b8';
   const editActionColor = darkMode ? '#3b82f6' : '#1d4ed8';
   const deleteActionColor = darkMode ? RedColorPalette.primaryDeep : '#b91c1c';
-  const cardsTabColor = viewMode === 'cards' ? RedColorPalette.primary : theme.toggleInactive;
-  const tableTabColor = viewMode === 'table' ? RedColorPalette.primary : theme.toggleInactive;
+  const cardsTabColor = viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : theme.toggleInactive;
+  const tableTabColor = viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : theme.toggleInactive;
 
   return (
     <div className="gestion-tipos-curso" data-dark={darkMode ? 'true' : 'false'}>
@@ -310,7 +353,7 @@ const GestionTiposCurso: React.FC = () => {
       <AdminSectionHeader
         title="Gestión de Tipos de Curso"
         subtitle="Administra los tipos de curso antes de crear cursos."
-        marginBottom={isMobile ? '12px' : '1.125rem'}
+        marginBottom={isMobile ? '12px' : '0.5rem'}
       />
 
       {/* Controles */}
@@ -319,21 +362,22 @@ const GestionTiposCurso: React.FC = () => {
         tint="neutral"
         intensity="light"
         style={{
-          marginBottom: isMobile ? '12px' : '1rem',
-          background: theme.cardBg,
-          border: `1px solid ${theme.cardBorder}`,
-          color: theme.textPrimary,
+          marginBottom: isMobile ? '8px' : '0.5rem',
+          padding: '0.5rem',
+          boxShadow: 'none',
+          borderRadius: '0.375rem',
+          border: `1px solid ${filterInputBorder}`
         }}
       >
         <div className="responsive-filters">
           <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ position: 'relative', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
               <Search
                 size={16}
                 style={{
                   position: 'absolute',
-                  left: '0.75rem',
+                  left: '0.5rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   color: theme.inputIcon,
@@ -346,47 +390,48 @@ const GestionTiposCurso: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 0.625rem 0.625rem 2.375rem',
-                  background: theme.inputBg,
+                  padding: '0 0.5rem 0 2rem',
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: theme.textPrimary,
-                  fontSize: '0.8rem'
+                  fontSize: '0.75rem',
+                  boxShadow: 'none',
+                  height: '2rem'
                 }}
               />
             </div>
 
             {/* Toggle Vista */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.375rem',
-                background: theme.toggleContainerBg,
-                borderRadius: '0.875rem',
-                padding: '0.1875rem',
-                width: isSmallScreen ? '100%' : 'auto',
-                border: theme.toggleContainerBorder,
-                boxShadow: 'none',
-              }}
-            >
+            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.375rem',
+                  background: theme.toggleContainerBg,
+                  borderRadius: '0.65rem',
+                  padding: '0.1875rem',
+                  border: 'none',
+                  boxShadow: 'none'
+                }}
+              >
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3125rem',
-                  padding: isMobile ? '7px 0.875rem' : '7px 1rem',
-                  background: viewMode === 'cards' ? theme.toggleActiveBg : theme.toggleInactiveBg,
-                  border: viewMode === 'cards' ? theme.toggleActiveBorder : theme.toggleInactiveBorder,
-                  borderRadius: '0.6875rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'cards' ? theme.toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
                   color: cardsTabColor,
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.75rem' : '0.9rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial',
-                  boxShadow: viewMode === 'cards' ? theme.toggleActiveShadow : 'none'
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
                 <Grid size={16} color={cardsTabColor} /> {!isMobile && 'Tarjetas'}
@@ -397,22 +442,24 @@ const GestionTiposCurso: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: isMobile ? '7px 0.875rem' : '8px 1.0625rem',
-                  background: viewMode === 'table' ? theme.toggleActiveBg : theme.toggleInactiveBg,
-                  border: viewMode === 'table' ? theme.toggleActiveBorder : theme.toggleInactiveBorder,
-                  borderRadius: '0.6875rem',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'table' ? theme.toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
                   color: tableTabColor,
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.75rem' : '0.9rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial',
-                  boxShadow: viewMode === 'table' ? theme.toggleActiveShadow : 'none'
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
                 <List size={16} color={tableTabColor} /> {!isMobile && 'Tabla'}
               </button>
+            </div>
+
+
             </div>
           </div>
 
@@ -423,28 +470,25 @@ const GestionTiposCurso: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
-              padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+              gap: '0.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
-              borderRadius: '0.625rem',
-              color: '#fff',
+              borderRadius: '0.625em',
+              color: '#ffffff',
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
+              boxShadow: '0 0.35rem 1rem rgba(239,68,68,0.35)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
-            <Plus size={16} />
+            <Plus size={16} color="currentColor" />
             Nuevo Tipo
           </button>
         </div>
 
-        {/* Info de resultados */}
-        <div style={{ color: theme.infoText, fontSize: '0.75rem', marginTop: '0.75rem' }}>
-          {searchTerm ? `${filteredTipos.length} de ${tipos.length} tipos` : `Total: ${tipos.length} tipos`}
-        </div>
+
       </GlassEffect>
 
       {/* Vista Cards */}
@@ -453,7 +497,7 @@ const GestionTiposCurso: React.FC = () => {
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: isMobile ? '12px' : '1rem',
-          marginBottom: isMobile ? '12px' : '1.125rem'
+          marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedTipos.map((t) => (
             <div
@@ -462,7 +506,7 @@ const GestionTiposCurso: React.FC = () => {
                 background: theme.cardBg,
                 border: `1px solid ${theme.cardBorder}`,
                 borderRadius: '0.75rem',
-                padding: '0.875rem',
+                padding: '0.75rem',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
               }}
@@ -477,7 +521,7 @@ const GestionTiposCurso: React.FC = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ marginBottom: '0.625rem' }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -487,9 +531,9 @@ const GestionTiposCurso: React.FC = () => {
                   <span
                     style={{
                       color: theme.pillText,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       background: theme.pillBg,
-                      padding: '3px 0.375rem',
+                      padding: '2px 0.5rem',
                       borderRadius: '0.3125rem',
                       border: darkMode ? '1px solid transparent' : '1px solid rgba(239,68,68,0.25)',
                     }}
@@ -501,7 +545,7 @@ const GestionTiposCurso: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.1875rem',
-                      padding: '3px 0.5rem',
+                      padding: '2px 0.5rem',
                       borderRadius: 6,
                       background: t.estado === 'activo' ? theme.statusActiveBg : theme.statusInactiveBg,
                       color: t.estado === 'activo' ? theme.statusActiveText : theme.statusInactiveText,
@@ -516,7 +560,9 @@ const GestionTiposCurso: React.FC = () => {
                 </div>
                 <h3 style={{
                   color: theme.textPrimary,
-                  margin: '0 0 0.5rem 0'
+                  margin: '0 0 0.5rem 0',
+                  fontSize: '0.85rem',
+                  fontWeight: 600
                 }}>
                   {t.nombre}
                 </h3>
@@ -526,7 +572,7 @@ const GestionTiposCurso: React.FC = () => {
                 style={{
                   paddingTop: '0.625rem',
                   borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(248,113,113,0.2)'}`,
-                  marginBottom: '0.875rem',
+                  marginBottom: '0.625rem',
                 }}
               >
                 <p style={{
@@ -543,21 +589,21 @@ const GestionTiposCurso: React.FC = () => {
               <div style={{
                 display: 'flex',
                 gap: '0.75rem',
-                marginBottom: '0.75rem'
+                marginBottom: '0.625rem'
               }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                     Duración
                   </div>
-                  <div style={{ color: darkMode ? 'rgba(255,255,255,0.95)' : theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                  <div style={{ color: darkMode ? 'rgba(255,255,255,0.95)' : theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                     {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                     Precio
                   </div>
-                  <div style={{ color: theme.priceText, fontSize: '0.8rem', fontWeight: 700 }}>
+                  <div style={{ color: theme.priceText, fontSize: '0.75rem', fontWeight: 700 }}>
                     {formatPrice(t.precio_base ?? null)}
                   </div>
                 </div>
@@ -566,7 +612,7 @@ const GestionTiposCurso: React.FC = () => {
               {/* Información de modalidad de pago */}
               {t.modalidad_pago === 'clases' && (
                 <div style={{
-                  marginBottom: '0.75rem',
+                  marginBottom: '0.625rem',
                   padding: '0.5rem',
                   background: 'rgba(59, 130, 246, 0.08)',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
@@ -611,10 +657,10 @@ const GestionTiposCurso: React.FC = () => {
               <div
                 style={{
                   display: 'flex',
-                  gap: '0.5rem',
+                  gap: '0.375rem',
                   borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(248,113,113,0.2)'}`,
-                  paddingTop: '0.75rem',
-                  marginTop: '0.75rem',
+                  paddingTop: '0.625rem',
+                  marginTop: '0.625rem',
                 }}
               >
                 <button
@@ -624,8 +670,8 @@ const GestionTiposCurso: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.375rem',
-                    padding: '6px 0.75rem',
+                    gap: '0.25rem',
+                    padding: '0.375rem',
                     background: darkMode ? 'rgba(59, 130, 246, 0.14)' : 'rgba(59,130,246,0.18)',
                     border: '1px solid rgba(59, 130, 246, 0.3)',
                     borderRadius: '0.5rem',
@@ -651,8 +697,8 @@ const GestionTiposCurso: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.375rem',
-                    padding: '6px 0.75rem',
+                    gap: '0.25rem',
+                    padding: '0.375rem',
                     background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239,68,68,0.18)',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '0.5rem',
@@ -677,256 +723,34 @@ const GestionTiposCurso: React.FC = () => {
         </div>
       )}
 
-      {/* Vista Tabla */}
-      {viewMode === 'table' && (
-        <>
-          {/* Indicador de scroll en móvil */}
-          {isSmallScreen && (
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '0.5rem',
-              padding: '8px 0.75rem',
-              marginBottom: '0.75rem',
-              color: '#ef4444',
-              fontSize: '0.75rem',
-              textAlign: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.375rem'
-            }}>
-              <span>👉</span>
-              <span>Desliza horizontalmente para ver toda la tabla</span>
-              <span>👈</span>
-            </div>
-          )}
-
-          <div
-            className="responsive-table-container"
-            style={{
-              background: theme.cardBg,
-              border: `1px solid ${theme.cardBorder}`,
-              borderRadius: isMobile ? 12 : 16,
-              overflow: 'auto',
-              marginBottom: isMobile ? '12px' : '1.5rem',
-              WebkitOverflowScrolling: 'touch',
-              position: 'relative'
-            }}
-          >
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              minWidth: isSmallScreen ? '700px' : 'auto'
-            }}>
-              <thead>
-                <tr style={{
-                  background: theme.tableHeaderBg,
-                  borderBottom: '1px solid rgba(248, 113, 113, 0.3)'
-                }}>
-                  <th style={{ padding: '10px 0.75rem', color: theme.tableHeaderText, textAlign: 'left', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '35%' }}>
-                    NOMBRE
-                  </th>
-                  <th style={{ padding: '10px 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                    Duración
-                  </th>
-                  <th style={{ padding: '10px 0.75rem', color: theme.tableHeaderText, textAlign: 'right', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '20%' }}>
-                    Precio
-                  </th>
-                  <th style={{ padding: '10px 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                    Estado
-                  </th>
-                  <th style={{ padding: '10px 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', width: '15%' }}>
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedTipos.map((t, index) => (
-                  <tr
-                    key={t.id_tipo_curso}
-                    style={{
-                      borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,113,113,0.15)'}`,
-                      background: index % 2 === 0 ? theme.tableRowAlt : 'transparent',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = theme.tableRowHover;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = index % 2 === 0 ? theme.tableRowAlt : 'transparent';
-                    }}
-                  >
-                    <td className="table-nombre-uppercase" style={{ padding: '0.75rem', color: theme.tableText, fontWeight: 600, fontSize: '0.8rem' }}>
-                      {t.nombre}
-                    </td>
-                    <td style={{ padding: '0.75rem', color: theme.tableMuted, textAlign: 'center', fontSize: '0.75rem' }}>
-                      {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
-                    </td>
-                    <td style={{ padding: '0.75rem', color: theme.tableText, textAlign: 'right', fontWeight: 600, fontSize: '0.8rem' }}>
-                      {formatPrice(t.precio_base ?? null)}
-                    </td>
-                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          padding: '4px 0.625rem',
-                          borderRadius: 8,
-                          background: t.estado === 'activo' ? theme.statusActiveBg : theme.statusInactiveBg,
-                          border: t.estado === 'activo'
-                            ? `1px solid ${RedColorPalette.success}`
-                            : '1px solid rgba(156,163,175,0.3)',
-                          color: t.estado === 'activo' ? theme.statusActiveText : theme.statusInactiveText,
-                          fontWeight: 700,
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {t.estado || 'activo'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                        <button
-                          onClick={() => openEdit(t)}
-                          style={{
-                            background: darkMode ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.16)',
-                            border: '1px solid rgba(59,130,246,0.4)',
-                            color: editActionColor,
-                            padding: '6px 0.625rem',
-                            borderRadius: 8,
-                            cursor: 'pointer',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            transform: 'translateZ(0)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.22)' : 'rgba(59,130,246,0.24)';
-                            e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                            e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${darkMode ? 'rgba(59,130,246,0.35)' : 'rgba(59,130,246,0.25)'}`;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.16)';
-                            e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }}
-                        >
-                          <Edit size={12} color={editActionColor} />
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => requestDelete(t)}
-                          style={{
-                            background: darkMode ? 'rgba(239,68,68,0.14)' : 'rgba(239,68,68,0.22)',
-                            border: `1px solid ${darkMode ? RedColorPalette.primaryDeep : 'rgba(239,68,68,0.4)'}`,
-                            color: deleteActionColor,
-                            padding: '6px 0.625rem',
-                            borderRadius: 8,
-                            cursor: 'pointer',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            transform: 'translateZ(0)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.24)' : 'rgba(239,68,68,0.32)';
-                            e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                            e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${darkMode ? RedColorPalette.primaryDeep : 'rgba(239,68,68,0.25)'}`;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.14)' : 'rgba(239,68,68,0.22)';
-                            e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }}
-                        >
-                          <Trash2 size={12} color={deleteActionColor} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-
-      {/* Estados vacíos y errores */}
-      {!loading && filteredTipos.length === 0 && (
-        <div
-          style={{
-            color: theme.emptyStateText,
-            padding: '60px 1.25rem',
-            textAlign: 'center',
-            fontSize: '1rem',
-            background: theme.emptyStateBg,
-            border: `1px solid ${theme.cardBorder}`,
-            borderRadius: '1rem',
-            marginBottom: '1.5rem',
-          }}
-        >
-          {searchTerm ? 'No se encontraron tipos de curso' : 'No hay tipos de curso registrados'}
-        </div>
-      )}
-      {loading && (
-        <div
-          style={{
-            color: theme.emptyStateText,
-            padding: '60px 1.25rem',
-            textAlign: 'center',
-            fontSize: '1rem',
-            background: theme.emptyStateBg,
-            border: `1px solid ${theme.cardBorder}`,
-            borderRadius: '1rem',
-            marginBottom: '1.5rem',
-          }}
-        >
-          Cargando tipos de curso...
-        </div>
-      )}
-      {error && (
-        <div style={{
-          color: '#ef4444',
-          padding: '1.25rem',
-          textAlign: 'center',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '1rem',
-          fontSize: '0.85rem',
-          marginBottom: '1.5rem'
-        }}>
-          {error}
-        </div>
-      )}
-
-      {/* Paginación */}
-      {!loading && filteredTipos.length > 0 && (
+      {/* Paginación para vista de cards */}
+      {viewMode === 'cards' && totalPages > 0 && (
         <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
-          background: theme.cardBg,
-          border: `1px solid ${theme.paginationBorder}`,
-          borderRadius: '1rem',
+          padding: isMobile ? '8px' : '0.25rem 1rem',
+          background: paginationSurface,
+          border: `1px solid ${paginationBorder}`,
+          borderRadius: '0.75rem',
+          marginTop: '0.5rem',
+          marginBottom: isMobile ? '0.75rem' : '0.5rem',
         }}>
           <div style={{
-            color: theme.infoText,
-            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            color: paginationText,
+            fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos de curso
+            Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+          <div style={{
+            display: 'flex',
+            gap: '0.375rem',
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            flexWrap: 'wrap'
+          }}>
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
@@ -934,46 +758,42 @@ const GestionTiposCurso: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === 1
-                  ? (darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb')
-                  : (darkMode ? 'rgba(255,255,255,0.1)' : '#f3f4f6'),
-                border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                background: currentPage === 1 ? paginationButtonDisabledBg : paginationButtonBg,
+                border: `1px solid ${paginationButtonBorder}`,
                 borderRadius: '0.625rem',
-                color: currentPage === 1 ? (darkMode ? 'rgba(255,255,255,0.3)' : '#d1d5db') : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                color: currentPage === 1 ? paginationButtonDisabledText : paginationButtonText,
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} />
+              <ChevronLeft size={isMobile ? 14 : 14} />
               {!isMobile && 'Anterior'}
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                  background: currentPage === page
-                    ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                    : (darkMode ? 'rgba(255,255,255,0.08)' : '#f3f4f6'),
-                  border: currentPage === page
-                    ? '1px solid #ef4444'
-                    : (darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid #e5e7eb'),
-                  borderRadius: '0.625rem',
-                  color: currentPage === page ? '#fff' : theme.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                  background: currentPage === pageNum ? activePageBg : inactivePageBg,
+                  border: currentPage === pageNum ? `1px solid ${activePageBorder}` : `1px solid ${inactivePageBorder}`,
+                  borderRadius: '0.5rem',
+                  color: currentPage === pageNum ? '#ffffff' : paginationButtonText,
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
+                  minWidth: isMobile ? '30px' : '2rem',
+                  boxShadow: 'none'
                 }}
               >
-                {page}
+                {pageNum}
               </button>
             ))}
             <button
@@ -983,372 +803,687 @@ const GestionTiposCurso: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === totalPages
-                  ? (darkMode ? 'rgba(255,255,255,0.05)' : '#f9fafb')
-                  : (darkMode ? 'rgba(255,255,255,0.1)' : '#f3f4f6'),
-                border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e5e7eb',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                background: currentPage === totalPages ? paginationButtonDisabledBg : paginationButtonBg,
+                border: `1px solid ${paginationButtonBorder}`,
                 borderRadius: '0.625rem',
-                color: currentPage === totalPages ? (darkMode ? 'rgba(255,255,255,0.3)' : '#d1d5db') : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                color: currentPage === totalPages ? paginationButtonDisabledText : paginationButtonText,
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
               {!isMobile && 'Siguiente'}
-              <ChevronRight size={isMobile ? 14 : 16} />
+              <ChevronRight size={isMobile ? 14 : 14} />
             </button>
           </div>
         </div>
       )}
 
-      {showModal && createPortal(
-        <div
-          className="modal-overlay"
-          onClick={() => setShowModal(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            padding: isMobile ? '1rem' : '2rem',
-            backdropFilter: 'blur(8px)',
-            background: 'rgba(0, 0, 0, 0.65)',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            scrollBehavior: 'smooth'
-          }}
-        >
+      {/* Vista Tabla */}
+      {viewMode === 'table' && (
+        <>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
+              border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              marginBottom: '0.75rem',
+              color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.375rem'
+            }}>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
+            </div>
+          )}
+
           <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
+            className="responsive-table-container"
             style={{
-              position: 'relative',
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '12px',
-              width: isMobile ? '92vw' : '60vw',
-              maxWidth: isMobile ? '92vw' : '60vw',
-              maxHeight: '85vh',
-              padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
-              margin: 'auto',
-              color: darkMode ? '#fff' : '#1e293b',
-              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              animation: 'scaleIn 0.3s ease-out'
+              overflowX: 'auto',
+              borderRadius: isMobile ? '12px' : '1rem',
+              border: `1px solid ${theme.cardBorder}`,
+              background: theme.cardBg,
+              marginBottom: isMobile ? '0.75rem' : '0.5rem'
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: isMobile ? 12 : 14,
-                paddingBottom: isMobile ? 8 : 10,
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BookOpen size={isMobile ? 18 : 20} />
-                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em', color: darkMode ? '#fff' : '#1e293b' }}>
-                  {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{
-                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                  border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.15)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  color: darkMode ? '#fff' : '#1e293b',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
-                }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 10 : 12, columnGap: isSmallScreen ? 0 : 16 }}>
-                {/* Nombre - 2 columnas */}
-                <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <FileText size={14} />
-                    Nombre del tipo
-                  </label>
-                  <input
-                    name="nombre"
-                    placeholder="Ej. Cosmetología, Maquillaje Profesional"
-                    defaultValue={selected?.nombre || ''}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)';
-                    }}
-                  />
-                </div>
-
-                {/* Estado - 1 columna */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <CheckCircle size={14} />
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              minWidth: isSmallScreen ? '700px' : 'auto'
+            }}>
+              <thead style={{
+                borderBottom: `1px solid ${theme.tableHeaderBorder}`,
+                background: theme.tableHeaderBg
+              }}>
+                <tr>
+                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '35%' }}>
+                    NOMBRE
+                  </th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
+                    Duración
+                  </th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'right', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '20%' }}>
+                    Precio
+                  </th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
                     Estado
-                  </label>
-                  <StyledSelect
-                    name="estado"
-                    defaultValue={selected?.estado || 'activo'}
-                    options={[
-                      { value: 'activo', label: 'Activo' },
-                      { value: 'inactivo', label: 'Inactivo' },
-                    ]}
-                    darkMode={darkMode}
+                  </th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedTipos.map((t) => (
+                  <tr
+                    key={t.id_tipo_curso}
                     style={{
-                      padding: '7px 10px',
-                      fontSize: '0.8rem',
-                      borderRadius: 6
+                      borderBottom: `1px solid ${theme.tableRowDivider}`,
+                      transition: 'all 0.2s ease',
+                      background: 'transparent'
                     }}
-                  />
-                </div>
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = theme.tableRowHover;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <td className="table-nombre-uppercase" style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontWeight: 600, fontSize: '0.75rem' }}>
+                      {t.nombre}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, textAlign: 'center', fontSize: '0.7rem' }}>
+                      {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, textAlign: 'right', fontWeight: 600, fontSize: '0.75rem' }}>
+                      {formatPrice(t.precio_base ?? null)}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${t.estado === 'activo' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}
+                      >
+                        {t.estado ? t.estado.toUpperCase() : 'ACTIVO'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => openEdit(t)}
+                          style={{
+                            padding: '0.375rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #3b82f6',
+                            backgroundColor: 'transparent',
+                            color: '#3b82f6',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#3b82f6';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#3b82f6';
+                          }}
+                          title="Editar"
+                        >
+                          <Edit style={{ width: '1rem', height: '1rem' }} />
+                        </button>
+                        <button
+                          onClick={() => requestDelete(t)}
+                          style={{
+                            padding: '0.375rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #ef4444',
+                            backgroundColor: 'transparent',
+                            color: '#ef4444',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ef4444';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#ef4444';
+                          }}
+                          title="Eliminar"
+                        >
+                          <Trash2 style={{ width: '1rem', height: '1rem' }} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-                {/* Descripción - ancho completo, más compacta */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <FileText size={14} />
-                    Descripción (opcional)
-                  </label>
-                  <textarea
-                    name="descripcion"
-                    defaultValue={selected?.descripcion || ''}
-                    placeholder="Resumen del programa, objetivos y beneficios."
-                    rows={2}
-                    style={{
-                      width: '100%',
-                      padding: '8px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.75rem',
-                      resize: 'vertical',
-                      minHeight: '50px'
-                    }}
-                  />
-                </div>
-
-                {/* Separador */}
-                <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(239, 68, 68, 0.2)', margin: '6px 0' }} />
-
-                {/* Modalidad de Pago */}
-                <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <CreditCard size={14} />
-                    Modalidad de Pago
-                  </label>
-                  <StyledSelect
-                    name="modalidad_pago"
-                    defaultValue={selected?.modalidad_pago || 'mensual'}
-                    options={[
-                      { value: 'mensual', label: 'Mensual - Cuotas por meses' },
-                      { value: 'clases', label: 'Por Clases - Pago individual por clase' },
-                    ]}
-                    darkMode={darkMode}
-                    style={{
-                      padding: '7px 10px',
-                      fontSize: '0.8rem',
-                      borderRadius: 6
-                    }}
-                    onChange={(e) => {
-                      const isClases = e.target.value === 'clases';
-                      const numeroClasesDiv = document.querySelector('[data-field="numero_clases"]') as HTMLDivElement;
-                      const precioPorClaseDiv = document.querySelector('[data-field="precio_por_clase"]') as HTMLDivElement;
-                      if (numeroClasesDiv && precioPorClaseDiv) {
-                        numeroClasesDiv.style.display = isClases ? 'block' : 'none';
-                        precioPorClaseDiv.style.display = isClases ? 'block' : 'none';
-                      }
-                    }}
-                  />
-                </div>
-
-                {/* Duración */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <Calendar size={14} />
-                    Duración (meses)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    name="duracion_meses"
-                    placeholder="Ej. 6"
-                    defaultValue={selected?.duracion_meses ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                    }}
-                  />
-                </div>
-
-                {/* Precio base */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <DollarSign size={14} />
-                    Precio base (USD)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    name="precio_base"
-                    placeholder="Ej. 2500"
-                    defaultValue={selected?.precio_base ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                    }}
-                  />
-                </div>
-
-                {/* Campos específicos para modalidad "clases" */}
-                <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <Hash size={14} />
-                    Número de Clases
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    name="numero_clases"
-                    placeholder="Ej. 16"
-                    defaultValue={selected?.numero_clases ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                    }}
-                  />
-                </div>
-
-                <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
-                    <DollarSign size={14} />
-                    Precio por Clase (USD)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    name="precio_por_clase"
-                    placeholder="Ej. 15.40"
-                    defaultValue={selected?.precio_por_clase ?? ''}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: 6,
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                    }}
-                  />
-                </div>
+          {/* Paginación */}
+          {totalPages > 0 && (
+            <div className="pagination-container" style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'stretch' : 'center',
+              gap: isMobile ? '0.75rem' : '0',
+              padding: isMobile ? '8px' : '0.25rem 1rem',
+              background: paginationSurface,
+              border: `1px solid ${paginationBorder}`,
+              borderRadius: '0.75rem',
+              marginTop: '0.5rem',
+              marginBottom: isMobile ? '0.75rem' : '0.5rem',
+            }}>
+              <div style={{
+                color: paginationText,
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
+                textAlign: isMobile ? 'center' : 'left'
+              }}>
+                Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos
               </div>
-
-              <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? 10 : 12, marginTop: isMobile ? 16 : 24, justifyContent: 'flex-end' }}>
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                justifyContent: isMobile ? 'center' : 'flex-start',
+                flexWrap: 'wrap'
+              }}>
                 <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  style={{
-                    padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                    border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
-                    borderRadius: isMobile ? 10 : 12,
-                    color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.8)',
-                    cursor: 'pointer',
-                    fontSize: isMobile ? '0.9rem' : '1rem',
-                    width: isSmallScreen ? '100%' : 'auto'
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 8,
-                    padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    border: 'none',
-                    borderRadius: isMobile ? 10 : 12,
-                    color: '#fff',
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: currentPage === 1 ? paginationButtonDisabledBg : paginationButtonBg,
+                    border: `1px solid ${paginationButtonBorder}`,
+                    borderRadius: '0.625rem',
+                    color: currentPage === 1 ? paginationButtonDisabledText : paginationButtonText,
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
                     fontWeight: 600,
-                    cursor: 'pointer',
-                    fontSize: isMobile ? '0.9rem' : '1rem',
-                    width: isSmallScreen ? '100%' : 'auto'
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial',
+                    boxShadow: 'none'
                   }}
                 >
-                  <Save size={16} />
-                  {modalType === 'create' ? 'Crear' : 'Guardar'}
+                  <ChevronLeft size={isMobile ? 14 : 14} />
+                  {!isMobile && 'Anterior'}
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    style={{
+                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                      background: currentPage === pageNum ? activePageBg : inactivePageBg,
+                      border: currentPage === pageNum ? `1px solid ${activePageBorder}` : `1px solid ${inactivePageBorder}`,
+                      borderRadius: '0.5rem',
+                      color: currentPage === pageNum ? '#ffffff' : paginationButtonText,
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      minWidth: isMobile ? '30px' : '2rem',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: currentPage === totalPages ? paginationButtonDisabledBg : paginationButtonBg,
+                    border: `1px solid ${paginationButtonBorder}`,
+                    borderRadius: '0.625rem',
+                    color: currentPage === totalPages ? paginationButtonDisabledText : paginationButtonText,
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                    fontWeight: 600,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial',
+                    boxShadow: 'none'
+                  }}
+                >
+                  {!isMobile && 'Siguiente'}
+                  <ChevronRight size={isMobile ? 14 : 14} />
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+          )}
+        </>
+      )}
 
-          {/* Animaciones CSS */}
-          <style>{`
+      {/* Estados vacíos y errores */}
+      {
+        !loading && filteredTipos.length === 0 && (
+          <div
+            style={{
+              color: theme.emptyStateText,
+              padding: '60px 1.25rem',
+              textAlign: 'center',
+              fontSize: '1rem',
+              background: theme.emptyStateBg,
+              border: `1px solid ${theme.cardBorder}`,
+              borderRadius: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            {searchTerm ? 'No se encontraron tipos de curso' : 'No hay tipos de curso registrados'}
+          </div>
+        )
+      }
+      {
+        loading && (
+          <div
+            style={{
+              color: theme.emptyStateText,
+              padding: '60px 1.25rem',
+              textAlign: 'center',
+              fontSize: '1rem',
+              background: theme.emptyStateBg,
+              border: `1px solid ${theme.cardBorder}`,
+              borderRadius: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            Cargando tipos de curso...
+          </div>
+        )
+      }
+      {
+        error && (
+          <div style={{
+            color: '#ef4444',
+            padding: '1.25rem',
+            textAlign: 'center',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '1rem',
+            fontSize: '0.85rem',
+            marginBottom: '1.5rem'
+          }}>
+            {error}
+          </div>
+        )
+      }
+
+
+
+      {
+        showModal && createPortal(
+          <div
+            className="modal-overlay"
+            onClick={() => setShowModal(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: isMobile ? '1rem' : '2rem',
+              backdropFilter: 'blur(8px)',
+              background: 'rgba(0, 0, 0, 0.65)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              scrollBehavior: 'smooth'
+            }}
+          >
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '12px',
+                width: isMobile ? '92vw' : '60vw',
+                maxWidth: isMobile ? '92vw' : '60vw',
+                maxHeight: '85vh',
+                padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
+                margin: 'auto',
+                color: darkMode ? '#fff' : '#1e293b',
+                boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                animation: 'scaleIn 0.3s ease-out'
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: isMobile ? 12 : 14,
+                  paddingBottom: isMobile ? 8 : 10,
+                  borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={isMobile ? 18 : 20} />
+                  <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em', color: darkMode ? '#fff' : '#1e293b' }}>
+                    {modalType === 'create' ? 'Nuevo Tipo de Curso' : 'Editar Tipo de Curso'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.15)',
+                    borderRadius: '8px',
+                    padding: '6px',
+                    color: darkMode ? '#fff' : '#1e293b',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 10 : 12, columnGap: isSmallScreen ? 0 : 16 }}>
+                  {/* Nombre - 2 columnas */}
+                  <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <FileText size={14} />
+                      Nombre del tipo
+                    </label>
+                    <input
+                      name="nombre"
+                      placeholder="Ej. Cosmetología, Maquillaje Profesional"
+                      defaultValue={selected?.nombre || ''}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)';
+                      }}
+                    />
+                  </div>
+
+                  {/* Estado - 1 columna */}
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <CheckCircle size={14} />
+                      Estado
+                    </label>
+                    <StyledSelect
+                      name="estado"
+                      defaultValue={selected?.estado || 'activo'}
+                      options={[
+                        { value: 'activo', label: 'Activo' },
+                        { value: 'inactivo', label: 'Inactivo' },
+                      ]}
+                      darkMode={darkMode}
+                      style={{
+                        padding: '7px 10px',
+                        fontSize: '0.8rem',
+                        borderRadius: 6
+                      }}
+                    />
+                  </div>
+
+                  {/* Descripción - ancho completo, más compacta */}
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <FileText size={14} />
+                      Descripción (opcional)
+                    </label>
+                    <textarea
+                      name="descripcion"
+                      defaultValue={selected?.descripcion || ''}
+                      placeholder="Resumen del programa, objetivos y beneficios."
+                      rows={2}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.75rem',
+                        resize: 'vertical',
+                        minHeight: '50px'
+                      }}
+                    />
+                  </div>
+
+                  {/* Separador */}
+                  <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(239, 68, 68, 0.2)', margin: '6px 0' }} />
+
+                  {/* Modalidad de Pago */}
+                  <div style={{ gridColumn: isSmallScreen ? '1 / -1' : 'span 2' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <CreditCard size={14} />
+                      Modalidad de Pago
+                    </label>
+                    <StyledSelect
+                      name="modalidad_pago"
+                      defaultValue={selected?.modalidad_pago || 'mensual'}
+                      options={[
+                        { value: 'mensual', label: 'Mensual - Cuotas por meses' },
+                        { value: 'clases', label: 'Por Clases - Pago individual por clase' },
+                      ]}
+                      darkMode={darkMode}
+                      style={{
+                        padding: '7px 10px',
+                        fontSize: '0.8rem',
+                        borderRadius: 6
+                      }}
+                      onChange={(e) => {
+                        const isClases = e.target.value === 'clases';
+                        const numeroClasesDiv = document.querySelector('[data-field="numero_clases"]') as HTMLDivElement;
+                        const precioPorClaseDiv = document.querySelector('[data-field="precio_por_clase"]') as HTMLDivElement;
+                        if (numeroClasesDiv && precioPorClaseDiv) {
+                          numeroClasesDiv.style.display = isClases ? 'block' : 'none';
+                          precioPorClaseDiv.style.display = isClases ? 'block' : 'none';
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Duración */}
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <Calendar size={14} />
+                      Duración (meses)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      name="duracion_meses"
+                      placeholder="Ej. 6"
+                      defaultValue={selected?.duracion_meses ?? ''}
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                      }}
+                    />
+                  </div>
+
+                  {/* Precio base */}
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <DollarSign size={14} />
+                      Precio base (USD)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      name="precio_base"
+                      placeholder="Ej. 2500"
+                      defaultValue={selected?.precio_base ?? ''}
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                      }}
+                    />
+                  </div>
+
+                  {/* Campos específicos para modalidad "clases" */}
+                  <div data-field="numero_clases" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <Hash size={14} />
+                      Número de Clases
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      name="numero_clases"
+                      placeholder="Ej. 16"
+                      defaultValue={selected?.numero_clases ?? ''}
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                      }}
+                    />
+                  </div>
+
+                  <div data-field="precio_por_clase" style={{ display: selected?.modalidad_pago === 'clases' ? 'block' : 'none' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: 5, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 500, fontSize: '0.8rem' }}>
+                      <DollarSign size={14} />
+                      Precio por Clase (USD)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      name="precio_por_clase"
+                      placeholder="Ej. 15.40"
+                      defaultValue={selected?.precio_por_clase ?? ''}
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 6,
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? 10 : 12, marginTop: isMobile ? 16 : 24, justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    style={{
+                      padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                      background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                      border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
+                      borderRadius: isMobile ? 10 : 12,
+                      color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.8)',
+                      cursor: 'pointer',
+                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      width: isSmallScreen ? '100%' : 'auto'
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      border: 'none',
+                      borderRadius: isMobile ? 10 : 12,
+                      color: '#fff',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      width: isSmallScreen ? '100%' : 'auto'
+                    }}
+                  >
+                    <Save size={16} />
+                    {modalType === 'create' ? 'Crear' : 'Guardar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Animaciones CSS */}
+            <style>{`
             @keyframes slideUp {
               from {
                 opacity: 0;
@@ -1371,114 +1506,117 @@ const GestionTiposCurso: React.FC = () => {
               }
             }
           `}</style>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )
+      }
 
-      {tipoToDelete && createPortal(
-        <div
-          onClick={() => !loading && setTipoToDelete(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0,0,0,0.65)',
-            backdropFilter: 'blur(10px)',
-            zIndex: 99990,
-            padding: isMobile ? '1.25rem' : '2rem'
-          }}
-        >
+      {
+        tipoToDelete && createPortal(
           <div
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => !loading && setTipoToDelete(null)}
             style={{
-              width: '100%',
-              maxWidth: isMobile ? '360px' : '420px',
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(31,31,31,0.95) 0%, rgba(60,16,16,0.92) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,228,228,0.92) 100%)',
-              borderRadius: '1rem',
-              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.45)'}`,
-              boxShadow: darkMode
-                ? '0 24px 48px rgba(239,68,68,0.22)'
-                : '0 24px 48px rgba(239,68,68,0.18)',
-              padding: isMobile ? '1.25rem' : '1.75rem',
-              color: darkMode ? '#fff' : '#1f2937',
+              position: 'fixed',
+              inset: 0,
               display: 'flex',
-              flexDirection: 'column',
-              gap: '1.25rem'
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(0,0,0,0.65)',
+              backdropFilter: 'blur(10px)',
+              zIndex: 99990,
+              padding: isMobile ? '1.25rem' : '2rem'
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '9999px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.15)',
-                  border: darkMode ? '1px solid rgba(239,68,68,0.35)' : '1px solid rgba(239,68,68,0.35)'
-                }}
-              >
-                <AlertTriangle size={26} color={darkMode ? '#f87171' : '#dc2626'} />
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: isMobile ? '360px' : '420px',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(31,31,31,0.95) 0%, rgba(60,16,16,0.92) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,228,228,0.92) 100%)',
+                borderRadius: '1rem',
+                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.45)'}`,
+                boxShadow: darkMode
+                  ? '0 24px 48px rgba(239,68,68,0.22)'
+                  : '0 24px 48px rgba(239,68,68,0.18)',
+                padding: isMobile ? '1.25rem' : '1.75rem',
+                color: darkMode ? '#fff' : '#1f2937',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem'
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '3rem',
+                    height: '3rem',
+                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.15)',
+                    border: darkMode ? '1px solid rgba(239,68,68,0.35)' : '1px solid rgba(239,68,68,0.35)'
+                  }}
+                >
+                  <AlertTriangle size={26} color={darkMode ? '#f87171' : '#dc2626'} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>
+                    ¿Eliminar tipo de curso?
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: darkMode ? 'rgba(255,255,255,0.75)' : '#4b5563', lineHeight: 1.5 }}>
+                    Esta acción eliminará permanentemente el tipo de curso
+                    <strong> "{tipoToDelete.nombre}"</strong> y no podrá deshacerse.
+                  </p>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>
-                  ¿Eliminar tipo de curso?
-                </h4>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: darkMode ? 'rgba(255,255,255,0.75)' : '#4b5563', lineHeight: 1.5 }}>
-                  Esta acción eliminará permanentemente el tipo de curso
-                  <strong> "{tipoToDelete.nombre}"</strong> y no podrá deshacerse.
-                </p>
+              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '0.75rem' }}>
+                <button
+                  onClick={() => setTipoToDelete(null)}
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.75rem',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(239,68,68,0.2)',
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                    color: darkMode ? 'rgba(255,255,255,0.85)' : '#1f2937',
+                    fontWeight: 600,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.75rem',
+                    border: 'none',
+                    background: loading
+                      ? 'linear-gradient(135deg, rgba(239,68,68,0.6), rgba(220,38,38,0.6))'
+                      : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 12px 24px rgba(239,68,68,0.32)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Sí, eliminar
+                </button>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '0.75rem' }}>
-              <button
-                onClick={() => setTipoToDelete(null)}
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.75rem',
-                  border: darkMode ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(239,68,68,0.2)',
-                  background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
-                  color: darkMode ? 'rgba(255,255,255,0.85)' : '#1f2937',
-                  fontWeight: 600,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.75rem',
-                  border: 'none',
-                  background: loading
-                    ? 'linear-gradient(135deg, rgba(239,68,68,0.6), rgba(220,38,38,0.6))'
-                    : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 12px 24px rgba(239,68,68,0.32)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
+          </div>,
+          document.body
+        )
+      }
+    </div >
   );
 };
 

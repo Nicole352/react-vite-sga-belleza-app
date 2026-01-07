@@ -82,7 +82,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     const interval = setInterval(() => {
       const saved = localStorage.getItem('admin-dark-mode');
       const newMode = saved !== null ? JSON.parse(saved) : true;
-      setDarkMode((prev) => (prev === newMode ? prev : newMode));
+      setDarkMode((prev: boolean) => (prev === newMode ? prev : newMode));
     }, 250);
 
     return () => clearInterval(interval);
@@ -114,31 +114,31 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   }), [darkMode]);
 
   const baseSelectStyle: React.CSSProperties = {
-    padding: '8px 0.75rem',
+    padding: '0.25rem 0.5rem',
     background: themeColors.inputBg,
     border: `1px solid ${themeColors.inputBorder}`,
-    borderRadius: '0.5rem',
+    borderRadius: '0.375rem',
     color: themeColors.textPrimary,
-    fontSize: '0.9rem'
+    fontSize: '0.75rem'
   };
 
   const baseInputStyle: React.CSSProperties = {
     background: themeColors.inputBg,
     border: `1px solid ${themeColors.inputBorder}`,
-    borderRadius: '0.5rem',
+    borderRadius: '0.375rem',
     color: themeColors.textPrimary,
-    fontSize: '0.85rem'
+    fontSize: '0.75rem'
   };
 
   const getToggleButtonStyle = (active: boolean): React.CSSProperties => ({
-    padding: '8px 0.75rem',
+    padding: '0.4rem 0.6rem',
     background: active
       ? (darkMode ? 'rgba(239, 68, 68, 0.22)' : 'rgba(239, 68, 68, 0.12)')
       : themeColors.inputBg,
     border: active ? '1px solid rgba(239, 68, 68, 0.45)' : `1px solid ${themeColors.inputBorder}`,
-    borderRadius: '0.5rem',
+    borderRadius: '0.375rem',
     color: themeColors.textPrimary,
-    fontSize: '0.8rem',
+    fontSize: '0.75rem',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -153,7 +153,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     border: 'none',
     borderBottom: active ? '2px solid #ef4444' : '2px solid transparent',
     color: active ? '#ef4444' : themeColors.tabInactive,
-    fontSize: '0.78rem',
+    fontSize: '0.75rem',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'color 0.2s ease, border-bottom-color 0.2s ease',
@@ -179,23 +179,23 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
         ? `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.18) 0%, rgba(${r}, ${g}, ${b}, 0.08) 100%)`
         : `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.12) 0%, rgba(255,255,255,0.95) 100%)`,
       border: `1px solid rgba(${r}, ${g}, ${b}, 0.28)`,
-      borderRadius: '0.625rem',
-      padding: '0.875rem',
+      borderRadius: '0.375rem',
+      padding: '0.5rem',
       display: 'flex',
       alignItems: 'center',
-      gap: '0.75rem',
+      gap: '0.5rem',
       boxShadow: themeColors.shadow
     };
   };
 
   const metricValueStyle = (accent?: string): React.CSSProperties => ({
-    fontSize: '1.5rem',
+    fontSize: '1.1rem',
     fontWeight: 700,
     color: accent ?? themeColors.textPrimary
   });
 
   const metricLabelStyle: React.CSSProperties = {
-    fontSize: '0.75rem',
+    fontSize: '0.65rem',
     color: themeColors.textMuted
   };
 
@@ -316,7 +316,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   const [filtroHorario, setFiltroHorario] = useState<'todos' | 'matutino' | 'vespertino'>('todos');
   const [busquedaRapida, setBusquedaRapida] = useState('');
   const [ordenamiento, setOrdenamiento] = useState<'nombre' | 'fecha' | 'monto' | 'capacidad'>('fecha');
-  const [ordenAscendente, setOrdenAscendente] = useState(false);
+  const [ordenAscendente, setOrdenAscendente] = useState(true);
   const [paginaActualFinanciero, setPaginaActualFinanciero] = useState(1);
   const ITEMS_POR_PAGINA_FINANCIERO = 10;
   const [tarjetasExpandidas, setTarjetasExpandidas] = useState<Set<string>>(new Set());
@@ -932,13 +932,14 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Curso:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Curso:</label>
             <select
               value={filtroCurso}
               onChange={(e) => setFiltroCurso(e.target.value)}
               style={{
                 ...baseSelectStyle,
-                minWidth: isMobile ? 'auto' : '18.75rem',
+                minWidth: isMobile ? 'auto' : '10rem',
+                maxWidth: isMobile ? '100%' : '14rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -976,12 +977,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Estado:</label>
             <select
               value={filtroEstadoEstudiante}
               onChange={(e) => setFiltroEstadoEstudiante(e.target.value)}
               style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '8rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -999,12 +1001,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Horario:</label>
             <select
               value={filtroHorario}
               onChange={(e) => setFiltroHorario(e.target.value as 'todos' | 'matutino' | 'vespertino')}
               style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '8rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1027,12 +1030,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Estado:</label>
             <select
               value={filtroEstadoCursoReporte}
               onChange={(e) => setFiltroEstadoCursoReporte(e.target.value)}
               style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '10rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1049,12 +1053,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Ocupación:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Ocupación:</label>
             <select
               value={filtroOcupacionCurso}
               onChange={(e) => setFiltroOcupacionCurso(e.target.value)}
               style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '12rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1072,12 +1077,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Horario:</label>
             <select
               value={filtroHorarioCurso}
               onChange={(e) => setFiltroHorarioCurso(e.target.value)}
               style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '10rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1100,31 +1106,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Curso:</label>
-            <select
-              value={filtroEstadoCursoFinanciero}
-              onChange={(e) => {
-                setFiltroEstadoCursoFinanciero(e.target.value);
-                setPaginaActualFinanciero(1);
-              }} style={{
-                ...baseSelectStyle,
-                width: isMobile ? '100%' : 'auto'
-              }}
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="activo">Activos</option>
-              <option value="finalizado">Finalizados</option>
-            </select>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center',
-            gap: '0.5rem',
-            flex: isMobile ? '1' : 'initial'
-          }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Curso:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Curso:</label>
             <select
               value={filtroCursoFinanciero}
               onChange={(e) => {
@@ -1132,7 +1114,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 setPaginaActualFinanciero(1);
               }} style={{
                 ...baseSelectStyle,
-                minWidth: isMobile ? 'auto' : '18.75rem',
+                minWidth: isMobile ? 'auto' : '10rem',
+                maxWidth: isMobile ? '100%' : '14rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1167,7 +1150,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Estado Pago:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Estado Pago:</label>
             <select
               value={filtroEstadoPago}
               onChange={(e) => {
@@ -1175,6 +1158,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 setPaginaActualFinanciero(1);
               }} style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '9rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1193,7 +1177,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Método:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Método:</label>
             <select
               value={filtroMetodoPago}
               onChange={(e) => {
@@ -1201,6 +1185,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 setPaginaActualFinanciero(1);
               }} style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '10rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1217,7 +1202,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             gap: '0.5rem',
             flex: isMobile ? '1' : 'initial'
           }}>
-            <label style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>Horario:</label>
+            <label style={{ color: themeColors.textSecondary, fontSize: '0.75rem', minWidth: 'fit-content' }}>Horario:</label>
             <select
               value={filtroHorarioFinanciero}
               onChange={(e) => {
@@ -1225,6 +1210,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 setPaginaActualFinanciero(1);
               }} style={{
                 ...baseSelectStyle,
+                minWidth: isMobile ? 'auto' : '10rem',
                 width: isMobile ? '100%' : 'auto'
               }}
             >
@@ -1254,7 +1240,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           marginBottom: '1rem'
         }}>
           <div style={buildMetricCardStyle('#ef4444')}>
-            <Users size={28} color="#ef4444" />
+            <Users size={22} color="#ef4444" />
             <div>
               <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
               <div style={metricLabelStyle}>Total Estudiantes</div>
@@ -1262,7 +1248,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#10b981')}>
-            <CheckCircle2 size={28} color="#10b981" />
+            <CheckCircle2 size={22} color="#10b981" />
             <div>
               <div style={metricValueStyle('#10b981')}>{tasaAprobacion}%</div>
               <div style={metricLabelStyle}>Tasa Aprobación</div>
@@ -1270,7 +1256,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#3b82f6')}>
-            <Target size={28} color="#3b82f6" />
+            <Target size={22} color="#3b82f6" />
             <div>
               <div style={metricValueStyle('#3b82f6')}>{enCurso}</div>
               <div style={metricLabelStyle}>Estudiantes Activos</div>
@@ -1293,7 +1279,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           marginBottom: '1rem'
         }}>
           <div style={buildMetricCardStyle('#10b981')}>
-            <DollarSign size={28} color="#10b981" />
+            <DollarSign size={22} color="#10b981" />
             <div>
               <div style={metricValueStyle('#10b981')}>${ingresoTotal.toFixed(2)}</div>
               <div style={metricLabelStyle}>Ingresos Totales</div>
@@ -1301,7 +1287,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#ef4444')}>
-            <BarChart3 size={28} color="#ef4444" />
+            <BarChart3 size={22} color="#ef4444" />
             <div>
               <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
               <div style={metricLabelStyle}>Total Pagos</div>
@@ -1309,7 +1295,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#3b82f6')}>
-            <Award size={28} color="#3b82f6" />
+            <Award size={22} color="#3b82f6" />
             <div>
               <div style={metricValueStyle('#3b82f6')}>${promedio.toFixed(2)}</div>
               <div style={metricLabelStyle}>Promedio</div>
@@ -1332,7 +1318,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           marginBottom: '1rem'
         }}>
           <div style={buildMetricCardStyle('#ef4444')}>
-            <BookOpen size={28} color="#ef4444" />
+            <BookOpen size={22} color="#ef4444" />
             <div>
               <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
               <div style={metricLabelStyle}>Total Cursos</div>
@@ -1340,7 +1326,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#10b981')}>
-            <CheckCircle2 size={28} color="#10b981" />
+            <CheckCircle2 size={22} color="#10b981" />
             <div>
               <div style={metricValueStyle('#10b981')}>{activos}</div>
               <div style={metricLabelStyle}>Cursos Activos</div>
@@ -1348,7 +1334,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           </div>
 
           <div style={buildMetricCardStyle('#3b82f6')}>
-            <Users size={28} color="#3b82f6" />
+            <Users size={22} color="#3b82f6" />
             <div>
               <div style={metricValueStyle('#3b82f6')}>{capacidadPromedio}</div>
               <div style={metricLabelStyle}>Capacidad Promedio</div>
@@ -1416,7 +1402,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   onChange={(e) => setBusquedaRapida(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '8px 0.75rem 8px 2.5rem',
+                    padding: '6px 0.75rem 6px 2.225rem',
                     ...baseInputStyle
                   }}
                 />
@@ -1518,7 +1504,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               }}>
                 <h4 style={{
                   color: themeColors.textPrimary,
-                  fontSize: '0.95rem',
+                  fontSize: '0.85rem',
                   fontWeight: '700',
                   marginBottom: '0.75rem',
                   textShadow: darkMode ? '0 0.125rem 0.25rem rgba(0,0,0,0.35)' : 'none'
@@ -1535,7 +1521,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     padding: '0.5rem',
                     marginBottom: '0.75rem',
                     color: '#ef4444',
-                    fontSize: '0.7rem',
+                    fontSize: '0.75rem',
                     textAlign: 'center',
                     display: 'flex',
                     alignItems: 'center',
@@ -1559,78 +1545,138 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     const numeroGlobal = indiceInicioEstudiantes + idx + 1;
                     return (
                       <div key={idx} style={{
+                        position: 'relative',
                         background: darkMode
-                          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
-                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)',
-                        border: darkMode ? '1px solid rgba(239, 68, 68, 0.32)' : '1px solid rgba(239, 68, 68, 0.18)',
+                          ? 'linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(10, 10, 10, 0.8) 100%)'
+                          : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                        backdropFilter: 'blur(12px)',
+                        border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)'}`,
                         borderRadius: '0.5rem',
-                        padding: '0.625rem 0.75rem',
-                        transition: 'all 0.2s ease',
+                        padding: '0.5rem',
+                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '0.5rem'
+                        gap: '0.4rem',
+                        boxShadow: darkMode
+                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
+                          : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        overflow: 'hidden'
                       }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.28)';
-                          e.currentTarget.style.background = darkMode
-                            ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.24) 0%, rgba(220, 38, 38, 0.12) 100%)'
-                            : 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0.98) 100%)';
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.borderColor = '#ef4444';
+                          e.currentTarget.style.boxShadow = darkMode
+                            ? '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(239, 68, 68, 0.1)'
+                            : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.18)';
-                          e.currentTarget.style.background = darkMode
-                            ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%)'
-                            : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(248, 250, 252, 0.95) 100%)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)';
+                          e.currentTarget.style.boxShadow = darkMode
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
+                            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)';
                         }}
                       >
-                        {/* Número y Nombre */}
+                        {/* Indicador de Posición Flotante */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '0',
+                          right: '0',
+                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                          color: '#fff',
+                          padding: '0.15rem 0.5rem',
+                          borderBottomLeftRadius: '0.5rem',
+                          fontSize: '0.5rem',
+                          fontWeight: '900',
+                          boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+                          zIndex: 2,
+                          letterSpacing: '0.05em'
+                        }}>
+                          #{numeroGlobal}
+                        </div>
+
+                        {/* Encabezado: Avatar e Identificación */}
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.5rem'
+                          gap: '0.5rem',
+                          marginBottom: '0.2rem'
                         }}>
                           <div style={{
-                            fontSize: '0.9rem',
+                            width: '1.6rem',
+                            height: '1.6rem',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: '0.65rem',
                             fontWeight: '800',
-                            color: darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
-                            minWidth: '24px',
-                            textAlign: 'center'
+                            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.25)',
+                            flexShrink: 0,
+                            border: '2px solid ' + (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)')
                           }}>
-                            #{numeroGlobal}
+                            {((estudiante.nombre?.charAt(0) || '') + (estudiante.apellido?.charAt(0) || '')).toUpperCase()}
                           </div>
-                          <div style={{
-                            color: themeColors.textPrimary,
-                            fontSize: '0.8125rem',
-                            fontWeight: '600',
-                            lineHeight: '1.2',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            flex: 1
-                          }}>
-                            {estudiante.apellido} {estudiante.nombre}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '800',
+                              color: themeColors.textPrimary,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              letterSpacing: '-0.01em',
+                              textTransform: 'uppercase',
+                              lineHeight: 1.1
+                            }}>
+                              {estudiante.apellido} {estudiante.nombre}
+                            </div>
+                            <div style={{
+                              fontSize: '0.5rem',
+                              color: themeColors.textMuted,
+                              fontWeight: '700',
+                              marginTop: '0.05rem'
+                            }}>
+                              ESTUDIANTE REGISTRADO
+                            </div>
                           </div>
                         </div>
 
-                        {/* Lista de Cursos */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                        {/* Lista de Cursos Premium */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                           {estudiante.cursos.map((curso: any, cIdx: number) => (
                             <div key={cIdx} style={{
                               display: 'flex',
                               flexDirection: 'column',
-                              gap: '0.125rem',
-                              padding: '0.25rem 0',
-                              borderTop: cIdx > 0 ? `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}` : 'none'
+                              gap: '0.3rem',
+                              padding: '0.4rem 0.5rem',
+                              background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
+                              borderRadius: '0.4rem',
+                              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)'}`,
+                              position: 'relative',
+                              overflow: 'hidden'
                             }}>
+                              {/* Sutil decorado lateral */}
                               <div style={{
-                                color: themeColors.textMuted,
-                                fontSize: '0.7rem',
+                                position: 'absolute',
+                                left: 0,
+                                top: 0,
+                                bottom: 0,
+                                width: '3px',
+                                background: curso.estado_academico === 'aprobado' ? '#10b981' : '#ef4444'
+                              }} />
+
+                              <div style={{
+                                color: themeColors.textPrimary,
+                                fontSize: '0.68rem',
+                                fontWeight: '700',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.375rem',
-                                overflow: 'hidden'
+                                gap: '0.35rem'
                               }}>
-                                <BookOpen size={11} color={themeColors.textMuted} />
+                                <BookOpen size={11} color="#ef4444" />
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {curso.nombre_curso}
                                 </span>
@@ -1640,25 +1686,24 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                gap: '0.5rem'
+                                gap: '0.5rem',
+                                marginTop: '0.125rem'
                               }}>
                                 <div style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  padding: '0.125rem 0.375rem',
-                                  borderRadius: '0.25rem',
-                                  fontSize: '0.625rem',
-                                  fontWeight: '700',
+                                  padding: '0.2rem 0.5rem',
+                                  borderRadius: '2rem',
+                                  fontSize: '0.575rem',
+                                  fontWeight: '900',
                                   background: curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
                                     curso.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.15)' :
-                                      'rgba(239, 68, 68, 0.1)',
-                                  border: curso.estado_academico === 'aprobado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                                    curso.estado_academico === 'reprobado' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                                      '1px solid rgba(239, 68, 68, 0.2)',
+                                      'rgba(59, 130, 246, 0.15)',
                                   color: curso.estado_academico === 'aprobado' ? '#10b981' :
                                     curso.estado_academico === 'reprobado' ? '#ef4444' :
-                                      '#ef4444',
-                                  whiteSpace: 'nowrap'
+                                      '#3b82f6',
+                                  letterSpacing: '0.025em',
+                                  border: `1px solid ${curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
                                 }}>
                                   {curso.estado_academico?.toUpperCase() || 'ACTIVO'}
                                 </div>
@@ -1668,14 +1713,23 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '0.25rem',
-                                  whiteSpace: 'nowrap'
+                                  fontWeight: '700'
                                 }}>
-                                  <Calendar size={10} color={themeColors.textMuted} />
-                                  {new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: '2-digit'
-                                  })}
+                                  <Calendar size={11} color={themeColors.textMuted} />
+                                  {new Date(curso.fecha_inscripcion).toLocaleTimeString('es-ES', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  }) === '00:00' ?
+                                    new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
+                                      day: '2-digit',
+                                      month: 'short'
+                                    }) :
+                                    new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
+                                      day: '2-digit',
+                                      month: 'short',
+                                      year: '2-digit'
+                                    })
+                                  }
                                 </div>
                               </div>
                             </div>
@@ -1686,71 +1740,96 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   })}
                 </div>
                 {/* Controles de Paginación */}
-                {totalPaginasEstudiantes > 1 && (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    marginTop: '1.5rem',
-                    paddingTop: '1rem',
-                    borderTop: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
-                  }}>
-                    <button
-                      onClick={() => setPaginaActualEstudiantes(prev => Math.max(1, prev - 1))}
-                      disabled={paginaActualEstudiantes === 1}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualEstudiantes === 1
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualEstudiantes === 1 ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualEstudiantes === 1 ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualEstudiantes === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Anterior
-                    </button>
-
-                    <span style={{
-                      padding: '0.5rem 1rem',
-                      background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '0.5rem',
-                      color: themeColors.textPrimary,
-                      fontSize: '0.85rem',
-                      fontWeight: '600'
+                {
+                  totalPaginasEstudiantes > 1 && (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'space-between',
+                      alignItems: isMobile ? 'stretch' : 'center',
+                      gap: isMobile ? '0.75rem' : '0',
+                      padding: isMobile ? '8px' : '0.25rem 1rem',
+                      background: themeColors.panelBg,
+                      border: `1px solid ${themeColors.panelBorder}`,
+                      borderRadius: '0.75rem',
+                      marginTop: '1rem'
                     }}>
-                      Página {paginaActualEstudiantes} de {totalPaginasEstudiantes}
-                    </span>
-
-                    <button
-                      onClick={() => setPaginaActualEstudiantes(prev => Math.min(totalPaginasEstudiantes, prev + 1))}
-                      disabled={paginaActualEstudiantes === totalPaginasEstudiantes}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualEstudiantes === totalPaginasEstudiantes
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualEstudiantes === totalPaginasEstudiantes ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualEstudiantes === totalPaginasEstudiantes ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualEstudiantes === totalPaginasEstudiantes ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Siguiente
-                    </button>
-                  </div>
-                )}
+                      <div style={{
+                        color: themeColors.textSecondary,
+                        fontSize: isMobile ? '0.75rem' : '0.8rem',
+                        textAlign: isMobile ? 'center' : 'left'
+                      }}>
+                        Página {paginaActualEstudiantes} de {totalPaginasEstudiantes}
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.375rem',
+                        flexWrap: 'wrap',
+                        justifyContent: isMobile ? 'center' : 'flex-start'
+                      }}>
+                        <button
+                          onClick={() => setPaginaActualEstudiantes(prev => Math.max(1, prev - 1))}
+                          disabled={paginaActualEstudiantes === 1}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: isMobile ? '4px' : '0.25rem',
+                            padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                            background: paginaActualEstudiantes === 1
+                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                            border: `1px solid ${paginaActualEstudiantes === 1
+                              ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                              : 'rgba(239, 68, 68, 0.3)'}`,
+                            borderRadius: '0.625rem',
+                            color: paginaActualEstudiantes === 1 ? themeColors.textMuted : '#ef4444',
+                            fontSize: isMobile ? '0.75rem' : '0.8rem',
+                            fontWeight: 600,
+                            cursor: paginaActualEstudiantes === 1 ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.2s ease',
+                            flex: isMobile ? '1' : 'initial',
+                            boxShadow: 'none'
+                          }}
+                        >
+                          {!isMobile && 'Anterior'}
+                        </button>
+                        <button
+                          onClick={() => setPaginaActualEstudiantes(prev => Math.min(totalPaginasEstudiantes, prev + 1))}
+                          disabled={paginaActualEstudiantes === totalPaginasEstudiantes}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: isMobile ? '4px' : '0.25rem',
+                            padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                            background: paginaActualEstudiantes === totalPaginasEstudiantes
+                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                            border: `1px solid ${paginaActualEstudiantes === totalPaginasEstudiantes
+                              ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                              : 'rgba(239, 68, 68, 0.3)'}`,
+                            borderRadius: '0.625rem',
+                            color: paginaActualEstudiantes === totalPaginasEstudiantes ? themeColors.textMuted : '#ef4444',
+                            fontSize: isMobile ? '0.75rem' : '0.8rem',
+                            fontWeight: 600,
+                            cursor: paginaActualEstudiantes === totalPaginasEstudiantes ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.2s ease',
+                            flex: isMobile ? '1' : 'initial',
+                            boxShadow: 'none'
+                          }}
+                        >
+                          {!isMobile && 'Siguiente'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
               </div>
             );
-          })()}
-        </div>
+          })()
+          }
+        </div >
       );
     }
 
@@ -1830,7 +1909,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   alignItems: 'center',
                   marginBottom: '1rem'
                 }}>
-                  <h4 style={{ color: themeColors.textPrimary, fontSize: '1rem', fontWeight: '700', margin: 0 }}>
+                  <h4 style={{ color: themeColors.textPrimary, fontSize: '0.9rem', fontWeight: '700', margin: 0 }}>
                     Resumen Financiero por Estudiante
                   </h4>
                   <span style={{
@@ -1936,10 +2015,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                           }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', flex: 1, minWidth: 0 }}>                            {/* Número de índice */}
                             <div style={{
-                              fontSize: '1.25rem',
+                              fontSize: '0.8rem',
                               fontWeight: '800',
                               color: darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
-                              minWidth: '30px',
+                              minWidth: '24px',
                               textAlign: 'center'
                             }}>
                               #{numeroGlobal}
@@ -1959,29 +2038,16 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             }}>
                               {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                             </div>
-                            <div>
-                              <div style={{ fontSize: '1rem', fontWeight: '700', color: themeColors.textPrimary }}>
-                                {estudiante.apellido} {estudiante.nombre}
-                              </div>
-                              <div style={{
-                                fontSize: isMobile ? '0.75rem' : '0.8rem',
-                                color: themeColors.textMuted,
-                                display: 'flex',
-                                flexDirection: isMobile ? 'column' : 'row',
-                                alignItems: isMobile ? 'flex-start' : 'center',
-                                gap: isMobile ? '0.25rem' : '0.5rem'
-                              }}>
-                                <span>CI: {estudiante.cedula}</span>
-                                {estudiante.email && (
-                                  <>
-                                    {!isMobile && <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'currentColor' }}></span>}
-                                    <span style={{
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      whiteSpace: 'nowrap'
-                                    }}>{estudiante.email}</span>
-                                  </>
-                                )}
+                            <div style={{
+                              color: themeColors.textPrimary,
+                              fontSize: '0.8rem',
+                              fontWeight: '600',
+                              lineHeight: '1.2',
+                              flex: 1
+                            }}>
+                              {estudiante.apellido} {estudiante.nombre}
+                              <div style={{ fontSize: '0.75rem', color: themeColors.textMuted, fontWeight: '400', marginTop: '0.125rem' }}>
+                                CI: {estudiante.cedula}
                               </div>
                             </div>
                           </div>
@@ -1994,15 +2060,15 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             justifyContent: isMobile ? 'space-between' : 'flex-end',
                             width: isMobile ? '100%' : 'auto'
                           }}>                            <div>
-                              <div style={{ fontSize: '0.7rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pagado</div>
-                              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
+                              <div style={{ fontSize: '0.65rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pagado</div>
+                              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#10b981' }}>
                                 ${estudiante.totalPagado.toFixed(2)}
                               </div>
                             </div>
                             {estudiante.totalPendiente > 0 && (
                               <div>
-                                <div style={{ fontSize: '0.7rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pendiente</div>
-                                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#f59e0b' }}>
+                                <div style={{ fontSize: '0.65rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pendiente</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#f59e0b' }}>
                                   ${estudiante.totalPendiente.toFixed(2)}
                                 </div>
                               </div>
@@ -2072,7 +2138,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                         display: 'inline-block',
                                         padding: '0.25rem 0.625rem',
                                         borderRadius: '9999px',
-                                        fontSize: '0.7rem',
+                                        fontSize: '0.75rem',
                                         fontWeight: '700',
                                         background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
                                           pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.15)' :
@@ -2125,62 +2191,84 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 {totalPaginas > 1 && (
                   <div style={{
                     display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    marginTop: '1.5rem',
-                    paddingTop: '1rem',
-                    borderTop: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'space-between',
+                    alignItems: isMobile ? 'stretch' : 'center',
+                    gap: isMobile ? '0.75rem' : '0',
+                    padding: isMobile ? '8px' : '0.25rem 1rem',
+                    background: themeColors.panelBg,
+                    border: `1px solid ${themeColors.panelBorder}`,
+                    borderRadius: '0.75rem',
+                    marginTop: '1rem'
                   }}>
-                    <button
-                      onClick={() => setPaginaActualFinanciero(prev => Math.max(1, prev - 1))}
-                      disabled={paginaActualFinanciero === 1}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualFinanciero === 1
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualFinanciero === 1 ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualFinanciero === 1 ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualFinanciero === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Anterior
-                    </button>
-
-                    <span style={{
-                      padding: '0.5rem 1rem',
-                      background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '0.5rem',
-                      color: themeColors.textPrimary,
-                      fontSize: '0.85rem',
-                      fontWeight: '600'
+                    <div style={{
+                      color: themeColors.textSecondary,
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      textAlign: isMobile ? 'center' : 'left'
                     }}>
                       Página {paginaActualFinanciero} de {totalPaginas}
-                    </span>
-
-                    <button
-                      onClick={() => setPaginaActualFinanciero(prev => Math.min(totalPaginas, prev + 1))}
-                      disabled={paginaActualFinanciero === totalPaginas}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualFinanciero === totalPaginas
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualFinanciero === totalPaginas ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualFinanciero === totalPaginas ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualFinanciero === totalPaginas ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Siguiente
-                    </button>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      gap: '0.375rem',
+                      flexWrap: 'wrap',
+                      justifyContent: isMobile ? 'center' : 'flex-start'
+                    }}>
+                      <button
+                        onClick={() => setPaginaActualFinanciero(prev => Math.max(1, prev - 1))}
+                        disabled={paginaActualFinanciero === 1}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: isMobile ? '4px' : '0.25rem',
+                          padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                          background: paginaActualFinanciero === 1
+                            ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                            : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                          border: `1px solid ${paginaActualFinanciero === 1
+                            ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                            : 'rgba(239, 68, 68, 0.3)'}`,
+                          borderRadius: '0.625rem',
+                          color: paginaActualFinanciero === 1 ? themeColors.textMuted : '#ef4444',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: 600,
+                          cursor: paginaActualFinanciero === 1 ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s ease',
+                          flex: isMobile ? '1' : 'initial',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        {!isMobile && 'Anterior'}
+                      </button>
+                      <button
+                        onClick={() => setPaginaActualFinanciero(prev => Math.min(totalPaginas, prev + 1))}
+                        disabled={paginaActualFinanciero === totalPaginas}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: isMobile ? '4px' : '0.25rem',
+                          padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                          background: paginaActualFinanciero === totalPaginas
+                            ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                            : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                          border: `1px solid ${paginaActualFinanciero === totalPaginas
+                            ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                            : 'rgba(239, 68, 68, 0.3)'}`,
+                          borderRadius: '0.625rem',
+                          color: paginaActualFinanciero === totalPaginas ? themeColors.textMuted : '#ef4444',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: 600,
+                          cursor: paginaActualFinanciero === totalPaginas ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s ease',
+                          flex: isMobile ? '1' : 'initial',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        {!isMobile && 'Siguiente'}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2205,7 +2293,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
               overflowY: isMobile ? 'visible' : 'auto',
               paddingRight: isMobile ? '0' : '0.5rem'
             }}>
-              <h4 style={{ color: themeColors.textPrimary, fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem' }}>
+              <h4 style={{ color: themeColors.textPrimary, fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.75rem' }}>
                 Cursos Disponibles ({busquedaCursos ? `${(() => {
                   const filtrados = datosReporte.filter((c: any) => {
                     const term = busquedaCursos.toLowerCase();
@@ -2306,13 +2394,13 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         flexDirection: isMobile ? 'column' : 'row',
                         justifyContent: 'space-between',
                         alignItems: isMobile ? 'flex-start' : 'center',
-                        marginBottom: '0.375rem',
+                        marginBottom: '0.25rem',
                         gap: isMobile ? '4px' : '0'
                       }}>
-                        <div style={{ color: themeColors.textPrimary, fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '600' }}>
+                        <div style={{ color: themeColors.textPrimary, fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '600' }}>
                           {curso.nombre_curso}
                         </div>
-                        <div style={{ color: '#10b981', fontSize: isMobile ? '0.8rem' : '0.85rem', fontWeight: '700' }}>
+                        <div style={{ color: '#10b981', fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '700' }}>
                           {curso.porcentaje_ocupacion}% ocupación
                         </div>
                       </div>
@@ -2325,7 +2413,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             width: `${curso.porcentaje_ocupacion}%`
                           }} />
                         </div>
-                        <div style={{ color: themeColors.textSecondary, fontSize: '0.9rem' }}>
+                        <div style={{ color: themeColors.textSecondary, fontSize: '0.8rem' }}>
                           {curso.total_estudiantes}/{curso.capacidad_maxima}
                         </div>
                       </div>
@@ -2333,7 +2421,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         display: 'flex',
                         flexDirection: isMobile ? 'column' : 'row',
                         gap: isMobile ? '4px' : '1rem',
-                        fontSize: isMobile ? '0.75rem' : '0.85rem',
+                        fontSize: '0.75rem',
                         color: themeColors.textMuted
                       }}>
                         <span>Horario: {curso.horario}</span>
@@ -2359,62 +2447,84 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 return totalPaginasCursos > 1 && (
                   <div style={{
                     display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    marginTop: '1.5rem',
-                    paddingTop: '1rem',
-                    borderTop: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'space-between',
+                    alignItems: isMobile ? 'stretch' : 'center',
+                    gap: isMobile ? '0.75rem' : '0',
+                    padding: isMobile ? '8px' : '0.25rem 1rem',
+                    background: themeColors.panelBg,
+                    border: `1px solid ${themeColors.panelBorder}`,
+                    borderRadius: '0.75rem',
+                    marginTop: '1rem'
                   }}>
-                    <button
-                      onClick={() => setPaginaActualCursos(prev => Math.max(1, prev - 1))}
-                      disabled={paginaActualCursos === 1}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualCursos === 1
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualCursos === 1 ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualCursos === 1 ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualCursos === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Anterior
-                    </button>
-
-                    <span style={{
-                      padding: '0.5rem 1rem',
-                      background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '0.5rem',
-                      color: themeColors.textPrimary,
-                      fontSize: '0.85rem',
-                      fontWeight: '600'
+                    <div style={{
+                      color: themeColors.textSecondary,
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      textAlign: isMobile ? 'center' : 'left'
                     }}>
                       Página {paginaActualCursos} de {totalPaginasCursos}
-                    </span>
-
-                    <button
-                      onClick={() => setPaginaActualCursos(prev => Math.min(totalPaginasCursos, prev + 1))}
-                      disabled={paginaActualCursos === totalPaginasCursos}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        background: paginaActualCursos === totalPaginasCursos
-                          ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                          : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${paginaActualCursos === totalPaginasCursos ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                        borderRadius: '0.5rem',
-                        color: paginaActualCursos === totalPaginasCursos ? themeColors.textMuted : '#ef4444',
-                        cursor: paginaActualCursos === totalPaginasCursos ? 'not-allowed' : 'pointer',
-                        fontSize: '0.85rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      Siguiente
-                    </button>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      gap: '0.375rem',
+                      flexWrap: 'wrap',
+                      justifyContent: isMobile ? 'center' : 'flex-start'
+                    }}>
+                      <button
+                        onClick={() => setPaginaActualCursos(prev => Math.max(1, prev - 1))}
+                        disabled={paginaActualCursos === 1}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: isMobile ? '4px' : '0.25rem',
+                          padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                          background: paginaActualCursos === 1
+                            ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                            : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                          border: `1px solid ${paginaActualCursos === 1
+                            ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                            : 'rgba(239, 68, 68, 0.3)'}`,
+                          borderRadius: '0.625rem',
+                          color: paginaActualCursos === 1 ? themeColors.textMuted : '#ef4444',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: 600,
+                          cursor: paginaActualCursos === 1 ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s ease',
+                          flex: isMobile ? '1' : 'initial',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        {!isMobile && 'Anterior'}
+                      </button>
+                      <button
+                        onClick={() => setPaginaActualCursos(prev => Math.min(totalPaginasCursos, prev + 1))}
+                        disabled={paginaActualCursos === totalPaginasCursos}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: isMobile ? '4px' : '0.25rem',
+                          padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                          background: paginaActualCursos === totalPaginasCursos
+                            ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                            : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                          border: `1px solid ${paginaActualCursos === totalPaginasCursos
+                            ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                            : 'rgba(239, 68, 68, 0.3)'}`,
+                          borderRadius: '0.625rem',
+                          color: paginaActualCursos === totalPaginasCursos ? themeColors.textMuted : '#ef4444',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: 600,
+                          cursor: paginaActualCursos === totalPaginasCursos ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s ease',
+                          flex: isMobile ? '1' : 'initial',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        {!isMobile && 'Siguiente'}
+                      </button>
+                    </div>
                   </div>
                 );
               })()}
@@ -2520,8 +2630,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         border: isSelected
                           ? (darkMode ? '2px solid rgba(248, 113, 113, 0.4)' : '2px solid #ef4444')
                           : `1px solid ${themeColors.softCardBorder}`,
-                        borderRadius: '0.625rem',
-                        padding: isMobile ? '0.75rem' : '0.875rem',
+                        borderRadius: '0.375rem',
+                        padding: '0.5rem',
                         cursor: 'pointer',
                         textAlign: 'left',
                         transition: 'all 0.2s ease',
@@ -2530,7 +2640,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                           : themeColors.shadow,
                         position: 'relative',
                         overflow: 'hidden',
-                        color: isSelected ? '#fff' : undefined
+                        color: isSelected ? '#fff' : undefined,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        minHeight: '60px'
                       }}
                       onMouseEnter={(e) => {
                         if (!isSelected) {
@@ -2545,18 +2659,18 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         }
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
                         <span
                           data-keep-color={isSelected ? 'true' : undefined}
                           style={{ color: accentColor, display: 'flex', alignItems: 'center' }}
                         >
-                          <IconComponent size={20} />
+                          <IconComponent size={16} />
                         </span>
                         <div
                           data-keep-color={isSelected ? 'true' : undefined}
                           style={{
                             color: accentColor,
-                            fontSize: '0.875rem',
+                            fontSize: '0.8rem',
                             fontWeight: '600',
                             lineHeight: '1.2'
                           }}
@@ -2568,8 +2682,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         data-keep-color={isSelected ? 'true' : undefined}
                         style={{
                           color: isSelected ? '#fff' : themeColors.textMuted,
-                          fontSize: '0.75rem',
-                          lineHeight: '1.3'
+                          fontSize: '0.65rem',
+                          lineHeight: '1.2'
                         }}
                       >
                         {reporte.descripcion}
@@ -2584,15 +2698,15 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 background: themeColors.panelBg,
                 backdropFilter: 'blur(1.25rem)',
                 border: `1px solid ${themeColors.panelBorder}`,
-                borderRadius: isMobile ? '12px' : '1rem',
-                padding: isMobile ? '12px' : '1rem',
-                marginBottom: '1rem'
+                borderRadius: isMobile ? '0.375rem' : '0.375rem',
+                padding: isMobile ? '0.6rem' : '0.5rem',
+                marginBottom: '0.6rem'
               }}>
                 <div style={{
                   display: 'flex',
                   flexDirection: isMobile ? 'column' : 'row',
                   flexWrap: 'wrap',
-                  gap: '0.75rem',
+                  gap: '0.5rem',
                   alignItems: isMobile ? 'stretch' : 'center',
                   justifyContent: 'space-between'
                 }}>
@@ -2605,7 +2719,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     flexWrap: 'wrap'
                   }}>
                     {/* Selector de Período */}
-                    <div style={{ minWidth: isMobile ? 'auto' : 200, flex: isMobile ? '1' : 'initial' }}>
+                    <div style={{ minWidth: isMobile ? 'auto' : 'fit-content', flex: isMobile ? '1' : 'initial' }}>
                       <select
                         value={periodosSeleccionados[tipoReporte]}
                         onChange={(e) => setPeriodosSeleccionados(prev => ({
@@ -2614,9 +2728,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         }))}
                         style={{
                           ...baseSelectStyle,
-                          padding: '10px 0.75rem',
-                          fontSize: '0.8rem',
-                          minWidth: '15.625rem'
+                          minWidth: '12rem'
                         }}
                       >
                         <option value="todos" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#f8fafc' : '#1f2937' }}>Todos los períodos</option>
@@ -2660,14 +2772,14 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
-                      padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+                      padding: isMobile ? '0.4rem 0.8rem' : '0.3rem 0.8rem',
                       background: loading
                         ? (darkMode ? 'rgba(239, 68, 68, 0.32)' : 'rgba(239, 68, 68, 0.22)')
                         : (darkMode
                           ? 'linear-gradient(135deg, #ef4444, #dc2626)'
                           : 'linear-gradient(135deg, #ef4444, #f87171)'),
                       border: 'none',
-                      borderRadius: '0.625rem',
+                      borderRadius: '0.375rem',
                       fontSize: '0.8rem',
                       fontWeight: '600',
                       cursor: loading ? 'not-allowed' : 'pointer',
@@ -2705,10 +2817,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
-                    padding: '10px 1.25rem',
+                    padding: '0.4rem 1rem',
                     background: (!datosReporte || descargando || loading) ? themeColors.pdfBgDisabled : themeColors.pdfBg,
                     border: `1px solid ${themeColors.pdfBorder}`,
-                    borderRadius: '0.5rem',
+                    borderRadius: '0.375rem',
                     color: themeColors.pdfText,
                     fontSize: '0.8rem',
                     fontWeight: '600',
@@ -2730,10 +2842,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
-                    padding: '10px 1.25rem',
+                    padding: '0.4rem 1rem',
                     background: (!datosReporte || descargando || loading) ? themeColors.excelBgDisabled : themeColors.excelBg,
                     border: `1px solid ${themeColors.excelBorder}`,
-                    borderRadius: '0.5rem',
+                    borderRadius: '0.375rem',
                     color: themeColors.excelText,
                     fontSize: '0.8rem',
                     fontWeight: '600',
@@ -2754,25 +2866,25 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 background: themeColors.panelBg,
                 backdropFilter: 'blur(1.25rem)',
                 border: `1px solid ${themeColors.panelBorder}`,
-                borderRadius: isMobile ? '12px' : '1.25rem',
-                padding: isMobile ? '12px' : '2rem',
+                borderRadius: isMobile ? '0.375rem' : '0.375rem',
+                padding: isMobile ? '0.5rem' : '0.6rem',
                 overflow: 'visible',
                 width: '100%',
                 boxSizing: 'border-box'
               }}>
-                <div style={{ marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '0.5rem' }}>
                   <h3 style={{
                     color: themeColors.textPrimary,
-                    fontSize: isMobile ? '0.95rem' : '1.1rem',
+                    fontSize: isMobile ? '0.85rem' : '0.9rem',
                     fontWeight: '700',
-                    margin: '0 0 0.375rem 0'
+                    margin: '0 0 0.15rem 0'
                   }}>
                     {reportesDisponibles.find(r => r.id === tipoReporte)?.titulo}
                   </h3>
                   <p style={{
                     color: themeColors.textMuted,
                     margin: 0,
-                    fontSize: isMobile ? '0.7rem' : '0.75rem',
+                    fontSize: isMobile ? '0.6rem' : '0.65rem',
                     wordBreak: 'break-word'
                   }}>
                     Período: {fechaInicio} - {fechaFin}
@@ -2877,8 +2989,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             <div key={idx} style={{
                               background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
                               border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
-                              borderRadius: '0.625rem',
-                              padding: isMobile ? '10px' : '0.75rem',
+                              borderRadius: '0.5rem',
+                              padding: isMobile ? '8px' : '0.5rem',
                               transition: 'all 0.3s ease',
                               cursor: 'pointer'
                             }}
@@ -2894,20 +3006,20 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                               <div style={{
                                 display: 'flex',
                                 flexDirection: isMobile ? 'column' : 'row',
-                                gap: isMobile ? '10px' : '0.875rem',
+                                gap: isMobile ? '8px' : '0.5rem',
                                 alignItems: isMobile ? 'stretch' : 'start'
                               }}>
                                 <div style={{
                                   background: `${tipoColor}20`,
                                   border: `2px solid ${tipoColor}`,
-                                  borderRadius: '0.625rem',
-                                  padding: isMobile ? '8px' : '0.625rem',
+                                  borderRadius: '0.5rem',
+                                  padding: isMobile ? '6px' : '0.5rem',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   alignSelf: isMobile ? 'center' : 'flex-start'
                                 }}>
-                                  {React.createElement(tipoIcono, { size: isMobile ? 18 : 20, color: tipoColor })}
+                                  {React.createElement(tipoIcono, { size: isMobile ? 16 : 18, color: tipoColor })}
                                 </div>
 
                                 <div style={{ flex: 1 }}>
@@ -2916,22 +3028,22 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                     flexDirection: isMobile ? 'column' : 'row',
                                     justifyContent: 'space-between',
                                     alignItems: isMobile ? 'flex-start' : 'start',
-                                    marginBottom: '0.5rem',
-                                    gap: isMobile ? '6px' : '0'
+                                    marginBottom: '0.3rem',
+                                    gap: isMobile ? '4px' : '0'
                                   }}>
                                     <div>
                                       <h4 style={{
                                         color: themeColors.textPrimary,
-                                        fontSize: isMobile ? '0.85rem' : '0.9rem',
+                                        fontSize: isMobile ? '0.8rem' : '0.85rem',
                                         fontWeight: '600',
-                                        margin: '0 0 0.1875rem 0',
+                                        margin: '0 0 0.15rem 0',
                                         wordBreak: 'break-word'
                                       }}>
                                         {reporte.nombre_reporte}
                                       </h4>
                                       <p style={{
                                         color: themeColors.textMuted,
-                                        fontSize: isMobile ? '0.7rem' : '0.75rem',
+                                        fontSize: isMobile ? '0.65rem' : '0.75rem',
                                         margin: 0,
                                         wordBreak: 'break-all'
                                       }}>
@@ -2939,12 +3051,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                       </p>
                                     </div>
                                     <span style={{
-                                      padding: '3px 0.625rem',
+                                      padding: '2px 0.5rem',
                                       background: `${tipoColor}20`,
                                       border: `1px solid ${tipoColor}`,
-                                      borderRadius: '0.3125rem',
+                                      borderRadius: '0.25rem',
                                       color: tipoColor,
-                                      fontSize: '0.7rem',
+                                      fontSize: '0.65rem',
                                       fontWeight: '600',
                                       textTransform: 'uppercase'
                                     }}>
@@ -2955,16 +3067,16 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                   <div style={{
                                     display: 'flex',
                                     flexDirection: isMobile ? 'column' : 'row',
-                                    gap: isMobile ? '4px' : '1rem',
-                                    fontSize: isMobile ? '0.7rem' : '0.75rem',
+                                    gap: isMobile ? '3px' : '0.75rem',
+                                    fontSize: isMobile ? '0.65rem' : '0.75rem',
                                     color: themeColors.textMuted
                                   }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
-                                      <User size={isMobile ? 10 : 12} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                      <User size={isMobile ? 9 : 11} />
                                       <span>{reporte.generado_por}</span>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3125rem' }}>
-                                      <Clock size={isMobile ? 10 : 12} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                      <Clock size={isMobile ? 9 : 11} />
                                       <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
                                         day: '2-digit',
                                         month: 'short',
@@ -2978,26 +3090,26 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                   {/* SNAPSHOT DATA DISPLAY */}
                                   {hasSnapshotData && (
                                     <div style={{
-                                      marginTop: '0.5rem',
-                                      padding: '0.5rem',
+                                      marginTop: '0.3rem',
+                                      padding: '0.4rem',
                                       background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)',
-                                      borderRadius: '0.375rem',
-                                      fontSize: '0.75rem',
+                                      borderRadius: '0.3rem',
+                                      fontSize: '0.65rem',
                                       display: 'flex',
                                       flexWrap: 'wrap',
-                                      gap: '0.75rem',
+                                      gap: '0.5rem',
                                       borderLeft: `2px solid ${tipoColor}`
                                     }}>
                                       {/* Reporte Estudiantes */}
                                       {reporte.id_tipo_reporte === 1 && (
                                         <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Users size={12} color={themeColors.textSecondary} />
+                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <Users size={10} color={themeColors.textSecondary} />
                                             <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_estudiantes || 0}</span> estudiantes
                                           </span>
                                           {reporte.snapshot.nuevos_inscritos > 0 && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981' }}>
-                                              <TrendingUp size={12} />
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#10b981' }}>
+                                              <TrendingUp size={10} />
                                               +{reporte.snapshot.nuevos_inscritos} nuevos
                                             </span>
                                           )}
@@ -3007,12 +3119,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                       {/* Reporte Financiero */}
                                       {reporte.id_tipo_reporte === 2 && (
                                         <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <DollarSign size={12} color="#10b981" />
+                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <DollarSign size={10} color="#10b981" />
                                             <span style={{ fontWeight: 700, color: '#10b981' }}>${reporte.snapshot.monto_total || '0.00'}</span>
                                           </span>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <FileText size={12} color={themeColors.textSecondary} />
+                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <FileText size={10} color={themeColors.textSecondary} />
                                             {reporte.snapshot.total_transacciones || 0} pagos
                                           </span>
                                         </>
@@ -3021,12 +3133,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                       {/* Reporte Cursos */}
                                       {reporte.id_tipo_reporte === 3 && (
                                         <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <BookOpen size={12} color={themeColors.textSecondary} />
+                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <BookOpen size={10} color={themeColors.textSecondary} />
                                             <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_cursos || 0}</span> cursos
                                           </span>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <BarChart3 size={12} color={themeColors.textSecondary} />
+                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <BarChart3 size={10} color={themeColors.textSecondary} />
                                             {reporte.snapshot.promedio_ocupacion || '0'}% ocupación
                                           </span>
                                         </>
@@ -3050,62 +3162,84 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         return totalPaginasHistorial > 1 && (
                           <div style={{
                             display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            marginTop: '1.5rem',
-                            paddingTop: '1rem',
-                            borderTop: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'
+                            flexDirection: isMobile ? 'column' : 'row',
+                            justifyContent: 'space-between',
+                            alignItems: isMobile ? 'stretch' : 'center',
+                            gap: isMobile ? '0.75rem' : '0',
+                            padding: isMobile ? '8px' : '0.25rem 1rem',
+                            background: themeColors.panelBg,
+                            border: `1px solid ${themeColors.panelBorder}`,
+                            borderRadius: '0.75rem',
+                            marginTop: '1rem'
                           }}>
-                            <button
-                              onClick={() => setPaginaActualHistorial(prev => Math.max(1, prev - 1))}
-                              disabled={paginaActualHistorial === 1}
-                              style={{
-                                padding: '0.5rem 0.75rem',
-                                background: paginaActualHistorial === 1
-                                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                                  : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                                border: `1px solid ${paginaActualHistorial === 1 ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                                borderRadius: '0.5rem',
-                                color: paginaActualHistorial === 1 ? themeColors.textMuted : '#ef4444',
-                                cursor: paginaActualHistorial === 1 ? 'not-allowed' : 'pointer',
-                                fontSize: '0.85rem',
-                                fontWeight: '600'
-                              }}
-                            >
-                              Anterior
-                            </button>
-
-                            <span style={{
-                              padding: '0.5rem 1rem',
-                              background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              borderRadius: '0.5rem',
-                              color: themeColors.textPrimary,
-                              fontSize: '0.85rem',
-                              fontWeight: '600'
+                            <div style={{
+                              color: themeColors.textSecondary,
+                              fontSize: isMobile ? '0.75rem' : '0.8rem',
+                              textAlign: isMobile ? 'center' : 'left'
                             }}>
                               Página {paginaActualHistorial} de {totalPaginasHistorial}
-                            </span>
-
-                            <button
-                              onClick={() => setPaginaActualHistorial(prev => Math.min(totalPaginasHistorial, prev + 1))}
-                              disabled={paginaActualHistorial === totalPaginasHistorial}
-                              style={{
-                                padding: '0.5rem 0.75rem',
-                                background: paginaActualHistorial === totalPaginasHistorial
-                                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                                  : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                                border: `1px solid ${paginaActualHistorial === totalPaginasHistorial ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') : 'rgba(239, 68, 68, 0.3)'}`,
-                                borderRadius: '0.5rem',
-                                color: paginaActualHistorial === totalPaginasHistorial ? themeColors.textMuted : '#ef4444',
-                                cursor: paginaActualHistorial === totalPaginasHistorial ? 'not-allowed' : 'pointer',
-                                fontSize: '0.85rem',
-                                fontWeight: '600'
-                              }}
-                            >
-                              Siguiente
-                            </button>
+                            </div>
+                            <div style={{
+                              display: 'flex',
+                              gap: '0.375rem',
+                              flexWrap: 'wrap',
+                              justifyContent: isMobile ? 'center' : 'flex-start'
+                            }}>
+                              <button
+                                onClick={() => setPaginaActualHistorial(prev => Math.max(1, prev - 1))}
+                                disabled={paginaActualHistorial === 1}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: isMobile ? '4px' : '0.25rem',
+                                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                                  background: paginaActualHistorial === 1
+                                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                    : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                                  border: `1px solid ${paginaActualHistorial === 1
+                                    ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                    : 'rgba(239, 68, 68, 0.3)'}`,
+                                  borderRadius: '0.625rem',
+                                  color: paginaActualHistorial === 1 ? themeColors.textMuted : '#ef4444',
+                                  fontSize: isMobile ? '0.75rem' : '0.8rem',
+                                  fontWeight: 600,
+                                  cursor: paginaActualHistorial === 1 ? 'not-allowed' : 'pointer',
+                                  transition: 'all 0.2s ease',
+                                  flex: isMobile ? '1' : 'initial',
+                                  boxShadow: 'none'
+                                }}
+                              >
+                                {!isMobile && 'Anterior'}
+                              </button>
+                              <button
+                                onClick={() => setPaginaActualHistorial(prev => Math.min(totalPaginasHistorial, prev + 1))}
+                                disabled={paginaActualHistorial === totalPaginasHistorial}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: isMobile ? '4px' : '0.25rem',
+                                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                                  background: paginaActualHistorial === totalPaginasHistorial
+                                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                    : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                                  border: `1px solid ${paginaActualHistorial === totalPaginasHistorial
+                                    ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                    : 'rgba(239, 68, 68, 0.3)'}`,
+                                  borderRadius: '0.625rem',
+                                  color: paginaActualHistorial === totalPaginasHistorial ? themeColors.textMuted : '#ef4444',
+                                  fontSize: isMobile ? '0.75rem' : '0.8rem',
+                                  fontWeight: 600,
+                                  cursor: paginaActualHistorial === totalPaginasHistorial ? 'not-allowed' : 'pointer',
+                                  transition: 'all 0.2s ease',
+                                  flex: isMobile ? '1' : 'initial',
+                                  boxShadow: 'none'
+                                }}
+                              >
+                                {!isMobile && 'Siguiente'}
+                              </button>
+                            </div>
                           </div>
                         );
                       })()}

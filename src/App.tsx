@@ -20,6 +20,8 @@ import RoleRedirect from './components/auth/RoleRedirect';
 import './styles/responsive.css';
 import './utils/modalScrollHelper';
 
+import { useIdle } from './hooks/useIdle';
+
 const ToasterWithTheme = () => {
   const { theme } = useTheme();
 
@@ -103,6 +105,12 @@ const ToasterWithTheme = () => {
   );
 };
 
+// Componente auxiliar para usar el hook dentro del contexto del Router
+const SessionMonitor = () => {
+  useIdle(300000); // 5 minutos de tiempo de espera por inactividad
+  return null;
+};
+
 const App: React.FC = () => {
   return (
     <>
@@ -111,6 +119,7 @@ const App: React.FC = () => {
         v7_startTransition: true,
         v7_relativeSplatPath: true
       }}>
+        <SessionMonitor />
         <div className="App">
           <Routes>
             {/* Rutas públicas con PublicLayout */}

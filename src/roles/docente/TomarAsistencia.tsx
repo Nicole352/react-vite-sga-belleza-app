@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaCheckCircle, FaTimesCircle, FaClock, FaFileAlt, FaSave, FaCalendarAlt, FaChalkboardTeacher, FaUsers, FaFileExcel } from 'react-icons/fa';
-import { ClipboardList } from 'lucide-react';
+import { FaCheckCircle, FaTimesCircle, FaClock, FaFileAlt, FaSave, FaCalendarAlt, FaChalkboardTeacher, FaFileExcel } from 'react-icons/fa';
+import { ChevronLeft, ChevronRight, ClipboardList, Table2 } from 'lucide-react';
 import ExcelJS from 'exceljs';
-import LoadingModal from '../../components/LoadingModal';
 import { showToast } from '../../config/toastConfig';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -45,12 +44,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState<number | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guayaquil' })
   );
   const [asistencias, setAsistencias] = useState<Map<number, RegistroAsistencia>>(new Map());
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [idDocente, setIdDocente] = useState<number | null>(null);
+  const [nombreDocente, setNombreDocente] = useState<string>('');
   const [asistenciaGuardada, setAsistenciaGuardada] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [showObservacionesModal, setShowObservacionesModal] = useState(false);
@@ -71,7 +71,6 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     tipoArchivo: string;
     tamanoKB: number;
   } | null>(null);
-  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [documentoPreviewUrl, setDocumentoPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
@@ -100,6 +99,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             const docente = docentes.find((d: any) => d.identificacion === data.identificacion);
             if (docente) {
               setIdDocente(docente.id_docente);
+              setNombreDocente(`${docente.apellidos}, ${docente.nombres} `);
               loadCursos(docente.id_docente);
             }
           }
@@ -161,163 +161,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
-  const toggleAsistencia = (idEstudiante: number, estado: 'presente' | 'ausente' | 'tardanza' | 'justificado') => {
-    setAsistencias((prev) => {
-      const nuevoEstado = {
-        id_estudiante: idEstudiante,
-        estado: estado,
-        observaciones: prev.get(idEstudiante)?.observaciones || '',
-        documento_justificacion: prev.get(idEstudiante)?.documento_justificacion || null,
-        documento_nombre_original: prev.get(idEstudiante)?.documento_nombre_original || '',
-        documento_preview: prev.get(idEstudiante)?.documento_preview || '',
-        tiene_documento: prev.get(idEstudiante)?.tiene_documento || false,
-        documento_size_kb: prev.get(idEstudiante)?.documento_size_kb || 0,
-      };
-      return new Map(prev).set(idEstudiante, nuevoEstado);
-    });
-  };
 
-  const handleObservacionesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setObservaciones(e.target.value);
-  };
-
-  const handleGuardarObservaciones = () => {
-    if (estudianteSeleccionado !== null) {
-      setAsistencias((prev) => {
-        const nuevoEstado = {
-          id_estudiante: estudianteSeleccionado,
-          estado: prev.get(estudianteSeleccionado)?.estado || 'ausente',
-          observaciones: observaciones,
-          documento_justificacion: prev.get(estudianteSeleccionado)?.documento_justificacion || null,
-          documento_nombre_original: prev.get(estudianteSeleccionado)?.documento_nombre_original || '',
-          documento_preview: prev.get(estudianteSeleccionado)?.documento_preview || '',
-          tiene_documento: prev.get(estudianteSeleccionado)?.tiene_documento || false,
-          documento_size_kb: prev.get(estudianteSeleccionado)?.documento_size_kb || 0,
-        };
-        return new Map(prev).set(estudianteSeleccionado, nuevoEstado);
-      });
-      setShowObservacionesModal(false);
-    }
-  };
-
-  const handleEliminarDocumento = () => {
-    if (estudianteSeleccionado !== null) {
-      setAsistencias((prev) => {
-        const nuevoEstado = {
-          id_estudiante: estudianteSeleccionado,
-          estado: prev.get(estudianteSeleccionado)?.estado || 'ausente',
-          observaciones: prev.get(estudianteSeleccionado)?.observaciones || '',
-          documento_justificacion: null,
-          documento_nombre_original: '',
-          documento_preview: '',
-          tiene_documento: false,
-          documento_size_kb: 0,
-        };
-        return new Map(prev).set(estudianteSeleccionado, nuevoEstado);
-      });
-    }
-  };
-
-  const generarExcel = async () => {
-    try {
-      const ExcelJS = await import('exceljs');
-      const { saveAs } = await import('file-saver');
-
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Asistencias');
-
-      // Definir columnas
-      worksheet.columns = [
-        { header: 'ID Estudiante', key: 'id_estudiante', width: 15 },
-        { header: 'Estado', key: 'estado', width: 15 },
-        { header: 'Observaciones', key: 'observaciones', width: 40 },
-        { header: 'Tiene Documento', key: 'tiene_documento', width: 18 },
-        { header: 'Tamaño Documento (KB)', key: 'documento_size_kb', width: 22 },
-        { header: 'Nombre Documento Original', key: 'documento_nombre_original', width: 35 },
-      ];
-
-      // Estilo del encabezado
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 11
-        };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = {
-          top: { style: 'thin' },
-          bottom: { style: 'thin' },
-          left: { style: 'thin' },
-          right: { style: 'thin' }
-        };
-      });
-
-      // Agregar datos
-      Array.from(asistencias.values()).forEach((asistencia) => {
-        worksheet.addRow({
-          id_estudiante: asistencia.id_estudiante,
-          estado: asistencia.estado.toUpperCase(),
-          observaciones: asistencia.observaciones || '',
-          tiene_documento: asistencia.tiene_documento ? 'Sí' : 'No',
-          documento_size_kb: asistencia.documento_size_kb || 0,
-          documento_nombre_original: asistencia.documento_nombre_original || '',
-        });
-      });
-
-      // Generar y descargar
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
-      saveAs(blob, 'asistencias.xlsx');
-
-      showToast.success('Archivo Excel descargado', darkMode);
-    } catch (error) {
-      console.error('Error generando Excel:', error);
-      showToast.error('Error al generar el Excel', darkMode);
-    }
-  };
-
-  const handleShowObservaciones = (idEstudiante: number) => {
-    setEstudianteSeleccionado(idEstudiante);
-    setObservaciones(asistencias.get(idEstudiante)?.observaciones || '');
-    setShowObservacionesModal(true);
-  };
-
-  const handleShowRangoFechas = () => {
-    setShowRangoFechasModal(true);
-  };
-
-  const handleRangoFechasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name === 'fechaInicio') {
-      setFechaInicio(e.target.value);
-    } else if (e.target.name === 'fechaFin') {
-      setFechaFin(e.target.value);
-    }
-  };
-
-  const handleGuardarRangoFechas = () => {
-    console.log('Fecha inicio:', fechaInicio);
-    console.log('Fecha fin:', fechaFin);
-    setShowRangoFechasModal(false);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= Math.ceil(estudiantes.length / estudiantesPorPagina)) {
-      setPaginaActual(newPage);
-    }
-  };
 
   const loadAsistenciaExistente = async (cursoId: number, fecha: string) => {
     try {
       const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(
-        `${API_BASE}/api/asistencias/curso/${cursoId}/fecha/${fecha}`,
+      const response = await fetch(`${API_BASE}/api/asistencias/curso/${cursoId}/fecha/${fecha}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -429,13 +278,6 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
-  const handleLoadingComplete = async () => {
-    // Recargar asistencia para ver los datos guardados
-    if (cursoSeleccionado) {
-      await loadAsistenciaExistente(cursoSeleccionado, fechaSeleccionada);
-    }
-    setShowLoadingModal(false);
-  };
 
   const guardarAsistencia = async () => {
     if (!cursoSeleccionado || !idDocente) {
@@ -451,8 +293,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     // ✅ VALIDACIÓN: Verificar que todos los estudiantes tengan estado
     const estudiantesSinEstado = estudiantes.filter(est => !asistencias.has(est.id_estudiante));
     if (estudiantesSinEstado.length > 0) {
-      const nombres = estudiantesSinEstado.map(e => `${e.nombre} ${e.apellido}`).join(', ');
-      showToast.error(`Aún falta registrar la asistencia de: ${nombres}`, darkMode);
+      const nombres = estudiantesSinEstado.map(e => `${e.nombre} ${e.apellido} `).join(', ');
+      showToast.error(`Aún falta registrar la asistencia de: ${nombres} `, darkMode);
       return;
     }
 
@@ -483,7 +325,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Agregar archivos de justificación si existen
       asistencias.forEach((registro, idEstudiante) => {
         if (registro.documento_justificacion) {
-          formData.append(`documento_${idEstudiante}`, registro.documento_justificacion);
+          formData.append(`documento_${idEstudiante} `, registro.documento_justificacion);
         }
       });
 
@@ -497,8 +339,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         showToast.success('Asistencia guardada correctamente', darkMode);
         setAsistenciaGuardada(true);
 
-        // Mostrar modal de carga y recargar datos
-        setShowLoadingModal(true);
+        // Recargar datos directamente
+        if (cursoSeleccionado) {
+          await loadAsistenciaExistente(cursoSeleccionado, fechaSeleccionada);
+        }
       } else {
         const errorData = await response.json();
         showToast.error(errorData.error || 'Error guardando asistencia', darkMode);
@@ -515,9 +359,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     try {
       const token = sessionStorage.getItem('auth_token');
       const response = await fetch(
-        `${API_BASE}/api/asistencias/documento/${idAsistencia}`,
+        `${API_BASE} /api/asistencias / documento / ${idAsistencia} `,
         {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token} ` }
         }
       );
 
@@ -567,10 +411,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
         // Convertir fecha de YYYY-MM-DD a DD-MM-YYYY
         const [year, month, day] = fechaSeleccionada.split('-');
-        const fechaFormateada = `${day}-${month}-${year}`;
+        const fechaFormateada = `${day} -${month} -${year} `;
 
         // Crear nombre: Justificacion_APELLIDOS_Nombres_DD-MM-YYYY.extension
-        nombreDescarga = `Justificacion_${apellidosLimpio}_${nombresLimpio}_${fechaFormateada}.${extension}`;
+        nombreDescarga = `Justificacion_${apellidosLimpio}_${nombresLimpio}_${fechaFormateada}.${extension} `;
       }
 
       // Usar URL de Cloudinary directamente
@@ -594,7 +438,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const response = await fetch(
         `${API_BASE}/api/asistencias/documento/${idAsistencia}`,
         {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token} ` }
         }
       );
 
@@ -648,7 +492,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         if (asistenciaDB && asistenciaDB.tiene_documento) {
           setDocumentoVisualizacion({
             id_asistencia: asistenciaDB.id_asistencia,
-            estudiante: `${estudiante.nombre} ${estudiante.apellido}`,
+            estudiante: `${estudiante.nombre} ${estudiante.apellido} `,
             motivo: registro.observaciones || 'Sin motivo especificado',
             nombreArchivo: registro.documento_nombre_original || 'documento',
             tipoArchivo: asistenciaDB.documento_mime || 'application/octet-stream',
@@ -667,21 +511,6 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      setDocumentoJustificacion(file);
-      setDocumentoNombre(file.name);
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setDocumentoPreview(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -743,6 +572,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           fitToPage: true,
           fitToWidth: 1,
           fitToHeight: 0
+        },
+        headerFooter: {
+          oddFooter: `& L & "-,Bold" & 14Escuela de Belleza Jessica Vélez & "-,Regular" & 12 & RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. & P de & N`
         }
       });
 
@@ -778,6 +610,31 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         };
       });
       wsDetalle.getRow(1).height = 20;
+
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsDetalle.spliceRows(1, 0, [], [], []);
+
+      // Fila 1: Título del reporte
+      wsDetalle.mergeCells('A1:F1');
+      wsDetalle.getCell('A1').value = `REPORTE DE ASISTENCIA - ${cursoActual?.nombre_curso || ''} `;
+      wsDetalle.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      wsDetalle.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsDetalle.getRow(1).height = 25;
+
+      // Fila 2: Información del docente y fecha
+      wsDetalle.mergeCells('A2:F2');
+      wsDetalle.getCell('A2').value = `Docente: ${nombreDocente} | Fecha: ${fechaSeleccionada.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''} `;
+      wsDetalle.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      wsDetalle.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsDetalle.getRow(2).height = 35;
+
+      // Fila 3: Espacio vacío
+      wsDetalle.getRow(3).height = 5;
+
+      // Ahora los encabezados de columnas están en la fila 4
+      wsDetalle.getRow(4).height = 20;
 
       // Agregar datos
       estudiantes.forEach((est, index) => {
@@ -837,17 +694,23 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         });
       });
 
-      // Aplicar autofiltro
+      // Aplicar autofiltro (ahora en la fila 4)
       wsDetalle.autoFilter = {
-        from: { row: 1, column: 1 },
-        to: { row: estudiantes.length + 1, column: 6 }
+        from: { row: 4, column: 1 },
+        to: { row: estudiantes.length + 4, column: 6 }
       };
 
       // HOJA 2: Resumen
       const wsResumen = workbook.addWorksheet('Resumen', {
         pageSetup: {
           paperSize: 9,
-          orientation: 'portrait'
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0
+        },
+        headerFooter: {
+          oddFooter: `& L & "-,Bold" & 14Escuela de Belleza Jessica Vélez & "-,Regular" & 12 & RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. & P de & N`
         }
       });
 
@@ -860,12 +723,35 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         : '0.00';
 
       wsResumen.columns = [
-        { header: 'INFORMACIÓN', key: 'info', width: 38 },
-        { header: 'VALOR', key: 'valor', width: 35 }
+        { header: 'INFORMACIÓN', key: 'info', width: 45 },
+        { header: 'VALOR', key: 'valor', width: 45 }
       ];
 
-      // Estilo encabezado resumen
-      wsResumen.getRow(1).eachCell((cell) => {
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsResumen.spliceRows(1, 0, [], [], []);
+
+      // Fila 1: Título del reporte
+      wsResumen.mergeCells('A1:B1');
+      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA DIARIA - ${cursoActual?.nombre_curso || ''} `;
+      wsResumen.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      wsResumen.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsResumen.getRow(1).height = 25;
+
+      // Fila 2: Información del docente y fecha
+      wsResumen.mergeCells('A2:B2');
+      wsResumen.getCell('A2').value = `Docente: ${nombreDocente} | Fecha: ${fechaSeleccionada.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''} `;
+      wsResumen.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      wsResumen.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsResumen.getRow(2).height = 35;
+
+      // Fila 3: Espacio vacío
+      wsResumen.getRow(3).height = 5;
+
+      // Ahora los encabezados de columnas están en la fila 4
+      wsResumen.getRow(4).height = 20;
+      wsResumen.getRow(4).eachCell((cell) => {
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
@@ -877,7 +763,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           size: 12,
           name: 'Calibri'
         };
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
         cell.border = {
           top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
           bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
@@ -889,9 +775,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Agregar datos de resumen
       const datosResumen = [
         ['Curso', cursoActual?.nombre_curso || ''],
+        ['Docente', nombreDocente],
         ['Tipo de Curso', cursoActual?.tipo_curso_nombre || ''],
-        ['Horario', cursoActual?.horario || ''],
-        ['Fecha', fechaSeleccionada],
+        ['Horario', cursoActual?.horario.toUpperCase() || ''],
+        ['Fecha', fechaSeleccionada.split('-').reverse().join('/')],
         ['', ''],
         ['ESTADÍSTICAS DE ASISTENCIA', ''],
         ['Total Estudiantes', totalEstudiantes.toString()],
@@ -903,10 +790,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         ['Tardanzas', stats.tardanzas.toString()],
         ['Justificados', stats.justificados.toString()],
         ['', ''],
-        ['Porcentaje de Asistencia', `${porcentajeAsistencia}%`]
+        ['Porcentaje de Asistencia', `${porcentajeAsistencia}% `]
       ];
 
-      datosResumen.forEach(([info, valor], index) => {
+      datosResumen.forEach(([info, valor]) => {
         const row = wsResumen.addRow({ info, valor });
 
         row.eachCell((cell, colNumber) => {
@@ -1022,6 +909,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           fitToPage: true,
           fitToWidth: 1,
           fitToHeight: 0
+        },
+        headerFooter: {
+          oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
         }
       });
 
@@ -1063,8 +953,31 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         });
       });
 
-      // Estilos para encabezados
-      wsResumen.getRow(1).eachCell((cell) => {
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsResumen.spliceRows(1, 0, [], [], []);
+
+      // Fila 1: Título del reporte
+      wsResumen.mergeCells('A1:J1');
+      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA POR ESTUDIANTE - ${cursoActual?.nombre_curso || ''}`;
+      wsResumen.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      wsResumen.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsResumen.getRow(1).height = 25;
+
+      // Fila 2: Información del docente y periodo
+      wsResumen.mergeCells('A2:J2');
+      wsResumen.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
+      wsResumen.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      wsResumen.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsResumen.getRow(2).height = 35;
+
+      // Fila 3: Espacio vacío
+      wsResumen.getRow(3).height = 5;
+
+      // Estilos para encabezados (ahora en la fila 4)
+      wsResumen.getRow(4).height = 20;
+      wsResumen.getRow(4).eachCell((cell) => {
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
@@ -1087,7 +1000,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Estilos para filas de datos
       wsResumen.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
+        if (rowNumber > 4) { // Empezamos después del encabezado (fila 4)
           const isAltRow = rowNumber % 2 === 0;
           row.eachCell((cell, colNumber) => {
             // Filas alternadas
@@ -1119,8 +1032,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Auto-filtro
       wsResumen.autoFilter = {
-        from: { row: 1, column: 1 },
-        to: { row: 1, column: 10 }
+        from: { row: 4, column: 1 },
+        to: { row: 4, column: 10 }
       };
 
       // ============ HOJA 2: Detalle Día por Día (Agrupado por Fecha) ============
@@ -1131,6 +1044,9 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           fitToPage: true,
           fitToWidth: 1,
           fitToHeight: 0
+        },
+        headerFooter: {
+          oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
         }
       });
 
@@ -1156,8 +1072,33 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Ordenar fechas
       const fechasOrdenadas = Array.from(registrosPorFecha.keys()).sort();
 
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsDetalle.spliceRows(1, 0, [], [], []);
+
+      // Fila 1: Título del reporte
+      wsDetalle.mergeCells('A1:G1');
+      wsDetalle.getCell('A1').value = `DETALLE DE ASISTENCIA POR CLASE - ${cursoActual?.nombre_curso || ''}`;
+      wsDetalle.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      wsDetalle.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsDetalle.getRow(1).height = 25;
+
+      // Fila 2: Información del docente y periodo
+      wsDetalle.mergeCells('A2:G2');
+      wsDetalle.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
+      wsDetalle.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      wsDetalle.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsDetalle.getRow(2).height = 35;
+
+      // Fila 3: Espacio vacío
+      wsDetalle.getRow(3).height = 5;
+
+      // Ahora los encabezados de columnas están en la fila 4
+      wsDetalle.getRow(4).height = 20;
+
       let numeroClase = 1;
-      let filaActual = 2; // Empezamos después del encabezado
+      let filaActual = 5; // Empezamos después del encabezado (fila 4) + 1
 
       fechasOrdenadas.forEach((fecha) => {
         const registrosFecha = registrosPorFecha.get(fecha)!;
@@ -1221,7 +1162,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Estilos para filas de datos
       wsDetalle.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
+        if (rowNumber > 4) { // Empezamos después del encabezado (fila 4)
           row.eachCell((cell, colNumber) => {
             // Estilo para columna Clase/Fecha (columna 1)
             if (colNumber === 1) {
@@ -1284,17 +1225,23 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         }
       });
 
-      // Auto-filtro
+      // Auto-filtro (ahora en la fila 4)
       wsDetalle.autoFilter = {
-        from: { row: 1, column: 1 },
-        to: { row: 1, column: 7 }
+        from: { row: 4, column: 1 },
+        to: { row: 4, column: 7 }
       };
 
       // ============ HOJA 3: Estadísticas Generales ============
       const wsEstadisticas = workbook.addWorksheet('Estadísticas Generales', {
         pageSetup: {
           paperSize: 9,
-          orientation: 'portrait'
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0
+        },
+        headerFooter: {
+          oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
         }
       });
 
@@ -1304,7 +1251,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       ];
 
       // Calcular estadísticas
-      const totalClases = [...new Set(registros.map((r: any) => r.fecha))].length;
+      const totalClasesStats = [...new Set(registros.map((r: any) => r.fecha))].length;
       const totalRegistros = registros.length;
       const totalPresentes = registros.filter((r: any) => r.estado === 'presente').length;
       const totalAusentes = registros.filter((r: any) => r.estado === 'ausente').length;
@@ -1312,16 +1259,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const totalJustificados = registros.filter((r: any) => r.estado === 'justificado').length;
       const promedioAsistencia = totalRegistros > 0 ? ((totalPresentes / totalRegistros) * 100).toFixed(2) : '0.00';
 
-      // Agregar datos
       const estadisticasData = [
         { info: 'Curso', valor: cursoActual?.nombre_curso || '' },
+        { info: 'Docente', valor: nombreDocente },
         { info: 'Tipo de Curso', valor: cursoActual?.tipo_curso_nombre || '' },
-        { info: 'Horario', valor: cursoActual?.horario || '' },
-        { info: 'Periodo', valor: `${fechaInicio} al ${fechaFin}` },
+        { info: 'Horario', valor: cursoActual?.horario.toUpperCase() || '' },
+        { info: 'Periodo', valor: `${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')}` },
         { info: '', valor: '' },
         { info: 'ESTADÍSTICAS DE ASISTENCIA', valor: '' },
         { info: 'Total Estudiantes', valor: estudiantes.length.toString() },
-        { info: 'Total Clases Registradas', valor: totalClases.toString() },
+        { info: 'Total Clases Registradas', valor: totalClasesStats.toString() },
         { info: 'Total Registros', valor: totalRegistros.toString() },
         { info: '', valor: '' },
         { info: 'Total Presentes', valor: totalPresentes.toString() },
@@ -1332,12 +1279,41 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         { info: 'Promedio General de Asistencia', valor: `${promedioAsistencia}%` }
       ];
 
-      estadisticasData.forEach(data => {
+      wsEstadisticas.columns = [
+        { header: 'INFORMACIÓN', key: 'info', width: 45 },
+        { header: 'VALOR', key: 'valor', width: 45 }
+      ];
+
+      // Insertar 3 filas al inicio para el encabezado informativo
+      wsEstadisticas.spliceRows(1, 0, [], [], []);
+
+      // Fila 1: Título del reporte
+      wsEstadisticas.mergeCells('A1:B1');
+      wsEstadisticas.getCell('A1').value = `REPORTE DE ESTADÍSTICAS - ${cursoActual?.nombre_curso || ''}`;
+      wsEstadisticas.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsEstadisticas.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      wsEstadisticas.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
+      wsEstadisticas.getRow(1).height = 25;
+
+      // Fila 2: Información del docente y periodo
+      wsEstadisticas.mergeCells('A2:B2');
+      wsEstadisticas.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
+      wsEstadisticas.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsEstadisticas.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      wsEstadisticas.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+      wsEstadisticas.getRow(2).height = 35;
+
+      // Fila 3: Espacio vacío
+      wsEstadisticas.getRow(3).height = 5;
+
+      // Aplicar estilos a las filas de datos
+      estadisticasData.forEach((data: any) => {
         wsEstadisticas.addRow(data);
       });
 
-      // Estilos para encabezados
-      wsEstadisticas.getRow(1).eachCell((cell) => {
+      // Estilos para headers (ahora fila 4)
+      wsEstadisticas.getRow(4).height = 20;
+      wsEstadisticas.getRow(4).eachCell((cell) => {
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
@@ -1360,7 +1336,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Estilos para datos
       wsEstadisticas.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
+        if (rowNumber > 4) {
           row.eachCell((cell, colNumber) => {
             const cellValue = cell.value?.toString() || '';
 
@@ -1433,6 +1409,35 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
     }
   };
 
+  const getThemeColors = () => {
+    if (darkMode) {
+      return {
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        textPrimary: '#f8fafc',
+        textSecondary: '#cbd5e1',
+        textMuted: '#94a3b8',
+        border: 'rgba(255, 255, 255, 0.08)',
+        accent: '#3b82f6',
+        success: '#34d399',
+        warning: '#fbbf24',
+        danger: '#f87171'
+      };
+    } else {
+      return {
+        cardBg: '#ffffff',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#64748b',
+        border: 'rgba(15, 23, 42, 0.08)',
+        accent: '#2563eb',
+        success: '#059669',
+        warning: '#d97706',
+        danger: '#dc2626'
+      };
+    }
+  };
+
+  const theme = getThemeColors();
   const stats = contarEstados();
   const cursoActual = cursos.find(c => c.id_curso === cursoSeleccionado);
 
@@ -1448,52 +1453,54 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
   return (
     <div style={{ padding: '0' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '1rem' }}>
+      {/* Header Compacto */}
+      <div style={{ marginBottom: '0.75rem' }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.25rem',
           fontWeight: '700',
-          color: 'var(--docente-text-primary)',
-          margin: '0 0 0.375rem 0'
+          color: theme.textPrimary,
+          margin: '0 0 0.15rem 0',
+          letterSpacing: '-0.02em'
         }}>
           Tomar Asistencia
         </h2>
         <p style={{
-          color: 'var(--docente-text-muted)',
-          fontSize: '0.8125rem',
-          margin: 0
+          color: theme.textMuted,
+          fontSize: '0.75rem',
+          margin: 0,
+          fontWeight: 500
         }}>
           Registra la asistencia de tus estudiantes
         </p>
       </div>
 
-      {/* Selectores */}
+      {/* Selectores Compactos */}
       <div style={{
-        background: 'var(--docente-bg-secondary)',
-        backdropFilter: 'blur(1.25rem)',
-        border: '1px solid var(--docente-border)',
+        background: theme.cardBg,
+        border: `1px solid ${theme.border}`,
         borderRadius: '0.75rem',
-        padding: '1rem',
-        marginBottom: '1rem',
-        boxShadow: darkMode ? '0 0.25rem 1rem rgba(0, 0, 0, 0.3)' : '0 0.25rem 1rem rgba(0, 0, 0, 0.1)'
+        padding: '0.75rem',
+        marginBottom: '0.75rem',
+        boxShadow: darkMode ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)',
+        backdropFilter: 'blur(1.25rem)'
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '0.75rem'
         }}>
           {/* Selector de Curso */}
           <div>
             <label style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              color: 'var(--docente-text-secondary)',
-              fontSize: '0.8125rem',
-              fontWeight: '600',
-              marginBottom: '0.375rem'
+              gap: '0.35rem',
+              color: theme.textSecondary,
+              fontSize: '0.7rem',
+              fontWeight: '700',
+              marginBottom: '0.25rem'
             }}>
-              <FaChalkboardTeacher size={14} color="var(--docente-accent)" />
+              <FaChalkboardTeacher size={12} color={theme.accent} />
               Selecciona el Curso
             </label>
             <select
@@ -1501,12 +1508,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               onChange={(e) => handleCursoChange(Number(e.target.value))}
               style={{
                 width: '100%',
-                padding: '0.625rem 0.875rem',
-                borderRadius: '0.625rem',
-                fontSize: '0.875rem',
-                background: 'var(--docente-input-bg)',
-                border: '1px solid var(--docente-input-border)',
-                color: 'var(--docente-text-primary)',
+                padding: '0.4rem 0.65rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.8rem',
+                background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
+                border: `1px solid ${theme.border}`,
+                color: theme.textPrimary,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
                 outline: 'none'
@@ -1526,56 +1533,35 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             <label style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              color: 'var(--docente-text-secondary)',
-              fontSize: '0.8125rem',
-              fontWeight: '600',
-              marginBottom: '0.375rem'
+              gap: '0.35rem',
+              color: theme.textSecondary,
+              fontSize: '0.7rem',
+              fontWeight: '700',
+              marginBottom: '0.25rem'
             }}>
-              <FaCalendarAlt size={14} color="var(--docente-accent)" />
+              <FaCalendarAlt size={12} color={theme.accent} />
               Fecha de la Clase
             </label>
             <input
               type="date"
               value={fechaSeleccionada}
               onChange={(e) => handleFechaChange(e.target.value)}
+              max={new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guayaquil' })}
               style={{
                 width: '100%',
-                padding: '0.625rem 0.875rem',
-                borderRadius: '0.625rem',
-                fontSize: '0.875rem',
-                background: 'var(--docente-input-bg)',
-                border: '1px solid var(--docente-input-border)',
-                color: 'var(--docente-text-primary)',
+                padding: '0.4rem 0.65rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.8rem',
+                background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
+                border: `1px solid ${theme.border}`,
+                color: theme.textPrimary,
                 outline: 'none'
               }}
             />
           </div>
         </div>
 
-        {/* Info del curso seleccionado */}
-        {cursoActual && (
-          <div style={{
-            marginTop: '1rem',
-            padding: '1rem',
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
-            borderRadius: '0.75rem'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              color: 'var(--docente-text-primary)',
-              fontSize: '0.875rem'
-            }}>
-              <FaUsers size={18} color="var(--docente-accent)" />
-              <span style={{ fontWeight: '600' }}>{cursoActual.tipo_curso_nombre}</span>
-              <span style={{ color: 'var(--docente-text-muted)' }}>•</span>
-              <span>{cursoActual.total_estudiantes} estudiantes inscritos</span>
-            </div>
-          </div>
-        )}
+
       </div>
 
       {/* Lista de Estudiantes */}
@@ -1585,206 +1571,204 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             <div style={{
               textAlign: 'center',
               padding: '3rem',
-              color: 'var(--docente-text-muted)'
+              color: theme.textMuted
             }}>
               Cargando estudiantes...
             </div>
           ) : estudiantes.length > 0 ? (
             <>
-              {/* Estadísticas */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
-                gap: '0.75rem',
-                marginBottom: '1.25rem'
-              }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  borderRadius: '0.625rem',
-                  padding: '0.75rem 0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}>
-                  <FaCheckCircle size={18} color="#3b82f6" style={{ marginBottom: '0.375rem' }} />
-                  <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--docente-accent)', lineHeight: '1' }}>
-                    {stats.presentes}
-                  </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--docente-text-muted)', marginTop: '0.25rem', fontWeight: '500' }}>
-                    Presentes
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08))',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
-                  borderRadius: '0.625rem',
-                  padding: '0.75rem 0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}>
-                  <FaTimesCircle size={18} color="#60a5fa" style={{ marginBottom: '0.375rem' }} />
-                  <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#60a5fa', lineHeight: '1' }}>
-                    {stats.ausentes}
-                  </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--docente-text-muted)', marginTop: '0.25rem', fontWeight: '500' }}>
-                    Ausentes
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08))',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
-                  borderRadius: '0.625rem',
-                  padding: '0.75rem 0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}>
-                  <FaClock size={18} color="#93c5fd" style={{ marginBottom: '0.375rem' }} />
-                  <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#93c5fd', lineHeight: '1' }}>
-                    {stats.tardanzas}
-                  </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--docente-text-muted)', marginTop: '0.25rem', fontWeight: '500' }}>
-                    Tardanzas
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08))',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
-                  borderRadius: '0.625rem',
-                  padding: '0.75rem 0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}>
-                  <FaFileAlt size={18} color="#2563eb" style={{ marginBottom: '0.375rem' }} />
-                  <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2563eb', lineHeight: '1' }}>
-                    {stats.justificados}
-                  </div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--docente-text-muted)', marginTop: '0.25rem', fontWeight: '500' }}>
-                    Justificados
-                  </div>
-                </div>
-              </div>
-
-              {/* Botones de Descarga Excel */}
+              {/* Header de Acciones y Estadísticas */}
               <div style={{
                 display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '0.5rem',
-                marginBottom: '1rem',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '0.75rem',
                 flexWrap: 'wrap'
               }}>
-                <button
-                  onClick={descargarExcel}
-                  disabled={!cursoSeleccionado || estudiantes.length === 0}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '0.375rem',
-                    border: 'none',
-                    background: (!cursoSeleccionado || estudiantes.length === 0)
-                      ? 'rgba(128, 128, 128, 0.3)'
-                      : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    cursor: (!cursoSeleccionado || estudiantes.length === 0) ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    transition: 'all 0.2s',
-                    boxShadow: (cursoSeleccionado && estudiantes.length > 0) ? '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)' : 'none',
-                    opacity: (!cursoSeleccionado || estudiantes.length === 0) ? 0.6 : 1
-                  }}
-                  onMouseEnter={(e) => {
-                    if (cursoSeleccionado && estudiantes.length > 0) {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 0.25rem 0.75rem rgba(59, 130, 246, 0.25)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (cursoSeleccionado && estudiantes.length > 0) {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)';
-                    }
-                  }}
-                >
-                  <FaFileExcel size={12} />
-                  Excel Hoy
-                </button>
+                {/* Estadísticas (Ultra-Compactas) */}
+                <div style={{
+                  display: 'flex',
+                  gap: '0.4rem',
+                  flexWrap: 'wrap',
+                  flex: 1
+                }}>
+                  <div style={{
+                    background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    textAlign: 'center',
+                    flex: 1,
+                    minWidth: '120px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                      <FaCheckCircle size={10} color={theme.accent} />
+                      <span style={{ fontSize: '0.65rem', fontWeight: '700', color: theme.textSecondary }}>Presentes:</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.accent }}>{stats.presentes}</span>
+                    </div>
+                  </div>
 
-                <button
-                  onClick={() => setShowRangoFechasModal(true)}
-                  disabled={!cursoSeleccionado || estudiantes.length === 0}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '0.375rem',
-                    border: 'none',
-                    background: (!cursoSeleccionado || estudiantes.length === 0)
-                      ? 'rgba(128, 128, 128, 0.3)'
-                      : 'linear-gradient(135deg, #60a5fa, #3b82f6)',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    cursor: (!cursoSeleccionado || estudiantes.length === 0) ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                    transition: 'all 0.2s',
-                    boxShadow: (cursoSeleccionado && estudiantes.length > 0) ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)' : 'none',
-                    opacity: (!cursoSeleccionado || estudiantes.length === 0) ? 0.6 : 1
-                  }}
-                  onMouseEnter={(e) => {
-                    if (cursoSeleccionado && estudiantes.length > 0) {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 0.25rem 0.75rem rgba(96, 165, 250, 0.25)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (cursoSeleccionado && estudiantes.length > 0) {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)';
-                    }
-                  }}
-                >
-                  <FaCalendarAlt size={12} />
-                  Reporte Rango
-                </button>
+                  <div style={{
+                    background: darkMode ? 'rgba(96, 165, 250, 0.08)' : 'rgba(96, 165, 250, 0.04)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    textAlign: 'center',
+                    flex: 1,
+                    minWidth: '120px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                      <FaTimesCircle size={10} color="#60a5fa" />
+                      <span style={{ fontSize: '0.65rem', fontWeight: '700', color: theme.textSecondary }}>Ausentes:</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#60a5fa' }}>{stats.ausentes}</span>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    background: darkMode ? 'rgba(147, 197, 253, 0.08)' : 'rgba(147, 197, 253, 0.04)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    textAlign: 'center',
+                    flex: 1,
+                    minWidth: '120px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                      <FaClock size={10} color="#93c5fd" />
+                      <span style={{ fontSize: '0.65rem', fontWeight: '700', color: theme.textSecondary }}>Tardanzas:</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#93c5fd' }}>{stats.tardanzas}</span>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    background: darkMode ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.04)',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '0.4rem 0.6rem',
+                    textAlign: 'center',
+                    flex: 1,
+                    minWidth: '120px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                      <FaFileAlt size={10} color="#2563eb" />
+                      <span style={{ fontSize: '0.65rem', fontWeight: '700', color: theme.textSecondary }}>Justificados:</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#2563eb' }}>{stats.justificados}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botones de Descarga Excel */}
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem'
+                }}>
+                  <button
+                    onClick={descargarExcel}
+                    disabled={!cursoSeleccionado || estudiantes.length === 0}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      background: (!cursoSeleccionado || estudiantes.length === 0)
+                        ? 'rgba(128, 128, 128, 0.3)'
+                        : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: (!cursoSeleccionado || estudiantes.length === 0) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      transition: 'all 0.2s',
+                      boxShadow: (cursoSeleccionado && estudiantes.length > 0) ? '0 2px 6px rgba(59, 130, 246, 0.25)' : 'none',
+                      opacity: (!cursoSeleccionado || estudiantes.length === 0) ? 0.6 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (cursoSeleccionado && estudiantes.length > 0) {
+                        e.currentTarget.style.transform = 'translateY(-1.5px)';
+                        e.currentTarget.style.boxShadow = '0 4px 10px rgba(59, 130, 246, 0.35)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (cursoSeleccionado && estudiantes.length > 0) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
+                      }
+                    }}
+                  >
+                    <Table2 size={15} strokeWidth={2.5} />
+                    Excel del Día
+                  </button>
+
+                  <button
+                    onClick={() => setShowRangoFechasModal(true)}
+                    disabled={!cursoSeleccionado || estudiantes.length === 0}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      background: (!cursoSeleccionado || estudiantes.length === 0)
+                        ? 'rgba(128, 128, 128, 0.3)'
+                        : 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: (!cursoSeleccionado || estudiantes.length === 0) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      transition: 'all 0.2s',
+                      boxShadow: (cursoSeleccionado && estudiantes.length > 0) ? '0 2px 6px rgba(96, 165, 250, 0.25)' : 'none',
+                      opacity: (!cursoSeleccionado || estudiantes.length === 0) ? 0.6 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (cursoSeleccionado && estudiantes.length > 0) {
+                        e.currentTarget.style.transform = 'translateY(-1.5px)';
+                        e.currentTarget.style.boxShadow = '0 4px 10px rgba(96, 165, 250, 0.35)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (cursoSeleccionado && estudiantes.length > 0) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(96, 165, 250, 0.25)';
+                      }
+                    }}
+                  >
+                    <Table2 size={15} strokeWidth={2.5} />
+                    Excel por Rango
+                  </button>
+                </div>
               </div>
 
-              {/* Tabla de estudiantes */}
+              {/* Contenedor de Tabla Compacto */}
               <div style={{
-                overflowX: 'auto',
-                background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                background: theme.cardBg,
+                border: `1px solid ${theme.border}`,
                 borderRadius: '0.75rem',
-                boxShadow: darkMode
-                  ? '0 2px 12px rgba(0, 0, 0, 0.3)'
-                  : '0 2px 12px rgba(0, 0, 0, 0.08)'
+                overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
               }}>
-                {/* Header de la tabla */}
+                {/* Header de la Tabla Compacto */}
                 <div style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: '0.75rem',
-                  padding: '0.75rem 1rem',
-                  background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
-                  borderBottom: `1px solid var(--docente-border)`,
+                  gap: '0.4rem',
+                  padding: '0.4rem 1rem',
+                  background: darkMode ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)',
+                  borderBottom: `1px solid ${theme.border}`,
                   fontWeight: '700',
-                  fontSize: '0.7rem',
-                  color: darkMode ? 'var(--docente-accent)' : '#1e40af',
+                  fontSize: '0.65rem',
+                  color: theme.accent,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
-                  <div style={{ flex: '1 1 300px' }}>Estudiante</div>
-                  <div style={{ flex: '1 1 200px', textAlign: 'center' }}>Asistencia</div>
+                  <div style={{ flex: '1 1 280px' }}>Estudiante</div>
+                  <div style={{ flex: '1 1 180px', textAlign: 'center' }}>Asistencia</div>
                 </div>
 
-                {/* Filas de estudiantes */}
-                <div style={{ padding: '0.5rem 1rem 1rem 1rem' }}>
+                {/* Filas de Estudiantes Compactas */}
+                <div style={{ padding: '0.15rem 0.5rem' }}>
                   {estudiantesActuales.map((estudiante, index) => {
                     const registro = asistencias.get(estudiante.id_estudiante);
                     return (
@@ -1793,113 +1777,84 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         style={{
                           display: 'flex',
                           flexWrap: 'wrap',
-                          gap: '0.75rem',
-                          padding: '0.75rem 0.5rem',
+                          gap: '0.4rem',
+                          padding: '0.4rem 0.5rem',
                           background: index % 2 === 0
-                            ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
-                            : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'),
+                            ? (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')
+                            : 'transparent',
                           borderRadius: '0.375rem',
                           alignItems: 'center',
-                          transition: 'all 0.2s ease',
-                          cursor: 'default'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = index % 2 === 0
-                            ? (darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)')
-                            : (darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)');
+                          marginTop: '0.15rem',
+                          transition: 'all 0.2s ease'
                         }}
                       >
-                        {/* Columna: Estudiante */}
-                        <div style={{ flex: '1 1 300px', minWidth: 0 }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.625em',
-                            minWidth: 0
-                          }}>
+                        {/* Columna Estudiante */}
+                        <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
                             <div style={{
-                              width: '1.75rem',
-                              height: '1.75rem',
+                              width: '1.5rem',
+                              height: '1.5rem',
                               borderRadius: '50%',
-                              background: 'linear-gradient(135deg, var(--docente-accent), #2563eb)',
+                              background: `linear-gradient(135deg, ${theme.accent}, #2563eb)`,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               color: '#fff',
-                              fontWeight: '800',
-                              fontSize: '0.625rem',
+                              fontWeight: '700',
+                              fontSize: '0.6rem',
                               flexShrink: 0
                             }}>
                               {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                flexWrap: 'wrap'
-                              }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
                                 <div style={{
-                                  color: 'var(--docente-text-primary)',
-                                  fontWeight: '600',
-                                  fontSize: '0.875rem',
+                                  color: theme.textPrimary,
+                                  fontWeight: '700',
+                                  fontSize: '0.8rem',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap'
+                                  whiteSpace: 'nowrap',
+                                  letterSpacing: '-0.01em'
                                 }}>
                                   {estudiante.apellido}, {estudiante.nombre}
                                 </div>
-                                {registro?.estado === 'justificado' && registro?.tiene_documento && (
+                                {registro?.tiene_documento && (
                                   <button
                                     onClick={() => abrirModalVerDocumento(estudiante.id_estudiante)}
                                     style={{
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      gap: '0.25rem',
-                                      padding: '0.125rem 0.375rem',
-                                      borderRadius: '0.25rem',
-                                      background: 'rgba(34, 197, 94, 0.15)',
-                                      border: '1px solid rgba(34, 197, 94, 0.3)',
-                                      fontSize: '0.65rem',
-                                      fontWeight: '600',
-                                      color: '#22c55e',
+                                      gap: '0.2rem',
+                                      padding: '0.1rem 0.3rem',
+                                      borderRadius: '0.2rem',
+                                      background: 'rgba(34, 197, 94, 0.12)',
+                                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                                      fontSize: '0.6rem',
+                                      fontWeight: '700',
+                                      color: theme.success,
                                       cursor: 'pointer',
                                       transition: 'all 0.2s',
                                       flexShrink: 0
                                     }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
-                                      e.currentTarget.style.transform = 'scale(1.05)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
-                                      e.currentTarget.style.transform = 'scale(1)';
-                                    }}
                                     title="Ver documento justificativo"
                                   >
-                                    <FaFileAlt size={8} />
-                                    DOC
+                                    <FaFileAlt size={7} /> DOC
                                   </button>
                                 )}
                               </div>
-                              <div style={{
-                                color: 'var(--docente-text-muted)',
-                                fontSize: '0.75rem',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                CI: {estudiante.cedula}
+                              <div style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <span>CI: {estudiante.cedula}</span>
                                 {registro?.observaciones && (
                                   <span style={{
-                                    marginLeft: '0.5rem',
-                                    color: 'var(--docente-accent)',
-                                    fontStyle: 'italic'
+                                    color: theme.accent,
+                                    fontStyle: 'italic',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: '150px'
                                   }}>
-                                    • {registro.observaciones.substring(0, 30)}{registro.observaciones.length > 30 ? '...' : ''}
+                                    • {registro.observaciones}
                                   </span>
                                 )}
                               </div>
@@ -1907,160 +1862,95 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                           </div>
                         </div>
 
-                        {/* Columna: Asistencia */}
-                        <div style={{ flex: '1 1 200px', minWidth: 0 }}>
-                          <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: '0.25rem',
-                            flexWrap: 'wrap'
-                          }}>
+                        {/* Columna Acciones Asistencia */}
+                        <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.2rem', flexWrap: 'nowrap' }}>
                             <button
                               onClick={() => marcarAsistencia(estudiante.id_estudiante, 'presente')}
                               style={{
-                                padding: '0.375rem 0.625rem',
-                                borderRadius: '0.375rem',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.25rem',
                                 border: 'none',
-                                background: registro?.estado === 'presente'
-                                  ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
-                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                color: registro?.estado === 'presente' ? '#fff' : 'var(--docente-text-primary)',
+                                background: registro?.estado === 'presente' ? `linear-gradient(135deg, ${theme.accent}, #1d4ed8)` : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                                color: registro?.estado === 'presente' ? '#fff' : theme.textPrimary,
                                 cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 transition: 'all 0.2s',
-                                boxShadow: registro?.estado === 'presente' ? '0 0.125rem 0.5rem rgba(59, 130, 246, 0.3)' : 'none',
-                                opacity: registro?.estado === 'presente' ? 1 : 0.7
-                              }}
-                              onMouseEnter={(e) => {
-                                if (registro?.estado !== 'presente') {
-                                  e.currentTarget.style.opacity = '1';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (registro?.estado !== 'presente') {
-                                  e.currentTarget.style.opacity = '0.7';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                }
+                                opacity: registro?.estado === 'presente' ? 1 : 0.6
                               }}
                             >
-                              <FaCheckCircle size={12} />
-                              P
+                              <FaCheckCircle size={10} /> P
                             </button>
 
                             <button
                               onClick={() => marcarAsistencia(estudiante.id_estudiante, 'ausente')}
                               style={{
-                                padding: '0.375rem 0.625rem',
-                                borderRadius: '0.375rem',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.25rem',
                                 border: 'none',
-                                background: registro?.estado === 'ausente'
-                                  ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                color: registro?.estado === 'ausente' ? '#fff' : 'var(--docente-text-primary)',
+                                background: registro?.estado === 'ausente' ? 'linear-gradient(135deg, #60a5fa, #3b82f6)' : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                                color: registro?.estado === 'ausente' ? '#fff' : theme.textPrimary,
                                 cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 transition: 'all 0.2s',
-                                boxShadow: registro?.estado === 'ausente' ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.3)' : 'none',
-                                opacity: registro?.estado === 'ausente' ? 1 : 0.7
-                              }}
-                              onMouseEnter={(e) => {
-                                if (registro?.estado !== 'ausente') {
-                                  e.currentTarget.style.opacity = '1';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(96, 165, 250, 0.15)' : 'rgba(96, 165, 250, 0.1)';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (registro?.estado !== 'ausente') {
-                                  e.currentTarget.style.opacity = '0.7';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                }
+                                opacity: registro?.estado === 'ausente' ? 1 : 0.6
                               }}
                             >
-                              <FaTimesCircle size={12} />
-                              A
+                              <FaTimesCircle size={10} /> A
                             </button>
 
                             <button
                               onClick={() => marcarAsistencia(estudiante.id_estudiante, 'tardanza')}
                               style={{
-                                padding: '0.375rem 0.625rem',
-                                borderRadius: '0.375rem',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.25rem',
                                 border: 'none',
-                                background: registro?.estado === 'tardanza'
-                                  ? 'linear-gradient(135deg, #93c5fd, #60a5fa)'
-                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                color: registro?.estado === 'tardanza' ? '#fff' : 'var(--docente-text-primary)',
+                                background: registro?.estado === 'tardanza' ? 'linear-gradient(135deg, #93c5fd, #60a5fa)' : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                                color: registro?.estado === 'tardanza' ? '#fff' : theme.textPrimary,
                                 cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 transition: 'all 0.2s',
-                                boxShadow: registro?.estado === 'tardanza' ? '0 0.125rem 0.5rem rgba(147, 197, 253, 0.3)' : 'none',
-                                opacity: registro?.estado === 'tardanza' ? 1 : 0.7
-                              }}
-                              onMouseEnter={(e) => {
-                                if (registro?.estado !== 'tardanza') {
-                                  e.currentTarget.style.opacity = '1';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(147, 197, 253, 0.15)' : 'rgba(147, 197, 253, 0.1)';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (registro?.estado !== 'tardanza') {
-                                  e.currentTarget.style.opacity = '0.7';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                }
+                                opacity: registro?.estado === 'tardanza' ? 1 : 0.6
                               }}
                             >
-                              <FaClock size={12} />
-                              T
+                              <FaClock size={10} /> T
                             </button>
 
                             <button
-                              onClick={() => marcarAsistencia(estudiante.id_estudiante, 'justificado')}
+                              onClick={() => {
+                                setEstudianteSeleccionado(estudiante.id_estudiante);
+                                setObservaciones(registro?.observaciones || '');
+                                setShowObservacionesModal(true);
+                              }}
                               style={{
-                                padding: '0.375rem 0.625rem',
-                                borderRadius: '0.375rem',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.25rem',
                                 border: 'none',
-                                background: registro?.estado === 'justificado'
-                                  ? 'linear-gradient(135deg, #2563eb, #1e40af)'
-                                  : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
-                                color: registro?.estado === 'justificado' ? '#fff' : 'var(--docente-text-primary)',
+                                background: registro?.estado === 'justificado' ? `linear-gradient(135deg, #2563eb, #1e3a8a)` : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
+                                color: registro?.estado === 'justificado' ? '#fff' : theme.textPrimary,
                                 cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 transition: 'all 0.2s',
-                                boxShadow: registro?.estado === 'justificado' ? '0 0.125rem 0.5rem rgba(37, 99, 235, 0.3)' : 'none',
-                                opacity: registro?.estado === 'justificado' ? 1 : 0.7
-                              }}
-                              onMouseEnter={(e) => {
-                                if (registro?.estado !== 'justificado') {
-                                  e.currentTarget.style.opacity = '1';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.1)';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (registro?.estado !== 'justificado') {
-                                  e.currentTarget.style.opacity = '0.7';
-                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-                                }
+                                opacity: registro?.estado === 'justificado' ? 1 : 0.6
                               }}
                             >
-                              <FaFileAlt size={12} />
-                              J
+                              <FaFileAlt size={10} /> J
                             </button>
                           </div>
                         </div>
@@ -2069,103 +1959,84 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   })}
                 </div>
 
-                {/* Paginación */}
+                {/* Paginación Compacta */}
                 {totalPaginas > 1 && (
                   <div style={{
-                    padding: '1rem 1.5rem',
-                    borderTop: '1px solid var(--docente-border)',
+                    padding: '0.5rem 0.75rem',
+                    borderTop: `1px solid ${theme.border}`,
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     flexWrap: 'wrap',
-                    gap: '1rem'
+                    gap: '0.5rem',
+                    background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'
                   }}>
-                    {/* Texto de información */}
-                    <span style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--docente-text-secondary)',
-                      fontWeight: '500'
-                    }}>
-                      Página {paginaActual} de {totalPaginas} · Total: {estudiantes.length} estudiantes
+                    <span style={{ fontSize: '0.7rem', color: theme.textSecondary, fontWeight: '600' }}>
+                      Pág. {paginaActual} de {totalPaginas} · {estudiantes.length} alumnos
                     </span>
 
-                    {/* Controles de paginación */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       <button
                         onClick={() => cambiarPagina(paginaActual - 1)}
                         disabled={paginaActual === 1}
                         style={{
-                          padding: '0.5rem 1rem',
-                          borderRadius: '0.5rem',
-                          border: '1px solid var(--docente-border)',
-                          background: paginaActual === 1 ? 'transparent' : 'var(--docente-input-bg)',
-                          color: paginaActual === 1 ? 'var(--docente-text-muted)' : 'var(--docente-text-primary)',
-                          fontSize: '0.875rem',
-                          fontWeight: '600',
+                          padding: '0.3rem 0.6rem',
+                          borderRadius: '0.375rem',
+                          border: `1px solid ${theme.border}`,
+                          background: theme.cardBg,
+                          color: paginaActual === 1 ? theme.textMuted : theme.textPrimary,
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
                           cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
                           opacity: paginaActual === 1 ? 0.5 : 1,
-                          transition: 'all 0.2s',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.375rem'
+                          gap: '0.25rem',
+                          transition: 'all 0.2s'
                         }}
                         onMouseEnter={(e) => {
                           if (paginaActual !== 1) {
-                            e.currentTarget.style.background = 'var(--docente-accent)';
-                            e.currentTarget.style.color = '#fff';
-                            e.currentTarget.style.borderColor = 'var(--docente-accent)';
+                            e.currentTarget.style.borderColor = theme.accent;
+                            e.currentTarget.style.color = theme.accent;
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (paginaActual !== 1) {
-                            e.currentTarget.style.background = 'var(--docente-input-bg)';
-                            e.currentTarget.style.color = 'var(--docente-text-primary)';
-                            e.currentTarget.style.borderColor = 'var(--docente-border)';
+                            e.currentTarget.style.borderColor = theme.border;
+                            e.currentTarget.style.color = theme.textPrimary;
                           }
                         }}
                       >
-                        ← Anterior
+                        <ChevronLeft size={14} /> Anterior
                       </button>
 
-                      {/* Números de página */}
-                      <div style={{
-                        display: 'flex',
-                        gap: '0.25rem'
-                      }}>
+                      <div style={{ display: 'flex', gap: '2px' }}>
                         {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => (
                           <button
                             key={numero}
                             onClick={() => cambiarPagina(numero)}
                             style={{
-                              minWidth: '2.5rem',
-                              height: '2.5rem',
-                              borderRadius: '0.5rem',
-                              border: numero === paginaActual ? 'none' : '1px solid var(--docente-border)',
-                              background: numero === paginaActual
-                                ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
-                                : 'transparent',
-                              color: numero === paginaActual ? '#fff' : 'var(--docente-text-primary)',
-                              fontSize: '0.875rem',
+                              minWidth: '1.75rem',
+                              height: '1.75rem',
+                              borderRadius: '0.375rem',
+                              border: numero === paginaActual ? 'none' : `1px solid ${theme.border}`,
+                              background: numero === paginaActual ? theme.accent : 'transparent',
+                              color: numero === paginaActual ? '#fff' : theme.textPrimary,
+                              fontSize: '0.7rem',
                               fontWeight: '700',
                               cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              boxShadow: numero === paginaActual ? '0 0.25rem 0.75rem rgba(59, 130, 246, 0.3)' : 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
                               if (numero !== paginaActual) {
-                                e.currentTarget.style.background = 'var(--docente-input-bg)';
+                                e.currentTarget.style.borderColor = theme.accent;
+                                e.currentTarget.style.color = theme.accent;
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (numero !== paginaActual) {
-                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderColor = theme.border;
+                                e.currentTarget.style.color = theme.textPrimary;
                               }
                             }}
                           >
@@ -2178,46 +2049,44 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         onClick={() => cambiarPagina(paginaActual + 1)}
                         disabled={paginaActual === totalPaginas}
                         style={{
-                          padding: '0.5rem 1rem',
-                          borderRadius: '0.5rem',
-                          border: '1px solid var(--docente-border)',
-                          background: paginaActual === totalPaginas ? 'transparent' : 'var(--docente-input-bg)',
-                          color: paginaActual === totalPaginas ? 'var(--docente-text-muted)' : 'var(--docente-text-primary)',
-                          fontSize: '0.875rem',
-                          fontWeight: '600',
+                          padding: '0.3rem 0.6rem',
+                          borderRadius: '0.375rem',
+                          border: `1px solid ${theme.border}`,
+                          background: theme.cardBg,
+                          color: paginaActual === totalPaginas ? theme.textMuted : theme.textPrimary,
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
                           cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
                           opacity: paginaActual === totalPaginas ? 0.5 : 1,
-                          transition: 'all 0.2s',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.375rem'
+                          gap: '0.25rem',
+                          transition: 'all 0.2s'
                         }}
                         onMouseEnter={(e) => {
                           if (paginaActual !== totalPaginas) {
-                            e.currentTarget.style.background = 'var(--docente-accent)';
-                            e.currentTarget.style.color = '#fff';
-                            e.currentTarget.style.borderColor = 'var(--docente-accent)';
+                            e.currentTarget.style.borderColor = theme.accent;
+                            e.currentTarget.style.color = theme.accent;
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (paginaActual !== totalPaginas) {
-                            e.currentTarget.style.background = 'var(--docente-input-bg)';
-                            e.currentTarget.style.color = 'var(--docente-text-primary)';
-                            e.currentTarget.style.borderColor = 'var(--docente-border)';
+                            e.currentTarget.style.borderColor = theme.border;
+                            e.currentTarget.style.color = theme.textPrimary;
                           }
                         }}
                       >
-                        Siguiente →
+                        Siguiente <ChevronRight size={14} />
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Botón Guardar Asistencia */}
+              {/* Botón Guardar Asistencia Compacto */}
               <div style={{
-                padding: '1rem',
-                borderTop: '1px solid var(--docente-border)',
+                padding: '0.75rem',
+                borderTop: `1px solid ${theme.border}`,
                 display: 'flex',
                 justifyContent: 'flex-end'
               }}>
@@ -2225,43 +2094,33 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   onClick={guardarAsistencia}
                   disabled={saving || asistencias.size === 0}
                   style={{
-                    padding: '0.5rem 1rem',
+                    padding: '0.45rem 1rem',
                     borderRadius: '0.375rem',
                     border: 'none',
                     background: asistencias.size === 0
-                      ? 'rgba(128, 128, 128, 0.3)'
-                      : asistenciaGuardada
-                        ? 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-                        : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                    color: '#fff',
+                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                      : (asistenciaGuardada ? theme.success : theme.accent),
+                    color: asistencias.size === 0 ? theme.textMuted : '#fff',
                     fontSize: '0.75rem',
-                    fontWeight: '600',
+                    fontWeight: '700',
                     cursor: asistencias.size === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.375rem',
+                    gap: '0.4rem',
                     transition: 'all 0.2s',
-                    boxShadow: asistencias.size > 0
-                      ? (asistenciaGuardada
-                        ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
-                        : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)')
-                      : 'none',
-                    opacity: saving ? 0.7 : (asistencias.size === 0 ? 0.6 : 1)
+                    opacity: saving ? 0.7 : 1,
+                    boxShadow: (asistencias.size > 0 && !asistenciaGuardada) ? `0 2px 8px ${theme.accent}4d` : 'none'
                   }}
                   onMouseEnter={(e) => {
                     if (asistencias.size > 0 && !saving) {
                       e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = asistenciaGuardada
-                        ? '0 0.25rem 0.75rem rgba(96, 165, 250, 0.25)'
-                        : '0 0.25rem 0.75rem rgba(59, 130, 246, 0.25)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (asistencias.size > 0 && !saving) {
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = asistenciaGuardada
-                        ? '0 0.125rem 0.5rem rgba(96, 165, 250, 0.2)'
-                        : '0 0.125rem 0.5rem rgba(59, 130, 246, 0.2)';
+                      e.currentTarget.style.filter = 'brightness(1)';
                     }
                   }}
                 >
@@ -2270,18 +2129,20 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     ? 'Guardando...'
                     : asistenciaGuardada
                       ? `✓ Guardado (${asistencias.size})`
-                      : `Guardar (${asistencias.size})`}
+                      : `Guardar Asistencia (${asistencias.size})`}
                 </button>
               </div>
             </>
           ) : (
             <div style={{
               textAlign: 'center',
-              padding: '3rem',
-              color: 'var(--docente-text-muted)',
-              background: 'var(--docente-bg-secondary)',
-              borderRadius: '1rem',
-              border: '1px solid var(--docente-border)'
+              padding: '2rem',
+              color: theme.textMuted,
+              background: theme.cardBg,
+              borderRadius: '0.75rem',
+              border: `1px solid ${theme.border}`,
+              fontSize: '0.8rem',
+              fontWeight: 500
             }}>
               No hay estudiantes inscritos en este curso
             </div>
@@ -2292,17 +2153,22 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       {!cursoSeleccionado && (
         <div style={{
           textAlign: 'center',
-          padding: '4rem 2rem',
-          color: 'var(--docente-text-muted)',
-          background: 'var(--docente-bg-secondary)',
-          borderRadius: '1rem',
-          border: '2px dashed var(--docente-border)'
+          padding: '3rem 1.5rem',
+          color: theme.textMuted,
+          background: theme.cardBg,
+          borderRadius: '0.75rem',
+          border: `2px dashed ${theme.border}`
         }}>
-          <ClipboardList size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-          <p style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>
+          <ClipboardList size={48} style={{ marginBottom: '0.75rem', opacity: 0.5 }} />
+          <p style={{
+            fontSize: '1rem',
+            fontWeight: '700',
+            margin: '0 0 0.25rem 0',
+            color: theme.textPrimary
+          }}>
             Selecciona un curso para comenzar
           </p>
-          <p style={{ fontSize: '0.875rem', margin: 0 }}>
+          <p style={{ fontSize: '0.75rem', margin: 0 }}>
             Elige el curso y la fecha para tomar asistencia
           </p>
         </div>
@@ -2774,6 +2640,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 type="date"
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
+                max={new Date().toLocaleString('en-CA', { timeZone: 'America/Guayaquil' }).split(',')[0]}
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
@@ -2801,6 +2668,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                 type="date"
                 value={fechaFin}
                 onChange={(e) => setFechaFin(e.target.value)}
+                max={new Date().toLocaleString('en-CA', { timeZone: 'America/Guayaquil' }).split(',')[0]}
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
@@ -3314,3 +3182,4 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 };
 
 export default TomarAsistencia;
+

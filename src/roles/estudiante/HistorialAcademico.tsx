@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Calendar, Award, Clock, CheckCircle, TrendingUp, User, BarChart3 } from 'lucide-react';
+import { BookOpen, Calendar, Award, Clock, CheckCircle, User, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import '../../styles/responsive.css';
 
@@ -121,16 +121,16 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ marginBottom: '1.25em' }}>
+      <div style={{ marginBottom: '0.75rem' }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.25rem',
           fontWeight: '700',
           color: theme.textPrimary,
-          margin: '0 0 0.375rem 0'
+          margin: '0 0 0.25rem 0'
         }}>
           Historial Académico
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0 }}>
           Revisa tu progreso y cursos completados
         </p>
       </div>
@@ -138,25 +138,25 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
       {/* Tabs */}
       <div style={{
         display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '1rem',
+        gap: '0.4rem',
+        marginBottom: '0.75rem',
         borderBottom: `1px solid ${theme.border}`,
-        paddingBottom: '0.75rem'
+        paddingBottom: '0.5rem'
       }}>
         <button
           onClick={() => setVistaActual('activos')}
           style={{
-            padding: '0.5rem 1rem',
+            padding: '0.35rem 0.85rem',
             background: vistaActual === 'activos'
               ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
               : darkMode
                 ? 'rgba(255, 255, 255, 0.05)'
                 : 'rgba(0, 0, 0, 0.05)',
             border: 'none',
-            borderRadius: '0.5rem',
+            borderRadius: '0.375rem',
             color: vistaActual === 'activos' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             transition: 'all 0.2s ease',
             display: 'flex',
@@ -178,24 +178,24 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
             }
           }}
         >
-          <BookOpen size={16} />
+          <BookOpen size={14} />
           Cursos Activos ({cursosActivos.length})
         </button>
 
         <button
           onClick={() => setVistaActual('finalizados')}
           style={{
-            padding: '0.5rem 1rem',
+            padding: '0.35rem 0.85rem',
             background: vistaActual === 'finalizados'
               ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
               : darkMode
                 ? 'rgba(255, 255, 255, 0.05)'
                 : 'rgba(0, 0, 0, 0.05)',
             border: 'none',
-            borderRadius: '0.5rem',
+            borderRadius: '0.375rem',
             color: vistaActual === 'finalizados' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             transition: 'all 0.2s ease',
             display: 'flex',
@@ -217,7 +217,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
             }
           }}
         >
-          <Award size={16} />
+          <Award size={14} />
           Cursos Finalizados ({cursosFinalizados.length})
         </button>
       </div>
@@ -246,10 +246,9 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
           </p>
         </div>
       ) : (
-        <div className="responsive-grid-auto" style={{ gap: '1.25em' }}>
+        <div className="responsive-grid-auto" style={{ gap: '0.75rem' }}>
           {cursosAMostrar.map((curso, index) => {
             const esFinalizado = vistaActual === 'finalizados';
-            // Variantes de dorado para todos los cursos (activos y finalizados)
             const coloresGradiente = [
               ['#fbbf24', '#f59e0b'], // Dorado brillante
               ['#f59e0b', '#d97706'], // Dorado medio
@@ -266,7 +265,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                 style={{
                   background: theme.cardBg,
                   border: `0.0625rem solid ${theme.border}`,
-                  borderRadius: '1em',
+                  borderRadius: '0.5rem',
                   overflow: 'hidden',
                   transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                   cursor: 'pointer',
@@ -286,7 +285,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                 {/* Header con gradiente */}
                 <div style={{
                   background: `linear-gradient(135deg, ${color1}, ${color2})`,
-                  padding: '1em',
+                  padding: '0.5rem',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
@@ -303,7 +302,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                   }} />
 
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75em' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                       <div style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(0.625rem)',
@@ -334,7 +333,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                     </div>
 
                     <h3 style={{
-                      fontSize: '1.1rem',
+                      fontSize: '1rem',
                       fontWeight: '700',
                       color: '#fff',
                       margin: '0 0 0.25em 0',
@@ -353,162 +352,151 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                 </div>
 
                 {/* Contenido */}
-                <div style={{ padding: '1em' }}>
-                  {/* Fechas */}
+                <div style={{ padding: '0.5rem' }}>
+
+                  {/* Grid de Información Principal */}
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5em',
-                    marginBottom: '0.75em',
-                    padding: '0.625em',
-                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                    borderRadius: '0.5em'
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '0.5rem',
+                    marginBottom: '0.5rem'
                   }}>
-                    <Calendar size={14} color={theme.accent} style={{ flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontSize: '0.7rem',
-                        color: theme.textMuted,
-                        margin: '0 0 0.25em 0',
-                        textTransform: 'uppercase',
-                        fontWeight: '600'
+                    {/* Aula */}
+                    {curso.aula.nombre && (
+                      <div style={{
+                        background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                        padding: '0.5rem',
+                        borderRadius: '0.5rem',
+                        border: `1px solid ${theme.border}`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
                       }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                          <MapPin size={10} color={theme.success} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                            Aula
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
+                          {curso.aula.nombre}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Horario */}
+                    {curso.horario.hora_inicio ? (
+                      <div style={{
+                        background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                        padding: '0.5rem',
+                        borderRadius: '0.5rem',
+                        border: `1px solid ${theme.border}`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                          <Clock size={10} color={theme.accent} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                            Horario
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
+                          {curso.horario.hora_inicio} - {curso.horario.hora_fin}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{
+                        background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                        padding: '0.5rem',
+                        borderRadius: '0.5rem',
+                        border: `1px solid ${theme.border}`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                          <Clock size={10} color={theme.textMuted} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                            Duración
+                          </span>
+                        </div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
+                          {calcularDuracion(curso.fecha_inicio, curso.fecha_fin)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Período */}
+                  <div style={{
+                    background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
+                    border: `1px solid ${theme.border}`,
+                    marginBottom: '0.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                      <Calendar size={10} color={theme.accent} />
+                      <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
                         Período
-                      </p>
-                      <p style={{
-                        fontSize: '0.75rem',
-                        color: theme.textPrimary,
-                        margin: 0,
-                        fontWeight: '600'
-                      }}>
-                        {formatearFecha(curso.fecha_inicio)} - {formatearFecha(curso.fecha_fin)}
-                      </p>
-                      <p style={{
-                        fontSize: '0.65rem',
-                        color: theme.textMuted,
-                        margin: '0.25em 0 0 0'
-                      }}>
-                        Duración: {calcularDuracion(curso.fecha_inicio, curso.fecha_fin)}
-                      </p>
+                      </span>
+                    </div>
+                    <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
+                      {formatearFecha(curso.fecha_inicio)} - {formatearFecha(curso.fecha_fin)}
                     </div>
                   </div>
 
                   {/* Docente */}
                   {curso.docente.nombre_completo && (
                     <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5em',
-                      marginBottom: '0.75em',
-                      padding: '0.625em',
-                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                      borderRadius: '0.5em'
+                      background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                      padding: '0.5rem',
+                      borderRadius: '0.5rem',
+                      border: `1px solid ${theme.border}`,
+                      marginBottom: '0.5rem'
                     }}>
-                      <User size={14} color={theme.accent} style={{ flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{
-                          fontSize: '0.7rem',
-                          color: theme.textMuted,
-                          margin: '0 0 0.25em 0',
-                          textTransform: 'uppercase',
-                          fontWeight: '600'
-                        }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                        <User size={10} color={theme.accent} />
+                        <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
                           Docente
-                        </p>
-                        <p style={{
-                          fontSize: '0.75rem',
-                          color: theme.textPrimary,
-                          margin: 0,
-                          fontWeight: '600',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {curso.docente.nombre_completo}
-                        </p>
-                        {curso.docente.titulo && (
-                          <p style={{
-                            fontSize: '0.65rem',
-                            color: theme.textMuted,
-                            margin: '0.25em 0 0 0',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {curso.docente.titulo}
-                          </p>
-                        )}
+                        </span>
+                      </div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
+                        {curso.docente.nombre_completo}
                       </div>
                     </div>
                   )}
 
-                  {/* Horario */}
-                  {curso.horario.hora_inicio && (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5em',
-                      marginBottom: '0.75em',
-                      padding: '0.625em',
-                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                      borderRadius: '0.5em'
-                    }}>
-                      <Clock size={14} color={theme.accent} style={{ flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{
-                          fontSize: '0.7rem',
-                          color: theme.textMuted,
-                          margin: '0 0 0.25em 0',
-                          textTransform: 'uppercase',
-                          fontWeight: '600'
-                        }}>
-                          Horario
-                        </p>
-                        <p style={{
-                          fontSize: '0.75rem',
-                          color: theme.textPrimary,
-                          margin: 0,
-                          fontWeight: '600'
-                        }}>
-                          {curso.horario.hora_inicio} - {curso.horario.hora_fin}
-                        </p>
-                        {curso.horario.dias && (
-                          <p style={{
-                            fontSize: '0.65rem',
-                            color: theme.textMuted,
-                            margin: '0.25em 0 0 0'
-                          }}>
-                            {curso.horario.dias}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Estadísticas */}
+                  {/* Estadísticas Compactas */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: esFinalizado ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-                    gap: '0.5em',
-                    paddingTop: '0.75em',
+                    gap: '0.5rem',
+                    paddingTop: '0.5rem',
                     borderTop: `1px solid ${theme.border}`
                   }}>
+                    {/* Progreso */}
                     <div style={{
                       textAlign: 'center',
-                      padding: '0.5em',
+                      padding: '0.35rem',
                       background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-                      borderRadius: '0.5em'
+                      borderRadius: '0.35rem'
                     }}>
                       <div style={{
-                        fontSize: '1.25rem',
+                        fontSize: '0.9rem',
                         fontWeight: '700',
                         color: theme.accent,
-                        marginBottom: '0.25em'
+                        marginBottom: '0.1rem',
+                        lineHeight: 1
                       }}>
                         {curso.progreso}%
                       </div>
                       <div style={{
-                        fontSize: '0.65rem',
+                        fontSize: '0.55rem',
                         color: theme.textMuted,
                         textTransform: 'uppercase',
                         fontWeight: '600'
@@ -517,24 +505,26 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                       </div>
                     </div>
 
+                    {/* Promedio */}
                     <div style={{
                       textAlign: 'center',
-                      padding: '0.5em',
+                      padding: '0.35rem',
                       background: curso.calificacion >= 7
                         ? (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
                         : (darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)'),
-                      borderRadius: '0.5em'
+                      borderRadius: '0.35rem'
                     }}>
                       <div style={{
-                        fontSize: '1.25rem',
+                        fontSize: '0.9rem',
                         fontWeight: '700',
                         color: curso.calificacion >= 7 ? theme.success : theme.warning,
-                        marginBottom: '0.25em'
+                        marginBottom: '0.1rem',
+                        lineHeight: 1
                       }}>
                         {curso.calificacion != null ? Number(curso.calificacion).toFixed(2) : '0.00'}
                       </div>
                       <div style={{
-                        fontSize: '0.65rem',
+                        fontSize: '0.55rem',
                         color: theme.textMuted,
                         textTransform: 'uppercase',
                         fontWeight: '600'
@@ -543,25 +533,27 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                       </div>
                     </div>
 
+                    {/* Pendientes (si aplica) */}
                     {!esFinalizado && (
                       <div style={{
                         textAlign: 'center',
-                        padding: '0.5em',
+                        padding: '0.35rem',
                         background: curso.tareasPendientes > 0
                           ? (darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)')
                           : (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)'),
-                        borderRadius: '0.5em'
+                        borderRadius: '0.35rem'
                       }}>
                         <div style={{
-                          fontSize: '1.25rem',
+                          fontSize: '0.9rem',
                           fontWeight: '700',
                           color: curso.tareasPendientes > 0 ? theme.warning : theme.success,
-                          marginBottom: '0.25em'
+                          marginBottom: '0.1rem',
+                          lineHeight: 1
                         }}>
                           {curso.tareasPendientes}
                         </div>
                         <div style={{
-                          fontSize: '0.65rem',
+                          fontSize: '0.55rem',
                           color: theme.textMuted,
                           textTransform: 'uppercase',
                           fontWeight: '600'

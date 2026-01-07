@@ -82,16 +82,16 @@ const PaginaInicio: React.FC = () => {
         }
       }
     })
-    .to(subtitleProxy, {
-      len: subtitleText.length,
-      duration: Math.min(1.0, 0.035 * subtitleText.length),
-      ease: 'none',
-      onUpdate: () => {
-        if (subtitleRef.current) {
-          subtitleRef.current.textContent = subtitleText.slice(0, Math.floor(subtitleProxy.len));
+      .to(subtitleProxy, {
+        len: subtitleText.length,
+        duration: Math.min(1.0, 0.035 * subtitleText.length),
+        ease: 'none',
+        onUpdate: () => {
+          if (subtitleRef.current) {
+            subtitleRef.current.textContent = subtitleText.slice(0, Math.floor(subtitleProxy.len));
+          }
         }
-      }
-    }, '>-0.1');
+      }, '>-0.1');
 
     return () => {
       tl.kill();
@@ -126,7 +126,7 @@ const PaginaInicio: React.FC = () => {
       try {
         const p = el.play();
         if (p && typeof p.then === 'function') {
-          p.catch(() => {});
+          p.catch(() => { });
         }
       } catch (error) {
         // Error silenciado intencionalmente
@@ -188,7 +188,7 @@ const PaginaInicio: React.FC = () => {
             </div>
           ))}
         </div>
-        
+
         {/* Overlay adicional para mejor legibilidad */}
         <div className="hero-overlay" />
 
@@ -263,16 +263,16 @@ const PaginaInicio: React.FC = () => {
             <div className="video-content">
               <div className="video-text" data-aos="fade-right">
                 <h2 className="video-title">
-                  Conoce la 
+                  Conoce la
                   <span className="gradient-text">Escuela Jessica Vélez</span>
                 </h2>
                 <p className="video-description">
-                  Somos un centro de capacitación en estética con 6 años de experiencia, fundado en 2020, 
-                  dedicado a formar profesionales altamente competentes en el área. Nuestra escuela se 
+                  Somos un centro de capacitación en estética con 6 años de experiencia, fundado en 2020,
+                  dedicado a formar profesionales altamente competentes en el área. Nuestra escuela se
                   destaca por su metodología práctica, acompañamiento personalizado, instructores especializados
-                   y espacios modernos equipados con tecnología actual para fortalecer el aprendizaje. 
-                   En la Escuela Jessica Vélez impulsamos el crecimiento de nuestras estudiantes mediante 
-                   formación de calidad, disciplina y excelencia educativa.
+                  y espacios modernos equipados con tecnología actual para fortalecer el aprendizaje.
+                  En la Escuela Jessica Vélez impulsamos el crecimiento de nuestras estudiantes mediante
+                  formación de calidad, disciplina y excelencia educativa.
                 </p>
                 <Link to="/sobre-nosotros" className="video-cta-button">
                   <Heart size={18} />
@@ -280,9 +280,9 @@ const PaginaInicio: React.FC = () => {
                 </Link>
               </div>
               <div className="video-player" data-aos="fade-left">
-                <video 
+                <video
                   ref={videoRef}
-                  controls 
+                  controls
                   muted
                   playsInline
                   preload="metadata"
@@ -302,7 +302,7 @@ const PaginaInicio: React.FC = () => {
       <section className="features-section">
         <div className="content">
           <h2 className="section-title" data-aos="fade-up">
-            ¿Por qué elegir la 
+            ¿Por qué elegir la
             <span className="gradient-text"> Escuela Jessica Vélez?</span>
           </h2>
           <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">
@@ -317,7 +317,7 @@ const PaginaInicio: React.FC = () => {
               </div>
               <h3 className="feature-title">Atención Personalizada</h3>
               <p className="feature-description">
-                Grupos reducidos y atención individual para garantizar el mejor aprendizaje. 
+                Grupos reducidos y atención individual para garantizar el mejor aprendizaje.
                 Cada estudiante recibe seguimiento personalizado durante todo el proceso.
               </p>
             </div>
@@ -329,7 +329,7 @@ const PaginaInicio: React.FC = () => {
               </div>
               <h3 className="feature-title">Técnicas Avanzadas</h3>
               <p className="feature-description">
-                Aprende las últimas técnicas en tratamientos faciales, corporales, 
+                Aprende las últimas técnicas en tratamientos faciales, corporales,
                 depilación láser y medicina estética con equipos de última generación.
               </p>
             </div>
@@ -341,7 +341,7 @@ const PaginaInicio: React.FC = () => {
               </div>
               <h3 className="feature-title">Certificación Profesional</h3>
               <p className="feature-description">
-                Obtén tu certificación reconocida nacionalmente y accede a oportunidades 
+                Obtén tu certificación reconocida nacionalmente y accede a oportunidades
                 laborales en los mejores spas y centros estéticos del país.
               </p>
             </div>
@@ -366,10 +366,10 @@ const PaginaInicio: React.FC = () => {
           </div>
         </div>
       </section>
-      
+
       {/* ChatBot flotante */}
       <ChatBot />
-      
+
       <Footer />
 
       <style>{`
@@ -379,7 +379,6 @@ const PaginaInicio: React.FC = () => {
           color: ${theme === 'dark' ? '#f3f4f6' : '#1f2937'};
           position: relative;
           overflow: hidden;
-          font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
           transition: background 0.4s ease, color 0.4s ease;
         }
 
@@ -410,7 +409,7 @@ const PaginaInicio: React.FC = () => {
 
         .hero-section {
           position: relative;
-          padding: 90px 0 30px;
+          padding: 3.75rem 0 2rem;
           overflow: hidden;
           z-index: 1;
           min-height: 100vh;
@@ -466,18 +465,17 @@ const PaginaInicio: React.FC = () => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: ${theme === 'dark' 
-            ? 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%)' 
-            : 'radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%)'};
+          background: ${theme === 'dark'
+          ? 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%)'
+          : 'radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%)'};
           z-index: 0;
         }
 
         .content {
-          max-width: 1400px;
+          max-width: 90%;
           margin: 0 auto;
-          padding: 0 24px;
+          padding: 0 0.75rem;
           position: relative;
-          font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
         }
 
         .hero-content {
@@ -487,14 +485,13 @@ const PaginaInicio: React.FC = () => {
         }
 
         .hero-title {
-          font-size: 4.2rem;
-          font-weight: 400;
+          font-size: 3rem;
+          font-weight: 700;
           color: ${theme === 'dark' ? 'white' : '#1f2937'};
-          margin-bottom: 16px;
-          line-height: 1.05;
+          margin-bottom: 12px;
+          line-height: 1.1;
           text-shadow: 0 8px 40px ${theme === 'dark' ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.2)'};
-          font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.01em;
         }
 
         .gradient-text {
@@ -510,17 +507,16 @@ const PaginaInicio: React.FC = () => {
         }
 
         .hero-text .hero-subtitle {
-          font-size: 1.2rem;
+          font-size: 1rem;
           color: ${theme === 'dark' ? '#f3f4f6' : 'white !important'};
-          margin: 0 auto 32px;
+          margin: 0 auto 24px;
           max-width: 750px;
-          line-height: 1.7;
-          text-shadow: ${theme === 'dark' 
-            ? '0 4px 20px rgba(0, 0, 0, 0.8)' 
-            : '0 2px 10px rgba(0, 0, 0, 0.1)'};
-          font-family: 'Montserrat', sans-serif;
+          line-height: 1.5;
+          text-shadow: ${theme === 'dark'
+          ? '0 4px 20px rgba(0, 0, 0, 0.8)'
+          : '0 2px 10px rgba(0, 0, 0, 0.1)'};
           font-weight: 400;
-          letter-spacing: 0.3px;
+          letter-spacing: 0px;
         }
 
         /* Ensure the dynamic span inside subtitle also turns white in light mode */
@@ -624,41 +620,40 @@ const PaginaInicio: React.FC = () => {
         }
 
         .stat-card {
-          background: ${theme === 'dark' 
-            ? 'rgba(255, 255, 255, 0.06)' 
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.42))'};
+          background: ${theme === 'dark'
+          ? 'rgba(255, 255, 255, 0.06)'
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.42))'};
           backdrop-filter: ${theme === 'dark' ? 'blur(20px) saturate(170%)' : 'blur(12px) saturate(150%)'};
           -webkit-backdrop-filter: ${theme === 'dark' ? 'blur(20px) saturate(170%)' : 'blur(12px) saturate(150%)'};
-          border: 1px solid ${theme === 'dark' 
-            ? 'rgba(255, 255, 255, 0.1)' 
-            : 'rgba(255, 255, 255, 0.30)'};
+          border: 1px solid ${theme === 'dark'
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(255, 255, 255, 0.30)'};
           border-radius: 20px;
           padding: 28px 36px;
           transform: translateY(0);
           opacity: 1;
           transition: all 0.8s ease-out;
-          box-shadow: ${theme === 'dark' 
-            ? '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1) inset' 
-            : '0 14px 30px rgba(0, 0, 0, 0.14), 0 0 1px rgba(255,255,255,0.6) inset'};
+          box-shadow: ${theme === 'dark'
+          ? '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1) inset'
+          : '0 14px 30px rgba(0, 0, 0, 0.14), 0 0 1px rgba(255,255,255,0.6) inset'};
           text-align: center;
         }
 
         .stat-card:hover {
-          ${theme === 'dark' 
-            ? ''
-            : 'transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.16), 0 0 1px rgba(255,255,255,0.8) inset; border-color: rgba(255,255,255,0.34);'}
+          ${theme === 'dark'
+          ? ''
+          : 'transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.16), 0 0 1px rgba(255,255,255,0.8) inset; border-color: rgba(255,255,255,0.34);'}
         }
 
         .stat-number {
-          font-size: 3.5rem;
-          font-weight: 300;
+          font-size: 2.5rem;
+          font-weight: 700;
           color: ${theme === 'dark' ? '#fbbf24' : '#000000'};
-          margin-bottom: 12px;
-          text-shadow: ${theme === 'dark' 
-            ? '0 6px 20px rgba(251, 191, 36, 0.5)'
-            : '0 1px 4px rgba(0, 0, 0, 0.12)'};
-          font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
-          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+          text-shadow: ${theme === 'dark'
+          ? '0 6px 20px rgba(251, 191, 36, 0.5)'
+          : '0 1px 4px rgba(0, 0, 0, 0.12)'};
+          letter-spacing: -0.01em;
         }
 
         .stat-text {
@@ -667,9 +662,10 @@ const PaginaInicio: React.FC = () => {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          font-size: 1rem;
-          font-family: 'Montserrat', sans-serif;
-          font-weight: 500;
+          justify-content: center;
+          gap: 8px;
+          font-size: 0.9rem;
+          font-weight: 600;
           letter-spacing: 0.3px;
         }
 
@@ -699,12 +695,11 @@ const PaginaInicio: React.FC = () => {
         }
 
         .section-title {
-          font-size: 2.6rem;
+          font-size: 2rem;
           font-weight: 700;
           color: white;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
           text-align: center;
-          font-family: 'Playfair Display', 'Georgia', serif;
           letter-spacing: -0.01em;
         }
 
@@ -737,20 +732,20 @@ const PaginaInicio: React.FC = () => {
 
         .feature-card {
           background: ${theme === 'dark'
-            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))'};
+          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))'};
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border: 1px solid ${theme === 'dark'
-            ? 'rgba(251, 191, 36, 0.15)'
-            : 'rgba(255, 255, 255, 0.5)'};
+          ? 'rgba(251, 191, 36, 0.15)'
+          : 'rgba(255, 255, 255, 0.5)'};
           border-radius: 20px;
           padding: 32px 36px;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
           box-shadow: ${theme === 'dark'
-            ? '0 4px 16px rgba(0, 0, 0, 0.12)'
-            : '0 8px 32px rgba(0, 0, 0, 0.06), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
+          ? '0 4px 16px rgba(0, 0, 0, 0.12)'
+          : '0 8px 32px rgba(0, 0, 0, 0.06), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
           position: relative;
           overflow: hidden;
           /* Efecto de profundidad */
@@ -775,14 +770,14 @@ const PaginaInicio: React.FC = () => {
         .feature-card:hover {
           transform: translateY(-8px) scale(1.02);
           box-shadow: ${theme === 'dark'
-            ? '0 12px 40px rgba(251, 191, 36, 0.2), 0 0 80px rgba(251, 191, 36, 0.1)'
-            : '0 16px 48px rgba(0, 0, 0, 0.12), 0 0 1px rgba(255, 255, 255, 1) inset'};
+          ? '0 12px 40px rgba(251, 191, 36, 0.2), 0 0 80px rgba(251, 191, 36, 0.1)'
+          : '0 16px 48px rgba(0, 0, 0, 0.12), 0 0 1px rgba(255, 255, 255, 1) inset'};
           border-color: ${theme === 'dark'
-            ? 'rgba(251, 191, 36, 0.4)'
-            : 'rgba(251, 191, 36, 0.3)'};
+          ? 'rgba(251, 191, 36, 0.4)'
+          : 'rgba(251, 191, 36, 0.3)'};
           background: ${theme === 'dark'
-            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06))'
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))'};
+          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06))'
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))'};
         }
 
         .feature-icon {
@@ -799,11 +794,10 @@ const PaginaInicio: React.FC = () => {
         }
 
         .feature-title {
-          font-size: 1.3rem;
+          font-size: 1rem;
           font-weight: 600;
           color: ${theme === 'dark' ? 'white' : '#1f2937'};
-          margin-bottom: 12px;
-          font-family: 'Montserrat', sans-serif;
+          margin-bottom: 8px;
         }
 
         .feature-description {
@@ -815,34 +809,33 @@ const PaginaInicio: React.FC = () => {
         }
 
         .cta-section {
-          padding: 80px 0 120px;
+          padding: 3.75rem 0 4rem;
         }
 
         .cta-content {
           background: ${theme === 'dark'
-            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08))'
-            : 'rgba(255, 255, 255, 0.7)'};
-          border: 1px solid ${theme === 'dark' 
-            ? 'rgba(251, 191, 36, 0.2)' 
-            : 'rgba(255, 255, 255, 0.4)'};
-          border-radius: 24px;
-          padding: 40px 48px;
+          ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.08))'
+          : 'rgba(255, 255, 255, 0.7)'};
+          border: 1px solid ${theme === 'dark'
+          ? 'rgba(251, 191, 36, 0.2)'
+          : 'rgba(255, 255, 255, 0.4)'};
+          border-radius: 16px;
+          padding: 2rem;
           max-width: 800px;
           margin: 0 auto;
           text-align: center;
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           box-shadow: ${theme === 'dark'
-            ? '0 20px 40px rgba(0, 0, 0, 0.3)'
-            : '0 8px 32px rgba(0, 0, 0, 0.08), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
+          ? '0 20px 40px rgba(0, 0, 0, 0.3)'
+          : '0 8px 32px rgba(0, 0, 0, 0.08), 0 0 1px rgba(255, 255, 255, 0.8) inset'};
         }
 
         .cta-title {
-          font-size: 2.8rem;
+          font-size: 2rem;
           font-weight: 700;
           color: ${theme === 'dark' ? 'white' : '#1f2937'};
-          margin-bottom: 16px;
-          font-family: 'Playfair Display', 'Georgia', serif;
+          margin-bottom: 12px;
           letter-spacing: -0.01em;
         }
 
@@ -940,7 +933,7 @@ const PaginaInicio: React.FC = () => {
         }
 
         .video-section {
-          padding: 80px 0;
+          padding: 3.75rem 0;
           position: relative;
         }
 
@@ -964,13 +957,12 @@ const PaginaInicio: React.FC = () => {
         }
 
         .video-title {
-          font-size: 2.4rem;
+          font-size: 2rem;
           font-weight: 700;
           color: white;
-          margin-bottom: 28px;
-          font-family: 'Playfair Display', 'Georgia', serif;
+          margin-bottom: 20px;
           letter-spacing: -0.01em;
-          line-height: 1.3;
+          line-height: 1.2;
         }
 
         .video-title .gradient-text {

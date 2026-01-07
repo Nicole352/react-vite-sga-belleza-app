@@ -59,7 +59,7 @@ import {
   Calendar,
   User,
   FileImage,
-  Shield,
+
   Globe,
   FileText,
   IdCard,
@@ -325,7 +325,7 @@ const Pago: React.FC = () => {
   const esCursoMontoFijo = typeof montoFijoCurso === 'number';
   const montoPredeterminado = esCursoMontoFijo ? montoFijoCurso : curso.precio;
 
-  const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'efectivo'>('transferencia');
+  const [selectedPayment, setSelectedPayment] = useState<'transferencia' | 'efectivo' | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [documentoIdentificacion, setDocumentoIdentificacion] = useState<File | null>(null);
@@ -1852,6 +1852,68 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           }
 
           /* ========================================
+             ESTILOS COMPACTOS PROFESIONALES
+             ======================================== */
+          
+          /* Inputs y textareas más compactos - SOLO en payment-container */
+          .payment-container .form-input, 
+          .payment-container input[type="text"], 
+          .payment-container input[type="email"], 
+          .payment-container input[type="tel"], 
+          .payment-container input[type="date"], 
+          .payment-container input[type="number"],
+          .payment-container textarea, 
+          .payment-container select {
+            padding: 8px 12px !important;
+            font-size: 0.875rem !important;
+            border-radius: 8px !important;
+          }
+          
+          /* Labels más pequeños - SOLO en payment-container */
+          .payment-container label, 
+          .payment-container .form-label {
+            font-size: 0.875rem !important;
+            margin-bottom: 6px !important;
+            font-weight: 500 !important;
+          }
+          
+          /* Reducir espaciado en filas de formulario - SOLO en payment-container */
+          .payment-container .form-row {
+            gap: 12px !important;
+            margin-bottom: 12px !important;
+          }
+          
+          /* Secciones de formulario más compactas - SOLO en payment-container */
+          .payment-container .form-section {
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+            border-radius: 10px !important;
+          }
+          
+          /* Títulos de sección más pequeños - SOLO en payment-container */
+          .payment-container .section-title, 
+          .payment-container h3, 
+          .payment-container h4 {
+            font-size: 1rem !important;
+            margin-bottom: 12px !important;
+            font-weight: 600 !important;
+          }
+          
+          /* Botones más compactos - SOLO en payment-container, EXCEPTO botón de volver */
+          .payment-container button:not(.back-button) {
+            padding: 8px 16px !important;
+            font-size: 0.875rem !important;
+          }
+          
+          /* Alertas y mensajes más compactos - SOLO en payment-container */
+          .payment-container .alert, 
+          .payment-container [role="alert"] {
+            padding: 10px 14px !important;
+            font-size: 0.85rem !important;
+            margin-bottom: 12px !important;
+          }
+
+          /* ========================================
              ESTILOS RESPONSIVOS MEJORADOS
              ======================================== */
           
@@ -1863,7 +1925,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           }
           
           /* Tablet */
-          @media (max-width: 1024px) {
+          @media (max-width: 768px) {
             .payment-grid {
               grid-template-columns: 1fr !important;
               gap: 32px !important;
@@ -1906,7 +1968,29 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               max-width: 90% !important;
             }
             
-            /* CARD DEL CURSO */
+            /* CARD DEL CURSO - HORIZONTAL */
+            .curso-card-horizontal {
+              flex-direction: column !important;
+              align-items: stretch !important;
+              gap: 16px !important;
+              padding: 16px !important;
+            }
+            
+            .curso-card-horizontal > div:first-child {
+              min-width: 100% !important;
+              justify-content: center !important;
+            }
+            
+            .curso-card-horizontal > div:nth-child(2) {
+              justify-content: center !important;
+            }
+            
+            .curso-card-horizontal > div:last-child {
+              text-align: center !important;
+              min-width: 100% !important;
+            }
+            
+            /* CARD DEL CURSO - ORIGINAL (por si acaso) */
             .curso-card {
               width: 100% !important;
               max-width: 100% !important;
@@ -2279,7 +2363,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
-        paddingTop: 110,
+        paddingTop: '3.75rem',
         paddingBottom: 0
       }}>
         {/* Partículas flotantes */}
@@ -2301,9 +2385,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         </div>
 
         <div className="payment-container" style={{
-          maxWidth: '1200px',
+          maxWidth: '90%',
           margin: '0 auto',
-          padding: '0 24px',
+          padding: '0 0.75rem',
           position: 'relative',
           zIndex: 1
         }}>
@@ -2342,423 +2426,2076 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             Volver
           </button>
 
+          {/* Título centrado */}
+          <h1 className="payment-title" style={{
+            fontSize: '2rem',
+            fontWeight: '700',
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            marginBottom: '16px',
+            lineHeight: 1.2,
+            textAlign: 'center'
+          }}>
+            Finalizar Inscripción
+          </h1>
+
+          {/* Botón actualizar centrado */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+            <button
+              onClick={handleRefreshCupos}
+              disabled={isRefreshingCupos}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                borderRadius: '999px',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                padding: '0.4rem 1rem',
+                background: theme === 'dark' ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.15)',
+                color: theme === 'dark' ? '#fef3c7' : '#92400e',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                cursor: isRefreshingCupos ? 'wait' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <RefreshCcw size={16} />
+              {isRefreshingCupos ? 'Actualizando…' : 'Actualizar lista de cursos'}
+            </button>
+          </div>
+
+          {/* BARRA SUPERIOR COMPACTA - Datos del Curso y Cupos (CENTRADA) */}
+          <div className="curso-card-horizontal" style={{
+            background: theme === 'dark'
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
+              : 'rgba(255, 255, 255, 0.97)',
+            borderRadius: '12px',
+            padding: '0.75rem 1rem',
+            marginBottom: '2rem',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '20px',
+            flexWrap: 'wrap',
+            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+            opacity: isVisible ? 1 : 0,
+            transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            {/* Imagen y Título */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '250px' }}>
+              <img
+                src={curso.imagen}
+                alt={curso.titulo}
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '12px',
+                  objectFit: 'cover',
+                  boxShadow: '0 4px 12px rgba(251, 191, 36, 0.2)',
+                  flexShrink: 0
+                }}
+              />
+              <div>
+                <h3 style={{
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                  marginBottom: '4px',
+                  lineHeight: 1.2
+                }}>
+                  {curso.titulo}
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Calendar size={14} color="#fbbf24" />
+                  <span style={{
+                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                    fontSize: '0.8rem'
+                  }}>
+                    {curso.duracion}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Cupos Disponibles */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              flex: '1',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              {notFoundOrNoCourse ? (
+                <span style={{
+                  padding: '6px 14px',
+                  borderRadius: '9999px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  fontWeight: 700,
+                  fontSize: '0.8rem'
+                }}>
+                  No existe cursos disponibles
+                </span>
+              ) : (
+                !tipoCursoBackend!.disponible || tipoCursoBackend!.estado !== 'activo' ? (
+                  <span style={{
+                    padding: '6px 14px',
+                    borderRadius: '9999px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#ef4444',
+                    fontWeight: 700,
+                    fontSize: '0.8rem'
+                  }}>
+                    Matrícula cerrada
+                  </span>
+                ) : (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {(() => {
+                      const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
+
+                      if (cuposFiltrados.length === 0) {
+                        return (
+                          <span style={{
+                            padding: '6px 14px',
+                            borderRadius: '9999px',
+                            background: 'rgba(16, 185, 129, 0.15)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            color: '#10b981',
+                            fontWeight: 700,
+                            fontSize: '0.8rem'
+                          }}>
+                            {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` :
+                              tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` :
+                                'Disponible'}
+                          </span>
+                        );
+                      }
+
+                      return cuposFiltrados.filter((c: any) => c.cupos_totales > 0).map((c: any) => {
+                        const cuposMostrar = Math.max(Number(c.cupos_totales) || 0, 0);
+                        const tieneCupos = cuposMostrar > 0;
+                        const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
+
+                        const slotColors = tieneCupos
+                          ? {
+                            background: theme === 'dark'
+                              ? 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(248,113,113,0.15))'
+                              : 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(253,230,138,0.4))',
+                            border: '1.5px solid rgba(251,191,36,0.45)',
+                            text: theme === 'dark' ? '#fde68a' : '#92400e',
+                            accent: '#d97706'
+                          }
+                          : {
+                            background: theme === 'dark'
+                              ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(190,24,93,0.2))'
+                              : 'linear-gradient(135deg, rgba(254,226,226,0.9), rgba(254,215,215,0.8))',
+                            border: '1.5px solid rgba(239,68,68,0.35)',
+                            text: theme === 'dark' ? '#fecdd3' : '#7f1d1d',
+                            accent: '#dc2626'
+                          };
+
+                        return (
+                          <div
+                            key={c.horario}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '12px',
+                              background: slotColors.background,
+                              border: slotColors.border,
+                              transition: 'all 0.3s ease'
+                            }}
+                          >
+                            <Icon size={14} color={slotColors.accent} style={{ flexShrink: 0 }} />
+                            <span style={{
+                              color: slotColors.text,
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              textTransform: 'capitalize'
+                            }}>
+                              {c.horario}
+                            </span>
+                            <span style={{
+                              color: slotColors.text,
+                              fontWeight: 600,
+                              fontSize: '0.7rem'
+                            }}>
+                              {`${cuposMostrar}/${c.capacidad_total}`}
+                            </span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Precio */}
+            <div style={{
+              fontSize: '1.1rem',
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              minWidth: '100px',
+              textAlign: 'right'
+            }}>
+              ${curso.precio.toLocaleString()}
+            </div>
+          </div>
+
+          {/* Información de modalidades de pago */}
+          <div className="modalidad-info" style={{
+            background: 'rgba(251, 191, 36, 0.1)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '2rem'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              marginBottom: '16px'
+            }}>
+              <Calendar size={24} color="#fbbf24" />
+              <span style={{
+                color: '#fbbf24',
+                fontWeight: '700',
+                fontSize: '1rem'
+              }}>
+                Modalidad de Pago
+              </span>
+            </div>
+
+            {/* Información específica por curso */}
+            {cursoKey === 'unas' && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                  Técnica de Uñas - Modalidad por Clases
+                </h4>
+                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                  <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
+                  <li><strong>Total de clases:</strong> 16 clases</li>
+                  <li><strong>Clases restantes:</strong> $15.40 USD cada una (15 clases)</li>
+                  <li><strong>Frecuencia:</strong> 2 clases por semana</li>
+                  <li><strong>Duración:</strong> 8 semanas aproximadamente</li>
+                </ul>
+              </div>
+            )}
+
+            {cursoKey === 'lashista' && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
+                  Lashista Profesional - Modalidad por Clases
+                </h4>
+                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.85rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                  <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
+                  <li><strong>Total de clases:</strong> 6 clases</li>
+                  <li><strong>Clases restantes:</strong> $26 USD cada una (5 clases)</li>
+                  <li><strong>Frecuencia:</strong> 1 clase por semana</li>
+                  <li><strong>Duración:</strong> 6 semanas</li>
+                </ul>
+              </div>
+            )}
+
+            {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
+                  {curso.titulo} - Modalidad Mensual
+                </h4>
+                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
+                  <li><strong>Modalidad:</strong> Pago mensual únicamente</li>
+                  <li><strong>Valor mensual:</strong> $90 USD cada mes</li>
+                  <li><strong>Duración:</strong> {cursoKey === 'cosmiatria' ? '7 meses' : cursoKey === 'maquillaje' ? '6 meses' : '12 meses'}</li>
+                  <li><strong>Incluye:</strong> Materiales, productos y certificación</li>
+                  {cursoKey === 'cosmiatria' && <li><strong>Requisito:</strong> Ser Cosmetóloga Graduada</li>}
+                </ul>
+              </div>
+            )}
+
+            <div style={{
+              background: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(248,113,113,0.12))'
+                : 'linear-gradient(135deg, rgba(253,230,138,0.85), rgba(251,191,36,0.65))',
+              borderRadius: '14px',
+              padding: '14px',
+              marginTop: '16px',
+              border: theme === 'dark'
+                ? '1px solid rgba(251,191,36,0.5)'
+                : '1px solid rgba(217,119,6,0.45)',
+              boxShadow: theme === 'dark'
+                ? '0 10px 26px rgba(251,191,36,0.25)'
+                : '0 12px 28px rgba(217,119,6,0.18)'
+            }}>
+              <p style={{
+                color: theme === 'dark' ? '#fde68a' : '#92400e',
+                fontSize: '0.9rem',
+                margin: 0,
+                fontWeight: '700',
+                textAlign: 'center',
+                letterSpacing: 0.3
+              }}>
+                ✨ Con tu primer pago ya inicias tus clases ✨
+              </p>
+            </div>
+          </div>
+
+          {/* GRID DE DOS COLUMNAS - Información Personal (Izquierda) y Método de Pago (Derecha) */}
           <div className="payment-grid" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '60px',
+            gap: '2rem',
             alignItems: 'start'
           }}>
-            {/* Panel izquierdo - Información del curso */}
+            {/* COLUMNA IZQUIERDA - Información Personal (FORMULARIO COMPLETO) */}
             <div style={{
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}>
-              <h1 className="payment-title" style={{
-                fontSize: '3rem',
-                fontWeight: '800',
-                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                marginBottom: '24px',
-                lineHeight: 1.2
-              }}>
-                Finalizar Inscripción
-              </h1>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <button
-                  onClick={handleRefreshCupos}
-                  disabled={isRefreshingCupos}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    borderRadius: '999px',
-                    border: '1px solid rgba(251, 191, 36, 0.3)',
-                    padding: '0.4rem 1rem',
-                    background: theme === 'dark' ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.15)',
-                    color: theme === 'dark' ? '#fef3c7' : '#92400e',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    cursor: isRefreshingCupos ? 'wait' : 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <RefreshCcw size={16} />
-                  {isRefreshingCupos ? 'Actualizando…' : 'Actualizar lista de cursos'}
-                </button>
-              </div>
-
-              {/* Card del curso */}
-              <div className="curso-card" style={{
+              {/* Información personal */}
+              <div className="form-section" style={{
                 background: theme === 'dark'
                   ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
                   : 'rgba(255, 255, 255, 0.97)',
-                borderRadius: '24px',
-                padding: '32px',
-                marginBottom: '40px',
+                borderRadius: '12px',
+                padding: '20px',
+                marginBottom: '20px',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(251, 191, 36, 0.2)',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                  <img
-                    src={curso.imagen}
-                    alt={curso.titulo}
-                    className="curso-image"
-                    style={{
-                      width: '100px',
-                      height: '100px',
-                      borderRadius: '16px',
-                      objectFit: 'cover',
-                      boxShadow: '0 8px 24px rgba(251, 191, 36, 0.2)'
-                    }}
-                  />
-                  <div>
-                    <h3 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: '700',
-                      color: theme === 'dark' ? '#fff' : '#1f2937',
-                      marginBottom: '8px'
-                    }}>
-                      {curso.titulo}
-                    </h3>
+                <h3 className="section-title" style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  animation: 'fadeInUp 1s ease-in-out'
+                }}>
+                  <User size={20} color="#fbbf24" />
+                  Información Personal
+                </h3>
+
+                {/* SPINNER DE CARGA - Verificando */}
+                {verificandoEstudiante && (
+                  <div className="flex flex-col items-center justify-center py-8 px-4 mb-6 rounded-2xl" style={{
+                    background: 'transparent',
+                    border: 'none'
+                  }}>
+                    <div className="relative">
+                      <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-blue-400 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+                    </div>
+                    <p className="mt-4 text-lg font-semibold" style={{ color: theme === 'dark' ? '#60a5fa' : '#3b82f6' }}>
+                      Verificando información...
+                    </p>
+                    <p className="mt-2 text-sm" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(30,41,59,0.6)' }}>
+                      Por favor espera un momento
+                    </p>
+                  </div>
+                )}
+
+                {/* ALERTA DE BLOQUEO - Solicitud Pendiente o Ya Inscrito */}
+                {!verificandoEstudiante && tieneSolicitudPendiente && solicitudPendiente && (
+                  <div style={{
+                    position: 'relative',
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                    border: '2px solid rgba(239, 68, 68, 0.4)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    marginBottom: '32px',
+                    backdropFilter: 'blur(10px)',
+                    animation: 'slideInUp 0.5s ease-out'
+                  }}>
+                    {/* Botón X para cerrar */}
+                    <button
+                      onClick={() => {
+                        setTieneSolicitudPendiente(false);
+                        setSolicitudPendiente(null);
+                        setEstudianteExistente(null);
+                        window.location.reload();
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        zIndex: 10
+                      }}
+                      className="transition-all duration-300 hover:scale-125 hover:rotate-90"
+                      title="Cerrar"
+                    >
+                      <span style={{
+                        color: '#ef4444',
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        display: 'block'
+                      }}>×</span>
+                    </button>
+
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '16px',
-                      marginBottom: '12px'
+                      gap: '12px',
+                      marginBottom: '16px',
+                      paddingRight: '32px'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Calendar size={16} color="#fbbf24" />
-                        <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)' }}>{curso.duracion}</span>
+                      {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? (
+                        <Ban size={32} color="#ef4444" />
+                      ) : (
+                        <Clock size={32} color="#ef4444" />
+                      )}
+                      <h3 style={{
+                        color: '#ef4444',
+                        fontSize: '1.4rem',
+                        fontWeight: '700',
+                        margin: 0
+                      }}>
+                        {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? 'Ya Inscrito en este Curso' : 'Solicitud en Revisión'}
+                      </h3>
+                    </div>
+
+                    <p style={{
+                      color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                      fontSize: '1.05rem',
+                      lineHeight: '1.6',
+                      margin: '0 0 16px 0'
+                    }}>
+                      {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO'
+                        ? 'Ya estás cursando este programa. Para inscribirte en otro curso, selecciónalo desde la página de cursos.'
+                        : 'Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.'}
+                    </p>
+
+                    <div className="rounded-xl p-4 mb-4" style={{
+                      background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.7)',
+                      border: `1px solid ${theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)'}`
+                    }}>
+                      <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                        <strong className="text-red-400">📚 Curso:</strong> {solicitudPendiente.tipo_curso_nombre || 'N/A'}
+                      </p>
+                      {solicitudPendiente.codigo_solicitud !== 'YA-INSCRITO' && (
+                        <>
+                          <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                            <strong className="text-red-400">🔖 Código:</strong> {solicitudPendiente.codigo_solicitud}
+                          </p>
+                          <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                            <strong className="text-red-400">📅 Fecha:</strong> {new Date(solicitudPendiente.fecha_solicitud).toLocaleDateString('es-EC')}
+                          </p>
+                          <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
+                            <strong className="text-red-400">⏳ Estado:</strong> En revisión
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ALERTA INFORMATIVA - Estudiante Existente (solo si NO está inscrito en este curso) */}
+                {estudianteExistente && !tieneSolicitudPendiente && (
+                  <div style={{
+                    position: 'relative',
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                    border: '2px solid rgba(16, 185, 129, 0.4)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    marginBottom: '32px',
+                    backdropFilter: 'blur(10px)',
+                    animation: 'slideInUp 0.5s ease-out'
+                  }}>
+                    {/* Botón X para cerrar */}
+                    <button
+                      onClick={() => {
+                        setEstudianteExistente(null);
+                        window.location.reload();
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        zIndex: 10
+                      }}
+                      className="transition-all duration-300 hover:scale-125 hover:rotate-90"
+                      title="Cerrar"
+                    >
+                      <span style={{
+                        color: '#10b981',
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        display: 'block'
+                      }}>×</span>
+                    </button>
+
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      marginBottom: '16px',
+                      paddingRight: '32px'
+                    }}>
+                      <CheckCircle size={32} color="#10b981" />
+                      <h3 style={{
+                        color: '#10b981',
+                        fontSize: '1.4rem',
+                        fontWeight: '700',
+                        margin: 0
+                      }}>
+                        ¡Bienvenido de nuevo, {estudianteExistente.nombre}!
+                      </h3>
+                    </div>
+
+                    <p style={{
+                      color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                      fontSize: '1.05rem',
+                      lineHeight: '1.6',
+                      margin: '0 0 16px 0'
+                    }}>
+                      Ya estás registrado en nuestro sistema con identificación <strong>{estudianteExistente.identificacion}</strong>.
+                      Para inscribirte a este nuevo curso, solo necesitas:
+                    </p>
+
+                    <ul style={{
+                      color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : '#475569',
+                      fontSize: '1rem',
+                      lineHeight: '1.8',
+                      marginTop: '12px',
+                      marginBottom: '12px',
+                      paddingLeft: '24px'
+                    }}>
+                      <li>✅ Seleccionar tu horario preferido</li>
+                      <li>✅ Elegir método de pago</li>
+                      <li>✅ Subir comprobante de pago</li>
+                    </ul>
+
+                    <div style={{
+                      margin: '16px 0',
+                      padding: '14px 18px',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(245, 158, 11, 0.35)',
+                      background: 'rgba(245, 158, 11, 0.08)'
+                    }}>
+                      <p style={{
+                        margin: 0,
+                        color: theme === 'dark' ? '#fde68a' : '#92400e',
+                        fontWeight: 600,
+                        fontSize: '0.95rem',
+                        lineHeight: 1.5
+                      }}>
+                        💲 Pago requerido ahora: <strong>{formatCurrency(esCursoMontoFijo ? montoPredeterminado : (formData.montoMatricula || curso?.precio || 0))}</strong>.{' '}
+                        {esCursoMontoFijo
+                          ? `Este curso solo admite un pago inicial fijo de ${formatCurrency(montoPredeterminado)}; cuando confirmemos tu matrícula podrás cancelar el resto del curso.`
+                          : 'Si deseas adelantar más meses, modifica el monto directamente en el campo “Monto a pagar”.'}
+                      </p>
+                    </div>
+
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '12px 16px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(59, 130, 246, 0.3)'
+                    }}>
+                      <p style={{
+                        color: '#3b82f6',
+                        fontSize: '0.9rem',
+                        margin: 0,
+                        fontWeight: '600'
+                      }}>
+                        💡 Tip: Usarás las mismas credenciales de acceso que ya tienes
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* CAMPOS PERSONALES - Solo mostrar si NO es estudiante existente Y NO tiene solicitud pendiente */}
+                {!estudianteExistente && !tieneSolicitudPendiente && (
+                  <>
+                    {/* Tipo de documento - control segmentado estilizado (compacto) */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem', color: theme === 'dark' ? '#fff' : '#1f2937' }}>Tipo de documento</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {notFoundOrNoCourse ? (
-                          <span style={{
-                            padding: '4px 10px',
-                            borderRadius: '9999px',
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            color: '#ef4444',
+                      <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '10px'
+                      }}>
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={formData.tipoDocumento === 'ecuatoriano'}
+                          onClick={() => {
+                            setFormData({
+                              nombre: '',
+                              apellido: '',
+                              email: '',
+                              telefono: '',
+                              cedula: '',
+                              pasaporte: '',
+                              tipoDocumento: 'ecuatoriano',
+                              fechaNacimiento: '',
+                              direccion: '',
+                              genero: '',
+                              montoMatricula: montoPredeterminado,
+                              horarioPreferido: '',
+                              contactoEmergencia: ''
+                            });
+                            setErrors({});
+                            setDocumentoIdentificacion(null);
+                            setDocumentoEstatusLegal(null);
+                          }}
+                          className="document-tab"
+                          style={{
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: formData.tipoDocumento === 'ecuatoriano' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
+                            background: formData.tipoDocumento === 'ecuatoriano' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
+                            color: formData.tipoDocumento === 'ecuatoriano' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
                             fontWeight: 700,
-                            fontSize: '0.8rem'
-                          }}>
-                            No existe cursos disponibles
+                            fontSize: '0.95rem',
+                            cursor: 'pointer',
+                            boxShadow: formData.tipoDocumento === 'ecuatoriano' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
+                            transition: 'all .25s ease',
+                            backdropFilter: 'blur(10px)'
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
+                        >
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            <User size={16} />
+                            Ecuatoriano (Cédula)
                           </span>
-                        ) : (
-                          !tipoCursoBackend!.disponible || tipoCursoBackend!.estado !== 'activo' ? (
-                            <span style={{
-                              padding: '4px 10px',
-                              borderRadius: '9999px',
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              color: '#ef4444',
-                              fontWeight: 700,
-                              fontSize: '0.8rem'
-                            }}>
-                              Matrícula cerrada
-                            </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={formData.tipoDocumento === 'extranjero'}
+                          onClick={() => {
+                            setFormData({
+                              nombre: '',
+                              apellido: '',
+                              email: '',
+                              telefono: '',
+                              cedula: '',
+                              pasaporte: '',
+                              tipoDocumento: 'extranjero',
+                              fechaNacimiento: '',
+                              direccion: '',
+                              genero: '',
+                              montoMatricula: montoPredeterminado,
+                              horarioPreferido: '',
+                              contactoEmergencia: ''
+                            });
+                            setErrors({});
+                            setDocumentoIdentificacion(null);
+                            setDocumentoEstatusLegal(null);
+                          }}
+                          style={{
+                            padding: '12px 14px',
+                            borderRadius: 12,
+                            border: formData.tipoDocumento === 'extranjero' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
+                            background: formData.tipoDocumento === 'extranjero' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
+                            color: formData.tipoDocumento === 'extranjero' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
+                            fontWeight: 700,
+                            fontSize: '0.95rem',
+                            cursor: 'pointer',
+                            boxShadow: formData.tipoDocumento === 'extranjero' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
+                            transition: 'all .25s ease',
+                            backdropFilter: 'blur(10px)'
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
+                        >
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            <Globe size={16} />
+                            Extranjero (Pasaporte)
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {formData.tipoDocumento === '' && (
+                      <div style={{
+                        background: 'rgba(251, 191, 36, 0.08)',
+                        border: '1px solid rgba(251, 191, 36, 0.25)',
+                        color: '#fbbf24',
+                        borderRadius: 12,
+                        padding: '14px 16px',
+                        marginBottom: 16,
+                        fontWeight: 600
+                      }}>
+                        Selecciona el tipo de documento para continuar.
+                      </div>
+                    )}
+
+
+
+                    {!estudianteExistente && formData.tipoDocumento !== '' && (
+                      <div key={formData.tipoDocumento} style={{ animation: 'fadeInUp 1s ease-in-out' }}>
+                        {/* Documento primero */}
+                        <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
+                          {formData.tipoDocumento === 'ecuatoriano' ? (
+                            <>
+                              <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                Cédula *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                inputMode="numeric"
+                                pattern="^[0-9]{10}$"
+                                maxLength={10}
+                                minLength={10}
+                                title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
+                                value={formData.cedula}
+                                className="form-input"
+                                onChange={(e) => {
+                                  const val = (e.target as HTMLInputElement).value;
+                                  const filtered = val.replace(/\D/g, '');
+                                  setFormData({ ...formData, cedula: filtered });
+                                  let msg: string | undefined = undefined;
+                                  if (val !== filtered) {
+                                    msg = 'Este dato es solo numérico';
+                                  } else if (filtered.length === 10) {
+                                    const res = validateCedulaEC(filtered);
+                                    if (!res.ok) msg = res.reason || 'Cédula inválida';
+                                  } else if (filtered.length > 0 && filtered.length < 10) {
+                                    msg = 'Debe tener 10 dígitos';
+                                  }
+                                  setErrors((prev) => ({ ...prev, cedula: msg }));
+                                }}
+                                onInvalid={(e) => {
+                                  (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
+                                }}
+                                onInput={(e) => {
+                                  (e.target as HTMLInputElement).setCustomValidity('');
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  border: errors.cedula ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '12px',
+                                  fontSize: '1rem',
+                                  transition: 'border-color 0.3s ease',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}
+                                onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                              />
+                              {errors.cedula && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                  <AlertCircle size={16} color="#ef4444" />
+                                  <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.cedula}</span>
+                                </div>
+                              )}
+                            </>
                           ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              {/* Mostrar cupos por horario */}
-                              {(() => {
-                                const cuposFiltrados = cuposDisponibles.filter((c: any) => c.id_tipo_curso === tipoCursoId);
+                            <>
+                              <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                                Pasaporte *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                inputMode="text"
+                                pattern="^[A-Za-z0-9]{6,20}$"
+                                maxLength={20}
+                                title="Pasaporte: 6 a 20 caracteres alfanuméricos"
+                                value={formData.pasaporte || ''}
+                                className="form-input"
+                                onChange={(e) => {
+                                  const val = (e.target as HTMLInputElement).value;
+                                  const filtered = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                                  setFormData({ ...formData, pasaporte: filtered });
+                                  let msg: string | undefined = undefined;
+                                  if (filtered && !/^[A-Z0-9]{6,20}$/.test(filtered)) {
+                                    msg = 'Pasaporte inválido (6-20 alfanumérico)';
+                                  }
+                                  setErrors((prev) => ({ ...prev, pasaporte: msg }));
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  border: errors.pasaporte ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                  borderRadius: '12px',
+                                  fontSize: '1rem',
+                                  transition: 'border-color 0.3s ease',
+                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                  color: theme === 'dark' ? '#fff' : '#1f2937'
+                                }}
+                                onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                                onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                              />
+                              {errors.pasaporte && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                  <AlertCircle size={16} color="#ef4444" />
+                                  <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.pasaporte}</span>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
 
-                                if (cuposFiltrados.length === 0) {
-                                  return (
-                                    <span style={{
-                                      padding: '4px 10px',
-                                      borderRadius: '9999px',
-                                      background: 'rgba(16, 185, 129, 0.15)',
-                                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                                      color: '#10b981',
-                                      fontWeight: 700,
-                                      fontSize: '0.8rem'
-                                    }}>
-                                      {tipoCursoBackend!.cursosActivos > 0 ? `Activos: ${tipoCursoBackend!.cursosActivos}` :
-                                        tipoCursoBackend!.cursosPlanificados > 0 ? `Planificados: ${tipoCursoBackend!.cursosPlanificados}` :
-                                          'Disponible'}
-                                    </span>
-                                  );
-                                }
+                        {/* Luego Nombre y Apellido */}
+                        <div className="form-row" style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '20px',
+                          marginBottom: '20px',
+                          animation: 'scaleFade 1s ease-in-out'
+                        }}>
+                          <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
+                            <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                              Nombres completos *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={formData.nombre}
+                              className="form-input"
+                              onChange={(e) => {
+                                const val = (e.target as HTMLInputElement).value;
+                                const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                                const filtered = removedInvalid.toUpperCase();
+                                setFormData({ ...formData, nombre: filtered });
+                                const hadInvalid = removedInvalid.length !== val.length;
+                                setErrors((prev) => ({ ...prev, nombre: hadInvalid ? 'Este dato es solo letras' : undefined }));
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: errors.nombre ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            />
+                            {errors.nombre && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                <AlertCircle size={16} color="#ef4444" />
+                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.nombre}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '80ms' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
+                              Apellidos completos *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={formData.apellido}
+                              onChange={(e) => {
+                                const val = (e.target as HTMLInputElement).value;
+                                const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                                const filtered = removedInvalid.toUpperCase();
+                                setFormData({ ...formData, apellido: filtered });
+                                const hadInvalid = removedInvalid.length !== val.length;
+                                setErrors((prev) => ({ ...prev, apellido: hadInvalid ? 'Este dato es solo letras' : undefined }));
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: errors.apellido ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            />
+                            {errors.apellido && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                <AlertCircle size={16} color="#ef4444" />
+                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.apellido}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
 
-                                return cuposFiltrados.filter((c: any) => c.cupos_totales > 0).map((c: any) => {
-                                  const cuposMostrar = Math.max(Number(c.cupos_totales) || 0, 0);
-                                  const tieneCupos = cuposMostrar > 0;
-                                  const promoLimitadaActiva = (c.promociones_con_limite || 0) > 0;
-                                  const promoSinCupos = promoLimitadaActiva && (c.cupos_promocion_restantes || 0) <= 0;
-                                  const porcentajeOcupado = Math.min(Math.max(((c.capacidad_total - cuposMostrar) / c.capacidad_total) * 100, 0), 100);
-                                  const Icon = c.horario === 'matutino' ? Sunrise : Sunset;
+                        {/* Fecha de Nacimiento */}
+                        <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out', animationDelay: '120ms' }}>
+                          <label style={{
+                            display: 'block',
+                            marginBottom: '8px',
+                            fontWeight: '600',
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
+                          }}>
+                            Fecha de Nacimiento *
+                          </label>
+                          <input
+                            type="date"
+                            required
+                            value={formData.fechaNacimiento}
+                            onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
+                            onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                            onBlur={(e) => {
+                              const el = e.target as HTMLInputElement;
+                              const val = el.value.trim();
+                              const m1 = val.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+                              if (m1) {
+                                const [_, dd, mm, yyyy] = m1;
+                                const norm = `${yyyy}-${mm}-${dd}`;
+                                setFormData(prev => ({ ...prev, fechaNacimiento: norm }));
+                                el.value = norm;
+                                el.setCustomValidity('');
+                                el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                                return;
+                              }
+                              if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                                el.setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                              } else {
+                                el.setCustomValidity('');
+                              }
+                              el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                            }}
+                            onInvalid={(e) => {
+                              (e.target as HTMLInputElement).setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
+                            }}
+                            onInput={(e) => {
+                              (e.target as HTMLInputElement).setCustomValidity('');
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              border: '2px solid rgba(251, 191, 36, 0.2)',
+                              borderRadius: '12px',
+                              fontSize: '1rem',
+                              transition: 'border-color 0.3s ease',
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}
+                          />
+                        </div>
 
-                                  const slotColors = tieneCupos
-                                    ? {
-                                      background: theme === 'dark'
-                                        ? 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(248,113,113,0.15))'
-                                        : 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(253,230,138,0.4))',
-                                      border: '1.5px solid rgba(251,191,36,0.45)',
-                                      text: theme === 'dark' ? '#fde68a' : '#92400e',
-                                      accent: '#d97706',
-                                      shadow: theme === 'dark'
-                                        ? '0 6px 18px rgba(251,191,36,0.25)'
-                                        : '0 8px 22px rgba(251,191,36,0.2)'
-                                    }
-                                    : {
-                                      background: theme === 'dark'
-                                        ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(190,24,93,0.2))'
-                                        : 'linear-gradient(135deg, rgba(254,226,226,0.9), rgba(254,215,215,0.8))',
-                                      border: '1.5px solid rgba(239,68,68,0.35)',
-                                      text: theme === 'dark' ? '#fecdd3' : '#7f1d1d',
-                                      accent: '#dc2626',
-                                      shadow: theme === 'dark'
-                                        ? '0 6px 18px rgba(239,68,68,0.2)'
-                                        : '0 8px 22px rgba(239,68,68,0.18)'
-                                    };
-
-                                  return (
-                                    <div
-                                      key={c.horario}
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        padding: '10px 18px',
-                                        borderRadius: '16px',
-                                        background: slotColors.background,
-                                        border: slotColors.border,
-                                        boxShadow: slotColors.shadow,
-                                        transition: 'all 0.3s ease',
-                                        cursor: 'default'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                        e.currentTarget.style.boxShadow = tieneCupos
-                                          ? '0 10px 26px rgba(251,191,36,0.32)'
-                                          : '0 10px 26px rgba(239,68,68,0.28)';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = slotColors.shadow;
-                                      }}
-                                    >
-                                      <Icon
-                                        size={16}
-                                        color={slotColors.accent}
-                                        style={{ flexShrink: 0 }}
-                                      />
-                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                        <span style={{
-                                          color: slotColors.text,
-                                          fontWeight: 700,
-                                          fontSize: '0.75rem',
-                                          textTransform: 'capitalize',
-                                          lineHeight: 1
-                                        }}>
-                                          {c.horario}
-                                        </span>
-                                        <span style={{
-                                          color: slotColors.text,
-                                          fontWeight: 600,
-                                          fontSize: '0.7rem',
-                                          lineHeight: 1
-                                        }}>
-                                          {`${cuposMostrar}/${c.capacidad_total} cupos`}
-                                        </span>
-                                        {promoLimitadaActiva && (
-                                          <span style={{
-                                            marginTop: '2px',
-                                            color: promoSinCupos ? '#f87171' : slotColors.accent,
-                                            fontSize: '0.65rem',
-                                            fontWeight: 600
-                                          }}>
-                                            {promoSinCupos
-                                              ? 'Promoción sin cupos disponibles'
-                                              : cuposRegalados > 0
-                                                ? `Incluye ${cuposRegalados} cupo${cuposRegalados === 1 ? '' : 's'} por promo`
-                                                : `Cupos reservados para promo (${c.cupos_promocion_restantes} restantes)`}
-                                          </span>
-                                        )}
-                                      </div>
-                                      {/* Barra de progreso */}
-                                      <div style={{
-                                        width: '40px',
-                                        height: '4px',
-                                        background: 'rgba(0,0,0,0.2)',
-                                        borderRadius: '2px',
-                                        overflow: 'hidden',
-                                        marginLeft: '4px'
-                                      }}>
-                                        <div style={{
-                                          width: `${porcentajeOcupado}%`,
-                                          height: '100%',
-                                          background: tieneCupos
-                                            ? 'linear-gradient(90deg, #fde68a, #fbbf24)'
-                                            : 'linear-gradient(90deg, #fecdd3, #e11d48)',
-                                          transition: 'width 0.3s ease'
-                                        }} />
-                                      </div>
-                                    </div>
-                                  );
-                                });
-                              })()}
+                        {/* MENSAJE PARA MENORES DE 16 AÑOS */}
+                        {formData.fechaNacimiento && calcularEdad(formData.fechaNacimiento) > 0 && calcularEdad(formData.fechaNacimiento) < 16 && (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 12,
+                            marginTop: -10,
+                            marginBottom: 20,
+                            padding: '16px',
+                            background: theme === 'dark'
+                              ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.08))'
+                              : 'linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(254, 235, 203, 0.95))',
+                            border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(245, 158, 11, 0.4)'}`,
+                            borderRadius: '16px',
+                            animation: 'slideInUp 0.4s ease-out',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                          }}>
+                            <Info size={24} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
+                            <div style={{ flex: 1 }}>
+                              <p style={{
+                                color: theme === 'dark' ? '#fde68a' : '#92400e',
+                                fontSize: '0.95rem',
+                                fontWeight: '700',
+                                marginBottom: '4px',
+                                lineHeight: '1.4'
+                              }}>
+                                Aviso Importante para Estudiantes Menores
+                              </p>
+                              <p style={{
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.85)' : '#451a03',
+                                fontSize: '0.9rem',
+                                lineHeight: '1.5',
+                                margin: 0
+                              }}>
+                                Estimado estudiante, al ser menor de 16 años, le solicitamos gentilmente acercarse a la <strong>Escuela Jessica Velez</strong> en compañía de su representante legal para evaluar su situación.
+                                <br />
+                                <span style={{ display: 'inline-block', marginTop: '6px', fontWeight: '500', opacity: 0.9 }}>
+                                  Puede continuar con su inscripción, pero requerimos esta validación presencial.
+                                </span>
+                              </p>
                             </div>
-                          )
+                          </div>
                         )}
                       </div>
-                    </div>
-                    <div className="curso-price" style={{
-                      fontSize: '2rem',
-                      fontWeight: '800',
-                      background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
+                    )}
+
+                    {formData.tipoDocumento !== '' && (
+                      <>
+                        <div style={{ marginBottom: '20px', animation: 'scaleFade 1.2s ease-in-out', animationDelay: '160ms' }}>
+                          <label style={{
+                            display: 'block',
+                            marginBottom: '8px',
+                            fontWeight: '600',
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
+                          }}>
+                            Dirección
+                          </label>
+                          <textarea
+                            required
+                            value={formData.direccion}
+                            onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value.toUpperCase() })}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              border: '2px solid rgba(251, 191, 36, 0.2)',
+                              borderRadius: '12px',
+                              fontSize: '1rem',
+                              transition: 'border-color 0.3s ease',
+                              background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                              color: theme === 'dark' ? '#fff' : '#1f2937',
+                              minHeight: '90px'
+                            }}
+                            onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
+                            onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                          />
+                        </div>
+
+                        {/* Primera fila: Género y Email */}
+                        <div className="form-row" style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '20px',
+                          marginBottom: '20px',
+                          animation: 'scaleFade 1.2s ease-in-out',
+                          animationDelay: '200ms'
+                        }}>
+                          <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
+                            <label style={{
+                              display: 'block',
+                              marginBottom: '8px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              Género *
+                            </label>
+                            <select
+                              required
+                              value={formData.genero}
+                              onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            >
+                              <option value="" disabled>Seleccionar</option>
+                              <option value="masculino">Masculino</option>
+                              <option value="femenino">Femenino</option>
+                              <option value="otro">Otro</option>
+                            </select>
+                          </div>
+                          <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '240ms' }}>
+                            <label style={{
+                              display: 'block',
+                              marginBottom: '8px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              Email *
+                            </label>
+                            <input
+                              type="email"
+                              required
+                              inputMode="email"
+                              pattern="[^\s@]+@[^\s@]+\.[^\s@]{2,}"
+                              title="Ingresa un correo válido (ej: usuario@dominio.com)"
+                              value={formData.email}
+                              onChange={(e) => {
+                                const raw = (e.target as HTMLInputElement).value;
+                                const val = raw.toLowerCase();
+                                const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+                                setFormData({ ...formData, email: val });
+                                setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: errors.email ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            />
+                            {errors.email && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                <AlertCircle size={16} color="#ef4444" />
+                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.email}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Segunda fila: Teléfono y Contacto de Emergencia */}
+                        <div className="form-row" style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '20px',
+                          marginBottom: '20px',
+                          animation: 'scaleFade 1.2s ease-in-out',
+                          animationDelay: '280ms'
+                        }}>
+                          <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '280ms' }}>
+                            <label style={{
+                              display: 'block',
+                              marginBottom: '8px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              Teléfono *
+                            </label>
+                            <input
+                              type="tel"
+                              required
+                              inputMode="numeric"
+                              pattern="^09[0-9]{8}$"
+                              maxLength={10}
+                              minLength={10}
+                              title="Formato Ecuador: 10 dígitos y empieza con 09"
+                              value={formData.telefono}
+                              onChange={(e) => {
+                                const val = (e.target as HTMLInputElement).value;
+                                const filtered = val.replace(/\D/g, '');
+                                setFormData({ ...formData, telefono: filtered });
+                                let msg: string | undefined = undefined;
+                                if (val !== filtered) {
+                                  msg = 'Este dato es solo numérico';
+                                } else if (filtered && !filtered.startsWith('09')) {
+                                  msg = 'El teléfono debe empezar con 09';
+                                }
+                                setErrors((prev) => ({ ...prev, telefono: msg }));
+                              }}
+                              onInvalid={(e) => {
+                                (e.target as HTMLInputElement).setCustomValidity('Formato Ecuador: debe empezar con 09 y tener 10 dígitos');
+                              }}
+                              onInput={(e) => {
+                                const el = e.target as HTMLInputElement;
+                                const v = el.value;
+                                if (v && !/^09/.test(v)) {
+                                  el.setCustomValidity('El teléfono debe empezar con 09');
+                                } else {
+                                  el.setCustomValidity('');
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: errors.telefono ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            />
+                            {errors.telefono && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                <AlertCircle size={16} color="#ef4444" />
+                                <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
+                            <label style={{
+                              display: 'block',
+                              marginBottom: '8px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              Contacto de Emergencia *
+                            </label>
+                            <input
+                              type="tel"
+                              required
+                              inputMode="tel"
+                              pattern="^09[0-9]{8}$"
+                              maxLength={10}
+                              minLength={10}
+                              title="Teléfono de contacto de emergencia: 10 dígitos y empieza con 09"
+                              value={formData.contactoEmergencia}
+                              onChange={(e) => {
+                                const val = (e.target as HTMLInputElement).value;
+                                const filtered = val.replace(/\D/g, '');
+                                setFormData({ ...formData, contactoEmergencia: filtered });
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                              onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                            />
+                            {/* Validación de contacto de emergencia */}
+                            {formData.contactoEmergencia && formData.contactoEmergencia === formData.telefono && (
+                              <div style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                marginTop: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                animation: 'shake 0.5s ease-in-out'
+                              }}>
+                                <AlertCircle size={18} color="#ef4444" />
+                                <p style={{
+                                  color: '#ef4444',
+                                  fontSize: '0.85rem',
+                                  margin: 0,
+                                  fontWeight: '500',
+                                  lineHeight: '1.4'
+                                }}>
+                                  ⚠️ El contacto de emergencia no puede ser igual a tu número de teléfono.
+                                  <br />
+                                  <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Por favor ingresa un número diferente para emergencias.</span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Fila del Monto a Pagar */}
+                        <div className="form-row" style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '20px',
+                          marginBottom: '20px',
+                          animation: 'scaleFade 1.2s ease-in-out',
+                          animationDelay: '340ms'
+                        }}>
+                          {/* Campo Monto a Pagar */}
+                          <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
+                            <label style={{
+                              display: 'block',
+                              marginBottom: '8px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              Monto a pagar (USD) *
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              min={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '1')}
+                              step={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '0.01')}
+                              value={formData.montoMatricula}
+                              readOnly={esCursoMontoFijo}
+                              onChange={(e) => {
+                                if (esCursoMontoFijo) {
+                                  toast.error(`Este curso tiene un monto fijo de ${formatCurrency(montoPredeterminado)}.`);
+                                  return;
+                                }
+                                const valor = e.target.value;
+                                const newMonto = parseFloat(valor) || 0;
+
+                                // VALIDACIÓN DE MÚLTIPLOS DE 90 PARA CURSOS MENSUALES
+                                if (tipoCursoBackend?.modalidad_pago === 'mensual') {
+                                  const MONTO_BASE = 90;
+
+                                  // Si está vacío o es 0, permitir (para que pueda borrar)
+                                  if (valor === '' || newMonto === 0) {
+                                    setFormData({ ...formData, montoMatricula: newMonto });
+                                    return;
+                                  }
+
+                                  // Solo permitir múltiplos de 90
+                                  if (newMonto % MONTO_BASE === 0 && newMonto >= MONTO_BASE) {
+                                    setFormData({ ...formData, montoMatricula: newMonto });
+
+                                    // Mostrar alerta si el monto es diferente al precio original del curso
+                                    const precioOriginal = curso?.precio || 0;
+                                    setShowMontoAlert(newMonto !== precioOriginal);
+                                  } else {
+                                    // No actualizar el estado si no es múltiplo de 90
+                                    const mesesPagados = Math.floor(newMonto / MONTO_BASE);
+                                    const montoSugerido = mesesPagados * MONTO_BASE;
+                                    const montoSiguiente = (mesesPagados + 1) * MONTO_BASE;
+
+                                    toast(
+                                      `Solo múltiplos de $${MONTO_BASE}. Puedes pagar: $${montoSugerido} o $${montoSiguiente}`,
+                                      { duration: 3000, icon: '⚠️' }
+                                    );
+                                  }
+                                } else {
+                                  // Para cursos por clases, permitir cualquier valor
+                                  setFormData({ ...formData, montoMatricula: newMonto });
+
+                                  // Mostrar alerta si el monto es diferente al precio original del curso
+                                  const precioOriginal = curso?.precio || 0;
+                                  setShowMontoAlert(newMonto !== precioOriginal);
+                                }
+                              }}
+                              onBlur={(e) => {
+                                // Cambiar color del borde
+                                (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                                if (esCursoMontoFijo) {
+                                  return;
+                                }
+
+                                // Al perder el foco, si está vacío o es inválido, restaurar al precio del curso
+                                if (tipoCursoBackend?.modalidad_pago === 'mensual') {
+                                  const numero = parseFloat(e.target.value);
+                                  if (!numero || numero < 90 || numero % 90 !== 0) {
+                                    setFormData({ ...formData, montoMatricula: montoPredeterminado });
+                                    setShowMontoAlert(false);
+                                    toast.error('Monto inválido. Se restauró al valor del curso.', { duration: 3000 });
+                                  }
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                border: '2px solid rgba(251, 191, 36, 0.2)',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s ease',
+                                background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                                color: theme === 'dark' ? '#fff' : '#1f2937',
+                                fontWeight: '600',
+                                opacity: esCursoMontoFijo ? 0.8 : 1,
+                                cursor: esCursoMontoFijo ? 'not-allowed' : 'text'
+                              }}
+                              onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
+                            />
+
+                            {esCursoMontoFijo && (
+                              <p style={{
+                                marginTop: '8px',
+                                fontSize: '0.75rem',
+                                color: theme === 'dark' ? '#fef3c7' : '#92400e',
+                                fontWeight: 600
+                              }}>
+                                Este curso solo acepta pagos iniciales de {formatCurrency(montoPredeterminado)}. Una vez aprobada tu matrícula, podrás completar el resto del valor cuando lo desees.
+                              </p>
+                            )}
+
+
+
+                            {/* Alerta motivacional cuando se edita el monto - SOLO para montos inválidos */}
+                            {showMontoAlert && tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula % 90 !== 0 && (
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 12,
+                                marginTop: 12,
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '12px',
+                                animation: 'slideInUp 0.3s ease-out'
+                              }}>
+                                <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                                <div>
+                                  <div style={{
+                                    color: '#ef4444',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '700',
+                                    marginBottom: '6px'
+                                  }}>
+                                    💡 ¡Recordatorio importante!
+                                  </div>
+                                  <div style={{
+                                    color: '#fca5a5',
+                                    fontSize: '0.9rem',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>.
+                                    ¡No pierdas esta oportunidad de transformar tu futuro profesional!
+                                    <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+                                      ✨ Tu carrera en belleza te está esperando.
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Mensaje de confirmación para pagos adelantados válidos */}
+                            {tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula > 90 && formData.montoMatricula % 90 === 0 && (
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 12,
+                                marginTop: 12,
+                                padding: '16px',
+                                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08))',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                borderRadius: '12px',
+                                animation: 'slideInUp 0.3s ease-out'
+                              }}>
+                                <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                                <div>
+                                  <div style={{
+                                    color: '#10b981',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '700',
+                                    marginBottom: '6px'
+                                  }}>
+                                    ✅ ¡Excelente decisión!
+                                  </div>
+                                  <div style={{
+                                    color: theme === 'dark' ? '#6ee7b7' : '#047857',
+                                    fontSize: '0.9rem',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    Estás pagando <strong>{formData.montoMatricula / 90} meses adelantados</strong> (${formData.montoMatricula}).
+                                    Esto te permitirá enfocarte en tu aprendizaje sin preocupaciones.
+                                    <span style={{ color: '#fbbf24', fontWeight: '600' }}>
+                                      🎓 ¡Tu compromiso con tu futuro es admirable!
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Sección de Documentos - Solo para nuevos estudiantes */}
+                    {!estudianteExistente && formData.tipoDocumento !== '' && (
+                      <div style={{
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        marginTop: '24px',
+                        animation: 'scaleFade 1.2s ease-in-out',
+                        animationDelay: '400ms'
+                      }}>
+                        <h4 style={{
+                          fontSize: '1.2rem',
+                          fontWeight: '700',
+                          color: theme === 'dark' ? '#fff' : '#1f2937',
+                          marginBottom: '20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}>
+                          <FileText size={24} color="#3b82f6" />
+                          Documentos Requeridos
+                        </h4>
+
+                        {/* Documento de Identificación */}
+                        <div style={{ marginBottom: '24px' }}>
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '12px',
+                            fontWeight: '600',
+                            color: theme === 'dark' ? '#fff' : '#1f2937'
+                          }}>
+                            <IdCard size={18} color="#3b82f6" />
+                            {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
+                          </label>
+
+                          <div
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isBlocked) return;
+                              setDragActive(false);
+                              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                handleDocumentoIdentificacionUpload(e.dataTransfer.files[0]);
+                              }
+                            }}
+                            style={{
+                              border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                              borderRadius: '12px',
+                              padding: '20px',
+                              textAlign: 'center',
+                              background: dragActive
+                                ? 'rgba(59, 130, 246, 0.1)'
+                                : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
+                              transition: 'all 0.3s ease',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => document.getElementById('documentoIdentificacionInput')?.click()}
+                          >
+                            <input
+                              id="documentoIdentificacionInput"
+                              type="file"
+                              accept=".pdf"
+                              onChange={(e) => handleDocumentoIdentificacionUpload(e.target.files?.[0] || null)}
+                              style={{ display: 'none' }}
+                            />
+
+                            {documentoIdentificacion ? (
+                              <div>
+                                <div style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 12px'
+                                }}>
+                                  <CheckCircle size={24} color="#fff" />
+                                </div>
+                                <p style={{
+                                  color: '#10b981',
+                                  fontWeight: '600',
+                                  fontSize: '1rem',
+                                  marginBottom: '6px'
+                                }}>
+                                  ¡Documento subido!
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.85rem',
+                                  marginBottom: '12px'
+                                }}>
+                                  {documentoIdentificacion?.name} ({((documentoIdentificacion?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDocumentoIdentificacion(null);
+                                  }}
+                                  style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '6px',
+                                    padding: '6px 12px',
+                                    color: '#dc2626',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Cambiar
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  background: 'rgba(59, 130, 246, 0.2)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  margin: '0 auto 12px'
+                                }}>
+                                  <IdCard size={24} color="#3b82f6" />
+                                </div>
+                                <p style={{
+                                  color: theme === 'dark' ? '#fff' : '#1f2937',
+                                  fontWeight: '600',
+                                  fontSize: '1rem',
+                                  marginBottom: '6px'
+                                }}>
+                                  Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                  fontSize: '0.85rem',
+                                  marginBottom: '12px'
+                                }}>
+                                  Arrastra y suelta o haz clic para seleccionar
+                                </p>
+                                <p style={{
+                                  color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                                  fontSize: '0.75rem'
+                                }}>
+                                  PDF (Máx. 5MB)
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Documento de Estatus Legal - Solo para extranjeros */}
+                        {formData.tipoDocumento === 'extranjero' && (
+                          <div style={{ marginBottom: '16px' }}>
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              marginBottom: '12px',
+                              fontWeight: '600',
+                              color: theme === 'dark' ? '#fff' : '#1f2937'
+                            }}>
+                              <FileText size={18} color="#3b82f6" />
+                              Documento de Estatus Legal *
+                            </label>
+
+                            <div style={{
+                              background: 'rgba(251, 191, 36, 0.1)',
+                              border: '1px solid rgba(251, 191, 36, 0.3)',
+                              borderRadius: '8px',
+                              padding: '12px',
+                              marginBottom: '12px'
+                            }}>
+                              <p style={{
+                                color: '#fbbf24',
+                                fontSize: '0.85rem',
+                                margin: 0,
+                                fontWeight: '600'
+                              }}>
+                                📋 Documentos aceptados:
+                              </p>
+                              <ul style={{
+                                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                fontSize: '0.8rem',
+                                margin: '8px 0 0 0',
+                                paddingLeft: '16px'
+                              }}>
+                                <li>Visa de estudiante vigente</li>
+                                <li>Permiso de residencia válido</li>
+                              </ul>
+                            </div>
+
+                            <div
+                              onDragEnter={handleDrag}
+                              onDragLeave={handleDrag}
+                              onDragOver={handleDrag}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isBlocked) return;
+                                setDragActive(false);
+                                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                  handleDocumentoEstatusLegalUpload(e.dataTransfer.files[0]);
+                                }
+                              }}
+                              style={{
+                                border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                                borderRadius: '12px',
+                                padding: '20px',
+                                textAlign: 'center',
+                                background: dragActive
+                                  ? 'rgba(59, 130, 246, 0.1)'
+                                  : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => document.getElementById('documentoEstatusLegalInput')?.click()}
+                            >
+                              <input
+                                id="documentoEstatusLegalInput"
+                                type="file"
+                                accept=".pdf"
+                                onChange={(e) => handleDocumentoEstatusLegalUpload(e.target.files?.[0] || null)}
+                                style={{ display: 'none' }}
+                              />
+
+                              {documentoEstatusLegal ? (
+                                <div>
+                                  <div style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 12px'
+                                  }}>
+                                    <CheckCircle size={24} color="#fff" />
+                                  </div>
+                                  <p style={{
+                                    color: '#10b981',
+                                    fontWeight: '600',
+                                    fontSize: '1rem',
+                                    marginBottom: '6px'
+                                  }}>
+                                    ¡Documento subido!
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.85rem',
+                                    marginBottom: '12px'
+                                  }}>
+                                    {documentoEstatusLegal?.name} ({((documentoEstatusLegal?.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setDocumentoEstatusLegal(null);
+                                    }}
+                                    style={{
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      borderRadius: '6px',
+                                      padding: '6px 12px',
+                                      color: '#dc2626',
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem',
+                                      fontWeight: '500'
+                                    }}
+                                  >
+                                    Cambiar
+                                  </button>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    background: 'rgba(59, 130, 246, 0.2)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 12px'
+                                  }}>
+                                    <FileText size={24} color="#3b82f6" />
+                                  </div>
+                                  <p style={{
+                                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                                    fontWeight: '600',
+                                    fontSize: '1rem',
+                                    marginBottom: '6px'
+                                  }}>
+                                    Subir documento de estatus legal
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                                    fontSize: '0.85rem',
+                                    marginBottom: '12px'
+                                  }}>
+                                    Arrastra y suelta o haz clic para seleccionar
+                                  </p>
+                                  <p style={{
+                                    color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                                    fontSize: '0.75rem'
+                                  }}>
+                                    PDF (Máx. 5MB)
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Horario Preferido - Solo mostrar si NO tiene solicitud pendiente */}
+                {!tieneSolicitudPendiente && (
+                  <div style={{ marginTop: '32px', marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      fontWeight: '600',
+                      color: theme === 'dark' ? '#fff' : '#1f2937'
                     }}>
-                      ${curso.precio.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      Horario Preferido *
+                    </label>
+                    <select
+                      required
+                      value={formData.idCurso || ''}
+                      onChange={(e) => {
+                        const selectedIdCurso = parseInt(e.target.value);
+                        const selectedCurso = cuposDisponibles.find((c: any) => c.id_curso === selectedIdCurso);
+                        setFormData({
+                          ...formData,
+                          idCurso: selectedIdCurso,
+                          horarioPreferido: selectedCurso?.horario || ''
+                        });
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid rgba(251, 191, 36, 0.2)',
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        transition: 'border-color 0.3s ease',
+                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937'
+                      }}
+                      onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
+                    >
+                      <option value="" disabled>Seleccionar horario y fecha</option>
+                      {cuposDisponibles
+                        .filter((c: any) => c.id_tipo_curso === tipoCursoId && c.cupos_totales > 0)
+                        .map((c: any) => (
+                          <option key={c.id_curso} value={c.id_curso}>
+                            {c.horario.charAt(0).toUpperCase() + c.horario.slice(1)} - Inicio: {new Date(c.fecha_inicio).toLocaleDateString('es-EC')} ({c.cupos_totales} cupos)
+                          </option>
+                        ))
+                      }
+                    </select>
 
-              {/* Información de modalidades de pago */}
-              <div className="modalidad-info" style={{
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: '16px',
-                padding: '24px',
-                marginBottom: '24px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '16px'
-                }}>
-                  <Calendar size={24} color="#fbbf24" />
-                  <span style={{
-                    color: '#fbbf24',
-                    fontWeight: '700',
-                    fontSize: '1.2rem'
-                  }}>
-                    Modalidad de Pago
-                  </span>
-                </div>
+                    {/* Mostrar disponibilidad de cupos por horario */}
+                    {formData.horarioPreferido && (
+                      <div style={{ marginTop: '12px' }}>
+                        {(() => {
+                          const cuposHorario = cuposDisponibles.find(
+                            (c: any) => c.id_curso === formData.idCurso
+                          );
 
-                {/* Información específica por curso */}
-                {cursoKey === 'unas' && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
-                      Técnica de Uñas - Modalidad por Clases
-                    </h4>
-                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                      <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
-                      <li><strong>Total de clases:</strong> 16 clases</li>
-                      <li><strong>Clases restantes:</strong> $15.40 USD cada una (15 clases)</li>
-                      <li><strong>Frecuencia:</strong> 2 clases por semana</li>
-                      <li><strong>Duración:</strong> 8 semanas aproximadamente</li>
-                    </ul>
+                          if (!cuposHorario || cuposHorario.cupos_totales === 0) {
+                            return (
+                              <div style={{
+                                padding: '12px 16px',
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '12px',
+                                color: '#ef4444',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}>
+                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div style={{
+                              padding: '12px 16px',
+                              background: 'rgba(16, 185, 129, 0.1)',
+                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              borderRadius: '12px',
+                              color: '#10b981',
+                              fontSize: '0.9rem',
+                              fontWeight: '600',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <span style={{ fontSize: '1.2rem' }}>✅</span>
+                              Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {cursoKey === 'lashista' && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
-                      Lashista Profesional - Modalidad por Clases
-                    </h4>
-                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                      <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
-                      <li><strong>Total de clases:</strong> 6 clases</li>
-                      <li><strong>Clases restantes:</strong> $26 USD cada una (5 clases)</li>
-                      <li><strong>Frecuencia:</strong> 1 clase por semana</li>
-                      <li><strong>Duración:</strong> 6 semanas</li>
-                    </ul>
+                {/* Certificado Cosmetóloga - Solo Cosmiatría */}
+                {cursoKey === 'cosmiatria' && !tieneSolicitudPendiente && (<div style={{
+                  background: 'rgba(251, 191, 36, 0.1)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  marginTop: '24px'
+                }}>
+                  <h4 style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: theme === 'dark' ? '#fff' : '#1f2937',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <FileText size={24} color="#fbbf24" />
+                    Certificado de Cosmetóloga
+                  </h4>
+
+                  <div style={{
+                    background: 'rgba(251, 191, 36, 0.15)',
+                    border: '1px solid rgba(251, 191, 36, 0.4)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{
+                      color: '#fbbf24',
+                      fontSize: '0.95rem',
+                      margin: 0,
+                      fontWeight: '600'
+                    }}>
+                      📋 Requisito obligatorio para Cosmiatría
+                    </p>
+                    <p style={{
+                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                      fontSize: '0.85rem',
+                      margin: '12px 0 0 0'
+                    }}>
+                      Debes adjuntar tu certificado de cosmetóloga.
+                    </p>
                   </div>
+
+                  <div
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (isBlocked) return;
+                      setDragActive(false);
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleCertificadoCosmetologiaUpload(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    style={{
+                      border: `2px dashed ${dragActive || certificadoCosmetologia ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
+                      borderRadius: '12px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      background: dragActive ? 'rgba(251, 191, 36, 0.1)' : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => document.getElementById('certificadoCosmetologiaInput')?.click()}
+                  >
+                    <input
+                      id="certificadoCosmetologiaInput"
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => handleCertificadoCosmetologiaUpload(e.target.files?.[0] || null)}
+                      style={{ display: 'none' }}
+                    />
+
+                    {certificadoCosmetologia ? (
+                      <div>
+                        <div style={{
+                          width: '50px',
+                          height: '50px',
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 12px'
+                        }}>
+                          <CheckCircle size={24} color="#fff" />
+                        </div>
+                        <p style={{
+                          color: '#10b981',
+                          fontWeight: '600',
+                          fontSize: '1rem',
+                          marginBottom: '6px'
+                        }}>
+                          ¡Certificado subido!
+                        </p>
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                          fontSize: '0.85rem',
+                          marginBottom: '12px'
+                        }}>
+                          {certificadoCosmetologia.name} ({((certificadoCosmetologia.size || 0) / 1024 / 1024).toFixed(2)} MB)
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCertificadoCosmetologia(null);
+                          }}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            color: '#dc2626',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: '500'
+                          }}
+                        >
+                          Cambiar
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{
+                          width: '50px',
+                          height: '50px',
+                          background: 'rgba(251, 191, 36, 0.2)',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 12px'
+                        }}>
+                          <FileText size={24} color="#fbbf24" />
+                        </div>
+                        <p style={{
+                          color: theme === 'dark' ? '#fff' : '#1f2937',
+                          fontWeight: '600',
+                          fontSize: '1rem',
+                          marginBottom: '6px'
+                        }}>
+                          Subir Certificado de Cosmetóloga
+                        </p>
+                        <p style={{
+                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
+                          fontSize: '0.85rem',
+                          marginBottom: '12px'
+                        }}>
+                          Arrastra y suelta o haz clic
+                        </p>
+                        <p style={{
+                          color: theme === 'dark' ? '#9ca3af' : '#4b5563',
+                          fontSize: '0.75rem'
+                        }}>
+                          PDF (Máx. 5MB)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 )}
 
-                {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
-                      {curso.titulo} - Modalidad Mensual
-                    </h4>
-                    <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                      <li><strong>Modalidad:</strong> Pago mensual únicamente</li>
-                      <li><strong>Valor mensual:</strong> $90 USD cada mes</li>
-                      <li><strong>Duración:</strong> {cursoKey === 'cosmiatria' ? '7 meses' : cursoKey === 'maquillaje' ? '6 meses' : '12 meses'}</li>
-                      <li><strong>Incluye:</strong> Materiales, productos y certificación</li>
-                      {cursoKey === 'cosmiatria' && <li><strong>Requisito:</strong> Ser Cosmetóloga Graduada</li>}
-                    </ul>
-                  </div>
-                )}
 
-                <div style={{
-                  background: theme === 'dark'
-                    ? 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(248,113,113,0.12))'
-                    : 'linear-gradient(135deg, rgba(253,230,138,0.85), rgba(251,191,36,0.65))',
-                  borderRadius: '14px',
-                  padding: '14px',
-                  marginTop: '16px',
-                  border: theme === 'dark'
-                    ? '1px solid rgba(251,191,36,0.5)'
-                    : '1px solid rgba(217,119,6,0.45)',
-                  boxShadow: theme === 'dark'
-                    ? '0 10px 26px rgba(251,191,36,0.25)'
-                    : '0 12px 28px rgba(217,119,6,0.18)'
-                }}>
-                  <p style={{
-                    color: theme === 'dark' ? '#fde68a' : '#92400e',
-                    fontSize: '0.9rem',
-                    margin: 0,
-                    fontWeight: '700',
-                    textAlign: 'center',
-                    letterSpacing: 0.3
-                  }}>
-                    ✨ Con tu primer pago ya inicias tus clases ✨
-                  </p>
-                </div>
-              </div>
-
-              {/* Información de seguridad */}
-              <div style={{
-                background: theme === 'dark'
-                  ? 'linear-gradient(135deg, rgba(37,99,235,0.18), rgba(14,165,233,0.2))'
-                  : 'linear-gradient(135deg, rgba(191,219,254,0.9), rgba(125,211,252,0.9))',
-                border: theme === 'dark'
-                  ? '1px solid rgba(96,165,250,0.45)'
-                  : '1px solid rgba(37,99,235,0.35)',
-                borderRadius: '20px',
-                padding: '22px',
-                marginBottom: '32px',
-                boxShadow: theme === 'dark'
-                  ? '0 15px 40px rgba(37,99,235,0.25)'
-                  : '0 18px 42px rgba(14,165,233,0.22)'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '12px'
-                }}>
-                  <Shield size={24} color={theme === 'dark' ? '#93c5fd' : '#1d4ed8'} />
-                  <span style={{
-                    color: theme === 'dark' ? '#bfdbfe' : '#1d4ed8',
-                    fontWeight: '700',
-                    fontSize: '1.1rem'
-                  }}>
-                    Pago Seguro
-                  </span>
-                </div>
-                <p style={{
-                  color: theme === 'dark' ? 'rgba(226,232,240,0.95)' : 'rgba(30,58,138,0.9)',
-                  fontSize: '0.9rem',
-                  margin: 0,
-                  lineHeight: 1.5
-                }}>
-                  Todos los pagos son procesados de forma segura. Tu información está protegida.
-                </p>
               </div>
             </div>
 
-            {/* Panel derecho - Formulario de pago */}
+            {/* COLUMNA DERECHA - Método de Pago */}
             <div style={{
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
@@ -2786,1733 +4523,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               )}
               <form onSubmit={handleSubmit}>
                 <fieldset disabled={isBlocked} style={{ border: 'none', padding: 0, margin: 0 }}>
-                  {/* Información personal */}
-                  <div className="form-section" style={{
-                    background: theme === 'dark'
-                      ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
-                      : 'rgba(255, 255, 255, 0.97)',
-                    borderRadius: '24px',
-                    padding: '32px',
-                    marginBottom: '32px',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
-                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-                  }}>
-                    <h3 className="section-title" style={{
-                      fontSize: '1.4rem',
-                      fontWeight: '700',
-                      color: theme === 'dark' ? '#fff' : '#1f2937',
-                      marginBottom: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      animation: 'fadeInUp 1s ease-in-out'
-                    }}>
-                      <User size={24} color="#fbbf24" />
-                      Información Personal
-                    </h3>
-
-                    {/* SPINNER DE CARGA - Verificando */}
-                    {verificandoEstudiante && (
-                      <div className="flex flex-col items-center justify-center py-8 px-4 mb-6 rounded-2xl" style={{
-                        background: 'transparent',
-                        border: 'none'
-                      }}>
-                        <div className="relative">
-                          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
-                          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-blue-400 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
-                        </div>
-                        <p className="mt-4 text-lg font-semibold" style={{ color: theme === 'dark' ? '#60a5fa' : '#3b82f6' }}>
-                          Verificando información...
-                        </p>
-                        <p className="mt-2 text-sm" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(30,41,59,0.6)' }}>
-                          Por favor espera un momento
-                        </p>
-                      </div>
-                    )}
-
-                    {/* ALERTA DE BLOQUEO - Solicitud Pendiente o Ya Inscrito */}
-                    {!verificandoEstudiante && tieneSolicitudPendiente && solicitudPendiente && (
-                      <div style={{
-                        position: 'relative',
-                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                        border: '2px solid rgba(239, 68, 68, 0.4)',
-                        borderRadius: '16px',
-                        padding: '24px',
-                        marginBottom: '32px',
-                        backdropFilter: 'blur(10px)',
-                        animation: 'slideInUp 0.5s ease-out'
-                      }}>
-                        {/* Botón X para cerrar */}
-                        <button
-                          onClick={() => {
-                            setTieneSolicitudPendiente(false);
-                            setSolicitudPendiente(null);
-                            setEstudianteExistente(null);
-                            window.location.reload();
-                          }}
-                          style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: 0,
-                            zIndex: 10
-                          }}
-                          className="transition-all duration-300 hover:scale-125 hover:rotate-90"
-                          title="Cerrar"
-                        >
-                          <span style={{
-                            color: '#ef4444',
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            display: 'block'
-                          }}>×</span>
-                        </button>
-
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          marginBottom: '16px',
-                          paddingRight: '32px'
-                        }}>
-                          {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? (
-                            <Ban size={32} color="#ef4444" />
-                          ) : (
-                            <Clock size={32} color="#ef4444" />
-                          )}
-                          <h3 style={{
-                            color: '#ef4444',
-                            fontSize: '1.4rem',
-                            fontWeight: '700',
-                            margin: 0
-                          }}>
-                            {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? 'Ya Inscrito en este Curso' : 'Solicitud en Revisión'}
-                          </h3>
-                        </div>
-
-                        <p style={{
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
-                          fontSize: '1.05rem',
-                          lineHeight: '1.6',
-                          margin: '0 0 16px 0'
-                        }}>
-                          {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO'
-                            ? 'Ya estás cursando este programa. Para inscribirte en otro curso, selecciónalo desde la página de cursos.'
-                            : 'Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.'}
-                        </p>
-
-                        <div className="rounded-xl p-4 mb-4" style={{
-                          background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.7)',
-                          border: `1px solid ${theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)'}`
-                        }}>
-                          <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                            <strong className="text-red-400">📚 Curso:</strong> {solicitudPendiente.tipo_curso_nombre || 'N/A'}
-                          </p>
-                          {solicitudPendiente.codigo_solicitud !== 'YA-INSCRITO' && (
-                            <>
-                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                                <strong className="text-red-400">🔖 Código:</strong> {solicitudPendiente.codigo_solicitud}
-                              </p>
-                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                                <strong className="text-red-400">📅 Fecha:</strong> {new Date(solicitudPendiente.fecha_solicitud).toLocaleDateString('es-EC')}
-                              </p>
-                              <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                                <strong className="text-red-400">⏳ Estado:</strong> En revisión
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ALERTA INFORMATIVA - Estudiante Existente (solo si NO está inscrito en este curso) */}
-                    {estudianteExistente && !tieneSolicitudPendiente && (
-                      <div style={{
-                        position: 'relative',
-                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                        border: '2px solid rgba(16, 185, 129, 0.4)',
-                        borderRadius: '16px',
-                        padding: '24px',
-                        marginBottom: '32px',
-                        backdropFilter: 'blur(10px)',
-                        animation: 'slideInUp 0.5s ease-out'
-                      }}>
-                        {/* Botón X para cerrar */}
-                        <button
-                          onClick={() => {
-                            setEstudianteExistente(null);
-                            window.location.reload();
-                          }}
-                          style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: 0,
-                            zIndex: 10
-                          }}
-                          className="transition-all duration-300 hover:scale-125 hover:rotate-90"
-                          title="Cerrar"
-                        >
-                          <span style={{
-                            color: '#10b981',
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            display: 'block'
-                          }}>×</span>
-                        </button>
-
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          marginBottom: '16px',
-                          paddingRight: '32px'
-                        }}>
-                          <CheckCircle size={32} color="#10b981" />
-                          <h3 style={{
-                            color: '#10b981',
-                            fontSize: '1.4rem',
-                            fontWeight: '700',
-                            margin: 0
-                          }}>
-                            ¡Bienvenido de nuevo, {estudianteExistente.nombre}!
-                          </h3>
-                        </div>
-
-                        <p style={{
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : '#1e293b',
-                          fontSize: '1.05rem',
-                          lineHeight: '1.6',
-                          margin: '0 0 16px 0'
-                        }}>
-                          Ya estás registrado en nuestro sistema con identificación <strong>{estudianteExistente.identificacion}</strong>.
-                          Para inscribirte a este nuevo curso, solo necesitas:
-                        </p>
-
-                        <ul style={{
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : '#475569',
-                          fontSize: '1rem',
-                          lineHeight: '1.8',
-                          marginTop: '12px',
-                          marginBottom: '12px',
-                          paddingLeft: '24px'
-                        }}>
-                          <li>✅ Seleccionar tu horario preferido</li>
-                          <li>✅ Elegir método de pago</li>
-                          <li>✅ Subir comprobante de pago</li>
-                        </ul>
-
-                        <div style={{
-                          margin: '16px 0',
-                          padding: '14px 18px',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(245, 158, 11, 0.35)',
-                          background: 'rgba(245, 158, 11, 0.08)'
-                        }}>
-                          <p style={{
-                            margin: 0,
-                            color: theme === 'dark' ? '#fde68a' : '#92400e',
-                            fontWeight: 600,
-                            fontSize: '0.95rem',
-                            lineHeight: 1.5
-                          }}>
-                            💲 Pago requerido ahora: <strong>{formatCurrency(esCursoMontoFijo ? montoPredeterminado : (formData.montoMatricula || curso?.precio || 0))}</strong>.{' '}
-                            {esCursoMontoFijo
-                              ? `Este curso solo admite un pago inicial fijo de ${formatCurrency(montoPredeterminado)}; cuando confirmemos tu matrícula podrás cancelar el resto del curso.`
-                              : 'Si deseas adelantar más meses, modifica el monto directamente en el campo “Monto a pagar”.'}
-                          </p>
-                        </div>
-
-                        <div style={{
-                          marginTop: '16px',
-                          padding: '12px 16px',
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          borderRadius: '8px',
-                          border: '1px solid rgba(59, 130, 246, 0.3)'
-                        }}>
-                          <p style={{
-                            color: '#3b82f6',
-                            fontSize: '0.9rem',
-                            margin: 0,
-                            fontWeight: '600'
-                          }}>
-                            💡 Tip: Usarás las mismas credenciales de acceso que ya tienes
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* CAMPOS PERSONALES - Solo mostrar si NO es estudiante existente Y NO tiene solicitud pendiente */}
-                    {!estudianteExistente && !tieneSolicitudPendiente && (
-                      <>
-                        {/* Tipo de documento - control segmentado estilizado (compacto) */}
-                        <div style={{ marginBottom: '16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                            <span style={{ fontWeight: 700, letterSpacing: 0.3, fontSize: '0.95rem', color: theme === 'dark' ? '#fff' : '#1f2937' }}>Tipo de documento</span>
-                          </div>
-                          <div role="tablist" aria-label="Tipo de documento" className="document-tabs" style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '10px'
-                          }}>
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={formData.tipoDocumento === 'ecuatoriano'}
-                              onClick={() => {
-                                setFormData({
-                                  nombre: '',
-                                  apellido: '',
-                                  email: '',
-                                  telefono: '',
-                                  cedula: '',
-                                  pasaporte: '',
-                                  tipoDocumento: 'ecuatoriano',
-                                  fechaNacimiento: '',
-                                  direccion: '',
-                                  genero: '',
-                                  montoMatricula: montoPredeterminado,
-                                  horarioPreferido: '',
-                                  contactoEmergencia: ''
-                                });
-                                setErrors({});
-                                setDocumentoIdentificacion(null);
-                                setDocumentoEstatusLegal(null);
-                              }}
-                              className="document-tab"
-                              style={{
-                                padding: '12px 14px',
-                                borderRadius: 12,
-                                border: formData.tipoDocumento === 'ecuatoriano' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
-                                background: formData.tipoDocumento === 'ecuatoriano' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
-                                color: formData.tipoDocumento === 'ecuatoriano' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
-                                fontWeight: 700,
-                                fontSize: '0.95rem',
-                                cursor: 'pointer',
-                                boxShadow: formData.tipoDocumento === 'ecuatoriano' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
-                                transition: 'all .25s ease',
-                                backdropFilter: 'blur(10px)'
-                              }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
-                            >
-                              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                                <User size={16} />
-                                Ecuatoriano (Cédula)
-                              </span>
-                            </button>
-
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={formData.tipoDocumento === 'extranjero'}
-                              onClick={() => {
-                                setFormData({
-                                  nombre: '',
-                                  apellido: '',
-                                  email: '',
-                                  telefono: '',
-                                  cedula: '',
-                                  pasaporte: '',
-                                  tipoDocumento: 'extranjero',
-                                  fechaNacimiento: '',
-                                  direccion: '',
-                                  genero: '',
-                                  montoMatricula: montoPredeterminado,
-                                  horarioPreferido: '',
-                                  contactoEmergencia: ''
-                                });
-                                setErrors({});
-                                setDocumentoIdentificacion(null);
-                                setDocumentoEstatusLegal(null);
-                              }}
-                              style={{
-                                padding: '12px 14px',
-                                borderRadius: 12,
-                                border: formData.tipoDocumento === 'extranjero' ? '2px solid #fbbf24' : '2px solid rgba(251, 191, 36, 0.2)',
-                                background: formData.tipoDocumento === 'extranjero' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(255,255,255,0.05)',
-                                color: formData.tipoDocumento === 'extranjero' ? '#fbbf24' : 'rgba(255,255,255,0.85)',
-                                fontWeight: 700,
-                                fontSize: '0.95rem',
-                                cursor: 'pointer',
-                                boxShadow: formData.tipoDocumento === 'extranjero' ? '0 10px 24px rgba(251,191,36,0.12)' : '0 6px 18px rgba(0,0,0,0.3)',
-                                transition: 'all .25s ease',
-                                backdropFilter: 'blur(10px)'
-                              }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'; }}
-                            >
-                              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                                <Globe size={16} />
-                                Extranjero (Pasaporte)
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {formData.tipoDocumento === '' && (
-                          <div style={{
-                            background: 'rgba(251, 191, 36, 0.08)',
-                            border: '1px solid rgba(251, 191, 36, 0.25)',
-                            color: '#fbbf24',
-                            borderRadius: 12,
-                            padding: '14px 16px',
-                            marginBottom: 16,
-                            fontWeight: 600
-                          }}>
-                            Selecciona el tipo de documento para continuar.
-                          </div>
-                        )}
-
-
-
-                        {!estudianteExistente && formData.tipoDocumento !== '' && (
-                          <div key={formData.tipoDocumento} style={{ animation: 'fadeInUp 1s ease-in-out' }}>
-                            {/* Documento primero */}
-                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out' }}>
-                              {formData.tipoDocumento === 'ecuatoriano' ? (
-                                <>
-                                  <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                                    Cédula *
-                                  </label>
-                                  <input
-                                    type="text"
-                                    required
-                                    inputMode="numeric"
-                                    pattern="^[0-9]{10}$"
-                                    maxLength={10}
-                                    minLength={10}
-                                    title="Ingrese exactamente 10 dígitos de cédula ecuatoriana"
-                                    value={formData.cedula}
-                                    className="form-input"
-                                    onChange={(e) => {
-                                      const val = (e.target as HTMLInputElement).value;
-                                      const filtered = val.replace(/\D/g, '');
-                                      setFormData({ ...formData, cedula: filtered });
-                                      let msg: string | undefined = undefined;
-                                      if (val !== filtered) {
-                                        msg = 'Este dato es solo numérico';
-                                      } else if (filtered.length === 10) {
-                                        const res = validateCedulaEC(filtered);
-                                        if (!res.ok) msg = res.reason || 'Cédula inválida';
-                                      } else if (filtered.length > 0 && filtered.length < 10) {
-                                        msg = 'Debe tener 10 dígitos';
-                                      }
-                                      setErrors((prev) => ({ ...prev, cedula: msg }));
-                                    }}
-                                    onInvalid={(e) => {
-                                      (e.target as HTMLInputElement).setCustomValidity('La cédula debe tener exactamente 10 dígitos numéricos');
-                                    }}
-                                    onInput={(e) => {
-                                      (e.target as HTMLInputElement).setCustomValidity('');
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '12px 16px',
-                                      border: errors.cedula ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                      borderRadius: '12px',
-                                      fontSize: '1rem',
-                                      transition: 'border-color 0.3s ease',
-                                      background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                      color: theme === 'dark' ? '#fff' : '#1f2937'
-                                    }}
-                                    onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                    onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                  />
-                                  {errors.cedula && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                      <AlertCircle size={16} color="#ef4444" />
-                                      <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.cedula}</span>
-                                    </div>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                                    Pasaporte *
-                                  </label>
-                                  <input
-                                    type="text"
-                                    required
-                                    inputMode="text"
-                                    pattern="^[A-Za-z0-9]{6,20}$"
-                                    maxLength={20}
-                                    title="Pasaporte: 6 a 20 caracteres alfanuméricos"
-                                    value={formData.pasaporte || ''}
-                                    className="form-input"
-                                    onChange={(e) => {
-                                      const val = (e.target as HTMLInputElement).value;
-                                      const filtered = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                                      setFormData({ ...formData, pasaporte: filtered });
-                                      let msg: string | undefined = undefined;
-                                      if (filtered && !/^[A-Z0-9]{6,20}$/.test(filtered)) {
-                                        msg = 'Pasaporte inválido (6-20 alfanumérico)';
-                                      }
-                                      setErrors((prev) => ({ ...prev, pasaporte: msg }));
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '12px 16px',
-                                      border: errors.pasaporte ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                      borderRadius: '12px',
-                                      fontSize: '1rem',
-                                      transition: 'border-color 0.3s ease',
-                                      background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                      color: theme === 'dark' ? '#fff' : '#1f2937'
-                                    }}
-                                    onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                    onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                  />
-                                  {errors.pasaporte && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                      <AlertCircle size={16} color="#ef4444" />
-                                      <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.pasaporte}</span>
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </div>
-
-                            {/* Luego Nombre y Apellido */}
-                            <div className="form-row" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '20px',
-                              marginBottom: '20px',
-                              animation: 'scaleFade 1s ease-in-out'
-                            }}>
-                              <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '0ms' }}>
-                                <label className="form-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                                  Nombres completos *
-                                </label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={formData.nombre}
-                                  className="form-input"
-                                  onChange={(e) => {
-                                    const val = (e.target as HTMLInputElement).value;
-                                    const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-                                    const filtered = removedInvalid.toUpperCase();
-                                    setFormData({ ...formData, nombre: filtered });
-                                    const hadInvalid = removedInvalid.length !== val.length;
-                                    setErrors((prev) => ({ ...prev, nombre: hadInvalid ? 'Este dato es solo letras' : undefined }));
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: errors.nombre ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                />
-                                {errors.nombre && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                    <AlertCircle size={16} color="#ef4444" />
-                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.nombre}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div style={{ animation: 'scaleFade 1s ease-in-out', animationDelay: '80ms' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937' }}>
-                                  Apellidos completos *
-                                </label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={formData.apellido}
-                                  onChange={(e) => {
-                                    const val = (e.target as HTMLInputElement).value;
-                                    const removedInvalid = val.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-                                    const filtered = removedInvalid.toUpperCase();
-                                    setFormData({ ...formData, apellido: filtered });
-                                    const hadInvalid = removedInvalid.length !== val.length;
-                                    setErrors((prev) => ({ ...prev, apellido: hadInvalid ? 'Este dato es solo letras' : undefined }));
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: errors.apellido ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                />
-                                {errors.apellido && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                    <AlertCircle size={16} color="#ef4444" />
-                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.apellido}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Fecha de Nacimiento */}
-                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1s ease-in-out', animationDelay: '120ms' }}>
-                              <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                fontWeight: '600',
-                                color: theme === 'dark' ? '#fff' : '#1f2937'
-                              }}>
-                                Fecha de Nacimiento *
-                              </label>
-                              <input
-                                type="date"
-                                required
-                                value={formData.fechaNacimiento}
-                                onChange={(e) => setFormData({ ...formData, fechaNacimiento: (e.target as HTMLInputElement).value })}
-                                onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                onBlur={(e) => {
-                                  const el = e.target as HTMLInputElement;
-                                  const val = el.value.trim();
-                                  const m1 = val.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
-                                  if (m1) {
-                                    const [_, dd, mm, yyyy] = m1;
-                                    const norm = `${yyyy}-${mm}-${dd}`;
-                                    setFormData(prev => ({ ...prev, fechaNacimiento: norm }));
-                                    el.value = norm;
-                                    el.setCustomValidity('');
-                                    el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                                    return;
-                                  }
-                                  if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                                    el.setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
-                                  } else {
-                                    el.setCustomValidity('');
-                                  }
-                                  el.style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                                }}
-                                onInvalid={(e) => {
-                                  (e.target as HTMLInputElement).setCustomValidity('Formato de fecha inválido. Usa el selector o escribe DD/MM/AAAA.');
-                                }}
-                                onInput={(e) => {
-                                  (e.target as HTMLInputElement).setCustomValidity('');
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '12px 16px',
-                                  border: '2px solid rgba(251, 191, 36, 0.2)',
-                                  borderRadius: '12px',
-                                  fontSize: '1rem',
-                                  transition: 'border-color 0.3s ease',
-                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}
-                              />
-                            </div>
-
-                            {/* MENSAJE PARA MENORES DE 16 AÑOS */}
-                            {formData.fechaNacimiento && calcularEdad(formData.fechaNacimiento) > 0 && calcularEdad(formData.fechaNacimiento) < 16 && (
-                              <div style={{
-                                display: 'flex',
-                                alignItems: 'flex-start',
-                                gap: 12,
-                                marginTop: -10,
-                                marginBottom: 20,
-                                padding: '16px',
-                                background: theme === 'dark'
-                                  ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.08))'
-                                  : 'linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(254, 235, 203, 0.95))',
-                                border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(245, 158, 11, 0.4)'}`,
-                                borderRadius: '16px',
-                                animation: 'slideInUp 0.4s ease-out',
-                                backdropFilter: 'blur(10px)',
-                                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-                              }}>
-                                <Info size={24} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
-                                <div style={{ flex: 1 }}>
-                                  <p style={{
-                                    color: theme === 'dark' ? '#fde68a' : '#92400e',
-                                    fontSize: '0.95rem',
-                                    fontWeight: '700',
-                                    marginBottom: '4px',
-                                    lineHeight: '1.4'
-                                  }}>
-                                    Aviso Importante para Estudiantes Menores
-                                  </p>
-                                  <p style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.85)' : '#451a03',
-                                    fontSize: '0.9rem',
-                                    lineHeight: '1.5',
-                                    margin: 0
-                                  }}>
-                                    Estimado estudiante, al ser menor de 16 años, le solicitamos gentilmente acercarse a la <strong>Escuela Jessica Velez</strong> en compañía de su representante legal para evaluar su situación.
-                                    <br />
-                                    <span style={{ display: 'inline-block', marginTop: '6px', fontWeight: '500', opacity: 0.9 }}>
-                                      Puede continuar con su inscripción, pero requerimos esta validación presencial.
-                                    </span>
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {formData.tipoDocumento !== '' && (
-                          <>
-                            <div style={{ marginBottom: '20px', animation: 'scaleFade 1.2s ease-in-out', animationDelay: '160ms' }}>
-                              <label style={{
-                                display: 'block',
-                                marginBottom: '8px',
-                                fontWeight: '600',
-                                color: theme === 'dark' ? '#fff' : '#1f2937'
-                              }}>
-                                Dirección
-                              </label>
-                              <textarea
-                                required
-                                value={formData.direccion}
-                                onChange={(e) => setFormData({ ...formData, direccion: (e.target as HTMLTextAreaElement).value.toUpperCase() })}
-                                style={{
-                                  width: '100%',
-                                  padding: '12px 16px',
-                                  border: '2px solid rgba(251, 191, 36, 0.2)',
-                                  borderRadius: '12px',
-                                  fontSize: '1rem',
-                                  transition: 'border-color 0.3s ease',
-                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937',
-                                  minHeight: '90px'
-                                }}
-                                onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
-                                onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                              />
-                            </div>
-
-                            {/* Primera fila: Género y Email */}
-                            <div className="form-row" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '20px',
-                              marginBottom: '20px',
-                              animation: 'scaleFade 1.2s ease-in-out',
-                              animationDelay: '200ms'
-                            }}>
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '200ms' }}>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  Género *
-                                </label>
-                                <select
-                                  required
-                                  value={formData.genero}
-                                  onChange={(e) => setFormData({ ...formData, genero: (e.target as HTMLSelectElement).value as FormData['genero'] })}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                >
-                                  <option value="" disabled>Seleccionar</option>
-                                  <option value="masculino">Masculino</option>
-                                  <option value="femenino">Femenino</option>
-                                  <option value="otro">Otro</option>
-                                </select>
-                              </div>
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '240ms' }}>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  Email *
-                                </label>
-                                <input
-                                  type="email"
-                                  required
-                                  inputMode="email"
-                                  pattern="[^\s@]+@[^\s@]+\.[^\s@]{2,}"
-                                  title="Ingresa un correo válido (ej: usuario@dominio.com)"
-                                  value={formData.email}
-                                  onChange={(e) => {
-                                    const raw = (e.target as HTMLInputElement).value;
-                                    const val = raw.toLowerCase();
-                                    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
-                                    setFormData({ ...formData, email: val });
-                                    setErrors((prev) => ({ ...prev, email: ok || val === '' ? undefined : 'Ingresa un correo válido' }));
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: errors.email ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                />
-                                {errors.email && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                    <AlertCircle size={16} color="#ef4444" />
-                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.email}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Segunda fila: Teléfono y Contacto de Emergencia */}
-                            <div className="form-row" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '20px',
-                              marginBottom: '20px',
-                              animation: 'scaleFade 1.2s ease-in-out',
-                              animationDelay: '280ms'
-                            }}>
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '280ms' }}>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  Teléfono *
-                                </label>
-                                <input
-                                  type="tel"
-                                  required
-                                  inputMode="numeric"
-                                  pattern="^09[0-9]{8}$"
-                                  maxLength={10}
-                                  minLength={10}
-                                  title="Formato Ecuador: 10 dígitos y empieza con 09"
-                                  value={formData.telefono}
-                                  onChange={(e) => {
-                                    const val = (e.target as HTMLInputElement).value;
-                                    const filtered = val.replace(/\D/g, '');
-                                    setFormData({ ...formData, telefono: filtered });
-                                    let msg: string | undefined = undefined;
-                                    if (val !== filtered) {
-                                      msg = 'Este dato es solo numérico';
-                                    } else if (filtered && !filtered.startsWith('09')) {
-                                      msg = 'El teléfono debe empezar con 09';
-                                    }
-                                    setErrors((prev) => ({ ...prev, telefono: msg }));
-                                  }}
-                                  onInvalid={(e) => {
-                                    (e.target as HTMLInputElement).setCustomValidity('Formato Ecuador: debe empezar con 09 y tener 10 dígitos');
-                                  }}
-                                  onInput={(e) => {
-                                    const el = e.target as HTMLInputElement;
-                                    const v = el.value;
-                                    if (v && !/^09/.test(v)) {
-                                      el.setCustomValidity('El teléfono debe empezar con 09');
-                                    } else {
-                                      el.setCustomValidity('');
-                                    }
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: errors.telefono ? '2px solid #ef4444' : '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                />
-                                {errors.telefono && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                    <AlertCircle size={16} color="#ef4444" />
-                                    <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>{errors.telefono}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '320ms' }}>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  Contacto de Emergencia *
-                                </label>
-                                <input
-                                  type="tel"
-                                  required
-                                  inputMode="tel"
-                                  pattern="^09[0-9]{8}$"
-                                  maxLength={10}
-                                  minLength={10}
-                                  title="Teléfono de contacto de emergencia: 10 dígitos y empieza con 09"
-                                  value={formData.contactoEmergencia}
-                                  onChange={(e) => {
-                                    const val = (e.target as HTMLInputElement).value;
-                                    const filtered = val.replace(/\D/g, '');
-                                    setFormData({ ...formData, contactoEmergencia: filtered });
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                                />
-                                {/* Validación de contacto de emergencia */}
-                                {formData.contactoEmergencia && formData.contactoEmergencia === formData.telefono && (
-                                  <div style={{
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '8px',
-                                    padding: '12px',
-                                    marginTop: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    animation: 'shake 0.5s ease-in-out'
-                                  }}>
-                                    <AlertCircle size={18} color="#ef4444" />
-                                    <p style={{
-                                      color: '#ef4444',
-                                      fontSize: '0.85rem',
-                                      margin: 0,
-                                      fontWeight: '500',
-                                      lineHeight: '1.4'
-                                    }}>
-                                      ⚠️ El contacto de emergencia no puede ser igual a tu número de teléfono.
-                                      <br />
-                                      <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Por favor ingresa un número diferente para emergencias.</span>
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Fila del Monto a Pagar */}
-                            <div className="form-row" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '20px',
-                              marginBottom: '20px',
-                              animation: 'scaleFade 1.2s ease-in-out',
-                              animationDelay: '340ms'
-                            }}>
-                              {/* Campo Monto a Pagar */}
-                              <div style={{ animation: 'scaleFade 1.2s ease-in-out', animationDelay: '360ms' }}>
-                                <label style={{
-                                  display: 'block',
-                                  marginBottom: '8px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  Monto a pagar (USD) *
-                                </label>
-                                <input
-                                  type="number"
-                                  required
-                                  min={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '1')}
-                                  step={esCursoMontoFijo ? String(montoPredeterminado) : (tipoCursoBackend?.modalidad_pago === 'mensual' ? '90' : '0.01')}
-                                  value={formData.montoMatricula}
-                                  readOnly={esCursoMontoFijo}
-                                  onChange={(e) => {
-                                    if (esCursoMontoFijo) {
-                                      toast.error(`Este curso tiene un monto fijo de ${formatCurrency(montoPredeterminado)}.`);
-                                      return;
-                                    }
-                                    const valor = e.target.value;
-                                    const newMonto = parseFloat(valor) || 0;
-
-                                    // VALIDACIÓN DE MÚLTIPLOS DE 90 PARA CURSOS MENSUALES
-                                    if (tipoCursoBackend?.modalidad_pago === 'mensual') {
-                                      const MONTO_BASE = 90;
-
-                                      // Si está vacío o es 0, permitir (para que pueda borrar)
-                                      if (valor === '' || newMonto === 0) {
-                                        setFormData({ ...formData, montoMatricula: newMonto });
-                                        return;
-                                      }
-
-                                      // Solo permitir múltiplos de 90
-                                      if (newMonto % MONTO_BASE === 0 && newMonto >= MONTO_BASE) {
-                                        setFormData({ ...formData, montoMatricula: newMonto });
-
-                                        // Mostrar alerta si el monto es diferente al precio original del curso
-                                        const precioOriginal = curso?.precio || 0;
-                                        setShowMontoAlert(newMonto !== precioOriginal);
-                                      } else {
-                                        // No actualizar el estado si no es múltiplo de 90
-                                        const mesesPagados = Math.floor(newMonto / MONTO_BASE);
-                                        const montoSugerido = mesesPagados * MONTO_BASE;
-                                        const montoSiguiente = (mesesPagados + 1) * MONTO_BASE;
-
-                                        toast(
-                                          `Solo múltiplos de $${MONTO_BASE}. Puedes pagar: $${montoSugerido} o $${montoSiguiente}`,
-                                          { duration: 3000, icon: '⚠️' }
-                                        );
-                                      }
-                                    } else {
-                                      // Para cursos por clases, permitir cualquier valor
-                                      setFormData({ ...formData, montoMatricula: newMonto });
-
-                                      // Mostrar alerta si el monto es diferente al precio original del curso
-                                      const precioOriginal = curso?.precio || 0;
-                                      setShowMontoAlert(newMonto !== precioOriginal);
-                                    }
-                                  }}
-                                  onBlur={(e) => {
-                                    // Cambiar color del borde
-                                    (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                                    if (esCursoMontoFijo) {
-                                      return;
-                                    }
-
-                                    // Al perder el foco, si está vacío o es inválido, restaurar al precio del curso
-                                    if (tipoCursoBackend?.modalidad_pago === 'mensual') {
-                                      const numero = parseFloat(e.target.value);
-                                      if (!numero || numero < 90 || numero % 90 !== 0) {
-                                        setFormData({ ...formData, montoMatricula: montoPredeterminado });
-                                        setShowMontoAlert(false);
-                                        toast.error('Monto inválido. Se restauró al valor del curso.', { duration: 3000 });
-                                      }
-                                    }
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: '2px solid rgba(251, 191, 36, 0.2)',
-                                    borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    transition: 'border-color 0.3s ease',
-                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                                    color: theme === 'dark' ? '#fff' : '#1f2937',
-                                    fontWeight: '600',
-                                    opacity: esCursoMontoFijo ? 0.8 : 1,
-                                    cursor: esCursoMontoFijo ? 'not-allowed' : 'text'
-                                  }}
-                                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
-                                />
-
-                                {esCursoMontoFijo && (
-                                  <p style={{
-                                    marginTop: '8px',
-                                    fontSize: '0.75rem',
-                                    color: theme === 'dark' ? '#fef3c7' : '#92400e',
-                                    fontWeight: 600
-                                  }}>
-                                    Este curso solo acepta pagos iniciales de {formatCurrency(montoPredeterminado)}. Una vez aprobada tu matrícula, podrás completar el resto del valor cuando lo desees.
-                                  </p>
-                                )}
-
-
-
-                                {/* Alerta motivacional cuando se edita el monto - SOLO para montos inválidos */}
-                                {showMontoAlert && tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula % 90 !== 0 && (
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: 12,
-                                    marginTop: 12,
-                                    padding: '16px',
-                                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05))',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '12px',
-                                    animation: 'slideInUp 0.3s ease-out'
-                                  }}>
-                                    <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
-                                    <div>
-                                      <div style={{
-                                        color: '#ef4444',
-                                        fontSize: '0.95rem',
-                                        fontWeight: '700',
-                                        marginBottom: '6px'
-                                      }}>
-                                        💡 ¡Recordatorio importante!
-                                      </div>
-                                      <div style={{
-                                        color: '#fca5a5',
-                                        fontSize: '0.9rem',
-                                        lineHeight: '1.5'
-                                      }}>
-                                        Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>.
-                                        ¡No pierdas esta oportunidad de transformar tu futuro profesional!
-                                        <span style={{ color: '#fbbf24', fontWeight: '600' }}>
-                                          ✨ Tu carrera en belleza te está esperando.
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Mensaje de confirmación para pagos adelantados válidos */}
-                                {tipoCursoBackend?.modalidad_pago === 'mensual' && formData.montoMatricula > 90 && formData.montoMatricula % 90 === 0 && (
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: 12,
-                                    marginTop: 12,
-                                    padding: '16px',
-                                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08))',
-                                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                                    borderRadius: '12px',
-                                    animation: 'slideInUp 0.3s ease-out'
-                                  }}>
-                                    <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
-                                    <div>
-                                      <div style={{
-                                        color: '#10b981',
-                                        fontSize: '0.95rem',
-                                        fontWeight: '700',
-                                        marginBottom: '6px'
-                                      }}>
-                                        ✅ ¡Excelente decisión!
-                                      </div>
-                                      <div style={{
-                                        color: theme === 'dark' ? '#6ee7b7' : '#047857',
-                                        fontSize: '0.9rem',
-                                        lineHeight: '1.5'
-                                      }}>
-                                        Estás pagando <strong>{formData.montoMatricula / 90} meses adelantados</strong> (${formData.montoMatricula}).
-                                        Esto te permitirá enfocarte en tu aprendizaje sin preocupaciones.
-                                        <span style={{ color: '#fbbf24', fontWeight: '600' }}>
-                                          🎓 ¡Tu compromiso con tu futuro es admirable!
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Sección de Documentos - Solo para nuevos estudiantes */}
-                        {!estudianteExistente && formData.tipoDocumento !== '' && (
-                          <div style={{
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '16px',
-                            padding: '24px',
-                            marginTop: '24px',
-                            animation: 'scaleFade 1.2s ease-in-out',
-                            animationDelay: '400ms'
-                          }}>
-                            <h4 style={{
-                              fontSize: '1.2rem',
-                              fontWeight: '700',
-                              color: theme === 'dark' ? '#fff' : '#1f2937',
-                              marginBottom: '20px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px'
-                            }}>
-                              <FileText size={24} color="#3b82f6" />
-                              Documentos Requeridos
-                            </h4>
-
-                            {/* Documento de Identificación */}
-                            <div style={{ marginBottom: '24px' }}>
-                              <label style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                marginBottom: '12px',
-                                fontWeight: '600',
-                                color: theme === 'dark' ? '#fff' : '#1f2937'
-                              }}>
-                                <IdCard size={18} color="#3b82f6" />
-                                {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
-                              </label>
-
-                              <div
-                                onDragEnter={handleDrag}
-                                onDragLeave={handleDrag}
-                                onDragOver={handleDrag}
-                                onDrop={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (isBlocked) return;
-                                  setDragActive(false);
-                                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                    handleDocumentoIdentificacionUpload(e.dataTransfer.files[0]);
-                                  }
-                                }}
-                                style={{
-                                  border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
-                                  borderRadius: '12px',
-                                  padding: '20px',
-                                  textAlign: 'center',
-                                  background: dragActive
-                                    ? 'rgba(59, 130, 246, 0.1)'
-                                    : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
-                                  transition: 'all 0.3s ease',
-                                  cursor: 'pointer'
-                                }}
-                                onClick={() => document.getElementById('documentoIdentificacionInput')?.click()}
-                              >
-                                <input
-                                  id="documentoIdentificacionInput"
-                                  type="file"
-                                  accept=".pdf"
-                                  onChange={(e) => handleDocumentoIdentificacionUpload(e.target.files?.[0] || null)}
-                                  style={{ display: 'none' }}
-                                />
-
-                                {documentoIdentificacion ? (
-                                  <div>
-                                    <div style={{
-                                      width: '50px',
-                                      height: '50px',
-                                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                                      borderRadius: '50%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      margin: '0 auto 12px'
-                                    }}>
-                                      <CheckCircle size={24} color="#fff" />
-                                    </div>
-                                    <p style={{
-                                      color: '#10b981',
-                                      fontWeight: '600',
-                                      fontSize: '1rem',
-                                      marginBottom: '6px'
-                                    }}>
-                                      ¡Documento subido!
-                                    </p>
-                                    <p style={{
-                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                      fontSize: '0.85rem',
-                                      marginBottom: '12px'
-                                    }}>
-                                      {documentoIdentificacion?.name} ({((documentoIdentificacion?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                    </p>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setDocumentoIdentificacion(null);
-                                      }}
-                                      style={{
-                                        background: 'rgba(239, 68, 68, 0.1)',
-                                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                                        borderRadius: '6px',
-                                        padding: '6px 12px',
-                                        color: '#dc2626',
-                                        cursor: 'pointer',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '500'
-                                      }}
-                                    >
-                                      Cambiar
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div>
-                                    <div style={{
-                                      width: '50px',
-                                      height: '50px',
-                                      background: 'rgba(59, 130, 246, 0.2)',
-                                      borderRadius: '50%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      margin: '0 auto 12px'
-                                    }}>
-                                      <IdCard size={24} color="#3b82f6" />
-                                    </div>
-                                    <p style={{
-                                      color: theme === 'dark' ? '#fff' : '#1f2937',
-                                      fontWeight: '600',
-                                      fontSize: '1rem',
-                                      marginBottom: '6px'
-                                    }}>
-                                      Subir {formData.tipoDocumento === 'ecuatoriano' ? 'cédula' : 'pasaporte'}
-                                    </p>
-                                    <p style={{
-                                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                      fontSize: '0.85rem',
-                                      marginBottom: '12px'
-                                    }}>
-                                      Arrastra y suelta o haz clic para seleccionar
-                                    </p>
-                                    <p style={{
-                                      color: theme === 'dark' ? '#9ca3af' : '#4b5563',
-                                      fontSize: '0.75rem'
-                                    }}>
-                                      PDF (Máx. 5MB)
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Documento de Estatus Legal - Solo para extranjeros */}
-                            {formData.tipoDocumento === 'extranjero' && (
-                              <div style={{ marginBottom: '16px' }}>
-                                <label style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  marginBottom: '12px',
-                                  fontWeight: '600',
-                                  color: theme === 'dark' ? '#fff' : '#1f2937'
-                                }}>
-                                  <FileText size={18} color="#3b82f6" />
-                                  Documento de Estatus Legal *
-                                </label>
-
-                                <div style={{
-                                  background: 'rgba(251, 191, 36, 0.1)',
-                                  border: '1px solid rgba(251, 191, 36, 0.3)',
-                                  borderRadius: '8px',
-                                  padding: '12px',
-                                  marginBottom: '12px'
-                                }}>
-                                  <p style={{
-                                    color: '#fbbf24',
-                                    fontSize: '0.85rem',
-                                    margin: 0,
-                                    fontWeight: '600'
-                                  }}>
-                                    📋 Documentos aceptados:
-                                  </p>
-                                  <ul style={{
-                                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                                    fontSize: '0.8rem',
-                                    margin: '8px 0 0 0',
-                                    paddingLeft: '16px'
-                                  }}>
-                                    <li>Visa de estudiante vigente</li>
-                                    <li>Permiso de residencia válido</li>
-                                  </ul>
-                                </div>
-
-                                <div
-                                  onDragEnter={handleDrag}
-                                  onDragLeave={handleDrag}
-                                  onDragOver={handleDrag}
-                                  onDrop={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    if (isBlocked) return;
-                                    setDragActive(false);
-                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                      handleDocumentoEstatusLegalUpload(e.dataTransfer.files[0]);
-                                    }
-                                  }}
-                                  style={{
-                                    border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
-                                    borderRadius: '12px',
-                                    padding: '20px',
-                                    textAlign: 'center',
-                                    background: dragActive
-                                      ? 'rgba(59, 130, 246, 0.1)'
-                                      : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
-                                    transition: 'all 0.3s ease',
-                                    cursor: 'pointer'
-                                  }}
-                                  onClick={() => document.getElementById('documentoEstatusLegalInput')?.click()}
-                                >
-                                  <input
-                                    id="documentoEstatusLegalInput"
-                                    type="file"
-                                    accept=".pdf"
-                                    onChange={(e) => handleDocumentoEstatusLegalUpload(e.target.files?.[0] || null)}
-                                    style={{ display: 'none' }}
-                                  />
-
-                                  {documentoEstatusLegal ? (
-                                    <div>
-                                      <div style={{
-                                        width: '50px',
-                                        height: '50px',
-                                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        margin: '0 auto 12px'
-                                      }}>
-                                        <CheckCircle size={24} color="#fff" />
-                                      </div>
-                                      <p style={{
-                                        color: '#10b981',
-                                        fontWeight: '600',
-                                        fontSize: '1rem',
-                                        marginBottom: '6px'
-                                      }}>
-                                        ¡Documento subido!
-                                      </p>
-                                      <p style={{
-                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                        fontSize: '0.85rem',
-                                        marginBottom: '12px'
-                                      }}>
-                                        {documentoEstatusLegal?.name} ({((documentoEstatusLegal?.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                                      </p>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setDocumentoEstatusLegal(null);
-                                        }}
-                                        style={{
-                                          background: 'rgba(239, 68, 68, 0.1)',
-                                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                                          borderRadius: '6px',
-                                          padding: '6px 12px',
-                                          color: '#dc2626',
-                                          cursor: 'pointer',
-                                          fontSize: '0.8rem',
-                                          fontWeight: '500'
-                                        }}
-                                      >
-                                        Cambiar
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <div>
-                                      <div style={{
-                                        width: '50px',
-                                        height: '50px',
-                                        background: 'rgba(59, 130, 246, 0.2)',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        margin: '0 auto 12px'
-                                      }}>
-                                        <FileText size={24} color="#3b82f6" />
-                                      </div>
-                                      <p style={{
-                                        color: theme === 'dark' ? '#fff' : '#1f2937',
-                                        fontWeight: '600',
-                                        fontSize: '1rem',
-                                        marginBottom: '6px'
-                                      }}>
-                                        Subir documento de estatus legal
-                                      </p>
-                                      <p style={{
-                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                                        fontSize: '0.85rem',
-                                        marginBottom: '12px'
-                                      }}>
-                                        Arrastra y suelta o haz clic para seleccionar
-                                      </p>
-                                      <p style={{
-                                        color: theme === 'dark' ? '#9ca3af' : '#4b5563',
-                                        fontSize: '0.75rem'
-                                      }}>
-                                        PDF (Máx. 5MB)
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Horario Preferido - Solo mostrar si NO tiene solicitud pendiente */}
-                    {!tieneSolicitudPendiente && (
-                      <div style={{ marginTop: '32px', marginBottom: '24px', animation: 'scaleFade 1.2s ease-in-out' }}>
-                        <label style={{
-                          display: 'block',
-                          marginBottom: '8px',
-                          fontWeight: '600',
-                          color: theme === 'dark' ? '#fff' : '#1f2937'
-                        }}>
-                          Horario Preferido *
-                        </label>
-                        <select
-                          required
-                          value={formData.idCurso || ''}
-                          onChange={(e) => {
-                            const selectedIdCurso = parseInt(e.target.value);
-                            const selectedCurso = cuposDisponibles.find((c: any) => c.id_curso === selectedIdCurso);
-                            setFormData({
-                              ...formData,
-                              idCurso: selectedIdCurso,
-                              horarioPreferido: selectedCurso?.horario || ''
-                            });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '12px 16px',
-                            border: '2px solid rgba(251, 191, 36, 0.2)',
-                            borderRadius: '12px',
-                            fontSize: '1rem',
-                            transition: 'border-color 0.3s ease',
-                            background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                            color: theme === 'dark' ? '#fff' : '#1f2937'
-                          }}
-                          onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                          onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.2)'}
-                        >
-                          <option value="" disabled>Seleccionar horario y fecha</option>
-                          {cuposDisponibles
-                            .filter((c: any) => c.id_tipo_curso === tipoCursoId && c.cupos_totales > 0)
-                            .map((c: any) => (
-                              <option key={c.id_curso} value={c.id_curso}>
-                                {c.horario.charAt(0).toUpperCase() + c.horario.slice(1)} - Inicio: {new Date(c.fecha_inicio).toLocaleDateString('es-EC')} ({c.cupos_totales} cupos)
-                              </option>
-                            ))
-                          }
-                        </select>
-
-                        {/* Mostrar disponibilidad de cupos por horario */}
-                        {formData.horarioPreferido && (
-                          <div style={{ marginTop: '12px' }}>
-                            {(() => {
-                              const cuposHorario = cuposDisponibles.find(
-                                (c: any) => c.id_curso === formData.idCurso
-                              );
-
-                              if (!cuposHorario || cuposHorario.cupos_totales === 0) {
-                                return (
-                                  <div style={{
-                                    padding: '12px 16px',
-                                    background: 'rgba(239, 68, 68, 0.1)',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    borderRadius: '12px',
-                                    color: '#ef4444',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                  }}>
-                                    <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                    No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
-                                  </div>
-                                );
-                              }
-
-                              return (
-                                <div style={{
-                                  padding: '12px 16px',
-                                  background: 'rgba(16, 185, 129, 0.1)',
-                                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                                  borderRadius: '12px',
-                                  color: '#10b981',
-                                  fontSize: '0.9rem',
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px'
-                                }}>
-                                  <span style={{ fontSize: '1.2rem' }}>✅</span>
-                                  Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Certificado Cosmetóloga - Solo Cosmiatría */}
-                    {cursoKey === 'cosmiatria' && !tieneSolicitudPendiente && (<div style={{
-                      background: 'rgba(251, 191, 36, 0.1)',
-                      border: '1px solid rgba(251, 191, 36, 0.3)',
-                      borderRadius: '16px',
-                      padding: '24px',
-                      marginTop: '24px'
-                    }}>
-                      <h4 style={{
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
-                        color: theme === 'dark' ? '#fff' : '#1f2937',
-                        marginBottom: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px'
-                      }}>
-                        <FileText size={24} color="#fbbf24" />
-                        Certificado de Cosmetóloga
-                      </h4>
-
-                      <div style={{
-                        background: 'rgba(251, 191, 36, 0.15)',
-                        border: '1px solid rgba(251, 191, 36, 0.4)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        marginBottom: '20px'
-                      }}>
-                        <p style={{
-                          color: '#fbbf24',
-                          fontSize: '0.95rem',
-                          margin: 0,
-                          fontWeight: '600'
-                        }}>
-                          📋 Requisito obligatorio para Cosmiatría
-                        </p>
-                        <p style={{
-                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                          fontSize: '0.85rem',
-                          margin: '12px 0 0 0'
-                        }}>
-                          Debes adjuntar tu certificado de cosmetóloga.
-                        </p>
-                      </div>
-
-                      <div
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          if (isBlocked) return;
-                          setDragActive(false);
-                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                            handleCertificadoCosmetologiaUpload(e.dataTransfer.files[0]);
-                          }
-                        }}
-                        style={{
-                          border: `2px dashed ${dragActive || certificadoCosmetologia ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
-                          borderRadius: '12px',
-                          padding: '20px',
-                          textAlign: 'center',
-                          background: dragActive ? 'rgba(251, 191, 36, 0.1)' : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
-                          transition: 'all 0.3s ease',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => document.getElementById('certificadoCosmetologiaInput')?.click()}
-                      >
-                        <input
-                          id="certificadoCosmetologiaInput"
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => handleCertificadoCosmetologiaUpload(e.target.files?.[0] || null)}
-                          style={{ display: 'none' }}
-                        />
-
-                        {certificadoCosmetologia ? (
-                          <div>
-                            <div style={{
-                              width: '50px',
-                              height: '50px',
-                              background: 'linear-gradient(135deg, #10b981, #059669)',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              margin: '0 auto 12px'
-                            }}>
-                              <CheckCircle size={24} color="#fff" />
-                            </div>
-                            <p style={{
-                              color: '#10b981',
-                              fontWeight: '600',
-                              fontSize: '1rem',
-                              marginBottom: '6px'
-                            }}>
-                              ¡Certificado subido!
-                            </p>
-                            <p style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                              fontSize: '0.85rem',
-                              marginBottom: '12px'
-                            }}>
-                              {certificadoCosmetologia.name} ({((certificadoCosmetologia.size || 0) / 1024 / 1024).toFixed(2)} MB)
-                            </p>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCertificadoCosmetologia(null);
-                              }}
-                              style={{
-                                background: 'rgba(239, 68, 68, 0.1)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                borderRadius: '6px',
-                                padding: '6px 12px',
-                                color: '#dc2626',
-                                cursor: 'pointer',
-                                fontSize: '0.8rem',
-                                fontWeight: '500'
-                              }}
-                            >
-                              Cambiar
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <div style={{
-                              width: '50px',
-                              height: '50px',
-                              background: 'rgba(251, 191, 36, 0.2)',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              margin: '0 auto 12px'
-                            }}>
-                              <FileText size={24} color="#fbbf24" />
-                            </div>
-                            <p style={{
-                              color: theme === 'dark' ? '#fff' : '#1f2937',
-                              fontWeight: '600',
-                              fontSize: '1rem',
-                              marginBottom: '6px'
-                            }}>
-                              Subir Certificado de Cosmetóloga
-                            </p>
-                            <p style={{
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                              fontSize: '0.85rem',
-                              marginBottom: '12px'
-                            }}>
-                              Arrastra y suelta o haz clic
-                            </p>
-                            <p style={{
-                              color: theme === 'dark' ? '#9ca3af' : '#4b5563',
-                              fontSize: '0.75rem'
-                            }}>
-                              PDF (Máx. 5MB)
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    )}
-
-
-                  </div>
 
                   {/* Métodos de pago - Solo mostrar si NO tiene solicitud pendiente */}
                   {!tieneSolicitudPendiente && (
@@ -4520,9 +4530,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       background: theme === 'dark'
                         ? 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(26,26,26,0.9))'
                         : 'rgba(255, 255, 255, 0.97)',
-                      borderRadius: '24px',
-                      padding: '32px',
-                      marginBottom: '32px',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      marginBottom: '20px',
                       backdropFilter: 'blur(20px)',
                       border: '1px solid rgba(251, 191, 36, 0.2)',
                       boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
@@ -4537,6 +4547,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             marginBottom: '24px',
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '12px'
                           }}>
                             <CreditCard size={24} color="#fbbf24" />
@@ -4747,16 +4758,25 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     <input
                                       type="date"
                                       value={fechaTransferencia}
-                                      onChange={(e) => setFechaTransferencia(e.target.value)}
+                                      onChange={(e) => {
+                                        const selectedDate = e.target.value;
+                                        const today = new Intl.DateTimeFormat('en-CA', {
+                                          timeZone: 'America/Guayaquil',
+                                          year: 'numeric',
+                                          month: '2-digit',
+                                          day: '2-digit'
+                                        }).format(new Date());
+
+                                        if (selectedDate > today) {
+                                          toast.error('No puedes seleccionar una fecha futura para la transferencia.', {
+                                            id: 'future-date-error',
+                                            duration: 3000,
+                                          });
+                                          return;
+                                        }
+                                        setFechaTransferencia(selectedDate);
+                                      }}
                                       required
-                                      min={(() => {
-                                        const now = new Date();
-                                        const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
-                                        const year = ecuadorDate.getFullYear();
-                                        const month = String(ecuadorDate.getMonth() + 1).padStart(2, '0');
-                                        const day = String(ecuadorDate.getDate()).padStart(2, '0');
-                                        return `${year}-${month}-${day}`;
-                                      })()}
                                       max={(() => {
                                         const now = new Date();
                                         const ecuadorDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
@@ -4765,7 +4785,6 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                         const day = String(ecuadorDate.getDate()).padStart(2, '0');
                                         return `${year}-${month}-${day}`;
                                       })()}
-                                      readOnly
                                       style={{
                                         width: '100%',
                                         padding: '12px 16px',
@@ -4774,7 +4793,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
                                         color: theme === 'dark' ? '#ffffff !important' : '#1f2937',
                                         fontSize: '1rem',
-                                        cursor: 'not-allowed',
+                                        cursor: 'pointer',
                                         opacity: 1,
                                         WebkitTextFillColor: theme === 'dark' ? '#ffffff' : '#1f2937',
                                         colorScheme: theme === 'dark' ? 'dark' : 'light'
@@ -4786,7 +4805,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       marginTop: '4px',
                                       fontStyle: 'italic'
                                     }}>
-                                      La fecha se establece automáticamente al día de hoy
+                                      Puedes seleccionar la fecha en que realizaste el pago (solo fechas pasadas)
                                     </p>
                                   </div>
                                 </div>
@@ -5345,11 +5364,11 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     style={{
                       width: '100%',
                       background: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(255,255,255,0.5)' : '#000',
-                      padding: '16px 24px',
-                      borderRadius: '16px',
+                      padding: '22px 48px',
+                      borderRadius: '12px',
                       border: 'none',
-                      fontWeight: 800,
-                      fontSize: '1.1rem',
+                      fontWeight: 700,
+                      fontSize: '1.5rem',
                       cursor: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'not-allowed' : 'pointer',
                       boxShadow: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'none' : '0 12px 40px rgba(251, 191, 36, 0.25)',
                       opacity: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 0.6 : 1,
@@ -5357,7 +5376,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     }}
                     title={tieneSolicitudPendiente ? 'No puedes inscribirte mientras tengas una solicitud pendiente' : ''}
                   >
-                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : isSubmitting ? '⏳ Enviando solicitud...' : 'Confirmar Inscripción'}                  </button>
+                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : isSubmitting ? '⏳ Enviando solicitud...' : 'Enviar Solicitud de Matrícula'}                  </button>
 
                   <p style={{
                     textAlign: 'center',
@@ -5375,6 +5394,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             </div>
           </div>
         </div>
+        {/* FIN DEL GRID DE DOS COLUMNAS */}
 
         <Footer />
       </div>

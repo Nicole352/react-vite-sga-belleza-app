@@ -21,21 +21,19 @@ const Footer = () => {
     borderTop: `2px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
     boxShadow: `0 8px 32px ${theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
     color: theme === 'dark' ? 'white' : '#1a1a1a',
-    padding: 'clamp(30px, 8vw, 60px) 0 clamp(20px, 5vw, 30px)',
+    padding: 'clamp(0.75rem, 1.5vw, 1rem) 0 clamp(0.5rem, 1vw, 0.75rem)',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: "'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
   };
 
   const descriptionStyle: CSSProperties = {
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
-    lineHeight: '1.6',
+    lineHeight: '1.4',
     marginBottom: '0',
-    marginTop: '-40px',
-    fontFamily: "'Montserrat', sans-serif",
-    fontSize: 'clamp(12px, 2.5vw, 15px)',
+    marginTop: '0',
+    fontSize: 'clamp(0.85rem, 1vw, 0.95rem)',
     maxWidth: '300px',
-    textAlign: 'justify',
+    textAlign: 'left',
   };
 
   const contactItemStyle: CSSProperties = {
@@ -43,8 +41,7 @@ const Footer = () => {
     alignItems: 'center',
     gap: '12px',
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
-    fontSize: 'clamp(11px, 2.2vw, 14px)',
-    fontFamily: "'Montserrat', sans-serif",
+    fontSize: '0.85rem',
     fontWeight: '400',
     flexWrap: 'wrap',
   };
@@ -55,19 +52,17 @@ const Footer = () => {
   };
 
   const sectionTitleStyle: CSSProperties = {
-    fontSize: 'clamp(16px, 3vw, 18px)',
-    fontWeight: '600',
+    fontSize: '1rem',
+    fontWeight: '700',
     color: theme === 'dark' ? '#fbbf24' : '#d69e2e',
-    marginBottom: '0',
-    fontFamily: "'Montserrat', sans-serif",
+    marginBottom: '8px',
     letterSpacing: '0.5px',
   };
 
   const linkStyle: CSSProperties = {
     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(26, 26, 26, 0.8)',
     textDecoration: 'none',
-    fontSize: 'clamp(13px, 2.5vw, 15px)',
-    fontFamily: "'Montserrat', sans-serif",
+    fontSize: '0.9rem',
     fontWeight: '400',
     transition: 'all 0.3s ease',
     padding: '0',
@@ -79,9 +74,9 @@ const Footer = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '44px',
-    height: '44px',
-    borderRadius: '10px',
+    width: '2.25rem',
+    height: '2.25rem',
+    borderRadius: '0.5rem',
     transition: 'transform 0.25s ease, background 0.25s ease, border-color 0.25s ease',
     textDecoration: 'none',
     border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)'}`,
@@ -94,7 +89,7 @@ const Footer = () => {
 
   const bottomBarStyle: CSSProperties = {
     borderTop: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-    paddingTop: '30px',
+    paddingTop: '0.75rem',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -134,8 +129,8 @@ const Footer = () => {
   // Icono personalizado de TikTok usando CSS
   const TikTokIcon = () => (
     <div style={{
-      width: '20px',
-      height: '20px',
+      width: '1.25rem',
+      height: '1.25rem',
       background: theme === 'dark' ? '#fff' : '#1a1a1a',
       maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z'/%3E%3C/svg%3E")`,
       maskRepeat: 'no-repeat',
@@ -157,11 +152,11 @@ const Footer = () => {
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
-          gap: '40px',
-          marginBottom: '30px',
+          gap: '24px',
+          marginBottom: '1rem',
           alignItems: 'start',
-          maxWidth: '1400px',
-          margin: '0 auto 30px auto',
+          maxWidth: '90%',
+          margin: '0 auto 1rem auto',
         }} className="footer-main">
           {/* Logo & Description */}
           <div style={{
@@ -172,16 +167,16 @@ const Footer = () => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               marginBottom: '0',
-              marginTop: '-49px',
+              marginTop: '0',
             }}>
               <img
                 src="https://res.cloudinary.com/di090ggjn/image/upload/v1757037016/clbfrmifo1mbpzma5qts.png"
                 alt="Jessica Vélez - Escuela de Esteticistas"
                 style={{
-                  height: 'clamp(120px, 25vw, 200px)',
-                  width: 'clamp(120px, 25vw, 200px)',
+                  height: '5rem',
+                  width: '5rem',
                   borderRadius: '50%',
                   filter: 'drop-shadow(0 4px 15px rgba(251, 191, 36, 0.3))',
                   transition: 'all 0.3s ease',
@@ -202,8 +197,8 @@ const Footer = () => {
             </div>
 
             <p style={descriptionStyle} className="footer-description" data-aos="fade-up" data-aos-delay="100">
-             Líder en la formación de esteticistas profesionales en Ecuador, con 6 años impulsando el crecimiento 
-             de mujeres que desean transformar su futuro a través de la estética.
+              Líder en la formación de esteticistas profesionales en Ecuador, con 6 años impulsando el crecimiento
+              de mujeres que desean transformar su futuro a través de la estética.
             </p>
           </div>
 
@@ -216,8 +211,8 @@ const Footer = () => {
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px',
-              marginTop: '14px',
+              gap: '6px',
+              marginTop: '0',
             }}>
               <Link
                 to="/"
@@ -327,8 +322,8 @@ const Footer = () => {
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px',
-              marginTop: '14px',
+              gap: '8px',
+              marginTop: '0',
             }} className="footer-contact">
               <div style={contactItemStyle} className="contact-item">
                 <MapPin size={16} style={iconStyle} />
@@ -336,11 +331,11 @@ const Footer = () => {
               </div>
               <div style={contactItemStyle} className="contact-item">
                 <Phone size={16} style={iconStyle} />
-                <span>+593 2 275 0123</span>
+                <a href="tel:0995562241" style={{ ...linkStyle, color: 'inherit' }}>+593 99 556 2241</a>
               </div>
               <div style={contactItemStyle} className="contact-item">
                 <Mail size={16} style={iconStyle} />
-                <span>info@jessicavelez.edu.ec</span>
+                <a href="mailto:escuelajessicavelez@gmail.com" style={{ ...linkStyle, color: 'inherit' }}>escuelajessicavelez@gmail.com</a>
               </div>
             </div>
           </div>
@@ -353,16 +348,15 @@ const Footer = () => {
             <h3 style={sectionTitleStyle}>Síguenos</h3>
             <p style={{
               color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(26, 26, 26, 0.7)',
-              fontSize: 'clamp(12px, 2.2vw, 14px)',
-              fontFamily: "'Montserrat', sans-serif",
-              lineHeight: '1.5',
-              marginTop: '14px',
-              marginBottom: '14px',
+              fontSize: '0.85rem',
+              lineHeight: '1.4',
+              marginTop: '0',
+              marginBottom: '8px',
             }} className="social-description">
               Conecta con nosotras en redes sociales
             </p>
 
-            <div style={{marginTop: '0px'}}>
+            <div style={{ marginTop: '0px' }}>
               <div style={{
                 display: 'flex',
                 gap: '12px',
@@ -483,7 +477,7 @@ const Footer = () => {
         /* Medium Desktop (992px - 1199px) */
         @media (max-width: 1199px) and (min-width: 992px) {
           .footer-main {
-            gap: 30px !important;
+            gap: 1.875rem !important;
           }
 
           .footer-contact-section {
@@ -495,20 +489,20 @@ const Footer = () => {
         /* Small Desktop/Large Tablet (768px - 991px) */
         @media (max-width: 991px) and (min-width: 768px) {
           .footer-main {
-            gap: 30px !important;
+            gap: 1.875rem !important;
             text-align: left !important;
           }
 
           .footer-social-section {
             grid-column: 1 / -1 !important;
             text-align: center !important;
-            margin-top: 20px !important;
+            margin-top: 1.25rem !important;
           }
 
           .footer-contact-section {
             grid-column: 1 / -1 !important;
             text-align: center !important;
-            margin-top: 15px !important;
+            margin-top: 1rem !important;
           }
 
           .social-grid {
@@ -522,7 +516,7 @@ const Footer = () => {
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
-            gap: 16px !important;
+            gap: 1rem !important;
             justify-content: center !important;
           }
         }
@@ -531,14 +525,14 @@ const Footer = () => {
         @media (max-width: 767px) and (min-width: 481px) {
           .footer-main {
             grid-template-columns: 1fr !important;
-            gap: 25px !important;
+            gap: 1.5rem !important;
             text-align: center !important;
-            margin-bottom: 25px !important;
+            margin-bottom: 1.5rem !important;
           }
 
           .footer-logo-section {
             align-items: center !important;
-            gap: 16px !important;
+            gap: 1rem !important;
           }
 
           .footer-description {
@@ -550,34 +544,34 @@ const Footer = () => {
 
           .footer-contact {
             align-items: center !important;
-            gap: 12px !important;
+            gap: 0.75rem !important;
           }
 
           .contact-item {
             justify-content: center !important;
-            gap: 10px !important;
+            gap: 0.625rem !important;
           }
 
           .social-description {
-            margin-bottom: 16px !important;
+            margin-bottom: 1rem !important;
           }
 
           .social-grid {
             justify-content: center !important;
-            gap: 12px !important;
+            gap: 0.75rem !important;
           }
 
           .social-link {
-            width: 46px !important;
-            height: 46px !important;
+            width: 3rem !important;
+            height: 3rem !important;
           }
 
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
-            gap: 16px !important;
+            gap: 1rem !important;
             justify-content: center !important;
-            padding-top: 20px !important;
+            padding-top: 1.25rem !important;
           }
 
           .copyright {
@@ -587,7 +581,7 @@ const Footer = () => {
           }
 
           .certification-badge {
-            padding: 6px 12px !important;
+            padding: 0.375rem 0.75rem !important;
           }
         }
 
@@ -595,14 +589,14 @@ const Footer = () => {
         @media (max-width: 480px) and (min-width: 376px) {
           .footer-main {
             grid-template-columns: 1fr !important;
-            gap: 20px !important;
+            gap: 1.25rem !important;
             text-align: center !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 1.25rem !important;
           }
 
           .footer-logo-section {
             align-items: center !important;
-            gap: 12px !important;
+            gap: 0.75rem !important;
           }
 
           .footer-description {
@@ -614,42 +608,42 @@ const Footer = () => {
 
           .footer-contact {
             align-items: center !important;
-            gap: 10px !important;
+            gap: 0.625rem !important;
           }
 
           .contact-item {
             flex-direction: row !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 8px !important;
+            gap: 0.5rem !important;
           }
 
           .social-description {
-            margin-bottom: 12px !important;
+            margin-bottom: 0.75rem !important;
           }
 
           .social-grid {
-            gap: 10px !important;
+            gap: 0.625rem !important;
             flex-wrap: wrap !important;
             justify-content: center !important;
           }
 
           .social-link {
-            width: 40px !important;
-            height: 40px !important;
+            width: 2.5rem !important;
+            height: 2.5rem !important;
           }
 
           .social-link svg,
           .social-link div {
-            width: 16px !important;
-            height: 16px !important;
+            width: 1rem !important;
+            height: 1rem !important;
           }
 
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
-            gap: 12px !important;
-            padding-top: 15px !important;
+            gap: 0.75rem !important;
+            padding-top: 1rem !important;
           }
 
           .copyright {
@@ -658,7 +652,7 @@ const Footer = () => {
           }
 
           .certification-badge {
-            padding: 5px 10px !important;
+            padding: 0.3125rem 0.625rem !important;
           }
         }
 
@@ -666,14 +660,14 @@ const Footer = () => {
         @media (max-width: 375px) {
           .footer-main {
             grid-template-columns: 1fr !important;
-            gap: 18px !important;
+            gap: 1.125rem !important;
             text-align: center !important;
-            margin-bottom: 18px !important;
+            margin-bottom: 1.125rem !important;
           }
 
           .footer-logo-section {
             align-items: center !important;
-            gap: 10px !important;
+            gap: 0.625rem !important;
           }
 
           .footer-description {
@@ -684,62 +678,62 @@ const Footer = () => {
 
           .footer-contact {
             align-items: center !important;
-            gap: 8px !important;
+            gap: 0.5rem !important;
           }
 
           .contact-item {
-            gap: 6px !important;
+            gap: 0.375rem !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
 
           .contact-item svg {
-            width: 12px !important;
-            height: 12px !important;
+            width: 0.75rem !important;
+            height: 0.75rem !important;
           }
 
           .social-description {
-            margin-bottom: 10px !important;
+            margin-bottom: 0.625rem !important;
           }
 
           .social-grid {
-            gap: 8px !important;
+            gap: 0.5rem !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
 
           .social-link {
-            width: 36px !important;
-            height: 36px !important;
+            width: 2.25rem !important;
+            height: 2.25rem !important;
           }
 
           .social-link svg,
           .social-link div {
-            width: 14px !important;
-            height: 14px !important;
+            width: 0.875rem !important;
+            height: 0.875rem !important;
           }
 
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
-            gap: 10px !important;
-            padding-top: 12px !important;
+            gap: 0.625rem !important;
+            padding-top: 0.75rem !important;
           }
 
           .copyright {
             flex-direction: column !important;
-            gap: 4px !important;
+            gap: 0.25rem !important;
             line-height: 1.3 !important;
             justify-content: center !important;
           }
 
           .certification-badge {
-            padding: 4px 8px !important;
+            padding: 0.25rem 0.5rem !important;
           }
 
           .certification-badge svg {
-            width: 10px !important;
-            height: 10px !important;
+            width: 0.625rem !important;
+            height: 0.625rem !important;
           }
         }
 
@@ -747,14 +741,14 @@ const Footer = () => {
         @media (max-width: 319px) {
           .footer-main {
             grid-template-columns: 1fr !important;
-            gap: 15px !important;
+            gap: 0.9375rem !important;
             text-align: center !important;
-            margin-bottom: 15px !important;
+            margin-bottom: 0.9375rem !important;
           }
 
           .footer-logo-section {
             align-items: center !important;
-            gap: 8px !important;
+            gap: 0.5rem !important;
           }
 
           .footer-description {
@@ -765,51 +759,51 @@ const Footer = () => {
 
           .footer-contact {
             align-items: center !important;
-            gap: 6px !important;
+            gap: 0.375rem !important;
           }
 
           .contact-item {
-            gap: 4px !important;
+            gap: 0.25rem !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
 
           .contact-item svg {
-            width: 10px !important;
-            height: 10px !important;
+            width: 0.625rem !important;
+            height: 0.625rem !important;
           }
 
           .social-description {
-            margin-bottom: 8px !important;
+            margin-bottom: 0.5rem !important;
           }
 
           .social-grid {
-            gap: 6px !important;
+            gap: 0.375rem !important;
             justify-content: center !important;
             flex-wrap: wrap !important;
           }
 
           .social-link {
-            width: 32px !important;
-            height: 32px !important;
+            width: 2rem !important;
+            height: 2rem !important;
           }
 
           .social-link svg,
           .social-link div {
-            width: 12px !important;
-            height: 12px !important;
+            width: 0.75rem !important;
+            height: 0.75rem !important;
           }
 
           .footer-bottom {
             flex-direction: column !important;
             text-align: center !important;
-            gap: 8px !important;
-            padding-top: 10px !important;
+            gap: 0.5rem !important;
+            padding-top: 0.625rem !important;
           }
 
           .copyright {
             flex-direction: column !important;
-            gap: 3px !important;
+            gap: 0.1875rem !important;
             line-height: 1.2 !important;
             justify-content: center !important;
           }

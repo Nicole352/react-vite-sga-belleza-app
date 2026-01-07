@@ -195,7 +195,7 @@ const HistorialAuditoria: React.FC = () => {
   };
 
   const getTablaIcon = (tabla: string) => {
-    const iconMap: Record<string, JSX.Element> = {
+    const iconMap: Record<string, React.ReactElement> = {
       cursos: <BookOpen size={18} />,
       tipos_cursos: <Package size={18} />,
       matriculas: <GraduationCap size={18} />,
@@ -414,47 +414,41 @@ const HistorialAuditoria: React.FC = () => {
     <>
       <LoadingModal isOpen={loading} message={loadingText} />
 
-      <div
-        style={{
-          minHeight: '100vh',
-          background: theme.pageBg,
-          padding: isMobile ? '1rem' : (isSmallScreen ? '1.5rem' : '2rem'),
-          transition: 'all 0.3s ease',
-        }}
-      >
+      <div>
         {/* Header */}
         <AdminSectionHeader
           title="Historial de Auditoría"
           subtitle="Seguimiento completo de todas las operaciones del sistema"
+          marginBottom={isMobile ? '0.5rem' : '0.75rem'}
         />
 
         {/* Estadísticas */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(200px, 1fr))'),
-            gap: isMobile ? '0.75rem' : '1rem',
-            marginBottom: isMobile ? '1rem' : '1.5rem',
+            gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))'),
+            gap: isMobile ? '0.5rem' : '0.75rem',
+            marginBottom: isMobile ? '0.5rem' : '0.75rem',
           }}
         >
           {/* Total de registros */}
           <div
             style={{
               backgroundColor: theme.cardBg,
-              borderRadius: '10px',
-              padding: '1rem',
-              boxShadow: theme.cardShadow,
+              borderRadius: '0.5rem',
+              padding: '0.625rem',
+              boxShadow: 'none',
               border: `1px solid ${theme.cardBorder}`,
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '0.5rem',
                   backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
@@ -462,13 +456,13 @@ const HistorialAuditoria: React.FC = () => {
                   flexShrink: 0,
                 }}
               >
-                <Activity size={20} color="#ef4444" />
+                <Activity size={14} color="#ef4444" />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                <p style={{ margin: 0, fontSize: '0.65rem', color: theme.textMuted, lineHeight: 1.2 }}>
                   Total de Registros
                 </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                <p style={{ margin: '0.125rem 0 0 0', fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
                   {stats.total.toLocaleString()}
                 </p>
               </div>
@@ -479,20 +473,20 @@ const HistorialAuditoria: React.FC = () => {
           <div
             style={{
               backgroundColor: theme.cardBg,
-              borderRadius: '10px',
-              padding: '1rem',
-              boxShadow: theme.cardShadow,
+              borderRadius: '0.5rem',
+              padding: '0.625rem',
+              boxShadow: 'none',
               border: `1px solid ${theme.cardBorder}`,
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '0.5rem',
                   backgroundColor: darkMode ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
@@ -500,13 +494,13 @@ const HistorialAuditoria: React.FC = () => {
                   flexShrink: 0,
                 }}
               >
-                <TrendingUp size={20} color="#22c55e" />
+                <TrendingUp size={14} color="#22c55e" />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                <p style={{ margin: 0, fontSize: '0.65rem', color: theme.textMuted, lineHeight: 1.2 }}>
                   Actividad Hoy
                 </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                <p style={{ margin: '0.125rem 0 0 0', fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
                   {stats.hoy.toLocaleString()}
                 </p>
               </div>
@@ -517,20 +511,20 @@ const HistorialAuditoria: React.FC = () => {
           <div
             style={{
               backgroundColor: theme.cardBg,
-              borderRadius: '10px',
-              padding: '1rem',
-              boxShadow: theme.cardShadow,
+              borderRadius: '0.5rem',
+              padding: '0.625rem',
+              boxShadow: 'none',
               border: `1px solid ${theme.cardBorder}`,
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '0.5rem',
                   backgroundColor: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
@@ -538,13 +532,13 @@ const HistorialAuditoria: React.FC = () => {
                   flexShrink: 0,
                 }}
               >
-                <Database size={20} color="#3b82f6" />
+                <Database size={14} color="#3b82f6" />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                <p style={{ margin: 0, fontSize: '0.65rem', color: theme.textMuted, lineHeight: 1.2 }}>
                   Tablas Afectadas
                 </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                <p style={{ margin: '0.125rem 0 0 0', fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
                   {stats.porTabla.length}
                 </p>
               </div>
@@ -555,20 +549,20 @@ const HistorialAuditoria: React.FC = () => {
           <div
             style={{
               backgroundColor: theme.cardBg,
-              borderRadius: '10px',
-              padding: '1rem',
-              boxShadow: theme.cardShadow,
+              borderRadius: '0.5rem',
+              padding: '0.625rem',
+              boxShadow: 'none',
               border: `1px solid ${theme.cardBorder}`,
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '0.5rem',
                   backgroundColor: darkMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
@@ -576,13 +570,13 @@ const HistorialAuditoria: React.FC = () => {
                   flexShrink: 0,
                 }}
               >
-                <Users size={20} color="#a855f7" />
+                <Users size={14} color="#a855f7" />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: theme.textMuted, lineHeight: 1.2 }}>
+                <p style={{ margin: 0, fontSize: '0.65rem', color: theme.textMuted, lineHeight: 1.2 }}>
                   Usuarios Activos
                 </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
+                <p style={{ margin: '0.125rem 0 0 0', fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, lineHeight: 1.2 }}>
                   {stats.porUsuario.length}
                 </p>
               </div>
@@ -594,36 +588,36 @@ const HistorialAuditoria: React.FC = () => {
         <div
           style={{
             backgroundColor: theme.cardBg,
-            borderRadius: '10px',
-            padding: '1.25rem',
-            marginBottom: '1.5rem',
-            boxShadow: theme.cardShadow,
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            marginBottom: '0.75rem',
+            boxShadow: 'none',
             border: `1px solid ${theme.cardBorder}`,
             backdropFilter: 'blur(10px)',
             transition: 'all 0.3s ease',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Filter size={18} color="#ef4444" />
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: theme.textPrimary }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <Filter size={14} color="#ef4444" />
+              <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: '600', color: theme.textPrimary }}>
                 Filtros de Búsqueda
               </h3>
             </div>
             <button
               onClick={limpiarFiltros}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.375rem 0.75rem',
                 backgroundColor: theme.buttonSecondary,
                 color: theme.buttonSecondaryText,
                 border: 'none',
-                borderRadius: '6px',
-                fontSize: '0.8125rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.7rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.375rem',
+                gap: '0.25rem',
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
@@ -633,7 +627,7 @@ const HistorialAuditoria: React.FC = () => {
                 e.currentTarget.style.backgroundColor = theme.buttonSecondary;
               }}
             >
-              <X size={14} />
+              <X size={12} />
               Limpiar Filtros
             </button>
           </div>
@@ -641,8 +635,8 @@ const HistorialAuditoria: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))'),
-              gap: isMobile ? '0.75rem' : '0.875rem',
+              gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(6, 1fr)'),
+              gap: isMobile ? '0.5rem' : '0.625rem',
             }}
           >
             {/* Búsqueda */}
@@ -650,8 +644,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -677,10 +671,10 @@ const HistorialAuditoria: React.FC = () => {
                   onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '0.5rem 0.625rem 0.5rem 2.25rem',
+                    padding: '0.375rem 0.5rem 0.375rem 2rem',
                     border: `1px solid ${theme.inputBorder}`,
-                    borderRadius: '6px',
-                    fontSize: '0.8125rem',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.75rem',
                     backgroundColor: theme.inputBg,
                     color: theme.textPrimary,
                     outline: 'none',
@@ -703,8 +697,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -716,10 +710,10 @@ const HistorialAuditoria: React.FC = () => {
                 onChange={(e) => setFiltros({ ...filtros, tabla: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.625rem',
+                  padding: '0.375rem 0.5rem',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '6px',
-                  fontSize: '0.8125rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.75rem',
                   backgroundColor: theme.inputBg,
                   color: theme.textPrimary,
                   outline: 'none',
@@ -777,8 +771,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -790,10 +784,10 @@ const HistorialAuditoria: React.FC = () => {
                 onChange={(e) => setFiltros({ ...filtros, operacion: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.625rem',
+                  padding: '0.375rem 0.5rem',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '6px',
-                  fontSize: '0.8125rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.75rem',
                   backgroundColor: theme.inputBg,
                   color: theme.textPrimary,
                   outline: 'none',
@@ -821,8 +815,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -834,10 +828,10 @@ const HistorialAuditoria: React.FC = () => {
                 onChange={(e) => setFiltros({ ...filtros, rol: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.625rem',
+                  padding: '0.375rem 0.5rem',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '6px',
-                  fontSize: '0.8125rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.75rem',
                   backgroundColor: theme.inputBg,
                   color: theme.textPrimary,
                   outline: 'none',
@@ -865,8 +859,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -879,10 +873,10 @@ const HistorialAuditoria: React.FC = () => {
                 onChange={(e) => setFiltros({ ...filtros, fecha_inicio: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.625rem',
+                  padding: '0.375rem 0.5rem',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '6px',
-                  fontSize: '0.8125rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.75rem',
                   backgroundColor: theme.inputBg,
                   color: theme.textPrimary,
                   outline: 'none',
@@ -904,8 +898,8 @@ const HistorialAuditoria: React.FC = () => {
               <label
                 style={{
                   display: 'block',
-                  marginBottom: '0.375rem',
-                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  fontSize: '0.65rem',
                   fontWeight: '500',
                   color: theme.textSecondary,
                 }}
@@ -918,10 +912,10 @@ const HistorialAuditoria: React.FC = () => {
                 onChange={(e) => setFiltros({ ...filtros, fecha_fin: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.625rem',
+                  padding: '0.375rem 0.5rem',
                   border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '6px',
-                  fontSize: '0.8125rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.75rem',
                   backgroundColor: theme.inputBg,
                   color: theme.textPrimary,
                   outline: 'none',
@@ -985,15 +979,15 @@ const HistorialAuditoria: React.FC = () => {
             <div
               style={{
                 textAlign: 'center',
-                padding: '3rem 1rem',
+                padding: '2rem 1rem',
                 color: theme.textMuted,
               }}
             >
-              <Database size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-              <p style={{ margin: 0, fontSize: '1rem' }}>No se encontraron registros de auditoría</p>
+              <Database size={32} style={{ margin: '0 auto 0.625rem', opacity: 0.5 }} />
+              <p style={{ margin: 0, fontSize: '0.8rem' }}>No se encontraron registros de auditoría</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {auditorias.map((auditoria) => {
                 return (
                   <div
@@ -1001,8 +995,8 @@ const HistorialAuditoria: React.FC = () => {
                     style={{
                       backgroundColor: theme.recordBg,
                       border: `1px solid ${theme.recordBorder}`,
-                      borderRadius: '10px',
-                      padding: '1.25rem',
+                      borderRadius: '0.5rem',
+                      padding: '0.75rem',
                       transition: 'all 0.2s ease',
                       cursor: 'pointer',
                     }}
@@ -1027,17 +1021,17 @@ const HistorialAuditoria: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: '1rem',
+                        gap: '0.625rem',
                         flexWrap: 'wrap',
                       }}
                     >
                       {/* Icono y descripción */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: '1' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flex: '1' }}>
                         <div
                           style={{
-                            width: '44px',
-                            height: '44px',
-                            borderRadius: '10px',
+                            width: '2rem',
+                            height: '2rem',
+                            borderRadius: '0.5rem',
                             backgroundColor: theme.iconBg,
                             display: 'flex',
                             alignItems: 'center',
@@ -1052,7 +1046,7 @@ const HistorialAuditoria: React.FC = () => {
                           <p
                             style={{
                               margin: 0,
-                              fontSize: '0.95rem',
+                              fontSize: '0.75rem',
                               fontWeight: '500',
                               color: theme.textPrimary,
                               lineHeight: '1.4',
@@ -1064,21 +1058,21 @@ const HistorialAuditoria: React.FC = () => {
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '0.75rem',
-                              marginTop: '0.5rem',
+                              gap: '0.5rem',
+                              marginTop: '0.375rem',
                               flexWrap: 'wrap',
                             }}
                           >
                             <span
                               style={{
-                                fontSize: '0.75rem',
+                                fontSize: '0.65rem',
                                 color: theme.textMuted,
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.1875rem',
                               }}
                             >
-                              <User size={12} />
+                              <User size={10} />
                               {auditoria.usuario.nombre} {auditoria.usuario.apellido}
                             </span>
                             {(() => {
@@ -1086,11 +1080,11 @@ const HistorialAuditoria: React.FC = () => {
                               return (
                                 <span
                                   style={{
-                                    padding: '0.125rem 0.5rem',
+                                    padding: '0.0625rem 0.375rem',
                                     backgroundColor: badge.bg,
                                     color: badge.text,
-                                    borderRadius: '4px',
-                                    fontSize: '0.65rem',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.6rem',
                                     fontWeight: '600',
                                   }}
                                 >

@@ -417,9 +417,9 @@ const DetalleCurso: React.FC = () => {
     sectionId
   }) => {
     const baseStyle: React.CSSProperties = {
-      borderRadius: '24px',
-      marginBottom: '32px',
-      padding: '32px',
+      borderRadius: '16px',
+      marginBottom: '1.5rem',
+      padding: '1.5rem',
       cursor: isExpandable ? 'pointer' : 'default',
       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)',
@@ -509,8 +509,8 @@ const DetalleCurso: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {icon}
                 <h2 style={{
-                  fontSize: '1.6rem',
-                  fontWeight: '700',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
                   margin: 0,
                   background: variant === 'premium' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'inherit',
                   WebkitBackgroundClip: variant === 'premium' ? 'text' : 'inherit',
@@ -813,8 +813,7 @@ const DetalleCurso: React.FC = () => {
           : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: "'Inter', 'Segoe UI', sans-serif",
-        paddingTop: 110,
+        paddingTop: '3.75rem',
         paddingBottom: 0
       }}>
         {/* Partículas flotantes de fondo */}
@@ -835,7 +834,7 @@ const DetalleCurso: React.FC = () => {
           ))}
         </div>
 
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '90%', margin: '0 auto', padding: '0 0.75rem', position: 'relative', zIndex: 1 }}>
           {/* Botón volver mejorado */}
           <button
             onClick={() => navigate(-1)}
@@ -875,9 +874,9 @@ const DetalleCurso: React.FC = () => {
           <div className="header-content" style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 40,
-            marginBottom: 60,
-            padding: '40px',
+            gap: 24,
+            marginBottom: '2rem',
+            padding: '1.5rem',
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: '32px',
             border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -899,8 +898,8 @@ const DetalleCurso: React.FC = () => {
                 alt={curso.titulo}
                 className="header-image"
                 style={{
-                  width: 180,
-                  height: 180,
+                  width: 140,
+                  height: 140,
                   objectFit: 'cover',
                   transition: 'transform 0.3s ease'
                 }}
@@ -916,18 +915,18 @@ const DetalleCurso: React.FC = () => {
             </div>
             <div style={{ flex: 1 }}>
               <h1 className="gradient-text header-title" style={{
-                fontSize: '3rem',
-                fontWeight: '800',
-                marginBottom: 16,
-                lineHeight: 1.2
+                fontSize: '2rem',
+                fontWeight: '700',
+                marginBottom: 8,
+                lineHeight: 1.1
               }}>
                 {curso.titulo}
               </h1>
               <p className="header-description" style={{
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                fontSize: '1.3rem',
-                marginBottom: 24,
-                lineHeight: 1.6
+                fontSize: '1rem',
+                marginBottom: 16,
+                lineHeight: 1.5
               }}>
                 {curso.descripcion}
               </p>
@@ -1036,10 +1035,10 @@ const DetalleCurso: React.FC = () => {
                 <div key={idx} className="requisito-card" style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 16,
-                  padding: '16px 20px',
+                  gap: 12,
+                  padding: '12px 16px',
                   background: 'rgba(0, 0, 0, 0.1)',
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   border: '1px solid rgba(0, 0, 0, 0.1)'
                 }}>
                   <div style={{
@@ -1055,7 +1054,7 @@ const DetalleCurso: React.FC = () => {
                     <Check size={20} color="#000" />
                   </div>
                   <span style={{
-                    fontSize: '1.1rem',
+                    fontSize: '0.95rem',
                     fontWeight: '500',
                     color: '#000'
                   }}>
@@ -1066,7 +1065,7 @@ const DetalleCurso: React.FC = () => {
             </div>
             <p style={{
               color: 'rgba(0, 0, 0, 0.7)',
-              fontSize: '1rem',
+              fontSize: '0.85rem',
               fontStyle: 'italic',
               marginBottom: 0
             }}>
@@ -1097,9 +1096,9 @@ const DetalleCurso: React.FC = () => {
                   key={idx}
                   className="malla-card"
                   style={{
-                    padding: '24px',
+                    padding: '16px',
                     background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '16px',
+                    borderRadius: '12px',
                     border: '1px solid rgba(251, 191, 36, 0.3)',
                     transition: 'all 0.3s ease',
                     cursor: 'pointer'
@@ -1139,10 +1138,10 @@ const DetalleCurso: React.FC = () => {
                   </div>
                   <h3 style={{
                     color: theme === 'dark' ? '#fff' : '#1f2937',
-                    fontSize: '1.2rem',
+                    fontSize: '1rem',
                     fontWeight: '600',
                     margin: 0,
-                    lineHeight: 1.4
+                    lineHeight: 1.3
                   }}>
                     {modulo}
                   </h3>
@@ -1170,9 +1169,9 @@ const DetalleCurso: React.FC = () => {
             }}>
               {curso.promociones.map((promo, idx) => (
                 <div key={idx} className="promocion-card" style={{
-                  padding: '24px',
+                  padding: '16px',
                   background: 'rgba(251, 191, 36, 0.1)',
-                  borderRadius: '20px',
+                  borderRadius: '16px',
                   border: '2px solid rgba(251, 191, 36, 0.3)',
                   position: 'relative',
                   overflow: 'hidden'
@@ -1194,18 +1193,18 @@ const DetalleCurso: React.FC = () => {
                   </div>
                   <h4 style={{
                     color: '#fbbf24',
-                    fontSize: '1.3rem',
+                    fontSize: '1rem',
                     fontWeight: '700',
-                    marginBottom: 12,
-                    paddingRight: 60
+                    marginBottom: 8,
+                    paddingRight: 40
                   }}>
                     Oferta Especial {idx + 1}
                   </h4>
                   <p style={{
                     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.9)',
-                    fontSize: '1.1rem',
+                    fontSize: '0.9rem',
                     margin: 0,
-                    lineHeight: 1.5
+                    lineHeight: 1.4
                   }}>
                     {promo}
                   </p>
@@ -1247,18 +1246,18 @@ const DetalleCurso: React.FC = () => {
           >
             <div style={{ textAlign: 'center' }}>
               <h2 style={{
-                fontSize: '2.5rem',
-                fontWeight: '800',
+                fontSize: '1.8rem',
+                fontWeight: '700',
                 color: '#000',
-                marginBottom: 20
+                marginBottom: 12
               }}>
                 ¡Transforma tu Futuro Hoy!
               </h2>
               <p style={{
-                fontSize: '1.3rem',
+                fontSize: '1rem',
                 color: 'rgba(0, 0, 0, 0.8)',
-                marginBottom: 32,
-                lineHeight: 1.6
+                marginBottom: 24,
+                lineHeight: 1.5
               }}>
                 Únete a los miles de profesionales que han cambiado sus vidas con nuestros cursos.
                 <br />

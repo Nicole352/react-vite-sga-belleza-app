@@ -64,6 +64,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
   const [busqueda, setBusqueda] = useState('');
   const [filteredEntregas, setFilteredEntregas] = useState<Entrega[]>([]);
   const [calificando, setCalificando] = useState<number | null>(null);
+  const [isModalFullscreen, setIsModalFullscreen] = useState(false);
 
   const fetchEntregas = async () => {
     try {
@@ -179,36 +180,6 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       }, 150);
     } finally {
       setCalificando(null);
-    }
-  };
-
-  const handleDescargar = async (entrega: Entrega) => {
-    try {
-      // Si tiene URL de Cloudinary, descargar directamente
-      if (entrega.archivo_url) {
-        const link = document.createElement('a');
-        link.href = entrega.archivo_url;
-        // Usar archivo_nombre si existe, sino extraer de la URL
-        const nombreArchivo = entrega.archivo_nombre || entrega.archivo_url.split('/').pop() || 'entrega';
-        link.setAttribute('download', nombreArchivo);
-        link.setAttribute('target', '_blank');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        onClose();
-        setTimeout(() => {
-          showToast.success('Archivo descargado exitosamente', darkMode);
-        }, 200);
-      } else {
-        throw new Error('No hay archivo disponible');
-      }
-    } catch (error) {
-      console.error('Error descargando archivo:', error);
-      onClose();
-      setTimeout(() => {
-        showToast.error('Error al descargar el archivo', darkMode);
-      }, 200);
     }
   };
 
@@ -388,45 +359,56 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       className="modal-overlay"
       onClick={onClose}
       style={{
-        zIndex: 999999
+        zIndex: 999999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: isModalFullscreen ? '0' : '2rem'
       }}>
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: '75rem'
+          maxWidth: isModalFullscreen ? '100%' : '75rem',
+          width: '100%',
+          height: isModalFullscreen ? '100vh' : 'auto',
+          maxHeight: isModalFullscreen ? '100vh' : '90vh',
+          borderRadius: isModalFullscreen ? '0' : '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.3s ease'
         }}>
         {/* Header */}
         <div style={{
-          padding: '1rem 1.5rem',
+          padding: '0.75rem 1.25rem',
           borderBottom: `1px solid ${theme.border}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2.2rem',
+              height: '2.2rem',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              borderRadius: '0.75rem',
+              borderRadius: '0.6rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <FileText size={20} color="#fff" />
+              <FileText size={18} color="#fff" />
             </div>
             <div>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '700', margin: 0, lineHeight: '1.2' }}>
+              <h2 style={{ color: theme.textPrimary, fontSize: '1.125rem', fontWeight: '700', margin: 0, lineHeight: '1.2' }}>
                 Entregas de Tarea
               </h2>
-              <p style={{ color: theme.textSecondary, fontSize: '0.875rem', margin: '0.25rem 0 0 0', lineHeight: '1.2' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0.15rem 0 0 0', lineHeight: '1.2' }}>
                 {nombre_tarea}
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5em', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
             {/* Botón Ver Análisis Completo */}
             <button
               onClick={() => {
@@ -437,29 +419,59 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
-                borderRadius: '0.5em',
-                padding: '0.625em 1em',
+                borderRadius: '0.6rem',
+                padding: '0.5rem 0.9rem',
                 color: '#fff',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-                transition: 'all 0.2s ease'
+                gap: '0.5rem',
+                fontWeight: '700',
+                fontSize: '0.8rem',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
+                transition: 'all 0.2s ease',
+                textTransform: 'none',
+                letterSpacing: '0.3px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                e.currentTarget.style.filter = 'brightness(1.1)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.25)';
+                e.currentTarget.style.filter = 'brightness(1)';
               }}
             >
-              <BarChart3 size={18} />
-              Ver Análisis Completo
+              <BarChart3 size={16} />
+              <span>Análisis de Entregas</span>
+            </button>
+
+            {/* Botón Fullscreen */}
+            <button
+              onClick={() => setIsModalFullscreen(!isModalFullscreen)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: theme.textSecondary,
+                cursor: 'pointer',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+              }}
+              title={isModalFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              {isModalFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
             </button>
 
             {/* Botón Cerrar */}
@@ -470,8 +482,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 border: 'none',
                 color: theme.textSecondary,
                 cursor: 'pointer',
-                padding: '0.5em',
-                borderRadius: '0.5em',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -484,221 +496,79 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 e.currentTarget.style.background = 'transparent';
               }}
             >
-              <X size={24} />
+              <X size={22} />
             </button>
           </div>
         </div>
 
-        {/* Estadísticas */}
+        {/* Estadísticas Compactas */}
         <div style={{
-          margin: '0 1.25rem 1rem 1.25rem',
-          padding: '1.5rem',
-          borderRadius: '0.75rem',
+          margin: '0.75rem 1.25rem 0.5rem 1.25rem',
+          padding: '0.65rem 1rem',
+          borderRadius: '0.6rem',
           background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)',
-          boxShadow: darkMode
-            ? '0 4px 6px rgba(0, 0, 0, 0.3)'
-            : '0 4px 6px rgba(0, 0, 0, 0.05)'
+          border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem',
+          flexWrap: 'wrap'
         }}>
-          <h3 style={{
-            color: theme.textPrimary,
-            fontSize: '1rem',
-            fontWeight: '700',
-            margin: '0 0 1rem 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <BarChart3 size={20} style={{ color: '#3b82f6' }} />
-            Resumen de Entregas
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <BarChart3 size={16} style={{ color: '#3b82f6' }} />
+            <span style={{ color: theme.textPrimary, fontSize: '0.8rem', fontWeight: '700' }}>Resumen:</span>
+          </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem'
-          }}>
+          <div style={{ display: 'flex', gap: '1rem', flex: 1, flexWrap: 'wrap' }}>
             {/* Total */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '0.75rem',
-              border: `1px solid rgba(59, 130, 246, 0.2)`,
-              transition: 'all 0.2s ease',
-              cursor: 'default'
-            }}>
-              <div style={{
-                width: '2rem',
-                height: '2rem',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                <Users size={16} color="#fff" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={12} color="#3b82f6" />
               </div>
-              <div style={{
-                color: '#3b82f6',
-                fontSize: '1.25rem',
-                fontWeight: '800',
-                marginBottom: '0.125rem'
-              }}>
-                {stats.total}
-              </div>
-              <div style={{
-                color: theme.textSecondary,
-                fontSize: '0.7rem',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                Total
-              </div>
+              <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Total:</span>
+              <span style={{ color: '#3b82f6', fontSize: '0.85rem', fontWeight: '800' }}>{stats.total}</span>
             </div>
 
             {/* Pendientes */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-              borderRadius: '0.75rem',
-              border: `1px solid rgba(251, 191, 36, 0.2)`,
-              transition: 'all 0.2s ease',
-              cursor: 'default'
-            }}>
-              <div style={{
-                width: '2rem',
-                height: '2rem',
-                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                <Clock size={16} color="#fff" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(251, 191, 36, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Clock size={12} color="#fbbf24" />
               </div>
-              <div style={{
-                color: '#fbbf24',
-                fontSize: '1.25rem',
-                fontWeight: '800',
-                marginBottom: '0.125rem'
-              }}>
-                {stats.pendientes}
-              </div>
-              <div style={{
-                color: theme.textSecondary,
-                fontSize: '0.7rem',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                Pendientes
-              </div>
+              <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Pendientes:</span>
+              <span style={{ color: '#fbbf24', fontSize: '0.85rem', fontWeight: '800' }}>{stats.pendientes}</span>
             </div>
 
             {/* Calificadas */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-              borderRadius: '0.75rem',
-              border: `1px solid rgba(16, 185, 129, 0.2)`,
-              transition: 'all 0.2s ease',
-              cursor: 'default'
-            }}>
-              <div style={{
-                width: '2rem',
-                height: '2rem',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                <FileCheck size={16} color="#fff" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <FileCheck size={12} color="#10b981" />
               </div>
-              <div style={{
-                color: '#10b981',
-                fontSize: '1.25rem',
-                fontWeight: '800',
-                marginBottom: '0.125rem'
-              }}>
-                {stats.calificadas}
-              </div>
-              <div style={{
-                color: theme.textSecondary,
-                fontSize: '0.7rem',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                Calificadas
-              </div>
+              <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Calificadas:</span>
+              <span style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: '800' }}>{stats.calificadas}</span>
             </div>
 
             {/* Completado */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)',
-              borderRadius: '0.75rem',
-              border: `1px solid rgba(16, 185, 129, 0.3)`,
-              transition: 'all 0.2s ease',
-              cursor: 'default'
-            }}>
-              <div style={{
-                width: '2rem',
-                height: '2rem',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                <Award size={16} color="#fff" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(16, 185, 129, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Award size={12} color="#10b981" />
               </div>
-              <div style={{
-                color: '#10b981',
-                fontSize: '1.25rem',
-                fontWeight: '800',
-                marginBottom: '0.125rem'
-              }}>
-                {stats.porcentaje}%
-              </div>
-              <div style={{
-                color: theme.textSecondary,
-                fontSize: '0.7rem',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                Completado
-              </div>
+              <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Completado:</span>
+              <span style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: '800' }}>{stats.porcentaje}%</span>
             </div>
           </div>
         </div>
 
-        {/* Controles de filtro y búsqueda */}
+        {/* Controles de filtro y búsqueda Compactos */}
         <div style={{
-          padding: '1em 1.25em',
+          padding: '0.6rem 1.25rem',
           display: 'flex',
-          gap: '1em',
+          gap: '0.75rem',
           flexWrap: 'wrap',
           alignItems: 'center'
         }}>
-          <div style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
-            <Search size={18} style={{
+          <div style={{ position: 'relative', flex: '1', minWidth: '180px' }}>
+            <Search size={16} style={{
               position: 'absolute',
-              left: '0.75em',
+              left: '0.65rem',
               top: '50%',
               transform: 'translateY(-50%)',
               color: theme.textSecondary
@@ -710,80 +580,80 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               onChange={(e) => setBusqueda(e.target.value)}
               style={{
                 width: '100%',
-                padding: '0.625em 0.625em 0.625em 2.5em',
+                padding: '0.45rem 0.625rem 0.45rem 2.2rem',
                 background: theme.inputBg,
                 border: `1px solid ${theme.inputBorder}`,
-                borderRadius: '0.5em',
+                borderRadius: '0.5rem',
                 color: theme.textPrimary,
-                fontSize: '0.875rem'
+                fontSize: '0.8rem'
               }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5em' }}>
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
             <button
               onClick={() => setFiltro('todas')}
               style={{
-                padding: '0.625em 1em',
+                padding: '0.45rem 0.8rem',
                 background: filtro === 'todas'
                   ? darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'todas' ? '#3b82f6' : theme.inputBorder}`,
-                borderRadius: '0.5em',
+                borderRadius: '0.5rem',
                 color: filtro === 'todas' ? '#3b82f6' : theme.textSecondary,
                 cursor: 'pointer',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em'
+                gap: '0.4rem'
               }}
             >
-              <FileText size={16} />
+              <FileText size={14} />
               Todas
             </button>
 
             <button
               onClick={() => setFiltro('pendientes')}
               style={{
-                padding: '0.625em 1em',
+                padding: '0.45rem 0.8rem',
                 background: filtro === 'pendientes'
                   ? darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.1)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'pendientes' ? '#fbbf24' : theme.inputBorder}`,
-                borderRadius: '0.5em',
+                borderRadius: '0.5rem',
                 color: filtro === 'pendientes' ? '#fbbf24' : theme.textSecondary,
                 cursor: 'pointer',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em'
+                gap: '0.4rem'
               }}
             >
-              <AlertCircle size={16} />
+              <AlertCircle size={14} />
               Pendientes
             </button>
 
             <button
               onClick={() => setFiltro('calificadas')}
               style={{
-                padding: '0.625em 1em',
+                padding: '0.45rem 0.8rem',
                 background: filtro === 'calificadas'
                   ? darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'calificadas' ? '#10b981' : theme.inputBorder}`,
-                borderRadius: '0.5em',
+                borderRadius: '0.5rem',
                 color: filtro === 'calificadas' ? '#10b981' : theme.textSecondary,
                 cursor: 'pointer',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em'
+                gap: '0.4rem'
               }}
             >
-              <CheckCircle size={16} />
+              <CheckCircle size={14} />
               Calificadas
             </button>
           </div>
@@ -792,7 +662,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         {/* Tabla de entregas */}
         <div style={{
           margin: '0 1.25rem 1.25rem 1.25rem',
-          maxHeight: 'calc(90vh - 20rem)',
+          flex: 1,
           overflowY: 'auto'
         }}>
           {loading ? (
@@ -856,50 +726,68 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
                   }}>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Estudiante
                     </th>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Fecha Entrega
                     </th>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Archivo
                     </th>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Estado
                     </th>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Calificación
                     </th>
                     <th style={{
-                      padding: '1em',
+                      padding: '0.6rem 0.8rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
                     }}>
                       Acciones
                     </th>
@@ -921,14 +809,14 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       }}
                     >
                       <td style={{
-                        padding: '1em',
+                        padding: '0.6rem 0.8rem',
                         color: theme.textPrimary,
                         fontWeight: '600'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75em' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                           <div style={{
-                            width: '2rem',
-                            height: '2rem',
+                            width: '1.8rem',
+                            height: '1.8rem',
                             borderRadius: '50%',
                             background: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
                             display: 'flex',
@@ -937,14 +825,14 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             color: '#3b82f6',
                             fontWeight: '700'
                           }}>
-                            <User size={16} />
+                            <User size={14} />
                           </div>
                           <div>
-                            <div>
+                            <div style={{ fontSize: '0.85rem' }}>
                               {entrega.estudiante_apellido}, {entrega.estudiante_nombre}
                             </div>
                             <div style={{
-                              fontSize: '0.75rem',
+                              fontSize: '0.65rem',
                               color: theme.textSecondary,
                               fontWeight: '400'
                             }}>
@@ -954,16 +842,17 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         </div>
                       </td>
                       <td style={{
-                        padding: '1em',
-                        color: theme.textSecondary
+                        padding: '0.6rem 0.8rem',
+                        color: theme.textSecondary,
+                        fontSize: '0.8rem'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                          <Calendar size={16} color={darkMode ? '#94a3b8' : '#64748b'} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <Calendar size={14} color={darkMode ? '#94a3b8' : '#64748b'} />
                           {new Date(entrega.fecha_entrega).toLocaleDateString('es-ES')}
                         </div>
                       </td>
                       <td style={{
-                        padding: '1em',
+                        padding: '0.6rem 0.8rem',
                         color: theme.textSecondary
                       }}>
                         <button
@@ -971,15 +860,15 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                           style={{
                             background: '#3b82f6',
                             border: 'none',
-                            padding: '0.45em 1.1em',
+                            padding: '0.35rem 0.75rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.6em',
+                            gap: '0.4rem',
                             color: '#fff',
-                            borderRadius: '0.5em',
+                            borderRadius: '0.4rem',
                             fontWeight: 600,
-                            fontSize: '0.98em',
+                            fontSize: '0.75rem',
                             boxShadow: '0 2px 8px rgba(59,130,246,0.08)',
                             transition: 'background 0.18s'
                           }}
@@ -990,62 +879,63 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             e.currentTarget.style.background = '#3b82f6';
                           }}
                         >
-                          <Search size={18} />
+                          <Search size={14} />
                           <span>Ver tarea</span>
                         </button>
                       </td>
                       <td style={{
-                        padding: '1em',
+                        padding: '0.6rem 0.8rem',
                         textAlign: 'center'
                       }}>
                         {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
                           <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.5em',
-                            padding: '0.375em 0.75em',
+                            gap: '0.35rem',
+                            padding: '0.2rem 0.6rem',
                             borderRadius: '9999px',
                             background: darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)',
                             color: '#10b981',
                             fontWeight: '600',
-                            fontSize: '0.75rem'
+                            fontSize: '0.65rem'
                           }}>
-                            <CheckCircle size={14} />
+                            <CheckCircle size={10} />
                             Calificada
                           </div>
                         ) : (
                           <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.5em',
-                            padding: '0.375em 0.75em',
+                            gap: '0.35rem',
+                            padding: '0.2rem 0.6rem',
                             borderRadius: '9999px',
                             background: darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.1)',
                             color: '#fbbf24',
                             fontWeight: '600',
-                            fontSize: '0.75rem'
+                            fontSize: '0.65rem'
                           }}>
-                            <AlertCircle size={14} />
+                            <AlertCircle size={10} />
                             Pendiente
                           </div>
                         )}
                       </td>
                       <td style={{
-                        padding: '1em',
+                        padding: '0.6rem 0.8rem',
                         textAlign: 'center'
                       }}>
                         {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
                           <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.25em',
-                            padding: '0.375em 0.75em',
-                            borderRadius: '0.5em',
+                            gap: '0.25rem',
+                            padding: '0.3rem 0.6rem',
+                            borderRadius: '0.4rem',
                             background: darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)',
                             color: '#10b981',
-                            fontWeight: '700'
+                            fontWeight: '700',
+                            fontSize: '0.8rem'
                           }}>
-                            <Award size={14} />
+                            <Award size={12} />
                             {entrega.calificacion}/{nota_maxima}
                           </div>
                         ) : (

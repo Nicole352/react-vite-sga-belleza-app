@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BookOpen, 
-  Users, 
-  Calendar, 
-  Award, 
+import {
+  BookOpen,
+  Users,
+  Calendar,
+  Award,
   Clock,
   TrendingUp,
   ChevronRight,
@@ -45,15 +45,14 @@ interface CursoResumen {
 
 const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const navigate = useNavigate();
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  const { isSmallScreen } = useBreakpoints();
   const [isVisible, setIsVisible] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [cursos, setCursos] = useState<CursoResumen[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCalif, setShowCalif] = useState(false);
-  const [cursoSelId, setCursoSelId] = useState<number | null>(null);
-  const [cursoSelNombre, setCursoSelNombre] = useState<string>('');
-  const [showDropdownCursos, setShowDropdownCursos] = useState(false);
+  const [cursoSelId] = useState<number | null>(null);
+  const [cursoSelNombre] = useState<string>('');
 
   useEffect(() => {
     setIsVisible(true);
@@ -85,7 +84,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
     try {
       setLoading(true);
       const token = sessionStorage.getItem('auth_token');
-      
+
       if (!token) return;
 
       const response = await fetch(`${API_BASE}/api/docentes/mis-cursos`, {
@@ -108,24 +107,24 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.05)',
-        textPrimary: '#fff',
-        textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(59, 130, 246, 0.1)',
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        textPrimary: '#f8fafc',
+        textSecondary: '#cbd5e1',
+        textMuted: '#94a3b8',
+        border: 'rgba(255, 255, 255, 0.08)',
         accent: '#3b82f6',
-        success: '#10b981',
-        warning: '#f59e0b',
-        danger: '#ef4444'
+        success: '#34d399',
+        warning: '#fbbf24',
+        danger: '#f87171'
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
-        accent: '#3b82f6',
+        cardBg: '#ffffff',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#64748b',
+        border: 'rgba(15, 23, 42, 0.08)',
+        accent: '#2563eb',
         success: '#059669',
         warning: '#d97706',
         danger: '#dc2626'
@@ -151,120 +150,123 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       {/* Header de Bienvenida */}
       <div style={{
         background: theme.cardBg,
-        border: `0.0625rem solid ${theme.border}`,
-        borderRadius: '1rem',
-        padding: '1rem',
-        marginBottom: '1rem',
+        border: `1px solid ${theme.border}`,
+        borderRadius: '0.75rem',
+        padding: '0.75rem 1rem',
+        marginBottom: '0.75rem',
         backdropFilter: 'blur(1.25rem)',
-        boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.05)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)'
+        boxShadow: darkMode ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)'
       }}>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '700', 
-          color: theme.textPrimary, 
-          margin: '0 0 0.25rem 0',
+        <h1 style={{
+          fontSize: '1.25rem',
+          fontWeight: '700',
+          color: theme.textPrimary,
+          margin: '0 0 0.15rem 0',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
+          gap: '0.5rem',
+          letterSpacing: '-0.02em'
         }}>
-          <FaHandPaper size={20} style={{ color: theme.textPrimary, transform: 'rotate(35deg)' }} /> 
+          <FaHandPaper size={18} style={{ color: theme.textPrimary, transform: 'rotate(25deg)' }} />
           ¡Bienvenido{userData?.nombres ? `, ${userData.nombres} ${userData.apellidos}` : ''}!
         </h1>
-        <p style={{ 
-          color: theme.textSecondary, 
-          fontSize: '0.8125rem', 
-          margin: '0 0 0.5rem 0' 
+        <p style={{
+          color: theme.textSecondary,
+          fontSize: '0.75rem',
+          margin: '0 0 0.5rem 0',
+          fontWeight: 500
         }}>
           {userData?.titulo_profesional || 'Gestiona tus cursos y estudiantes'}
         </p>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
           gap: '1rem',
-          fontSize: '0.75rem',
-          color: theme.textMuted
+          fontSize: '0.65rem',
+          color: theme.textMuted,
+          fontWeight: 600
         }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <Calendar size={14} />
-            {new Date().toLocaleDateString('es-ES')}
+            <Calendar size={12} />
+            {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <Clock size={14} />
+            <Clock size={12} />
             {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
       </div>
 
       {/* Estadísticas rápidas - 4 tarjetas */}
-      <div className="responsive-grid-4" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="responsive-grid-4" style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
         <div style={{
-          background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-          border: `1px solid ${theme.accent}40`,
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
+          border: `1px solid ${theme.accent}20`,
+          borderRadius: '0.625rem',
+          padding: '0.65rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem'
+          gap: '0.25rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <BookOpen size={16} color={theme.accent} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Cursos Activos</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <BookOpen size={14} color={theme.accent} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Cursos Activos</span>
           </div>
-          <span style={{ color: theme.accent, fontSize: '1.5rem', fontWeight: '800' }}>
+          <span style={{ color: theme.accent, fontSize: '1.25rem', fontWeight: '800' }}>
             {cursos.filter(c => (c.estado || 'activo') === 'activo').length}
           </span>
         </div>
 
         <div style={{
-          background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-          border: `1px solid ${theme.success}40`,
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          background: darkMode ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.04)',
+          border: `1px solid ${theme.success}20`,
+          borderRadius: '0.625rem',
+          padding: '0.65rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem'
+          gap: '0.25rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Users size={16} color={theme.success} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Total Estudiantes</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Users size={14} color={theme.success} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Total Estudiantes</span>
           </div>
-          <span style={{ color: theme.success, fontSize: '1.5rem', fontWeight: '800' }}>
+          <span style={{ color: theme.success, fontSize: '1.25rem', fontWeight: '800' }}>
             {totalEstudiantes}
           </span>
         </div>
 
         <div style={{
-          background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-          border: `1px solid ${theme.warning}40`,
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.04)',
+          border: `1px solid ${theme.warning}20`,
+          borderRadius: '0.625rem',
+          padding: '0.65rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem'
+          gap: '0.25rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Target size={16} color={theme.warning} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Ocupación</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Target size={14} color={theme.warning} />
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Ocupación</span>
           </div>
-          <span style={{ color: theme.warning, fontSize: '1.5rem', fontWeight: '800' }}>
+          <span style={{ color: theme.warning, fontSize: '1.25rem', fontWeight: '800' }}>
             {promedioOcupacion}%
           </span>
         </div>
 
         <div style={{
-          background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
-          border: '1px solid rgba(139, 92, 246, 0.4)',
-          borderRadius: '0.75rem',
-          padding: '0.75rem',
+          background: darkMode ? 'rgba(139, 92, 246, 0.08)' : 'rgba(139, 92, 246, 0.04)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+          borderRadius: '0.625rem',
+          padding: '0.65rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem'
+          gap: '0.25rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Award size={16} color="#8b5cf6" />
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Capacidad Total</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Award size={14} color="#8b5cf6" />
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Capacidad Total</span>
           </div>
-          <span style={{ color: '#8b5cf6', fontSize: '1.5rem', fontWeight: '800' }}>
+          <span style={{ color: '#8b5cf6', fontSize: '1.25rem', fontWeight: '800' }}>
             {capacidadTotal}
           </span>
         </div>
@@ -274,22 +276,25 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
         {/* Panel principal - Mis Cursos con Tabs */}
         <div style={{
           background: theme.cardBg,
-          border: `0.0625rem solid ${theme.border}`,
-          borderRadius: '1.25rem',
-          padding: '1em',
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.875rem',
+          padding: '0.875rem',
           backdropFilter: 'blur(1.25rem)',
-          boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.05)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)'
+          boxShadow: darkMode ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)'
         }}>
           <div style={{ marginBottom: '1em' }}>
-            <h2 style={{ 
-              fontSize: '1.125rem', 
-              fontWeight: '700', 
-              color: theme.textPrimary, 
-              margin: '0 0 0.5em 0' 
+            <h2 style={{
+              fontSize: '1rem',
+              fontWeight: '700',
+              color: theme.textPrimary,
+              margin: '0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              Mis Cursos
+              <BookOpen size={16} /> Mis Cursos
             </h2>
-            
+
 
           </div>
 
@@ -326,19 +331,19 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                   key={curso.id_curso}
                   onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
                   style={{
-                    padding: '0.875em',
-                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                    borderRadius: '1em',
-                    border: `0.0625rem solid ${theme.border}`,
-                    transition: 'all 0.3s ease', 
+                    padding: '0.75rem',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+                    borderRadius: '0.75rem',
+                    border: `1px solid ${theme.border}`,
+                    transition: 'all 0.2s ease',
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
                     e.currentTarget.style.borderColor = theme.accent;
                     e.currentTarget.style.transform = 'translateY(-0.125rem)';
-                    e.currentTarget.style.boxShadow = darkMode 
-                      ? '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.4)' 
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.4)'
                       : '0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15)';
                   }}
                   onMouseLeave={(e) => {
@@ -365,62 +370,62 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                           {curso.fecha_inicio ? `Inicio: ${new Date(curso.fecha_inicio).toLocaleDateString()}` : 'Fecha por definir'}
                         </span>
                       </div>
-                      <h3 style={{ 
-                        fontSize: '1.1rem', 
-                        fontWeight: '700', 
-                        color: theme.textPrimary, 
-                        margin: '0 0 0.5em 0' 
+                      <h3 style={{
+                        fontSize: '0.95rem',
+                        fontWeight: '700',
+                        color: theme.textPrimary,
+                        margin: '0 0 0.25rem 0'
                       }}>
                         {curso.nombre}
                       </h3>
 
                       {/* Información del aula */}
                       {curso.aula_nombre && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '0.5em',
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.375rem',
                           color: theme.textMuted,
-                          fontSize: '0.9rem',
-                          marginBottom: '0.5em'
+                          fontSize: '0.75rem',
+                          marginBottom: '0.375rem'
                         }}>
-                          <MapPin size={16} color={theme.success} />
+                          <MapPin size={12} color={theme.success} />
                           <span><strong style={{ color: theme.textPrimary }}>{curso.aula_nombre}</strong>{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}</span>
                         </div>
                       )}
 
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.375em',
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375rem',
                         color: theme.textMuted,
-                        fontSize: '0.8rem'
+                        fontSize: '0.7rem'
                       }}>
-                        <Users size={12} />
-                        <span>{curso.total_estudiantes} estudiantes matriculados</span>
+                        <Users size={10} />
+                        <span>{curso.total_estudiantes} estudiantes</span>
                       </div>
                     </div>
 
-                    <div style={{ 
+                    <div style={{
                       textAlign: 'right',
                       minWidth: '6.25rem'
                     }}>
-                      <div style={{ 
-                        fontSize: '1.4rem', 
-                        fontWeight: '800', 
+                      <div style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '800',
                         color: theme.accent,
                         lineHeight: 1
                       }}>
                         {curso.total_estudiantes}
                       </div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem' }}>
                         de {curso.capacidad_maxima}
                       </div>
-                      
+
                       {/* Barra de progreso */}
-                      <div style={{ 
-                        width: '100%', 
-                        height: '0.375em', 
+                      <div style={{
+                        width: '100%',
+                        height: '0.375em',
                         background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                         borderRadius: '0.25em',
                         overflow: 'hidden',
@@ -433,10 +438,10 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                           borderRadius: '0.25em'
                         }} />
                       </div>
-                      <div style={{ 
-                        color: theme.textMuted, 
-                        fontSize: '0.7rem', 
-                        marginTop: '0.1875em' 
+                      <div style={{
+                        color: theme.textMuted,
+                        fontSize: '0.7rem',
+                        marginTop: '0.1875em'
                       }}>
                         {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}% ocupado
                       </div>
@@ -453,51 +458,43 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
           {/* Próximas Clases */}
           <div style={{
             background: theme.cardBg,
-            border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '1em',
-            padding: '0.75em',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '0.75rem',
+            padding: '0.75rem',
             backdropFilter: 'blur(1.25rem)',
-            boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.01)'
+            boxShadow: darkMode ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5rem 0' }}>
               Próximas Clases
             </h3>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
               {cursos.filter(c => (c.estado || 'activo') === 'activo').slice(0, 2).map((curso, index) => (
                 <div key={curso.id_curso} style={{
-                  padding: '0.5em',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                  borderRadius: '0.625em',
-                  border: `0.0625rem solid ${theme.border}`
+                  padding: '0.375rem 0.5rem',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
+                  borderRadius: '0.5rem',
+                  border: `1px solid ${theme.border}`
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', fontSize: '0.8rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.7rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     <div style={{
-                      width: '0.375em',
-                      height: '0.375em',
+                      width: '0.375rem',
+                      height: '0.375rem',
                       borderRadius: '50%',
                       background: index === 0 ? theme.accent : theme.success,
                       flexShrink: 0
                     }} />
                     <span style={{ color: theme.textPrimary, fontWeight: '600', flexShrink: 0 }}>
-                      {new Date(curso.fecha_inicio).toLocaleDateString()}
+                      {new Date(curso.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                     </span>
                     <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
                     <span style={{ color: theme.textPrimary, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {curso.nombre}
                     </span>
-                    {curso.aula_nombre && (
-                      <>
-                        <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {curso.aula_nombre}{curso.aula_ubicacion && ` - ${curso.aula_ubicacion}`}
-                        </span>
-                      </>
-                    )}
                   </div>
                 </div>
               ))}
-              
+
               {cursos.filter(c => (c.estado || 'activo') === 'activo').length === 0 && (
                 <div style={{
                   padding: '0.75em',
@@ -511,85 +508,85 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </div>
           </div>
 
-          {/* Acceso Rápido - Only change the Calificaciones button to navigate to Calificaciones.tsx */}
+          {/* Acceso Rápido */}
           <div style={{
             background: theme.cardBg,
-            border: `0.0625rem solid ${theme.border}`,
-            borderRadius: '1.25rem',
-            padding: '1em',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '0.75rem',
+            padding: '0.75rem',
             backdropFilter: 'blur(1.25rem)',
-            boxShadow: darkMode ? '0 0.25rem 0.5rem rgba(0, 0, 0, 0.02)' : '0 0.25rem 0.5rem rgba(0, 0, 0, 0.01)'
+            boxShadow: darkMode ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.75em 0' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.textPrimary, margin: '0 0 0.5rem 0' }}>
               Acceso Rápido
             </h3>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
               <div style={{ position: 'relative' }}>
                 {/* Changed this button to navigate to Calificaciones.tsx instead of showing dropdown */}
                 <button onClick={() => navigate('/panel/docente/calificaciones')} style={{
                   width: '100%',
                   background: 'transparent',
-                  border: `0.0625rem solid ${theme.border}`,
-                  borderRadius: '0.5em',
-                  padding: '0.625em',
+                  border: `1px solid ${theme.border}`,
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem 0.625rem',
                   color: theme.textSecondary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5em',
-                  fontSize: '0.85rem',
+                  gap: '0.5rem',
+                  fontSize: '0.75rem',
                   fontWeight: '600',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.2s ease'
                 }}>
-                  <TrendingUp size={14} />
+                  <TrendingUp size={12} />
                   Calificaciones
-                  <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
+                  <ChevronRight size={12} style={{ marginLeft: 'auto' }} />
                 </button>
               </div>
 
               <button onClick={() => navigate('/panel/docente/horario')} style={{
                 background: 'transparent',
-                border: `0.0625rem solid ${theme.border}`,
-                borderRadius: '0.5em',
-                padding: '0.625em',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '0.375rem',
+                padding: '0.5rem 0.625rem',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em',
-                fontSize: '0.85rem',
+                gap: '0.5rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.2s ease'
               }}>
-                <Calendar size={14} />
+                <Calendar size={12} />
                 Horario
-                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
+                <ChevronRight size={12} style={{ marginLeft: 'auto' }} />
               </button>
 
               <button onClick={() => navigate('/panel/docente/estudiantes')} style={{
                 background: 'transparent',
-                border: `0.0625rem solid ${theme.border}`,
-                borderRadius: '0.5em',
-                padding: '0.625em',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '0.375rem',
+                padding: '0.5rem 0.625rem',
                 color: theme.textSecondary,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5em',
-                fontSize: '0.85rem',
+                gap: '0.5rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.2s ease'
               }}>
-                <Users size={14} />
+                <Users size={12} />
                 Lista de Estudiantes
-                <ChevronRight size={14} style={{ marginLeft: 'auto' }} />
+                <ChevronRight size={12} style={{ marginLeft: 'auto' }} />
               </button>
             </div>
           </div>
         </div>
       </div>
-      
+
       {showCalif && cursoSelId !== null && (
         <ModalCalificaciones
           isOpen={showCalif}

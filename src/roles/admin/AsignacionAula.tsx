@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, Grid, List, ChevronLeft, ChevronRight
+  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, Grid, List, ChevronLeft, ChevronRight, ArrowLeftRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import SearchableSelect from '../../components/SearchableSelect';
@@ -121,7 +121,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
   const [saving, setSaving] = useState(false);
 
   // Estados para paginación y vista
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [page, setPage] = useState(1);
   const limit = 5; // 5 asignaciones por página
 
@@ -175,7 +175,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     toggleGroupBg: pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)'),
     toggleInactiveText: pick('rgba(71, 85, 105, 0.75)', 'rgba(226, 232, 240, 0.7)'),
     toggleActiveBg: pick('rgba(248, 250, 252, 0.95)', 'rgba(255, 255, 255, 0.12)'),
-    toggleActiveShadow: pick('0 0.75rem 1.5rem rgba(15, 23, 42, 0.12)', '0 0.75rem 1.8rem rgba(0, 0, 0, 0.4)'),
+    toggleActiveShadow: pick('0 0.15rem 0.35rem rgba(15, 23, 42, 0.12)', '0 0.15rem 0.35rem rgba(0, 0, 0, 0.4)'),
     toggleInactiveBorder: pick('rgba(148, 163, 184, 0.2)', 'rgba(148, 163, 184, 0.18)'),
     searchIcon: pick('rgba(100, 116, 139, 0.6)', 'rgba(226, 232, 240, 0.6)'),
     inputBg: 'var(--admin-input-bg, rgba(15,23,42,0.05))',
@@ -190,7 +190,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     paginationButtonText: pick('rgba(30, 41, 59, 0.85)', '#fff'),
     paginationButtonDisabledBg: pick('rgba(226, 232, 240, 0.5)', 'rgba(255, 255, 255, 0.05)'),
     paginationButtonDisabledText: pick('rgba(148, 163, 184, 0.6)', 'rgba(255, 255, 255, 0.3)'),
-    modalOverlay: pick('rgba(15, 23, 42, 0.3)', 'rgba(0, 0, 0, 0.65)'),
+    modalOverlay: pick('rgba(0, 0, 0, 0.45)', 'rgba(0, 0, 0, 0.75)'),
     modalSurface: `var(--admin-card-bg, ${pick('linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(245,247,250,0.96) 100%)', 'linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(15,23,42,0.95) 100%)')})`,
     modalBorder: pick('rgba(226, 232, 240, 0.9)', 'rgba(51, 65, 85, 0.7)'),
     modalTextPrimary: pick('#1f2937', '#f8fafc'),
@@ -531,25 +531,30 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
       />
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          flexWrap: 'wrap',
-          gap: '0.75em',
-          alignItems: isMobile ? 'stretch' : 'center',
-          justifyContent: 'space-between'
-        }}>
+      <GlassEffect 
+        variant="card" 
+        tint="neutral" 
+        intensity="light" 
+        style={{ 
+          marginBottom: isMobile ? '0.5rem' : '0.5rem', 
+          borderRadius: '0.375rem', 
+          padding: '0.5rem', 
+          boxShadow: 'none',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+        }}
+      >
+        <div className="responsive-filters">
           <div style={{
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
-            gap: '0.75em',
+            gap: '0.75rem',
             alignItems: isMobile ? 'stretch' : 'center',
-            flex: 1
+            flex: 1,
+            width: isMobile ? '100%' : 'auto'
           }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : 'min(17.5rem, 30vw)', flex: isMobile ? '1' : 'initial' }}>
-              <Search size={isMobile ? 14 : 16} style={{ position: 'absolute', left: '0.75em', top: '50%', transform: 'translateY(-50%)', color: palette.searchIcon, pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: palette.searchIcon }} />
               <input
                 type="text"
                 placeholder={isMobile ? "Buscar..." : "Buscar por aula, curso o profesor..."}
@@ -557,23 +562,25 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.625em 0.625em 2.375em',
-                  background: palette.inputBg,
-                  border: `0.0625rem solid ${palette.inputBorder}`,
-                  borderRadius: '0.625em',
+                  padding: '0 0.5rem 0 2rem',
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                  borderRadius: '0.5rem',
                   color: palette.inputText,
-                  fontSize: '0.875rem',
-                  outline: 'none'
+                  fontSize: '0.75rem',
+                  boxShadow: 'none',
+                  height: '2rem'
                 }}
               />
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 20vw)', flex: isMobile ? '1' : 'initial' }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
               <StyledSelect
                 name="filtroEstado"
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value as EstadoFiltro)}
+                darkMode={darkMode}
                 options={[
                   { value: 'todas', label: 'Todas' },
                   { value: 'activa', label: 'Activas' },
@@ -583,40 +590,36 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
             </div>
 
             {/* Toggle Vista */}
-            <div style={{
-              display: 'flex',
-              gap: '0.375em',
-              background: palette.toggleGroupBg,
-              borderRadius: '0.625em',
-              padding: '0.1875em',
-              width: isSmallScreen ? '100%' : 'auto'
-            }}>
+            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+                borderRadius: '0.65rem',
+                padding: '0.1875rem',
+                border: 'none',
+                boxShadow: 'none'
+              }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35em',
-                  padding: isMobile ? '0.4em 0.6em' : '0.4em 0.85em',
-                  background: viewMode === 'cards' ? palette.toggleActiveBg : 'transparent',
-                  border: `0.0625rem solid ${viewMode === 'cards' ? palette.toggleInactiveBorder : 'transparent'}`,
-                  borderRadius: '0.55em',
-                  color: viewMode === 'cards' ? RedColorPalette.primary : palette.toggleInactiveText,
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'cards' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial',
-                  boxShadow: viewMode === 'cards' ? palette.toggleActiveShadow : 'none'
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={16} color={viewMode === 'cards' ? RedColorPalette.primary : palette.toggleInactiveText} />
-                {!isMobile && (
-                  <span style={{ color: viewMode === 'cards' ? RedColorPalette.primary : palette.toggleInactiveText }}>
-                    Tarjetas
-                  </span>
-                )}
+                <Grid size={16} color={viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -624,27 +627,24 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35em',
-                  padding: isMobile ? '0.4em 0.6em' : '0.5em 0.95em',
-                  background: viewMode === 'table' ? palette.toggleActiveBg : 'transparent',
-                  border: `0.0625rem solid ${viewMode === 'table' ? palette.toggleInactiveBorder : 'transparent'}`,
-                  borderRadius: '0.55em',
-                  color: viewMode === 'table' ? RedColorPalette.primary : palette.toggleInactiveText,
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'table' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial',
-                  boxShadow: viewMode === 'table' ? palette.toggleActiveShadow : 'none'
+                  flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={16} color={viewMode === 'table' ? RedColorPalette.primary : palette.toggleInactiveText} />
-                {!isMobile && (
-                  <span style={{ color: viewMode === 'table' ? RedColorPalette.primary : palette.toggleInactiveText }}>
-                    Tabla
-                  </span>
-                )}
+                <List size={16} color={viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
               </button>
+            </div>
+
+
             </div>
           </div>
 
@@ -656,19 +656,19 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5em',
-              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '0.625em',
-              color: 'var(--admin-text-primary, #1f2937)',
+              color: '#ffffff',
               width: isSmallScreen ? '100%' : 'auto',
-              fontSize: '0.875rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)'
+              boxShadow: `0 0.35rem 0.85rem ${RedColorPalette.primaryShadow}`
             }}
           >
-            <Plus size={16} />
+            <Plus size={16} color="currentColor" />
             Nueva Asignación
           </button>
         </div>
@@ -737,7 +737,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                   {/* Header */}
                   <div style={{
                     background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
-                    padding: '0.75em 0.875em',
+                    padding: '0.5rem 0.75rem',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
@@ -781,9 +781,9 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                   </div>
 
                   {/* Contenido */}
-                  <div style={{ padding: '0.75em 0.875em' }}>
+                  <div style={{ padding: '0.5rem 0.75rem' }}>
                     {/* Curso y Docente */}
-                    <div style={{ marginBottom: '0.625rem' }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
                       <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
                         <Calendar size={isMobile ? 9 : 10} />
                         CURSO
@@ -793,7 +793,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       </div>
                     </div>
 
-                    <div style={{ marginBottom: '0.625rem' }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
                       <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
                         <Users size={isMobile ? 9 : 10} />
                         DOCENTE
@@ -804,7 +804,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     </div>
 
                     {/* Horario y Período */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', marginBottom: '0.625rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <div>
                         <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
                           <Clock size={isMobile ? 9 : 10} />
@@ -828,7 +828,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     </div>
 
                     {/* Días */}
-                    <div style={{ marginBottom: '0.875rem' }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
                       <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.375rem' }}>
                         DÍAS DE CLASE
                       </div>
@@ -853,8 +853,8 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     <div style={{
                       background: palette.softSurface,
                       borderRadius: '0.5rem',
-                      padding: '0.625rem',
-                      marginBottom: '0.75rem',
+                      padding: '0.5rem',
+                      marginBottom: '0.5rem',
                       border: `0.0625rem solid ${palette.softSurfaceBorder}`
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
@@ -891,12 +891,12 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       onClick={() => handleEditAsignacion(asignacion)}
                       style={{
                         width: '100%',
-                        padding: '0.625rem',
+                        padding: '0.5rem',
                         background: palette.tableActionBg,
                         border: `0.0625rem solid ${palette.tableActionBorder}`,
                         borderRadius: '0.5rem',
                         color: palette.tableActionText,
-                        fontSize: '0.85rem',
+                        fontSize: '0.75rem',
                         fontWeight: '600',
                         cursor: 'pointer',
                         display: 'flex',
@@ -925,24 +925,16 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
 
       {/* Vista Tabla Compacta */}
       {!loading && !error && viewMode === 'table' && (
-        <div style={{
-          background: palette.cardBg,
-          backdropFilter: 'blur(1.25rem)',
-          border: `0.0625rem solid ${palette.cardBorder}`,
-          borderRadius: '1rem',
-          overflow: 'hidden',
-          marginBottom: '1.5rem',
-          boxShadow: palette.cardShadow
-        }}>
+        <>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: pick('rgba(239, 68, 68, 0.08)', 'rgba(239, 68, 68, 0.1)'),
-              border: `0.0625rem solid ${pick('rgba(239, 68, 68, 0.18)', 'rgba(239, 68, 68, 0.3)')}`,
+              background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(254, 226, 226, 0.9)',
+              border: `0.0625rem solid ${darkMode ? 'rgba(248, 113, 113, 0.4)' : 'rgba(248, 113, 113, 0.35)'}`,
               borderRadius: '0.5rem',
               padding: '0.5rem 0.75rem',
-              margin: '0.75rem',
-              color: pick('#b91c1c', '#ef4444'),
+              marginBottom: '0.75rem',
+              color: darkMode ? '#fca5a5' : '#dc2626',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -950,77 +942,105 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               justifyContent: 'center',
               gap: '0.375rem'
             }}>
-              <span>👉</span>
+              <ArrowLeftRight size={14} strokeWidth={2.5} />
               <span>Desliza horizontalmente para ver toda la tabla</span>
-              <span>👈</span>
+              <ArrowLeftRight size={14} strokeWidth={2.5} />
             </div>
           )}
 
-          {asignacionesPaginadas.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1.25rem', color: palette.emptyStateText }}>
-              <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.75rem', opacity: 0.5 }} />
-              <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
-            </div>
-          ) : (
-            <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
+          <div style={{
+            background: darkMode 
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
+            backdropFilter: 'blur(1.25rem)',
+            border: `0.0625rem solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+            borderRadius: '0.75rem',
+            overflow: 'hidden',
+            marginBottom: '0.5rem',
+            boxShadow: palette.cardShadow,
+            position: 'relative'
+          }}>
+            {/* Watermark */}
+            <ArrowLeftRight
+              size={120}
+              strokeWidth={1}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                opacity: 0.08,
+                pointerEvents: 'none',
+                zIndex: 0,
+                color: darkMode ? 'rgba(248, 113, 113, 0.6)' : 'rgba(239, 68, 68, 0.5)'
+              }}
+            />
+
+            {asignacionesPaginadas.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2.5rem 1.25rem', color: palette.emptyStateText }}>
+                <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.75rem', opacity: 0.5 }} />
+                <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
+              </div>
+            ) : (
+              <div className="responsive-table-container" style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{
-                    background: palette.tableHeaderBg,
-                    borderBottom: `0.0625rem solid ${palette.tableHeaderBorder}`
+                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
+                    borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
                   }}>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Aula</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Curso</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Docente</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Horario</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Días</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Período</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'center', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>Ocupación</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'center', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Estado</th>
-                    <th style={{ padding: '0.625rem 0.75rem', textAlign: 'center', fontWeight: '600', color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Acciones</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {asignacionesPaginadas.map((asignacion, index) => (
+                  {asignacionesPaginadas.map((asignacion) => (
                     <tr
                       key={asignacion.id_asignacion}
                       style={{
-                        borderBottom: `0.0625rem solid ${palette.tableDivider}`,
-                        background: index % 2 === 0 ? palette.tableRowAlt : 'transparent',
+                        borderBottom: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                        background: 'transparent',
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = palette.tableHover;
+                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = index % 2 === 0 ? palette.tableRowAlt : 'transparent';
+                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      <td style={{ padding: '0.75rem' }}>
-                        <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.85rem', marginBottom: '0.15rem' }}>{asignacion.aula_nombre}</div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.7rem', letterSpacing: '0.015em' }}>{asignacion.codigo_aula}</div>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem', marginBottom: '0.1rem' }}>{asignacion.aula_nombre}</div>
+                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem', letterSpacing: '0.015em' }}>{asignacion.codigo_aula}</div>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.8rem' }}>{asignacion.curso_nombre}</div>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem' }}>{asignacion.curso_nombre}</div>
                       </td>
-                      <td style={{ padding: '0.75rem', color: palette.textSecondary, fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: palette.textSecondary, fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         {asignacion.docente_nombres} {asignacion.docente_apellidos}
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
                         <div style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           background: palette.blueChipBg,
-                          padding: '0.3rem 0.6rem',
+                          padding: '0.25rem 0.5rem',
                           borderRadius: '0.375rem',
                           border: `0.0625rem solid ${palette.blueChipBorder}`
                         }}>
-                          <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.75rem', letterSpacing: '0.015em' }}>
+                          <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.7rem', letterSpacing: '0.015em' }}>
                             {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
                           </span>
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                           {asignacion.dias.split(',').map((dia, idx) => (
                             <span key={idx} style={{
@@ -1037,29 +1057,29 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           ))}
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '600' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
                           {formatearFecha(asignacion.fecha_inicio)}
                         </div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.7rem' }}>
+                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
                           {formatearFecha(asignacion.fecha_fin)}
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '0.125rem' }}>
                           {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                         </div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.7rem' }}>
+                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
                           {asignacion.porcentaje_ocupacion}%
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{
                           background: getStatusStyles(asignacion.estado).background,
                           color: getStatusStyles(asignacion.estado).color,
-                          padding: '0.25rem 0.75rem',
+                          padding: '0.125rem 0.625rem',
                           borderRadius: '0.625rem',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: '700',
                           display: 'inline-block',
                           textTransform: 'uppercase',
@@ -1069,41 +1089,39 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           {asignacion.estado}
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <button
                           onClick={() => handleEditAsignacion(asignacion)}
                           style={{
-                            padding: '0.375rem 0.625rem',
-                            background: palette.tableActionBg,
-                            border: `0.0625rem solid ${palette.tableActionBorder}`,
-                            borderRadius: '0.375rem',
-                            color: palette.tableActionText,
+                            padding: '0.375rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #f59e0b',
+                            backgroundColor: 'transparent',
+                            color: '#f59e0b',
                             cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
+                            e.currentTarget.style.backgroundColor = '#f59e0b';
+                            e.currentTarget.style.color = 'white';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = palette.tableActionBg;
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#f59e0b';
                           }}
+                          title="Editar asignación"
                         >
-                          <Edit size={12} color={palette.tableActionText} />
-                          Editar
+                          <Edit style={{ width: '1rem', height: '1rem' }} />
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Paginación */}
@@ -1114,21 +1132,22 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
+          padding: isMobile ? '8px' : '0.25rem 1rem',
           background: palette.paginationBg,
           border: `1px solid ${palette.paginationBorder}`,
-          borderRadius: '1rem',
+          borderRadius: '0.75rem',
+          marginBottom: isMobile ? '0.75rem' : '0.5rem',
         }}>
           <div style={{
             color: palette.paginationText,
-            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {page} de {totalPages} • Total: {totalCount} asignaciones
           </div>
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            gap: '0.375rem',
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -1139,20 +1158,21 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === 1 ? palette.paginationButtonDisabledBg : palette.paginationButtonBg,
                 border: `1px solid ${page === 1 ? palette.paginationButtonDisabledBg : palette.paginationButtonBorder}`,
                 borderRadius: '0.625rem',
                 color: page === 1 ? palette.paginationButtonDisabledText : palette.paginationButtonText,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} />
+              <ChevronLeft size={isMobile ? 14 : 14} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -1160,16 +1180,17 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                  padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
                   background: page === pageNum ? 'linear-gradient(135deg, #ef4444, #dc2626)' : palette.paginationButtonBg,
                   border: page === pageNum ? '1px solid #ef4444' : `1px solid ${palette.paginationButtonBorder}`,
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: page === pageNum ? '#fff' : palette.paginationButtonText,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
+                  minWidth: isMobile ? '30px' : '2rem',
+                  boxShadow: 'none'
                 }}
               >
                 {pageNum}
@@ -1182,21 +1203,22 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === totalPages ? palette.paginationButtonDisabledBg : palette.paginationButtonBg,
                 border: `1px solid ${page === totalPages ? palette.paginationButtonDisabledBg : palette.paginationButtonBorder}`,
                 borderRadius: '0.625rem',
                 color: page === totalPages ? palette.paginationButtonDisabledText : palette.paginationButtonText,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
               {!isMobile && 'Siguiente'}
-              <ChevronRight size={isMobile ? 14 : 16} />
+              <ChevronRight size={isMobile ? 14 : 14} />
             </button>
           </div>
         </div>
@@ -1332,7 +1354,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       const horario = c.horario ? ` - ${c.horario.charAt(0).toUpperCase() + c.horario.slice(1)}` : '';
                       return {
                         value: c.id_curso,
-                        label: `${c.nombre}${horario} (${formatearFecha(c.fecha_inicio)} - ${formatearFecha(c.fecha_fin)})`
+                        label: `${c.codigo_curso} - ${c.nombre}${horario} (${formatearFecha(c.fecha_inicio)} - ${formatearFecha(c.fecha_fin)})`
                       };
                     })}
                     darkMode={darkMode}

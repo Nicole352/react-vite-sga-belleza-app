@@ -2,7 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard, Download, FileText, Shield, Sheet, RefreshCcw, Power, AlertCircle
+  Search, Eye, GraduationCap, Calendar, Phone, MapPin, User, X, Grid, List, ChevronLeft, ChevronRight, Mail, IdCard, Download, FileText, Shield, Sheet, RefreshCcw, Power, AlertCircle, ArrowLeftRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
@@ -82,50 +82,44 @@ const GestionEstudiantes = () => {
 
   const theme = {
     pageBackground: pick(
-      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
-      'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(17,17,25,0.92) 100%)'
+      '#f1f5f9',
+      '#0f172a'
     ),
     contentBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
-      'linear-gradient(135deg, rgba(13,13,25,0.92) 0%, rgba(26,26,46,0.92) 100%)'
+      '#ffffff',
+      '#1e293b'
     ),
-    surface: pick('rgba(255,255,255,0.94)', 'rgba(12,12,24,0.94)'),
+    surface: pick('#ffffff', '#1e293b'),
     surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
-    accentBorder: pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.28)'),
-    textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
-    textSecondary: pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.75)'),
-    textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
-    inputBg: pick('#ffffff', 'rgba(255,255,255,0.08)'),
-    inputBorder: pick('rgba(148,163,184,0.32)', 'rgba(255,255,255,0.2)'),
+    accentBorder: pick('rgba(239,68,68,0.15)', 'rgba(239,68,68,0.2)'),
+    textPrimary: pick('#0f172a', '#f8fafc'),
+    textSecondary: pick('#475569', '#cbd5e1'),
+    textMuted: pick('#64748b', '#94a3b8'),
+    inputBg: pick('#ffffff', 'rgba(255,255,255,0.05)'),
+    inputBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     inputText: pick('#0f172a', '#f8fafc'),
-    inputIcon: pick('rgba(71,85,105,0.55)', 'rgba(255,255,255,0.55)'),
-    chipBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.07)'),
-    chipBorder: pick('rgba(15,23,42,0.12)', 'rgba(255,255,255,0.12)'),
-    toggleBg: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.05)'),
-    toggleMuted: pick('rgba(30,41,59,0.6)', 'rgba(255,255,255,0.6)'),
-    cardShadow: pick('0 14px 32px rgba(15,23,42,0.12)', '0 24px 48px rgba(0,0,0,0.45)'),
-    cardHoverShadow: pick('0 20px 40px rgba(239,68,68,0.15)', '0 26px 52px rgba(239,68,68,0.22)'),
-    divider: pick('rgba(148,163,184,0.2)', 'rgba(255,255,255,0.1)'),
-    emptyStateText: pick('rgba(100,116,139,0.75)', 'rgba(255,255,255,0.65)'),
-    tableHeaderBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.1)'),
-    tableHeaderText: pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.75)'),
-    tableCellText: pick('rgba(30,41,59,0.95)', 'rgba(255,255,255,0.85)'),
-    tableRowBorder: pick('rgba(226,232,240,0.85)', 'rgba(255,255,255,0.08)'),
-    tableActionBg: pick('rgba(59,130,246,0.14)', 'rgba(59,130,246,0.15)'),
-    tableActionBorder: pick('rgba(59,130,246,0.26)', 'rgba(59,130,246,0.32)'),
-    tableActionText: pick('#1d4ed8', '#60a5fa'),
-    paginationBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
-      'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.92) 100%)'
-    ),
-    paginationBorder: pick('rgba(15,23,42,0.08)', 'rgba(239,68,68,0.2)'),
-    paginationText: pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.75)'),
-    paginationInactiveBg: pick('rgba(241,245,249,0.85)', 'rgba(255,255,255,0.08)'),
-    paginationInactiveText: pick('rgba(148,163,184,0.7)', 'rgba(255,255,255,0.45)'),
-    cardBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
-      'linear-gradient(135deg, rgba(13,13,25,0.92) 0%, rgba(26,26,46,0.92) 100%)'
-    )
+    inputIcon: pick('#94a3b8', '#94a3b8'),
+    chipBg: pick('rgba(15,23,42,0.04)', 'rgba(255,255,255,0.06)'),
+    chipBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.1)'),
+    toggleBg: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
+    toggleMuted: pick('#64748b', '#94a3b8'),
+    cardShadow: pick('none', 'none'),
+    cardHoverShadow: pick('none', 'none'),
+    divider: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
+    emptyStateText: pick('#94a3b8', '#94a3b8'),
+    tableHeaderBg: pick('#f8fafc', 'rgba(255,255,255,0.03)'),
+    tableHeaderText: pick('#475569', '#94a3b8'),
+    tableCellText: pick('#1e293b', '#e2e8f0'),
+    tableRowBorder: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
+    tableActionBg: pick('rgba(59,130,246,0.08)', 'rgba(59,130,246,0.1)'),
+    tableActionBorder: pick('rgba(59,130,246,0.2)', 'rgba(59,130,246,0.2)'),
+    tableActionText: pick('#2563eb', '#60a5fa'),
+    paginationBackground: pick('#ffffff', '#1e293b'),
+    paginationBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
+    paginationText: pick('#475569', '#94a3b8'),
+    paginationInactiveBg: pick('#f1f5f9', 'rgba(255,255,255,0.03)'),
+    paginationInactiveText: pick('#94a3b8', '#64748b'),
+    cardBackground: pick('#ffffff', '#1e293b')
   };
 
   const estadoStyles: Record<Estudiante['estado'], { bg: string; border: string; color: string }> = {
@@ -163,7 +157,7 @@ const GestionEstudiantes = () => {
   const [limit] = useState(9); // 9 estudiantes por página
   const [totalCount, setTotalCount] = useState(0);
   const [totalActivos, setTotalActivos] = useState(0);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
 
   // Estado para confirmación de cambio de estado
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -235,11 +229,9 @@ const GestionEstudiantes = () => {
       const headerVal = response.headers.get('X-Total-Count');
       const totalHeader = headerVal !== null ? Number(headerVal) : NaN;
 
-      // Leer total de activos del header
       const activosHeader = response.headers.get('X-Total-Activos');
       const totalActivosVal = activosHeader !== null ? Number(activosHeader) : 0;
 
-      // Fallbacks si el backend no envía X-Total-Count
       const computedTotal = Number.isFinite(totalHeader) && totalHeader >= 0
         ? totalHeader
         : (typeof data?.total === 'number' ? data.total : (Array.isArray(data) ? data.length : 0));
@@ -303,14 +295,7 @@ const GestionEstudiantes = () => {
   const isCardsView = viewMode === 'cards';
   const isTableView = viewMode === 'table';
   const toggleGroupBg = pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)');
-  const toggleActiveBg = pick('#ffffff', 'rgba(255, 255, 255, 0.14)');
-  const toggleActiveText = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
-  const toggleInactiveText = pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)');
   const viewActionColor = pick('#1d4ed8', '#60a5fa');
-  const excelButtonBackground = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
-  const excelButtonHoverBackground = `linear-gradient(135deg, ${RedColorPalette.primaryDark}, ${RedColorPalette.primary})`;
-  const excelButtonBorder = 'none';
-  const excelButtonTextColor = '#ffffff';
   const modalAccent = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
   const modalAccentBg = pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.24)');
   const modalSectionBackground = pick('rgba(255,255,255,0.94)', 'rgba(12,19,33,0.85)');
@@ -381,155 +366,20 @@ const GestionEstudiantes = () => {
       <AdminSectionHeader
         title="Gestión de Estudiantes"
         subtitle="Administra y visualiza la información de los estudiantes matriculados"
-      />
-
-      {/* Controles */}
-      <GlassEffect
-        variant="card"
-        tint="neutral"
-        intensity="light"
-        style={{
-          marginBottom: isMobile ? 12 : 16,
-          background: theme.surface,
-          border: `1px solid ${theme.surfaceBorder}`,
-          boxShadow: theme.cardShadow,
-          color: theme.textPrimary
-        }}
-      >
-        <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
-            {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '17.5rem', flex: isSmallScreen ? '1' : 'initial', width: isSmallScreen ? '100%' : 'auto' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
-              <input
-                type="text"
-                placeholder={isMobile ? "Buscar..." : "Buscar por nombre, apellido, identificación..."}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625rem 0.625rem 0.625rem 2.375rem',
-                  background: theme.inputBg,
-                  border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '0.625rem',
-                  color: theme.inputText,
-                  fontSize: '0.8rem',
-                  boxShadow: darkMode ? 'none' : '0 12px 24px rgba(15,23,42,0.08)'
-                }}
-              />
-            </div>
-
-            {/* Filtro Estado Estudiante */}
-            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
-              <StyledSelect
-                name="filterEstado"
-                value={filterEstado}
-                onChange={(e) => setFilterEstado(e.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los estados' },
-                  { value: 'activo', label: 'Activos' },
-                  { value: 'inactivo', label: 'Inactivos' }
-                ]}
-              />
-            </div>
-
-            {/* Filtro Estado Curso */}
-            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
-              <StyledSelect
-                name="filterEstadoCurso"
-                value={filterEstadoCurso}
-                onChange={(e) => setFilterEstadoCurso(e.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los cursos' },
-                  { value: 'activo', label: 'Cursos Activos' },
-                  { value: 'finalizado', label: 'Cursos Finalizados' }
-                ]}
-              />
-            </div>
-
-            {/* Filtro Tipo Curso */}
-            <div style={{ minWidth: isSmallScreen ? 'auto' : 150, width: isSmallScreen ? '100%' : 'auto' }}>
-              <StyledSelect
-                name="filterTipoCurso"
-                value={filterTipoCurso}
-                onChange={(e) => setFilterTipoCurso(e.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los tipos' },
-                  ...tiposCurso.map(tc => ({ value: String(tc.id), label: tc.nombre }))
-                ]}
-              />
-            </div>
-
-            {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '0.375rem', background: toggleGroupBg, borderRadius: '0.625rem', padding: '0.1875rem', width: isSmallScreen ? '100%' : 'auto' }}>
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3125rem',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
-                  background: isCardsView ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: isCardsView ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: isMobile ? '0.875rem' : '0.875rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <Grid size={16} color={isCardsView ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
-                  background: isTableView ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: isTableView ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: isMobile ? '0.875rem' : '0.875rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <List size={16} color={isTableView ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
-              </button>
-            </div>
-          </div>
-
-          {/* Botones Excel y Refrescar */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: isSmallScreen ? '100%' : 'auto' }}>
+        rightSlot={
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <button
               onClick={async () => {
                 try {
                   showToast.info('Generando reporte de estudiantes...', darkMode);
                   const token = sessionStorage.getItem('auth_token');
-
-                  // Construir URL con filtros
                   const params = new URLSearchParams();
                   if (searchTerm) params.set('search', searchTerm);
                   if (filterEstado !== 'todos') params.set('estado', filterEstado);
                   if (filterEstadoCurso !== 'todos') params.set('estadoCurso', filterEstadoCurso);
                   if (filterTipoCurso !== 'todos') params.set('tipoCurso', filterTipoCurso);
-
-                  const queryString = params.toString();
-                  const url = `${API_BASE}/api/estudiantes/reporte/excel${queryString ? '?' + queryString : ''}`;
-
-                  const response = await fetch(url, {
-                    headers: {
-                      Authorization: `Bearer ${token}`
-                    }
-                  });
+                  const url = `${API_BASE}/api/estudiantes/reporte/excel${params.toString() ? '?' + params.toString() : ''}`;
+                  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
                   if (!response.ok) throw new Error('Error descargando reporte');
                   const blob = await response.blob();
                   const blobUrl = window.URL.createObjectURL(blob);
@@ -542,7 +392,6 @@ const GestionEstudiantes = () => {
                   document.body.removeChild(a);
                   showToast.success('Reporte descargado correctamente.', darkMode);
                 } catch (error) {
-                  console.error('Error:', error);
                   showToast.error('No se pudo descargar el reporte.', darkMode);
                 }
               }}
@@ -550,87 +399,190 @@ const GestionEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
-                padding: isMobile ? '10px 1rem' : '12px 1.5rem',
-                background: excelButtonBackground,
-                border: excelButtonBorder,
+                gap: '0.375rem',
+                height: '2rem',
+                padding: '0 1rem',
+                background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+                border: 'none',
                 borderRadius: '0.625rem',
-                color: excelButtonTextColor,
-                fontSize: '0.8rem',
+                color: '#fff',
+                fontSize: '0.75rem',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.28)',
-                width: isSmallScreen ? '100%' : 'auto'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = excelButtonHoverBackground;
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = excelButtonBackground;
-                e.currentTarget.style.transform = 'translateY(0)';
+                transition: 'all 0.2s ease'
               }}
             >
-              <Sheet size={16} color={excelButtonTextColor} />
+              <Sheet size={14} color="#fff" />
               Descargar Excel
             </button>
             <button
               onClick={async () => {
                 if (loading) return;
-                await fetchEstudiantes({ successMessage: 'Listado de estudiantes actualizado.' });
+                await fetchEstudiantes({ successMessage: 'Listado actualizado.' });
               }}
               disabled={loading}
-              aria-label="Refrescar lista"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 0,
-                padding: '0.65rem',
-                background: loading ? pick('rgba(239,68,68,0.25)', 'rgba(239, 68, 68, 0.3)') : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
-                border: 'none',
+                width: '2rem',
+                height: '2rem',
+                background: theme.contentBackground,
+                border: `1px solid ${theme.inputBorder}`,
                 borderRadius: '0.625rem',
-                color: '#fff',
+                color: theme.textSecondary,
                 cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 0.25rem 0.75rem rgba(239, 68, 68, 0.3)',
-                width: '2.75rem',
-                height: '2.75rem',
-                transition: 'transform 0.2s ease, opacity 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
+                transition: 'all 0.2s ease'
               }}
             >
-              <RefreshCcw size={18} color="#fff" style={{ opacity: loading ? 0.6 : 1 }} />
+              <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
+          </div>
+        }
+      />
+
+      {/* Controles */}
+      <GlassEffect
+        variant="card"
+        tint="neutral"
+        intensity="light"
+        style={{
+          marginBottom: isMobile ? '0.5rem' : '0.5rem',
+          padding: '0.5rem',
+          boxShadow: 'none',
+          borderRadius: '0.375rem',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+        }}
+      >
+        <div className="responsive-filters">
+          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+            {/* Búsqueda */}
+            <div style={{ position: 'relative', flex: 2, width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
+              <input
+                type="text"
+                placeholder={isMobile ? "Buscar..." : "Buscar estudiante..."}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0 0.5rem 0 2rem',
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                  borderRadius: '0.5rem',
+                  color: theme.inputText,
+                  fontSize: '0.75rem',
+                  boxShadow: 'none',
+                  height: '2rem'
+                }}
+              />
+            </div>
+
+            {/* Filtro Estado Estudiante */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterEstado"
+                value={filterEstado}
+                onChange={(e) => setFilterEstado(e.target.value)}
+                darkMode={darkMode}
+                options={[
+                  { value: 'todos', label: 'Todos los estados' },
+                  { value: 'activo', label: 'Activos' },
+                  { value: 'inactivo', label: 'Inactivos' }
+                ]}
+              />
+            </div>
+
+            {/* Filtro Estado Curso */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterEstadoCurso"
+                value={filterEstadoCurso}
+                onChange={(e) => setFilterEstadoCurso(e.target.value)}
+                darkMode={darkMode}
+                options={[
+                  { value: 'todos', label: 'Todos los cursos' },
+                  { value: 'activo', label: 'Cursos Activos' },
+                  { value: 'finalizado', label: 'Cursos Finalizados' }
+                ]}
+              />
+            </div>
+
+            {/* Filtro Tipo Curso */}
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filterTipoCurso"
+                value={filterTipoCurso}
+                onChange={(e) => setFilterTipoCurso(e.target.value)}
+                darkMode={darkMode}
+                options={[
+                  { value: 'todos', label: 'Todos los tipos' },
+                  ...tiposCurso.map(tc => ({ value: String(tc.id), label: tc.nombre }))
+                ]}
+              />
+            </div>
+
+            {/* Toggle Vista */}
+            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+                borderRadius: '0.65rem',
+                padding: '0.1875rem',
+                border: 'none',
+                boxShadow: 'none'
+              }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: isCardsView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial',
+                }}
+              >
+                <Grid size={16} color={isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: isTableView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isSmallScreen ? 1 : 'initial'
+                }}
+              >
+                <List size={16} color={isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
+              </button>
+            </div>
+
+
+            </div>
           </div>
         </div>
       </GlassEffect>
 
-      {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
-        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: theme.contentBackground }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem' }}>
-            {totalCount}
-          </div>
-          <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
-            Total Estudiantes
-          </div>
-        </GlassEffect>
-
-        <GlassEffect variant="card" tint="neutral" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: theme.contentBackground }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: pick('#2563eb', mapToRedScheme('#3b82f6')), marginBottom: '0.25rem' }}>
-            {totalActivos}
-          </div>
-          <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
-            Estudiantes Activos
-          </div>
-        </GlassEffect>
-      </div>
 
       {/* Error */}
       {error && (
@@ -648,7 +600,13 @@ const GestionEstudiantes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.125rem' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '0.75rem',
+          padding: '0.25rem',
+          marginBottom: isMobile ? '12px' : '0.5rem'
+        }}>
           {estudiantesFiltrados.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', padding: '40px 1.25rem', textAlign: 'center', color: theme.emptyStateText, fontSize: '0.85rem' }}>
               {loading ? 'Cargando estudiantes...' : 'No hay estudiantes registrados'}
@@ -656,8 +614,8 @@ const GestionEstudiantes = () => {
           ) : (
             estudiantesFiltrados.map((estudiante) => {
               const estadoTokens = getEstadoTokens(estudiante.estado);
-              const labelStyle: CSSProperties = { color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' };
-              const valueStyle: CSSProperties = { color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 };
+              const labelStyle: CSSProperties = { color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' };
+              const valueStyle: CSSProperties = { color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 };
 
               return (
                 <div
@@ -666,7 +624,7 @@ const GestionEstudiantes = () => {
                     background: theme.cardBackground,
                     border: `1px solid ${pick('rgba(148,163,184,0.22)', 'rgba(239, 68, 68, 0.2)')}`,
                     borderRadius: '0.75rem',
-                    padding: '0.875rem',
+                    padding: '0.75rem',
                     transition: 'all 0.3s ease',
                     cursor: 'pointer',
                     boxShadow: theme.cardShadow
@@ -680,14 +638,14 @@ const GestionEstudiantes = () => {
                     e.currentTarget.style.boxShadow = theme.cardShadow;
                   }}
                 >
-                  <div style={{ marginBottom: '0.875rem' }}>
+                  <div style={{ marginBottom: '0.625rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                       <span style={{
                         color: theme.textMuted,
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         background: theme.chipBg,
                         border: `1px solid ${theme.chipBorder}`,
-                        padding: '3px 0.375rem',
+                        padding: '2px 0.5rem',
                         borderRadius: '0.3125rem'
                       }}>
                         {estudiante.identificacion}
@@ -696,7 +654,7 @@ const GestionEstudiantes = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.1875rem',
-                        padding: '3px 0.5rem',
+                        padding: '2px 0.5rem',
                         borderRadius: 6,
                         fontSize: '0.65rem',
                         fontWeight: 700,
@@ -723,27 +681,32 @@ const GestionEstudiantes = () => {
                         borderColor={darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.18)'}
                         fotoUrl={estudiante.foto_perfil}
                       />
-                      <h3 style={{ color: theme.textPrimary, margin: 0 }}>
+                      <h3 style={{
+                        color: theme.textPrimary,
+                        margin: 0,
+                        fontSize: '0.85rem',
+                        fontWeight: 600
+                      }}>
                         {estudiante.apellido}, {estudiante.nombre}
                       </h3>
                     </div>
                   </div>
 
-                  <div style={{ paddingTop: '0.625rem', borderTop: `1px solid ${theme.divider}`, marginBottom: '0.875rem' }}>
-                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                      <div style={{ flex: '1 1 140px' }}>
+                  <div style={{ paddingTop: '0.625rem', borderTop: `1px solid ${theme.divider}`, marginBottom: '0.625rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <div>
                         <div style={labelStyle}>Identificación</div>
                         <div style={valueStyle}>{estudiante.identificacion}</div>
                       </div>
-                      <div style={{ flex: '1 1 140px' }}>
+                      <div>
                         <div style={labelStyle}>Usuario</div>
                         <div style={valueStyle}>{estudiante.username || 'No asignado'}</div>
                       </div>
-                      <div style={{ flex: '1 1 200px' }}>
+                      <div>
                         <div style={labelStyle}>Email</div>
                         <div style={valueStyle}>{estudiante.email}</div>
                       </div>
-                      <div style={{ flex: '1 1 120px' }}>
+                      <div>
                         <div style={labelStyle}>Registro</div>
                         <div style={valueStyle}>{formatDate(estudiante.fecha_registro)}</div>
                       </div>
@@ -776,7 +739,7 @@ const GestionEstudiantes = () => {
                         e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.12)', 'rgba(59, 130, 246, 0.1)');
                       }}
                     >
-                      <Eye size={12} color={viewActionColor} /> Ver Detalles
+                      <Eye size={16} color={viewActionColor} /> Ver Detalles
                     </button>
                     <button
                       onClick={(e) => {
@@ -817,7 +780,7 @@ const GestionEstudiantes = () => {
                           : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)');
                       }}
                     >
-                      <Power size={12} /> {estudiante.estado === 'activo' ? 'Inactivar' : 'Activar'}
+                      <Power size={16} /> {estudiante.estado === 'activo' ? 'Inactivar' : 'Activar'}
                     </button>
                   </div>
                 </div>
@@ -833,22 +796,22 @@ const GestionEstudiantes = () => {
           flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '12px' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '8px' : '0.25rem 1rem',
           background: theme.paginationBackground,
           border: `1px solid ${theme.paginationBorder}`,
-          borderRadius: '1rem'
+          borderRadius: '0.75rem'
         }}>
           <div style={{
-            color: theme.paginationText,
-            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            color: theme.textSecondary,
+            fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {page} de {totalPages} • Total: {totalCount} estudiantes
           </div>
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            gap: '0.375rem',
             justifyContent: isMobile ? 'center' : 'flex-start',
             flexWrap: 'wrap'
           }}>
@@ -859,20 +822,20 @@ const GestionEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === 1 ? theme.paginationInactiveBg : theme.surface,
                 border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
                 color: page === 1 ? theme.paginationInactiveText : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 flex: isMobile ? '1' : 'initial'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} />
+              <ChevronLeft size={isMobile ? 14 : 14} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -880,16 +843,16 @@ const GestionEstudiantes = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                  padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
                   background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : theme.surface,
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: page === pageNum ? '#fff' : theme.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
+                  minWidth: isMobile ? '30px' : '2rem',
                 }}
               >
                 {pageNum}
@@ -902,13 +865,13 @@ const GestionEstudiantes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === totalPages ? theme.paginationInactiveBg : theme.surface,
                 border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
                 color: page === totalPages ? theme.paginationInactiveText : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
@@ -916,7 +879,7 @@ const GestionEstudiantes = () => {
               }}
             >
               {!isMobile && 'Siguiente'}
-              <ChevronRight size={isMobile ? 14 : 16} />
+              <ChevronRight size={isMobile ? 14 : 14} />
             </button>
           </div>
         </div>
@@ -927,20 +890,20 @@ const GestionEstudiantes = () => {
         <>
           <div style={{
             background: theme.surface,
-            borderRadius: 16,
+            borderRadius: '0.75rem',
             overflow: 'hidden',
             border: `1px solid ${theme.surfaceBorder}`,
-            boxShadow: theme.cardShadow
+            boxShadow: 'none'
           }}>
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
+                background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
+                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
-                margin: '0.75rem',
-                color: '#ef4444',
+                marginBottom: '0.75rem',
+                color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
                 fontSize: '0.75rem',
                 textAlign: 'center',
                 display: 'flex',
@@ -948,32 +911,64 @@ const GestionEstudiantes = () => {
                 justifyContent: 'center',
                 gap: '0.375rem'
               }}>
-                <span>👉</span>
+                <ArrowLeftRight size={16} strokeWidth={2.25} />
                 <span>Desliza horizontalmente para ver toda la tabla</span>
-                <span>👈</span>
+                <ArrowLeftRight size={16} strokeWidth={2.25} />
               </div>
             )}
 
-            <div className="responsive-table-container">
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: theme.tableHeaderBg }}>
-                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+            <div
+              className="responsive-table-container"
+              style={{
+                overflowX: 'auto',
+                borderRadius: isMobile ? '12px' : '0.75rem',
+                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+                marginBottom: isMobile ? '12px' : '0.5rem',
+                position: 'relative'
+              }}
+            >
+              {!isMobile && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  pointerEvents: 'none',
+                  zIndex: 0,
+                  opacity: 0.08,
+                  display: 'flex',
+                  gap: '0.5rem',
+                  alignItems: 'center'
+                }}>
+                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                </div>
+              )}
+              <table style={{ width: '100%', borderCollapse: 'collapse', position: 'relative', zIndex: 1 }}>
+                <thead style={{
+                  borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
+                  background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+                }}>
+                  <tr>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
                       Estudiante
                     </th>
-                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
                       Identificación
                     </th>
-                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
                       Usuario
                     </th>
-                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
                       Estado
                     </th>
-                    <th style={{ padding: '1rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
-                      Fecha Registro
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
+                      Registro
                     </th>
-                    <th style={{ padding: '1rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.9rem' }}>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>
                       Acciones
                     </th>
                   </tr>
@@ -987,101 +982,120 @@ const GestionEstudiantes = () => {
                     </tr>
                   ) : (
                     estudiantesFiltrados.map((estudiante, index) => (
-                      <tr key={estudiante.id_usuario} style={{
-                        borderTop: index > 0 ? `1px solid ${theme.tableRowBorder}` : 'none',
-                        transition: 'background-color 0.2s'
-                      }}>
-                        <td style={{ padding: '0.75rem 1rem' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <tr
+                        key={estudiante.id_usuario}
+                        style={{
+                          borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600, verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                             <UserAvatar
                               nombre={estudiante.nombre}
                               apellido={estudiante.apellido}
                               userId={estudiante.id_usuario}
-                              size={2.25}
+                              size={1.75}
                             />
                             <div>
-                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.9rem' }}>
+                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.75rem' }}>
                                 {estudiante.apellido}, {estudiante.nombre}
                               </div>
                               {estudiante.telefono && (
-                                <div style={{ color: theme.textMuted, fontSize: '0.75rem' }}>
+                                <div style={{ color: theme.textMuted, fontSize: '0.65rem' }}>
                                   {estudiante.telefono}
                                 </div>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600, verticalAlign: 'middle' }}>
                           {estudiante.identificacion}
                         </td>
-                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
-                          {estudiante.username || 'No asignado'}
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {estudiante.username || 'N/A'}
                         </td>
-                        <td style={{ padding: '1rem' }}>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <span style={{
-                            display: 'inline-flex',
-                            padding: '4px 0.75rem',
-                            borderRadius: '9999px',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
-                            textTransform: 'capitalize',
-                            background: getEstadoTokens(estudiante.estado).bg,
-                            border: `1px solid ${getEstadoTokens(estudiante.estado).border}`,
-                            color: getEstadoTokens(estudiante.estado).color
+                            display: 'inline-block',
+                            padding: '4px 0.625rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            background: estudiante.estado === 'activo'
+                              ? 'rgba(16, 185, 129, 0.1)'
+                              : 'rgba(239, 68, 68, 0.1)',
+                            color: estudiante.estado === 'activo'
+                              ? '#10b981'
+                              : '#ef4444',
+                            border: `1px solid ${estudiante.estado === 'activo'
+                              ? 'rgba(10, 185, 129, 0.2)'
+                              : 'rgba(239, 68, 68, 0.2)'}`,
+                            textTransform: 'uppercase'
                           }}>
                             {estudiante.estado}
                           </span>
                         </td>
-                        <td style={{ padding: '1rem', color: theme.tableCellText, fontSize: '0.9rem' }}>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, fontSize: '0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           {formatDate(estudiante.fecha_registro)}
                         </td>
-                        <td style={{ padding: '1rem', textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleViewEstudiante(estudiante)}
-                            style={{
-                              background: theme.tableActionBg,
-                              border: `1px solid ${theme.tableActionBorder}`,
-                              color: theme.tableActionText,
-                              padding: '8px 0.75rem',
-                              borderRadius: '0.5rem',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem',
-                              fontWeight: '500',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.375rem',
-                              margin: '0 auto'
-                            }}
-                          >
-                            <Eye size={14} color={theme.tableActionText} />
-                            Ver
-                          </button>
-                          <button
-                            onClick={() => confirmarCambioEstado(estudiante)}
-                            style={{
-                              background: estudiante.estado === 'activo'
-                                ? pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.1)')
-                                : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)'),
-                              border: `1px solid ${estudiante.estado === 'activo'
-                                ? pick('rgba(239,68,68,0.24)', 'rgba(239,68,68,0.3)')
-                                : pick('rgba(16,185,129,0.24)', 'rgba(16,185,129,0.3)')}`,
-                              color: estudiante.estado === 'activo'
-                                ? pick('#ef4444', '#f87171')
-                                : pick('#10b981', '#34d399'),
-                              padding: '8px 0.75rem',
-                              borderRadius: '0.5rem',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem',
-                              fontWeight: '500',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.375rem',
-                              margin: '0 auto'
-                            }}
-                            title={estudiante.estado === 'activo' ? 'Inactivar' : 'Activar'}
-                          >
-                            <Power size={14} />
-                          </button>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <button
+                              onClick={() => handleViewEstudiante(estudiante)}
+                              title="Ver detalles"
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #3b82f6',
+                                backgroundColor: 'transparent',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#3b82f6';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#3b82f6';
+                              }}
+                            >
+                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                            <button
+                              onClick={() => confirmarCambioEstado(estudiante)}
+                              title={estudiante.estado === 'activo' ? 'Inactivar' : 'Activar'}
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: `1px solid ${estudiante.estado === 'activo' ? '#ef4444' : '#10b981'}`,
+                                backgroundColor: 'transparent',
+                                color: estudiante.estado === 'activo' ? '#ef4444' : '#10b981',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                const color = estudiante.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = color;
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                const color = estudiante.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = color;
+                              }}
+                            >
+                              <Power style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -1098,24 +1112,26 @@ const GestionEstudiantes = () => {
               flexDirection: isMobile ? 'column' : 'row',
               justifyContent: 'space-between',
               alignItems: isMobile ? 'stretch' : 'center',
-              gap: isMobile ? '12px' : '0',
-              padding: isMobile ? '16px' : '20px 1.5rem',
+              gap: isMobile ? '0.75rem' : '0',
+              padding: isMobile ? '8px' : '0.25rem 1rem',
               background: theme.paginationBackground,
               border: `1px solid ${theme.paginationBorder}`,
-              borderRadius: '1rem'
+              borderRadius: '0.75rem',
+              marginTop: '0.25rem',
+              marginBottom: isMobile ? '0.75rem' : '0.5rem',
             }}>
               <div style={{
-                color: theme.paginationText,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                color: theme.textSecondary,
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 textAlign: isMobile ? 'center' : 'left'
               }}>
                 Página {page} de {totalPages} • Total: {totalCount} estudiantes
               </div>
               <div style={{
                 display: 'flex',
-                gap: '0.5rem',
-                justifyContent: isMobile ? 'center' : 'flex-start',
-                flexWrap: 'wrap'
+                gap: '0.375rem',
+                flexWrap: 'wrap',
+                justifyContent: isMobile ? 'center' : 'flex-start'
               }}>
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -1124,20 +1140,22 @@ const GestionEstudiantes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: isMobile ? '4px' : '0.375rem',
-                    padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                    background: page === 1 ? theme.paginationInactiveBg : theme.surface,
-                    border: `1px solid ${theme.surfaceBorder}`,
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: page === 1
+                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(241,245,249,0.85)')
+                      : (darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff'),
+                    border: `1px solid ${theme.inputBorder}`,
                     borderRadius: '0.625rem',
-                    color: page === 1 ? theme.paginationInactiveText : theme.textPrimary,
-                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                    color: page === 1 ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.85)') : theme.textPrimary,
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
                     fontWeight: 600,
                     cursor: page === 1 ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s ease',
                     flex: isMobile ? '1' : 'initial'
                   }}
                 >
-                  <ChevronLeft size={isMobile ? 14 : 16} />
+                  <ChevronLeft size={isMobile ? 14 : 14} />
                   {!isMobile && 'Anterior'}
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -1145,16 +1163,20 @@ const GestionEstudiantes = () => {
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
                     style={{
-                      padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                      background: page === pageNum ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})` : theme.surface,
-                      border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
-                      borderRadius: '0.625rem',
+                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                      background: page === pageNum
+                        ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                        : (darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff'),
+                      border: page === pageNum
+                        ? `1px solid ${darkMode ? '#ef4444' : '#dc2626'}`
+                        : `1px solid ${theme.inputBorder}`,
+                      borderRadius: '0.5rem',
                       color: page === pageNum ? '#fff' : theme.textPrimary,
-                      fontSize: isMobile ? '0.8rem' : '0.9rem',
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                      minWidth: isMobile ? '36px' : '2.5rem',
+                      minWidth: isMobile ? '30px' : '2rem',
                     }}
                   >
                     {pageNum}
@@ -1167,13 +1189,15 @@ const GestionEstudiantes = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: isMobile ? '4px' : '0.375rem',
-                    padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                    background: page === totalPages ? theme.paginationInactiveBg : theme.surface,
-                    border: `1px solid ${theme.surfaceBorder}`,
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: page === totalPages
+                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(241,245,249,0.85)')
+                      : (darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff'),
+                    border: `1px solid ${theme.inputBorder}`,
                     borderRadius: '0.625rem',
-                    color: page === totalPages ? theme.paginationInactiveText : theme.textPrimary,
-                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                    color: page === totalPages ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.85)') : theme.textPrimary,
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
                     fontWeight: 600,
                     cursor: page === totalPages ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s ease',
@@ -1181,7 +1205,7 @@ const GestionEstudiantes = () => {
                   }}
                 >
                   {!isMobile && 'Siguiente'}
-                  <ChevronRight size={isMobile ? 14 : 16} />
+                  <ChevronRight size={isMobile ? 14 : 14} />
                 </button>
               </div>
             </div>

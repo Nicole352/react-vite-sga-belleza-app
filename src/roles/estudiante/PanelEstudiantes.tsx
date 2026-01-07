@@ -170,7 +170,7 @@ const PanelEstudiantes = () => {
     { id: 'mi-aula', name: 'Mi Aula', icon: BookOpen },
     { id: 'mi-horario', name: 'Mi Horario', icon: Calendar },
     { id: 'calificaciones', name: 'Calificaciones', icon: Award },
-    { id: 'servicios', name: 'Servicios', icon: FileText },
+    { id: 'servicios', name: 'Pagos', icon: FileText },
     { id: 'historial', name: 'Historial Académico', icon: TrendingUp },
     { id: 'perfil', name: 'Mi Perfil', icon: UserCircle }
   ];

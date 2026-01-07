@@ -215,50 +215,50 @@ const PanelDashboardSuperAdmin = () => {
   ];
 
   return (
-    <div data-dark={darkMode ? 'true' : 'false'} style={{ background: theme.pageBg, padding: isMobile ? '0.5rem' : '1rem', borderRadius: '1rem' }}>
-      {/* Métricas del Sistema - MISMO GRID que admin */}
+    <div data-dark={darkMode ? 'true' : 'false'} style={{ background: theme.pageBg, padding: isMobile ? '0.25rem' : '0.5rem', borderRadius: '0.75rem' }}>
+      {/* Métricas del Sistema */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(15rem, 90vw), 1fr))',
-        gap: isMobile ? '0.75em' : '0.875em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(12rem, 90vw), 1fr))',
+        gap: isMobile ? '0.5rem' : '0.75rem',
+        marginBottom: isMobile ? '0.5rem' : '0.75rem'
       }}>
         {systemTiles.map(({ key, title, value, icon: Icon, iconColor, accentRgb, progress }) => (
           <div
             key={key}
             style={{
               background: theme.statCardBg,
-              border: `0.0625rem solid ${theme.statCardBorder}`,
-              borderRadius: '0.75em',
-              padding: '0.625em',
+              border: `1px solid ${theme.statCardBorder}`,
+              borderRadius: '0.5rem',
+              padding: '0.5rem',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: darkMode ? '0 12px 24px rgba(0,0,0,0.25)' : '0 10px 20px rgba(239,68,68,0.08)'
+              boxShadow: 'none'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.375rem' }}>
               <div style={{
                 background: theme.statIconBg(accentRgb),
                 border: theme.statIconBorder(accentRgb),
-                borderRadius: '0.5em',
-                padding: '0.35em',
-                width: isMobile ? '2.1rem' : '2.25rem',
-                height: isMobile ? '2.1rem' : '2.25rem',
+                borderRadius: '0.375rem',
+                padding: '0.25rem',
+                width: '1.75rem',
+                height: '1.75rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Icon size={14} color={iconColor} strokeWidth={2.25} />
+                <Icon size={12} color={iconColor} strokeWidth={2} />
               </div>
-              <h3 style={{ color: theme.textPrimary, margin: 0, fontSize: isMobile ? '0.7rem' : '0.75rem', fontWeight: 600 }}>{title}</h3>
+              <h3 style={{ color: theme.textPrimary, margin: 0, fontSize: '0.7rem', fontWeight: 600 }}>{title}</h3>
             </div>
-            <p style={{ color: theme.valueText, fontSize: isMobile ? '1.375rem' : '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
+            <p style={{ color: theme.valueText, fontSize: isMobile ? '1.125rem' : '1.25rem', fontWeight: '700', margin: '0 0 0.25rem 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
               {loading ? '...' : value}
             </p>
             {progress !== undefined && (
-              <div style={{ width: '100%', height: '4px', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '3px', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
                 <div style={{
                   width: `${progress}%`,
                   height: '100%',
@@ -271,25 +271,25 @@ const PanelDashboardSuperAdmin = () => {
         ))}
       </div>
 
-      {/* Database Metrics - MISMO ESTILO que contenedores del admin */}
+      {/* Database Metrics */}
       <div style={{
         background: theme.containerBg,
-        border: `0.0625rem solid ${theme.containerBorder}`,
-        borderRadius: '0.875em',
-        padding: '1.125em',
-        marginBottom: '1.25em',
-        boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
+        border: `1px solid ${theme.containerBorder}`,
+        borderRadius: '0.5rem',
+        padding: '0.75rem',
+        marginBottom: '0.75rem',
+        boxShadow: 'none'
       }}>
-        <h3 style={{ color: theme.textPrimary, marginBottom: '1em', display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-          <Database size={isMobile ? 17 : 19} color="#ef4444" />
+        <h3 style={{ color: theme.textPrimary, marginBottom: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.85rem', fontWeight: 600 }}>
+          <Database size={14} color="#ef4444" />
           Estado de la Base de Datos
         </h3>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(11.25rem, 90vw), 1fr))',
-          gap: isMobile ? '0.625em' : '0.75em',
-          marginBottom: '1em'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(9rem, 90vw), 1fr))',
+          gap: '0.5rem',
+          marginBottom: '0.625rem'
         }}>
           {[{
             label: 'Conexiones Totales',
@@ -316,24 +316,24 @@ const PanelDashboardSuperAdmin = () => {
               key={label}
               style={{
                 background: darkMode
-                  ? `linear-gradient(135deg, rgba(${rgb},0.18), rgba(${rgb},0.08))`
-                  : `linear-gradient(135deg, rgba(${rgb},0.12), rgba(${rgb},0.05))`,
-                border: `0.0625rem solid rgba(${rgb}, ${darkMode ? 0.35 : 0.28})`,
-                borderRadius: '0.75em',
-                padding: '0.75em',
-                boxShadow: darkMode ? '0 14px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(148,163,184,0.16)'
+                  ? `linear-gradient(135deg, rgba(${rgb},0.15), rgba(${rgb},0.05))`
+                  : `linear-gradient(135deg, rgba(${rgb},0.1), rgba(${rgb},0.03))`,
+                border: `1px solid rgba(${rgb}, ${darkMode ? 0.25 : 0.2})`,
+                borderRadius: '0.375rem',
+                padding: '0.5rem',
+                boxShadow: 'none'
               }}
             >
-              <p style={{ color: theme.textMuted, fontSize: '0.65em', margin: 0 }}>{label}</p>
-              <p style={{ color, fontSize: '1.4em', fontWeight: '700', margin: '0.25em 0 0 0' }}>{value}</p>
+              <p style={{ color: theme.textMuted, fontSize: '0.65rem', margin: 0 }}>{label}</p>
+              <p style={{ color, fontSize: '1.125rem', fontWeight: '700', margin: '0.1875rem 0 0 0' }}>{value}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ padding: '1rem', background: theme.terminalBg, borderRadius: '0.5rem', border: `1px solid ${theme.containerBorder}` }}>
-          <p style={{ color: theme.textMuted, margin: '0 0 0.5rem 0', fontSize: '0.75rem', fontWeight: 600 }}>Estado del Pool de Conexiones</p>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <div style={{ flex: 1, height: '8px', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+        <div style={{ padding: '0.625rem', background: theme.terminalBg, borderRadius: '0.375rem', border: `1px solid ${theme.containerBorder}` }}>
+          <p style={{ color: theme.textMuted, margin: '0 0 0.375rem 0', fontSize: '0.7rem', fontWeight: 600 }}>Estado del Pool de Conexiones</p>
+          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            <div style={{ flex: 1, height: '6px', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{
                 width: `${(dbMetrics.connectionPool.active / dbMetrics.connectionPool.total) * 100}%`,
                 height: '100%',
@@ -341,31 +341,31 @@ const PanelDashboardSuperAdmin = () => {
                 transition: 'width 0.3s ease'
               }} />
             </div>
-            <span style={{ color: theme.textPrimary, fontSize: '0.875rem', fontFamily: 'monospace', fontWeight: 600 }}>
+            <span style={{ color: theme.textPrimary, fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600 }}>
               {dbMetrics.connectionPool.active}/{dbMetrics.connectionPool.total}
             </span>
           </div>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Activas: {dbMetrics.connectionPool.active}</span>
-            <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Inactivas: {dbMetrics.connectionPool.idle}</span>
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.375rem' }}>
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>Activas: {dbMetrics.connectionPool.active}</span>
+            <span style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>Inactivas: {dbMetrics.connectionPool.idle}</span>
           </div>
         </div>
       </div>
 
-      {/* System Logs - MISMO ESTILO que actividad reciente del admin */}
+      {/* System Logs */}
       <div style={{
         background: theme.containerBg,
-        border: `0.0625rem solid ${theme.containerBorder}`,
-        borderRadius: '0.875em',
-        padding: '1.125em',
-        boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
+        border: `1px solid ${theme.containerBorder}`,
+        borderRadius: '0.5rem',
+        padding: '0.75rem',
+        boxShadow: 'none'
       }}>
-        <h3 style={{ color: theme.textPrimary, marginBottom: '1em', display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-          <FileText size={isMobile ? 17 : 19} color="#ef4444" />
+        <h3 style={{ color: theme.textPrimary, marginBottom: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.85rem', fontWeight: 600 }}>
+          <FileText size={14} color="#ef4444" />
           Registros del Sistema
         </h3>
 
-        <div style={{ display: 'grid', gap: '0.75em' }}>
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
           {recentLogs.map((log, index) => {
             const rgbColor = log.level === 'error' ? '239, 68, 68' : log.level === 'warn' ? '245, 158, 11' : '34, 197, 94';
             return (
@@ -374,27 +374,27 @@ const PanelDashboardSuperAdmin = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75em',
-                  padding: '0.75em',
+                  gap: '0.5rem',
+                  padding: '0.5rem',
                   background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.85)',
-                  borderRadius: '0.625em',
-                  border: darkMode ? '0.0625rem solid rgba(255,255,255,0.05)' : '0.0625rem solid rgba(239,68,68,0.12)',
-                  boxShadow: darkMode ? '0 10px 20px rgba(0,0,0,0.25)' : '0 10px 20px rgba(148,163,184,0.18)'
+                  borderRadius: '0.375rem',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(239,68,68,0.12)',
+                  boxShadow: 'none'
                 }}
               >
                 <div style={{
-                  background: darkMode ? `rgba(${rgbColor},0.22)` : `rgba(${rgbColor},0.12)`,
-                  borderRadius: '0.5em',
-                  padding: '0.5em',
-                  border: darkMode ? `1px solid rgba(${rgbColor},0.35)` : `1px solid rgba(${rgbColor},0.24)`
+                  background: darkMode ? `rgba(${rgbColor},0.18)` : `rgba(${rgbColor},0.1)`,
+                  borderRadius: '0.375rem',
+                  padding: '0.375rem',
+                  border: darkMode ? `1px solid rgba(${rgbColor},0.25)` : `1px solid rgba(${rgbColor},0.18)`
                 }}>
                   {getLogIcon(log.level)}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ color: theme.textPrimary, fontSize: '0.75em', fontWeight: '500', margin: '0 0 0.1875em 0', fontFamily: 'monospace' }}>
+                  <p style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '500', margin: '0 0 0.125rem 0', fontFamily: 'monospace' }}>
                     {log.message}
                   </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.65em', margin: 0 }}>
+                  <p style={{ color: theme.textMuted, fontSize: '0.65rem', margin: 0 }}>
                     {new Date(log.timestamp).toLocaleTimeString()}
                   </p>
                 </div>

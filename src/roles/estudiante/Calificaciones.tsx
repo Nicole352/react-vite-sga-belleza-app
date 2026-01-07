@@ -392,16 +392,17 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: "1.25em" }}>
+      <div style={{ marginBottom: "0.75rem" }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.25rem',
           fontWeight: '700',
           color: theme.textPrimary,
-          margin: '0 0 0.375rem 0'
+          margin: '0 0 0.15rem 0',
+          letterSpacing: '-0.02em'
         }}>
           Mis Calificaciones
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0, fontWeight: 500 }}>
           Revisa tu rendimiento académico en todos tus cursos
         </p>
       </div>
@@ -411,9 +412,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "0.75rem",
-            marginBottom: "1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
           }}
         >
           <div
@@ -422,16 +423,16 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                 ? "rgba(59, 130, 246, 0.1)"
                 : "rgba(59, 130, 246, 0.05)",
               border: "1px solid rgba(59, 130, 246, 0.3)",
-              borderRadius: "0.75rem",
-              padding: "1rem",
+              borderRadius: "0.5rem",
+              padding: "0.5rem",
             }}
           >
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
-                marginBottom: "0.5rem",
+                gap: "0.4rem",
+                marginBottom: "0.25rem",
               }}
             >
               <BookOpen size={18} color="#3b82f6" />
@@ -442,7 +443,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
             <div
               style={{
                 color: "#3b82f6",
-                fontSize: "1.5rem",
+                fontSize: "1.25rem",
                 fontWeight: "800",
                 lineHeight: 1,
               }}
@@ -457,16 +458,16 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                 ? "rgba(245, 158, 11, 0.1)"
                 : "rgba(245, 158, 11, 0.05)",
               border: `1px solid ${theme.warning}30`,
-              borderRadius: "0.75rem",
-              padding: "1rem",
+              borderRadius: "0.5rem",
+              padding: "0.5rem",
             }}
           >
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
-                marginBottom: "0.5rem",
+                gap: "0.4rem",
+                marginBottom: "0.25rem",
               }}
             >
               <FileText size={18} color={theme.warning} />
@@ -477,7 +478,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
             <div
               style={{
                 color: theme.warning,
-                fontSize: "1.5rem",
+                fontSize: "1.25rem",
                 fontWeight: "800",
                 lineHeight: 1,
               }}
@@ -498,9 +499,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
               ? "linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1))"
               : "linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.05))",
             border: `2px solid ${theme.warning}`,
-            borderRadius: "1rem",
-            padding: "2rem",
-            marginBottom: "1.5rem",
+            borderRadius: "0.75rem",
+            padding: "1.5rem",
+            marginBottom: "1rem",
             textAlign: "center",
             boxShadow: darkMode
               ? "0 8px 32px rgba(245, 158, 11, 0.2)"
@@ -525,9 +526,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
           <h2
             style={{
               color: theme.textPrimary,
-              fontSize: "1.5rem",
+              fontSize: "1.25rem",
               fontWeight: "700",
-              margin: "0 0 0.5rem 0",
+              margin: "0 0 0.25rem 0",
             }}
           >
             Aún no tienes calificaciones
@@ -554,8 +555,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
           style={{
             background: theme.cardBg,
             border: `1px solid ${theme.border}`,
-            borderRadius: "1rem",
-            padding: "3rem",
+            borderRadius: "0.75rem",
+            padding: "2rem",
             textAlign: "center",
           }}
         >
@@ -571,7 +572,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
           </p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {cursosConCalificaciones.map(
             ({ curso, calificaciones, promedio, modulos }) => (
               <div
@@ -579,7 +580,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                 style={{
                   background: darkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
                   border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e5e7eb",
-                  borderRadius: "0.75rem",
+                  borderRadius: "0.5rem",
                   overflow: "hidden",
                   transition: "all 0.2s ease",
                 }}
@@ -588,7 +589,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                 <div
                   onClick={() => toggleCurso(curso.id_curso)}
                   style={{
-                    padding: "1rem",
+                    padding: "0.5rem 0.75rem",
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
@@ -599,7 +600,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.75rem",
+                      gap: "0.5rem",
                       flex: 1,
                     }}
                   >
@@ -608,20 +609,20 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                         width: "2.5rem",
                         height: "2.5rem",
                         background: `linear-gradient(135deg, ${theme.accent}, #f59e0b)`,
-                        borderRadius: "0.625rem",
+                        borderRadius: "0.5rem",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         boxShadow: "0 2px 8px rgba(251, 191, 36, 0.3)",
                       }}
                     >
-                      <BookOpen size={18} color="#fff" strokeWidth={2.5} />
+                      <BookOpen size={16} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <h3
                         style={{
                           color: theme.textPrimary,
-                          fontSize: "0.95rem",
+                          fontSize: "0.9rem",
                           fontWeight: "700",
                           margin: 0,
                           overflow: "hidden",
@@ -634,8 +635,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                       <p
                         style={{
                           color: theme.textMuted,
-                          margin: "0.125rem 0 0 0",
-                          fontSize: "0.75rem",
+                          margin: "0.1rem 0 0 0",
+                          fontSize: "0.7rem",
                         }}
                       >
                         {curso.codigo_curso}
@@ -654,7 +655,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                       <div
                         style={{
                           color: modulos.every(m => m.promedios_publicados) ? getColorByGrade(promedio) : theme.textMuted,
-                          fontSize: "1.125rem",
+                          fontSize: "1rem",
                           fontWeight: "800",
                         }}
                       >
@@ -663,8 +664,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                       <div
                         style={{
                           color: theme.textMuted,
-                          fontSize: "0.7rem",
-                          marginTop: "0.125rem",
+                          fontSize: "0.65rem",
+                          marginTop: "0.1rem",
                         }}
                       >
                         {modulos.every(m => m.promedios_publicados) ? getGradeLabel(promedio) : "Promedios ocultos"}
@@ -686,7 +687,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
 
                 {/* Detalle de calificaciones */}
                 {expandedCursos[curso.id_curso] && (
-                  <div style={{ padding: "0 1.5rem 1.5rem" }}>
+                  <div style={{ padding: "0 0.75rem 0.75rem" }}>
                     {/* Mostrar promedios ponderados por módulo SI ESTÁN PUBLICADOS */}
 
 
@@ -697,10 +698,10 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                             ? "rgba(245, 158, 11, 0.1)"
                             : "rgba(245, 158, 11, 0.05)",
                           border: `1px solid ${theme.warning}30`,
-                          borderRadius: "0.75rem",
-                          padding: "1.5rem",
+                          borderRadius: "0.625rem",
+                          padding: "1rem",
                           textAlign: "center",
-                          marginTop: "1rem",
+                          marginTop: "0.5rem",
                         }}
                       >
                         <Award
@@ -733,8 +734,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                         style={{
                           display: "flex",
                           flexDirection: "column",
-                          gap: "0.75rem",
-                          marginTop: "1rem",
+                          gap: "0.25rem",
+                          marginTop: "0.25rem",
                         }}
                       >
                         {/* Agrupar por módulos */}
@@ -750,7 +751,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                   ? "rgba(255,255,255,0.03)"
                                   : "rgba(0,0,0,0.02)",
                                 border: `1px solid ${theme.border}`,
-                                borderRadius: "0.75rem",
+                                borderRadius: "0.5rem",
                                 overflow: "hidden",
                                 transition: "all 0.3s ease",
                               }}
@@ -759,7 +760,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                               <div
                                 onClick={() => toggleModulo(curso.id_curso, modulo.id_modulo)}
                                 style={{
-                                  padding: "1rem",
+                                  padding: "0.3rem 0.5rem",
                                   cursor: "pointer",
                                   display: "flex",
                                   justifyContent: "space-between",
@@ -782,7 +783,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                     <h4
                                       style={{
                                         color: theme.textPrimary,
-                                        fontSize: "1rem",
+                                        fontSize: "0.9rem",
                                         fontWeight: "700",
                                         margin: 0,
                                       }}
@@ -792,8 +793,8 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                     <p
                                       style={{
                                         color: theme.textMuted,
-                                        margin: "0.25rem 0 0 0",
-                                        fontSize: "0.85rem",
+                                        margin: "0.1rem 0 0 0",
+                                        fontSize: "0.8rem",
                                       }}
                                     >
                                       {modulo.tareas_calificadas}{" "}
@@ -809,7 +810,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                       <div
                                         style={{
                                           color: getColorByGrade10(modulo.promedio_ponderado),
-                                          fontSize: "1.5rem",
+                                          fontSize: "1.25rem",
                                           fontWeight: "900",
                                           lineHeight: 1,
                                         }}
@@ -881,19 +882,19 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                             <div style={{
                                               display: 'flex',
                                               alignItems: 'center',
-                                              gap: '0.75rem',
-                                              marginBottom: '1rem',
-                                              marginTop: '1.5rem',
-                                              padding: '0.75rem 1rem',
+                                              gap: "0.5rem",
+                                              marginBottom: "0.5rem",
+                                              marginTop: "0.75rem",
+                                              padding: "0.3rem 0.5rem",
                                               background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
                                               borderLeft: `4px solid ${theme.accent}`,
                                               borderRadius: '0 0.5rem 0.5rem 0',
                                               boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
                                             }}>
-                                              <Award size={20} color={theme.accent} />
+                                              <Award size={16} color={theme.accent} />
                                               <h5 style={{
                                                 margin: 0,
-                                                fontSize: '1rem',
+                                                fontSize: '0.85rem',
                                                 fontWeight: '800',
                                                 color: theme.textPrimary,
                                                 textTransform: 'uppercase',
@@ -905,9 +906,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                               <div style={{
                                                 background: theme.accent,
                                                 color: '#fff',
-                                                padding: '0.25rem 0.75rem',
+                                                padding: '0.15rem 0.5rem',
                                                 borderRadius: '1rem',
-                                                fontSize: '0.75rem',
+                                                fontSize: '0.7rem',
                                                 fontWeight: '700',
                                                 boxShadow: '0 2px 4px rgba(251, 191, 36, 0.3)'
                                               }}>
@@ -1063,9 +1064,9 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                     ? "rgba(255,255,255,0.02)"
                                                     : "rgba(255,255,255,0.5)",
                                                   border: `1px solid ${theme.border}`,
-                                                  borderRadius: "0.5rem",
-                                                  padding: "0.875rem",
-                                                  marginBottom: "0.5rem",
+                                                  borderRadius: "0.375rem",
+                                                  padding: "0.4rem 0.5rem",
+                                                  marginBottom: "0.25rem",
                                                 }}
                                               >
                                                 <div
@@ -1080,7 +1081,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode: darkModePro
                                                     <h5
                                                       style={{
                                                         color: theme.textPrimary,
-                                                        fontSize: "0.95rem",
+                                                        fontSize: "0.85rem",
                                                         fontWeight: "600",
                                                         margin: 0,
                                                       }}

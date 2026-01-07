@@ -354,7 +354,7 @@ const AulaVirtual = () => {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 92px 48px 52px; /* ajustar para que quepa sin scroll en desktop */
+            padding: 4rem 2rem 3rem; /* ajustar para que quepa sin scroll en desktop */
             background: ${theme === 'dark'
             ? 'rgba(0, 0, 0, 0.95)'
             : 'rgba(255, 255, 255, 0.97)'};
@@ -403,7 +403,7 @@ const AulaVirtual = () => {
           }
           
           .main-title {
-            font-size: 3.05rem;
+            font-size: 2.25rem;
             font-weight: 800;
             color: theme === 'dark' ? '#fff' : '#1f2937';
             margin-bottom: 12px;
@@ -415,7 +415,7 @@ const AulaVirtual = () => {
           }
           
           .subtitle {
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: theme === 'dark' ? 'rgba(255, 255, 255, 0.86)' : 'rgba(31, 41, 55, 0.8)';
             margin-bottom: 16px; /* reducir separación con la tarjeta */
             line-height: 1.6;
@@ -433,7 +433,7 @@ const AulaVirtual = () => {
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(209, 160, 42, 0.2)'};
             border-radius: 28px;
-            padding: 32px; /* más compacto para doble columna */
+            padding: 2rem; /* más compacto para doble columna */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
             z-index: 1;
@@ -442,7 +442,7 @@ const AulaVirtual = () => {
             color: theme === 'dark' ? '#fff' : '#1f2937';
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 32px;
+            gap: 1.5rem;
             align-items: start;
           }
           
@@ -466,7 +466,7 @@ const AulaVirtual = () => {
             flex-direction: column;
           }
           .form-group {
-            margin-bottom: 16px; /* compactar verticalmente */
+            margin-bottom: 1.25rem; /* compactar verticalmente */
           }
           
           .form-label {
@@ -474,7 +474,7 @@ const AulaVirtual = () => {
             margin-bottom: 8px;
             font-weight: 600;
             color: ${theme === 'dark' ? 'rgba(255,255,255,0.95)' : 'rgba(31, 41, 55, 0.9)'};
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-family: 'Montserrat', sans-serif;
           }
           
@@ -484,10 +484,10 @@ const AulaVirtual = () => {
           
           .form-input {
             width: 100%;
-            padding: 16px 48px 16px 48px;
+            padding: 0.75rem 3rem 0.75rem 3rem;
             border: 1.5px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(251, 191, 36, 0.5)'};
             border-radius: 14px;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
             color: ${theme === 'dark' ? '#fff' : '#1f2937'};
@@ -543,9 +543,9 @@ const AulaVirtual = () => {
             background: linear-gradient(45deg, #fbbf24, #f59e0b, #fbbf24);
             background-size: 200% 200%;
             color: black;
-            padding: 16px 28px;
+            padding: 0.75rem 1.5rem;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             border: none;
             cursor: pointer;
@@ -661,18 +661,18 @@ const AulaVirtual = () => {
             }
             
             .login-form {
-              padding: 32px 24px;
+              padding: 1.5rem;
               border-radius: 24px;
             }
             
             .form-input {
-              padding: 14px 44px 14px 44px;
-              font-size: 1rem;
+              padding: 0.875rem 2.75rem 0.875rem 2.75rem;
+              font-size: 0.95rem;
             }
             
             .login-button {
               font-size: 1.1rem;
-              padding: 16px 28px;
+              padding: 0.875rem 1.5rem;
             }
           }
           
@@ -692,11 +692,11 @@ const AulaVirtual = () => {
             }
             
             .main-title {
-              font-size: 2rem;
+              font-size: 1.75rem;
             }
             
             .login-form {
-              padding: 24px 20px;
+              padding: 1.5rem 1.25rem;
               border-radius: 20px;
             }
           }

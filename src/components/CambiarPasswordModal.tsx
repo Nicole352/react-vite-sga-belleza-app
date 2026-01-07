@@ -61,6 +61,13 @@ const CambiarPasswordModal: React.FC<CambiarPasswordModalProps> = ({
 
   const colors = getRoleColors();
 
+  // Validaciones dinámicas
+  const hasMinLength = passwordData.password_nueva.length >= 8;
+  const hasUppercase = /[A-Z]/.test(passwordData.password_nueva);
+  const hasLowercase = /[a-z]/.test(passwordData.password_nueva);
+  const hasNumber = /[0-9]/.test(passwordData.password_nueva);
+  const isPasswordSecure = hasMinLength && hasUppercase && hasLowercase && hasNumber;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,8 +76,8 @@ const CambiarPasswordModal: React.FC<CambiarPasswordModalProps> = ({
       return;
     }
 
-    if (passwordData.password_nueva.length < 8) {
-      toast.error('La contraseña debe tener al menos 8 caracteres');
+    if (!isPasswordSecure) {
+      toast.error('La contraseña no cumple con todos los requisitos de seguridad');
       return;
     }
 
@@ -413,15 +420,59 @@ const CambiarPasswordModal: React.FC<CambiarPasswordModalProps> = ({
                 </button>
               </div>
               <div style={{
-                marginTop: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '0.8125rem',
-                color: passwordData.password_nueva.length >= 8 ? colors.primary : 'var(--admin-text-muted)'
+                marginTop: '12px',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px',
+                padding: '12px',
+                background: 'var(--admin-bg-secondary)',
+                borderRadius: '10px',
+                border: '1px solid var(--admin-border)'
               }}>
-                <FaCheckCircle size={14} />
-                Mínimo 8 caracteres
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.75rem',
+                  color: hasMinLength ? colors.primary : 'var(--admin-text-muted)',
+                  transition: 'all 0.2s'
+                }}>
+                  <FaCheckCircle size={12} style={{ opacity: hasMinLength ? 1 : 0.5 }} />
+                  Mínimo 8 caracteres
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.75rem',
+                  color: hasUppercase ? colors.primary : 'var(--admin-text-muted)',
+                  transition: 'all 0.2s'
+                }}>
+                  <FaCheckCircle size={12} style={{ opacity: hasUppercase ? 1 : 0.5 }} />
+                  Una mayúscula (A-Z)
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.75rem',
+                  color: hasLowercase ? colors.primary : 'var(--admin-text-muted)',
+                  transition: 'all 0.2s'
+                }}>
+                  <FaCheckCircle size={12} style={{ opacity: hasLowercase ? 1 : 0.5 }} />
+                  Una minúscula (a-z)
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.75rem',
+                  color: hasNumber ? colors.primary : 'var(--admin-text-muted)',
+                  transition: 'all 0.2s'
+                }}>
+                  <FaCheckCircle size={12} style={{ opacity: hasNumber ? 1 : 0.5 }} />
+                  Un número (0-9)
+                </div>
               </div>
             </div>
 
@@ -499,6 +550,25 @@ const CambiarPasswordModal: React.FC<CambiarPasswordModalProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Requerimientos faltantes alerta */}
+            {!isPasswordSecure && passwordData.password_nueva.length > 0 && (
+              <div style={{
+                marginBottom: '20px',
+                padding: '10px 14px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '8px',
+                color: '#ef4444',
+                fontSize: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <FaLock size={12} />
+                Tu contraseña aún no es lo suficientemente segura.
+              </div>
+            )}
 
             {/* Botones */}
             <div style={{

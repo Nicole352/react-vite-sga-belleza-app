@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MapPin, 
+import {
+  MapPin,
   Send,
-  Mail,
   CheckCircle,
-  Sparkles,
-  Calendar,
-  Award,
   Instagram,
   Facebook,
   MessageCircle
@@ -44,16 +40,31 @@ const Contactenos = () => {
     'Información General'
   ];
 
-  const horariosDisponibles = [
-    'Matutino (8:00 AM - 12:00 PM)',
-    'Vespertino (2:00 PM - 6:00 PM)',
-    'Nocturno (6:00 PM - 10:00 PM)',
-    'Fines de Semana',
-    'Modalidad Intensiva'
-  ];
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Construir enlace mailto
+    const subject = `Nuevo Contacto Web: ${formData.nombre}`;
+    const body = `
+Hola Escuela Jessica Vélez,
+
+He recibido un nuevo contacto desde el sitio web con los siguientes datos:
+
+--------------------------------------------------
+Nombre: ${formData.nombre}
+Email: ${formData.email}
+Teléfono: ${formData.telefono}
+Curso de Interés: ${formData.curso}
+--------------------------------------------------
+
+Mensaje:
+${formData.mensaje}
+    `;
+
+    window.location.href = `mailto:escuelajessicavelez@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     setShowSuccess(true);
     setTimeout(() => {
       setShowSuccess(false);
@@ -65,7 +76,7 @@ const Contactenos = () => {
         curso: '',
         horario: ''
       });
-    }, 3000);
+    }, 5000); // Dar tiempo al usuario antes de resetear
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -97,7 +108,7 @@ const Contactenos = () => {
           @keyframes fadeInUp {
             from {
               opacity: 0;
-              transform: translateY(30px);
+              transform: translateY(1.875rem);
             }
             to {
               opacity: 1;
@@ -116,7 +127,7 @@ const Contactenos = () => {
               opacity: 0.1;
             }
             50% {
-              transform: translateY(-20px) rotate(180deg);
+              transform: translateY(-1.25rem) rotate(180deg);
               opacity: 0.3;
             }
           }
@@ -149,49 +160,49 @@ const Contactenos = () => {
             background-clip: text;
           }
           
-          /* Layout responsiveness */
+           /* Layout responsiveness */
           @media (max-width: 1024px) {
-            .contact-page .main-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-            .contact-page .form-card, .contact-page .map-card { padding: 28px !important; }
-            .contact-page .form-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
-            .contact-page .map-embed { min-height: 260px !important; }
+            .contact-page .main-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+            .contact-page .form-card, .contact-page .map-card { padding: 1.75rem !important; }
+            .contact-page .form-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+            .contact-page .map-embed { min-height: 16.25rem !important; }
             .contact-page .gradient-text { font-size: 3rem !important; }
           }
           
           /* Mobile: make action buttons icon-only to reduce visual load */
           @media (max-width: 640px) {
-            .contact-page .main-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-            .contact-page .form-card, .contact-page .map-card { padding: 20px !important; }
-            .contact-page .form-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
-            .contact-page .map-embed { min-height: 220px !important; }
+            .contact-page .main-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
+            .contact-page .form-card, .contact-page .map-card { padding: 1.25rem !important; }
+            .contact-page .form-grid { grid-template-columns: 1fr !important; gap: 0.875rem !important; }
+            .contact-page .map-embed { min-height: 13.75rem !important; }
             .contact-page .gradient-text { font-size: 2.2rem !important; }
             .contact-page .map-actions {
               display: flex !important;
-              gap: 10px !important;
+              gap: 0.625rem !important;
               flex-wrap: nowrap !important;
               justify-content: space-between !important;
             }
             .contact-page .map-actions a,
             .contact-page .social-actions a {
               font-size: 0 !important; /* hide text labels without changing JSX */
-              padding: 10px !important;
-              border-radius: 12px !important;
+              padding: 0.625rem !important;
+              border-radius: 0.75rem !important;
               gap: 0 !important;
-              min-width: 44px;
-              min-height: 44px;
+              min-width: 2.75rem;
+              min-height: 2.75rem;
               display: inline-flex;
               align-items: center;
               justify-content: center;
             }
             .contact-page .map-actions a svg,
             .contact-page .social-actions a svg {
-              width: 18px;
-              height: 18px;
+              width: 1.125rem;
+              height: 1.125rem;
             }
             .contact-page .social-actions {
               display: grid !important;
               grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 10px !important;
+              gap: 0.625rem !important;
             }
           }
         `}
@@ -205,7 +216,7 @@ const Contactenos = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '110px',
+          paddingTop: '6rem',
           paddingBottom: '0px',
           fontFamily: 'Montserrat, sans-serif'
         }}
@@ -231,9 +242,9 @@ const Contactenos = () => {
 
         <div
           style={{
-            maxWidth: '1400px',
+            maxWidth: '90%',
             margin: '0 auto',
-            padding: '0 24px',
+            padding: '0 0.75rem',
             position: 'relative',
             zIndex: 1
           }}
@@ -242,60 +253,38 @@ const Contactenos = () => {
           <div
             style={{
               textAlign: 'center',
-              marginBottom: '80px',
+              marginBottom: '1.5rem',
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             data-aos="fade-up"
           >
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: '25px',
-                padding: '12px 24px',
-                marginBottom: '24px',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Mail size={20} color="#fbbf24" />
-              <span style={{ 
-                color: '#fde68a', 
-                fontWeight: '600',
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px'
-              }}>
-                Conversemos sobre tu futuro
-              </span>
-            </div>
+
 
             <h1
               className="gradient-text"
               style={{
-                fontSize: '4rem',
+                fontSize: '2.5rem',
                 fontWeight: '800',
-                marginBottom: '24px',
+                marginBottom: '0.5rem',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
               }}
             >
               Contáctanos
             </h1>
-            
+
             <p
               style={{
-                fontSize: '1.4rem',
+                fontSize: '1rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 maxWidth: '700px',
                 margin: '0 auto',
                 lineHeight: 1.6
               }}
             >
-              Estamos aquí para ayudarte a dar el primer paso hacia tu nueva carrera profesional. 
+              Estamos aquí para ayudarte a dar el primer paso hacia tu nueva carrera profesional.
               ¡Tu transformación comienza con una conversación!
             </p>
           </div>
@@ -307,9 +296,9 @@ const Contactenos = () => {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '60px',
+              gap: '1.5rem',
               alignItems: 'stretch',
-              marginBottom: '60px'
+              marginBottom: '1.5rem'
             }}
             className="main-grid"
           >
@@ -333,8 +322,8 @@ const Contactenos = () => {
                   background: theme === 'dark'
                     ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
                     : 'rgba(255, 255, 255, 0.97)',
-                  borderRadius: '24px',
-                  padding: '40px',
+                  borderRadius: '1rem',
+                  padding: '1.5rem',
                   backdropFilter: 'blur(20px)',
                   border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
                   boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
@@ -351,8 +340,8 @@ const Contactenos = () => {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '16px',
-                    marginBottom: '32px'
+                    gap: '1rem',
+                    marginBottom: '1.5rem'
                   }}
                 >
                   <div
@@ -371,7 +360,7 @@ const Contactenos = () => {
                   <div>
                     <h2
                       style={{
-                        fontSize: '1.4rem',
+                        fontSize: '1.25rem',
                         fontWeight: '700',
                         color: '#fff',
                         margin: 0
@@ -382,7 +371,7 @@ const Contactenos = () => {
                     <p
                       style={{
                         color: theme === 'dark' ? '#d1d5db' : '#4b5563',
-                        fontSize: '0.95rem',
+                        fontSize: '0.85rem',
                         margin: 0
                       }}
                     >
@@ -447,7 +436,7 @@ const Contactenos = () => {
                         required
                         style={{
                           width: '100%',
-                          padding: '12px 16px',
+                          padding: '0.75rem 1rem',
                           border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
@@ -479,7 +468,7 @@ const Contactenos = () => {
                         required
                         style={{
                           width: '100%',
-                          padding: '12px 16px',
+                          padding: '0.75rem 1rem',
                           border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                           borderRadius: '12px',
                           fontSize: '1rem',
@@ -512,97 +501,52 @@ const Contactenos = () => {
                       required
                       style={{
                         width: '100%',
-                        padding: '12px 16px',
+                        padding: '0.75rem 1rem',
                         border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                         borderRadius: '12px',
                         fontSize: '1rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#111827'
                       }}
                       onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#fbbf24'}
                       onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
                     />
                   </div>
 
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '20px',
-                      marginBottom: '20px'
-                    }}
-                    className="form-grid"
-                  >
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          marginBottom: '8px',
-                          fontWeight: '600',
-                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
-                        }}
-                      >
-                        Curso de Interés
-                      </label>
-                      <select
-                        name="curso"
-                        value={formData.curso}
-                        onChange={handleChange}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#111827'
-                        }}
-                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
-                      >
-                        <option value="">Seleccionar curso</option>
-                        {cursosDisponibles.map((curso, index) => (
-                          <option key={index} value={curso}>{curso}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label
-                        style={{
-                          display: 'block',
-                          marginBottom: '8px',
-                          fontWeight: '600',
-                          color: theme === 'dark' ? '#f3f4f6' : '#374151'
-                        }}
-                      >
-                        Horario Preferido
-                      </label>
-                      <select
-                        name="horario"
-                        value={formData.horario}
-                        onChange={handleChange}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
-                          transition: 'border-color 0.3s ease, background 0.3s ease',
-                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
-                          color: theme === 'dark' ? '#fff' : '#111827'
-                        }}
-                        onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
-                        onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
-                      >
-                        <option value="">Seleccionar horario</option>
-                        {horariosDisponibles.map((horario, index) => (
-                          <option key={index} value={horario}>{horario}</option>
-                        ))}
-                      </select>
-                    </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        fontWeight: '600',
+                        color: theme === 'dark' ? '#f3f4f6' : '#374151'
+                      }}
+                    >
+                      Curso de Interés
+                    </label>
+                    <select
+                      name="curso"
+                      value={formData.curso}
+                      onChange={handleChange}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem 1rem',
+                        border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        transition: 'border-color 0.3s ease, background 0.3s ease',
+                        background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
+                        color: theme === 'dark' ? '#fff' : '#111827'
+                      }}
+                      onFocus={(e) => (e.target as HTMLSelectElement).style.borderColor = '#fbbf24'}
+                      onBlur={(e) => (e.target as HTMLSelectElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
+                    >
+                      <option value="">Seleccionar curso</option>
+                      {cursosDisponibles.map((curso, index) => (
+                        <option key={index} value={curso}>{curso}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div style={{ marginBottom: '24px' }}>
@@ -624,7 +568,7 @@ const Contactenos = () => {
                       placeholder="Cuéntanos sobre tus objetivos profesionales, experiencia previa o cualquier pregunta específica..."
                       style={{
                         width: '100%',
-                        padding: '12px 16px',
+                        padding: '0.75rem 1rem',
                         border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
                         borderRadius: '12px',
                         fontSize: '1rem',
@@ -632,7 +576,7 @@ const Contactenos = () => {
                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         resize: 'vertical',
                         fontFamily: 'inherit',
-                        color: '#fff'
+                        color: theme === 'dark' ? '#fff' : '#111827'
                       }}
                       onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#fbbf24'}
                       onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(251, 191, 36, 0.25)'}
@@ -647,8 +591,8 @@ const Contactenos = () => {
                       color: '#000',
                       border: 'none',
                       borderRadius: '50px',
-                      padding: '16px 32px',
-                      fontSize: '1.1rem',
+                      padding: '0.75rem 1.5rem',
+                      fontSize: '1rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       boxShadow: '0 8px 25px rgba(251, 191, 36, 0.4)',
@@ -694,8 +638,8 @@ const Contactenos = () => {
                   background: theme === 'dark'
                     ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
                     : 'rgba(255, 255, 255, 0.97)',
-                  borderRadius: '24px',
-                  padding: '32px',
+                  borderRadius: '1rem',
+                  padding: '1.5rem',
                   backdropFilter: 'blur(20px)',
                   border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
                   boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
@@ -733,7 +677,7 @@ const Contactenos = () => {
                   <div>
                     <h3
                       style={{
-                        fontSize: '1.4rem',
+                        fontSize: '1.25rem',
                         fontWeight: '700',
                         color: '#fff',
                         margin: 0
@@ -744,7 +688,7 @@ const Contactenos = () => {
                     <p
                       style={{
                         color: '#d1d5db',
-                        fontSize: '0.95rem',
+                        fontSize: '0.85rem',
                         margin: 0
                       }}
                     >
@@ -783,9 +727,9 @@ const Contactenos = () => {
                 </div>
 
                 {/* Acciones de Google Maps */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '12px', 
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
                   flexWrap: 'wrap',
                   marginBottom: '8px'
                 }} className="map-actions">
@@ -830,7 +774,7 @@ const Contactenos = () => {
                       gap: '8px',
                       background: 'rgba(251, 191, 36, 0.1)',
                       color: '#fbbf24',
-                      padding: '12px 20px',
+                      padding: '0.5rem 1rem',
                       borderRadius: '25px',
                       textDecoration: 'none',
                       fontSize: '0.9rem',
@@ -847,175 +791,174 @@ const Contactenos = () => {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    <Calendar size={16} />
+                    <MapPin size={16} />
                     Cómo Llegar
                   </a>
                 </div>
 
                 {/* Información adicional (oculta; contenido reubicado a Avales) */}
                 {false && (
-                <div
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))',
-                    borderRadius: '16px',
-                    padding: '24px',
-                    border: '1px solid rgba(251, 191, 36, 0.3)',
-                    boxShadow: '0 15px 35px rgba(251, 191, 36, 0.1)'
-                  }}
-                  data-aos="fade-up"
-                >
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr 1fr',
-                      gap: '16px'
+                      background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      border: '1px solid rgba(251, 191, 36, 0.3)',
+                      boxShadow: '0 15px 35px rgba(251, 191, 36, 0.1)'
                     }}
+                    data-aos="fade-up"
                   >
-                    {['Docentes Expertos', 'Prácticas Reales', 'Bolsa de Empleo'].map((item, idx) => (
-                      <div key={idx} style={{ color: '#fff' }}>{item}</div>
-                    ))}
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr 1fr',
+                        gap: '16px'
+                      }}
+                    >
+                      {['Docentes Expertos', 'Prácticas Reales', 'Bolsa de Empleo'].map((item, idx) => (
+                        <div key={idx} style={{ color: '#fff' }}>{item}</div>
+                      ))}
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
 
-              {/* Redes Sociales (bento) como caja separada en la misma columna */}
+              {/* Redes Sociales Minimalista */}
               <div
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
-                  borderRadius: '18px',
-                  padding: '24px',
-                  border: '1px solid rgba(251, 191, 36, 0.15)',
-                  boxShadow: '0 16px 30px rgba(0, 0, 0, 0.35)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  marginTop: '20px'
+                  marginTop: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  padding: '0 0.5rem'
                 }}
                 data-aos="fade-up"
               >
-                <span className="shimmer-overlay" aria-hidden="true" style={{ animationDelay: '1.2s', borderRadius: 'inherit' }} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ width: '50px', height: '50px', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <MessageCircle size={22} color="#000" />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: 0 }}>Redes Sociales</h3>
-                    <p style={{ color: '#d1d5db', fontSize: '0.95rem', margin: 0 }}>Síguenos y contáctanos directamente en nuestras redes.</p>
-                  </div>
+                <div>
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: theme === 'dark' ? '#fff' : '#111827', margin: 0 }}>
+                    Síguenos
+                  </h3>
+                  <p style={{ color: theme === 'dark' ? '#9ca3af' : '#6b7280', fontSize: '0.75rem', margin: 0 }}>
+                    En nuestras redes sociales
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }} className="social-actions">
-                  {/* Botones existentes: WhatsApp, Instagram, TikTok, Facebook */}
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  {/* WhatsApp */}
                   <a
-                    href="https://wa.me/"
+                    href="https://wa.me/593995562241"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      display: 'inline-flex',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      background: 'rgba(34, 197, 94, 0.15)',
+                      color: theme === 'dark' ? '#fff' : '#22c55e',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '10px',
-                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                      color: '#000',
-                      padding: '12px 18px',
-                      borderRadius: '28px',
-                      textDecoration: 'none',
-                      fontWeight: 700,
-                      border: '1px solid rgba(34, 197, 94, 0.35)',
-                      transition: 'all 0.2s ease'
+                      justifyContent: 'center',
+                      transition: 'transform 0.2s ease, background 0.2s ease',
+                      border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.filter = 'brightness(1.05)';
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.1)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
                       e.currentTarget.style.filter = 'none';
                     }}
                   >
-                    <MessageCircle size={18} /> WhatsApp
+                    <MessageCircle size={18} />
                   </a>
 
+                  {/* Instagram */}
                   <a
-                    href="https://www.instagram.com/escuelajessicavelez/?igshid=MWtxMXBhMmFxMmN5bg%3D%3D#"
+                    href="https://www.instagram.com/escuelajessicavelez/"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      display: 'inline-flex',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      background: 'rgba(190, 24, 93, 0.15)',
+                      color: theme === 'dark' ? '#fff' : '#be185d',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      background: 'rgba(225, 48, 108, 0.15)',
-                      color: '#fff',
-                      padding: '12px 18px',
-                      borderRadius: '28px',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(225, 48, 108, 0.35)',
-                      transition: 'all 0.2s ease'
+                      justifyContent: 'center',
+                      transition: 'transform 0.2s ease, background 0.2s ease',
+                      border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.background = 'rgba(225, 48, 108, 0.22)';
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.1)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.background = 'rgba(225, 48, 108, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.filter = 'none';
                     }}
                   >
-                    <Instagram size={18} /> Instagram
+                    <Instagram size={18} />
                   </a>
 
+                  {/* TikTok */}
                   <a
                     href="#tiktok"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      display: 'inline-flex',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      background: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)',
+                      color: theme === 'dark' ? '#fff' : '#000',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      background: 'rgba(255, 255, 255, 0.12)',
-                      color: '#fff',
-                      padding: '12px 18px',
-                      borderRadius: '28px',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(255, 255, 255, 0.25)',
-                      transition: 'all 0.2s ease'
+                      justifyContent: 'center',
+                      transition: 'transform 0.2s ease, background 0.2s ease',
+                      border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.1)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.filter = 'none';
                     }}
                   >
-                    <TikTokIcon size={18} /> TikTok
+                    <TikTokIcon size={18} color={theme === 'dark' ? '#fff' : '#000'} />
                   </a>
 
+                  {/* Facebook */}
                   <a
                     href="#facebook"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      display: 'inline-flex',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      background: 'rgba(29, 78, 216, 0.15)',
+                      color: theme === 'dark' ? '#fff' : '#1d4ed8',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      background: 'rgba(66, 103, 178, 0.15)',
-                      color: '#fff',
-                      padding: '12px 18px',
-                      borderRadius: '28px',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(66, 103, 178, 0.35)',
-                      transition: 'all 0.2s ease'
+                      justifyContent: 'center',
+                      transition: 'transform 0.2s ease, background 0.2s ease',
+                      border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.background = 'rgba(66, 103, 178, 0.22)';
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.1)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.background = 'rgba(66, 103, 178, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.filter = 'none';
                     }}
                   >
-                    <Facebook size={18} /> Facebook
+                    <Facebook size={18} fill={theme === 'dark' ? '#fff' : '#1d4ed8'} />
                   </a>
                 </div>
               </div>
@@ -1026,185 +969,185 @@ const Contactenos = () => {
 
           {/* Llamada a la acción final */}
           {false && (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '24px',
-              padding: '32px',
-              border: '1px solid rgba(251, 191, 36, 0.15)',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-              position: 'relative',
-              overflow: 'hidden',
-              transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-              opacity: isVisible ? 1 : 0,
-              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              transitionDelay: '1200ms',
-              marginBottom: '60px'
-            }}
-            data-aos="fade-up"
-          >
-            <span className="shimmer-overlay" aria-hidden="true" style={{ animationDelay: '1.2s' }} />
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                marginBottom: '24px'
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '32px',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                position: 'relative',
+                overflow: 'hidden',
+                transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
+                opacity: isVisible ? 1 : 0,
+                transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                transitionDelay: '1200ms',
+                marginBottom: '60px'
               }}
+              data-aos="fade-up"
             >
+              <span className="shimmer-overlay" aria-hidden="true" style={{ animationDelay: '1.2s' }} />
               <div
                 style={{
-                  width: '50px',
-                  height: '50px',
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  gap: '16px',
+                  marginBottom: '24px'
                 }}
               >
-                <MessageCircle size={22} color="#000" />
-              </div>
-              <div>
-                <h3
+                <div
                   style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '700',
+                    width: '50px',
+                    height: '50px',
+                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <MessageCircle size={22} color="#000" />
+                </div>
+                <div>
+                  <h3
+                    style={{
+                      fontSize: '1.4rem',
+                      fontWeight: '700',
+                      color: '#fff',
+                      margin: 0
+                    }}
+                  >
+                    Redes Sociales
+                  </h3>
+                  <p
+                    style={{
+                      color: '#d1d5db',
+                      fontSize: '0.95rem',
+                      margin: 0
+                    }}
+                  >
+                    Síguenos y contáctanos directamente en nuestras redes.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {/* Botones existentes: WhatsApp, Instagram, TikTok, Facebook */}
+                <a
+                  href="https://wa.me/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    color: '#000',
+                    padding: '12px 18px',
+                    borderRadius: '28px',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    border: '1px solid rgba(34, 197, 94, 0.35)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.filter = 'brightness(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.filter = 'none';
+                  }}
+                >
+                  <MessageCircle size={18} /> WhatsApp
+                </a>
+
+                <a
+                  href="https://www.instagram.com/escuelajessicavelez/?igshid=MWtxMXBhMmFxMmN5bg%3D%3D#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(225, 48, 108, 0.15)',
                     color: '#fff',
-                    margin: 0
+                    padding: '12px 18px',
+                    borderRadius: '28px',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(225, 48, 108, 0.35)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.background = 'rgba(225, 48, 108, 0.22)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = 'rgba(225, 48, 108, 0.15)';
                   }}
                 >
-                  Redes Sociales
-                </h3>
-                <p
+                  <Instagram size={18} /> Instagram
+                </a>
+
+                <a
+                  href="#tiktok"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
-                    color: '#d1d5db',
-                    fontSize: '0.95rem',
-                    margin: 0
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(255, 255, 255, 0.12)',
+                    color: '#fff',
+                    padding: '12px 18px',
+                    borderRadius: '28px',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                   }}
                 >
-                  Síguenos y contáctanos directamente en nuestras redes.
-                </p>
+                  <TikTokIcon size={18} /> TikTok
+                </a>
+
+                <a
+                  href="#facebook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(66, 103, 178, 0.15)',
+                    color: '#fff',
+                    padding: '12px 18px',
+                    borderRadius: '28px',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(66, 103, 178, 0.35)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.background = 'rgba(66, 103, 178, 0.22)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = 'rgba(66, 103, 178, 0.15)';
+                  }}
+                >
+                  <Facebook size={18} /> Facebook
+                </a>
               </div>
             </div>
-
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              {/* Botones existentes: WhatsApp, Instagram, TikTok, Facebook */}
-              <a
-                href="https://wa.me/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  color: '#000',
-                  padding: '12px 18px',
-                  borderRadius: '28px',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  border: '1px solid rgba(34, 197, 94, 0.35)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.filter = 'brightness(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.filter = 'none';
-                }}
-              >
-                <MessageCircle size={18} /> WhatsApp
-              </a>
-
-              <a
-                href="https://www.instagram.com/escuelajessicavelez/?igshid=MWtxMXBhMmFxMmN5bg%3D%3D#"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(225, 48, 108, 0.15)',
-                  color: '#fff',
-                  padding: '12px 18px',
-                  borderRadius: '28px',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(225, 48, 108, 0.35)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.background = 'rgba(225, 48, 108, 0.22)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.background = 'rgba(225, 48, 108, 0.15)';
-                }}
-              >
-                <Instagram size={18} /> Instagram
-              </a>
-
-              <a
-                href="#tiktok"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(255, 255, 255, 0.12)',
-                  color: '#fff',
-                  padding: '12px 18px',
-                  borderRadius: '28px',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
-                }}
-              >
-                <TikTokIcon size={18} /> TikTok
-              </a>
-
-              <a
-                href="#facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(66, 103, 178, 0.15)',
-                  color: '#fff',
-                  padding: '12px 18px',
-                  borderRadius: '28px',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(66, 103, 178, 0.35)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.background = 'rgba(66, 103, 178, 0.22)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.background = 'rgba(66, 103, 178, 0.15)';
-                }}
-              >
-                <Facebook size={18} /> Facebook
-              </a>
-            </div>
-          </div>
           )}
         </div>
 

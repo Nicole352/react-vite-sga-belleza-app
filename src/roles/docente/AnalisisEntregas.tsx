@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Users, TrendingUp, Award, Clock, FileCheck,
-  Download, BarChart3, FileSpreadsheet
+  BarChart3, Table2
 } from 'lucide-react';
 import axios from 'axios';
 import { showToast } from '../../config/toastConfig';
@@ -117,11 +117,21 @@ const AnalisisEntregas: React.FC = () => {
     const pendientes = total - calificadas;
     const porcentajeCompletado = total > 0 ? Math.round((calificadas / total) * 100) : 0;
 
-    // Promedio de calificaciones
-    const calificacionesValidas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined);
-    const promedio = calificacionesValidas.length > 0
-      ? (calificacionesValidas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificacionesValidas.length).toFixed(2)
-      : '0.00';
+    // Promedio de calificaciones - SOLO de las entregas calificadas
+    const calificacionesValidas = entregas.filter(e => {
+      const calif = e.calificacion;
+      return calif !== null && calif !== undefined && !isNaN(Number(calif));
+    });
+
+    let promedio = '0.00';
+    if (calificacionesValidas.length > 0) {
+      const suma = calificacionesValidas.reduce((sum, e) => {
+        const valor = Number(e.calificacion);
+        return sum + (isNaN(valor) ? 0 : valor);
+      }, 0);
+      const promedioNum = suma / calificacionesValidas.length;
+      promedio = isNaN(promedioNum) || !isFinite(promedioNum) ? '0.00' : promedioNum.toFixed(2);
+    }
 
     // Notas máxima y mínima
     const notaMaxima = calificacionesValidas.length > 0
@@ -192,7 +202,7 @@ const AnalisisEntregas: React.FC = () => {
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
           }} />
-          <p style={{ color: theme.textSecondary, fontSize: '1.1rem' }}>Cargando análisis...</p>
+          <p style={{ color: theme.textSecondary, fontSize: '0.8rem' }}>Cargando análisis...</p>
         </div>
       </div>
     );
@@ -207,213 +217,169 @@ const AnalisisEntregas: React.FC = () => {
       paddingBottom: '0',
       paddingTop: '0'
     }}>
-      {/* Botón Volver */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: 'none',
-            color: '#3b82f6',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            transition: 'all 0.2s',
-            boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
-            e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-            e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
-          }}
-        >
-          <ArrowLeft size={16} />
-          Volver a Detalles del Curso
-        </button>
-      </div>
+      {/* Header Compacto */}
+      <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '2rem',
+              height: '2rem',
+              borderRadius: '50%',
+              background: 'var(--docente-card-bg)',
+              border: '1px solid var(--docente-border)',
+              color: 'var(--docente-text-secondary)',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--docente-accent)';
+              e.currentTarget.style.borderColor = 'var(--docente-accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--docente-text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--docente-border)';
+            }}
+            title="Volver"
+          >
+            <ArrowLeft size={16} />
+          </button>
 
-      {/* Header */}
-      <div style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
           <div style={{
-            width: '3rem',
-            height: '3rem',
-            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            borderRadius: '0.875rem',
+            width: '2.5rem',
+            height: '2.5rem',
+            background: 'linear-gradient(135deg, var(--docente-accent), #2563eb)',
+            borderRadius: '0.5rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            color: '#fff'
           }}>
-            <BarChart3 size={24} strokeWidth={2.5} color="#fff" />
+            <BarChart3 size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
-              Análisis Completo de Entregas
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '700', margin: 0, color: 'var(--docente-text-primary)', letterSpacing: '-0.02em' }}>
+              Análisis de Entregas
             </h1>
-            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--docente-text-secondary)', margin: 0, fontWeight: '500' }}>
               {tareaInfo?.titulo || 'Cargando...'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Herramientas de Gestión */}
+      {/* Herramientas de Gestión Compactas */}
       <div style={{
         background: 'var(--docente-card-bg)',
-        borderRadius: '0.875rem',
-        padding: '1rem',
-        marginBottom: '1rem',
+        borderRadius: '0.5rem',
+        padding: '0.75rem',
+        marginBottom: '0.75rem',
         border: '1px solid var(--docente-border)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem'
-        }}>
-          <div>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: '700', margin: 0, color: theme.textPrimary }}>
-              Herramientas de Gestión
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
-              Exportación, filtros y estadísticas disponibles
-            </p>
-          </div>
+        <div>
+          <h3 style={{ fontSize: '0.8rem', fontWeight: '700', margin: 0, color: 'var(--docente-text-primary)' }}>
+            Herramientas
+          </h3>
+          <p style={{ fontSize: '0.65rem', color: 'var(--docente-text-secondary)', margin: 0 }}>
+            Gestión de datos
+          </p>
+        </div>
 
-          {/* Botón Exportar a Excel */}
-          <button
-            onClick={async () => {
-              try {
-                const ExcelJS = await import('exceljs');
-                const { saveAs } = await import('file-saver');
+        {/* Botón Exportar a Excel */}
+        <button
+          onClick={async () => {
+            try {
+              const ExcelJS = await import('exceljs');
+              const { saveAs } = await import('file-saver');
 
-                const workbook = new ExcelJS.Workbook();
+              const workbook = new ExcelJS.Workbook();
 
-                // Función auxiliar para ajustar ancho de columnas
-                const ajustarAnchoColumnas = (worksheet: any) => {
-                  worksheet.columns.forEach((column: any) => {
-                    let maxLength = 0;
-                    column.eachCell({ includeEmpty: true }, (cell: any) => {
-                      const columnLength = cell.value ? cell.value.toString().length : 10;
-                      if (columnLength > maxLength) {
-                        maxLength = columnLength;
-                      }
-                    });
-                    column.width = maxLength + 2;
+              // Obtener información del docente
+              const docenteStr = sessionStorage.getItem('auth_user');
+              const docenteObj = docenteStr ? JSON.parse(docenteStr) : null;
+              const rawNombre = docenteObj?.nombre || docenteObj?.nombres || '';
+              const rawApellido = docenteObj?.apellido || docenteObj?.apellidos || '';
+              const nombreDocente = (rawApellido || rawNombre) ? `${rawApellido}, ${rawNombre}`.trim() : 'Docente';
+
+              // Pie de página estándar
+              const standardFooter = {
+                oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
+              };
+
+              // Función auxiliar para ajustar ancho de columnas
+              const ajustarAnchoColumnas = (worksheet: any) => {
+                worksheet.columns.forEach((column: any, colIdx: number) => {
+                  let maxLength = 0;
+                  column.eachCell({ includeEmpty: true }, (cell: any, rowIdx: number) => {
+                    // Ignorar filas 1 y 2 (títulos dinámicos que están merged)
+                    if (rowIdx <= 2) return;
+
+                    const cellValue = cell.value ? cell.value.toString() : "";
+                    let currentLen = cellValue.length;
+
+                    // Si es un header (Fila 4) y es muy largo, lo limitamos
+                    if (rowIdx === 4 && currentLen > 15) currentLen = 15;
+
+                    if (currentLen > maxLength) maxLength = currentLen;
                   });
-                };
 
-                // Crear hoja de Excel
-                const ws = workbook.addWorksheet('Entregas', {
-                  pageSetup: {
-                    paperSize: 9, // A4
-                    orientation: 'landscape',
-                    fitToPage: true,
-                    fitToWidth: 1,
-                    fitToHeight: 0,
-                    margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+                  // Ajustes específicos por contenido conocido
+                  let finalWidth = maxLength + 3;
+
+                  // Columna # (índice 0)
+                  if (colIdx === 0) finalWidth = 6;
+                  // Apellido y Nombre (índice 1 y 2)
+                  else if (colIdx === 1 || colIdx === 2) {
+                    if (finalWidth > 25) finalWidth = 25;
+                    if (finalWidth < 15) finalWidth = 15;
                   }
+                  // Otras columnas
+                  else {
+                    if (finalWidth > 20) finalWidth = 20;
+                    if (finalWidth < 12) finalWidth = 12;
+                  }
+
+                  column.width = finalWidth;
                 });
+              };
 
-                // Encabezados
-                const headers = ['#', 'Apellido', 'Nombre', 'Fecha Entrega', 'Calificación', 'Estado', 'Comentario'];
-                const headerRow = ws.addRow(headers);
+              // Crear hoja de Excel
+              const ws = workbook.addWorksheet('Entregas', {
+                pageSetup: {
+                  paperSize: 9, // A4
+                  orientation: 'landscape',
+                  fitToPage: true,
+                  fitToWidth: 1,
+                  fitToHeight: 0,
+                  margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+                },
+                headerFooter: standardFooter
+              });
 
-                // Estilos de encabezados
-                headerRow.eachCell((cell) => {
-                  cell.style = {
-                    font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
-                    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
-                    alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
-                    border: {
-                      top: { style: 'thin' },
-                      bottom: { style: 'thin' },
-                      left: { style: 'thin' },
-                      right: { style: 'thin' }
-                    }
-                  };
-                });
-                headerRow.height = 30;
+              // Insertar 3 filas al inicio para el encabezado informativo
+              ws.spliceRows(1, 0, [], [], []);
+              ws.getRow(1).height = 25;
+              ws.getRow(2).height = 35;
 
-                // Datos
-                entregas.forEach((e, index) => {
-                  const rowData = [
-                    index + 1,
-                    e.estudiante_apellido,
-                    e.estudiante_nombre,
-                    new Date(e.fecha_entrega).toLocaleString('es-EC', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }),
-                    e.calificacion !== null ? e.calificacion : '-',
-                    e.calificacion !== null ? 'Calificada' : 'Pendiente',
-                    e.comentario || 'Sin comentario'
-                  ];
+              // Encabezados de datos
+              const headers = ['#', 'Apellido', 'Nombre', 'Fecha Entrega', 'Calificación', 'Estado', 'Comentario'];
+              const headerRow = ws.addRow(headers);
 
-                  const row = ws.addRow(rowData);
-
-                  row.eachCell((cell, colNumber) => {
-                    cell.border = {
-                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
-                    };
-                    cell.alignment = {
-                      vertical: 'middle',
-                      horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center')
-                    };
-
-                    // Formato numérico para columna # (índice)
-                    if (colNumber === 1 && typeof cell.value === 'number') {
-                      cell.numFmt = '0';
-                    }
-                    // Formato numérico para calificación
-                    else if (colNumber === 5 && typeof cell.value === 'number') {
-                      cell.numFmt = '0.00';
-                    }
-                  });
-                });
-                // ============================================
-                // SECCIÓN DE RESUMEN ESTADÍSTICO
-                // ============================================
-
-                // Agregar fila vacía de separación
-                ws.addRow([]);
-                ws.addRow([]);
-
-                // Calcular estadísticas
-                const totalEntregas = entregas.length;
-                const calificadas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined).length;
-                const pendientes = totalEntregas - calificadas;
-                const aprobadas = entregas.filter(e => (e.calificacion || 0) >= 7).length;
-                const promedioGeneral = calificadas > 0
-                  ? (entregas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificadas)
-                  : 0;
-
-                // Título del resumen
-                const tituloResumen = ws.addRow(['RESUMEN ESTADÍSTICO']);
-                ws.mergeCells(tituloResumen.number, 1, tituloResumen.number, 7);
-                tituloResumen.getCell(1).style = {
-                  font: { bold: true, color: { argb: 'FFFFFF' }, size: 12 },
-                  fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
-                  alignment: { horizontal: 'center', vertical: 'middle' },
+              // Estilos de encabezados
+              headerRow.eachCell((cell) => {
+                cell.style = {
+                  font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
+                  fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
+                  alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
                   border: {
                     top: { style: 'thin' },
                     bottom: { style: 'thin' },
@@ -421,145 +387,241 @@ const AnalisisEntregas: React.FC = () => {
                     right: { style: 'thin' }
                   }
                 };
-                tituloResumen.height = 25;
+              });
+              headerRow.height = 30;
 
-                // Datos del resumen
-                const datosResumen = [
-                  ['Total de Entregas', totalEntregas],
-                  ['Tareas Calificadas', calificadas],
-                  ['Tareas Pendientes de Calificar', pendientes],
-                  ['Tareas Aprobadas (≥7.0)', aprobadas],
-                  ['Promedio General', promedioGeneral > 0 ? promedioGeneral : '-']
+              // Datos
+              entregas.forEach((e, index) => {
+                const rowData = [
+                  index + 1,
+                  e.estudiante_apellido,
+                  e.estudiante_nombre,
+                  new Date(e.fecha_entrega).toLocaleString('es-EC', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }),
+                  e.calificacion !== null ? e.calificacion : '-',
+                  e.calificacion !== null ? 'Calificada' : 'Pendiente',
+                  e.comentario || 'Sin comentario'
                 ];
 
-                datosResumen.forEach((dato) => {
-                  const row = ws.addRow(['', dato[0], dato[1]]);
+                const row = ws.addRow(rowData);
 
-                  // Estilo para la etiqueta (columna B)
-                  row.getCell(2).style = {
-                    font: { bold: true, size: 10 },
-                    alignment: { horizontal: 'left', vertical: 'middle' },
-                    border: {
-                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
-                    }
+                row.eachCell((cell, colNumber) => {
+                  cell.border = {
+                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                  };
+                  cell.alignment = {
+                    vertical: 'middle',
+                    horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center')
                   };
 
-                  // Estilo para el valor (columna C)
-                  row.getCell(3).style = {
-                    font: { bold: true, size: 11, color: { argb: '0284C7' } },
-                    alignment: { horizontal: 'center', vertical: 'middle' },
-                    border: {
-                      top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                      right: { style: 'thin', color: { argb: 'E5E7EB' } }
-                    }
-                  };
-
-                  // Formato numérico para el promedio
-                  if (dato[0] === 'Promedio General' && typeof row.getCell(3).value === 'number') {
-                    row.getCell(3).numFmt = '0.00';
+                  // Formato numérico para columna # (índice)
+                  if (colNumber === 1 && typeof cell.value === 'number') {
+                    cell.numFmt = '0';
+                  }
+                  // Formato numérico para calificación
+                  else if (colNumber === 5 && typeof cell.value === 'number') {
+                    cell.numFmt = '0.00';
                   }
                 });
+              });
+              // ============================================
+              // SECCIÓN DE RESUMEN ESTADÍSTICO
+              // ============================================
 
-                ajustarAnchoColumnas(ws);
+              // Agregar fila vacía de separación
+              ws.addRow([]);
+              ws.addRow([]);
 
-                // Limpiar nombres para el archivo
-                const limpiarNombre = (texto: string) => {
-                  return texto
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
-                    .replace(/[^a-zA-Z0-9]/g, '_')
-                    .replace(/_+/g, '_')
-                    .replace(/^_|_$/g, '');
+              // Calcular estadísticas
+              const totalEntregas = entregas.length;
+              const calificadas = entregas.filter(e => e.calificacion !== null && e.calificacion !== undefined).length;
+              const pendientes = totalEntregas - calificadas;
+              const aprobadas = entregas.filter(e => (e.calificacion || 0) >= 7).length;
+              const promedioGeneral = calificadas > 0
+                ? (entregas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificadas)
+                : 0;
+
+              // Título del resumen
+              const tituloResumen = ws.addRow(['RESUMEN ESTADÍSTICO']);
+              ws.mergeCells(tituloResumen.number, 1, tituloResumen.number, 7);
+              tituloResumen.getCell(1).style = {
+                font: { bold: true, color: { argb: 'FFFFFF' }, size: 12 },
+                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
+                alignment: { horizontal: 'center', vertical: 'middle' },
+                border: {
+                  top: { style: 'thin' },
+                  bottom: { style: 'thin' },
+                  left: { style: 'thin' },
+                  right: { style: 'thin' }
+                }
+              };
+              tituloResumen.height = 25;
+
+              // Datos del resumen
+              const datosResumen = [
+                ['Total de Entregas', totalEntregas],
+                ['Tareas Calificadas', calificadas],
+                ['Tareas Pendientes de Calificar', pendientes],
+                ['Tareas Aprobadas (≥7.0)', aprobadas],
+                ['Promedio General', promedioGeneral > 0 ? promedioGeneral : '-']
+              ];
+
+              datosResumen.forEach((dato) => {
+                const row = ws.addRow(['', dato[0], dato[1]]);
+
+                // Estilo para la etiqueta (columna B)
+                row.getCell(2).style = {
+                  font: { bold: true, size: 10 },
+                  alignment: { horizontal: 'left', vertical: 'middle' },
+                  border: {
+                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                  }
                 };
 
-                const cursoNombre = limpiarNombre(tareaInfo?.curso_nombre || 'Curso');
-                const moduloNombre = limpiarNombre(tareaInfo?.modulo_nombre || 'Modulo');
-                const tareaNombre = limpiarNombre(tareaInfo?.titulo || 'Tarea');
-                const fecha = new Date().toISOString().split('T')[0];
+                // Estilo para el valor (columna C)
+                row.getCell(3).style = {
+                  font: { bold: true, size: 11, color: { argb: '0284C7' } },
+                  alignment: { horizontal: 'center', vertical: 'middle' },
+                  border: {
+                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
+                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                  }
+                };
 
-                // Generar y descargar
-                const buffer = await workbook.xlsx.writeBuffer();
-                const nombreArchivo = `Entregas_${cursoNombre}_${moduloNombre}_${tareaNombre}_${fecha}.xlsx`;
+                // Formato numérico para el promedio
+                if (dato[0] === 'Promedio General' && typeof row.getCell(3).value === 'number') {
+                  row.getCell(3).numFmt = '0.00';
+                }
+              });
 
-                const blob = new Blob([buffer], {
-                  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                });
-                saveAs(blob, nombreArchivo);
+              // ============================================
+              // CONFIGURACIÓN FINAL DE ENCABEZADOS SUPERIORES (Merge Dinámico)
+              // ============================================
+              const totalCols = headers.length;
+              if (totalCols > 0) {
+                // Fila 1: Título
+                ws.mergeCells(1, 1, 1, totalCols);
+                const cellTitle = ws.getCell(1, 1);
+                cellTitle.value = `ANÁLISIS DE ENTREGAS - ${tareaInfo?.titulo || 'Tarea'}`;
+                cellTitle.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+                cellTitle.alignment = { horizontal: 'center', vertical: 'middle' };
+                cellTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
 
-                showToast.success('Archivo Excel descargado', darkMode);
-              } catch (error) {
-                console.error('Error generando Excel:', error);
-                showToast.error('Error al generar el Excel', darkMode);
+                // Fila 2: Info Docente y Curso
+                ws.mergeCells(2, 1, 2, totalCols);
+                const cellInfo = ws.getCell(2, 1);
+                cellInfo.value = `Docente: ${nombreDocente} | Curso: ${tareaInfo?.curso_nombre || ''} | Módulo: ${tareaInfo?.modulo_nombre || ''}`;
+                cellInfo.font = { size: 10, name: 'Calibri' };
+                cellInfo.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                cellInfo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
               }
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              border: 'none',
-              borderRadius: '0.5rem',
-              padding: '0.5rem 1rem',
-              color: '#fff',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontWeight: '600',
-              fontSize: '0.875rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
-            }}
-          >
-            <FileSpreadsheet size={16} />
-            Exportar a Excel
-          </button>
 
-        </div>
+              ajustarAnchoColumnas(ws);
+
+              // Limpiar nombres para el archivo
+              const limpiarNombre = (texto: string) => {
+                return texto
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .replace(/[^a-zA-Z0-9]/g, '_')
+                  .replace(/_+/g, '_')
+                  .replace(/^_|_$/g, '');
+              };
+
+              const cursoNombre = limpiarNombre(tareaInfo?.curso_nombre || 'Curso');
+              const moduloNombre = limpiarNombre(tareaInfo?.modulo_nombre || 'Modulo');
+              const tareaNombre = limpiarNombre(tareaInfo?.titulo || 'Tarea');
+              const fecha = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guayaquil' });
+
+              // Generar y descargar
+              const buffer = await workbook.xlsx.writeBuffer();
+              const nombreArchivo = `Entregas_${cursoNombre}_${moduloNombre}_${tareaNombre}_${fecha}.xlsx`;
+
+              const blob = new Blob([buffer], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              });
+              saveAs(blob, nombreArchivo);
+
+              showToast.success('Archivo Excel descargado', darkMode);
+            } catch (error) {
+              console.error('Error generando Excel:', error);
+              showToast.error('Error al generar el Excel', darkMode);
+            }
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            border: 'none',
+            borderRadius: '0.5rem',
+            padding: '0.5rem 1rem',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontWeight: '700',
+            fontSize: '0.875rem',
+            boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.25)';
+          }}
+        >
+          <Table2 size={18} strokeWidth={2.5} />
+          Descargar Excel
+        </button>
       </div>
 
-      {/* Tarjetas de Estadísticas */}
+      {/* Tarjetas de Estadísticas Compactas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: '0.75rem',
-        marginBottom: '1rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+        gap: '0.5rem',
+        marginBottom: '0.75rem'
       }}>
         {/* Total Estudiantes */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.75rem',
-          padding: '0.875rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2rem',
+              height: '2rem',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              borderRadius: '0.75rem',
+              borderRadius: '0.375rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Users size={18} color="#fff" />
+              <Users size={14} color="#fff" />
             </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
-                Total Estudiantes
+              <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: 0, fontWeight: '600' }}>
+                Estudiantes
               </p>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {stats.total}
               </h2>
             </div>
@@ -569,28 +631,28 @@ const AnalisisEntregas: React.FC = () => {
         {/* Calificadas */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.75rem',
-          padding: '0.875rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2rem',
+              height: '2rem',
               background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-              borderRadius: '0.75rem',
+              borderRadius: '0.375rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <FileCheck size={18} color="#fff" />
+              <FileCheck size={14} color="#fff" />
             </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
+              <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: 0, fontWeight: '600' }}>
                 Calificadas
               </p>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {stats.calificadas}
               </h2>
             </div>
@@ -600,28 +662,28 @@ const AnalisisEntregas: React.FC = () => {
         {/* Pendientes */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.75rem',
-          padding: '0.875rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2rem',
+              height: '2rem',
               background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              borderRadius: '0.75rem',
+              borderRadius: '0.375rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Clock size={18} color="#fff" />
+              <Clock size={14} color="#fff" />
             </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
+              <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: 0, fontWeight: '600' }}>
                 Pendientes
               </p>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {stats.pendientes}
               </h2>
             </div>
@@ -631,28 +693,28 @@ const AnalisisEntregas: React.FC = () => {
         {/* Promedio */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.75rem',
-          padding: '0.875rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2rem',
+              height: '2rem',
               background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-              borderRadius: '0.75rem',
+              borderRadius: '0.375rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <TrendingUp size={18} color="#fff" />
+              <TrendingUp size={14} color="#fff" />
             </div>
             <div>
-              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: 0, fontWeight: '500' }}>
-                Promedio General
+              <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: 0, fontWeight: '600' }}>
+                Promedio
               </p>
-              <h2 style={{ color: theme.textPrimary, fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
+              <h2 style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {stats.promedio}
               </h2>
             </div>
@@ -660,39 +722,39 @@ const AnalisisEntregas: React.FC = () => {
         </div>
       </div>
 
-      {/* Gráficos y Detalles */}
+      {/* Gráficos y Detalles Compactos */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '0.75rem',
+        marginBottom: '0.75rem'
       }}>
         {/* Progreso de Calificación */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.875rem',
-          padding: '1rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
-              Progreso de Calificación
+          <div style={{ marginBottom: '0.75rem' }}>
+            <h3 style={{ color: 'var(--docente-text-primary)', fontSize: '0.8rem', fontWeight: '700', margin: 0 }}>
+              Progreso
             </h3>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>Completado</span>
-              <span style={{ color: theme.accent, fontSize: '1.1rem', fontWeight: '700' }}>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+              <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.75rem' }}>Completado</span>
+              <span style={{ color: 'var(--docente-accent)', fontSize: '0.85rem', fontWeight: '700' }}>
                 {stats.porcentajeCompletado}%
               </span>
             </div>
             <div style={{
               width: '100%',
-              height: '8px',
+              height: '6px',
               background: 'var(--docente-input-bg)',
-              borderRadius: '4px',
+              borderRadius: '3px',
               overflow: 'hidden'
             }}>
               <div style={{
@@ -705,33 +767,33 @@ const AnalisisEntregas: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
             <div style={{
-              background: 'var(--docente-card-bg)',
-              borderRadius: '0.5rem',
-              padding: '0.75rem',
+              background: 'var(--docente-bg)',
+              borderRadius: '0.375rem',
+              padding: '0.5rem',
               border: '1px solid var(--docente-border)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <TrendingUp size={16} style={{ color: '#06b6d4' }} />
-                <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Nota Máxima</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                <TrendingUp size={12} style={{ color: '#06b6d4' }} />
+                <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem' }}>Máxima</span>
               </div>
-              <p style={{ color: '#06b6d4', fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+              <p style={{ color: '#06b6d4', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {Number(stats.notaMaxima || 0).toFixed(2)}
               </p>
             </div>
 
             <div style={{
-              background: 'var(--docente-card-bg)',
-              borderRadius: '0.5rem',
-              padding: '0.75rem',
+              background: 'var(--docente-bg)',
+              borderRadius: '0.375rem',
+              padding: '0.5rem',
               border: '1px solid var(--docente-border)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Award size={16} style={{ color: '#60a5fa' }} />
-                <span style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>Nota Mínima</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                <Award size={12} style={{ color: '#60a5fa' }} />
+                <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem' }}>Mínima</span>
               </div>
-              <p style={{ color: '#60a5fa', fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
+              <p style={{ color: '#60a5fa', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
                 {Number(stats.notaMinima || 0).toFixed(2)}
               </p>
             </div>
@@ -741,86 +803,86 @@ const AnalisisEntregas: React.FC = () => {
         {/* Estado de Entregas */}
         <div style={{
           background: 'var(--docente-card-bg)',
-          borderRadius: '0.875rem',
-          padding: '1rem',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
           border: '1px solid var(--docente-border)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
-              Estado de Entregas
+          <div style={{ marginBottom: '0.75rem' }}>
+            <h3 style={{ color: 'var(--docente-text-primary)', fontSize: '0.8rem', fontWeight: '700', margin: 0 }}>
+              Estado
             </h3>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {/* Entregadas */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>Tareas Entregadas</span>
-                <span style={{ color: '#06b6d4', fontSize: '1rem', fontWeight: '700' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.75rem' }}>Entregadas</span>
+                <span style={{ color: '#06b6d4', fontSize: '0.8rem', fontWeight: '700' }}>
                   {stats.entregadas} ({stats.total > 0 ? Math.round((stats.entregadas / stats.total) * 100) : 0}%)
                 </span>
               </div>
               <div style={{
                 width: '100%',
-                height: '10px',
-                background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                borderRadius: '5px',
+                height: '6px',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                borderRadius: '3px',
                 overflow: 'hidden'
               }}>
                 <div style={{
                   width: `${stats.total > 0 ? (stats.entregadas / stats.total) * 100 : 0}%`,
                   height: '100%',
                   background: 'linear-gradient(90deg, #06b6d4 0%, #0891b2 100%)',
-                  borderRadius: '5px'
+                  borderRadius: '3px'
                 }} />
               </div>
             </div>
 
             {/* Atrasadas */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>Tareas Atrasadas</span>
-                <span style={{ color: '#60a5fa', fontSize: '1rem', fontWeight: '700' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.75rem' }}>Atrasadas</span>
+                <span style={{ color: '#60a5fa', fontSize: '0.8rem', fontWeight: '700' }}>
                   {stats.atrasadas} ({stats.total > 0 ? Math.round((stats.atrasadas / stats.total) * 100) : 0}%)
                 </span>
               </div>
               <div style={{
                 width: '100%',
-                height: '10px',
-                background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                borderRadius: '5px',
+                height: '6px',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                borderRadius: '3px',
                 overflow: 'hidden'
               }}>
                 <div style={{
                   width: `${stats.total > 0 ? (stats.atrasadas / stats.total) * 100 : 0}%`,
                   height: '100%',
                   background: 'linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%)',
-                  borderRadius: '5px'
+                  borderRadius: '3px'
                 }} />
               </div>
             </div>
 
             {/* No Entregadas */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ color: theme.textSecondary, fontSize: '0.9rem' }}>Tareas No Entregadas</span>
-                <span style={{ color: '#6366f1', fontSize: '1rem', fontWeight: '700' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ color: 'var(--docente-text-secondary)', fontSize: '0.75rem' }}>Sin Entregar</span>
+                <span style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '700' }}>
                   {stats.noEntregadas} ({stats.total > 0 ? Math.round((stats.noEntregadas / stats.total) * 100) : 0}%)
                 </span>
               </div>
               <div style={{
                 width: '100%',
-                height: '10px',
-                background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                borderRadius: '5px',
+                height: '6px',
+                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                borderRadius: '3px',
                 overflow: 'hidden'
               }}>
                 <div style={{
                   width: `${stats.total > 0 ? (stats.noEntregadas / stats.total) * 100 : 0}%`,
                   height: '100%',
                   background: 'linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)',
-                  borderRadius: '5px'
+                  borderRadius: '3px'
                 }} />
               </div>
             </div>
@@ -829,74 +891,75 @@ const AnalisisEntregas: React.FC = () => {
       </div>
 
       {/* Información de la Tarea */}
+      {/* Información de la Tarea Compacta */}
       <div style={{
         background: 'var(--docente-card-bg)',
-        borderRadius: '0.875rem',
-        padding: '1rem',
+        borderRadius: '0.5rem',
+        padding: '0.75rem',
         border: '1px solid var(--docente-border)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
       }}>
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ color: theme.textPrimary, fontSize: '0.875rem', fontWeight: '700', margin: 0 }}>
-            Información de la Tarea
+        <div style={{ marginBottom: '0.75rem' }}>
+          <h3 style={{ color: 'var(--docente-text-primary)', fontSize: '0.8rem', fontWeight: '700', margin: 0 }}>
+            Detalles
           </h3>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem' }}>
           <div style={{
-            background: 'var(--docente-card-bg)',
-            borderRadius: '0.5rem',
-            padding: '0.75rem',
+            background: 'var(--docente-bg)',
+            borderRadius: '0.375rem',
+            padding: '0.3rem 0.5rem',
             border: '1px solid var(--docente-border)'
           }}>
-            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
+            <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: '0 0 0.1rem 0', fontWeight: '500' }}>
               Nota Máxima
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
-              {Number(tareaInfo?.nota_maxima || 10).toFixed(2)} pts
+            <p style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.nota_maxima || 10).toFixed(2)}
             </p>
           </div>
 
           <div style={{
-            background: 'var(--docente-card-bg)',
-            borderRadius: '0.5rem',
-            padding: '0.75rem',
+            background: 'var(--docente-bg)',
+            borderRadius: '0.375rem',
+            padding: '0.3rem 0.5rem',
             border: '1px solid var(--docente-border)'
           }}>
-            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
+            <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: '0 0 0.1rem 0', fontWeight: '500' }}>
               Ponderación
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
-              {Number(tareaInfo?.ponderacion || 1).toFixed(2)} pts
+            <p style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.ponderacion || 1).toFixed(2)}
             </p>
           </div>
 
           <div style={{
-            background: 'var(--docente-card-bg)',
-            borderRadius: '0.5rem',
-            padding: '0.75rem',
+            background: 'var(--docente-bg)',
+            borderRadius: '0.375rem',
+            padding: '0.3rem 0.5rem',
             border: '1px solid var(--docente-border)'
           }}>
-            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
-              Nota Mínima Aprobación
+            <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: '0 0 0.1rem 0', fontWeight: '500' }}>
+              Min. Aprobación
             </p>
-            <p style={{ color: theme.textPrimary, fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
-              {Number(tareaInfo?.nota_minima_aprobacion || 7).toFixed(2)} pts
+            <p style={{ color: 'var(--docente-text-primary)', fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>
+              {Number(tareaInfo?.nota_minima_aprobacion || 7).toFixed(2)}
             </p>
           </div>
 
           <div style={{
-            background: 'var(--docente-card-bg)',
-            borderRadius: '0.5rem',
-            padding: '0.75rem',
+            background: 'var(--docente-bg)',
+            borderRadius: '0.375rem',
+            padding: '0.3rem 0.5rem',
             border: '1px solid var(--docente-border)'
           }}>
-            <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0 0 0.25rem 0', fontWeight: '500' }}>
+            <p style={{ color: 'var(--docente-text-secondary)', fontSize: '0.65rem', margin: '0 0 0.1rem 0', fontWeight: '500' }}>
               Estado
             </p>
             <p style={{
               color: stats.colorEstado,
-              fontSize: '1.25rem',
+              fontSize: '0.9rem',
               fontWeight: '800',
               margin: 0
             }}>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Sparkles, 
-  Star, 
-  Clock, 
-  Users, 
+import {
+  Sparkles,
+  Star,
+  Clock,
+  Users,
   Award,
   Eye,
   Palette,
@@ -192,8 +192,8 @@ const Cursos = () => {
         <div
           className="curso-card"
           style={{
-            background: theme === 'dark' 
-              ? 'rgba(255, 255, 255, 0.08)' 
+            background: theme === 'dark'
+              ? 'rgba(255, 255, 255, 0.08)'
               : 'rgba(255, 255, 255, 0.25)',
             backdropFilter: 'blur(25px) saturate(180%)',
             WebkitBackdropFilter: 'blur(25px) saturate(180%)',
@@ -208,15 +208,15 @@ const Cursos = () => {
             transform: isHovered ? 'translateY(-6px) scale(1.005)' : 'translateY(0) scale(1)',
             position: 'relative',
             height: '460px',
-            border: theme === 'dark' 
-              ? '1px solid rgba(255, 255, 255, 0.1)' 
+            border: theme === 'dark'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.3)',
             willChange: 'transform, box-shadow'
           }}
         >
           {/* Reflejo tipo shimmer */}
           <span className="shimmer-overlay" aria-hidden="true" />
-          
+
           {/* Badge de categoría con glassmorphism */}
           <div
             className="badge-categoria"
@@ -245,12 +245,12 @@ const Cursos = () => {
           </div>
 
           {/* Thumbnail con parallax y profundidad */}
-          <div 
+          <div
             className="thumbnail-container"
-            style={{ 
-              position: 'relative', 
-              height: '280px', 
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.65))', 
+            style={{
+              position: 'relative',
+              height: '280px',
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.65))',
               overflow: 'hidden',
               borderRadius: '32px 32px 0 0'
             }}
@@ -317,15 +317,15 @@ const Cursos = () => {
           <div
             style={{
               position: 'relative',
-              background: theme === 'dark' 
-                ? 'rgba(11, 11, 11, 0.75)' 
+              background: theme === 'dark'
+                ? 'rgba(11, 11, 11, 0.75)'
                 : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(20px) saturate(150%)',
               WebkitBackdropFilter: 'blur(20px) saturate(150%)',
               width: '100%',
-              padding: '22px 24px',
-              marginTop: isHovered ? -68 : -10,
-              transition: 'margin-top 0.3s ease-out',
+              padding: '1.2rem',
+              transform: isHovered ? 'translateY(-60px)' : 'translateY(0)',
+              transition: 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
               boxShadow: '0 -1px 0 rgba(0,0,0,0.08) inset',
               borderTop: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`,
               willChange: 'margin-top'
@@ -334,14 +334,13 @@ const Cursos = () => {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h3
                 style={{
-                  fontSize: '1.4rem',
-                  fontWeight: 800,
+                  fontSize: '1rem',
+                  fontWeight: 700,
                   color: theme === 'dark' ? 'rgba(255,255,255,0.98)' : 'rgba(31, 41, 55, 0.98)',
                   margin: 0,
-                  paddingBottom: 6,
+                  paddingBottom: 4,
                   lineHeight: 1.25,
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
-                  letterSpacing: '-0.5px'
+                  letterSpacing: '0px'
                 }}
               >
                 {curso.titulo}
@@ -350,11 +349,10 @@ const Cursos = () => {
               <h4
                 style={{
                   margin: 0,
-                  paddingBottom: 8,
+                  paddingBottom: 6,
                   color: '#fbbf24',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  fontSize: '0.8rem',
+                  fontWeight: 600
                 }}
               >
                 {curso.categoria}
@@ -362,15 +360,14 @@ const Cursos = () => {
 
               <p
                 style={{
-                  fontSize: '0.98rem',
+                  fontSize: '0.85rem',
                   color: theme === 'dark' ? 'rgba(255,255,255,0.78)' : 'rgba(31, 41, 55, 0.78)',
-                  lineHeight: 1.6,
+                  lineHeight: 1.5,
                   margin: 0,
                   overflow: 'hidden',
                   maxHeight: isHovered ? 132 : 0,
                   opacity: isHovered ? 1 : 0,
-                  transition: 'max-height 0.3s ease-out, opacity 0.25s ease-out',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  transition: 'max-height 0.3s ease-out, opacity 0.25s ease-out'
                 }}
               >
                 {curso.descripcion}
@@ -385,47 +382,44 @@ const Cursos = () => {
                   gap: 12,
                   marginTop: 14,
                   padding: '12px 14px',
-                  background: theme === 'dark' 
-                    ? 'rgba(255, 255, 255, 0.05)' 
+                  background: theme === 'dark'
+                    ? 'rgba(255, 255, 255, 0.05)'
                     : 'rgba(249, 250, 251, 0.6)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
                   borderRadius: 16,
-                  border: theme === 'dark' 
-                    ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  border: theme === 'dark'
+                    ? '1px solid rgba(255, 255, 255, 0.08)'
                     : '1px solid rgba(209, 160, 42, 0.15)',
                   boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
-                  <span style={{ 
-                    fontSize: '0.9rem', 
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
-                    fontWeight: 500,
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
+                    fontWeight: 500
                   }}>
                     {curso.duracion}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Users size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
-                  <span style={{ 
-                    fontSize: '0.9rem', 
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
-                    fontWeight: 500,
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
+                    fontWeight: 500
                   }}>
                     {curso.estudiantes}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{ 
-                    fontSize: '0.9rem', 
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)', 
-                    fontWeight: 500,
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif'
+                  <span style={{
+                    fontSize: '0.75rem',
+                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
+                    fontWeight: 500
                   }}>
                     {curso.rating}
                   </span>
@@ -443,8 +437,8 @@ const Cursos = () => {
                   fontWeight: 800,
                   border: 'none',
                   borderRadius: 999,
-                  padding: '12px 18px',
-                  fontSize: '0.98rem',
+                  padding: '10px 16px',
+                  fontSize: '0.85rem',
                   cursor: 'pointer',
                   boxShadow: `0 10px 28px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)`,
                   display: 'flex',
@@ -454,7 +448,6 @@ const Cursos = () => {
                   textDecoration: 'none',
                   transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
                   transform: isHovered ? 'translateY(-1px) scale(1.02)' : 'translateY(0) scale(1)',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
                   letterSpacing: '0.3px'
                 }}
                 onMouseEnter={(e) => {
@@ -612,7 +605,7 @@ const Cursos = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: 'clamp(120px, 20vw, 168px)',
+          paddingTop: '6rem',
           paddingBottom: '0px'
         }}
       >
@@ -636,9 +629,9 @@ const Cursos = () => {
 
         <div
           style={{
-            maxWidth: '1400px',
+            maxWidth: '90%',
             margin: '0 auto',
-            padding: '0 clamp(16px, 4vw, 24px)',
+            padding: '0 0.75rem',
             position: 'relative',
             zIndex: 1
           }}
@@ -648,8 +641,8 @@ const Cursos = () => {
             data-aos="fade-up"
             style={{
               textAlign: 'center',
-              marginBottom: '80px',
-              transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+              marginBottom: '1.5rem',
+              transform: isVisible ? 'translateY(0)' : 'translateY(1.875rem)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
@@ -657,13 +650,12 @@ const Cursos = () => {
             <h1
               className="gradient-text"
               style={{
-                fontSize: 'clamp(2.5rem, 8vw, 4rem)',
+                fontSize: '2.5rem',
                 fontWeight: '800',
                 color: '#1a1a1a',
-                marginBottom: '24px',
+                marginBottom: '0.5rem',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif',
                 letterSpacing: '-1px'
               }}
             >
@@ -675,10 +667,9 @@ const Cursos = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '12px',
-                fontSize: 'clamp(1rem, 3vw, 1.4rem)',
+                fontSize: '1.25rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                marginBottom: '16px',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif',
+                marginBottom: '1rem',
                 flexWrap: 'wrap',
                 padding: '0 16px'
               }}
@@ -688,12 +679,11 @@ const Cursos = () => {
             </div>
             <p
               style={{
-                fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
+                fontSize: '1rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                 maxWidth: '600px',
-                margin: '0 auto 32px',
+                margin: '0 auto 1.5rem',
                 lineHeight: 1.6,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif',
                 padding: '0 16px'
               }}
             >
@@ -707,8 +697,8 @@ const Cursos = () => {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
-              gap: '40px',
-              marginBottom: '40px'
+              gap: '1.5rem',
+              marginBottom: '2.5rem'
             }}
           >
             {cursosData.slice(0, 6).map((curso, index) => (
@@ -722,8 +712,8 @@ const Cursos = () => {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 460px))',
-              gap: '40px',
-              marginBottom: '100px',
+              gap: '1.5rem',
+              marginBottom: '6rem',
               justifyContent: 'center'
             }}
           >

@@ -21,7 +21,7 @@ interface Horario {
 }
 
 const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  const { isMobile } = useBreakpoints();
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,33 +58,18 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
     }
   };
 
-  const getThemeColors = () => {
-    if (darkMode) {
-      return {
-        cardBg: 'rgba(255, 255, 255, 0.05)',
-        textPrimary: '#fff',
-        textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
-        accent: '#3b82f6',
-        success: '#10b981',
-        warning: '#f59e0b'
-      };
-    } else {
-      return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
-        accent: '#3b82f6',
-        success: '#059669',
-        warning: '#d97706'
-      };
-    }
+  // Estilos usando variables CSS del tema docente
+  const theme = {
+    bg: darkMode ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.5)",
+    textPrimary: "var(--docente-text-primary)",
+    textSecondary: "var(--docente-text-secondary)",
+    textMuted: "var(--docente-text-muted)",
+    border: "var(--docente-border)",
+    cardBg: "var(--docente-card-bg)",
+    accent: "var(--docente-accent)",
+    success: "#10b981",
+    warning: "#f59e0b",
   };
-
-  const theme = getThemeColors();
 
   const diasAbreviados = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
@@ -107,8 +92,11 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
     const finEnMinutos = (horaF * 60) + minF;
     const baseMinutos = 7 * 60; // 7 AM
 
-    const top = ((inicioEnMinutos - baseMinutos) / 60) * 30; // 50px por hora
-    const height = ((finEnMinutos - inicioEnMinutos) / 60) * 30;
+    // Offset para que no se corte la hora 7
+    const offsetTop = 15;
+
+    const top = (((inicioEnMinutos - baseMinutos) / 60) * 36) + offsetTop;
+    const height = ((finEnMinutos - inicioEnMinutos) / 60) * 36;
 
     return { top, height };
   };
@@ -118,21 +106,56 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
   ];
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3.75em', color: theme.textSecondary }}>Cargando horario...</div>;
+    return (
+      <div style={{ textAlign: "center", padding: "4rem 2rem", flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div
+          style={{
+            width: "1.75rem",
+            height: "1.75rem",
+            border: `2.5px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+            borderTop: `2.5px solid ${theme.accent}`,
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite",
+            margin: "0 auto 0.75rem",
+          }}
+        />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <p style={{ color: theme.textSecondary, fontSize: "0.75rem", fontWeight: '600', margin: 0 }}>
+          Cargando horario...
+        </p>
+      </div>
+    );
   }
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ marginBottom: isMobile ? '0.5em' : '0.625em' }}>
-        <h2 style={{ 
-          color: theme.textPrimary, 
-          margin: '0 0 0.375rem 0',
-          fontSize: isMobile ? '1.25rem' : '1.5rem',
-          fontWeight: '700'
-        }}>
+      <div style={{ marginBottom: "0.5rem" }}>
+        <h2
+          style={{
+            fontSize: "1.25rem",
+            fontWeight: "700",
+            color: theme.textPrimary,
+            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
           Mi Horario Semanal
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: isMobile ? '0.75rem' : '0.8125rem', margin: 0 }}>
+        <p
+          style={{
+            color: theme.textSecondary,
+            fontSize: "0.75rem",
+            margin: 0,
+            marginTop: "0.1rem",
+          }}
+        >
           Visualiza tu calendario de clases
         </p>
       </div>
@@ -140,47 +163,44 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
       {/* Tabla de Horario Tipo Calendario */}
       <div className="responsive-table-container" style={{
         background: theme.cardBg,
-        border: `0.0625rem solid ${theme.border}`,
-        borderRadius: '1em',
-        padding: isMobile ? '0.5em' : '0.75em',
-        backdropFilter: 'blur(1.25rem)',
-        boxShadow: darkMode ? '0 0.625rem 1.875rem rgba(0, 0, 0, 0.3)' : '0 0.625rem 1.875rem rgba(0, 0, 0, 0.1)',
+        border: `1px solid ${theme.border}`,
+        borderRadius: '0.5rem',
+        padding: '0.5rem',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
         overflowX: 'auto',
         flex: 1
       }}>
-        <div style={{ minWidth: isMobile ? '40rem' : '56.25rem' }}>
+        <div style={{ minWidth: isMobile ? '600px' : '100%' }}>
           {/* Header con días de la semana */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
-            gap: '0.125em',
-            marginBottom: '0.125em'
+            gridTemplateColumns: '3rem repeat(7, 1fr)',
+            gap: '1px',
+            marginBottom: '1px'
           }}>
-            <div style={{ padding: '1em 0.5em' }}></div>
+            <div style={{ padding: '0.5rem' }}></div>
             {horariosPorDia.map(({ dia, diaAbreviado }) => (
               <div
                 key={dia}
                 style={{
-                  padding: '0.625em 0.375em',
-                  background: `linear-gradient(135deg, ${theme.accent}15, ${theme.accent}08)`,
-                  borderRadius: '0.625em 0.625em 0 0',
+                  padding: '0.4rem 0.25rem',
+                  background: darkMode
+                    ? `linear-gradient(to bottom, ${theme.cardBg}, rgba(255,255,255,0.02))`
+                    : `linear-gradient(to bottom, #f8fafc, #f1f5f9)`,
+                  borderRadius: '0.375rem 0.375rem 0 0',
                   textAlign: 'center',
-                  border: `0.0625rem solid ${theme.border}`,
                   borderBottom: 'none'
                 }}
               >
                 <div style={{
                   color: theme.accent,
                   fontSize: '0.7rem',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.03125em',
-                  marginBottom: '0.125em'
+                  marginBottom: '2px'
                 }}>
-                  {diaAbreviado}
-                </div>
-                <div style={{ color: theme.textPrimary, fontSize: '0.95rem', fontWeight: '700' }}>
-                  {dia}
+                  {isMobile ? diaAbreviado : dia}
                 </div>
               </div>
             ))}
@@ -189,27 +209,32 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
           {/* Grid de horarios */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '3rem repeat(7, 1fr)' : '5rem repeat(7, 1fr)',
-            gap: '0.125em',
-            position: 'relative'
+            gridTemplateColumns: '3rem repeat(7, 1fr)',
+            gap: '1px',
+            position: 'relative',
+            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+            borderRadius: '0.5rem',
+            overflow: 'hidden'
           }}>
             {/* Columna de horas */}
-            <div>
+            {/* Columna de horas */}
+            <div style={{ background: theme.cardBg, paddingTop: '15px' }}>
               {horasDelDia.map(hora => (
                 <div
                   key={hora}
                   style={{
-                    height: '1.875rem',
-                    padding: isMobile ? '0.125em' : '0.25em',
+                    height: '36px',
+                    padding: '0 0.5rem 0 0',
                     display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
+                    alignItems: 'start', // Alinear al inicio (top) de la celda
+                    justifyContent: 'flex-end',
                     color: theme.textMuted,
-                    fontSize: isMobile ? '0.65rem' : '0.75rem',
-                    fontWeight: '600'
+                    fontSize: '0.65rem',
+                    fontWeight: '600',
+                    transform: 'translateY(-0.4em)' // Ajuste para alinear con la línea
                   }}
                 >
-                  {hora.toString().padStart(2, '0')}:00
+                  {hora}:00
                 </div>
               ))}
             </div>
@@ -231,11 +256,11 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                     key={hora}
                     style={{
                       position: 'absolute',
-                      top: `${index * 1.875}rem`,
+                      top: `${(index * 36) + 15}px`,
                       left: 0,
                       right: 0,
-                      height: '1.875rem',
-                      borderBottom: `0.0625rem dashed ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`
+                      height: '36px',
+                      borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}`
                     }}
                   />
                 ))}
@@ -251,48 +276,39 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                       style={{
                         position: 'absolute',
                         top: `${top}px`,
-                        left: '0.25em',
-                        right: '0.25em',
-                        height: `${height - 8}px`,
-                        background: `linear-gradient(135deg, ${color}dd, ${color}bb)`,
-                        borderRadius: '0.375em',
-                        padding: '0.375em',
+                        left: '2px', // gap horizontal muy pequeño
+                        right: '2px',
+                        height: `${height - 2}px`, // gap vertical pequeño
+                        background: `linear-gradient(135deg, ${color}cc, ${color}99)`,
+                        borderRadius: '0.375rem',
+                        padding: '0.35rem',
                         overflow: 'hidden',
-                        boxShadow: `0 0.25rem 0.75rem ${color}40`,
-                        border: `0.0625rem solid ${color}`,
+                        boxShadow: `0 2px 4px ${color}30`,
+                        border: `1px solid ${color}`,
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.2s ease',
+                        zIndex: 1
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.02)';
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
                         e.currentTarget.style.zIndex = '10';
+                        e.currentTarget.style.boxShadow = `0 4px 8px ${color}50`;
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         e.currentTarget.style.zIndex = '1';
+                        e.currentTarget.style.boxShadow = `0 2px 4px ${color}30`;
                       }}
                     >
-                      <div style={{ color: '#fff', fontSize: '0.65rem', fontWeight: '700', marginBottom: '0.125em' }}>
+                      <div style={{ color: '#fff', fontSize: '0.6rem', fontWeight: '700', marginBottom: '0.1rem', opacity: 0.9 }}>
                         {clase.hora_inicio.substring(0, 5)} - {clase.hora_fin.substring(0, 5)}
                       </div>
-                      <div style={{ color: '#fff', fontSize: '0.8rem', fontWeight: '700', lineHeight: 1.1, marginBottom: '0.125em' }}>
+                      <div style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '700', lineHeight: 1.1, marginBottom: '0.2rem', textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
                         {clase.curso_nombre}
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.1875em' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: '500' }}>
                         <MapPin size={10} />
                         {clase.aula_nombre}
-                      </div>
-                      <div style={{
-                        marginTop: '0.125em',
-                        padding: '0.125em 0.25em',
-                        background: 'rgba(255,255,255,0.2)',
-                        borderRadius: '0.1875em',
-                        fontSize: '0.6rem',
-                        fontWeight: '600',
-                        color: '#fff',
-                        display: 'inline-block'
-                      }}>
-                        {clase.codigo_curso}
                       </div>
                     </div>
                   );

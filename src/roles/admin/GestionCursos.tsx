@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Plus, Edit, Eye, Trash2, X, Save, CheckCircle2, AlertCircle, Ban, PlayCircle, Lock, Unlock, Grid, List, ChevronLeft, ChevronRight, Sheet, BookOpen
+  Search, Plus, Edit, Eye, Trash2, X, Save, CheckCircle2, AlertCircle, Ban, PlayCircle, Lock, Unlock, Grid, List, ChevronLeft, ChevronRight, Sheet, BookOpen, ArrowLeftRight, RefreshCcw
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -63,7 +63,7 @@ const GestionCursos = () => {
   const [fechaFin, setFechaFin] = useState('');
 
   // Estados para vista y paginación
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; // 8 cursos por página en tabla
 
@@ -190,21 +190,20 @@ const GestionCursos = () => {
     const initials = generateInitials(tipo.nombre);
 
     try {
-      // Consultar todos los códigos existentes en la BD
-      const response = await fetch(`${API_BASE}/api/cursos?limit=1000`);
-      if (!response.ok) {
-        console.log('Error consultando cursos existentes, usando datos locales');
-        // Fallback a datos locales si falla la consulta
-        const existingCourses = cursos.filter(curso => {
-          const tipoDelCurso = tiposCursos.find(t => t.id_tipo_curso === curso.id_tipo_curso);
-          return tipoDelCurso && generateInitials(tipoDelCurso.nombre) === initials;
-        });
-        const nextNumber = existingCourses.length + 1;
-        return `${initials}-${nextNumber.toString().padStart(3, '0')}`;
-      }
+      // Intentar usar los datos locales de 'cursos' primero si ya tenemos bastantes registros
+      // Esto ahorra una petición de 'limit=1000' que satura el backend
+      let cursosReales = cursos;
 
-      const cursosData = await response.json();
-      const cursosReales = Array.isArray(cursosData) ? cursosData : (Array.isArray(cursosData?.rows) ? cursosData.rows : []);
+      // Si tenemos pocos cursos cargados (menos de itemsPerPage), tal vez valga la pena consultar el total,
+      // pero usualmente 'cursos' ya tiene una buena parte de los datos.
+      // Optimización: Solo consultar si realmente es necesario o si 'cursos' está muy vacío
+      if (cursos.length < 5) {
+        const response = await fetch(`${API_BASE}/api/cursos?limit=500`);
+        if (response.ok) {
+          const data = await response.json();
+          cursosReales = Array.isArray(data) ? data : (Array.isArray(data?.rows) ? data.rows : []);
+        }
+      }
 
       // Obtener todos los códigos existentes que empiecen con las mismas iniciales
       const existingCodes = cursosReales
@@ -227,20 +226,10 @@ const GestionCursos = () => {
       }
 
       const newCode = `${initials}-${nextNumber.toString().padStart(3, '0')}`;
-
-      console.log(`=== GENERACIÓN DE CÓDIGO (BD) ===`);
-      console.log(`Tipo: ${tipo.nombre}`);
-      console.log(`Iniciales: ${initials}`);
-      console.log(`Códigos existentes en BD:`, existingCodes);
-      console.log(`Próximo número: ${nextNumber}`);
-      console.log(`Código generado: ${newCode}`);
-      console.log(`================================`);
-
       return newCode;
 
     } catch (error) {
       console.error('Error generando código:', error);
-      // Fallback a método simple
       const nextNumber = cursos.length + 1;
       return `${initials}-${nextNumber.toString().padStart(3, '0')}`;
     }
@@ -785,7 +774,80 @@ const GestionCursos = () => {
       <AdminSectionHeader
         title="Gestión de Cursos"
         subtitle="Administra los cursos disponibles en la escuela"
-        marginBottom={isMobile ? '12px' : '1.125rem'}
+        marginBottom={isMobile ? '0.5rem' : '0.5rem'}
+        rightSlot={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch(`${API_BASE}/api/cursos/reporte/excel`);
+                  if (!response.ok) throw new Error('Error descargando reporte');
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `Reporte_Cursos_${new Date().toISOString().split('T')[0]}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                  showToast.success('Reporte descargado exitosamente', darkMode);
+                } catch (error) {
+                  console.error('Error:', error);
+                  showToast.error('Error al descargar el reporte', darkMode);
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
+                height: '2rem',
+                padding: '0 1rem',
+                background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+                border: 'none',
+                borderRadius: '0.625rem',
+                color: '#fff',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Sheet size={14} color="#fff" />
+              Descargar Excel
+            </button>
+            <button
+              onClick={async () => {
+                if (loading) return;
+                await fetchCursos(filterEstado as EstadoFilter);
+                showToast.success('Listado actualizado.', darkMode);
+              }}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '2rem',
+                height: '2rem',
+                background: darkMode ? '#1e293b' : '#ffffff',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                borderRadius: '0.625rem',
+                color: themeColors.textSecondary,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+        }
       />
 
       {/* Advertencia si no hay tipos de curso */}
@@ -802,12 +864,18 @@ const GestionCursos = () => {
       )}
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: isMobile ? '12px' : '1rem' }}>
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{
+        marginBottom: isMobile ? '0.5rem' : '0.5rem',
+        padding: '0.5rem',
+        boxShadow: 'none',
+        borderRadius: '0.375rem',
+        border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+      }}>
         <div className="responsive-filters">
           <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isSmallScreen ? 'auto' : '17.5rem', width: isSmallScreen ? '100%' : 'auto' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
+            <div style={{ position: 'relative', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
               <input
                 type="text"
                 placeholder="Buscar cursos o instructores..."
@@ -815,13 +883,14 @@ const GestionCursos = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '0.625em 0.625em 0.625em 2.375em',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : themeColors.controlBg,
-                  border: `0.0625rem solid ${themeColors.controlBorder}`,
-                  borderRadius: '0.625em',
+                  padding: '0 0.5rem 0 2rem',
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
+                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                  borderRadius: '0.5rem',
                   color: themeColors.textPrimary,
-                  fontSize: '0.8rem',
-                  boxShadow: darkMode ? 'none' : '0 1px 2px rgba(15,23,42,0.08)'
+                  fontSize: '0.75rem',
+                  boxShadow: 'none',
+                  height: '2rem'
                 }}
               />
             </div>
@@ -861,7 +930,7 @@ const GestionCursos = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.3em',
-                    padding: isMobile ? '0.45em 0.8em' : '0.45em 0.95em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
                     background: viewMode === 'cards' ? themeColors.toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
@@ -882,7 +951,7 @@ const GestionCursos = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.3em',
-                    padding: isMobile ? '0.45em 0.8em' : '0.5em 1em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
                     background: viewMode === 'table' ? themeColors.toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
@@ -898,57 +967,7 @@ const GestionCursos = () => {
                 </button>
               </div>
 
-              {/* Botón Excel */}
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch(`${API_BASE}/api/cursos/reporte/excel`);
-                    if (!response.ok) throw new Error('Error descargando reporte');
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Reporte_Cursos_${new Date().toISOString().split('T')[0]}.xlsx`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    showToast.success('Reporte descargado exitosamente', darkMode);
-                  } catch (error) {
-                    console.error('Error:', error);
-                    showToast.error('Error al descargar el reporte', darkMode);
-                  }
-                }}
-                style={{
-                  padding: isMobile ? '0.625em 1em' : '0.75em 1.25em',
-                  fontSize: '0.8rem',
-                  borderRadius: '0.625rem',
-                  border: 'none',
-                  background: primaryActionButtonStyles.base,
-                  color: primaryActionButtonStyles.text,
-                  cursor: 'pointer',
-                  width: isSmallScreen ? '100%' : 'auto',
-                  fontWeight: '600',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  transition: 'all 0.2s ease',
-                  boxShadow: primaryActionButtonStyles.shadow
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = primaryActionButtonStyles.hover;
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 0.5rem 1.25rem rgba(239,68,68,0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = primaryActionButtonStyles.base;
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = primaryActionButtonStyles.shadow;
-                }}
-              >
-                <Sheet size={16} color={primaryActionButtonStyles.text} /> Descargar Excel
-              </button>
+
             </div>
           </div>
 
@@ -961,7 +980,7 @@ const GestionCursos = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5em',
-              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: tiposCursos.length === 0 ? 'rgba(239, 68, 68, 0.3)' : primaryActionButtonStyles.base,
               border: 'none',
               borderRadius: '0.625em',
@@ -978,12 +997,7 @@ const GestionCursos = () => {
           </button>
         </div>
 
-        {/* Info de resultados */}
-        <div style={{ color: themeColors.textSecondary, fontSize: '0.75rem', marginTop: '0.75rem' }}>
-          {searchTerm || filterEstado !== 'todos'
-            ? `${filteredCursos.length} de ${cursos.length} cursos`
-            : `Total: ${cursos.length} cursos`}
-        </div>
+
       </GlassEffect>
 
       {/* Vista Cards */}
@@ -992,7 +1006,7 @@ const GestionCursos = () => {
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: isMobile ? '12px' : '1rem',
-          marginBottom: isMobile ? '12px' : '1.125rem'
+          marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -1019,13 +1033,13 @@ const GestionCursos = () => {
                 hover
                 animated
               >
-                <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ marginBottom: '0.625rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
                     <span style={{
                       color: themeColors.textMuted,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,0.9)',
-                      padding: '3px 0.375rem',
+                      padding: '2px 0.5rem',
                       borderRadius: '0.3125rem'
                     }}>
                       {curso.codigo_curso}
@@ -1035,7 +1049,7 @@ const GestionCursos = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.1875rem',
-                        padding: '3px 0.5rem',
+                        padding: '2px 0.5rem',
                         borderRadius: 6,
                         background: estadoConfig.background,
                         border: estadoConfig.border,
@@ -1051,7 +1065,9 @@ const GestionCursos = () => {
                   </div>
                   <h3 style={{
                     color: themeColors.textPrimary,
-                    margin: '0 0 0.5rem 0'
+                    margin: '0 0 0.5rem 0',
+                    fontSize: '0.85rem',
+                    fontWeight: 600
                   }}>
                     {curso.nombre}
                   </h3>
@@ -1060,40 +1076,40 @@ const GestionCursos = () => {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  gap: '0.625rem',
-                  marginBottom: '0.75rem',
+                  gap: '0.5rem',
+                  marginBottom: '0.625rem',
                   paddingTop: '0.625rem',
                   borderTop: `1px solid ${themeColors.controlBorder}`
                 }}>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                       Fecha Inicio
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                       {curso.fecha_inicio}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                       Fecha Fin
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                       {curso.fecha_fin}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                       Cupos
                     </div>
-                    <div style={{ color: curso.estado === 'cancelado' ? statusStyles.cancelado.color : mapToRedScheme('#10b981'), fontSize: '0.75rem', fontWeight: 700 }}>
+                    <div style={{ color: curso.estado === 'cancelado' ? statusStyles.cancelado.color : mapToRedScheme('#10b981'), fontSize: '0.7rem', fontWeight: 700 }}>
                       {curso.estado === 'cancelado' ? 'N/A' : `${curso.cupos_disponibles || 0} / ${curso.capacidad_maxima}`}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                       Horario
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600, textTransform: 'capitalize' }}>
                       {curso.horario}
                     </div>
                   </div>
@@ -1107,8 +1123,8 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.3125rem',
-                      padding: '0.5rem',
+                      gap: '0.25rem',
+                      padding: '0.375rem',
                       background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.75)',
                       border: darkMode ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(252, 165, 165, 0.85)',
                       borderRadius: '0.5rem',
@@ -1129,7 +1145,7 @@ const GestionCursos = () => {
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <Eye size={12} color={viewActionColor} /> Ver
+                    <Eye size={16} color={viewActionColor} /> Ver
                   </button>
                   <button
                     onClick={() => handleEditCurso(curso)}
@@ -1138,13 +1154,13 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.375rem',
-                      padding: '0.625rem',
+                      gap: '0.25rem',
+                      padding: '0.375rem',
                       background: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
                       border: `1px solid ${themeColors.controlBorder}`,
                       borderRadius: '0.625rem',
                       color: editActionColor,
-                      fontSize: '0.8rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -1156,17 +1172,17 @@ const GestionCursos = () => {
                       e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff';
                     }}
                   >
-                    <Edit size={14} color={editActionColor} /> Editar
+                    <Edit size={16} color={editActionColor} /> Editar
                   </button>
                   <button
                     onClick={() => confirmDeleteCurso(curso)}
                     style={{
-                      padding: '10px 0.75rem',
+                      padding: '0.375rem 0.75rem',
                       background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)',
                       border: `1px solid ${excelButtonStyles.border}`,
                       borderRadius: '0.625rem',
                       color: deleteActionColor,
-                      fontSize: '0.85rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -1178,7 +1194,7 @@ const GestionCursos = () => {
                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)';
                     }}
                   >
-                    <Trash2 size={14} color={deleteActionColor} />
+                    <Trash2 size={16} color={deleteActionColor} />
                   </button>
                   <button
                     onClick={() => handleToggleMatricula(curso)}
@@ -1188,8 +1204,8 @@ const GestionCursos = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.375rem',
-                      padding: '0.625rem',
+                      gap: '0.25rem',
+                      padding: '0.375rem',
                       background: curso.estado === 'cancelado'
                         ? (darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(187, 247, 208, 0.8)')
                         : (darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)'),
@@ -1198,7 +1214,7 @@ const GestionCursos = () => {
                         : `1px solid ${excelButtonStyles.border}`,
                       borderRadius: '0.625rem',
                       color: toggleActionColor,
-                      fontSize: '0.85rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
@@ -1215,8 +1231,8 @@ const GestionCursos = () => {
                     }}
                   >
                     {curso.estado === 'cancelado'
-                      ? <Unlock size={14} color={toggleActionColor} />
-                      : <Lock size={14} color={toggleActionColor} />}
+                      ? <Unlock size={16} color={toggleActionColor} />
+                      : <Lock size={16} color={toggleActionColor} />}
                     {curso.estado === 'cancelado' ? 'Reanudar' : 'Cerrar'}
                   </button>
                 </div>
@@ -1232,12 +1248,12 @@ const GestionCursos = () => {
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(254,226,226,0.9)',
+              border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : 'rgba(248,113,113,0.35)'}`,
               borderRadius: '0.5rem',
               padding: '8px 0.75rem',
               marginBottom: '0.75rem',
-              color: '#ef4444',
+              color: darkMode ? 'rgba(248,250,252,0.85)' : 'rgba(153,27,27,0.85)',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -1245,103 +1261,98 @@ const GestionCursos = () => {
               justifyContent: 'center',
               gap: '0.375rem'
             }}>
-              <span>👉</span>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
               <span>Desliza horizontalmente para ver toda la tabla</span>
-              <span>👈</span>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
             </div>
           )}
 
           <div
             className="responsive-table-container"
             style={{
-              background: themeColors.sectionSurface,
-              border: `1px solid ${themeColors.sectionBorder}`,
-              borderRadius: isMobile ? '0.75rem' : '1rem',
+              background: darkMode
+                ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+              borderRadius: isMobile ? '12px' : '1rem',
               overflow: 'auto',
-              marginBottom: isMobile ? '0.75rem' : '1.5rem',
+              marginBottom: isMobile ? '12px' : '0.5rem',
               WebkitOverflowScrolling: 'touch'
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? 'min(56.25rem, 95vw)' : 'auto' }}>
-              <thead>
-                <tr style={{
-                  background: themeColors.tableHeaderBg,
-                  borderBottom: `1px solid ${darkMode ? 'rgba(248, 113, 113, 0.3)' : 'rgba(252, 165, 165, 0.8)'}`
-                }}>
+              <thead style={{
+                borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
+                background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+              }}>
+                <tr>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'left',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '12%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Código
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'left',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '20%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
-                    NOMBRE
+                    Nombre
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '12%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Fecha Inicio
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '12%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Fecha Fin
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '12%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Cupos
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '12%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Estado
                   </th>
                   <th style={{
-                    padding: '10px 0.75rem',
-                    color: themeColors.tableHeaderText,
+                    padding: '0.5rem 0.75rem',
+                    color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    width: '20%'
+                    fontSize: '0.7rem',
+                    textTransform: 'uppercase'
                   }}>
                     Acciones
                   </th>
@@ -1363,56 +1374,55 @@ const GestionCursos = () => {
                     <tr
                       key={curso.id_curso}
                       style={{
-                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.7)'}`,
-                        background: index % 2 === 0 ? themeColors.tableRowAltBg : 'transparent',
-                        transition: 'all 0.2s ease',
+                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                        transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = themeColors.tableRowHover;
+                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = index % 2 === 0 ? themeColors.tableRowAltBg : 'transparent';
+                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
                       <td style={{
-                        padding: '0.75rem',
+                        padding: '0.5rem 0.75rem',
                         color: themeColors.textPrimary,
                         fontWeight: 600,
-                        fontSize: '0.8rem'
+                        fontSize: '0.75rem'
                       }}>
                         {curso.codigo_curso}
                       </td>
                       <td className="table-nombre-uppercase" style={{
-                        padding: '0.75rem',
+                        padding: '0.5rem 0.75rem',
                         color: themeColors.textPrimary,
                         fontWeight: 600,
-                        fontSize: '0.8rem'
+                        fontSize: '0.75rem'
                       }}>
                         {curso.nombre}
                       </td>
                       <td style={{
-                        padding: '0.75rem',
+                        padding: '0.5rem 0.75rem',
                         color: themeColors.textSecondary,
                         textAlign: 'center',
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem'
                       }}>
                         {curso.fecha_inicio}
                       </td>
                       <td style={{
-                        padding: '0.75rem',
+                        padding: '0.5rem 0.75rem',
                         color: themeColors.textSecondary,
                         textAlign: 'center',
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem'
                       }}>
                         {curso.fecha_fin}
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
                         {curso.estado === 'cancelado' ? (
                           <span style={{
                             display: 'inline-block',
-                            padding: '4px 0.625rem',
+                            padding: '2px 0.5rem',
                             borderRadius: '0.5rem',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
                             background: themeColors.neutralTint,
                             color: darkMode ? '#9ca3af' : '#475569',
@@ -1424,9 +1434,9 @@ const GestionCursos = () => {
                         ) : (
                           <span style={{
                             display: 'inline-block',
-                            padding: '4px 0.625rem',
+                            padding: '2px 0.5rem',
                             borderRadius: '0.5rem',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
                             background: (curso.cupos_disponibles || 0) > 0
                               ? (darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(187, 247, 208, 0.85)')
@@ -1442,12 +1452,12 @@ const GestionCursos = () => {
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 0.625rem',
+                          padding: '2px 0.5rem',
                           borderRadius: '0.5rem',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           background: estadoBadge.background,
@@ -1457,650 +1467,647 @@ const GestionCursos = () => {
                           {curso.estado}
                         </span>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => handleViewCurso(curso)}
                             style={{
-                              background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.75)',
-                              border: darkMode ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(252, 165, 165, 0.85)',
-                              color: viewActionColor,
-                              padding: '6px 0.625rem',
-                              borderRadius: '0.375rem',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #3b82f6',
+                              backgroundColor: 'transparent',
+                              color: '#3b82f6',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                              transform: 'translateZ(0)'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(254, 202, 202, 0.92)';
-                              e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                              e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.75)';
-                              e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                              e.currentTarget.style.boxShadow = 'none';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#3b82f6';
                             }}
+                            title="Ver detalle"
                           >
-                            <Eye size={12} color={viewActionColor} />
-                            Ver
+                            <Eye style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => handleEditCurso(curso)}
                             style={{
-                              background: darkMode ? 'rgba(239, 68, 68, 0.1)' : '#ffffff',
-                              border: `1px solid ${themeColors.controlBorder}`,
-                              color: editActionColor,
-                              padding: '6px 0.625rem',
-                              borderRadius: '0.375rem',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #3b82f6',
+                              backgroundColor: 'transparent',
+                              color: '#3b82f6',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                              transform: 'translateZ(0)'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(248,250,252,0.95)';
-                              e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                              e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : '#ffffff';
-                              e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                              e.currentTarget.style.boxShadow = 'none';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#3b82f6';
                             }}
+                            title="Editar curso"
                           >
-                            <Edit size={12} color={editActionColor} />
-                            Editar
+                            <Edit style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => confirmDeleteCurso(curso)}
                             style={{
-                              background: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(254, 226, 226, 0.85)',
-                              border: `1px solid ${excelButtonStyles.border}`,
-                              color: deleteActionColor,
-                              padding: '6px 0.625rem',
-                              borderRadius: '0.375rem',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #ef4444',
+                              backgroundColor: 'transparent',
+                              color: '#ef4444',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(254, 202, 202, 0.95)';
+                              e.currentTarget.style.backgroundColor = '#ef4444';
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(254, 226, 226, 0.85)';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#ef4444';
                             }}
+                            title="Eliminar curso"
                           >
-                            <Trash2 size={12} color={deleteActionColor} />
+                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => handleToggleMatricula(curso)}
-                            title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
                             style={{
-                              background: curso.estado === 'cancelado'
-                                ? (darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(187, 247, 208, 0.8)')
-                                : (darkMode ? 'rgba(156, 163, 175, 0.2)' : 'rgba(226,232,240,0.75)'),
-                              border: curso.estado === 'cancelado'
-                                ? `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(134, 239, 172, 0.85)'}`
-                                : `1px solid ${darkMode ? 'rgba(156, 163, 175, 0.3)' : 'rgba(203,213,225,0.85)'}`,
-                              color: toggleActionColor,
-                              padding: '6px 0.625rem',
-                              borderRadius: '0.375rem',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: `1px solid ${curso.estado === 'cancelado' ? '#10b981' : '#6b7280'}`,
+                              backgroundColor: 'transparent',
+                              color: curso.estado === 'cancelado' ? '#10b981' : '#6b7280',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              whiteSpace: 'nowrap'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = curso.estado === 'cancelado'
-                                ? (darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(187, 247, 208, 0.95)')
-                                : (darkMode ? 'rgba(156, 163, 175, 0.3)' : 'rgba(226,232,240,0.95)');
+                              const color = curso.estado === 'cancelado' ? '#10b981' : '#6b7280';
+                              e.currentTarget.style.backgroundColor = color;
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = curso.estado === 'cancelado'
-                                ? (darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(187, 247, 208, 0.8)')
-                                : (darkMode ? 'rgba(156, 163, 175, 0.2)' : 'rgba(226,232,240,0.75)');
+                              const color = curso.estado === 'cancelado' ? '#10b981' : '#6b7280';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = color;
                             }}
+                            title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
                           >
-                            {curso.estado === 'cancelado'
-                              ? <Unlock size={12} color={toggleIconColor} />
-                              : <Lock size={12} color={toggleIconColor} />}
+                            {curso.estado === 'cancelado' ? (
+                              <Unlock style={{ width: '1rem', height: '1rem' }} />
+                            ) : (
+                              <Lock style={{ width: '1rem', height: '1rem' }} />
+                            )}
                           </button>
                         </div>
                       </td>
                     </tr>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </tbody >
+            </table >
+          </div >
         </>
-      )}
+      )
+      }
 
       {/* Estados vacíos y errores */}
-      {loading && (
-        <div style={{
-          color: themeColors.textSecondary,
-          padding: '60px 1.25rem',
-          textAlign: 'center',
-          fontSize: '1rem',
-          background: themeColors.sectionSurface,
-          border: `1px solid ${themeColors.sectionBorder}`,
-          borderRadius: '1rem',
-          marginBottom: '1.5rem'
-        }}>
-          Cargando cursos...
-        </div>
-      )}
-      {error && (
-        <div style={{
-          color: excelButtonStyles.text,
-          padding: '1.25rem',
-          textAlign: 'center',
-          background: themeColors.infoSurface,
-          border: `1px solid ${themeColors.infoBorder}`,
-          borderRadius: '1rem',
-          fontSize: '0.95rem',
-          marginBottom: '1.5rem'
-        }}>
-          {error}
-        </div>
-      )}
-      {!loading && !error && filteredCursos.length === 0 && (
-        <div style={{
-          color: themeColors.textSecondary,
-          padding: '60px 1.25rem',
-          textAlign: 'center',
-          fontSize: '1rem',
-          background: themeColors.sectionSurface,
-          border: `1px solid ${themeColors.sectionBorder}`,
-          borderRadius: '1rem',
-          marginBottom: '1.5rem'
-        }}>
-          {searchTerm || filterEstado !== 'todos' ? 'No se encontraron cursos' : 'No hay cursos registrados'}
-        </div>
-      )}
-
-      {/* Paginación */}
-      {!loading && filteredCursos.length > 0 && (
-        <div className="pagination-container" style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
-          background: themeColors.paginationBg,
-          border: `1px solid ${themeColors.sectionBorder}`,
-          borderRadius: '1rem'
-        }}>
+      {
+        loading && (
           <div style={{
             color: themeColors.textSecondary,
-            fontSize: isMobile ? '0.8rem' : '0.9rem',
-            textAlign: isMobile ? 'center' : 'left'
+            padding: '60px 1.25rem',
+            textAlign: 'center',
+            fontSize: '1rem',
+            background: themeColors.sectionSurface,
+            border: `1px solid ${themeColors.sectionBorder}`,
+            borderRadius: '1rem',
+            marginBottom: '1.5rem'
           }}>
-            Página {currentPage} de {totalPages} • Total: {filteredCursos.length} cursos
+            Cargando cursos...
           </div>
+        )
+      }
+      {
+        error && (
           <div style={{
-            display: 'flex',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
-            justifyContent: isMobile ? 'center' : 'flex-start'
+            color: excelButtonStyles.text,
+            padding: '1.25rem',
+            textAlign: 'center',
+            background: themeColors.infoSurface,
+            border: `1px solid ${themeColors.infoBorder}`,
+            borderRadius: '1rem',
+            fontSize: '0.95rem',
+            marginBottom: '1.5rem'
           }}>
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === 1
-                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(241,245,249,0.85)')
-                  : (darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff'),
-                border: `1px solid ${themeColors.controlBorder}`,
-                borderRadius: '0.625rem',
-                color: currentPage === 1 ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.85)') : themeColors.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
-                fontWeight: 600,
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
-              }}
-            >
-              <ChevronLeft size={isMobile ? 14 : 16} />
-              {!isMobile && 'Anterior'}
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
-                  background: currentPage === page
-                    ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                    : (darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff'),
-                  border: currentPage === page
-                    ? `1px solid ${darkMode ? '#ef4444' : '#dc2626'}`
-                    : `1px solid ${themeColors.controlBorder}`,
-                  borderRadius: '0.625rem',
-                  color: currentPage === page ? '#fff' : themeColors.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
-                }}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
-                background: currentPage === totalPages
-                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(241,245,249,0.85)')
-                  : (darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff'),
-                border: `1px solid ${themeColors.controlBorder}`,
-                borderRadius: '0.625rem',
-                color: currentPage === totalPages ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.85)') : themeColors.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
-                fontWeight: 600,
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
-              }}
-            >
-              {!isMobile && 'Siguiente'}
-              <ChevronRight size={isMobile ? 14 : 16} />
-            </button>
+            {error}
           </div>
-        </div>
-      )}
+        )
+      }
+      {
+        !loading && !error && filteredCursos.length === 0 && (
+          <div style={{
+            color: themeColors.textSecondary,
+            padding: '60px 1.25rem',
+            textAlign: 'center',
+            fontSize: '1rem',
+            background: themeColors.sectionSurface,
+            border: `1px solid ${themeColors.sectionBorder}`,
+            borderRadius: '1rem',
+            marginBottom: '1.5rem'
+          }}>
+            {searchTerm || filterEstado !== 'todos' ? 'No se encontraron cursos' : 'No hay cursos registrados'}
+          </div>
+        )
+      }
 
-      {/* Modal */}
-      {showModal && createPortal(
-        <div
-          className="modal-overlay"
-          onClick={() => setShowModal(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
+      {/* Paginación */}
+      {
+        !loading && filteredCursos.length > 0 && totalPages > 0 && (
+          <div className="pagination-container" style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 99999,
-            padding: isMobile ? '1rem' : '2rem',
-            backdropFilter: 'blur(8px)',
-            background: 'rgba(0, 0, 0, 0.65)',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            scrollBehavior: 'smooth'
-          }}
-        >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: 'relative',
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '12px',
-              width: isMobile ? '92vw' : '70vw',
-              maxWidth: isMobile ? '92vw' : '70vw',
-              maxHeight: '85vh',
-              padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
-              margin: 'auto',
-              color: darkMode ? '#fff' : '#1e293b',
-              boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              animation: 'scaleIn 0.3s ease-out'
-            }}
-          >
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '0.75rem' : '0',
+            padding: isMobile ? '8px' : '0.25rem 1rem',
+            background: darkMode
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+            border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.14)'}`,
+            borderRadius: '0.75rem',
+            marginTop: '0.5rem',
+            marginBottom: isMobile ? '0.75rem' : '0.5rem'
+          }}>
+            <div style={{
+              color: darkMode ? 'rgba(226,232,240,0.8)' : 'rgba(30,41,59,0.85)',
+              fontSize: isMobile ? '0.75rem' : '0.8rem',
+              textAlign: isMobile ? 'center' : 'left'
+            }}>
+              Página {currentPage} de {totalPages} • Total: {filteredCursos.length} cursos
+            </div>
             <div style={{
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: isMobile ? 12 : 14,
-              paddingBottom: isMobile ? 8 : 10,
-              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              gap: '0.375rem',
+              justifyContent: isMobile ? 'center' : 'flex-start',
+              flexWrap: 'wrap'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BookOpen size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
-                <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em', color: darkMode ? '#fff' : '#1e293b' }}>
-                  {modalType === 'create' ? 'Nuevo Curso' : modalType === 'edit' ? 'Editar Curso' : 'Ver Curso'}
-                </h3>
-              </div>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
                 style={{
-                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                  border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.15)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  color: darkMode ? RedColorPalette.primaryLight : '#ef4444',
-                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  gap: isMobile ? '4px' : '0.25rem',
+                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                  background: currentPage === 1
+                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                    : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                  borderRadius: '0.625rem',
+                  color: currentPage === 1
+                    ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                    : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
+                  fontWeight: 600,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
-                  e.currentTarget.style.color = darkMode ? RedColorPalette.primaryLight : '#ef4444';
+                  flex: isMobile ? '1' : 'initial',
+                  boxShadow: 'none'
                 }}
               >
-                <X size={16} color="currentColor" />
+                <ChevronLeft size={isMobile ? 14 : 14} />
+                {!isMobile && 'Anterior'}
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  style={{
+                    padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                    background: currentPage === pageNum
+                      ? (darkMode
+                        ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                        : 'linear-gradient(135deg, #fca5a5 0%, #ef4444 100%)')
+                      : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)'),
+                    border: currentPage === pageNum
+                      ? `1px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`
+                      : `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                    borderRadius: '0.5rem',
+                    color: currentPage === pageNum ? '#ffffff' : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    minWidth: isMobile ? '30px' : '2rem',
+                    boxShadow: 'none'
+                  }}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: isMobile ? '4px' : '0.25rem',
+                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                  background: currentPage === totalPages
+                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                    : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                  borderRadius: '0.625rem',
+                  color: currentPage === totalPages
+                    ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                    : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
+                  fontWeight: 600,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? '1' : 'initial',
+                  boxShadow: 'none'
+                }}
+              >
+                {!isMobile && 'Siguiente'}
+                <ChevronRight size={isMobile ? 14 : 14} />
               </button>
             </div>
+          </div>
+        )
+      }
 
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', rowGap: isMobile ? '0.75rem' : '1rem', columnGap: isSmallScreen ? 0 : '1.25rem' }}>
-                {/* Fila 1: Código y Tipo de curso */}
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Código</label>
-                  <input
-                    name="codigo_curso"
-                    placeholder="Se genera automáticamente"
-                    value={modalType === 'create' ? autoGeneratedCode : (modalType === 'edit' && autoGeneratedCode ? autoGeneratedCode : selectedCurso?.codigo_curso || '')}
-                    required
-                    disabled={modalType === 'view'}
-                    readOnly={true}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                      cursor: 'not-allowed',
-                      fontSize: '0.8rem'
-                    }}
-                  />
-                  <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>Se genera automáticamente basado en el tipo de curso.</div>
+      {/* Modal */}
+      {
+        showModal && createPortal(
+          <div
+            className="modal-overlay"
+            onClick={() => setShowModal(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: isMobile ? '1rem' : '2rem',
+              backdropFilter: 'blur(8px)',
+              background: 'rgba(0, 0, 0, 0.65)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              scrollBehavior: 'smooth'
+            }}
+          >
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '12px',
+                width: isMobile ? '92vw' : '70vw',
+                maxWidth: isMobile ? '92vw' : '70vw',
+                maxHeight: '85vh',
+                padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.5rem',
+                margin: 'auto',
+                color: darkMode ? '#fff' : '#1e293b',
+                boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.5)',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                animation: 'scaleIn 0.3s ease-out'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: isMobile ? 12 : 14,
+                paddingBottom: isMobile ? 8 : 10,
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                  <h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.05rem', fontWeight: '600', letterSpacing: '-0.01em', color: darkMode ? '#fff' : '#1e293b' }}>
+                    {modalType === 'create' ? 'Nuevo Curso' : modalType === 'edit' ? 'Editar Curso' : 'Ver Curso'}
+                  </h3>
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Tipo de curso</label>
-                  {modalType === 'edit' ? (
-                    // En edición: mostrar solo el nombre del tipo (no editable)
-                    <div style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b',
-                      fontSize: '0.8rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <span style={{
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        color: '#ef4444',
-                        padding: '2px 0.375rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.7rem',
-                        fontWeight: '600'
-                      }}>
-                        TIPO
-                      </span>
-                      {tiposCursos.find(tc => tc.id_tipo_curso === selectedCurso?.id_tipo_curso)?.nombre || `Tipo ID ${selectedCurso?.id_tipo_curso} (no encontrado)`}
-                      <input
-                        type="hidden"
-                        name="id_tipo_curso"
-                        value={selectedCurso?.id_tipo_curso || ''}
-                      />
-                    </div>
-                  ) : (
-                    // En creación: select normal
-                    <StyledSelect
-                      name="id_tipo_curso"
-                      value={selectedTipoCurso || ''}
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.15)',
+                    borderRadius: '8px',
+                    padding: '6px',
+                    color: darkMode ? RedColorPalette.primaryLight : '#ef4444',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                    e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)';
+                    e.currentTarget.style.color = darkMode ? RedColorPalette.primaryLight : '#ef4444';
+                  }}
+                >
+                  <X size={16} color="currentColor" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : '1fr 1fr', rowGap: isMobile ? '0.75rem' : '1rem', columnGap: isSmallScreen ? 0 : '1.25rem' }}>
+                  {/* Fila 1: Código y Tipo de curso */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Código</label>
+                    <input
+                      name="codigo_curso"
+                      placeholder="Se genera automáticamente"
+                      value={modalType === 'create' ? autoGeneratedCode : (modalType === 'edit' && autoGeneratedCode ? autoGeneratedCode : selectedCurso?.codigo_curso || '')}
                       required
-                      placeholder="Selecciona un tipo"
+                      disabled={modalType === 'view'}
+                      readOnly={true}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
+                        cursor: 'not-allowed',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                    <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>Se genera automáticamente basado en el tipo de curso.</div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Tipo de curso</label>
+                    {modalType === 'edit' ? (
+                      // En edición: mostrar solo el nombre del tipo (no editable)
+                      <div style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                        fontSize: '0.8rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <span style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#ef4444',
+                          padding: '2px 0.375rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.7rem',
+                          fontWeight: '600'
+                        }}>
+                          TIPO
+                        </span>
+                        {tiposCursos.find(tc => tc.id_tipo_curso === selectedCurso?.id_tipo_curso)?.nombre || `Tipo ID ${selectedCurso?.id_tipo_curso} (no encontrado)`}
+                        <input
+                          type="hidden"
+                          name="id_tipo_curso"
+                          value={selectedCurso?.id_tipo_curso || ''}
+                        />
+                      </div>
+                    ) : (
+                      // En creación: select normal
+                      <StyledSelect
+                        name="id_tipo_curso"
+                        value={selectedTipoCurso || ''}
+                        required
+                        placeholder="Selecciona un tipo"
+                        darkMode={darkMode}
+                        style={{
+                          padding: '0.75rem',
+                          fontSize: '0.8rem'
+                        }}
+                        options={tiposCursos
+                          .filter(tc => tc.estado === 'activo') // Solo tipos activos para crear cursos
+                          .map(tc => ({ value: tc.id_tipo_curso, label: tc.nombre }))
+                        }
+                        onChange={handleTipoCursoChange}
+                        disabled={modalType === 'view'}
+                      />
+                    )}
+                    {modalType === 'edit' && (
+                      <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>
+                        El tipo de curso no se puede cambiar en edición.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Fila 2: Nombre (izquierda) y Capacidad (derecha) */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Nombre</label>
+                    <input
+                      name="nombre"
+                      placeholder={modalType === 'create' ? "Selecciona un tipo de curso primero" : "Nombre del curso"}
+
+                      value={modalType === 'create' ? autoGeneratedName : undefined}
+                      required
+                      disabled={modalType === 'view'}
+                      readOnly={modalType === 'create'}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode
+                          ? (modalType === 'edit' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)')
+                          : (modalType === 'edit' ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)'),
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode
+                          ? (modalType === 'edit' ? '#fff' : 'rgba(255,255,255,0.7)')
+                          : (modalType === 'edit' ? '#1e293b' : 'rgba(30,41,59,0.7)'),
+                        cursor: modalType === 'edit' ? 'text' : 'not-allowed',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                    <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>
+                      {modalType === 'create'
+                        ? 'Se completa automáticamente con el nombre del tipo de curso.'
+                        : 'Puedes editar el nombre del curso.'
+                      }
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Capacidad</label>
+                    <input
+
+                      type="number"
+                      name="capacidad_maxima"
+                      defaultValue={modalType === 'edit' ? selectedCurso?.capacidad_maxima : 20}
+                      min={1}
+                      required
+                      disabled={modalType === 'view'}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Horario *</label>
+                    <select
+                      name="horario"
+                      defaultValue={selectedCurso?.horario || 'matutino'}
+                      required
+                      disabled={modalType === 'view'}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem',
+                        cursor: modalType === 'view' ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      <option value="matutino" style={{ background: darkMode ? 'rgba(0,0,0,0.9)' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Matutino</option>
+                      <option value="vespertino" style={{ background: darkMode ? 'rgba(0,0,0,0.9)' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Vespertino</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Fecha Inicio</label>
+                    <input
+                      type="date"
+                      name="fecha_inicio"
+                      value={fechaInicio}
+                      onChange={handleFechaInicioChange}
+                      required
+                      disabled={modalType === 'view'}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Fecha Fin</label>
+                    <input
+                      type="date"
+                      name="fecha_fin"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                      required
+                      disabled={modalType === 'view'}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: '0.625rem',
+                        color: darkMode ? '#fff' : '#1e293b',
+                        fontSize: '0.8rem'
+                      }}
+                    />
+                  </div>
+                  {/* Fila extra: Estado a lo ancho para mantener tamaños de fecha iguales */}
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Estado</label>
+                    <StyledSelect
+                      name="estado"
+                      defaultValue={selectedCurso?.estado || 'activo'}
+                      disabled={modalType === 'create'}
                       darkMode={darkMode}
                       style={{
                         padding: '0.75rem',
                         fontSize: '0.8rem'
                       }}
-                      options={tiposCursos
-                        .filter(tc => tc.estado === 'activo') // Solo tipos activos para crear cursos
-                        .map(tc => ({ value: tc.id_tipo_curso, label: tc.nombre }))
-                      }
-                      onChange={handleTipoCursoChange}
-                      disabled={modalType === 'view'}
+                      options={[
+                        { value: 'activo', label: 'Activo' },
+                        { value: 'finalizado', label: 'Finalizado' },
+                        { value: 'cancelado', label: 'Cancelado' },
+                      ]}
                     />
-                  )}
-                  {modalType === 'edit' && (
-                    <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>
-                      El tipo de curso no se puede cambiar en edición.
-                    </div>
-                  )}
-                </div>
-
-                {/* Fila 2: Nombre (izquierda) y Capacidad (derecha) */}
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Nombre</label>
-                  <input
-                    name="nombre"
-                    placeholder={modalType === 'create' ? "Selecciona un tipo de curso primero" : "Nombre del curso"}
-
-                    value={modalType === 'create' ? autoGeneratedName : undefined}
-                    required
-                    disabled={modalType === 'view'}
-                    readOnly={modalType === 'create'}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode
-                        ? (modalType === 'edit' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)')
-                        : (modalType === 'edit' ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)'),
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode
-                        ? (modalType === 'edit' ? '#fff' : 'rgba(255,255,255,0.7)')
-                        : (modalType === 'edit' ? '#1e293b' : 'rgba(30,41,59,0.7)'),
-                      cursor: modalType === 'edit' ? 'text' : 'not-allowed',
-                      fontSize: '0.8rem'
-                    }}
-                  />
-                  <div style={{ marginTop: 6, color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(30,41,59,0.6)', fontSize: '0.8rem' }}>
-                    {modalType === 'create'
-                      ? 'Se completa automáticamente con el nombre del tipo de curso.'
-                      : 'Puedes editar el nombre del curso.'
-                    }
                   </div>
+                  {/* Separador final */}
+                  <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,0.1)', marginTop: 8 }} />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Capacidad</label>
-                  <input
 
-                    type="number"
-                    name="capacidad_maxima"
-                    defaultValue={modalType === 'edit' ? selectedCurso?.capacidad_maxima : 20}
-                    min={1}
-                    required
-                    disabled={modalType === 'view'}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Horario *</label>
-                  <select
-                    name="horario"
-                    defaultValue={selectedCurso?.horario || 'matutino'}
-                    required
-                    disabled={modalType === 'view'}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem',
-                      cursor: modalType === 'view' ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    <option value="matutino" style={{ background: darkMode ? 'rgba(0,0,0,0.9)' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Matutino</option>
-                    <option value="vespertino" style={{ background: darkMode ? 'rgba(0,0,0,0.9)' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Vespertino</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Fecha Inicio</label>
-                  <input
-                    type="date"
-                    name="fecha_inicio"
-                    value={fechaInicio}
-                    onChange={handleFechaInicioChange}
-                    required
-                    disabled={modalType === 'view'}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Fecha Fin</label>
-                  <input
-                    type="date"
-                    name="fecha_fin"
-                    value={fechaFin}
-                    onChange={(e) => setFechaFin(e.target.value)}
-                    required
-                    disabled={modalType === 'view'}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: '0.625rem',
-                      color: darkMode ? '#fff' : '#1e293b',
-                      fontSize: '0.8rem'
-                    }}
-                  />
-                </div>
-                {/* Fila extra: Estado a lo ancho para mantener tamaños de fecha iguales */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: 6, color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontWeight: 600, fontSize: '0.8rem' }}>Estado</label>
-                  <StyledSelect
-                    name="estado"
-                    defaultValue={selectedCurso?.estado || 'activo'}
-                    disabled={modalType === 'create'}
-                    darkMode={darkMode}
-                    style={{
-                      padding: '0.75rem',
-                      fontSize: '0.8rem'
-                    }}
-                    options={[
-                      { value: 'activo', label: 'Activo' },
-                      { value: 'finalizado', label: 'Finalizado' },
-                      { value: 'cancelado', label: 'Cancelado' },
-                    ]}
-                  />
-                </div>
-                {/* Separador final */}
-                <div style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,0.1)', marginTop: 8 }} />
-              </div>
+                {modalType !== 'view' && (
+                  <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? '10px' : '0.75rem', marginTop: isMobile ? '16px' : '2rem', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      style={{
+                        padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
+                        background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: isMobile ? 10 : 12,
+                        color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.8)',
+                        cursor: 'pointer',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        width: isSmallScreen ? '100%' : 'auto'
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        border: 'none',
+                        borderRadius: isMobile ? 10 : 12,
+                        color: '#fff',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        width: isSmallScreen ? '100%' : 'auto'
+                      }}
+                    >
+                      <Save size={16} />
+                      {modalType === 'create' ? 'Crear Curso' : 'Guardar Cambios'}
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
 
-              {modalType !== 'view' && (
-                <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column-reverse' : 'row', gap: isMobile ? '10px' : '0.75rem', marginTop: isMobile ? '16px' : '2rem', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    style={{
-                      padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
-                      background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                      border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
-                      borderRadius: isMobile ? 10 : 12,
-                      color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.8)',
-                      cursor: 'pointer',
-                      fontSize: isMobile ? '0.9rem' : '1rem',
-                      width: isSmallScreen ? '100%' : 'auto'
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      padding: isMobile ? '10px 1rem' : '0.75rem 1.5rem',
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      border: 'none',
-                      borderRadius: isMobile ? 10 : 12,
-                      color: '#fff',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      fontSize: isMobile ? '0.9rem' : '1rem',
-                      width: isSmallScreen ? '100%' : 'auto'
-                    }}
-                  >
-                    <Save size={16} />
-                    {modalType === 'create' ? 'Crear Curso' : 'Guardar Cambios'}
-                  </button>
-                </div>
-              )}
-            </form>
-          </div>
-
-          {/* Animaciones CSS */}
-          <style>{`
+            {/* Animaciones CSS */}
+            <style>{`
             @keyframes slideUp {
               from {
                 opacity: 0;
@@ -2123,9 +2130,10 @@ const GestionCursos = () => {
               }
             }
           `}</style>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )
+      }
 
       <DeleteCourseModal
         show={showDeleteModal}
@@ -2136,7 +2144,7 @@ const GestionCursos = () => {
         onConfirm={handleDeleteCurso}
       />
 
-    </div>
+    </div >
   );
 };
 

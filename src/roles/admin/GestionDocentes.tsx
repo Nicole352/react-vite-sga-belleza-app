@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import type { CSSProperties, ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Eye, UserCheck, Calendar, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight
+  Search, Eye, UserCheck, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight, RefreshCcw, ArrowLeftRight, Sheet
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import StyledSelect from '../../components/StyledSelect';
-import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import LoadingModal from '../../components/LoadingModal';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
+import GlassEffect from '../../components/GlassEffect';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
@@ -54,7 +54,7 @@ const GestionDocentes = () => {
   const [limit] = useState(5); // 5 docentes por página
   const [totalCount, setTotalCount] = useState(0);
   const [previewUsername, setPreviewUsername] = useState('');
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('admin-dark-mode');
@@ -83,8 +83,12 @@ const GestionDocentes = () => {
     textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
     surface: pick('rgba(255,255,255,0.9)', 'rgba(255,255,255,0.05)'),
     surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
+    contentBackground: pick(
+      '#ffffff',
+      '#1e293b'
+    ),
     inputBg: pick('#ffffff', 'rgba(255,255,255,0.1)'),
-    inputBorder: pick('rgba(148,163,184,0.35)', 'rgba(255,255,255,0.2)'),
+    inputBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     inputIcon: pick('rgba(100,116,139,0.55)', 'rgba(255,255,255,0.5)'),
     toggleBg: pick('rgba(248,250,252,0.95)', 'rgba(255,255,255,0.05)'),
     toggleInactive: pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)'),
@@ -120,7 +124,7 @@ const GestionDocentes = () => {
   const toggleGroupBg = pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)');
   const toggleActiveBg = pick('#ffffff', 'rgba(255, 255, 255, 0.14)');
   const toggleActiveText = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
-  const toggleInactiveText = theme.toggleInactive;
+  const toggleInactiveText = pick('rgba(100, 116, 139, 0.7)', 'rgba(255, 255, 255, 0.6)');
   const viewDetailsColor = pick('#1d4ed8', '#3b82f6');
   const editButtonTextColor = mapToRedScheme('#d97706');
   const infoBannerStyles = {
@@ -495,90 +499,172 @@ const GestionDocentes = () => {
       <AdminSectionHeader
         title="Gestión de Docentes"
         subtitle="Administra y visualiza la información de todos los docentes registrados"
+        rightSlot={
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button
+              onClick={async () => {
+                try {
+                  showToast.info('Generando reporte de docentes...', darkMode);
+                  const token = sessionStorage.getItem('auth_token');
+                  const params = new URLSearchParams();
+                  if (searchTerm) params.set('search', searchTerm);
+                  if (filterEstado !== 'todos') params.set('estado', filterEstado);
+
+                  const url = `${API_BASE}/api/docentes/reporte/excel${params.toString() ? '?' + params.toString() : ''}`;
+                  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+
+                  if (!response.ok) throw new Error('Error descargando reporte');
+
+                  const blob = await response.blob();
+                  const blobUrl = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = blobUrl;
+                  a.download = `Reporte_Docentes_${new Date().toISOString().split('T')[0]}.xlsx`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(blobUrl);
+                  document.body.removeChild(a);
+
+                  showToast.success('Reporte descargado correctamente.', darkMode);
+                } catch (error) {
+                  showToast.error('No se pudo descargar el reporte.', darkMode);
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
+                height: '2rem',
+                padding: '0 1rem',
+                background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+                border: 'none',
+                borderRadius: '0.625rem',
+                color: '#fff',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Sheet size={14} color="#fff" />
+              Descargar Excel
+            </button>
+            <button
+              onClick={() => fetchDocentes()}
+              title="Actualizar datos"
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '2rem',
+                height: '2rem',
+                background: theme.contentBackground,
+                border: `1px solid ${theme.inputBorder}`,
+                borderRadius: '0.625rem',
+                color: theme.textSecondary,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+        }
       />
 
       {/* Controles */}
-      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16 }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          alignItems: isMobile ? 'stretch' : 'center',
-          justifyContent: 'space-between'
-        }}>
+      <GlassEffect
+        variant="card"
+        tint="neutral"
+        intensity="light"
+        style={{
+          marginBottom: isMobile ? '0.5rem' : '0.5rem',
+          padding: '0.5rem',
+          boxShadow: 'none',
+          borderRadius: '0.375rem',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+        }}
+      >
+        <div className="responsive-filters" style={{ gap: '0.75rem', alignItems: 'center' }}>
+          {/* Búsqueda */}
           <div style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: '0.75rem',
-            alignItems: isMobile ? 'stretch' : 'center',
-            flex: 1
+            position: 'relative',
+            flex: isSmallScreen ? '1 1 100%' : 1,
+            minWidth: isSmallScreen ? 'auto' : '12rem',
+            width: isSmallScreen ? '100%' : 'auto'
           }}>
-            {/* Búsqueda */}
-            <div style={{ position: 'relative', minWidth: isMobile ? 'auto' : '17.5rem', flex: isMobile ? '1' : 'initial' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
-              <input
-                type="text"
-                placeholder={isMobile ? "Buscar..." : "Buscar por nombre, apellido, identificación..."}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 0.625rem 0.625rem 2.375rem',
-                  background: theme.inputBg,
-                  border: `1px solid ${theme.inputBorder}`,
-                  borderRadius: '0.625rem',
-                  color: theme.textPrimary,
-                  fontSize: '0.8rem',
-                  transition: 'background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
-                  boxShadow: darkMode ? '0 0.35rem 1rem rgba(15,23,42,0.08)' : '0 0.25rem 0.75rem rgba(15,23,42,0.08)'
-                }}
-              />
-            </div>
+            <Search size={14} style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
+            <input
+              type="text"
+              placeholder={isMobile ? "Buscar..." : "Buscar docente..."}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0 0.5rem 0 2rem',
+                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
+                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                borderRadius: '0.5rem',
+                color: theme.textPrimary,
+                fontSize: '0.75rem',
+                boxShadow: 'none',
+                height: '2rem'
+              }}
+            />
+          </div>
 
-            {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 25vw)', flex: isMobile ? '1' : 'initial' }}>
-              <StyledSelect
-                name="filterEstado"
-                value={filterEstado}
-                onChange={(event: ChangeEvent<HTMLSelectElement>) => setFilterEstado(event.target.value)}
-                options={[
-                  { value: 'todos', label: 'Todos los estados' },
-                  { value: 'activo', label: 'Activos' },
-                  { value: 'inactivo', label: 'Inactivos' }
-                ]}
-              />
-            </div>
+          {/* Filtros */}
+          <div style={{
+            minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)',
+            width: isSmallScreen ? '100%' : 'auto'
+          }}>
+            <StyledSelect
+              name="filterEstado"
+              value={filterEstado}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) => setFilterEstado(event.target.value)}
+              darkMode={darkMode}
+              options={[
+                { value: 'todos', label: 'Todos los estados' },
+                { value: 'activo', label: 'Activos' },
+                { value: 'inactivo', label: 'Inactivos' }
+              ]}
+            />
+          </div>
 
-            {/* Toggle Vista */}
-            <div style={{
-              display: 'flex',
-              gap: '0.375rem',
-              background: toggleGroupBg,
-              borderRadius: '0.625rem',
-              padding: '0.1875rem',
-              width: isSmallScreen ? '100%' : 'auto'
-            }}>
+          {/* Toggle Vista */}
+          {!isMobile && (
+            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                background: toggleGroupBg,
+                borderRadius: '0.65rem',
+                padding: '0.1875rem',
+                border: 'none',
+                boxShadow: 'none'
+              }}>
               <button
                 onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3125rem',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                  gap: '0.3em',
+                  padding: '0.3125rem 0.75rem',
                   background: isCardsView ? toggleActiveBg : 'transparent',
                   border: 'none',
-                  borderRadius: '0.5rem',
+                  borderRadius: '0.5em',
                   color: isCardsView ? toggleActiveText : toggleInactiveText,
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.875rem' : '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
+                  transition: 'all 0.2s ease'
                 }}
+                title="Vista de Tarjetas"
               >
-                <Grid size={16} color={isCardsView ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
+                <Grid size={16} color={isCardsView ? toggleActiveText : toggleInactiveText} /> Tarjetas
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -586,25 +672,28 @@ const GestionDocentes = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                  gap: '0.3em',
+                  padding: '0.3125rem 0.75rem',
                   background: isTableView ? toggleActiveBg : 'transparent',
                   border: 'none',
-                  borderRadius: '0.5rem',
+                  borderRadius: '0.5em',
                   color: isTableView ? toggleActiveText : toggleInactiveText,
                   cursor: 'pointer',
-                  fontSize: isMobile ? '0.875rem' : '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
+                  transition: 'all 0.2s ease'
                 }}
+                title="Vista de Tabla"
               >
-                <List size={16} color={isTableView ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
+                <List size={16} color={isTableView ? toggleActiveText : toggleInactiveText} /> Tabla
               </button>
             </div>
-          </div>
 
-          {/* Botón Crear */}
+
+            </div>
+          )}
+
+          {/* Botón Crear - Movido aquí */}
           <button
             onClick={() => {
               setSelectedDocente(null);
@@ -617,7 +706,7 @@ const GestionDocentes = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5rem',
-              padding: isMobile ? '10px 1rem' : '12px 1.5rem',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: theme.buttonPrimaryBg,
               border: 'none',
               borderRadius: '0.625rem',
@@ -626,35 +715,17 @@ const GestionDocentes = () => {
               fontWeight: '600',
               cursor: 'pointer',
               boxShadow: pick('0 0.35rem 0.85rem rgba(239,68,68,0.25)', '0 0.35rem 0.85rem rgba(239,68,68,0.4)'),
+              transition: 'all 0.2s ease',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
             <Plus size={16} color={theme.buttonPrimaryText} />
-            Nuevo Docente
+            {!isMobile && 'Nuevo Docente'}
+            {isMobile && 'Crear'}
           </button>
         </div>
       </GlassEffect>
 
-      {/* Estadísticas */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(8.75rem, 45vw), 1fr))', gap: '0.75em', marginBottom: '1em' }}>
-        <GlassEffect variant="card" tint="red" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: RedColorPalette.primary, marginBottom: '0.25rem' }}>
-            {totalCount}
-          </div>
-          <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
-            Total Docentes
-          </div>
-        </GlassEffect>
-
-        <GlassEffect variant="card" tint="success" intensity="light" style={{ textAlign: 'center', padding: '0.75rem 0.5rem' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: mapToRedScheme('#10b981'), marginBottom: '0.25rem' }}>
-            {docentes.filter(d => d.estado === 'activo').length}
-          </div>
-          <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
-            Docentes Activos
-          </div>
-        </GlassEffect>
-      </div>
 
       {/* Error */}
       {error && (
@@ -672,7 +743,13 @@ const GestionDocentes = () => {
 
       {/* Vista Cards */}
       {viewMode === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(17.5rem, 90vw), 1fr))', gap: '1em', marginBottom: '1.125em' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '0.75rem',
+          padding: '0.25rem',
+          marginBottom: '0.5rem'
+        }}>
           {docentesFiltrados.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', padding: '2.5em 1.25em', textAlign: 'center', color: theme.textMuted, fontSize: '0.85rem' }}>
               {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
@@ -685,7 +762,7 @@ const GestionDocentes = () => {
                   background: theme.cardBackground,
                   border: `1px solid ${theme.cardBorder}`,
                   borderRadius: '0.75rem',
-                  padding: '0.875rem',
+                  padding: '0.75rem',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
                   boxShadow: pick('0 0.35rem 1rem rgba(15,23,42,0.08)', 'none')
@@ -699,37 +776,43 @@ const GestionDocentes = () => {
                   e.currentTarget.style.boxShadow = pick('0 0.35rem 1rem rgba(15,23,42,0.08)', 'none');
                 }}
               >
-                <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ marginBottom: '0.625rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem', gap: '0.5rem' }}>
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '0.375rem',
                       color: theme.badgeText,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       background: theme.badgeBg,
-                      padding: '3px 0.5rem',
+                      padding: '2px 0.5rem',
                       borderRadius: '0.3125rem',
                       border: `1px solid ${theme.surfaceBorder}`,
                       minWidth: 0,
                       maxWidth: '65%',
                       flex: '1 1 auto'
                     }}>
-                      <Mail size={14} color={theme.badgeText} style={{ flexShrink: 0 }} />
+                      <Mail size={12} color={theme.badgeText} style={{ flexShrink: 0 }} />
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{docente.gmail || 'Sin correo'}</span>
                     </span>
                     <span style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.1875rem',
-                      padding: '3px 0.5rem',
-                      borderRadius: 6,
+                      padding: '2px 0.5rem',
+                      borderRadius: '0.5rem',
                       fontSize: '0.65rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
-                      background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                      border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                      color: docente.estado === 'activo' ? '#10b981' : RedColorPalette.primary
+                      background: docente.estado === 'activo'
+                        ? 'rgba(16, 185, 129, 0.1)'
+                        : 'rgba(239, 68, 68, 0.1)',
+                      border: `1px solid ${docente.estado === 'activo'
+                        ? 'rgba(10, 185, 129, 0.2)'
+                        : 'rgba(239, 68, 68, 0.2)'}`,
+                      color: docente.estado === 'activo'
+                        ? '#10b981'
+                        : '#ef4444'
                     }}>
                       {docente.estado}
                     </span>
@@ -747,7 +830,7 @@ const GestionDocentes = () => {
                     <h3 style={{
                       color: theme.textPrimary,
                       margin: 0,
-                      fontSize: '0.95rem',
+                      fontSize: '0.85rem',
                       fontWeight: 600
                     }}>
                       {docente.apellidos}, {docente.nombres}
@@ -758,35 +841,35 @@ const GestionDocentes = () => {
                 <div style={{
                   paddingTop: '0.625rem',
                   borderTop: `1px solid ${theme.divider}`,
-                  marginBottom: '0.875rem'
+                  marginBottom: '0.625rem'
                 }}>
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                    gap: '0.75rem',
-                    marginBottom: '0.75rem'
+                    gap: '0.5rem',
+                    marginBottom: '0.5rem'
                   }}>
                     <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                         Identificación
                       </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                         {docente.identificacion}
                       </div>
                     </div>
                     <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                         Usuario
                       </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                         {docente.username || 'Sin usuario'}
                       </div>
                     </div>
                     <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
+                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
                         Título
                       </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                         {docente.titulo_profesional}
                       </div>
                     </div>
@@ -794,7 +877,7 @@ const GestionDocentes = () => {
                       <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
                         Experiencia
                       </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 600 }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                         {docente.experiencia_anos} años
                       </div>
                     </div>
@@ -842,65 +925,81 @@ const GestionDocentes = () => {
 
       {/* Vista Tabla */}
       {viewMode === 'table' && (
-        <div style={{
-          background: theme.tableWrapperBg,
-          borderRadius: '1em',
-          overflow: 'hidden',
-          border: `0.0625rem solid ${theme.tableWrapperBorder}`,
-          marginBottom: '1.5em',
-          boxShadow: pick('0 0.75rem 2rem rgba(15,23,42,0.08)', '0 0.75rem 2.25rem rgba(15,15,35,0.35)')
-        }}>
+        <>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '0.5em',
-              padding: '0.5em 0.75em',
-              margin: '0.75em',
-              color: '#ef4444',
+              background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(254,226,226,0.9)',
+              border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : 'rgba(248,113,113,0.35)'}`,
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              marginBottom: '0.75rem',
+              color: darkMode ? 'rgba(248,250,252,0.85)' : 'rgba(153,27,27,0.85)',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.375em'
+              gap: '0.375rem'
             }}>
-              <ChevronRight size={16} />
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
               <span>Desliza horizontalmente para ver toda la tabla</span>
-              <ChevronLeft size={16} />
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
             </div>
           )}
+
+        <div style={{
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
+          borderRadius: '0.75rem',
+          overflow: 'hidden',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+          marginBottom: '0.5rem',
+          boxShadow: darkMode 
+            ? '0 8px 32px rgba(0,0,0,0.3)'
+            : '0 4px 20px rgba(239,68,68,0.08)',
+          position: 'relative'
+        }}>
+          {/* Marca de agua de scroll */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: 0.08,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}>
+            <ArrowLeftRight size={120} strokeWidth={1.5} color={darkMode ? '#ffffff' : '#ef4444'} />
+          </div>
 
           <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{
-                  background: theme.tableHeaderBg,
-                  borderBottom: `0.0625rem solid ${theme.tableWrapperBorder}`
+                  background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
+                  borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
                 }}>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em' }}>
-                      <User size={14} />
-                      Docente
-                    </div>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    Docente
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Identificación
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Usuario
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Título Profesional
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Estado
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Experiencia
                   </th>
-                  <th style={{ padding: '0.625em 0.75em', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                     Acciones
                   </th>
                 </tr>
@@ -917,18 +1016,18 @@ const GestionDocentes = () => {
                     <tr
                       key={docente.id_docente}
                       style={{
-                        borderBottom: `0.0625rem solid ${theme.divider}`,
-                        background: index % 2 === 0 ? theme.tableRowAlt : 'transparent',
+                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                        background: 'transparent',
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.18)');
+                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = index % 2 === 0 ? theme.tableRowAlt : 'transparent';
+                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      <td style={{ padding: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
                           <UserAvatar
                             userId={docente.id_usuario || docente.id_docente}
@@ -939,82 +1038,82 @@ const GestionDocentes = () => {
                             borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
                           />
                           <div>
-                            <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.85rem' }}>
+                            <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.75rem' }}>
                               {docente.nombres} {docente.apellidos}
                             </div>
                             {docente.telefono && (
-                              <div style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
+                              <div style={{ color: theme.textSecondary, fontSize: '0.65rem' }}>
                                 {docente.telefono}
                               </div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', color: theme.tableText, fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         {docente.identificacion}
                       </td>
-                      <td style={{ padding: '0.75rem', color: theme.tableText, fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         {docente.username ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                            <User size={12} color={mapToRedScheme('#60a5fa')} />
-                            <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
-                              {docente.username}
-                            </span>
-                          </div>
+                          <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
+                            {docente.username}
+                          </span>
                         ) : (
                           <span style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
                             Sin usuario
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.75rem', color: theme.tableText, fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         {docente.titulo_profesional}
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{
                           display: 'inline-block',
                           padding: '4px 0.625rem',
                           borderRadius: '0.5rem',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: '700',
                           textTransform: 'uppercase',
-                          background: docente.estado === 'activo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                          border: docente.estado === 'activo' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(156, 163, 175, 0.3)',
-                          color: docente.estado === 'activo' ? '#10b981' : '#9ca3af'
+                          background: docente.estado === 'activo'
+                            ? 'rgba(16, 185, 129, 0.1)'
+                            : 'rgba(239, 68, 68, 0.1)',
+                          color: docente.estado === 'activo'
+                            ? '#10b981'
+                            : '#ef4444',
+                          border: `1px solid ${docente.estado === 'activo'
+                            ? 'rgba(10, 185, 129, 0.2)'
+                            : 'rgba(239, 68, 68, 0.2)'}`
                         }}>
                           {docente.estado}
                         </div>
                       </td>
-                      <td style={{ padding: '0.75rem', color: theme.tableText, fontSize: '0.8rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         {docente.experiencia_anos} años
                       </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                           <button
                             onClick={() => handleViewDocente(docente)}
+                            title="Ver detalles"
                             style={{
-                              background: theme.infoPanelBg,
-                              border: `0.0625rem solid ${theme.infoPanelBorder}`,
-                              color: viewDetailsColor,
-                              padding: '0.375em 0.625em',
-                              borderRadius: '0.375em',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #3b82f6',
+                              backgroundColor: 'transparent',
+                              color: '#3b82f6',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.3)');
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = theme.infoPanelBg;
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#3b82f6';
                             }}
                           >
-                            <Eye size={12} color={viewDetailsColor} />
-                            Ver
+                            <Eye style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => {
@@ -1022,29 +1121,26 @@ const GestionDocentes = () => {
                               setModalMode('edit');
                               setShowModal(true);
                             }}
+                            title="Editar"
                             style={{
-                              background: pick('rgba(245,158,11,0.18)', 'rgba(245,158,11,0.22)'),
-                              border: `0.0625rem solid ${pick('rgba(245,158,11,0.25)', 'rgba(245,158,11,0.35)')}`,
-                              color: editButtonTextColor,
-                              padding: '0.375em 0.625em',
-                              borderRadius: '0.375em',
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #f59e0b',
+                              backgroundColor: 'transparent',
+                              color: '#f59e0b',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = pick('rgba(245,158,11,0.24)', 'rgba(245,158,11,0.32)');
+                              e.currentTarget.style.backgroundColor = '#f59e0b';
+                              e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = pick('rgba(245,158,11,0.18)', 'rgba(245,158,11,0.22)');
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#f59e0b';
                             }}
                           >
-                            <Edit size={12} color={editButtonTextColor} />
-                            Editar
+                            <Edit style={{ width: '1rem', height: '1rem' }} />
                           </button>
                         </div>
                       </td>
@@ -1055,6 +1151,7 @@ const GestionDocentes = () => {
             </table>
           </div>
         </div>
+        </>
       )}
 
       {/* Paginación */}
@@ -1065,22 +1162,23 @@ const GestionDocentes = () => {
           justifyContent: 'space-between',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: isMobile ? '0.75rem' : '0',
-          padding: isMobile ? '16px' : '20px 1.5rem',
+          padding: isMobile ? '8px' : '0.25rem 1rem',
           background: theme.cardBackground,
           border: `1px solid ${theme.cardBorder}`,
-          borderRadius: '1rem',
+          borderRadius: '0.75rem',
+          marginBottom: isMobile ? '0.75rem' : '0.5rem',
           boxShadow: pick('0 0.5rem 1.5rem rgba(15,23,42,0.08)', '0 0.5rem 1.75rem rgba(15,15,35,0.32)')
         }}>
           <div style={{
             color: theme.textSecondary,
-            fontSize: isMobile ? '0.8rem' : '0.9rem',
+            fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
             Página {page} de {Math.ceil(totalCount / limit)} • Total: {totalCount} docentes
           </div>
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            gap: '0.375rem',
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
@@ -1091,20 +1189,21 @@ const GestionDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === 1 ? pick('rgba(226,232,240,0.7)', 'rgba(255,255,255,0.05)') : theme.toggleBg,
                 border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
                 color: page === 1 ? theme.textMuted : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
-              <ChevronLeft size={isMobile ? 14 : 16} />
+              <ChevronLeft size={isMobile ? 14 : 14} />
               {!isMobile && 'Anterior'}
             </button>
             {Array.from({ length: Math.ceil(totalCount / limit) }, (_, i) => i + 1).map(pageNum => (
@@ -1112,16 +1211,16 @@ const GestionDocentes = () => {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 style={{
-                  padding: isMobile ? '8px 0.625rem' : '8px 0.875rem',
+                  padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
                   background: page === pageNum ? theme.buttonPrimaryBg : theme.toggleBg,
                   border: page === pageNum ? `1px solid ${RedColorPalette.primary}` : `1px solid ${theme.surfaceBorder}`,
-                  borderRadius: '0.625rem',
+                  borderRadius: '0.5rem',
                   color: page === pageNum ? theme.buttonPrimaryText : theme.textPrimary,
-                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  minWidth: isMobile ? '36px' : '2.5rem',
+                  minWidth: isMobile ? '30px' : '2rem',
                   boxShadow: page === pageNum ? pick('0 0.35rem 0.85rem rgba(239,68,68,0.18)', '0 0.35rem 0.85rem rgba(239,68,68,0.28)') : 'none'
                 }}
               >
@@ -1135,21 +1234,22 @@ const GestionDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: isMobile ? '4px' : '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '8px 1rem',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
                 background: page === Math.ceil(totalCount / limit) ? pick('rgba(226,232,240,0.7)', 'rgba(255,255,255,0.05)') : theme.toggleBg,
                 border: `1px solid ${theme.surfaceBorder}`,
                 borderRadius: '0.625rem',
                 color: page === Math.ceil(totalCount / limit) ? theme.textMuted : theme.textPrimary,
-                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
                 fontWeight: 600,
                 cursor: page === Math.ceil(totalCount / limit) ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                flex: isMobile ? '1' : 'initial'
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
               }}
             >
               {!isMobile && 'Siguiente'}
-              <ChevronRight size={isMobile ? 14 : 16} />
+              <ChevronRight size={isMobile ? 14 : 14} />
             </button>
           </div>
         </div>

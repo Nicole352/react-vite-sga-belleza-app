@@ -83,16 +83,30 @@ export const useApiWithRefresh = ({
       // Construir URL completa
       const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
 
+      // Función interna para realizar la petición con reintentos para error 429
+      const fetchWithRetry = async (url: string, init: RequestInit, retries = 2, delay = 1000): Promise<Response> => {
+        const response = await fetch(url, init);
+        if (response.status === 429 && retries > 0) {
+          console.warn(`Error 429: Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return fetchWithRetry(url, init, retries - 1, delay * 2);
+        }
+        return response;
+      };
+
       // Hacer petición
-      const response = await fetch(url, {
+      const response = await fetchWithRetry(url, {
         method,
         headers: requestHeaders,
         body: body instanceof FormData ? body : (body ? JSON.stringify(body) : undefined),
         signal: abortControllerRef.current.signal
-      });
+      }, 3, 1500); // 3 reintentos para 429, empezando con 1.5s delay
 
       // Manejar respuesta
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('El servidor está saturado. Por favor, espera un momento antes de reintentar.');
+        }
         const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
         throw new Error(errorData.error || `Error ${response.status}`);
       }

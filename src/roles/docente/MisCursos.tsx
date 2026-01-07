@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Users, Calendar, Clock, MapPin, AlertCircle, BarChart3, Eye, ChevronRight } from 'lucide-react';
-import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { BookOpen, Users, Calendar, Clock, MapPin, AlertCircle, BarChart3, ChevronRight } from 'lucide-react';
+
 import '../../styles/responsive.css';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -28,7 +28,7 @@ interface Curso {
 
 const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
   const navigate = useNavigate();
-  const { isMobile, isSmallScreen } = useBreakpoints();
+
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [filteredCursos, setFilteredCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,13 +43,13 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
     // Filter courses based on active tab
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    
+
     if (activeTab === 'activos') {
       // Cursos activos: estado activo/planificado Y fecha de fin no ha pasado
       setFilteredCursos(cursos.filter(curso => {
         const fechaFin = new Date(curso.fecha_fin);
         fechaFin.setHours(0, 0, 0, 0);
-        
+
         return (curso.estado === 'activo' || curso.estado === 'planificado') && fechaFin >= hoy;
       }));
     } else {
@@ -57,7 +57,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
       setFilteredCursos(cursos.filter(curso => {
         const fechaFin = new Date(curso.fecha_fin);
         fechaFin.setHours(0, 0, 0, 0);
-        
+
         return curso.estado === 'finalizado' || curso.estado === 'cancelado' || fechaFin < hoy;
       }));
     }
@@ -99,23 +99,23 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.05)',
-        textPrimary: '#fff',
-        textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        textPrimary: '#f8fafc',
+        textSecondary: '#cbd5e1',
+        textMuted: '#94a3b8',
+        border: 'rgba(255, 255, 255, 0.08)',
         accent: '#3b82f6',
-        success: '#10b981',
-        warning: '#f59e0b'
+        success: '#34d399',
+        warning: '#fbbf24'
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
-        accent: '#3b82f6',
+        cardBg: '#ffffff',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#64748b',
+        border: 'rgba(15, 23, 42, 0.08)',
+        accent: '#2563eb',
         success: '#059669',
         warning: '#d97706'
       };
@@ -159,102 +159,71 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ marginBottom: '1.25em' }}>
+      <div style={{ marginBottom: '1rem' }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.25rem',
           fontWeight: '700',
           color: theme.textPrimary,
-          margin: '0 0 0.375rem 0'
+          margin: '0 0 0.15rem 0',
+          letterSpacing: '-0.02em'
         }}>
           Mis Cursos Asignados
         </h2>
-        <p style={{ color: theme.textMuted, fontSize: '0.8125rem', margin: 0 }}>
-          Gestiona tus cursos y estudiantes
+        <p style={{ color: theme.textMuted, fontSize: '0.75rem', margin: 0, fontWeight: 500 }}>
+          Gestiona tus cursos y estudiantes actuales y anteriores
         </p>
       </div>
 
       {/* Tabs para filtrar cursos */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '0.5rem', 
-        marginBottom: '1rem',
+      <div style={{
+        display: 'flex',
+        gap: '0.4rem',
+        marginBottom: '0.75rem',
         borderBottom: `1px solid ${theme.border}`,
-        paddingBottom: '0.75rem'
+        paddingBottom: '0.5rem'
       }}>
         <button
           onClick={() => setActiveTab('activos')}
           style={{
-            padding: '0.5rem 1rem',
-            background: activeTab === 'activos' 
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-              : darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)',
-            border: 'none',
-            borderRadius: '0.5rem',
+            padding: '0.35rem 0.85rem',
+            background: activeTab === 'activos'
+              ? theme.accent
+              : 'transparent',
+            border: activeTab === 'activos' ? 'none' : `1px solid ${theme.border}`,
+            borderRadius: '0.375rem',
             color: activeTab === 'activos' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'activos') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'activos') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)';
-            }
+            gap: '0.4rem'
           }}
         >
-          Cursos Activos
+          <BarChart3 size={14} /> Cursos Activos
         </button>
-        
+
         <button
           onClick={() => setActiveTab('finalizados')}
           style={{
-            padding: '0.5rem 1rem',
-            background: activeTab === 'finalizados' 
-              ? `linear-gradient(135deg, ${theme.accent}, #2563eb)` 
-              : darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)',
-            border: 'none',
-            borderRadius: '0.5rem',
+            padding: '0.35rem 0.85rem',
+            background: activeTab === 'finalizados'
+              ? theme.accent
+              : 'transparent',
+            border: activeTab === 'finalizados' ? 'none' : `1px solid ${theme.border}`,
+            borderRadius: '0.375rem',
             color: activeTab === 'finalizados' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
-            fontSize: '0.9rem',
+            fontSize: '0.75rem',
             fontWeight: '600',
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'finalizados') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.1)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'finalizados') {
-              e.currentTarget.style.background = darkMode 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(0, 0, 0, 0.05)';
-            }
+            gap: '0.4rem'
           }}
         >
-          Cursos Finalizados
+          <Clock size={14} /> Cursos Finalizados
         </button>
       </div>
 
@@ -271,18 +240,18 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         }}>
           <BookOpen size={48} style={{ margin: '0 auto 1em', color: theme.textMuted, opacity: 0.5 }} />
           <h3 style={{ color: theme.textPrimary, margin: '0 0 0.5em 0' }}>
-            {activeTab === 'activos' 
-              ? 'No tienes cursos activos' 
+            {activeTab === 'activos'
+              ? 'No tienes cursos activos'
               : 'No tienes cursos finalizados'}
           </h3>
           <p style={{ color: theme.textMuted, margin: 0 }}>
-            {activeTab === 'activos' 
-              ? 'Tus cursos activos aparecerán aquí' 
+            {activeTab === 'activos'
+              ? 'Tus cursos activos aparecerán aquí'
               : 'Tus cursos finalizados aparecerán aquí'}
           </p>
         </div>
       ) : (
-        <div className="responsive-grid-auto" style={{ gap: '1.25em' }}>
+        <div className="responsive-grid-auto" style={{ gap: '0.75rem' }}>
           {filteredCursos.map((curso, index) => {
             const coloresGradiente = [
               ['#3b82f6', '#2563eb'],
@@ -320,7 +289,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 {/* Header con gradiente */}
                 <div style={{
                   background: `linear-gradient(135deg, ${color1}, ${color2})`,
-                  padding: '1em',
+                  padding: '0.875rem',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
@@ -341,9 +310,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       <div style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(0.625rem)',
-                        padding: '0.25em 0.625em',
-                        borderRadius: '0.75em',
-                        fontSize: '0.65rem',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.6rem',
                         fontWeight: '700',
                         color: '#fff'
                       }}>
@@ -352,9 +321,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                       <div style={{
                         background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)',
                         backdropFilter: 'blur(0.625rem)',
-                        padding: '0.25em 0.625em',
-                        borderRadius: '0.75em',
-                        fontSize: '0.65rem',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.6rem',
                         fontWeight: '700',
                         color: '#fff',
                         textTransform: 'uppercase'
@@ -364,58 +333,58 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     </div>
 
                     <h3 style={{
-                      fontSize: '0.95rem',
+                      fontSize: '0.85rem',
                       fontWeight: '800',
                       color: '#fff',
-                      margin: '0 0 0.5em 0',
-                      lineHeight: 1.3
+                      margin: '0 0 0.5rem 0',
+                      lineHeight: 1.2
                     }}>
                       {curso.nombre}
                     </h3>
 
                     {/* Estadística destacada */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={{
-                        background: 'rgba(255,255,255,0.2)',
+                        background: 'rgba(255,255,255,0.15)',
                         backdropFilter: 'blur(0.625rem)',
-                        padding: '0.5em 0.75em',
-                        borderRadius: '0.625em',
+                        padding: '0.4rem 0.65rem',
+                        borderRadius: '0.5rem',
                         flex: 1
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375em', marginBottom: '0.125em' }}>
-                          <Users size={14} color="#fff" />
-                          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.65rem', fontWeight: '600' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.125rem' }}>
+                          <Users size={12} color="#fff" />
+                          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.6rem', fontWeight: '600' }}>
                             Estudiantes
                           </span>
                         </div>
-                        <div style={{ color: '#fff', fontSize: '1.3rem', fontWeight: '800', lineHeight: 1 }}>
+                        <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: '800', lineHeight: 1 }}>
                           {curso.total_estudiantes}
                         </div>
-                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.65rem', marginTop: '0.125em' }}>
-                          de {curso.capacidad_maxima}
+                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.6rem', marginTop: '0.125rem' }}>
+                          de {curso.capacidad_maxima} hay cupo
                         </div>
                       </div>
 
                       {/* Circular progress */}
-                      <div style={{ position: 'relative', width: '3.4375rem', height: '3.4375rem' }}>
-                        <svg width="55" height="55" style={{ transform: 'rotate(-90deg)' }}>
+                      <div style={{ position: 'relative', width: '2.75rem', height: '2.75rem' }}>
+                        <svg width="44" height="44" style={{ transform: 'rotate(-90deg)' }}>
                           <circle
-                            cx="27.5"
-                            cy="27.5"
-                            r="23"
+                            cx="22"
+                            cy="22"
+                            r="19"
                             fill="none"
-                            stroke="rgba(255,255,255,0.2)"
-                            strokeWidth="5"
+                            stroke="rgba(255,255,255,0.15)"
+                            strokeWidth="4"
                           />
                           <circle
-                            cx="27.5"
-                            cy="27.5"
-                            r="23"
+                            cx="22"
+                            cy="22"
+                            r="19"
                             fill="none"
                             stroke="#fff"
-                            strokeWidth="5"
-                            strokeDasharray={`${2 * Math.PI * 23}`}
-                            strokeDashoffset={`${2 * Math.PI * 23 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
+                            strokeWidth="4"
+                            strokeDasharray={`${2 * Math.PI * 19}`}
+                            strokeDashoffset={`${2 * Math.PI * 19 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -425,7 +394,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                           left: '50%',
                           transform: 'translate(-50%, -50%)',
                           color: '#fff',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: '800'
                         }}>
                           {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}%
@@ -436,158 +405,123 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                 </div>
 
                 {/* Contenido */}
-                <div style={{ padding: '1em' }}>
+                <div style={{ padding: '0.75rem' }}>
                   {/* Información en grid */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '10px',
-                    marginBottom: '12px'
+                    gap: '0.5rem',
+                    marginBottom: '0.75rem'
                   }}>
                     {/* Aula */}
                     {curso.aula_nombre && (
                       <div style={{
-                        background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                        padding: '10px',
-                        borderRadius: '10px',
+                        background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                        padding: '0.5rem',
+                        borderRadius: '0.5rem',
                         border: `1px solid ${theme.border}`
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-                          <MapPin size={12} color={theme.success} />
-                          <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                          <MapPin size={10} color={theme.success} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
                             Aula
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
                           {curso.aula_nombre}
                         </div>
-                        {curso.aula_ubicacion && (
-                          <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginTop: '2px' }}>
-                            {curso.aula_ubicacion}
-                          </div>
-                        )}
                       </div>
                     )}
 
                     {/* Horario */}
                     {curso.hora_inicio && (
                       <div style={{
-                        background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                        padding: '10px',
-                        borderRadius: '10px',
+                        background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                        padding: '0.5rem',
+                        borderRadius: '0.5rem',
                         border: `1px solid ${theme.border}`
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-                          <Clock size={12} color={color1} />
-                          <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                          <Clock size={10} color={color1} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
                             Horario
                           </span>
                         </div>
-                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
                           {curso.hora_inicio?.substring(0, 5)} - {curso.hora_fin?.substring(0, 5)}
                         </div>
-                        {curso.dias && (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '4px' }}>
-                            {curso.dias.split(',').slice(0, 3).map((dia, idx) => (
-                              <span key={idx} style={{
-                                padding: '2px 6px',
-                                background: `${color1}20`,
-                                color: color1,
-                                fontSize: '0.65rem',
-                                fontWeight: '700',
-                                borderRadius: '4px'
-                              }}>
-                                {dia.trim()}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
 
                   {/* Período */}
                   <div style={{
-                    background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                    padding: '10px',
-                    borderRadius: '10px',
+                    background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
                     border: `1px solid ${theme.border}`,
-                    marginBottom: '12px'
+                    marginBottom: '0.75rem'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-                      <Calendar size={12} color={theme.warning} />
-                      <span style={{ color: theme.textMuted, fontSize: '0.6rem', fontWeight: '600', textTransform: 'uppercase' }}>
-                        Período Académico
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                      <Calendar size={10} color={theme.warning} />
+                      <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
+                        Período
                       </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '600' }}>
                         {new Date(curso.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                       </div>
-                      <ChevronRight size={14} color={theme.textMuted} />
-                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '600' }}>
-                        {new Date(curso.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      <ChevronRight size={10} color={theme.textMuted} />
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '600' }}>
+                        {new Date(curso.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                       </div>
                     </div>
                   </div>
 
                   {/* Acciones */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     <button style={{
-                      padding: '10px',
+                      padding: '0.5rem',
                       background: `linear-gradient(135deg, ${color1}, ${color2})`,
                       border: 'none',
-                      borderRadius: '12px',
+                      borderRadius: '0.5rem',
                       color: '#fff',
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.3s ease'
+                      gap: '4px',
+                      transition: 'all 0.2s ease'
                     }}
-                      onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}>
-                      <Eye size={14} />
-                      Ver Detalles
+                      onClick={() => navigate(`/panel/docente/curso/${curso.id_curso}`)}>
+                      <BookOpen size={12} />
+                      Gestión de Módulos
                     </button>
 
                     <button style={{
-                      padding: '10px',
+                      padding: '0.5rem',
                       background: 'transparent',
-                      border: `2px solid ${color1}`,
-                      borderRadius: '12px',
+                      border: `1px solid ${color1}`,
+                      borderRadius: '0.5rem',
                       color: color1,
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.3s ease'
+                      gap: '4px',
+                      transition: 'all 0.2s ease'
                     }}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/panel/docente/calificaciones/${curso.id_curso}`);
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = color1;
-                        e.currentTarget.style.color = '#fff';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = color1;
                       }}>
-                      <BarChart3 size={14} />
-                      Calificaciones
+                      <BarChart3 size={12} />
+                      Calificaciones del Curso
                     </button>
                   </div>
                 </div>

@@ -85,7 +85,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 }) => {
   const { id } = useParams<{ id: string }>();
   const id_curso = id;
-  const { isMobile, isSmallScreen } = useBreakpoints();
+  const { isMobile } = useBreakpoints();
   const navigate = useNavigate();
 
   // Obtener darkMode del localStorage o usar el prop
@@ -220,17 +220,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
     }
   };
 
-  // Función para refrescar todos los datos
-  const refreshAllData = async () => {
-    await fetchCursoData();
-    await fetchModulos();
-    const expandedModules = Object.keys(modulosExpandidos).filter(
-      (key) => modulosExpandidos[parseInt(key)]
-    );
-    for (const id_modulo of expandedModules) {
-      await fetchTareasModulo(parseInt(id_modulo));
-    }
-  };
+
 
   // Escuchar eventos en tiempo real vía socket (módulos, tareas, entregas)
   useSocket({
@@ -352,6 +342,13 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
 
   const confirmarEliminarTarea = async () => {
     if (!tareaParaEliminar) return;
+
+    // Validación de seguridad adicional
+    if (tareaParaEliminar.total_entregas > 0) {
+      showToast.error("No se puede eliminar una tarea que ya tiene entregas de alumnos", darkMode);
+      setTareaParaEliminar(null);
+      return;
+    }
 
     try {
       setShowModalConfirmEliminarTarea(false);
@@ -639,61 +636,61 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             }}
           >
             <ArrowLeft size={16} />
-            Volver a Mis Cursos
+            Volver
           </button>
         </div>
 
-        {/* Header */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+        {/* Header Compacto */}
+        <div style={{ marginBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.15rem' }}>
             <div style={{
-              width: '3rem',
-              height: '3rem',
+              width: '2.5rem',
+              height: '2.5rem',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              borderRadius: '0.875rem',
+              borderRadius: '0.625rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
             }}>
-              <BookOpen size={24} strokeWidth={2.5} color="#fff" />
+              <BookOpen size={20} strokeWidth={2.5} color="#fff" />
             </div>
             <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary }}>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: theme.textPrimary, letterSpacing: '-0.02em' }}>
                 {curso?.nombre || 'Detalle del Curso'}
               </h1>
-              <p style={{ fontSize: '0.75rem', color: theme.textSecondary, margin: 0 }}>
+              <p style={{ fontSize: '0.7rem', color: theme.textSecondary, margin: 0 }}>
                 Código: {curso?.codigo_curso} • {curso?.total_estudiantes || 0} estudiantes matriculados
               </p>
             </div>
           </div>
         </div>
 
-        {/* Herramientas de Gestión */}
+        {/* Herramientas de Gestión Compacto */}
         <div style={{
           background: theme.cardBg,
           border: `1px solid ${theme.border}`,
-          borderRadius: '0.625rem',
-          padding: '1rem',
-          marginBottom: '0.75rem',
+          borderRadius: '0.875rem',
+          padding: '0.75rem',
+          marginBottom: '0.6rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div>
-              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.125rem' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '600', color: theme.textPrimary, marginBottom: '0.1rem' }}>
                 Herramientas de Gestión
               </div>
-              <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
-                Módulos, tareas y configuración disponibles
+              <div style={{ fontSize: '0.7rem', color: theme.textSecondary }}>
+                Módulos, tareas y configuración
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div style={{ display: "flex", gap: "0.4rem" }}>
             <button
               onClick={() => {
                 fetchModulos();
@@ -702,14 +699,14 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               style={{
                 background: "rgba(16, 185, 129, 0.1)",
                 border: "1px solid rgba(16, 185, 129, 0.2)",
-                borderRadius: "0.5rem",
-                padding: "0.5rem 1rem",
+                borderRadius: "0.4rem",
+                padding: "0.4rem 0.8rem",
                 color: "#10b981",
                 fontWeight: "600",
-                fontSize: "0.875rem",
+                fontSize: "0.75rem",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "0.4rem",
                 cursor: "pointer",
                 transition: "all 0.2s ease"
               }}
@@ -720,7 +717,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                 e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
               }}
             >
-              <RefreshCw size={16} />
+              <RefreshCw size={14} />
             </button>
 
             <button
@@ -728,14 +725,14 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               style={{
                 background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                 border: "none",
-                borderRadius: "0.5rem",
-                padding: "0.5rem 1rem",
+                borderRadius: "0.4rem",
+                padding: "0.4rem 0.8rem",
                 color: "#fff",
                 fontWeight: "600",
-                fontSize: "0.875rem",
+                fontSize: "0.75rem",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "0.4rem",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 boxShadow: "0 2px 4px rgba(59, 130, 246, 0.25)"
@@ -749,7 +746,7 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                 e.currentTarget.style.boxShadow = "0 2px 4px rgba(59, 130, 246, 0.25)";
               }}
             >
-              <Plus size={16} />
+              <Plus size={14} />
               Crear Módulo
             </button>
           </div>
@@ -764,8 +761,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                 ? "rgba(255,255,255,0.05)"
                 : "rgba(255,255,255,0.8)",
               backdropFilter: "blur(0.625rem)",
-              borderRadius: "1.25em",
-              padding: "3.75em 1.875em",
+              borderRadius: "1rem",
+              padding: "2rem 1rem",
               textAlign: "center",
               border: `0.0625rem solid ${theme.border}`,
               boxShadow: darkMode
@@ -774,19 +771,19 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             }}
           >
             <BookOpen
-              size={64}
+              size={48}
               style={{
                 color: darkMode
                   ? "rgba(255,255,255,0.3)"
                   : "rgba(59, 130, 246, 0.4)",
-                margin: "0 auto 1.25em",
+                margin: "0 auto 1rem",
               }}
             />
             <h3
               style={{
                 color: theme.textPrimary,
-                fontSize: "1.5rem",
-                marginBottom: "0.625em",
+                fontSize: "1.25rem",
+                marginBottom: "0.5rem",
                 fontWeight: "700",
               }}
             >
@@ -795,8 +792,8 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
             <p
               style={{
                 color: theme.textMuted,
-                marginBottom: "1.25em",
-                fontSize: "1rem",
+                marginBottom: "1rem",
+                fontSize: "0.9rem",
               }}
             >
               Crea tu primer módulo (parcial) para comenzar a organizar las
@@ -807,13 +804,14 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               style={{
                 background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                 border: "none",
-                borderRadius: "0.75em",
-                padding: "0.875em 1.75em",
+                borderRadius: "0.5rem",
+                padding: "0.6rem 1.2rem",
                 color: "#fff",
                 fontWeight: "600",
                 cursor: "pointer",
                 boxShadow: "0 0.25rem 0.9375rem rgba(59, 130, 246, 0.3)",
                 transition: "all 0.2s ease",
+                fontSize: "0.9rem"
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-0.125rem)";
@@ -827,327 +825,270 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
               }}
             >
               <Plus
-                size={20}
-                style={{ display: "inline", marginRight: "0.5em" }}
+                size={18}
+                style={{ display: "inline", marginRight: "0.4rem" }}
               />
               Crear Primer Módulo
             </button>
           </div>
         ) : (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.75em" }}
+            style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}
           >
-            {modulos.map((modulo) => (
-              <div
-                key={modulo.id_modulo}
-                style={{
-                  background: theme.cardBg,
-                  borderRadius: "0.75em",
-                  border: darkMode
-                    ? "0.0625rem solid rgba(255,255,255,0.08)"
-                    : "0.0625rem solid #e5e7eb",
-                  overflow: "hidden",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow: darkMode
-                    ? "0 0.125rem 0.5rem rgba(0,0,0,0.1)"
-                    : "0 0.0625rem 0.1875rem rgba(0,0,0,0.1)",
-                  position: "relative" as const,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = darkMode
-                    ? "0 0.5rem 1.5rem rgba(0,0,0,0.2)"
-                    : "0 0.25rem 0.75rem rgba(0,0,0,0.08)";
-                  e.currentTarget.style.transform = "translateY(-0.125rem)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = darkMode
-                    ? "0 0.125rem 0.5rem rgba(0,0,0,0.1)"
-                    : "0 0.0625rem 0.1875rem rgba(0,0,0,0.1)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                {/* Header del Módulo */}
+            {modulos.map((modulo) => {
+              const categoriasConfiguradas = modulo.categorias || [];
+              const tareasModulo = tareasPorModulo[modulo.id_modulo] || [];
+              const categoriasConTareas = new Set(tareasModulo.map(t => t.categoria_nombre).filter(Boolean));
+              const categoriasFaltantes = categoriasConfiguradas.filter(cat => !categoriasConTareas.has(cat.nombre));
+
+              return (
                 <div
+                  key={modulo.id_modulo}
                   style={{
-                    padding: isMobile ? "12px" : "14px 16px",
-                    cursor: "pointer",
-                    transition: "background 0.2s ease",
+                    background: theme.cardBg,
+                    borderRadius: "0.6rem",
+                    border: darkMode
+                      ? "0.0625rem solid rgba(255,255,255,0.08)"
+                      : "0.0625rem solid #e5e7eb",
+                    overflow: "hidden",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    boxShadow: darkMode
+                      ? "0 0.125rem 0.5rem rgba(0,0,0,0.1)"
+                      : "0 0.0625rem 0.1875rem rgba(0,0,0,0.1)",
+                    position: "relative" as const,
                   }}
-                  onClick={() => toggleModulo(modulo.id_modulo)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? "0 0.5rem 1.5rem rgba(0,0,0,0.2)"
+                      : "0 0.25rem 0.75rem rgba(0,0,0,0.08)";
+                    e.currentTarget.style.transform = "translateY(-0.125rem)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? "0 0.125rem 0.5rem rgba(0,0,0,0.1)"
+                      : "0 0.0625rem 0.1875rem rgba(0,0,0,0.1)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
                 >
+                  {/* Header del Módulo Compacto */}
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      flexDirection: isMobile ? "column" : "row",
-                      gap: isMobile ? "10px" : "12px",
+                      padding: isMobile ? "10px" : "12px 14px",
+                      cursor: "pointer",
+                      transition: "background 0.2s ease",
                     }}
+                    onClick={() => toggleModulo(modulo.id_modulo)}
                   >
-                    {/* Contenido Principal */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {/* Título */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          marginBottom: "6px",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <h3
-                          style={{
-                            color: theme.textPrimary,
-                            fontSize: "1rem",
-                            fontWeight: "800",
-                            margin: 0,
-                            letterSpacing: "-0.01em",
-                            lineHeight: "1.3",
-                          }}
-                        >
-                          {modulo.nombre}
-                        </h3>
-                      </div>
-                      {modulo.descripcion && (
-                        <p
-                          style={{
-                            color: theme.textMuted,
-                            margin: "6px 0 0 0",
-                            fontSize: "0.85rem",
-                            lineHeight: "1.4",
-                          }}
-                        >
-                          {modulo.descripcion}
-                        </p>
-                      )}
-                      {/* Metadatos y Estado */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          marginTop: "8px",
-                          flexWrap: "wrap",
-                        }}
-                      >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        flexDirection: isMobile ? "column" : "row",
+                        gap: isMobile ? "8px" : "10px",
+                      }}
+                    >
+                      {/* Contenido Principal */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        {/* Título */}
                         <div
                           style={{
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
-                            fontSize: "0.8rem",
-                            color: theme.textMuted,
+                            marginBottom: "4px",
+                            flexWrap: "wrap",
                           }}
                         >
-                          <FileText
-                            size={14}
-                            style={{ color: theme.accent, opacity: 0.7 }}
-                          />
-                          <span style={{ fontWeight: "500" }}>
-                            {modulo.total_tareas}{" "}
-                            {modulo.total_tareas === 1 ? "tarea" : "tareas"}
-                          </span>
+                          <h3
+                            style={{
+                              color: theme.textPrimary,
+                              fontSize: "0.95rem",
+                              fontWeight: "800",
+                              margin: 0,
+                              letterSpacing: "-0.01em",
+                              lineHeight: "1.2",
+                            }}
+                          >
+                            {modulo.nombre}
+                          </h3>
                         </div>
-                        {modulo.fecha_inicio && (
+                        {modulo.descripcion && (
+                          <p
+                            style={{
+                              color: theme.textMuted,
+                              margin: "4px 0 0 0",
+                              fontSize: "0.8rem",
+                              lineHeight: "1.3",
+                            }}
+                          >
+                            {modulo.descripcion}
+                          </p>
+                        )}
+                        {/* Metadatos y Estado */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            marginTop: "6px",
+                            flexWrap: "wrap",
+                          }}
+                        >
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: "6px",
-                              fontSize: "0.8rem",
+                              gap: "4px",
+                              fontSize: "0.75rem",
                               color: theme.textMuted,
                             }}
                           >
-                            <Calendar
-                              size={14}
+                            <FileText
+                              size={12}
                               style={{ color: theme.accent, opacity: 0.7 }}
                             />
                             <span style={{ fontWeight: "500" }}>
-                              {new Date(modulo.fecha_inicio).toLocaleDateString(
-                                "es-ES",
-                                { day: "2-digit", month: "short" },
-                              )}
+                              {modulo.total_tareas}{" "}
+                              {modulo.total_tareas === 1 ? "tarea" : "tareas"}
+                            </span>
+                          </div>
+                          {modulo.fecha_inicio && (
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                fontSize: "0.75rem",
+                                color: theme.textMuted,
+                              }}
+                            >
+                              <Calendar
+                                size={12}
+                                style={{ color: theme.accent, opacity: 0.7 }}
+                              />
+                              <span style={{ fontWeight: "500" }}>
+                                {new Date(modulo.fecha_inicio).toLocaleDateString(
+                                  "es-ES",
+                                  { day: "2-digit", month: "short" }
+                                )}
+                              </span>
+                            </div>
+                          )}
+                          <div
+                            style={{
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              fontSize: "0.65rem",
+                              fontWeight: "600",
+                              textTransform: "capitalize" as const,
+                              ...getEstadoColor(modulo.estado),
+                            }}
+                          >
+                            {modulo.estado}
+                          </div>
+                        </div>
+
+                        {/* Aviso de Categorías Faltantes */}
+                        {categoriasFaltantes.length > 0 && (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            marginTop: '0.75rem',
+                            marginBottom: '0.25rem',
+                            padding: '0.5rem 0.75rem',
+                            background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                            border: `0.0625rem solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.3)'}`,
+                            borderRadius: '0.5rem',
+                            color: theme.accent,
+                            fontSize: '0.8rem',
+                            fontWeight: '700',
+                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                            textAlign: 'center'
+                          }}>
+                            <AlertTriangle size={16} />
+                            <span>
+                              PENDIENTE: Ponderación total debe ser 10 pts. Falta crear tareas para: {categoriasFaltantes.map(c => c.nombre).join(', ')}
                             </span>
                           </div>
                         )}
-                        <div
-                          style={{
-                            padding: "3px 8px",
-                            borderRadius: "6px",
-                            fontSize: "0.7rem",
-                            fontWeight: "600",
-                            textTransform: "capitalize" as const,
-                            ...getEstadoColor(modulo.estado),
-                          }}
-                        >
-                          {modulo.estado}
-                        </div>
                       </div>
-                    </div>
 
-                    {/* Botones de Acción */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        flexShrink: 0,
-                        flexWrap: "wrap",
-                        width: isMobile ? "100%" : "auto",
-                      }}
-                    >
-                      {modulo.estado !== "finalizado" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCrearTarea(modulo.id_modulo);
-                          }}
-                          style={{
-                            background: darkMode
-                              ? "rgba(16, 185, 129, 0.1)"
-                              : "rgba(16, 185, 129, 0.08)",
-                            border: `1px solid ${darkMode ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.2)"}`,
-                            borderRadius: "8px",
-                            padding: "6px 10px",
-                            color: "#10b981",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            fontWeight: "600",
-                            fontSize: "0.8rem",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background =
-                              "rgba(16, 185, 129, 0.15)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = darkMode
-                              ? "rgba(16, 185, 129, 0.1)"
-                              : "rgba(16, 185, 129, 0.08)";
-                          }}
-                        >
-                          <Plus size={16} />
-                          Tarea
-                        </button>
-                      )}
-
-                      {/* Botón Publicar/Ocultar Promedios */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTogglePromedios(
-                            modulo.id_modulo,
-                            modulo.promedios_publicados,
-                          );
-                        }}
+                      {/* Botones de Acción */}
+                      <div
                         style={{
-                          background: modulo.promedios_publicados
-                            ? darkMode
-                              ? "rgba(59, 130, 246, 0.1)"
-                              : "rgba(59, 130, 246, 0.08)"
-                            : darkMode
-                              ? "rgba(156, 163, 175, 0.1)"
-                              : "rgba(156, 163, 175, 0.08)",
-                          border: modulo.promedios_publicados
-                            ? `1px solid ${darkMode ? "rgba(59, 130, 246, 0.3)" : "rgba(59, 130, 246, 0.2)"}`
-                            : `1px solid ${darkMode ? "rgba(156, 163, 175, 0.3)" : "rgba(156, 163, 175, 0.2)"}`,
-                          borderRadius: "8px",
-                          padding: "6px 10px",
-                          color: modulo.promedios_publicados
-                            ? "#3b82f6"
-                            : "#9ca3af",
                           display: "flex",
                           alignItems: "center",
                           gap: "6px",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          fontWeight: "600",
-                          fontSize: "0.8rem",
+                          flexShrink: 0,
+                          flexWrap: "wrap",
+                          width: isMobile ? "100%" : "auto",
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            modulo.promedios_publicados
-                              ? "rgba(59, 130, 246, 0.15)"
-                              : "rgba(156, 163, 175, 0.15)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background =
-                            modulo.promedios_publicados
+                      >
+                        {modulo.estado !== "finalizado" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCrearTarea(modulo.id_modulo);
+                            }}
+                            style={{
+                              background: darkMode
+                                ? "rgba(16, 185, 129, 0.1)"
+                                : "rgba(16, 185, 129, 0.08)",
+                              border: `1px solid ${darkMode ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.2)"}`,
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              color: "#10b981",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              fontWeight: "600",
+                              fontSize: "0.8rem",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(16, 185, 129, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = darkMode
+                                ? "rgba(16, 185, 129, 0.1)"
+                                : "rgba(16, 185, 129, 0.08)";
+                            }}
+                          >
+                            <Plus size={16} />
+                            Tarea
+                          </button>
+                        )}
+
+                        {/* Botón Publicar/Ocultar Promedios */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTogglePromedios(
+                              modulo.id_modulo,
+                              modulo.promedios_publicados,
+                            );
+                          }}
+                          style={{
+                            background: modulo.promedios_publicados
                               ? darkMode
                                 ? "rgba(59, 130, 246, 0.1)"
                                 : "rgba(59, 130, 246, 0.08)"
                               : darkMode
                                 ? "rgba(156, 163, 175, 0.1)"
-                                : "rgba(156, 163, 175, 0.08)";
-                        }}
-                        title={
-                          modulo.promedios_publicados
-                            ? "Ocultar promedios"
-                            : "Publicar promedios"
-                        }
-                      >
-                        {modulo.promedios_publicados ? (
-                          <Eye size={16} />
-                        ) : (
-                          <EyeOff size={16} />
-                        )}
-                        {modulo.promedios_publicados ? "Visible" : "Oculto"}
-                      </button>
-
-                      {/* Botón Editar Módulo */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditarModulo(modulo);
-                        }}
-                        style={{
-                          background: darkMode
-                            ? "rgba(168, 85, 247, 0.1)"
-                            : "rgba(168, 85, 247, 0.08)",
-                          border: `1px solid ${darkMode ? "rgba(168, 85, 247, 0.3)" : "rgba(168, 85, 247, 0.2)"}`,
-                          borderRadius: "8px",
-                          padding: "6px 10px",
-                          color: "#a855f7",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          fontWeight: "600",
-                          fontSize: "0.8rem",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            "rgba(168, 85, 247, 0.15)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = darkMode
-                            ? "rgba(168, 85, 247, 0.1)"
-                            : "rgba(168, 85, 247, 0.08)";
-                        }}
-                        title="Editar módulo"
-                      >
-                        <Edit size={16} />
-                        Editar
-                      </button>
-
-                      {modulo.estado === "finalizado" ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReabrirModulo(modulo.id_modulo);
-                          }}
-                          style={{
-                            background: darkMode
-                              ? "rgba(59, 130, 246, 0.1)"
-                              : "rgba(59, 130, 246, 0.08)",
-                            border: `1px solid ${darkMode ? "rgba(59, 130, 246, 0.3)" : "rgba(59, 130, 246, 0.2)"}`,
+                                : "rgba(156, 163, 175, 0.08)",
+                            border: modulo.promedios_publicados
+                              ? `1px solid ${darkMode ? "rgba(59, 130, 246, 0.3)" : "rgba(59, 130, 246, 0.2)"}`
+                              : `1px solid ${darkMode ? "rgba(156, 163, 175, 0.3)" : "rgba(156, 163, 175, 0.2)"}`,
                             borderRadius: "8px",
                             padding: "6px 10px",
-                            color: "#3b82f6",
+                            color: modulo.promedios_publicados
+                              ? "#3b82f6"
+                              : "#9ca3af",
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
@@ -1158,31 +1099,48 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background =
-                              "rgba(59, 130, 246, 0.15)";
+                              modulo.promedios_publicados
+                                ? "rgba(59, 130, 246, 0.15)"
+                                : "rgba(156, 163, 175, 0.15)";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = darkMode
-                              ? "rgba(59, 130, 246, 0.1)"
-                              : "rgba(59, 130, 246, 0.08)";
+                            e.currentTarget.style.background =
+                              modulo.promedios_publicados
+                                ? darkMode
+                                  ? "rgba(59, 130, 246, 0.1)"
+                                  : "rgba(59, 130, 246, 0.08)"
+                                : darkMode
+                                  ? "rgba(156, 163, 175, 0.1)"
+                                  : "rgba(156, 163, 175, 0.08)";
                           }}
+                          title={
+                            modulo.promedios_publicados
+                              ? "Ocultar promedios"
+                              : "Publicar promedios"
+                          }
                         >
-                          <FileText size={16} />
-                          Reabrir
+                          {modulo.promedios_publicados ? (
+                            <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
+                          )}
+                          {modulo.promedios_publicados ? "Visible" : "Oculto"}
                         </button>
-                      ) : (
+
+                        {/* Botón Editar Módulo */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCerrarModulo(modulo.id_modulo);
+                            handleEditarModulo(modulo);
                           }}
                           style={{
                             background: darkMode
-                              ? "rgba(245, 158, 11, 0.1)"
-                              : "rgba(245, 158, 11, 0.08)",
-                            border: `1px solid ${darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"}`,
+                              ? "rgba(168, 85, 247, 0.1)"
+                              : "rgba(168, 85, 247, 0.08)",
+                            border: `1px solid ${darkMode ? "rgba(168, 85, 247, 0.3)" : "rgba(168, 85, 247, 0.2)"}`,
                             borderRadius: "8px",
                             padding: "6px 10px",
-                            color: "#f59e0b",
+                            color: "#a855f7",
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
@@ -1193,504 +1151,583 @@ const DetalleCursoDocente: React.FC<DetalleCursoDocenteProps> = ({
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background =
-                              "rgba(245, 158, 11, 0.15)";
+                              "rgba(168, 85, 247, 0.15)";
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = darkMode
-                              ? "rgba(245, 158, 11, 0.1)"
-                              : "rgba(245, 158, 11, 0.08)";
+                              ? "rgba(168, 85, 247, 0.1)"
+                              : "rgba(168, 85, 247, 0.08)";
                           }}
+                          title="Editar módulo"
                         >
-                          <FileText size={16} />
-                          Cerrar
+                          <Edit size={16} />
+                          Editar
                         </button>
-                      )}
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEliminarModulo(modulo.id_modulo);
-                        }}
-                        style={{
-                          background: darkMode
-                            ? "rgba(239, 68, 68, 0.1)"
-                            : "rgba(239, 68, 68, 0.08)",
-                          border: `1px solid ${darkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)"}`,
-                          borderRadius: "8px",
-                          padding: "6px",
-                          color: "#ef4444",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            "rgba(239, 68, 68, 0.15)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = darkMode
-                            ? "rgba(239, 68, 68, 0.1)"
-                            : "rgba(239, 68, 68, 0.08)";
-                        }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-
-                      <div
-                        style={{
-                          color: theme.textMuted,
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: "4px",
-                        }}
-                      >
-                        {modulosExpandidos[modulo.id_modulo] ? (
-                          <ChevronUp
-                            size={20}
-                            style={{ transition: "transform 0.2s ease" }}
-                          />
+                        {modulo.estado === "finalizado" ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReabrirModulo(modulo.id_modulo);
+                            }}
+                            style={{
+                              background: darkMode
+                                ? "rgba(59, 130, 246, 0.1)"
+                                : "rgba(59, 130, 246, 0.08)",
+                              border: `1px solid ${darkMode ? "rgba(59, 130, 246, 0.3)" : "rgba(59, 130, 246, 0.2)"}`,
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              color: "#3b82f6",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              fontWeight: "600",
+                              fontSize: "0.8rem",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = darkMode
+                                ? "rgba(59, 130, 246, 0.1)"
+                                : "rgba(59, 130, 246, 0.08)";
+                            }}
+                          >
+                            <FileText size={16} />
+                            Reabrir
+                          </button>
                         ) : (
-                          <ChevronDown
-                            size={20}
-                            style={{ transition: "transform 0.2s ease" }}
-                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCerrarModulo(modulo.id_modulo);
+                            }}
+                            style={{
+                              background: darkMode
+                                ? "rgba(245, 158, 11, 0.1)"
+                                : "rgba(245, 158, 11, 0.08)",
+                              border: `1px solid ${darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"}`,
+                              borderRadius: "8px",
+                              padding: "6px 10px",
+                              color: "#f59e0b",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              fontWeight: "600",
+                              fontSize: "0.8rem",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(245, 158, 11, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = darkMode
+                                ? "rgba(245, 158, 11, 0.1)"
+                                : "rgba(245, 158, 11, 0.08)";
+                            }}
+                          >
+                            <FileText size={16} />
+                            Cerrar
+                          </button>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Lista de Tareas (expandible) */}
-                {modulosExpandidos[modulo.id_modulo] && (
-                  <div style={{ padding: "12px 16px" }}>
-                    {!tareasPorModulo[modulo.id_modulo] ? (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "12px",
-                          color: theme.textMuted,
-                        }}
-                      >
-                        Cargando tareas...
-                      </div>
-                    ) : tareasPorModulo[modulo.id_modulo].length === 0 ? (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "20px",
-                          color: theme.textMuted,
-                        }}
-                      >
-                        <FileText
-                          size={36}
-                          style={{
-                            margin: "0 auto 10px",
-                            opacity: 0.3,
-                            color: theme.textMuted,
-                          }}
-                        />
-                        <p>No hay tareas en este módulo</p>
                         <button
-                          onClick={() => handleCrearTarea(modulo.id_modulo)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEliminarModulo(modulo.id_modulo);
+                          }}
                           style={{
-                            background: "rgba(16, 185, 129, 0.1)",
-                            border: "1px solid rgba(16, 185, 129, 0.2)",
-                            borderRadius: "0.5rem",
-                            padding: "0.5rem 1rem",
-                            color: "#10b981",
-                            fontWeight: "600",
-                            fontSize: "0.875rem",
-                            marginTop: "1rem",
-                            margin: "1rem auto 0 auto",
+                            background: darkMode
+                              ? "rgba(239, 68, 68, 0.1)"
+                              : "rgba(239, 68, 68, 0.08)",
+                            border: `1px solid ${darkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)"}`,
+                            borderRadius: "8px",
+                            padding: "6px",
+                            color: "#ef4444",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            gap: "0.5rem"
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "rgba(16, 185, 129, 0.15)";
-                            e.currentTarget.style.transform = "translateY(-1px)";
+                            e.currentTarget.style.background =
+                              "rgba(239, 68, 68, 0.15)";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
-                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.background = darkMode
+                              ? "rgba(239, 68, 68, 0.1)"
+                              : "rgba(239, 68, 68, 0.08)";
                           }}
                         >
-                          <Plus size={16} />
-                          Crear Primera Tarea
+                          <Trash2 size={16} />
                         </button>
+
+                        <div
+                          style={{
+                            color: theme.textMuted,
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          {modulosExpandidos[modulo.id_modulo] ? (
+                            <ChevronUp
+                              size={20}
+                              style={{ transition: "transform 0.2s ease" }}
+                            />
+                          ) : (
+                            <ChevronDown
+                              size={20}
+                              style={{ transition: "transform 0.2s ease" }}
+                            />
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                        }}
-                      >
-                        {/* Agrupar tareas por categoría */}
-                        {(() => {
-                          const tareasModulo = tareasPorModulo[modulo.id_modulo] || [];
-                          const tareasPorCategoria = tareasModulo.reduce((acc, tarea) => {
-                            const key = tarea.categoria_nombre
-                              ? `${tarea.categoria_nombre}|${tarea.categoria_ponderacion}`
-                              : 'Sin Categoría|0';
-                            if (!acc[key]) acc[key] = [];
-                            acc[key].push(tarea);
-                            return acc;
-                          }, {} as Record<string, typeof tareasModulo>);
+                    </div>
+                  </div>
 
-                          return Object.entries(tareasPorCategoria).map(([key, tareas]) => {
-                            const [nombreCat, ponderacionCat] = key.split('|');
+                  {/* Lista de Tareas (expandible) */}
+                  {modulosExpandidos[modulo.id_modulo] && (
+                    <div style={{ padding: "12px 16px" }}>
+                      {!tareasPorModulo[modulo.id_modulo] ? (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "12px",
+                            color: theme.textMuted,
+                          }}
+                        >
+                          Cargando tareas...
+                        </div>
+                      ) : tareasPorModulo[modulo.id_modulo].length === 0 ? (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "16px",
+                            color: theme.textMuted,
+                          }}
+                        >
+                          <FileText
+                            size={28}
+                            style={{
+                              margin: "0 auto 8px",
+                              opacity: 0.3,
+                              color: theme.textMuted,
+                            }}
+                          />
+                          <p style={{ fontSize: '0.9rem', margin: 0 }}>No hay tareas en este módulo</p>
+                          <button
+                            onClick={() => handleCrearTarea(modulo.id_modulo)}
+                            style={{
+                              background: "rgba(16, 185, 129, 0.1)",
+                              border: "1px solid rgba(16, 185, 129, 0.2)",
+                              borderRadius: "0.4rem",
+                              padding: "0.4rem 0.8rem",
+                              color: "#10b981",
+                              fontWeight: "600",
+                              fontSize: "0.8rem",
+                              marginTop: "0.8rem",
+                              margin: "0.8rem auto 0 auto",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.4rem"
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "rgba(16, 185, 129, 0.15)";
+                              e.currentTarget.style.transform = "translateY(-1px)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
+                              e.currentTarget.style.transform = "translateY(0)";
+                            }}
+                          >
+                            <Plus size={14} />
+                            Crear Primera Tarea
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px",
+                          }}
+                        >
+                          {/* Agrupar tareas por categoría */}
+                          {(() => {
+                            const tareasModulo = tareasPorModulo[modulo.id_modulo] || [];
+                            const tareasPorCategoria = tareasModulo.reduce((acc, tarea) => {
+                              const key = tarea.categoria_nombre
+                                ? `${tarea.categoria_nombre}|${tarea.categoria_ponderacion}`
+                                : 'Sin Categoría|0';
+                              if (!acc[key]) acc[key] = [];
+                              acc[key].push(tarea);
+                              return acc;
+                            }, {} as Record<string, typeof tareasModulo>);
 
-                            return (
-                              <div key={key}>
-                                {nombreCat !== 'Sin Categoría' && (
-                                  <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.75rem',
-                                    marginBottom: '1rem',
-                                    marginTop: '1.5rem',
-                                    padding: '0.75rem 1rem',
-                                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-                                    borderLeft: `4px solid ${theme.accent}`,
-                                    borderRadius: '0 0.5rem 0.5rem 0',
-                                    boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
-                                  }}>
-                                    <Award size={20} color={theme.accent} />
-                                    <h5 style={{
-                                      margin: 0,
-                                      fontSize: '1rem',
-                                      fontWeight: '800',
-                                      color: theme.textPrimary,
-                                      textTransform: 'uppercase',
-                                      letterSpacing: '0.05em',
-                                      flex: 1
-                                    }}>
-                                      {nombreCat}
-                                    </h5>
+                            return Object.entries(tareasPorCategoria).map(([key, tareas]) => {
+                              const [nombreCat, ponderacionCat] = key.split('|');
+
+                              return (
+                                <div key={key}>
+                                  {nombreCat !== 'Sin Categoría' && (
                                     <div style={{
-                                      background: theme.accent,
-                                      color: '#fff',
-                                      padding: '0.25rem 0.75rem',
-                                      borderRadius: '1rem',
-                                      fontSize: '0.75rem',
-                                      fontWeight: '700',
-                                      boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.6rem',
+                                      marginBottom: '0.6rem',
+                                      marginTop: '1rem',
+                                      padding: '0.5rem 0.75rem',
+                                      background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                                      borderLeft: `4px solid ${theme.accent}`,
+                                      borderRadius: '0 0.4rem 0.4rem 0',
+                                      boxShadow: darkMode ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
                                     }}>
-                                      {ponderacionCat} pts
+                                      <Award size={16} color={theme.accent} />
+                                      <h5 style={{
+                                        margin: 0,
+                                        fontSize: '0.85rem',
+                                        fontWeight: '800',
+                                        color: theme.textPrimary,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.05em',
+                                        flex: 1
+                                      }}>
+                                        {nombreCat}
+                                      </h5>
+                                      <div style={{
+                                        background: theme.accent,
+                                        color: '#fff',
+                                        padding: '0.2rem 0.5rem',
+                                        borderRadius: '0.8rem',
+                                        fontSize: '0.65rem',
+                                        fontWeight: '700',
+                                        boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                                      }}>
+                                        {ponderacionCat} pts
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
-                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                  {tareas.map((tarea) => (
-                                    <div
-                                      key={tarea.id_tarea}
-                                      style={{
-                                        background: darkMode
-                                          ? "rgba(255,255,255,0.03)"
-                                          : "rgba(255,255,255,0.98)",
-                                        border: darkMode
-                                          ? "1px solid rgba(255,255,255,0.1)"
-                                          : "1px solid #e5e7eb",
-                                        borderRadius: "10px",
-                                        padding: isMobile ? "10px" : "12px",
-                                        cursor: "pointer",
-                                        transition: "all 0.3s ease",
-                                        boxShadow: darkMode
-                                          ? "none"
-                                          : "0 1px 3px rgba(0,0,0,0.05)",
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = darkMode
-                                          ? "rgba(255,255,255,0.05)"
-                                          : "rgba(59, 130, 246, 0.05)";
-                                        e.currentTarget.style.borderColor = darkMode
-                                          ? "rgba(239, 68, 68, 0.3)"
-                                          : "rgba(59, 130, 246, 0.3)";
-                                        if (!darkMode)
-                                          e.currentTarget.style.boxShadow =
-                                            "0 4px 12px rgba(0,0,0,0.08)";
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = darkMode
-                                          ? "rgba(255,255,255,0.03)"
-                                          : "rgba(255,255,255,0.8)";
-                                        e.currentTarget.style.borderColor = darkMode
-                                          ? "rgba(255,255,255,0.1)"
-                                          : "#e5e7eb";
-                                        if (!darkMode)
-                                          e.currentTarget.style.boxShadow =
-                                            "0 1px 3px rgba(0,0,0,0.05)";
-                                      }}
-                                      onClick={() => {
-                                        const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
-                                          ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
-                                          : tarea.ponderacion;
-
-                                        setTareaSeleccionada({
-                                          id: tarea.id_tarea,
-                                          nombre: tarea.titulo,
-                                          nota_maxima: tarea.nota_maxima,
-                                          ponderacion: pesoReal,
-                                        });
-                                        setShowModalEntregas(true);
-                                      }}
-                                    >
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                    {tareas.map((tarea) => (
                                       <div
+                                        key={tarea.id_tarea}
                                         style={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                          alignItems: "flex-start",
-                                          flexDirection: isMobile ? "column" : "row",
-                                          gap: isMobile ? "8px" : "10px",
+                                          background: darkMode
+                                            ? "rgba(255,255,255,0.03)"
+                                            : "rgba(255,255,255,0.98)",
+                                          border: darkMode
+                                            ? "1px solid rgba(255,255,255,0.1)"
+                                            : "1px solid #e5e7eb",
+                                          borderRadius: "10px",
+                                          padding: isMobile ? "8px" : "10px",
+                                          cursor: "pointer",
+                                          transition: "all 0.3s ease",
+                                          boxShadow: darkMode
+                                            ? "none"
+                                            : "0 1px 3px rgba(0,0,0,0.05)",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.background = darkMode
+                                            ? "rgba(255,255,255,0.05)"
+                                            : "rgba(59, 130, 246, 0.05)";
+                                          e.currentTarget.style.borderColor = darkMode
+                                            ? "rgba(239, 68, 68, 0.3)"
+                                            : "rgba(59, 130, 246, 0.3)";
+                                          if (!darkMode)
+                                            e.currentTarget.style.boxShadow =
+                                              "0 4px 12px rgba(0,0,0,0.08)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.background = darkMode
+                                            ? "rgba(255,255,255,0.03)"
+                                            : "rgba(255,255,255,0.8)";
+                                          e.currentTarget.style.borderColor = darkMode
+                                            ? "rgba(255,255,255,0.1)"
+                                            : "#e5e7eb";
+                                          if (!darkMode)
+                                            e.currentTarget.style.boxShadow =
+                                              "0 1px 3px rgba(0,0,0,0.05)";
+                                        }}
+                                        onClick={() => {
+                                          const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
+                                            ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
+                                            : tarea.ponderacion;
+
+                                          setTareaSeleccionada({
+                                            id: tarea.id_tarea,
+                                            nombre: tarea.titulo,
+                                            nota_maxima: tarea.nota_maxima,
+                                            ponderacion: pesoReal,
+                                          });
+                                          setShowModalEntregas(true);
                                         }}
                                       >
-                                        <div style={{ flex: 1, width: isMobile ? "100%" : "auto" }}>
-                                          <h4
-                                            style={{
-                                              color: theme.textPrimary,
-                                              fontSize: isMobile ? "0.9rem" : "0.95rem",
-                                              fontWeight: "800",
-                                              marginBottom: "6px",
-                                            }}
-                                          >
-                                            {tarea.titulo}
-                                          </h4>
-                                          {tarea.descripcion && (
-                                            <p
-                                              style={{
-                                                color: theme.textMuted,
-                                                fontSize: "0.8rem",
-                                                marginBottom: "8px",
-                                              }}
-                                            >
-                                              {tarea.descripcion}
-                                            </p>
-                                          )}
-                                          <div
-                                            style={{
-                                              display: "flex",
-                                              gap: "12px",
-                                              fontSize: "0.8rem",
-                                              flexWrap: "wrap",
-                                            }}
-                                          >
-                                            <span
-                                              style={{
-                                                color: theme.textMuted,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "5px",
-                                              }}
-                                            >
-                                              <Clock size={12} />
-                                              Límite:{" "}
-                                              {new Date(
-                                                tarea.fecha_limite,
-                                              ).toLocaleDateString()}{" "}
-                                              {new Date(
-                                                tarea.fecha_limite,
-                                              ).toLocaleTimeString("es-EC", {
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                                hour12: false,
-                                              })}
-                                            </span>
-                                            <span
-                                              style={{
-                                                color: "#10b981",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "5px",
-                                              }}
-                                            >
-                                              <CheckCircle size={12} />
-                                              {tarea.entregas_calificadas}/
-                                              {tarea.total_entregas} calificadas
-                                            </span>
-                                            <span
-                                              style={{
-                                                color: "#ef4444",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "5px",
-                                              }}
-                                            >
-                                              <AlertCircle size={12} />
-                                              Nota: {tarea.nota_maxima} | {tarea.categoria_nombre ? (
-                                                <span style={{ fontWeight: '600' }}>Cat: {tarea.categoria_nombre} ({tarea.categoria_ponderacion} pts)</span>
-                                              ) : (
-                                                <>Peso: {tarea.ponderacion}pts</>
-                                              )}
-                                            </span>
-                                          </div>
-                                        </div>
-
-                                        {/* Botones de acción */}
                                         <div
                                           style={{
                                             display: "flex",
-                                            gap: "6px",
-                                            marginTop: isMobile ? "0" : "6px",
-                                            flexWrap: "wrap",
-                                            alignItems: "center",
-                                            width: isMobile ? "100%" : "auto",
-                                            justifyContent: isMobile ? "flex-start" : "flex-end"
+                                            justifyContent: "space-between",
+                                            alignItems: "flex-start",
+                                            flexDirection: isMobile ? "column" : "row",
+                                            gap: isMobile ? "8px" : "10px",
                                           }}
                                         >
-                                          {/* Botón Ver Entregas */}
-                                          {tarea.total_entregas > 0 && (
+                                          <div style={{ flex: 1, width: isMobile ? "100%" : "auto" }}>
+                                            <h4
+                                              style={{
+                                                color: theme.textPrimary,
+                                                fontSize: isMobile ? "0.85rem" : "0.9rem",
+                                                fontWeight: "800",
+                                                marginBottom: "4px",
+                                              }}
+                                            >
+                                              {tarea.titulo}
+                                            </h4>
+                                            {tarea.descripcion && (
+                                              <p
+                                                style={{
+                                                  color: theme.textMuted,
+                                                  fontSize: "0.75rem",
+                                                  marginBottom: "6px",
+                                                }}
+                                              >
+                                                {tarea.descripcion}
+                                              </p>
+                                            )}
+                                            <div
+                                              style={{
+                                                display: "flex",
+                                                gap: "12px",
+                                                fontSize: "0.8rem",
+                                                flexWrap: "wrap",
+                                              }}
+                                            >
+                                              <span
+                                                style={{
+                                                  color: theme.textMuted,
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "5px",
+                                                }}
+                                              >
+                                                <Clock size={12} />
+                                                Límite:{" "}
+                                                {new Date(
+                                                  tarea.fecha_limite,
+                                                ).toLocaleDateString()}{" "}
+                                                {new Date(
+                                                  tarea.fecha_limite,
+                                                ).toLocaleTimeString("es-EC", {
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                  hour12: false,
+                                                })}
+                                              </span>
+                                              <span
+                                                style={{
+                                                  color: "#10b981",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "5px",
+                                                }}
+                                              >
+                                                <CheckCircle size={12} />
+                                                {tarea.entregas_calificadas}/
+                                                {tarea.total_entregas} calificadas
+                                              </span>
+                                              <span
+                                                style={{
+                                                  color: "#ef4444",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "5px",
+                                                }}
+                                              >
+                                                <AlertCircle size={12} />
+                                                Nota: {tarea.nota_maxima} | {tarea.categoria_nombre ? (
+                                                  <span style={{ fontWeight: '600' }}>Cat: {tarea.categoria_nombre} ({tarea.categoria_ponderacion} pts)</span>
+                                                ) : (
+                                                  <>Peso: {tarea.ponderacion}pts</>
+                                                )}
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          {/* Botones de acción */}
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              gap: "6px",
+                                              marginTop: isMobile ? "0" : "6px",
+                                              flexWrap: "wrap",
+                                              alignItems: "center",
+                                              width: isMobile ? "100%" : "auto",
+                                              justifyContent: isMobile ? "flex-start" : "flex-end"
+                                            }}
+                                          >
+                                            {/* Botón Ver Entregas */}
+                                            {tarea.total_entregas > 0 && (
+                                              <button
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
+                                                  const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
+                                                    ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
+                                                    : tarea.ponderacion;
+
+                                                  setTareaSeleccionada({
+                                                    id: tarea.id_tarea,
+                                                    nombre: tarea.titulo,
+                                                    nota_maxima: tarea.nota_maxima,
+                                                    ponderacion: pesoReal,
+                                                  });
+                                                  setShowModalEntregas(true);
+                                                }}
+                                                style={{
+                                                  background:
+                                                    "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                                                  border: "none",
+                                                  borderRadius: "8px",
+                                                  padding: "6px 10px",
+                                                  color: "#fff",
+                                                  cursor: "pointer",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "6px",
+                                                  fontWeight: "700",
+                                                  fontSize: "0.8rem",
+                                                  boxShadow:
+                                                    "0 2px 6px rgba(59, 130, 246, 0.25)",
+                                                  transition: "all 0.2s ease",
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                  e.currentTarget.style.transform =
+                                                    "translateY(-1px)";
+                                                  e.currentTarget.style.boxShadow =
+                                                    "0 4px 10px rgba(59, 130, 246, 0.3)";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                  e.currentTarget.style.transform =
+                                                    "translateY(0)";
+                                                  e.currentTarget.style.boxShadow =
+                                                    "0 2px 6px rgba(59, 130, 246, 0.25)";
+                                                }}
+                                              >
+                                                <FileText size={13} />
+                                                Ver Entregas ({tarea.total_entregas})
+                                              </button>
+                                            )}
+
+                                            {/* Botón Editar (icono) */}
                                             <button
                                               onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                const pesoReal = tarea.categoria_nombre && tarea.categoria_ponderacion
-                                                  ? (parseFloat(tarea.categoria_ponderacion.toString()) / tareas.length)
-                                                  : tarea.ponderacion;
-
-                                                setTareaSeleccionada({
-                                                  id: tarea.id_tarea,
-                                                  nombre: tarea.titulo,
-                                                  nota_maxima: tarea.nota_maxima,
-                                                  ponderacion: pesoReal,
-                                                });
-                                                setShowModalEntregas(true);
+                                                handleEditarTarea(tarea);
                                               }}
+                                              title="Editar tarea"
                                               style={{
-                                                background:
-                                                  "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                                                border: "none",
+                                                background: darkMode
+                                                  ? "rgba(245, 158, 11, 0.1)"
+                                                  : "rgba(245, 158, 11, 0.08)",
+                                                border: `1px solid ${darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"}`,
                                                 borderRadius: "8px",
-                                                padding: "6px 10px",
-                                                color: "#fff",
+                                                padding: "8px",
+                                                color: "#f59e0b",
                                                 cursor: "pointer",
                                                 display: "flex",
                                                 alignItems: "center",
-                                                gap: "6px",
-                                                fontWeight: "700",
-                                                fontSize: "0.8rem",
-                                                boxShadow:
-                                                  "0 2px 6px rgba(59, 130, 246, 0.25)",
+                                                justifyContent: "center",
                                                 transition: "all 0.2s ease",
                                               }}
                                               onMouseEnter={(e) => {
+                                                e.currentTarget.style.background =
+                                                  "rgba(245, 158, 11, 0.2)";
                                                 e.currentTarget.style.transform =
-                                                  "translateY(-1px)";
-                                                e.currentTarget.style.boxShadow =
-                                                  "0 4px 10px rgba(59, 130, 246, 0.3)";
+                                                  "scale(1.1)";
                                               }}
                                               onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = darkMode
+                                                  ? "rgba(245, 158, 11, 0.1)"
+                                                  : "rgba(245, 158, 11, 0.08)";
                                                 e.currentTarget.style.transform =
-                                                  "translateY(0)";
-                                                e.currentTarget.style.boxShadow =
-                                                  "0 2px 6px rgba(59, 130, 246, 0.25)";
+                                                  "scale(1)";
                                               }}
                                             >
-                                              <FileText size={13} />
-                                              Ver Entregas ({tarea.total_entregas})
+                                              <Edit size={16} />
                                             </button>
-                                          )}
 
-                                          {/* Botón Editar (icono) */}
-                                          <button
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              handleEditarTarea(tarea);
-                                            }}
-                                            title="Editar tarea"
-                                            style={{
-                                              background: darkMode
-                                                ? "rgba(245, 158, 11, 0.1)"
-                                                : "rgba(245, 158, 11, 0.08)",
-                                              border: `1px solid ${darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"}`,
-                                              borderRadius: "8px",
-                                              padding: "8px",
-                                              color: "#f59e0b",
-                                              cursor: "pointer",
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              transition: "all 0.2s ease",
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.background =
-                                                "rgba(245, 158, 11, 0.2)";
-                                              e.currentTarget.style.transform =
-                                                "scale(1.1)";
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.background = darkMode
-                                                ? "rgba(245, 158, 11, 0.1)"
-                                                : "rgba(245, 158, 11, 0.08)";
-                                              e.currentTarget.style.transform =
-                                                "scale(1)";
-                                            }}
-                                          >
-                                            <Edit size={16} />
-                                          </button>
+                                            {/* Botón Eliminar (icono) */}
+                                            <button
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
 
-                                          {/* Botón Eliminar (icono) */}
-                                          <button
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              setTareaParaEliminar(tarea);
-                                              setShowModalConfirmEliminarTarea(true);
-                                            }}
-                                            title="Eliminar tarea"
-                                            style={{
-                                              background: darkMode
-                                                ? "rgba(239, 68, 68, 0.1)"
-                                                : "rgba(239, 68, 68, 0.08)",
-                                              border: `1px solid ${darkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)"}`,
-                                              borderRadius: "8px",
-                                              padding: "8px",
-                                              color: "#ef4444",
-                                              cursor: "pointer",
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              transition: "all 0.2s ease",
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.background =
-                                                "rgba(239, 68, 68, 0.2)";
-                                              e.currentTarget.style.transform =
-                                                "scale(1.1)";
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.background = darkMode
-                                                ? "rgba(239, 68, 68, 0.1)"
-                                                : "rgba(239, 68, 68, 0.08)";
-                                              e.currentTarget.style.transform =
-                                                "scale(1)";
-                                            }}
-                                          >
-                                            <Trash2 size={16} />
-                                          </button>
+                                                if (tarea.total_entregas > 0) {
+                                                  showToast.error("No se puede eliminar una tarea que ya tiene entregas de alumnos", darkMode);
+                                                  return;
+                                                }
+
+                                                setTareaParaEliminar(tarea);
+                                                setShowModalConfirmEliminarTarea(true);
+                                              }}
+                                              title="Eliminar tarea"
+                                              style={{
+                                                background: darkMode
+                                                  ? "rgba(239, 68, 68, 0.1)"
+                                                  : "rgba(239, 68, 68, 0.08)",
+                                                border: `1px solid ${darkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)"}`,
+                                                borderRadius: "8px",
+                                                padding: "8px",
+                                                color: "#ef4444",
+                                                cursor: "pointer",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                transition: "all 0.2s ease",
+                                              }}
+                                              onMouseEnter={(e) => {
+                                                e.currentTarget.style.background =
+                                                  "rgba(239, 68, 68, 0.2)";
+                                                e.currentTarget.style.transform =
+                                                  "scale(1.1)";
+                                              }}
+                                              onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = darkMode
+                                                  ? "rgba(239, 68, 68, 0.1)"
+                                                  : "rgba(239, 68, 68, 0.08)";
+                                                e.currentTarget.style.transform =
+                                                  "scale(1)";
+                                              }}
+                                            >
+                                              <Trash2 size={16} />
+                                            </button>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          });
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                              );
+                            });
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 

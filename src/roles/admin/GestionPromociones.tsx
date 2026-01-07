@@ -3,12 +3,14 @@ import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus, Edit, Trash2, X, Save, Gift, Search, Grid, List, ChevronLeft, ChevronRight,
-  Users, BookOpen, CheckCircle, XCircle, Sparkles, FileText
+  Users, BookOpen, CheckCircle, XCircle, Sparkles, FileText, ArrowLeftRight
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { showToast } from '../../config/toastConfig';
+import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
+import GlassEffect from '../../components/GlassEffect';
 import '../../styles/responsive.css';
 import '../../utils/modalScrollHelper';
 
@@ -91,7 +93,7 @@ const GestionPromociones: React.FC = () => {
   // Estados para búsqueda, filtros y paginación
   const [searchTerm, setSearchTerm] = useState('');
   const [filterActiva, setFilterActiva] = useState<string>('todas');
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -118,51 +120,49 @@ const GestionPromociones: React.FC = () => {
 
   const pick = <T,>(light: T, dark: T): T => (darkMode ? dark : light);
 
-  const theme = {
-    pageBackground: pick(
-      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
-      'linear-gradient(135deg, rgba(10,10,18,0.92) 0%, rgba(17,17,27,0.92) 100%)'
-    ),
-    contentBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
-      'linear-gradient(135deg, rgba(13,13,25,0.92) 0%, rgba(26,26,46,0.92) 100%)'
-    ),
-    surfaceShadow: pick('0 28px 55px rgba(15,23,42,0.18)', '0 28px 55px rgba(0,0,0,0.45)'),
-    textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
-    textSecondary: pick('rgba(71,85,105,0.78)', 'rgba(226,232,240,0.74)'),
-    textMuted: pick('rgba(100,116,139,0.6)', 'rgba(148,163,184,0.6)'),
+  const theme = useMemo(() => ({
+    pageBackground: darkMode
+      ? 'linear-gradient(135deg, rgba(10,10,18,0.95) 0%, rgba(17,17,27,0.95) 100%)'
+      : 'linear-gradient(135deg, rgba(248,250,252,0.98) 0%, rgba(255,255,255,0.98) 100%)',
+    contentBackground: darkMode
+      ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,245,245,0.92) 100%)', // Consistent with other components
+    surfaceShadow: 'none', // Removed for flat look
+    textPrimary: darkMode ? '#ffffff' : '#1f2937',
+    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#384152',
+    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280',
     accentText: '#ef4444',
-    inputBg: pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.08)'),
-    inputBorder: pick('rgba(148,163,184,0.28)', 'rgba(255,255,255,0.12)'),
-    inputText: pick('#0f172a', '#f8fafc'),
-    inputIcon: pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.4)'),
-    controlGroupBg: pick('rgba(255,255,255,0.85)', 'rgba(255,255,255,0.05)'),
-    controlGroupBorder: pick('rgba(148,163,184,0.32)', 'rgba(255,255,255,0.1)'),
-    controlInactiveText: pick('rgba(71,85,105,0.68)', 'rgba(255,255,255,0.6)'),
-    controlActiveBg: pick('rgba(239,68,68,0.1)', 'rgba(239,68,68,0.2)'),
-    controlActiveBorder: pick('rgba(239,68,68,0.25)', 'rgba(239,68,68,0.4)'),
-    cardBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%)',
-      'linear-gradient(135deg, rgba(10,10,25,0.92) 0%, rgba(20,20,36,0.92) 100%)'
-    ),
-    cardBorderActive: pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.32)'),
-    cardBorderInactive: pick('rgba(148,163,184,0.26)', 'rgba(255,255,255,0.12)'),
-    cardShadow: pick('0 20px 40px rgba(15,23,42,0.12)', '0 18px 38px rgba(0,0,0,0.45)'),
-    cardHoverShadow: pick('0 24px 50px rgba(239,68,68,0.18)', '0 24px 50px rgba(239,68,68,0.28)'),
-    badgeActiveBg: pick('rgba(16,185,129,0.12)', 'rgba(16,185,129,0.18)'),
-    badgeActiveBorder: pick('rgba(16,185,129,0.28)', 'rgba(16,185,129,0.35)'),
-    badgeInactiveBg: pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.18)'),
-    badgeInactiveBorder: pick('rgba(239,68,68,0.28)', 'rgba(239,68,68,0.35)'),
-    divider: pick('rgba(148,163,184,0.22)', 'rgba(255,255,255,0.12)'),
-    paginationBg: pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.08)'),
-    paginationBorder: pick('rgba(148,163,184,0.28)', 'rgba(255,255,255,0.12)'),
-    paginationText: pick('rgba(15,23,42,0.85)', 'rgba(255,255,255,0.8)'),
-    overlay: pick('rgba(248,250,252,0.65)', 'rgba(0,0,0,0.65)'),
-    modalBorder: pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.24)'),
-    modalDivider: pick('rgba(148,163,184,0.2)', 'rgba(255,255,255,0.1)')
-  };
+    inputBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
+    inputBorder: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(148,163,184,0.45)',
+    inputText: darkMode ? '#f8fafc' : '#1f2937',
+    inputIcon: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(148,163,184,0.7)',
+    controlGroupBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+    controlGroupBorder: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.04)',
+    controlInactiveText: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)',
+    controlActiveBg: darkMode ? 'rgba(239,68,68,0.15)' : '#ffffff',
+    controlActiveBorder: darkMode ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(239,68,68,0.2)',
+    cardBackground: darkMode
+      ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,245,245,0.92) 100%)',
+    cardBorderActive: darkMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.5)',
+    cardBorderInactive: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.25)',
+    cardShadow: 'none',
+    cardHoverShadow: darkMode ? '0 0.5rem 1.5rem rgba(239, 68, 68, 0.24)' : '0 12px 28px rgba(239, 68, 68, 0.12)',
+    badgeActiveBg: darkMode ? mapToRedScheme('rgba(16,185,129,0.15)') : 'rgba(16,185,129,0.12)',
+    badgeActiveBorder: darkMode ? mapToRedScheme('rgba(16,185,129,0.3)') : 'rgba(16,185,129,0.3)',
+    badgeInactiveBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.12)',
+    badgeInactiveBorder: darkMode ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.3)',
+    divider: 'rgba(239, 68, 68, 0.15)',
+    paginationBg: darkMode ? 'rgba(0,0,0,0.2)' : '#ffffff',
+    paginationBorder: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+    paginationText: darkMode ? '#ffffff' : '#1f2937',
+    overlay: darkMode ? 'rgba(0,0,0,0.65)' : 'rgba(248,250,252,0.65)',
+    modalBorder: darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.25)',
+    modalDivider: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(239, 68, 68, 0.2)',
+    tableHeaderBg: darkMode ? 'rgba(248, 113, 113, 0.1)' : 'rgba(248, 113, 113, 0.05)',
+  }), [darkMode]);
 
-  const accentGradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+  const accentGradient = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
 
   const benefitTokens = {
     background: pick('linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.1) 100%)', 'linear-gradient(135deg, rgba(239,68,68,0.22) 0%, rgba(220,38,38,0.18) 100%)'),
@@ -524,24 +524,25 @@ const GestionPromociones: React.FC = () => {
 
   const isCardsView = viewMode === 'cards';
   const isTableView = viewMode === 'table';
-  const toggleGroupBg = pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)');
-  const toggleActiveBg = pick('#ffffff', 'rgba(255, 255, 255, 0.14)');
-  const toggleActiveText = theme.accentText;
-  const toggleInactiveText = pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)');
+  const toggleGroupBg = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)';
+  const toggleActiveBg = darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff';
+  const toggleActiveText = darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary;
+  const toggleInactiveText = darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)';
   const controlPanelStyle = {
-    marginBottom: isMobile ? '12px' : '1.125rem',
-    padding: isMobile ? '0.75rem' : '1rem',
-    borderRadius: '1rem',
+    marginBottom: isMobile ? '0.5rem' : '0.5rem',
+    padding: '0.5rem',
+    borderRadius: '0.375rem',
     border: `1px solid ${pick('rgba(239,68,68,0.24)', 'rgba(239,68,68,0.4)')}`,
     background: pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.04)'),
-    boxShadow: pick('0 18px 35px rgba(15,23,42,0.12)', '0 20px 40px rgba(0,0,0,0.45)')
+    boxShadow: 'none'
   } as const;
   const controlsRowStyle = {
     display: 'flex',
-    flexDirection: isMobile ? 'column' : 'row',
-    gap: isMobile ? '8px' : '0.75rem',
-    alignItems: isMobile ? 'stretch' : 'center',
-    flexWrap: 'wrap'
+    flexDirection: isSmallScreen ? 'column' : 'row',
+    gap: '0.75rem',
+    alignItems: isSmallScreen ? 'stretch' : 'center',
+    flex: 1,
+    width: isSmallScreen ? '100%' : 'auto'
   } as const;
 
   return (
@@ -550,19 +551,31 @@ const GestionPromociones: React.FC = () => {
       <AdminSectionHeader
         title="Gestión de Promociones"
         subtitle="Administra las campañas promocionales y beneficios disponibles"
-        marginBottom={isMobile ? '12px' : '1.125rem'}
+        marginBottom={isMobile ? '0.5rem' : '0.5rem'}
       />
 
       {/* Búsqueda y filtros */}
-      <div style={controlPanelStyle}>
-        <div style={controlsRowStyle}>
+      <GlassEffect
+        variant="card"
+        tint="neutral"
+        intensity="light"
+        style={{
+          marginBottom: isMobile ? '0.5rem' : '0.5rem',
+          padding: '0.5rem',
+          boxShadow: 'none',
+          borderRadius: '0.375rem',
+          border: `1px solid ${theme.inputBorder}`
+        }}
+      >
+        <div className="responsive-filters">
+          <div style={controlsRowStyle}>
           {/* Buscador */}
-          <div style={{ flex: 1, position: 'relative' }}>
+          <div style={{ flex: 1, position: 'relative', width: isSmallScreen ? '100%' : 'auto' }}>
             <Search
               size={16}
               style={{
                 position: 'absolute',
-                left: '10px',
+                left: '0.5rem',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: theme.inputIcon,
@@ -576,29 +589,25 @@ const GestionPromociones: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '7px 10px 7px 32px',
-                background: theme.inputBg,
+                padding: '0 0.5rem 0 2rem',
+                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
                 border: `1px solid ${theme.inputBorder}`,
                 borderRadius: '0.5rem',
                 color: theme.inputText,
-                fontSize: '0.8rem',
-                boxShadow: darkMode ? 'none' : '0 12px 30px rgba(15,23,42,0.08)',
-                transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease'
+                fontSize: '0.75rem',
+                boxShadow: 'none',
+                height: '2rem'
               }}
             />
           </div>
 
           {/* Filtro Estado */}
-          <div style={{ minWidth: isMobile ? '100%' : '160px' }}>
+          <div style={{ minWidth: isMobile ? '100%' : 'min(12.5rem, 25vw)', width: isMobile ? '100%' : 'auto' }}>
             <StyledSelect
               name="filtro_estado"
               value={filterActiva}
               onChange={(e) => setFilterActiva(e.target.value)}
               darkMode={darkMode}
-              style={{
-                ...fieldInputStyle,
-                boxShadow: darkMode ? 'none' : '0 12px 30px rgba(15,23,42,0.08)'
-              }}
               options={[
                 { value: 'todas', label: 'Todas' },
                 { value: 'activas', label: 'Activas' },
@@ -608,31 +617,33 @@ const GestionPromociones: React.FC = () => {
           </div>
 
           {/* Toggle Vista */}
-          <div style={{
-            display: 'flex',
-            gap: '0.375rem',
-            background: toggleGroupBg,
-            borderRadius: '0.625rem',
-            padding: '0.1875rem',
-            flexShrink: 0
-          }}>
+          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              background: toggleGroupBg,
+              borderRadius: '0.65rem',
+              padding: '0.1875rem',
+              border: 'none',
+              boxShadow: 'none'
+            }}>
             <button
               onClick={() => setViewMode('cards')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                gap: '0.3em',
+                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
                 background: isCardsView ? toggleActiveBg : 'transparent',
                 border: 'none',
-                outline: 'none',
-                borderRadius: '0.5rem',
+                borderRadius: '0.5em',
                 color: isCardsView ? toggleActiveText : toggleInactiveText,
                 cursor: 'pointer',
-                fontSize: isMobile ? '0.8rem' : '0.85rem',
+                fontSize: '0.8rem',
                 fontWeight: 600,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flex: isSmallScreen ? 1 : 'initial'
               }}
             >
               <Grid
@@ -647,17 +658,17 @@ const GestionPromociones: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.375rem',
-                padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                gap: '0.3em',
+                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
                 background: isTableView ? toggleActiveBg : 'transparent',
                 border: 'none',
-                outline: 'none',
-                borderRadius: '0.5rem',
+                borderRadius: '0.5em',
                 color: isTableView ? toggleActiveText : toggleInactiveText,
                 cursor: 'pointer',
-                fontSize: isMobile ? '0.8rem' : '0.85rem',
+                fontSize: '0.8rem',
                 fontWeight: 600,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flex: isSmallScreen ? 1 : 'initial'
               }}
             >
               <List
@@ -668,6 +679,11 @@ const GestionPromociones: React.FC = () => {
             </button>
           </div>
 
+
+          </div>
+          </div>
+
+          {/* Botón Crear */}
           <button
             onClick={openCreate}
             disabled={loading}
@@ -675,28 +691,25 @@ const GestionPromociones: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.375rem',
-              padding: isMobile ? '8px 14px' : '9px 16px',
+              gap: '0.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: accentGradient,
               border: 'none',
-              borderRadius: '0.625rem',
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: isMobile ? '0.78rem' : '0.82rem',
+              borderRadius: '0.625em',
+              color: '#ffffff',
+              fontWeight: '600',
+              fontSize: '0.8rem',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s ease',
               opacity: loading ? 0.6 : 1,
-              flexShrink: 0,
-              minWidth: isMobile ? '100%' : 'auto'
+              boxShadow: loading ? 'none' : '0 0.35rem 1rem rgba(239,68,68,0.35)',
+              width: isSmallScreen ? '100%' : 'auto'
             }}
-            onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            <Plus size={isMobile ? 14 : 16} />
+            <Plus size={16} color="currentColor" />
             Nueva Promoción
           </button>
         </div>
-      </div>
+      </GlassEffect>
 
       {/* Error */}
       {error && (
@@ -742,54 +755,55 @@ const GestionPromociones: React.FC = () => {
 
       {/* Vista Tabla */}
       {viewMode === 'table' && !loading && paginatedPromociones.length > 0 && (
-        <div
-          style={{
-            marginBottom: isMobile ? '12px' : '1.125rem',
-            background: theme.contentBackground,
-            border: `1px solid ${theme.controlGroupBorder}`,
-            borderRadius: '1rem',
-            boxShadow: theme.surfaceShadow,
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{ overflowX: 'auto' }}>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                minWidth: '900px',
-                color: theme.textPrimary
-              }}
-            >
-              <thead>
+        <>
+          {/* Indicador de scroll en móvil */}
+          {isSmallScreen && (
+            <div style={{
+              background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
+              border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+              borderRadius: '0.5rem',
+              padding: '8px 0.75rem',
+              marginBottom: '0.75rem',
+              color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.375rem'
+            }}>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
+              <span>Desliza horizontalmente para ver toda la tabla</span>
+              <ArrowLeftRight size={16} strokeWidth={2.25} />
+            </div>
+          )}
+
+          <div
+            className="responsive-table-container"
+            style={{
+              overflowX: 'auto',
+              borderRadius: isMobile ? '12px' : '1rem',
+              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+              background: darkMode
+                ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+              marginBottom: isMobile ? '12px' : '0.5rem',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? 'min(56.25rem, 95vw)' : 'auto' }}>
+              <thead style={{
+                borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
+                background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+              }}>
                 <tr>
-                  {[
-                    'Estado',
-                    'Promoción',
-                    'Curso Principal',
-                    'Curso Promocional',
-                    'Beneficio',
-                    'Cupos',
-                    'Vigencia',
-                    'Acciones'
-                  ].map((header) => (
-                    <th
-                      key={header}
-                      style={{
-                        textAlign: 'left',
-                        padding: '0.85rem 1rem',
-                        fontSize: '0.7rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                        fontWeight: 700,
-                        color: theme.textSecondary,
-                        borderBottom: `1px solid ${theme.divider}`,
-                        background: pick('rgba(255,255,255,0.92)', 'rgba(17,24,39,0.65)')
-                      }}
-                    >
-                      {header}
-                    </th>
-                  ))}
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Estado</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Promoción</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Curso Principal</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Curso Promocional</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Beneficio</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Cupos</th>
+                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -809,23 +823,23 @@ const GestionPromociones: React.FC = () => {
                     <tr
                       key={promo.id_promocion}
                       style={{
-                        transition: 'background 0.2s ease',
-                        borderBottom: `1px solid ${theme.divider}`
+                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                        transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = pick('rgba(248,250,252,0.9)', 'rgba(45,55,72,0.3)');
+                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 600, textAlign: 'center', verticalAlign: 'middle' }}>
                         <span
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '6px',
-                            padding: '4px 8px',
+                            padding: '2px 8px',
                             borderRadius: '0.5rem',
                             background: promo.activa ? theme.badgeActiveBg : theme.badgeInactiveBg,
                             border: `1px solid ${promo.activa ? theme.badgeActiveBorder : theme.badgeInactiveBorder}`,
@@ -833,40 +847,22 @@ const GestionPromociones: React.FC = () => {
                           }}
                         >
                           {promo.activa ? (
-                            <CheckCircle size={12} color="#10b981" />
+                            <CheckCircle size={10} color="#10b981" />
                           ) : (
-                            <XCircle size={12} color="#ef4444" />
+                            <XCircle size={10} color="#ef4444" />
                           )}
                           {promo.activa ? 'Activa' : 'Inactiva'}
                         </span>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.78rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: theme.textPrimary }}>{promo.nombre_promocion}</div>
                         {promo.descripcion && (
                           <div style={{ fontSize: '0.68rem', color: theme.textSecondary, marginTop: '3px' }}>
                             {promo.descripcion}
                           </div>
                         )}
-                        {ahorro > 0 && (
-                          <div
-                            style={{
-                              marginTop: '6px',
-                              fontSize: '0.65rem',
-                              fontWeight: 600,
-                              color: '#f59e0b',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              background: 'rgba(245,158,11,0.15)',
-                              borderRadius: '999px',
-                              padding: '2px 8px'
-                            }}
-                          >
-                            <Sparkles size={12} color="#f59e0b" /> Ahorro {formatPrice(ahorro)}
-                          </div>
-                        )}
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: 'rgba(59,130,246,0.95)' }}>
                           {promo.nombre_curso_principal || 'N/A'}
                         </div>
@@ -874,7 +870,7 @@ const GestionPromociones: React.FC = () => {
                           {promo.codigo_curso_principal || 'Sin código'} · {promo.horario_principal || 'Horario no definido'}
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: 'rgba(16,185,129,0.95)' }}>
                           {promo.nombre_curso_promocional || 'N/A'}
                         </div>
@@ -882,17 +878,12 @@ const GestionPromociones: React.FC = () => {
                           {promo.codigo_curso_promocional || 'Sin código'} · {promo.horario_promocional || 'Horario no definido'}
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: 600 }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 600, verticalAlign: 'middle' }}>
                         {promo.modalidad_promocional === 'clases'
                           ? `${promo.clases_gratis || 0} clases gratis`
                           : `${promo.meses_gratis || 0} meses gratis`}
-                        <div style={{ fontSize: '0.65rem', color: theme.textSecondary, marginTop: '3px' }}>
-                          {promo.modalidad_promocional === 'clases'
-                            ? `Valor referencial ${formatPrice((promo.clases_gratis || 0) * (promo.precio_por_clase || 0))}`
-                            : `Valor referencial ${formatPrice((promo.meses_gratis || 0) * (promo.precio_base || 0))}`}
-                        </div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div
                           style={{
                             fontWeight: 700,
@@ -907,66 +898,82 @@ const GestionPromociones: React.FC = () => {
                           {promo.cupos_utilizados || 0} aceptados
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontSize: '0.72rem', color: theme.textSecondary }}>
-                        {vigencia}
-                      </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
-                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                          <button
-                            onClick={() => handleToggleActiva(promo.id_promocion, promo.activa)}
-                            style={{
-                              padding: '5px 10px',
-                              background: promo.activa
-                                ? 'rgba(239, 68, 68, 0.15)'
-                                : 'rgba(16, 185, 129, 0.15)',
-                              border: promo.activa
-                                ? '1px solid rgba(239, 68, 68, 0.3)'
-                                : '1px solid rgba(16, 185, 129, 0.3)',
-                              borderRadius: '0.5rem',
-                              color: promo.activa ? '#ef4444' : '#10b981',
-                              fontSize: '0.7rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            {promo.activa ? (
-                              <XCircle size={12} color="#ef4444" />
-                            ) : (
-                              <CheckCircle size={12} color="#10b981" />
-                            )}
-                            {promo.activa ? 'Desactivar' : 'Activar'}
-                          </button>
+                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => openEdit(promo)}
                             style={{
-                              padding: '5px 8px',
-                              background: 'rgba(59, 130, 246, 0.15)',
-                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
+                              border: '1px solid #3b82f6',
+                              backgroundColor: 'transparent',
                               color: '#3b82f6',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s'
                             }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#3b82f6';
+                            }}
+                            title="Editar promoción"
                           >
-                            <Edit size={14} color="#3b82f6" />
+                            <Edit style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
                             onClick={() => setDeleteTarget(promo)}
                             style={{
-                              padding: '5px 8px',
-                              background: 'rgba(239, 68, 68, 0.15)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              padding: '0.375rem',
                               borderRadius: '0.5rem',
+                              border: '1px solid #ef4444',
+                              backgroundColor: 'transparent',
                               color: '#ef4444',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s'
                             }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#ef4444';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#ef4444';
+                            }}
+                            title="Eliminar promoción"
                           >
-                            <Trash2 size={14} color="#ef4444" />
+                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
+                          </button>
+                          <button
+                            onClick={() => handleToggleActiva(promo.id_promocion, promo.activa)}
+                            style={{
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: `1px solid ${promo.activa ? '#ef4444' : '#10b981'}`,
+                              backgroundColor: 'transparent',
+                              color: promo.activa ? '#ef4444' : '#10b981',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              const color = promo.activa ? '#ef4444' : '#10b981';
+                              e.currentTarget.style.backgroundColor = color;
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              const color = promo.activa ? '#ef4444' : '#10b981';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = color;
+                            }}
+                            title={promo.activa ? 'Desactivar promoción' : 'Activar promoción'}
+                          >
+                            {promo.activa ? (
+                              <XCircle style={{ width: '1rem', height: '1rem' }} />
+                            ) : (
+                              <CheckCircle style={{ width: '1rem', height: '1rem' }} />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -976,7 +983,7 @@ const GestionPromociones: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </>
       )}
 
       {/* Vista Cards */}
@@ -985,7 +992,7 @@ const GestionPromociones: React.FC = () => {
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
           gap: isMobile ? '12px' : '1rem',
-          marginBottom: isMobile ? '12px' : '1.125rem'
+          marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedPromociones.map((promo) => {
             const ahorro = calcularAhorro(promo);
@@ -998,7 +1005,7 @@ const GestionPromociones: React.FC = () => {
                   background: theme.cardBackground,
                   border: `1px solid ${promo.activa ? theme.cardBorderActive : theme.cardBorderInactive}`,
                   borderRadius: '1rem',
-                  padding: '1rem',
+                  padding: '0.75rem',
                   transition: 'transform 0.25s ease, box-shadow 0.25s ease',
                   cursor: 'pointer',
                   position: 'relative',
@@ -1065,7 +1072,7 @@ const GestionPromociones: React.FC = () => {
                   <h3 style={{
                     color: theme.textPrimary,
                     margin: '0 0 0.375rem 0',
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
                     fontWeight: '600',
                     lineHeight: 1.3
                   }}>
@@ -1125,12 +1132,12 @@ const GestionPromociones: React.FC = () => {
                   background: benefitTokens.background,
                   border: benefitTokens.border,
                   borderRadius: '0.5rem',
-                  padding: '10px',
-                  marginBottom: '0.75rem',
+                  padding: '0.625rem',
+                  marginBottom: '0.625rem',
                   textAlign: 'center'
                 }}>
                   <div style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.25rem',
                     fontWeight: '800',
                     color: benefitTokens.title,
                     lineHeight: 1,
@@ -1139,7 +1146,7 @@ const GestionPromociones: React.FC = () => {
                     {promo.modalidad_promocional === 'clases' ? promo.clases_gratis : promo.meses_gratis}
                   </div>
                   <div style={{
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     color: theme.textSecondary,
                     fontWeight: '600',
                     textTransform: 'uppercase'
@@ -1234,7 +1241,7 @@ const GestionPromociones: React.FC = () => {
                     onClick={() => handleToggleActiva(promo.id_promocion, promo.activa)}
                     style={{
                       flex: 1,
-                      padding: '6px',
+                      padding: '0.375rem',
                       background: promo.activa
                         ? 'rgba(239, 68, 68, 0.15)'
                         : 'rgba(16, 185, 129, 0.15)',
@@ -1254,15 +1261,15 @@ const GestionPromociones: React.FC = () => {
                     }}
                   >
                     {promo.activa
-                      ? <XCircle size={12} color="#ef4444" />
-                      : <CheckCircle size={12} color="#10b981" />}
+                      ? <XCircle size={16} color="#ef4444" />
+                      : <CheckCircle size={16} color="#10b981" />}
                     {promo.activa ? 'Desactivar' : 'Activar'}
                   </button>
 
                   <button
                     onClick={() => openEdit(promo)}
                     style={{
-                      padding: '6px 10px',
+                      padding: '0.375rem 0.625rem',
                       background: 'rgba(59, 130, 246, 0.15)',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
                       borderRadius: '6px',
@@ -1271,13 +1278,13 @@ const GestionPromociones: React.FC = () => {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <Edit size={14} color="#3b82f6" />
+                    <Edit size={16} color="#3b82f6" />
                   </button>
 
                   <button
                     onClick={() => setDeleteTarget(promo)}
                     style={{
-                      padding: '6px 10px',
+                      padding: '0.375rem 0.625rem',
                       background: 'rgba(239, 68, 68, 0.15)',
                       border: '1px solid rgba(239, 68, 68, 0.3)',
                       borderRadius: '6px',
@@ -1286,7 +1293,7 @@ const GestionPromociones: React.FC = () => {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <Trash2 size={14} color="#ef4444" />
+                    <Trash2 size={16} color="#ef4444" />
                   </button>
                 </div>
               </div>
@@ -1296,59 +1303,117 @@ const GestionPromociones: React.FC = () => {
       )}
 
       {/* Paginación */}
-      {totalPages > 1 && (
-        <div style={{
+      {totalPages > 0 && (
+        <div className="pagination-container" style={{
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginTop: '1rem'
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '0.75rem' : '0',
+          padding: isMobile ? '8px' : '0.25rem 1rem',
+          background: darkMode
+            ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.14)'}`,
+          borderRadius: '0.75rem',
+          marginTop: '0.5rem',
+          marginBottom: isMobile ? '0.75rem' : '0.5rem'
         }}>
-          <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            style={{
-              padding: '6px 10px',
-              background: theme.paginationBg,
-              border: `1px solid ${theme.paginationBorder}`,
-              borderRadius: '0.625rem',
-              color: currentPage === 1 ? pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.35)') : theme.paginationText,
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <ChevronLeft
-              size={16}
-              color={currentPage === 1 ? pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.35)') : theme.paginationText}
-            />
-          </button>
-
-          <span style={{
-            color: theme.paginationText,
-            fontSize: '0.8rem',
-            fontWeight: '600'
+          <div style={{
+            color: darkMode ? 'rgba(226,232,240,0.8)' : 'rgba(30,41,59,0.85)',
+            fontSize: isMobile ? '0.75rem' : '0.8rem',
+            textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {currentPage} de {totalPages}
-          </span>
+            Página {currentPage} de {totalPages} • Total: {filteredPromociones.length} promociones
+          </div>
 
-          <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: '6px 10px',
-              background: theme.paginationBg,
-              border: `1px solid ${theme.paginationBorder}`,
-              borderRadius: '0.625rem',
-              color: currentPage === totalPages ? pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.35)') : theme.paginationText,
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <ChevronRight
-              size={16}
-              color={currentPage === totalPages ? pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.35)') : theme.paginationText}
-            />
-          </button>
+          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                background: currentPage === 1
+                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                  : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                borderRadius: '0.625rem',
+                color: currentPage === 1
+                  ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                  : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
+                fontWeight: 600,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
+              }}
+            >
+              <ChevronLeft size={isMobile ? 14 : 14} />
+              {!isMobile && 'Anterior'}
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                style={{
+                  padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                  background: currentPage === pageNum
+                    ? (darkMode
+                      ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                      : 'linear-gradient(135deg, #fca5a5 0%, #ef4444 100%)')
+                    : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)'),
+                  border: currentPage === pageNum
+                    ? `1px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`
+                    : `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                  borderRadius: '0.5rem',
+                  color: currentPage === pageNum ? '#ffffff' : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                  fontSize: isMobile ? '0.75rem' : '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: isMobile ? '30px' : '2rem',
+                  boxShadow: 'none'
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: isMobile ? '4px' : '0.25rem',
+                padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                background: currentPage === totalPages
+                  ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                  : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                borderRadius: '0.625rem',
+                color: currentPage === totalPages
+                  ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                  : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
+                fontWeight: 600,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                flex: isMobile ? '1' : 'initial',
+                boxShadow: 'none'
+              }}
+            >
+              {!isMobile && 'Siguiente'}
+              <ChevronRight size={isMobile ? 14 : 14} />
+            </button>
+          </div>
         </div>
       )}
 

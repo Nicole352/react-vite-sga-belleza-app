@@ -25,8 +25,8 @@ const AdminSectionHeader: React.FC<AdminSectionHeaderProps> = ({ title, subtitle
         <h2
           style={{
             color: 'var(--admin-text-primary, #1e293b)',
-            margin: '0 0 0.375rem 0',
-            fontSize: isMobile ? '1.25rem' : '1.5rem',
+            margin: '0 0 0.25rem 0',
+            fontSize: isMobile ? '1rem' : '1.25rem',
             fontWeight: '700'
           }}
         >
@@ -36,7 +36,7 @@ const AdminSectionHeader: React.FC<AdminSectionHeaderProps> = ({ title, subtitle
           <p
             style={{
               color: 'var(--admin-text-muted, #9ca3af)',
-              fontSize: isMobile ? '0.75rem' : '0.8125rem',
+              fontSize: '0.7rem',
               margin: 0
             }}
           >
