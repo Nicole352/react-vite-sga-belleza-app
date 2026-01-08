@@ -715,51 +715,51 @@ const GestionMatricula = () => {
               border: 'none',
               boxShadow: 'none'
             }}>
-            <button
-              onClick={() => setViewMode('grid')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3em',
-                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                background: viewMode === 'grid' ? toggleActiveBg : 'transparent',
-                border: 'none',
-                borderRadius: '0.5em',
-                color: viewMode === 'grid' ? toggleActiveText : toggleInactiveText,
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-                flex: isMobile ? 1 : 'initial'
-              }}
-              title="Vista de Tarjetas"
-            >
-              <LayoutGrid size={16} color={viewMode === 'grid' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3em',
-                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                background: viewMode === 'table' ? toggleActiveBg : 'transparent',
-                border: 'none',
-                borderRadius: '0.5em',
-                color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-                flex: isMobile ? 1 : 'initial'
-              }}
-              title="Vista de Tabla"
-            >
-              <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
-            </button>
-          </div>
+              <button
+                onClick={() => setViewMode('grid')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'grid' ? toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'grid' ? toggleActiveText : toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? 1 : 'initial'
+                }}
+                title="Vista de Tarjetas"
+              >
+                <LayoutGrid size={16} color={viewMode === 'grid' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'table' ? toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? 1 : 'initial'
+                }}
+                title="Vista de Tabla"
+              >
+                <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
+              </button>
+            </div>
 
 
           </div>
@@ -858,23 +858,23 @@ const GestionMatricula = () => {
               position: 'relative'
             }}>
               {!isMobile && (
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                pointerEvents: 'none',
-                zIndex: 0,
-                opacity: 0.08,
-                display: 'flex',
-                gap: '0.5rem',
-                alignItems: 'center'
-              }}>
-                <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
-                <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
-              </div>
-            )}
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', position: 'relative', zIndex: 1 }}>
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  pointerEvents: 'none',
+                  zIndex: 0,
+                  opacity: 0.08,
+                  display: 'flex',
+                  gap: '0.5rem',
+                  alignItems: 'center'
+                }}>
+                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                </div>
+              )}
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', position: 'relative', zIndex: 1 }}>
                 <thead style={{
                   borderBottom: `1px solid ${tableHeaderBorder}`,
                   background: tableHeaderBg
@@ -1048,45 +1048,43 @@ const GestionMatricula = () => {
           </>
         )}
 
-        {/* Vista Cards */}
+        {/* Vista Cards - Modo Horizontal Compacto (Matching Ref image & GestionPagosEstudiante) */}
         {!loading && solicitudesFiltradas.length > 0 && viewMode === 'grid' && (
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(auto-fill, minmax(320px, 1fr))' : 'repeat(auto-fill, minmax(400px, 1fr))'),
-            gap: isMobile ? '0.75rem' : '1rem'
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.625rem',
+            padding: '0.25rem 0'
           }}>
             {paginatedSolicitudes.map((sol) => {
-              // Formatear fecha de solicitud
+              const estadoVisual = getEstadoTokens(sol.estado);
+              const labelColor = theme.textMuted;
+              const valueColor = theme.textPrimary;
+
+              const fieldLabelStyle = {
+                color: labelColor,
+                fontSize: '0.6rem',
+                fontWeight: 500,
+                marginBottom: '0.125rem'
+              } as CSSProperties;
+
+              const fieldValueStyle = {
+                color: valueColor,
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              } as CSSProperties;
+
               const formatearFecha = (fechaString: string) => {
                 const fecha = new Date(fechaString);
                 const meses = [
                   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
                 ];
-                const dia = fecha.getDate();
-                const mes = meses[fecha.getMonth()];
-                const año = fecha.getFullYear();
-                return `${dia}/${mes}/${año}`;
+                return `${fecha.getDate()}/${meses[fecha.getMonth()]}/${fecha.getFullYear()}`;
               };
-
-              const estadoVisual = getEstadoTokens(sol.estado);
-              const labelColor = theme.textSecondary;
-              const valueColor = theme.textPrimary;
-              const codeChipStyle = {
-                background: neutralBadgeTokens.bg,
-                border: `1px solid ${neutralBadgeTokens.border}`,
-                color: neutralBadgeTokens.text
-              } as CSSProperties;
-              const fieldLabelStyle = {
-                color: labelColor,
-                fontSize: '0.65rem',
-                marginBottom: '0.1875rem'
-              } as CSSProperties;
-              const fieldValueStyle = {
-                color: valueColor,
-                fontSize: '0.75rem',
-                fontWeight: 600
-              } as CSSProperties;
 
               return (
                 <div
@@ -1094,288 +1092,174 @@ const GestionMatricula = () => {
                   style={{
                     background: theme.contentBackground,
                     border: `1px solid ${theme.surfaceBorder}`,
-                    borderRadius: '0.375rem',
-                    padding: '0.75rem',
-                    boxShadow: darkMode ? '0 0.25rem 0.75rem rgba(0, 0, 0, 0.25)' : '0 0.25rem 0.75rem rgba(15, 23, 42, 0.12)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    backdropFilter: darkMode ? 'blur(1rem)' : 'none',
-                    color: theme.textPrimary
+                    borderRadius: '0.625rem',
+                    padding: '0.5rem 0.75rem',
+                    boxShadow: darkMode ? '0 2px 8px rgba(0, 0, 0, 0.2)' : '0 2px 8px rgba(15, 23, 42, 0.05)',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    position: 'relative'
                   }}
                 >
-                  {/* Información Principal */}
-                  <div style={{ marginBottom: '0.875rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          padding: '3px 0.5rem',
-                          borderRadius: '0.3125rem',
-                          fontWeight: 600,
-                          letterSpacing: '0.01em',
-                          background: codeChipStyle.background,
-                          border: codeChipStyle.border,
-                          color: codeChipStyle.color
-                        }}
-                      >
-                        {sol.codigo_solicitud}
-                      </span>
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.1875rem',
-                          padding: '3px 0.5rem',
-                          borderRadius: 6,
-                          fontSize: '0.65rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          background: estadoVisual.bg,
-                          border: `1px solid ${estadoVisual.border}`,
-                          color: estadoVisual.text
-                        }}
-                      >
-                        {sol.estado}
-                      </span>
-                    </div>
-                    <h3
-                      style={{
-                        color: theme.textPrimary,
-                        margin: '0 0 0.25rem 0',
-                        fontSize: '0.9rem',
-                        fontWeight: 600
-                      }}
-                    >
+                  {/* Header Row: Código y Estado */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: '0.55rem',
+                      padding: '2px 0.5rem',
+                      borderRadius: '0.35rem',
+                      fontWeight: 600,
+                      background: theme.chipMutedBg,
+                      border: `1px solid ${theme.chipMutedBorder}`,
+                      color: theme.chipMutedText,
+                      letterSpacing: '0.01em'
+                    }}>
+                      {sol.codigo_solicitud}
+                    </span>
+                    <span style={{
+                      padding: '2px 0.5rem',
+                      borderRadius: '0.35rem',
+                      fontSize: '0.55rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      background: estadoVisual.bg,
+                      border: `1px solid ${estadoVisual.border}`,
+                      color: estadoVisual.text,
+                      letterSpacing: '0.025em'
+                    }}>
+                      {sol.estado}
+                    </span>
+                  </div>
+
+                  {/* Nombre del Solicitante */}
+                  <div>
+                    <h3 style={{
+                      margin: 0,
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      color: theme.textPrimary,
+                      textTransform: 'uppercase',
+                      letterSpacing: '-0.01em'
+                    }}>
                       {sol.apellido_solicitante}, {sol.nombre_solicitante}
                     </h3>
                   </div>
 
-                  <div
-                    style={{
-                      paddingTop: '0.625rem',
-                      borderTop: `1px solid ${theme.divider}`,
-                      marginBottom: '0.875rem'
-                    }}
-                  >
+                  <div style={{ width: '100%', height: '1px', background: theme.divider, opacity: 0.5 }} />
 
-                    {/* Primera fila - Información básica */}
-                    <div style={{
-                      display: 'flex',
-                      gap: '0.75rem',
-                      marginBottom: '0.75rem',
-                      flexWrap: 'wrap'
-                    }}>
-                      <div style={{ flex: '1 1 200px' }}>
-                        <div style={fieldLabelStyle}>Identificación</div>
-                        <div style={fieldValueStyle}>{sol.identificacion_solicitante || '-'}</div>
-                      </div>
-                      <div style={{ flex: '1 1 200px' }}>
-                        <div style={fieldLabelStyle}>Email</div>
-                        <div style={fieldValueStyle}>{sol.email_solicitante}</div>
-                      </div>
-                      <div style={{ flex: '1 1 150px' }}>
-                        <div style={fieldLabelStyle}>Fecha de Solicitud</div>
-                        <div style={fieldValueStyle}>{formatearFecha(sol.fecha_solicitud)}</div>
-                      </div>
-                      {(sol as any).tipo_curso_nombre && (
-                        <div style={{ flex: '1 1 150px' }}>
-                          <div style={fieldLabelStyle}>Tipo de Curso</div>
-                          <div style={fieldValueStyle}>{(sol as any).tipo_curso_nombre}</div>
-                        </div>
-                      )}
+                  {/* Fila de Detalles (4 columnas) */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
+                    gap: '0.625rem'
+                  }}>
+                    <div>
+                      <div style={fieldLabelStyle}>Identificación</div>
+                      <div style={fieldValueStyle}>{sol.identificacion_solicitante || '-'}</div>
                     </div>
-
-                    {/* Segunda fila - Número y Comprobante */}
-                    <div style={{
-                      display: 'flex',
-                      gap: '0.625rem',
-                      flexWrap: 'wrap',
-                      alignItems: 'start'
-                    }}>
-                      {/* Número de comprobante - Campo separado */}
-                      <div style={{ flex: '1 1 140px' }}>
-                        <div style={fieldLabelStyle}>Número Comprobante</div>
-                        {sol.numero_comprobante ? (
-                          <div style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            color: '#ef4444',
-                            padding: '4px 0.5rem',
-                            borderRadius: '0.3125rem',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            textAlign: 'center'
-                          }}>
-                            {sol.numero_comprobante}
-                          </div>
-                        ) : (
-                          <div style={{
-                            background: neutralBadgeTokens.bg,
-                            border: `1px solid ${neutralBadgeTokens.border}`,
-                            color: neutralBadgeTokens.text,
-                            padding: '4px 0.5rem',
-                            borderRadius: '0.3125rem',
-                            fontSize: '0.7rem',
-                            textAlign: 'center',
-                            fontStyle: 'italic'
-                          }}>
-                            {sol.metodo_pago === 'transferencia' ? 'Sin número' : 'N/A'}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Recibido por - Solo para efectivo */}
-                      {sol.metodo_pago === 'efectivo' && (
-                        <div style={{ flex: '1 1 140px' }}>
-                          <div style={fieldLabelStyle}>Recibido por</div>
-                          {(sol as any).recibido_por ? (
-                            <div style={{
-                              background: 'rgba(180, 83, 9, 0.1)',
-                              border: '1px solid rgba(180, 83, 9, 0.3)',
-                              color: '#b45309',
-                              padding: '4px 0.5rem',
-                              borderRadius: '0.3125rem',
-                              fontSize: '0.7rem',
-                              fontWeight: '600',
-                              textAlign: 'center'
-                            }}>
-                              {(sol as any).recibido_por}
-                            </div>
-                          ) : (
-                            <div style={{
-                              background: neutralBadgeTokens.bg,
-                              border: `1px solid ${neutralBadgeTokens.border}`,
-                              color: neutralBadgeTokens.text,
-                              padding: '4px 0.5rem',
-                              borderRadius: '0.3125rem',
-                              fontSize: '0.7rem',
-                              textAlign: 'center',
-                              fontStyle: 'italic'
-                            }}>
-                              Sin registro
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Comprobante - Solo botón */}
-                      <div style={{ flex: '1 1 auto' }}>
-                        <div style={fieldLabelStyle}>Comprobante</div>
-                        <button
-                          onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
-                          style={{
-                            background: 'rgba(16, 185, 129, 0.15)',
-                            border: '1px solid rgba(16, 185, 129, 0.3)',
-                            color: '#10b981',
-                            padding: '6px 0.625rem',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            whiteSpace: 'nowrap',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)';
-                          }}
-                        >
-                          <Download size={12} color={actionColors.approve} />
-                          Ver Comprobante
-                        </button>
-                      </div>
+                    <div>
+                      <div style={fieldLabelStyle}>Email</div>
+                      <div style={fieldValueStyle}>{sol.email_solicitante}</div>
+                    </div>
+                    <div>
+                      <div style={fieldLabelStyle}>Fecha de Solicitud</div>
+                      <div style={fieldValueStyle}>{formatearFecha(sol.fecha_solicitud)}</div>
+                    </div>
+                    <div>
+                      <div style={fieldLabelStyle}>Tipo de Curso</div>
+                      <div style={fieldValueStyle}>{(sol as any).tipo_curso_nombre || '-'}</div>
                     </div>
                   </div>
 
-                  {/* Botones de Acción - Parte Inferior */}
+                  {/* Fila de Comprobante (Boxes) */}
                   <div style={{
-                    display: 'flex',
-                    gap: '0.5rem',
-                    justifyContent: 'flex-end',
-                    borderTop: `1px solid ${theme.divider}`,
-                    paddingTop: '0.75rem',
-                    marginTop: '0.75rem'
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                    gap: '0.625rem',
+                    alignItems: 'end'
                   }}>
+                    <div>
+                      <div style={fieldLabelStyle}>Número Comprobante</div>
+                      <div style={{
+                        background: 'rgba(239, 68, 68, 0.05)',
+                        border: '1px solid rgba(239, 68, 68, 0.1)',
+                        color: RedColorPalette.primary,
+                        padding: '3px 6px',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        textAlign: 'center'
+                      }}>
+                        {sol.numero_comprobante || 'N/A'}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={fieldLabelStyle}>Recibido por</div>
+                      <div style={{
+                        background: 'rgba(180, 83, 9, 0.05)',
+                        border: '1px solid rgba(180, 83, 9, 0.1)',
+                        color: '#b45309',
+                        padding: '3px 6px',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        textTransform: 'uppercase'
+                      }}>
+                        {(sol as any).recibido_por || 'SECRETARIA'}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={fieldLabelStyle}>Comprobante</div>
+                      <button
+                        onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.05)',
+                          border: '1px solid rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          padding: '3px 0.75rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.25rem',
+                          cursor: 'pointer',
+                          width: '100%',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
+                      >
+                        <Download size={12} /> Ver Comprobante
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Botón Ver (Bottom Right) */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.125rem' }}>
                     <button
                       onClick={() => openModal(sol.id_solicitud)}
                       style={{
-                        background: 'rgba(59, 130, 246, 0.1)',
-                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        background: pick('rgba(59, 130, 246, 0.06)', 'rgba(59, 130, 246, 0.1)'),
+                        border: '1px solid rgba(59, 130, 246, 0.15)',
                         color: actionColors.view,
-                        padding: '6px 0.75rem',
-                        borderRadius: '0.375rem',
-                        cursor: 'pointer',
+                        padding: '2px 0.75rem',
+                        borderRadius: '0.35rem',
+                        fontSize: '0.6rem',
+                        fontWeight: 700,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.375rem',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
+                        gap: '0.25rem',
+                        cursor: 'pointer',
                         transition: 'all 0.2s ease'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.12)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.06)'}
                     >
-                      <Eye size={14} color={actionColors.view} />
-                      Ver
+                      <Eye size={12} /> Ver
                     </button>
-                    {sol.estado === 'pendiente' && (
-                      <>
-                        <button
-                          onClick={() => openApprovalModal(sol)}
-                          disabled={decidiendo}
-                          style={{
-                            background: 'rgba(16, 185, 129, 0.15)',
-                            border: '0.0625rem solid rgba(16, 185, 129, 0.3)',
-                            color: actionColors.approve,
-                            padding: isMobile ? '0.5em 0.75rem' : '0.4em 0.625rem',
-                            borderRadius: '0.375rem',
-                            cursor: decidiendo ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.375rem',
-                            opacity: decidiendo ? 0.6 : 1,
-                            fontSize: isMobile ? '0.85rem' : '0.75rem',
-                            fontWeight: '500',
-                            width: isSmallScreen ? '100%' : 'auto'
-                          }}
-                        >
-                          <Check size={14} color={actionColors.approve} />
-                          Aprobar
-                        </button>
-                        <button
-                          onClick={() => handleDecision('rechazado', undefined, sol.id_solicitud)}
-                          disabled={decidiendo}
-                          style={{
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            border: '0.0625rem solid rgba(239, 68, 68, 0.3)',
-                            color: actionColors.reject,
-                            padding: isMobile ? '0.5em 0.75rem' : '0.4em 0.625rem',
-                            borderRadius: '0.375rem',
-                            cursor: decidiendo ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.375rem',
-                            opacity: decidiendo ? 0.6 : 1,
-                            fontSize: isMobile ? '0.85rem' : '0.75rem',
-                            fontWeight: '500',
-                            width: isSmallScreen ? '100%' : 'auto'
-                          }}
-                        >
-                          <XCircle size={14} color={actionColors.reject} />
-                          Rechazar
-                        </button>
-                      </>
-                    )}
                   </div>
                 </div>
               );
@@ -1455,9 +1339,9 @@ const GestionMatricula = () => {
                     padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
                     background: page === pageNum
                       ? pick(
-                          `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
-                          `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
-                        )
+                        `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
+                        `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
+                      )
                       : pick('rgba(226,232,240,0.9)', 'rgba(255,255,255,0.08)'),
                     border: page === pageNum
                       ? `1px solid ${pick('rgba(239,68,68,0.3)', 'rgba(239,68,68,0.4)')}`
