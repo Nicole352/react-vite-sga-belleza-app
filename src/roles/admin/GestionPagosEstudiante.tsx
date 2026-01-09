@@ -1145,7 +1145,7 @@ const GestionPagosEstudiante = () => {
               }}>
                 <tr>
                   <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Estudiante</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Cédula</th>
+                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Identificación</th>
                   <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Curso</th>
                   <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Cuota</th>
                   <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Monto</th>

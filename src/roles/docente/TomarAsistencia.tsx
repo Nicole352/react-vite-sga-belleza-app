@@ -16,6 +16,8 @@ interface Curso {
   codigo_curso: string;
   nombre_curso: string;
   horario: string;
+  hora_inicio?: string;
+  hora_fin?: string;
   tipo_curso_nombre: string;
   total_estudiantes: number;
 }
@@ -74,7 +76,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const [documentoPreviewUrl, setDocumentoPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  const estudiantesPorPagina = 8;
+  const estudiantesPorPagina = 15;
 
   // Obtener ID del docente desde el token
   useEffect(() => {
@@ -571,42 +573,40 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
-          fitToHeight: 0
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: {
-          oddFooter: `& L & "-,Bold" & 14Escuela de Belleza Jessica Vélez & "-,Regular" & 12 & RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. & P de & N`
+          oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
         }
       });
 
       // Configurar columnas
       wsDetalle.columns = [
-        { header: 'N°', key: 'num', width: 5 },
-        { header: 'Identificación', key: 'identificacion', width: 16 },
-        { header: 'Apellidos', key: 'apellidos', width: 22 },
-        { header: 'Nombres', key: 'nombres', width: 22 },
-        { header: 'Estado', key: 'estado', width: 14 },
-        { header: 'Observaciones', key: 'observaciones', width: 40 }
+        { header: 'N°', key: 'num', width: 8 },
+        { header: 'IDENTIFICACIÓN', key: 'identificacion', width: 20 },
+        { header: 'APELLIDOS', key: 'apellidos', width: 35 },
+        { header: 'NOMBRES', key: 'nombres', width: 35 },
+        { header: 'ESTADO', key: 'estado', width: 18 },
+        { header: 'OBSERVACIONES', key: 'observaciones', width: 50 }
       ];
 
-      // Estilo de encabezado
+      // Estilo de encabezado (sin colores)
+      // Estilo de encabezado (estilo limpio tipo reporte)
       wsDetalle.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FF000000' }, name: 'Calibri', size: 10 };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FF000000' } },
+          bottom: { style: 'thin', color: { argb: 'FF000000' } },
+          left: { style: 'thin', color: { argb: 'FF000000' } },
+          right: { style: 'thin', color: { argb: 'FF000000' } }
+        };
+        // Set background to white (no fill) effectively
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 12,
-          name: 'Calibri'
-        };
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.border = {
-          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+          fgColor: { argb: 'FFFFFFFF' }
         };
       });
       wsDetalle.getRow(1).height = 20;
@@ -616,18 +616,17 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Fila 1: Título del reporte
       wsDetalle.mergeCells('A1:F1');
-      wsDetalle.getCell('A1').value = `REPORTE DE ASISTENCIA - ${cursoActual?.nombre_curso || ''} `;
-      wsDetalle.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A1').value = `REPORTE DE ASISTENCIA - ${(cursoActual?.nombre_curso || '').toUpperCase()} `;
+      wsDetalle.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsDetalle.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      wsDetalle.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsDetalle.getRow(1).height = 25;
 
       // Fila 2: Información del docente y fecha
       wsDetalle.mergeCells('A2:F2');
-      wsDetalle.getCell('A2').value = `Docente: ${nombreDocente} | Fecha: ${fechaSeleccionada.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''} `;
-      wsDetalle.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      const horarioTexto = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+      wsDetalle.getCell('A2').value = `DOCENTE: ${nombreDocente.toUpperCase()} | FECHA: ${fechaSeleccionada.split('-').reverse().join('/')} | HORARIO: ${horarioTexto.toUpperCase()}`;
+      wsDetalle.getCell('A2').font = { size: 10, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsDetalle.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      wsDetalle.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsDetalle.getRow(2).height = 35;
 
       // Fila 3: Espacio vacío
@@ -642,48 +641,26 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         const row = wsDetalle.addRow({
           num: index + 1,
           identificacion: est.cedula,
-          apellidos: est.apellido,
-          nombres: est.nombre,
+          apellidos: est.apellido.toUpperCase(),
+          nombres: est.nombre.toUpperCase(),
           estado: registro ? registro.estado.toUpperCase() : 'SIN REGISTRAR',
-          observaciones: registro?.observaciones || ''
+          observaciones: (registro?.observaciones || '').toUpperCase()
         });
 
-        // Aplicar estilos con filas alternadas
-        const isAltRow = (index + 1) % 2 === 0;
+        // Aplicar estilos
         row.eachCell((cell, colNumber) => {
           cell.border = {
-            top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-            bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-            left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-            right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+            top: { style: 'thin', color: { argb: 'FF000000' } },
+            bottom: { style: 'thin', color: { argb: 'FF000000' } },
+            left: { style: 'thin', color: { argb: 'FF000000' } },
+            right: { style: 'thin', color: { argb: 'FF000000' } }
           };
 
-          // Filas alternadas
-          if (isAltRow) {
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FFF3F4F6' }
-            };
-          }
+          // Filas alternadas (sin color)
+          // Removido para ahorrar tinta
 
-          // Colores de texto para la columna Estado (columna 5)
-          if (colNumber === 5) {
-            const estado = cell.value?.toString().toLowerCase();
-            if (estado === 'ausente') {
-              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFDC2626' } }; // Rojo
-            } else if (estado === 'tardanza') {
-              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFEA580C' } }; // Naranja
-            } else if (estado === 'justificado') {
-              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF2563EB' } }; // Azul
-            } else if (estado === 'presente') {
-              cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF059669' } }; // Verde
-            } else {
-              cell.font = { size: 11, name: 'Calibri' };
-            }
-          } else {
-            cell.font = { size: 11, name: 'Calibri' };
-          }
+          // Texto en negro para todas las columnas
+          cell.font = { size: 10, name: 'Calibri', bold: colNumber === 5 };
 
           cell.alignment = { vertical: 'middle', wrapText: true };
 
@@ -691,14 +668,23 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           if (colNumber === 1 || colNumber === 5) {
             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
           }
+
+          // Formato de número para la columna N°
+          if (colNumber === 1) {
+            cell.numFmt = '0';
+          }
+          // Formato texto para identificación (Cédula)
+          if (colNumber === 2) {
+            cell.numFmt = '@';
+          }
         });
       });
 
-      // Aplicar autofiltro (ahora en la fila 4)
-      wsDetalle.autoFilter = {
-        from: { row: 4, column: 1 },
-        to: { row: estudiantes.length + 4, column: 6 }
-      };
+      // Aplicar autofiltro REMOVIDO a petición
+      // wsDetalle.autoFilter = {
+      //   from: { row: 4, column: 1 },
+      //   to: { row: estudiantes.length + 4, column: 6 }
+      // };
 
       // HOJA 2: Resumen
       const wsResumen = workbook.addWorksheet('Resumen', {
@@ -707,10 +693,11 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
-          fitToHeight: 0
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: {
-          oddFooter: `& L & "-,Bold" & 14Escuela de Belleza Jessica Vélez & "-,Regular" & 12 & RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. & P de & N`
+          oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
         }
       });
 
@@ -723,8 +710,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         : '0.00';
 
       wsResumen.columns = [
-        { header: 'INFORMACIÓN', key: 'info', width: 45 },
-        { header: 'VALOR', key: 'valor', width: 45 }
+        { header: 'INFORMACIÓN', key: 'info', width: 60 },
+        { header: 'VALOR', key: 'valor', width: 60 }
       ];
 
       // Insertar 3 filas al inicio para el encabezado informativo
@@ -732,18 +719,17 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Fila 1: Título del reporte
       wsResumen.mergeCells('A1:B1');
-      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA DIARIA - ${cursoActual?.nombre_curso || ''} `;
-      wsResumen.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA DIARIA - ${(cursoActual?.nombre_curso || '').toUpperCase()} `;
+      wsResumen.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsResumen.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      wsResumen.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsResumen.getRow(1).height = 25;
 
       // Fila 2: Información del docente y fecha
       wsResumen.mergeCells('A2:B2');
-      wsResumen.getCell('A2').value = `Docente: ${nombreDocente} | Fecha: ${fechaSeleccionada.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''} `;
-      wsResumen.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      const horarioTextoRes = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+      wsResumen.getCell('A2').value = `DOCENTE: ${nombreDocente.toUpperCase()} | FECHA: ${fechaSeleccionada.split('-').reverse().join('/')} | HORARIO: ${horarioTextoRes.toUpperCase()} `;
+      wsResumen.getCell('A2').font = { size: 10, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsResumen.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      wsResumen.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsResumen.getRow(2).height = 35;
 
       // Fila 3: Espacio vacío
@@ -752,84 +738,77 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Ahora los encabezados de columnas están en la fila 4
       wsResumen.getRow(4).height = 20;
       wsResumen.getRow(4).eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 12,
-          name: 'Calibri'
-        };
+        cell.font = { bold: true };
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
         cell.border = {
-          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' }
         };
       });
 
       // Agregar datos de resumen
       const datosResumen = [
-        ['Curso', cursoActual?.nombre_curso || ''],
-        ['Docente', nombreDocente],
-        ['Tipo de Curso', cursoActual?.tipo_curso_nombre || ''],
-        ['Horario', cursoActual?.horario.toUpperCase() || ''],
-        ['Fecha', fechaSeleccionada.split('-').reverse().join('/')],
+        ['CURSO', (cursoActual?.nombre_curso || '').toUpperCase()],
+        ['DOCENTE', nombreDocente.toUpperCase()],
+        ['TIPO DE CURSO', (cursoActual?.tipo_curso_nombre || '').toUpperCase()],
+        ['HORARIO', (cursoActual?.horario.toUpperCase() || '')],
+        ['FECHA', fechaSeleccionada.split('-').reverse().join('/')],
         ['', ''],
         ['ESTADÍSTICAS DE ASISTENCIA', ''],
-        ['Total Estudiantes', totalEstudiantes.toString()],
-        ['Total Registrados', totalRegistrados.toString()],
-        ['Sin Registrar', sinRegistrar.toString()],
+        ['TOTAL ESTUDIANTES', totalEstudiantes],
+        ['TOTAL REGISTRADOS', totalRegistrados],
+        ['SIN REGISTRAR', sinRegistrar],
         ['', ''],
-        ['Presentes', stats.presentes.toString()],
-        ['Ausentes', stats.ausentes.toString()],
-        ['Tardanzas', stats.tardanzas.toString()],
-        ['Justificados', stats.justificados.toString()],
+        ['PRESENTES', stats.presentes],
+        ['AUSENTES', stats.ausentes],
+        ['TARDANZAS', stats.tardanzas],
+        ['JUSTIFICADOS', stats.justificados],
         ['', ''],
-        ['Porcentaje de Asistencia', `${porcentajeAsistencia}% `]
+        ['PORCENTAJE DE ASISTENCIA', `${porcentajeAsistencia}% `]
       ];
 
       datosResumen.forEach(([info, valor]) => {
         const row = wsResumen.addRow({ info, valor });
 
         row.eachCell((cell, colNumber) => {
-          if (info === 'ESTADÍSTICAS DE ASISTENCIA' || info === 'Porcentaje de Asistencia') {
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FF3B82F6' }
-            };
-            cell.font = {
-              color: { argb: 'FFFFFFFF' },
-              bold: true,
-              size: 12,
-              name: 'Calibri'
-            };
+          if (info === 'ESTADÍSTICAS DE ASISTENCIA' || info === 'PORCENTAJE DE ASISTENCIA') {
+            cell.font = { bold: true };
             cell.alignment = { horizontal: 'center', vertical: 'middle' };
             cell.border = {
-              top: { style: 'medium', color: { argb: 'FF2563EB' } },
-              bottom: { style: 'medium', color: { argb: 'FF2563EB' } },
-              left: { style: 'medium', color: { argb: 'FF2563EB' } },
-              right: { style: 'medium', color: { argb: 'FF2563EB' } }
+              top: { style: 'thin', color: { argb: 'FF000000' } },
+              bottom: { style: 'thin', color: { argb: 'FF000000' } },
+              left: { style: 'thin', color: { argb: 'FF000000' } },
+              right: { style: 'thin', color: { argb: 'FF000000' } }
             };
           } else if (info !== '') {
             cell.border = {
-              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+              top: { style: 'thin', color: { argb: 'FF000000' } },
+              bottom: { style: 'thin', color: { argb: 'FF000000' } },
+              left: { style: 'thin', color: { argb: 'FF000000' } },
+              right: { style: 'thin', color: { argb: 'FF000000' } }
             };
             cell.font = {
-              size: 11,
+              size: 10,
               name: 'Calibri',
               bold: colNumber === 1
             };
             if (colNumber === 2) {
               cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+
+              // Formatos específicos
+              if (info === 'PORCENTAJE DE ASISTENCIA') {
+                // El valor viene como string "0.00%", remover el % y convertir a número si es necesario
+                // O si ExcelJS lo maneja mejor como número puro:
+                const numVal = parseFloat(valor.toString().replace('%', ''));
+                if (!isNaN(numVal)) {
+                  cell.value = numVal / 100; // Excel usa 0-1 para porcentajes
+                  cell.numFmt = '0.00%';
+                }
+              } else if (typeof valor === 'number') {
+                cell.numFmt = '0';
+              }
             }
           }
         });
@@ -908,7 +887,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
-          fitToHeight: 0
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: {
           oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
@@ -916,17 +896,18 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       });
 
       // Definir columnas
+      // Definir columnas
       wsResumen.columns = [
-        { header: 'N°', key: 'num', width: 5 },
-        { header: 'Identificación', key: 'identificacion', width: 16 },
-        { header: 'Apellido', key: 'apellido', width: 22 },
-        { header: 'Nombre', key: 'nombre', width: 22 },
-        { header: 'Total Clases', key: 'totalClases', width: 12 },
-        { header: 'Presentes', key: 'presentes', width: 10 },
-        { header: 'Ausentes', key: 'ausentes', width: 10 },
-        { header: 'Tardanzas', key: 'tardanzas', width: 11 },
-        { header: 'Justificados', key: 'justificados', width: 13 },
-        { header: '% Asistencia', key: 'porcentaje', width: 13 }
+        { header: 'N°', key: 'num', width: 8 },
+        { header: 'IDENTIFICACIÓN', key: 'identificacion', width: 20 },
+        { header: 'APELLIDO', key: 'apellido', width: 35 },
+        { header: 'NOMBRE', key: 'nombre', width: 35 },
+        { header: 'TOTAL CLASES', key: 'totalClases', width: 18 },
+        { header: 'PRESENTES', key: 'presentes', width: 15 },
+        { header: 'AUSENTES', key: 'ausentes', width: 15 },
+        { header: 'TARDANZAS', key: 'tardanzas', width: 15 },
+        { header: 'JUSTIFICADOS', key: 'justificados', width: 18 },
+        { header: '% ASISTENCIA', key: 'porcentaje', width: 18 }
       ];
 
       // Agregar datos
@@ -942,8 +923,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         wsResumen.addRow({
           num: index + 1,
           identificacion: est.cedula,
-          apellido: est.apellido,
-          nombre: est.nombre,
+          apellido: est.apellido.toUpperCase(),
+          nombre: est.nombre.toUpperCase(),
           totalClases,
           presentes,
           ausentes,
@@ -958,18 +939,17 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Fila 1: Título del reporte
       wsResumen.mergeCells('A1:J1');
-      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA POR ESTUDIANTE - ${cursoActual?.nombre_curso || ''}`;
-      wsResumen.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsResumen.getCell('A1').value = `RESUMEN DE ASISTENCIA POR ESTUDIANTE - ${(cursoActual?.nombre_curso || '').toUpperCase()}`;
+      wsResumen.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsResumen.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      wsResumen.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsResumen.getRow(1).height = 25;
 
       // Fila 2: Información del docente y periodo
       wsResumen.mergeCells('A2:J2');
-      wsResumen.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
-      wsResumen.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      const horarioTextoRango = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+      wsResumen.getCell('A2').value = `DOCENTE: ${nombreDocente.toUpperCase()} | PERIODO: ${fechaInicio.split('-').reverse().join('/')} AL ${fechaFin.split('-').reverse().join('/')} | HORARIO: ${horarioTextoRango.toUpperCase()}`;
+      wsResumen.getCell('A2').font = { size: 10, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsResumen.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      wsResumen.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsResumen.getRow(2).height = 35;
 
       // Fila 3: Espacio vacío
@@ -978,46 +958,29 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       // Estilos para encabezados (ahora en la fila 4)
       wsResumen.getRow(4).height = 20;
       wsResumen.getRow(4).eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 12,
-          name: 'Calibri'
-        };
+        cell.font = { bold: true };
         cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         cell.border = {
-          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' }
         };
       });
 
       // Estilos para filas de datos
       wsResumen.eachRow((row, rowNumber) => {
         if (rowNumber > 4) { // Empezamos después del encabezado (fila 4)
-          const isAltRow = rowNumber % 2 === 0;
           row.eachCell((cell, colNumber) => {
-            // Filas alternadas
-            if (isAltRow) {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFF3F4F6' }
-              };
-            }
+            // Filas alternadas (sin color)
+            // Removido para ahorrar tinta
 
-            cell.font = { size: 11, name: 'Calibri' };
+            cell.font = { size: 10, name: 'Calibri' };
             cell.border = {
-              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+              top: { style: 'thin', color: { argb: 'E5E7EB' } },
+              bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
+              left: { style: 'thin', color: { argb: 'E5E7EB' } },
+              right: { style: 'thin', color: { argb: 'E5E7EB' } }
             };
 
             // Centrar columnas numéricas (N° y columnas 5-10)
@@ -1026,15 +989,34 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             } else {
               cell.alignment = { vertical: 'middle', wrapText: true };
             }
+
+            // --- FORMATOS NUMÉRICOS (FIX) ---
+            // 1:N°, 2:ID(Texto), 3:Ape, 4:Nom
+            // 5:Total, 6:Presente, 7:Ausente, 8:Tardanza, 9:Justif, 10:%
+            if (colNumber === 1 || (colNumber >= 5 && colNumber <= 9)) {
+              cell.numFmt = '0';
+            } else if (colNumber === 2) {
+              cell.numFmt = '@'; // Identificación como texto
+            } else if (colNumber === 10) {
+              // Convertir string "XX.XX%" a numero 0.XXXX
+              const valStr = cell.value ? cell.value.toString() : '';
+              if (valStr.includes('%')) {
+                const num = parseFloat(valStr.replace('%', ''));
+                if (!isNaN(num)) {
+                  cell.value = num / 100;
+                  cell.numFmt = '0.00%';
+                }
+              }
+            }
           });
         }
       });
 
-      // Auto-filtro
-      wsResumen.autoFilter = {
-        from: { row: 4, column: 1 },
-        to: { row: 4, column: 10 }
-      };
+      // Auto-filtro REMOVIDO a petición
+      // wsResumen.autoFilter = {
+      //   from: { row: 4, column: 1 },
+      //   to: { row: 4, column: 10 }
+      // };
 
       // ============ HOJA 2: Detalle Día por Día (Agrupado por Fecha) ============
       const wsDetalle = workbook.addWorksheet('Detalle Día por Día', {
@@ -1043,7 +1025,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
-          fitToHeight: 0
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: {
           oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
@@ -1051,13 +1034,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       });
 
       wsDetalle.columns = [
-        { header: 'Clase/Fecha', key: 'clase', width: 15 },
-        { header: 'N°', key: 'num', width: 5 },
-        { header: 'Identificación', key: 'identificacion', width: 16 },
-        { header: 'Apellido', key: 'apellido', width: 22 },
-        { header: 'Nombre', key: 'nombre', width: 22 },
-        { header: 'Estado', key: 'estado', width: 13 },
-        { header: 'Observaciones', key: 'observaciones', width: 40 }
+        { header: 'CLASE/FECHA', key: 'clase', width: 35 },
+        { header: 'N°', key: 'num', width: 8 },
+        { header: 'IDENTIFICACIÓN', key: 'identificacion', width: 20 },
+        { header: 'APELLIDO', key: 'apellido', width: 35 },
+        { header: 'NOMBRE', key: 'nombre', width: 35 },
+        { header: 'ESTADO', key: 'estado', width: 18 },
+        { header: 'OBSERVACIONES', key: 'observaciones', width: 50 }
       ];
 
       // Agrupar registros por fecha
@@ -1077,18 +1060,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Fila 1: Título del reporte
       wsDetalle.mergeCells('A1:G1');
-      wsDetalle.getCell('A1').value = `DETALLE DE ASISTENCIA POR CLASE - ${cursoActual?.nombre_curso || ''}`;
-      wsDetalle.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A1').value = `DETALLE DE ASISTENCIA POR CLASE - ${(cursoActual?.nombre_curso || '').toUpperCase()}`;
+      wsDetalle.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsDetalle.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      wsDetalle.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsDetalle.getRow(1).height = 25;
 
       // Fila 2: Información del docente y periodo
       wsDetalle.mergeCells('A2:G2');
-      wsDetalle.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
-      wsDetalle.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsDetalle.getCell('A2').value = `DOCENTE: ${nombreDocente.toUpperCase()} | PERIODO: ${fechaInicio.split('-').reverse().join('/')} AL ${fechaFin.split('-').reverse().join('/')} | HORARIO: ${horarioTextoRango.toUpperCase()}`;
+      wsDetalle.getCell('A2').font = { size: 10, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsDetalle.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      wsDetalle.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsDetalle.getRow(2).height = 35;
 
       // Fila 3: Espacio vacío
@@ -1118,13 +1099,13 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           const estudiante = estudiantes.find(e => e.id_estudiante === r.id_estudiante);
 
           wsDetalle.addRow({
-            clase: filaActual === filaInicio ? `Clase ${numeroClase}\n${fechaFormateada}` : '',
+            clase: filaActual === filaInicio ? `CLASE ${numeroClase}\n${fechaFormateada}` : '',
             num: index + 1,
             identificacion: estudiante?.cedula || '',
-            apellido: estudiante?.apellido || '',
-            nombre: estudiante?.nombre || '',
+            apellido: (estudiante?.apellido || '').toUpperCase(),
+            nombre: (estudiante?.nombre || '').toUpperCase(),
             estado: r.estado.toUpperCase(),
-            observaciones: r.observaciones || ''
+            observaciones: (r.observaciones || '').toUpperCase()
           });
 
           filaActual++;
@@ -1138,25 +1119,15 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         numeroClase++;
       });
 
-      // Estilos para encabezados
-      wsDetalle.getRow(1).eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 12,
-          name: 'Calibri'
-        };
+      // Estilos para encabezados (sin colores)
+      wsDetalle.getRow(4).eachCell((cell) => {
+        cell.font = { bold: true };
         cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         cell.border = {
-          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+          top: { style: 'thin', color: { argb: 'FF000000' } },
+          bottom: { style: 'thin', color: { argb: 'FF000000' } },
+          left: { style: 'thin', color: { argb: 'FF000000' } },
+          right: { style: 'thin', color: { argb: 'FF000000' } }
         };
       });
 
@@ -1164,55 +1135,28 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       wsDetalle.eachRow((row, rowNumber) => {
         if (rowNumber > 4) { // Empezamos después del encabezado (fila 4)
           row.eachCell((cell, colNumber) => {
-            // Estilo para columna Clase/Fecha (columna 1)
+            // Estilo para columna Clase/Fecha (columna 1) - sin colores
             if (colNumber === 1) {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFDBEAFE' } // Morado claro
-              };
               cell.font = {
-                size: 11,
+                size: 10,
                 name: 'Calibri',
                 bold: true,
-                color: { argb: 'FF1E40AF' }
+                color: { argb: 'FF000000' }
               };
               cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
             } else {
-              // Filas alternadas para las demás columnas
-              const isAltRow = rowNumber % 2 === 0;
-              if (isAltRow) {
-                cell.fill = {
-                  type: 'pattern',
-                  pattern: 'solid',
-                  fgColor: { argb: 'FFF3F4F6' }
-                };
-              }
+              // Filas alternadas (sin color)
+              // Removido para ahorrar tinta
 
-              // Colores de texto para la columna Estado (columna 6)
-              if (colNumber === 6) {
-                const estado = cell.value?.toString().toLowerCase();
-                if (estado === 'ausente') {
-                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFDC2626' } };
-                } else if (estado === 'tardanza') {
-                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FFEA580C' } };
-                } else if (estado === 'justificado') {
-                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF2563EB' } };
-                } else if (estado === 'presente') {
-                  cell.font = { size: 11, name: 'Calibri', bold: true, color: { argb: 'FF059669' } };
-                } else {
-                  cell.font = { size: 11, name: 'Calibri' };
-                }
-              } else {
-                cell.font = { size: 11, name: 'Calibri' };
-              }
+              // Texto en negro para todas las columnas
+              cell.font = { size: 10, name: 'Calibri', bold: colNumber === 6 };
             }
 
             cell.border = {
-              top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-              right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+              top: { style: 'thin', color: { argb: 'FF000000' } },
+              bottom: { style: 'thin', color: { argb: 'FF000000' } },
+              left: { style: 'thin', color: { argb: 'FF000000' } },
+              right: { style: 'thin', color: { argb: 'FF000000' } }
             };
 
             // Centrar columnas: Clase, N° y Estado
@@ -1221,15 +1165,23 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             } else {
               cell.alignment = { vertical: 'middle', wrapText: true };
             }
+
+            // --- FORMATOS NUMÉRICOS (FIX) ---
+            // 1:Clase, 2:N°, 3:ID, 4:Ape, 5:Nom, 6:Estado, 7:Obs
+            if (colNumber === 2) {
+              cell.numFmt = '0';
+            } else if (colNumber === 3) {
+              cell.numFmt = '@';
+            }
           });
         }
       });
 
-      // Auto-filtro (ahora en la fila 4)
-      wsDetalle.autoFilter = {
-        from: { row: 4, column: 1 },
-        to: { row: 4, column: 7 }
-      };
+      // Auto-filtro REMOVIDO a petición
+      // wsDetalle.autoFilter = {
+      //   from: { row: 4, column: 1 },
+      //   to: { row: 4, column: 7 }
+      // };
 
       // ============ HOJA 3: Estadísticas Generales ============
       const wsEstadisticas = workbook.addWorksheet('Estadísticas Generales', {
@@ -1238,7 +1190,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
-          fitToHeight: 0
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: {
           oddFooter: `&L&"-,Bold"&14Escuela de Belleza Jessica Vélez&"-,Regular"&12&RDescargado: ${new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' })} — Pág. &P de &N`
@@ -1260,28 +1213,28 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       const promedioAsistencia = totalRegistros > 0 ? ((totalPresentes / totalRegistros) * 100).toFixed(2) : '0.00';
 
       const estadisticasData = [
-        { info: 'Curso', valor: cursoActual?.nombre_curso || '' },
-        { info: 'Docente', valor: nombreDocente },
-        { info: 'Tipo de Curso', valor: cursoActual?.tipo_curso_nombre || '' },
-        { info: 'Horario', valor: cursoActual?.horario.toUpperCase() || '' },
-        { info: 'Periodo', valor: `${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')}` },
+        { info: 'CURSO', valor: (cursoActual?.nombre_curso || '').toUpperCase() },
+        { info: 'DOCENTE', valor: nombreDocente.toUpperCase() },
+        { info: 'TIPO DE CURSO', valor: (cursoActual?.tipo_curso_nombre || '').toUpperCase() },
+        { info: 'HORARIO', valor: (cursoActual?.horario.toUpperCase() || '') },
+        { info: 'PERIODO', valor: `${fechaInicio.split('-').reverse().join('/')} AL ${fechaFin.split('-').reverse().join('/')}` },
         { info: '', valor: '' },
         { info: 'ESTADÍSTICAS DE ASISTENCIA', valor: '' },
-        { info: 'Total Estudiantes', valor: estudiantes.length.toString() },
-        { info: 'Total Clases Registradas', valor: totalClasesStats.toString() },
-        { info: 'Total Registros', valor: totalRegistros.toString() },
+        { info: 'TOTAL ESTUDIANTES', valor: estudiantes.length },
+        { info: 'TOTAL CLASES REGISTRADAS', valor: totalClasesStats },
+        { info: 'TOTAL REGISTROS', valor: totalRegistros },
         { info: '', valor: '' },
-        { info: 'Total Presentes', valor: totalPresentes.toString() },
-        { info: 'Total Ausentes', valor: totalAusentes.toString() },
-        { info: 'Total Tardanzas', valor: totalTardanzas.toString() },
-        { info: 'Total Justificados', valor: totalJustificados.toString() },
+        { info: 'TOTAL PRESENTES', valor: totalPresentes },
+        { info: 'TOTAL AUSENTES', valor: totalAusentes },
+        { info: 'TOTAL TARDANZAS', valor: totalTardanzas },
+        { info: 'TOTAL JUSTIFICADOS', valor: totalJustificados },
         { info: '', valor: '' },
-        { info: 'Promedio General de Asistencia', valor: `${promedioAsistencia}%` }
+        { info: 'PROMEDIO GENERAL DE ASISTENCIA', valor: `${promedioAsistencia}%` }
       ];
 
       wsEstadisticas.columns = [
-        { header: 'INFORMACIÓN', key: 'info', width: 45 },
-        { header: 'VALOR', key: 'valor', width: 45 }
+        { header: 'INFORMACIÓN', key: 'info', width: 60 },
+        { header: 'VALOR', key: 'valor', width: 60 }
       ];
 
       // Insertar 3 filas al inicio para el encabezado informativo
@@ -1289,18 +1242,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
 
       // Fila 1: Título del reporte
       wsEstadisticas.mergeCells('A1:B1');
-      wsEstadisticas.getCell('A1').value = `REPORTE DE ESTADÍSTICAS - ${cursoActual?.nombre_curso || ''}`;
-      wsEstadisticas.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsEstadisticas.getCell('A1').value = `REPORTE DE ESTADÍSTICAS - ${(cursoActual?.nombre_curso || '').toUpperCase()}`;
+      wsEstadisticas.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsEstadisticas.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      wsEstadisticas.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsEstadisticas.getRow(1).height = 25;
 
       // Fila 2: Información del docente y periodo
       wsEstadisticas.mergeCells('A2:B2');
-      wsEstadisticas.getCell('A2').value = `Docente: ${nombreDocente} | Periodo: ${fechaInicio.split('-').reverse().join('/')} al ${fechaFin.split('-').reverse().join('/')} | Horario: ${cursoActual?.horario.toUpperCase() || ''}`;
-      wsEstadisticas.getCell('A2').font = { size: 11, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      wsEstadisticas.getCell('A2').value = `DOCENTE: ${nombreDocente.toUpperCase()} | PERIODO: ${fechaInicio.split('-').reverse().join('/')} AL ${fechaFin.split('-').reverse().join('/')} | HORARIO: ${horarioTextoRango.toUpperCase()}`;
+      wsEstadisticas.getCell('A2').font = { size: 10, color: { argb: 'FF000000' }, name: 'Calibri' };
       wsEstadisticas.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      wsEstadisticas.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsEstadisticas.getRow(2).height = 35;
 
       // Fila 3: Espacio vacío
@@ -1311,26 +1262,16 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
         wsEstadisticas.addRow(data);
       });
 
-      // Estilos para headers (ahora fila 4)
+      // Estilos para headers (ahora fila 4) - sin colores
       wsEstadisticas.getRow(4).height = 20;
       wsEstadisticas.getRow(4).eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF1E40AF' }
-        };
-        cell.font = {
-          color: { argb: 'FFFFFFFF' },
-          bold: true,
-          size: 12,
-          name: 'Calibri'
-        };
+        cell.font = { bold: true };
         cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         cell.border = {
-          top: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          bottom: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          left: { style: 'medium', color: { argb: 'FF1E3A8A' } },
-          right: { style: 'medium', color: { argb: 'FF1E3A8A' } }
+          top: { style: 'thin' },
+          bottom: { style: 'thin' },
+          left: { style: 'thin' },
+          right: { style: 'thin' }
         };
       });
 
@@ -1340,44 +1281,51 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
           row.eachCell((cell, colNumber) => {
             const cellValue = cell.value?.toString() || '';
 
-            // Títulos especiales
-            if (cellValue === 'ESTADÍSTICAS DE ASISTENCIA' || cellValue === 'Promedio General de Asistencia') {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FF3B82F6' }
-              };
-              cell.font = {
-                color: { argb: 'FFFFFFFF' },
-                bold: true,
-                size: 12,
-                name: 'Calibri'
-              };
+            // Títulos especiales (sin colores)
+            if (cellValue === 'ESTADÍSTICAS DE ASISTENCIA' || cellValue === 'PROMEDIO GENERAL DE ASISTENCIA') {
+              cell.font = { bold: true };
               cell.alignment = { horizontal: 'center', vertical: 'middle' };
               cell.border = {
-                top: { style: 'medium', color: { argb: 'FF2563EB' } },
-                bottom: { style: 'medium', color: { argb: 'FF2563EB' } },
-                left: { style: 'medium', color: { argb: 'FF2563EB' } },
-                right: { style: 'medium', color: { argb: 'FF2563EB' } }
+                top: { style: 'thin', color: { argb: 'FF000000' } },
+                bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                left: { style: 'thin', color: { argb: 'FF000000' } },
+                right: { style: 'thin', color: { argb: 'FF000000' } }
               };
             } else if (cellValue === '') {
               // Filas vacías
               cell.alignment = { vertical: 'middle' };
             } else {
               cell.font = {
-                size: 11,
+                size: 10,
                 name: 'Calibri',
                 bold: colNumber === 1
               };
               cell.border = {
-                top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-                bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-                left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
-                right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+                top: { style: 'thin', color: { argb: 'FF000000' } },
+                bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                left: { style: 'thin', color: { argb: 'FF000000' } },
+                right: { style: 'thin', color: { argb: 'FF000000' } }
               };
 
               if (colNumber === 2) {
                 cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+
+                // Formatos específicos
+                const rowTitle = row.getCell(1).value?.toString() || '';
+                if (rowTitle === 'PROMEDIO GENERAL DE ASISTENCIA') {
+                  // Convert to 0.XX format
+                  const valStr = cell.value ? cell.value.toString() : '';
+                  if (valStr.includes('%')) {
+                    const num = parseFloat(valStr.replace('%', ''));
+                    if (!isNaN(num)) {
+                      cell.value = num / 100;
+                      cell.numFmt = '0.00%';
+                    }
+                  }
+                } else if (typeof cell.value === 'number') {
+                  cell.numFmt = '0';
+                }
+
               } else {
                 cell.alignment = { vertical: 'middle', wrapText: true };
               }
@@ -1486,8 +1434,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '0.75rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(12.5rem, 1fr))',
+          gap: '0.5rem'
         }}>
           {/* Selector de Curso */}
           <div>
@@ -1508,7 +1456,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               onChange={(e) => handleCursoChange(Number(e.target.value))}
               style={{
                 width: '100%',
-                padding: '0.4rem 0.65rem',
+                padding: '0.3rem 0.5rem',
                 borderRadius: '0.5rem',
                 fontSize: '0.8rem',
                 background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
@@ -1549,7 +1497,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               max={new Date().toLocaleDateString('en-CA', { timeZone: 'America/Guayaquil' })}
               style={{
                 width: '100%',
-                padding: '0.4rem 0.65rem',
+                padding: '0.3rem 0.5rem',
                 borderRadius: '0.5rem',
                 fontSize: '0.8rem',
                 background: darkMode ? 'rgba(255,255,255,0.02)' : '#fff',
@@ -1597,10 +1545,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
-                    padding: '0.4rem 0.6rem',
+                    padding: '0.25rem 0.4rem',
                     textAlign: 'center',
                     flex: 1,
-                    minWidth: '120px'
+                    minWidth: '7.5rem'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                       <FaCheckCircle size={10} color={theme.accent} />
@@ -1613,10 +1561,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     background: darkMode ? 'rgba(96, 165, 250, 0.08)' : 'rgba(96, 165, 250, 0.04)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
-                    padding: '0.4rem 0.6rem',
+                    padding: '0.25rem 0.4rem',
                     textAlign: 'center',
                     flex: 1,
-                    minWidth: '120px'
+                    minWidth: '7.5rem'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                       <FaTimesCircle size={10} color="#60a5fa" />
@@ -1629,10 +1577,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     background: darkMode ? 'rgba(147, 197, 253, 0.08)' : 'rgba(147, 197, 253, 0.04)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
-                    padding: '0.4rem 0.6rem',
+                    padding: '0.25rem 0.4rem',
                     textAlign: 'center',
                     flex: 1,
-                    minWidth: '120px'
+                    minWidth: '7.5rem'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                       <FaClock size={10} color="#93c5fd" />
@@ -1645,10 +1593,10 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     background: darkMode ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.04)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
-                    padding: '0.4rem 0.6rem',
+                    padding: '0.25rem 0.4rem',
                     textAlign: 'center',
                     flex: 1,
-                    minWidth: '120px'
+                    minWidth: '7.5rem'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                       <FaFileAlt size={10} color="#2563eb" />
@@ -1667,7 +1615,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     onClick={descargarExcel}
                     disabled={!cursoSeleccionado || estudiantes.length === 0}
                     style={{
-                      padding: '0.4rem 0.75rem',
+                      padding: '0.3rem 0.6rem',
                       borderRadius: '0.5rem',
                       border: 'none',
                       background: (!cursoSeleccionado || estudiantes.length === 0)
@@ -1705,7 +1653,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     onClick={() => setShowRangoFechasModal(true)}
                     disabled={!cursoSeleccionado || estudiantes.length === 0}
                     style={{
-                      padding: '0.4rem 0.75rem',
+                      padding: '0.3rem 0.6rem',
                       borderRadius: '0.5rem',
                       border: 'none',
                       background: (!cursoSeleccionado || estudiantes.length === 0)
@@ -1754,7 +1702,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   display: 'flex',
                   flexWrap: 'wrap',
                   gap: '0.4rem',
-                  padding: '0.4rem 1rem',
+                  padding: '0.3rem 0.75rem',
                   background: darkMode ? 'rgba(59, 130, 246, 0.12)' : 'rgba(59, 130, 246, 0.08)',
                   borderBottom: `1px solid ${theme.border}`,
                   fontWeight: '700',
@@ -1763,8 +1711,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
-                  <div style={{ flex: '1 1 280px' }}>Estudiante</div>
-                  <div style={{ flex: '1 1 180px', textAlign: 'center' }}>Asistencia</div>
+                  <div style={{ flex: '1 1 17.5rem' }}>Estudiante</div>
+                  <div style={{ flex: '1 1 11.25rem', textAlign: 'center' }}>Asistencia</div>
                 </div>
 
                 {/* Filas de Estudiantes Compactas */}
@@ -1778,7 +1726,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                           display: 'flex',
                           flexWrap: 'wrap',
                           gap: '0.4rem',
-                          padding: '0.4rem 0.5rem',
+                          padding: '0.25rem 0.4rem',
                           background: index % 2 === 0
                             ? (darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)')
                             : 'transparent',
@@ -1789,7 +1737,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         }}
                       >
                         {/* Columna Estudiante */}
-                        <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+                        <div style={{ flex: '1 1 17.5rem', minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
                             <div style={{
                               width: '1.5rem',
@@ -1844,7 +1792,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                 )}
                               </div>
                               <div style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                <span>CI: {estudiante.cedula}</span>
+                                <span>ID: {estudiante.cedula}</span>
                                 {registro?.observaciones && (
                                   <span style={{
                                     color: theme.accent,
@@ -1852,7 +1800,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
-                                    maxWidth: '150px'
+                                    maxWidth: '9.375rem'
                                   }}>
                                     • {registro.observaciones}
                                   </span>
@@ -1863,7 +1811,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                         </div>
 
                         {/* Columna Acciones Asistencia */}
-                        <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+                        <div style={{ flex: '1 1 11.25rem', minWidth: 0 }}>
                           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.2rem', flexWrap: 'nowrap' }}>
                             <button
                               onClick={() => marcarAsistencia(estudiante.id_estudiante, 'presente')}
@@ -2196,7 +2144,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
             border: `1px solid var(--docente-border)`,
             padding: '1.5rem',
             width: '90%',
-            maxWidth: '500px',
+            maxWidth: '31.25rem',
             boxShadow: darkMode ? '0 1rem 3rem rgba(0, 0, 0, 0.5)' : '0 1rem 3rem rgba(0, 0, 0, 0.2)',
             animation: 'scaleIn 0.2s ease-out'
           }}>
@@ -2261,7 +2209,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               placeholder="Ejemplo: Presentación de certificado médico..."
               style={{
                 width: '100%',
-                minHeight: '120px',
+                minHeight: '7.5rem',
                 padding: '0.75rem',
                 borderRadius: '0.5rem',
                 border: '1px solid var(--docente-input-border)',
@@ -2307,12 +2255,12 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     <img
                       src={documentoPreview}
                       alt="Preview"
-                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '0.25rem' }}
+                      style={{ width: '2.5rem', height: '2.5rem', objectFit: 'cover', borderRadius: '0.25rem' }}
                     />
                   ) : (
                     <div style={{
-                      width: '40px',
-                      height: '40px',
+                      width: '2.5rem',
+                      height: '2.5rem',
                       borderRadius: '0.25rem',
                       background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                       display: 'flex',
@@ -2378,8 +2326,8 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   border: '1px solid rgba(34, 197, 94, 0.3)'
                 }}>
                   <div style={{
-                    width: '40px',
-                    height: '40px',
+                    width: '2.5rem',
+                    height: '2.5rem',
                     borderRadius: '0.25rem',
                     background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                     display: 'flex',

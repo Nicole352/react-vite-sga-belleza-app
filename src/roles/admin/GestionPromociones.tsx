@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus, Edit, Trash2, X, Save, Gift, Search, Grid, List, ChevronLeft, ChevronRight,
-  Users, BookOpen, CheckCircle, XCircle, Sparkles, FileText, ArrowLeftRight
+  Users, BookOpen, Sparkles, FileText, ArrowLeftRight, Power, CheckCircle, Eye
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
@@ -89,6 +89,8 @@ const GestionPromociones: React.FC = () => {
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [selected, setSelected] = useState<Promocion | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Promocion | null>(null);
+  const [toggleTarget, setToggleTarget] = useState<Promocion | null>(null);
+  const [viewTarget, setViewTarget] = useState<Promocion | null>(null);
 
   // Estados para búsqueda, filtros y paginación
   const [searchTerm, setSearchTerm] = useState('');
@@ -334,6 +336,10 @@ const GestionPromociones: React.FC = () => {
     setShowModal(true);
   };
 
+  const handleViewPromocion = (p: Promocion) => {
+    setViewTarget(p);
+  };
+
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
 
@@ -359,28 +365,38 @@ const GestionPromociones: React.FC = () => {
     }
   };
 
-  const handleToggleActiva = async (id: number, activa: boolean) => {
-    try {
-      const token = sessionStorage.getItem('auth_token');
+  const handleToggleActiva = (promo: Promocion) => {
+    setToggleTarget(promo);
+  };
 
-      const res = await fetch(`${API_BASE}/api/promociones/${id}/toggle`, {
-        method: 'PATCH',
+  const confirmToggleActiva = async () => {
+    if (!toggleTarget) return;
+
+    const nuevoEstado = !toggleTarget.activa;
+
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem('auth_token');
+      const res = await fetch(`${API_BASE}/api/promociones/${toggleTarget.id_promocion}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ activa: !activa })
+        body: JSON.stringify({ activa: nuevoEstado })
       });
 
-      if (!res.ok) throw new Error('No se pudo cambiar el estado');
+      if (!res.ok) throw new Error('Error al cambiar estado');
 
-      showToast.success(activa ? 'Promoción desactivada' : 'Promoción activada', darkMode);
+      showToast.success(`Promoción ${nuevoEstado ? 'activada' : 'desactivada'} correctamente`, darkMode);
+      setToggleTarget(null);
       await fetchPromociones();
-    } catch (e: any) {
-      showToast.error(e.message || 'Error al cambiar estado', darkMode);
+    } catch (err: any) {
+      showToast.error(err.message || 'Error al cambiar estado', darkMode);
+    } finally {
+      setLoading(false);
     }
   };
-
   const closeDeleteModal = () => {
     if (deleteLoading) return;
     setDeleteTarget(null);
@@ -569,118 +585,118 @@ const GestionPromociones: React.FC = () => {
       >
         <div className="responsive-filters">
           <div style={controlsRowStyle}>
-          {/* Buscador */}
-          <div style={{ flex: 1, position: 'relative', width: isSmallScreen ? '100%' : 'auto' }}>
-            <Search
-              size={16}
-              style={{
-                position: 'absolute',
-                left: '0.5rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: theme.inputIcon,
-                pointerEvents: 'none'
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, descripción o curso..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0 0.5rem 0 2rem',
-                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                border: `1px solid ${theme.inputBorder}`,
-                borderRadius: '0.5rem',
-                color: theme.inputText,
-                fontSize: '0.75rem',
-                boxShadow: 'none',
-                height: '2rem'
-              }}
-            />
-          </div>
-
-          {/* Filtro Estado */}
-          <div style={{ minWidth: isMobile ? '100%' : 'min(12.5rem, 25vw)', width: isMobile ? '100%' : 'auto' }}>
-            <StyledSelect
-              name="filtro_estado"
-              value={filterActiva}
-              onChange={(e) => setFilterActiva(e.target.value)}
-              darkMode={darkMode}
-              options={[
-                { value: 'todas', label: 'Todas' },
-                { value: 'activas', label: 'Activas' },
-                { value: 'inactivas', label: 'Inactivas' }
-              ]}
-            />
-          </div>
-
-          {/* Toggle Vista */}
-          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-            <div style={{
-              display: 'flex',
-              gap: '0.375rem',
-              background: toggleGroupBg,
-              borderRadius: '0.65rem',
-              padding: '0.1875rem',
-              border: 'none',
-              boxShadow: 'none'
-            }}>
-            <button
-              onClick={() => setViewMode('cards')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3em',
-                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                background: isCardsView ? toggleActiveBg : 'transparent',
-                border: 'none',
-                borderRadius: '0.5em',
-                color: isCardsView ? toggleActiveText : toggleInactiveText,
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-                flex: isSmallScreen ? 1 : 'initial'
-              }}
-            >
-              <Grid
+            {/* Buscador */}
+            <div style={{ flex: 1, position: 'relative', width: isSmallScreen ? '100%' : 'auto' }}>
+              <Search
                 size={16}
-                color={isCardsView ? toggleActiveText : toggleInactiveText}
+                style={{
+                  position: 'absolute',
+                  left: '0.5rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: theme.inputIcon,
+                  pointerEvents: 'none'
+                }}
               />
-              {!isMobile && 'Tarjetas'}
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              style={{
+              <input
+                type="text"
+                placeholder="Buscar por nombre, descripción o curso..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0 0.5rem 0 2rem',
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
+                  border: `1px solid ${theme.inputBorder}`,
+                  borderRadius: '0.5rem',
+                  color: theme.inputText,
+                  fontSize: '0.75rem',
+                  boxShadow: 'none',
+                  height: '2rem'
+                }}
+              />
+            </div>
+
+            {/* Filtro Estado */}
+            <div style={{ minWidth: isMobile ? '100%' : 'min(12.5rem, 25vw)', width: isMobile ? '100%' : 'auto' }}>
+              <StyledSelect
+                name="filtro_estado"
+                value={filterActiva}
+                onChange={(e) => setFilterActiva(e.target.value)}
+                darkMode={darkMode}
+                options={[
+                  { value: 'todas', label: 'Todas' },
+                  { value: 'activas', label: 'Activas' },
+                  { value: 'inactivas', label: 'Inactivas' }
+                ]}
+              />
+            </div>
+
+            {/* Toggle Vista */}
+            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+              <div style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3em',
-                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                background: isTableView ? toggleActiveBg : 'transparent',
+                gap: '0.375rem',
+                background: toggleGroupBg,
+                borderRadius: '0.65rem',
+                padding: '0.1875rem',
                 border: 'none',
-                borderRadius: '0.5em',
-                color: isTableView ? toggleActiveText : toggleInactiveText,
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
-                flex: isSmallScreen ? 1 : 'initial'
-              }}
-            >
-              <List
-                size={16}
-                color={isTableView ? toggleActiveText : toggleInactiveText}
-              />
-              {!isMobile && 'Tabla'}
-            </button>
-          </div>
+                boxShadow: 'none'
+              }}>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: isCardsView ? toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: isCardsView ? toggleActiveText : toggleInactiveText,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <Grid
+                    size={16}
+                    color={isCardsView ? toggleActiveText : toggleInactiveText}
+                  />
+                  {!isMobile && 'Tarjetas'}
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: isTableView ? toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: isTableView ? toggleActiveText : toggleInactiveText,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <List
+                    size={16}
+                    color={isTableView ? toggleActiveText : toggleInactiveText}
+                  />
+                  {!isMobile && 'Tabla'}
+                </button>
+              </div>
 
 
-          </div>
+            </div>
           </div>
 
           {/* Botón Crear */}
@@ -846,11 +862,7 @@ const GestionPromociones: React.FC = () => {
                             color: promo.activa ? '#10b981' : '#ef4444'
                           }}
                         >
-                          {promo.activa ? (
-                            <CheckCircle size={10} color="#10b981" />
-                          ) : (
-                            <XCircle size={10} color="#ef4444" />
-                          )}
+                          <Power size={10} color={promo.activa ? '#10b981' : '#ef4444'} />
                           {promo.activa ? 'Activa' : 'Inactiva'}
                         </span>
                       </td>
@@ -901,6 +913,29 @@ const GestionPromociones: React.FC = () => {
                       <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
+                            onClick={() => handleViewPromocion(promo)}
+                            title="Ver detalles"
+                            style={{
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #3b82f6',
+                              backgroundColor: 'transparent',
+                              color: '#3b82f6',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#3b82f6';
+                            }}
+                          >
+                            <Eye style={{ width: '1rem', height: '1rem' }} />
+                          </button>
+                          <button
                             onClick={() => openEdit(promo)}
                             style={{
                               padding: '0.375rem',
@@ -924,30 +959,7 @@ const GestionPromociones: React.FC = () => {
                             <Edit style={{ width: '1rem', height: '1rem' }} />
                           </button>
                           <button
-                            onClick={() => setDeleteTarget(promo)}
-                            style={{
-                              padding: '0.375rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #ef4444',
-                              backgroundColor: 'transparent',
-                              color: '#ef4444',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#ef4444';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#ef4444';
-                            }}
-                            title="Eliminar promoción"
-                          >
-                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
-                          </button>
-                          <button
-                            onClick={() => handleToggleActiva(promo.id_promocion, promo.activa)}
+                            onClick={() => handleToggleActiva(promo)}
                             style={{
                               padding: '0.375rem',
                               borderRadius: '0.5rem',
@@ -969,11 +981,30 @@ const GestionPromociones: React.FC = () => {
                             }}
                             title={promo.activa ? 'Desactivar promoción' : 'Activar promoción'}
                           >
-                            {promo.activa ? (
-                              <XCircle style={{ width: '1rem', height: '1rem' }} />
-                            ) : (
-                              <CheckCircle style={{ width: '1rem', height: '1rem' }} />
-                            )}
+                            <Power style={{ width: '1rem', height: '1rem' }} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(promo)}
+                            style={{
+                              padding: '0.375rem',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #ef4444',
+                              backgroundColor: 'transparent',
+                              color: '#ef4444',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#ef4444';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#ef4444';
+                            }}
+                            title="Eliminar promoción"
+                          >
+                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
                           </button>
                         </div>
                       </td>
@@ -1062,9 +1093,7 @@ const GestionPromociones: React.FC = () => {
                       alignItems: 'center',
                       gap: '4px'
                     }}>
-                      {promo.activa
-                        ? <CheckCircle size={10} color="#10b981" />
-                        : <XCircle size={10} color="#ef4444" />}
+                      <Power size={10} color={promo.activa ? '#10b981' : '#ef4444'} />
                       {promo.activa ? 'Activa' : 'Inactiva'}
                     </div>
                   </div>
@@ -1238,7 +1267,37 @@ const GestionPromociones: React.FC = () => {
                   borderTop: `1px solid ${theme.divider}`
                 }}>
                   <button
-                    onClick={() => handleToggleActiva(promo.id_promocion, promo.activa)}
+                    onClick={() => handleViewPromocion(promo)}
+                    style={{
+                      padding: '0.375rem 0.625rem',
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '6px',
+                      color: '#3b82f6',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Eye size={16} color="#3b82f6" />
+                  </button>
+
+                  <button
+                    onClick={() => openEdit(promo)}
+                    style={{
+                      padding: '0.375rem 0.625rem',
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '6px',
+                      color: '#3b82f6',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Edit size={16} color="#3b82f6" />
+                  </button>
+
+                  <button
+                    onClick={() => handleToggleActiva(promo)}
                     style={{
                       flex: 1,
                       padding: '0.375rem',
@@ -1260,25 +1319,8 @@ const GestionPromociones: React.FC = () => {
                       gap: '4px'
                     }}
                   >
-                    {promo.activa
-                      ? <XCircle size={16} color="#ef4444" />
-                      : <CheckCircle size={16} color="#10b981" />}
+                    <Power size={16} color={promo.activa ? '#ef4444' : '#10b981'} />
                     {promo.activa ? 'Desactivar' : 'Activar'}
-                  </button>
-
-                  <button
-                    onClick={() => openEdit(promo)}
-                    style={{
-                      padding: '0.375rem 0.625rem',
-                      background: 'rgba(59, 130, 246, 0.15)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '6px',
-                      color: '#3b82f6',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <Edit size={16} color="#3b82f6" />
                   </button>
 
                   <button
@@ -1788,28 +1830,29 @@ const GestionPromociones: React.FC = () => {
             justifyContent: 'center',
             zIndex: 99999,
             padding: isMobile ? '1rem' : '2rem',
-            backdropFilter: 'blur(14px)',
-            background: pick(
-              'linear-gradient(140deg, rgba(30,41,59,0.45) 0%, rgba(148,163,184,0.36) 100%)',
-              'linear-gradient(140deg, rgba(2,6,23,0.72) 0%, rgba(30,41,59,0.55) 100%)'
-            )
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)'
           }}
         >
           <div
+            className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
+              position: 'relative',
               background: pick(
-                'linear-gradient(165deg, rgba(241,245,249,0.96) 0%, rgba(226,232,240,0.94) 55%, rgba(248,250,252,0.98) 100%)',
-                'linear-gradient(165deg, rgba(21,30,46,0.95) 0%, rgba(15,23,42,0.93) 60%, rgba(15,23,42,0.97) 100%)'
+                'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+                'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
               ),
-              border: `1px solid ${pick('rgba(148,163,184,0.35)', 'rgba(71,85,105,0.45)')}`,
-              borderRadius: '1rem',
+              border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+              borderRadius: '12px',
               width: isMobile ? '92vw' : '420px',
               maxWidth: isMobile ? '92vw' : '420px',
               padding: isMobile ? '1rem' : '1.25rem',
-              boxShadow: pick('0 28px 65px rgba(15,23,42,0.22)', '0 32px 70px rgba(0,0,0,0.45)'),
+              margin: 'auto',
               color: theme.textPrimary,
-              animation: 'scaleIn 0.25s ease-out'
+              boxShadow: theme.surfaceShadow,
+              animation: 'scaleIn 0.3s ease-out'
             }}
           >
             <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
@@ -1888,6 +1931,453 @@ const GestionPromociones: React.FC = () => {
                 }
               }
             `}</style>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de confirmación para activar/desactivar */}
+      {toggleTarget && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => setToggleTarget(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)'
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: pick(
+                'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+                'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+              ),
+              border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '420px',
+              maxWidth: isMobile ? '92vw' : '420px',
+              padding: isMobile ? '1rem' : '1.25rem',
+              margin: 'auto',
+              color: theme.textPrimary,
+              boxShadow: theme.surfaceShadow,
+              animation: 'scaleIn 0.3s ease-out',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{
+              width: '3.5rem',
+              height: '3.5rem',
+              borderRadius: '50%',
+              background: toggleTarget.activa
+                ? 'rgba(239, 68, 68, 0.1)'
+                : 'rgba(16, 185, 129, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem'
+            }}>
+              <Power size={28} color={toggleTarget.activa ? '#ef4444' : '#10b981'} />
+            </div>
+
+            <h3 style={{
+              margin: 0,
+              fontSize: isMobile ? '1rem' : '1.1rem',
+              fontWeight: 600,
+              marginBottom: '0.5rem',
+              color: theme.textPrimary
+            }}>
+              ¿{toggleTarget.activa ? 'Desactivar' : 'Activar'} promoción?
+            </h3>
+
+            <p style={{
+              margin: '0 0 1.5rem 0',
+              fontSize: '0.85rem',
+              lineHeight: 1.5,
+              color: theme.textSecondary
+            }}>
+              Estás a punto de {toggleTarget.activa ? 'desactivar' : 'activar'} la promoción{' '}
+              <strong style={{ color: theme.textPrimary }}>{toggleTarget.nombre_promocion}</strong>.
+            </p>
+
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'center'
+            }}>
+              <button
+                type="button"
+                onClick={() => setToggleTarget(null)}
+                disabled={loading}
+                style={{
+                  padding: '0.625rem 1.1rem',
+                  background: pick('rgba(255,255,255,0.9)', 'rgba(255,255,255,0.08)'),
+                  border: `1px solid ${theme.modalDivider}`,
+                  borderRadius: '0.65rem',
+                  color: theme.textPrimary,
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmToggleActiva}
+                disabled={loading}
+                style={{
+                  padding: '0.625rem 1.1rem',
+                  background: loading
+                    ? 'rgba(239,68,68,0.35)'
+                    : (toggleTarget.activa
+                      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                      : 'linear-gradient(135deg, #10b981, #059669)'),
+                  border: 'none',
+                  borderRadius: '0.65rem',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: loading ? 'none' : '0 16px 30px rgba(239,68,68,0.25)'
+                }}
+              >
+                {loading ? 'Procesando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de ver detalles */}
+      {viewTarget && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => setViewTarget(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: pick(
+                'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+                'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+              ),
+              border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '600px',
+              maxWidth: isMobile ? '92vw' : '600px',
+              maxHeight: '85vh',
+              padding: isMobile ? '1.25rem' : '1.5rem',
+              margin: 'auto',
+              color: theme.textPrimary,
+              boxShadow: theme.surfaceShadow,
+              animation: 'scaleIn 0.3s ease-out',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: isMobile ? '0.75rem' : '1rem',
+              paddingBottom: isMobile ? '0.5rem' : '0.75rem',
+              borderBottom: `1px solid ${theme.modalDivider}`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Gift size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h2 style={{
+                  margin: 0,
+                  fontSize: isMobile ? '1.125rem' : '1.25rem',
+                  fontWeight: 700,
+                  color: theme.textPrimary
+                }}>
+                  Detalles de Promoción
+                </h2>
+              </div>
+              <button
+                onClick={() => setViewTarget(null)}
+                style={{
+                  background: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)'),
+                  border: `1px solid ${theme.modalDivider}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.2)');
+                  e.currentTarget.style.borderColor = pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.32)');
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
+                  e.currentTarget.style.borderColor = theme.modalDivider;
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div style={{ display: 'grid', gap: '0.875rem' }}>
+              {/* Nombre de la Promoción */}
+              <div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: theme.textMuted,
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase'
+                }}>
+                  <Sparkles size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  Nombre
+                </div>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  background: pick('rgba(239,68,68,0.08)', 'rgba(239,68,68,0.12)'),
+                  border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+                  borderRadius: '0.5rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#ef4444'
+                }}>
+                  {viewTarget.nombre_promocion}
+                </div>
+              </div>
+
+              {/* Cursos */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <BookOpen size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Curso Principal
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 600
+                  }}>
+                    {viewTarget.nombre_curso_principal}
+                    <div style={{ fontSize: '0.65rem', color: theme.textMuted, fontWeight: 400, marginTop: '0.125rem' }}>
+                      {viewTarget.codigo_curso_principal}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <Gift size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Curso Gratis
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: '#10b981'
+                  }}>
+                    {viewTarget.nombre_curso_promocional}
+                    <div style={{ fontSize: '0.65rem', color: theme.textMuted, fontWeight: 400, marginTop: '0.125rem' }}>
+                      {viewTarget.codigo_curso_promocional}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Beneficio y Cupos */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Beneficio
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '0.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>
+                      {viewTarget.modalidad_promocional === 'clases' ? viewTarget.clases_gratis : viewTarget.meses_gratis}
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: theme.textMuted, marginTop: '0.125rem' }}>
+                      {viewTarget.modalidad_promocional === 'clases' ? 'Clases Gratis' : 'Meses Gratis'}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Cupos
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: theme.textPrimary }}>
+                      {viewTarget.cupos_disponibles
+                        ? `${(viewTarget.cupos_disponibles || 0) - (viewTarget.cupos_utilizados || 0)}/${viewTarget.cupos_disponibles}`
+                        : 'Ilimitados'}
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: theme.textMuted, marginTop: '0.125rem' }}>
+                      {viewTarget.cupos_utilizados || 0} aceptados
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Estado */}
+              <div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: theme.textMuted,
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase'
+                }}>
+                  Estado
+                </div>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  background: viewTarget.activa ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                  border: `1px solid ${viewTarget.activa ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                  borderRadius: '0.5rem',
+                  color: viewTarget.activa ? '#10b981' : '#ef4444',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  textTransform: 'uppercase'
+                }}>
+                  {viewTarget.activa ? 'Activa' : 'Inactiva'}
+                </div>
+              </div>
+
+              {/* Descripción */}
+              {viewTarget.descripcion && (
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Descripción
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.75rem',
+                    lineHeight: 1.5,
+                    color: theme.textSecondary
+                  }}>
+                    {viewTarget.descripcion}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: `1px solid ${theme.modalDivider}` }}>
+              <button
+                onClick={() => setViewTarget(null)}
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '10px',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)'}`,
+                  background: 'transparent',
+                  color: theme.textSecondary,
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>,
         document.body

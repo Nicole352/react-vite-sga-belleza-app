@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus, Edit, Trash2, X, Save, Search, Grid, List, ChevronLeft, ChevronRight,
-  FileText, Calendar, DollarSign, CreditCard, Hash, CheckCircle, BookOpen, AlertTriangle, ArrowLeftRight
+  FileText, Calendar, DollarSign, CreditCard, Hash, CheckCircle, BookOpen, AlertTriangle, ArrowLeftRight, Eye
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
@@ -37,6 +37,7 @@ const GestionTiposCurso: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [selected, setSelected] = useState<TipoCurso | null>(null);
+  const [viewTarget, setViewTarget] = useState<TipoCurso | null>(null); // Estado para modal de ver detalles
   const [tipoToDelete, setTipoToDelete] = useState<TipoCurso | null>(null);
 
   // Detectar modo oscuro desde localStorage (mismo que usa PanelAdministrativos)
@@ -235,6 +236,10 @@ const GestionTiposCurso: React.FC = () => {
     setShowModal(true);
   };
 
+  const handleViewTipo = (t: TipoCurso) => {
+    setViewTarget(t);
+  };
+
   const requestDelete = (tipo: TipoCurso) => {
     setTipoToDelete(tipo);
   };
@@ -415,49 +420,49 @@ const GestionTiposCurso: React.FC = () => {
                   boxShadow: 'none'
                 }}
               >
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'cards' ? theme.toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: cardsTabColor,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <Grid size={16} color={cardsTabColor} /> {!isMobile && 'Tarjetas'}
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'table' ? theme.toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: tableTabColor,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <List size={16} color={tableTabColor} /> {!isMobile && 'Tabla'}
-              </button>
-            </div>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: viewMode === 'cards' ? theme.toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: cardsTabColor,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <Grid size={16} color={cardsTabColor} /> {!isMobile && 'Tarjetas'}
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: viewMode === 'table' ? theme.toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: tableTabColor,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <List size={16} color={tableTabColor} /> {!isMobile && 'Tabla'}
+                </button>
+              </div>
 
 
             </div>
@@ -663,6 +668,33 @@ const GestionTiposCurso: React.FC = () => {
                   marginTop: '0.625rem',
                 }}
               >
+                <button
+                  onClick={() => handleViewTipo(t)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.25rem',
+                    padding: '0.375rem',
+                    background: darkMode ? 'rgba(59, 130, 246, 0.14)' : 'rgba(59,130,246,0.18)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '0.5rem',
+                    color: editActionColor,
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.24)' : 'rgba(59,130,246,0.26)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.14)' : 'rgba(59,130,246,0.18)';
+                  }}
+                >
+                  <Eye size={12} color={editActionColor} /> Ver
+                </button>
                 <button
                   onClick={() => openEdit(t)}
                   style={{
@@ -920,6 +952,32 @@ const GestionTiposCurso: React.FC = () => {
                     </td>
                     <td style={{ padding: '0.5rem 0.75rem' }}>
                       <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => handleViewTipo(t)}
+                          style={{
+                            padding: '0.375rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #3b82f6',
+                            backgroundColor: 'transparent',
+                            color: '#3b82f6',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#3b82f6';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#3b82f6';
+                          }}
+                          title="Ver detalles"
+                        >
+                          <Eye style={{ width: '1rem', height: '1rem' }} />
+                        </button>
                         <button
                           onClick={() => openEdit(t)}
                           style={{
@@ -1616,6 +1674,343 @@ const GestionTiposCurso: React.FC = () => {
           document.body
         )
       }
+
+      {/* Modal de ver detalles */}
+      {viewTarget && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => setViewTarget(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: isMobile ? '1rem' : '2rem',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.65)',
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              background: pick(
+                'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+                'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
+              ),
+              border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+              borderRadius: '12px',
+              width: isMobile ? '92vw' : '600px',
+              maxWidth: isMobile ? '92vw' : '600px',
+              maxHeight: '85vh',
+              padding: isMobile ? '1.25rem' : '1.5rem',
+              margin: 'auto',
+              color: theme.textPrimary,
+              boxShadow: theme.toggleActiveShadow,
+              animation: 'scaleIn 0.3s ease-out',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: isMobile ? '0.75rem' : '1rem',
+              paddingBottom: isMobile ? '0.5rem' : '0.75rem',
+              borderBottom: `1px solid ${theme.divider}`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BookOpen size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
+                <h2 style={{
+                  margin: 0,
+                  fontSize: isMobile ? '1.125rem' : '1.25rem',
+                  fontWeight: 700,
+                  color: theme.textPrimary
+                }}>
+                  Detalles del Tipo de Curso
+                </h2>
+              </div>
+              <button
+                onClick={() => setViewTarget(null)}
+                style={{
+                  background: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)'),
+                  border: `1px solid ${theme.divider}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.2)');
+                  e.currentTarget.style.borderColor = pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.32)');
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
+                  e.currentTarget.style.borderColor = theme.divider;
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div style={{ display: 'grid', gap: '0.875rem' }}>
+              {/* Código y Estado */}
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <Hash size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Código
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    fontFamily: 'monospace'
+                  }}>
+                    TC-{String(viewTarget.id_tipo_curso).padStart(3, '0')}
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Estado
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: viewTarget.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${viewTarget.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: viewTarget.estado === 'activo' ? '#10b981' : '#ef4444',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    textTransform: 'uppercase'
+                  }}>
+                    {viewTarget.estado || 'ACTIVO'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Nombre */}
+              <div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: theme.textMuted,
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase'
+                }}>
+                  <FileText size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  Nombre
+                </div>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  background: pick('rgba(239,68,68,0.08)', 'rgba(239,68,68,0.12)'),
+                  border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  color: '#ef4444'
+                }}>
+                  {viewTarget.nombre}
+                </div>
+              </div>
+
+              {/* Descripción */}
+              {viewTarget.descripcion && (
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Descripción
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.75rem',
+                    lineHeight: 1.5,
+                    color: theme.textSecondary
+                  }}>
+                    {viewTarget.descripcion}
+                  </div>
+                </div>
+              )}
+
+              {/* Detalles Financieros y Duración */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <Calendar size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Duración
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    textAlign: 'center'
+                  }}>
+                    {viewTarget.duracion_meses ? `${viewTarget.duracion_meses} meses` : '-'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <DollarSign size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Precio Base
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    color: '#10b981',
+                    textAlign: 'center'
+                  }}>
+                    {formatPrice(viewTarget.precio_base)}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: theme.textMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <CreditCard size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Modalidad
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: theme.inputBg,
+                    border: `1px solid ${theme.inputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    textAlign: 'center'
+                  }}>
+                    {viewTarget.modalidad_pago === 'clases' ? 'Por Clases' : 'Mensual'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Detalles Específicos Clases */}
+              {viewTarget.modalidad_pago === 'clases' && (
+                <div style={{
+                  padding: '0.75rem',
+                  background: 'rgba(59, 130, 246, 0.08)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '0.5rem',
+                  marginTop: '0.25rem'
+                }}>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    color: '#3b82f6',
+                    marginBottom: '0.5rem',
+                    textTransform: 'uppercase',
+                    textAlign: 'center'
+                  }}>
+                    Detalles de Modalidad por Clases
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.65rem', color: theme.textMuted, marginBottom: '2px' }}>Total Clases</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: theme.textPrimary }}>{viewTarget.numero_clases || 0}</div>
+                    </div>
+                    <div style={{ width: '1px', background: 'rgba(59, 130, 246, 0.2)' }}></div>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.65rem', color: theme.textMuted, marginBottom: '2px' }}>Precio por Clase</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#10b981' }}>{formatPrice(viewTarget.precio_por_clase)}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: `1px solid ${theme.divider}` }}>
+              <button
+                onClick={() => setViewTarget(null)}
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '10px',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)'}`,
+                  background: 'transparent',
+                  color: theme.textSecondary,
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div >
   );
 };

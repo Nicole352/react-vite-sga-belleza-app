@@ -227,6 +227,7 @@ const GestionMatricula = () => {
   const [cursos, setCursos] = useState<Array<{ id_curso: number; nombre: string; estado: string }>>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   useSocket({
     'nueva_solicitud_matricula': (data: any) => {
@@ -269,6 +270,12 @@ const GestionMatricula = () => {
       }
       const res = await fetch(`${API_BASE}/api/solicitudes?${params.toString()}`);
       if (!res.ok) throw new Error('No se pudo cargar solicitudes');
+
+      const totalHeader = res.headers.get('X-Total-Count');
+      if (totalHeader) {
+        setTotalRecords(parseInt(totalHeader, 10));
+      }
+
       const data = await res.json();
       setSolicitudes(data);
       return true;
@@ -504,16 +511,11 @@ const GestionMatricula = () => {
       const matchesSearch = haystack.includes(searchTerm.toLowerCase());
       const matchesEstado = filterEstado === 'todos' || s.estado === filterEstado;
       return matchesSearch && matchesEstado;
-    })
-    .sort((a, b) => {
-      // Ordenar por fecha de solicitud, más antiguos primero
-      const dateA = new Date(a.fecha_solicitud).getTime();
-      const dateB = new Date(b.fecha_solicitud).getTime();
-      return dateA - dateB;
     });
 
-  const totalPages = Math.ceil(solicitudesFiltradas.length / limit);
-  const paginatedSolicitudes = solicitudesFiltradas.slice((page - 1) * limit, page * limit);
+  const totalPages = Math.ceil(totalRecords / limit);
+  // Los datos ya vienen paginados del backend, no necesitamos slicing extra
+  const paginatedSolicitudes = solicitudesFiltradas;
 
   // Los contadores ahora vienen del backend (counters)
 
@@ -1295,7 +1297,7 @@ const GestionMatricula = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {page} de {totalPages} • Total: {solicitudesFiltradas.length} solicitudes
+              Página {page} de {totalPages} • Total: {totalRecords} solicitudes
             </div>
             <div style={{
               display: 'flex',

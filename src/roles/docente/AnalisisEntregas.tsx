@@ -14,6 +14,7 @@ const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:300
 interface Entrega {
   id_entrega: number;
   id_estudiante: number;
+  estudiante_identificacion?: string;
   estudiante_nombre: string;
   estudiante_apellido: string;
   fecha_entrega: string;
@@ -100,8 +101,32 @@ const AnalisisEntregas: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      let tareaData = responseTarea.data.tarea || {};
+
+      // Obtener detalles del curso explícitamente para asegurar horarios
+      if (tareaData.id_curso) {
+        try {
+          const responseCurso = await axios.get(`${API_BASE}/api/cursos/${tareaData.id_curso}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const cursoData = responseCurso.data;
+
+          // Fusionar información de horarios si existe
+          if (cursoData) {
+            tareaData = {
+              ...tareaData,
+              hora_inicio: cursoData.hora_inicio || tareaData.hora_inicio,
+              hora_fin: cursoData.hora_fin || tareaData.hora_fin,
+              horario: cursoData.horario || tareaData.horario
+            };
+          }
+        } catch (errCurso) {
+          console.error('No se pudo cargar detalles extra del curso', errCurso);
+        }
+      }
+
       setEntregas(responseEntregas.data.entregas || []);
-      setTareaInfo(responseTarea.data.tarea || {});
+      setTareaInfo(tareaData);
     } catch (error) {
       console.error('Error cargando datos:', error);
       showToast.error('Error al cargar los datos', darkMode);
@@ -337,14 +362,33 @@ const AnalisisEntregas: React.FC = () => {
 
                   // Columna # (índice 0)
                   if (colIdx === 0) finalWidth = 6;
-                  // Apellido y Nombre (índice 1 y 2)
-                  else if (colIdx === 1 || colIdx === 2) {
-                    if (finalWidth > 25) finalWidth = 25;
-                    if (finalWidth < 15) finalWidth = 15;
+                  // Identificación y Etiquetas de Resumen (índice 1)
+                  else if (colIdx === 1) finalWidth = Math.max(15, maxLength + 2);
+                  // Apellido y Nombre (índice 2 y 3)
+                  else if (colIdx === 2 || colIdx === 3) {
+                    if (finalWidth > 35) finalWidth = 35; // Aumentado para evitar corte
+                    if (finalWidth < 20) finalWidth = 20;
+                  }
+                  // Fecha entrega (índice 4)
+                  else if (colIdx === 4) {
+                    finalWidth = 22;
+                  }
+                  // Calificación (índice 5)
+                  else if (colIdx === 5) {
+                    finalWidth = 15;
+                  }
+                  // Estado (índice 6)
+                  else if (colIdx === 6) {
+                    finalWidth = 15;
+                  }
+                  // Comentario (índice 7)
+                  else if (colIdx === 7) {
+                    if (finalWidth > 50) finalWidth = 50;
+                    if (finalWidth < 25) finalWidth = 25;
                   }
                   // Otras columnas
                   else {
-                    if (finalWidth > 20) finalWidth = 20;
+                    if (finalWidth > 30) finalWidth = 30; // Más generoso en general
                     if (finalWidth < 12) finalWidth = 12;
                   }
 
@@ -360,7 +404,7 @@ const AnalisisEntregas: React.FC = () => {
                   fitToPage: true,
                   fitToWidth: 1,
                   fitToHeight: 0,
-                  margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+                  margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
                 },
                 headerFooter: standardFooter
               });
@@ -371,21 +415,27 @@ const AnalisisEntregas: React.FC = () => {
               ws.getRow(2).height = 35;
 
               // Encabezados de datos
-              const headers = ['#', 'Apellido', 'Nombre', 'Fecha Entrega', 'Calificación', 'Estado', 'Comentario'];
+              const headers = ['#', 'IDENTIFICACIÓN', 'APELLIDO', 'NOMBRE', 'FECHA ENTREGA', 'CALIFICACIÓN', 'ESTADO', 'COMENTARIO'];
               const headerRow = ws.addRow(headers);
 
-              // Estilos de encabezados
+              // Estilos de encabezados (sin colores)
               headerRow.eachCell((cell) => {
                 cell.style = {
-                  font: { bold: true, color: { argb: 'FFFFFF' }, size: 11 },
-                  fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
+                  font: { bold: true, size: 10 },
                   alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
                   border: {
-                    top: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    left: { style: 'thin' },
-                    right: { style: 'thin' }
+                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                    right: { style: 'thin', color: { argb: 'FF000000' } }
                   }
+                };
+                cell.font = { bold: true, color: { argb: 'FF000000' }, name: 'Calibri', size: 10 };
+                // Set background to white (no fill) effectively
+                cell.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: { argb: 'FFFFFFFF' }
                 };
               });
               headerRow.height = 30;
@@ -394,8 +444,9 @@ const AnalisisEntregas: React.FC = () => {
               entregas.forEach((e, index) => {
                 const rowData = [
                   index + 1,
-                  e.estudiante_apellido,
-                  e.estudiante_nombre,
+                  e.estudiante_identificacion || '-',
+                  e.estudiante_apellido.toUpperCase(),
+                  e.estudiante_nombre.toUpperCase(),
                   new Date(e.fecha_entrega).toLocaleString('es-EC', {
                     year: 'numeric',
                     month: '2-digit',
@@ -404,19 +455,20 @@ const AnalisisEntregas: React.FC = () => {
                     minute: '2-digit'
                   }),
                   e.calificacion !== null ? e.calificacion : '-',
-                  e.calificacion !== null ? 'Calificada' : 'Pendiente',
-                  e.comentario || 'Sin comentario'
+                  e.calificacion !== null ? 'CALIFICADA' : 'PENDIENTE',
+                  (e.comentario || 'SIN COMENTARIO').toUpperCase()
                 ];
 
                 const row = ws.addRow(rowData);
 
                 row.eachCell((cell, colNumber) => {
                   cell.border = {
-                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                    right: { style: 'thin', color: { argb: 'FF000000' } }
                   };
+                  cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
                   cell.alignment = {
                     vertical: 'middle',
                     horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center')
@@ -449,29 +501,28 @@ const AnalisisEntregas: React.FC = () => {
                 ? (entregas.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificadas)
                 : 0;
 
-              // Título del resumen
+              // Título del resumen (sin colores)
               const tituloResumen = ws.addRow(['RESUMEN ESTADÍSTICO']);
               ws.mergeCells(tituloResumen.number, 1, tituloResumen.number, 7);
               tituloResumen.getCell(1).style = {
-                font: { bold: true, color: { argb: 'FFFFFF' }, size: 12 },
-                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
+                font: { bold: true, size: 12, name: 'Calibri', color: { argb: 'FF000000' } },
                 alignment: { horizontal: 'center', vertical: 'middle' },
                 border: {
-                  top: { style: 'thin' },
-                  bottom: { style: 'thin' },
-                  left: { style: 'thin' },
-                  right: { style: 'thin' }
+                  top: { style: 'thin', color: { argb: 'FF000000' } },
+                  bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                  left: { style: 'thin', color: { argb: 'FF000000' } },
+                  right: { style: 'thin', color: { argb: 'FF000000' } }
                 }
               };
               tituloResumen.height = 25;
 
               // Datos del resumen
               const datosResumen = [
-                ['Total de Entregas', totalEntregas],
-                ['Tareas Calificadas', calificadas],
-                ['Tareas Pendientes de Calificar', pendientes],
-                ['Tareas Aprobadas (≥7.0)', aprobadas],
-                ['Promedio General', promedioGeneral > 0 ? promedioGeneral : '-']
+                ['TOTAL DE ENTREGAS', totalEntregas],
+                ['TAREAS CALIFICADAS', calificadas],
+                ['TAREAS PENDIENTES DE CALIFICAR', pendientes],
+                ['TAREAS APROBADAS (≥7.0)', aprobadas],
+                ['PROMEDIO GENERAL', promedioGeneral > 0 ? promedioGeneral : '-']
               ];
 
               datosResumen.forEach((dato) => {
@@ -479,30 +530,30 @@ const AnalisisEntregas: React.FC = () => {
 
                 // Estilo para la etiqueta (columna B)
                 row.getCell(2).style = {
-                  font: { bold: true, size: 10 },
+                  font: { bold: true, size: 10, name: 'Calibri', color: { argb: 'FF000000' } },
                   alignment: { horizontal: 'left', vertical: 'middle' },
                   border: {
-                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                    right: { style: 'thin', color: { argb: 'FF000000' } }
                   }
                 };
 
-                // Estilo para el valor (columna C)
+                // Estilo para el valor (columna C) - sin colores
                 row.getCell(3).style = {
-                  font: { bold: true, size: 11, color: { argb: '0284C7' } },
+                  font: { bold: true, size: 10, name: 'Calibri', color: { argb: 'FF000000' } },
                   alignment: { horizontal: 'center', vertical: 'middle' },
                   border: {
-                    top: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    bottom: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    left: { style: 'thin', color: { argb: 'E5E7EB' } },
-                    right: { style: 'thin', color: { argb: 'E5E7EB' } }
+                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                    right: { style: 'thin', color: { argb: 'FF000000' } }
                   }
                 };
 
                 // Formato numérico para el promedio
-                if (dato[0] === 'Promedio General' && typeof row.getCell(3).value === 'number') {
+                if (dato[0] === 'PROMEDIO GENERAL' && typeof row.getCell(3).value === 'number') {
                   row.getCell(3).numFmt = '0.00';
                 }
               });
@@ -513,20 +564,20 @@ const AnalisisEntregas: React.FC = () => {
               const totalCols = headers.length;
               if (totalCols > 0) {
                 // Fila 1: Título
-                ws.mergeCells(1, 1, 1, totalCols);
+                const safeMergeCols = Math.max(7, totalCols);
+                ws.mergeCells(1, 1, 1, safeMergeCols);
                 const cellTitle = ws.getCell(1, 1);
-                cellTitle.value = `ANÁLISIS DE ENTREGAS - ${tareaInfo?.titulo || 'Tarea'}`;
-                cellTitle.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+                cellTitle.value = `ANÁLISIS DE ENTREGAS - ${(tareaInfo?.titulo || 'Tarea').toUpperCase()}`;
+                cellTitle.font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
                 cellTitle.alignment = { horizontal: 'center', vertical: 'middle' };
-                cellTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
 
                 // Fila 2: Info Docente y Curso
-                ws.mergeCells(2, 1, 2, totalCols);
+                ws.mergeCells(2, 1, 2, safeMergeCols);
                 const cellInfo = ws.getCell(2, 1);
-                cellInfo.value = `Docente: ${nombreDocente} | Curso: ${tareaInfo?.curso_nombre || ''} | Módulo: ${tareaInfo?.modulo_nombre || ''}`;
-                cellInfo.font = { size: 10, name: 'Calibri' };
+                const horarioStr = `${tareaInfo?.horario?.toUpperCase() || ''} ${tareaInfo?.hora_inicio ? `(${tareaInfo.hora_inicio.slice(0, 5)} - ${tareaInfo.hora_fin?.slice(0, 5)})` : ''}`;
+                cellInfo.value = `DOCENTE: ${nombreDocente.toUpperCase()} | CURSO: ${(tareaInfo?.curso_nombre || '').toUpperCase()} | HORARIO: ${horarioStr}`;
+                cellInfo.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
                 cellInfo.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-                cellInfo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
               }
 
               ajustarAnchoColumnas(ws);

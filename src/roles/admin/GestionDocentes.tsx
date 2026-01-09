@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CSSProperties, ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Eye, UserCheck, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight, RefreshCcw, ArrowLeftRight, Sheet
+  Search, Eye, UserCheck, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight, RefreshCcw, ArrowLeftRight, Sheet, Power, AlertCircle
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import StyledSelect from '../../components/StyledSelect';
@@ -55,6 +55,10 @@ const GestionDocentes = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [previewUsername, setPreviewUsername] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
+
+  // Estado para confirmación de cambio de estado
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar', docente: Docente } | null>(null);
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('admin-dark-mode');
@@ -126,7 +130,6 @@ const GestionDocentes = () => {
   const toggleActiveText = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
   const toggleInactiveText = pick('rgba(100, 116, 139, 0.7)', 'rgba(255, 255, 255, 0.6)');
   const viewDetailsColor = pick('#1d4ed8', '#3b82f6');
-  const editButtonTextColor = mapToRedScheme('#d97706');
   const infoBannerStyles = {
     background: pick('rgba(59,130,246,0.08)', 'rgba(59,130,246,0.18)'),
     border: `1px solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.32)')}`,
@@ -265,6 +268,42 @@ const GestionDocentes = () => {
   const credentialHelperStyle: CSSProperties = {
     color: pick('rgba(71,85,105,0.75)', 'rgba(226,232,240,0.72)'),
     fontSize: '0.78rem'
+  };
+
+  const confirmarCambioEstado = (docente: Docente) => {
+    const nuevoEstado = docente.estado === 'activo' ? 'desactivar' : 'activar';
+    setAccionConfirmar({ tipo: nuevoEstado, docente });
+    setShowConfirmModal(true);
+  };
+
+  const ejecutarAccion = async () => {
+    if (!accionConfirmar) return;
+
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const nuevoEstado = accionConfirmar.tipo === 'activar' ? 'activo' : 'inactivo';
+
+      const response = await fetch(`${API_BASE}/api/docentes/${accionConfirmar.docente.id_docente}/estado`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al cambiar estado');
+      }
+
+      showToast.success(`Docente ${accionConfirmar.tipo === 'activar' ? 'activado' : 'inactivado'} correctamente`, darkMode);
+      await fetchDocentes(); // Recargar lista
+      setShowConfirmModal(false);
+      setAccionConfirmar(null);
+    } catch (err: any) {
+      showToast.error(err?.message || 'Error al cambiar estado', darkMode);
+    }
   };
 
   // Función para obtener docentes
@@ -645,49 +684,49 @@ const GestionDocentes = () => {
                 border: 'none',
                 boxShadow: 'none'
               }}>
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: '0.3125rem 0.75rem',
-                  background: isCardsView ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: isCardsView ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease'
-                }}
-                title="Vista de Tarjetas"
-              >
-                <Grid size={16} color={isCardsView ? toggleActiveText : toggleInactiveText} /> Tarjetas
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: '0.3125rem 0.75rem',
-                  background: isTableView ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: isTableView ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease'
-                }}
-                title="Vista de Tabla"
-              >
-                <List size={16} color={isTableView ? toggleActiveText : toggleInactiveText} /> Tabla
-              </button>
-            </div>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: '0.3125rem 0.75rem',
+                    background: isCardsView ? toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: isCardsView ? toggleActiveText : toggleInactiveText,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease'
+                  }}
+                  title="Vista de Tarjetas"
+                >
+                  <Grid size={16} color={isCardsView ? toggleActiveText : toggleInactiveText} /> Tarjetas
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: '0.3125rem 0.75rem',
+                    background: isTableView ? toggleActiveBg : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: isTableView ? toggleActiveText : toggleInactiveText,
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease'
+                  }}
+                  title="Vista de Tabla"
+                >
+                  <List size={16} color={isTableView ? toggleActiveText : toggleInactiveText} /> Tabla
+                </button>
+              </div>
 
 
             </div>
@@ -916,6 +955,47 @@ const GestionDocentes = () => {
                   >
                     <Eye size={12} color={viewDetailsColor} /> Ver Detalles
                   </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      confirmarCambioEstado(docente);
+                    }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem',
+                      padding: '6px 0.75rem',
+                      background: docente.estado === 'activo'
+                        ? pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.1)')
+                        : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)'),
+                      border: `1px solid ${docente.estado === 'activo'
+                        ? pick('rgba(239,68,68,0.24)', 'rgba(239,68,68,0.3)')
+                        : pick('rgba(16,185,129,0.24)', 'rgba(16,185,129,0.3)')}`,
+                      borderRadius: '0.5rem',
+                      color: docente.estado === 'activo'
+                        ? pick('#ef4444', '#f87171')
+                        : pick('#10b981', '#34d399'),
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      marginTop: '0.5rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = docente.estado === 'activo'
+                        ? pick('rgba(239,68,68,0.18)', 'rgba(239, 68, 68, 0.2)')
+                        : pick('rgba(16,185,129,0.18)', 'rgba(16, 185, 129, 0.2)');
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = docente.estado === 'activo'
+                        ? pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.1)')
+                        : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)');
+                    }}
+                  >
+                    <Power size={16} /> {docente.estado === 'activo' ? 'Inactivar' : 'Activar'}
+                  </button>
                 </div>
               </div>
             ))
@@ -948,209 +1028,237 @@ const GestionDocentes = () => {
             </div>
           )}
 
-        <div style={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
-            : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
-          borderRadius: '0.75rem',
-          overflow: 'hidden',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
-          marginBottom: '0.5rem',
-          boxShadow: darkMode 
-            ? '0 8px 32px rgba(0,0,0,0.3)'
-            : '0 4px 20px rgba(239,68,68,0.08)',
-          position: 'relative'
-        }}>
-          {/* Marca de agua de scroll */}
           <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            opacity: 0.08,
-            pointerEvents: 'none',
-            zIndex: 0
+            background: darkMode
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
+            borderRadius: '0.75rem',
+            overflow: 'hidden',
+            border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+            marginBottom: '0.5rem',
+            boxShadow: darkMode
+              ? '0 8px 32px rgba(0,0,0,0.3)'
+              : '0 4px 20px rgba(239,68,68,0.08)',
+            position: 'relative'
           }}>
-            <ArrowLeftRight size={120} strokeWidth={1.5} color={darkMode ? '#ffffff' : '#ef4444'} />
-          </div>
+            {/* Marca de agua de scroll */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              opacity: 0.08,
+              pointerEvents: 'none',
+              zIndex: 0
+            }}>
+              <ArrowLeftRight size={120} strokeWidth={1.5} color={darkMode ? '#ffffff' : '#ef4444'} />
+            </div>
 
-          <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{
-                  background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                  borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
-                }}>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Docente
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Identificación
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Usuario
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Título Profesional
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Estado
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Experiencia
-                  </th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {docentesFiltrados.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: theme.textMuted }}>
-                      {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
-                    </td>
+            <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{
+                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
+                    borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
+                  }}>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Docente
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Identificación
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Usuario
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Título Profesional
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Estado
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Experiencia
+                    </th>
+                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      Acciones
+                    </th>
                   </tr>
-                ) : (
-                  docentesFiltrados.map((docente, index) => (
-                    <tr
-                      key={docente.id_docente}
-                      style={{
-                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
-                        background: 'transparent',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                          <UserAvatar
-                            userId={docente.id_usuario || docente.id_docente}
-                            nombre={docente.nombres}
-                            apellido={docente.apellidos}
-                            size={2}
-                            showBorder={true}
-                            borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
-                          />
-                          <div>
-                            <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.75rem' }}>
-                              {docente.nombres} {docente.apellidos}
-                            </div>
-                            {docente.telefono && (
-                              <div style={{ color: theme.textSecondary, fontSize: '0.65rem' }}>
-                                {docente.telefono}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
-                        {docente.identificacion}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
-                        {docente.username ? (
-                          <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
-                            {docente.username}
-                          </span>
-                        ) : (
-                          <span style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
-                            Sin usuario
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
-                        {docente.titulo_profesional}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <div style={{
-                          display: 'inline-block',
-                          padding: '4px 0.625rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.65rem',
-                          fontWeight: '700',
-                          textTransform: 'uppercase',
-                          background: docente.estado === 'activo'
-                            ? 'rgba(16, 185, 129, 0.1)'
-                            : 'rgba(239, 68, 68, 0.1)',
-                          color: docente.estado === 'activo'
-                            ? '#10b981'
-                            : '#ef4444',
-                          border: `1px solid ${docente.estado === 'activo'
-                            ? 'rgba(10, 185, 129, 0.2)'
-                            : 'rgba(239, 68, 68, 0.2)'}`
-                        }}>
-                          {docente.estado}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
-                        {docente.experiencia_anos} años
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
-                          <button
-                            onClick={() => handleViewDocente(docente)}
-                            title="Ver detalles"
-                            style={{
-                              padding: '0.375rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #3b82f6',
-                              backgroundColor: 'transparent',
-                              color: '#3b82f6',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#3b82f6';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#3b82f6';
-                            }}
-                          >
-                            <Eye style={{ width: '1rem', height: '1rem' }} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedDocente(docente);
-                              setModalMode('edit');
-                              setShowModal(true);
-                            }}
-                            title="Editar"
-                            style={{
-                              padding: '0.375rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #f59e0b',
-                              backgroundColor: 'transparent',
-                              color: '#f59e0b',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f59e0b';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#f59e0b';
-                            }}
-                          >
-                            <Edit style={{ width: '1rem', height: '1rem' }} />
-                          </button>
-                        </div>
+                </thead>
+                <tbody>
+                  {docentesFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: theme.textMuted }}>
+                        {loading ? 'Cargando docentes...' : 'No hay docentes registrados'}
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    docentesFiltrados.map((docente) => (
+                      <tr
+                        key={docente.id_docente}
+                        style={{
+                          borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                          background: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                            <UserAvatar
+                              userId={docente.id_usuario || docente.id_docente}
+                              nombre={docente.nombres}
+                              apellido={docente.apellidos}
+                              size={2}
+                              showBorder={true}
+                              borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
+                            />
+                            <div>
+                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.75rem' }}>
+                                {docente.apellidos}, {docente.nombres}
+                              </div>
+                              {docente.telefono && (
+                                <div style={{ color: theme.textSecondary, fontSize: '0.65rem' }}>
+                                  {docente.telefono}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {docente.identificacion}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {docente.username ? (
+                            <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
+                              {docente.username}
+                            </span>
+                          ) : (
+                            <span style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                              Sin usuario
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {docente.titulo_profesional}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{
+                            display: 'inline-block',
+                            padding: '4px 0.625rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.65rem',
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            background: docente.estado === 'activo'
+                              ? 'rgba(16, 185, 129, 0.1)'
+                              : 'rgba(239, 68, 68, 0.1)',
+                            color: docente.estado === 'activo'
+                              ? '#10b981'
+                              : '#ef4444',
+                            border: `1px solid ${docente.estado === 'activo'
+                              ? 'rgba(10, 185, 129, 0.2)'
+                              : 'rgba(239, 68, 68, 0.2)'}`
+                          }}>
+                            {docente.estado}
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {docente.experiencia_anos} años
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                            <button
+                              onClick={() => handleViewDocente(docente)}
+                              title="Ver detalles"
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #3b82f6',
+                                backgroundColor: 'transparent',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#3b82f6';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#3b82f6';
+                              }}
+                            >
+                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedDocente(docente);
+                                setModalMode('edit');
+                                setShowModal(true);
+                              }}
+                              title="Editar"
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #f59e0b',
+                                backgroundColor: 'transparent',
+                                color: '#f59e0b',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#f59e0b';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#f59e0b';
+                              }}
+                            >
+                              <Edit style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                confirmarCambioEstado(docente);
+                              }}
+                              title={docente.estado === 'activo' ? 'Inactivar' : 'Activar'}
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: docente.estado === 'activo' ? '1px solid #ef4444' : '1px solid #10b981',
+                                backgroundColor: 'transparent',
+                                color: docente.estado === 'activo' ? '#ef4444' : '#10b981',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                const color = docente.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = color;
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                const color = docente.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = color;
+                              }}
+                            >
+                              <Power style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
         </>
       )}
 
@@ -1358,7 +1466,7 @@ const GestionDocentes = () => {
                         color: theme.textPrimary,
                         lineHeight: 1.2
                       }}>
-                        {`${selectedDocente.nombres} ${selectedDocente.apellidos}`}
+                        {`${selectedDocente.apellidos}, ${selectedDocente.nombres}`}
                       </div>
                       <div style={{ marginTop: 6, color: theme.textSecondary, fontSize: '0.85rem' }}>
                         {selectedDocente.titulo_profesional}
@@ -1994,17 +2102,135 @@ const GestionDocentes = () => {
       <LoadingModal
         isOpen={showLoadingModal}
         message="Actualizando datos..."
-        darkMode={true}
-        duration={500}
+        darkMode={darkMode}
         onComplete={() => setShowLoadingModal(false)}
         colorTheme="red"
       />
+
+      {/* Modal de Confirmación */}
+      {showConfirmModal && accionConfirmar && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => setShowConfirmModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100000,
+            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.5)',
+            padding: '1rem'
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: theme.contentBackground,
+              borderRadius: isMobile ? 14 : 16,
+              padding: isMobile ? '1.5rem' : '2rem',
+              maxWidth: 400,
+              width: '100%',
+              boxShadow: darkMode ? '0 18px 40px rgba(15,23,42,0.35)' : '0 18px 40px rgba(148,163,184,0.25)',
+              border: `1px solid ${theme.surfaceBorder}`,
+              textAlign: 'center',
+              animation: 'scaleIn 0.2s ease-out'
+            }}
+          >
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: accionConfirmar.tipo === 'activar'
+                ? 'rgba(16, 185, 129, 0.1)'
+                : 'rgba(239, 68, 68, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.25rem'
+            }}>
+              {accionConfirmar.tipo === 'activar' ? (
+                <Power size={28} color="#10b981" />
+              ) : (
+                <AlertCircle size={28} color="#ef4444" />
+              )}
+            </div>
+
+            <h3 style={{
+              marginBottom: '0.75rem',
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: theme.textPrimary
+            }}>
+              {accionConfirmar.tipo === 'activar' ? '¿Activar docente?' : '¿Inactivar docente?'}
+            </h3>
+
+            <p style={{
+              marginBottom: '1.75rem',
+              color: theme.textSecondary,
+              lineHeight: 1.5,
+              fontSize: '0.95rem'
+            }}>
+              {accionConfirmar.tipo === 'activar'
+                ? `Estás a punto de activar a ${accionConfirmar.docente.nombres} ${accionConfirmar.docente.apellidos}. Podrá acceder al sistema nuevamente.`
+                : `Estás a punto de inactivar a ${accionConfirmar.docente.nombres} ${accionConfirmar.docente.apellidos}. Perderá el acceso al sistema inmediatamente.`
+              }
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '0.625rem',
+                  border: `1px solid ${theme.surfaceBorder}`,
+                  background: 'transparent',
+                  color: theme.textPrimary,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = theme.surface}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={ejecutarAccion}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '0.625rem',
+                  border: 'none',
+                  background: accionConfirmar.tipo === 'activar'
+                    ? `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`
+                    : `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
 
 export default GestionDocentes;
-
-
-
-

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { AlertCircle, CheckCircle, Eye, XCircle, CreditCard, Gift, Calendar, Clock, FileText, Sparkles } from 'lucide-react';
+import { AlertCircle, CheckCircle, Eye, XCircle, CreditCard, Gift, Calendar, Clock, FileText, Sparkles, Table2 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import ModalPagoMensualidad from './ModalPagoMensualidad';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
@@ -338,6 +338,37 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
     loadData();
   }, []);
 
+  const descargarExcel = async () => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      if (!token) throw new Error('No autorizado');
+
+      const response = await fetch(`${API_BASE}/api/pagos-mensuales/reporte-estudiante`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Error descargando reporte');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Mis_Pagos.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showToast.success('Reporte descargado correctamente', darkMode);
+    } catch (error) {
+      console.error('Error:', error);
+      showToast.error('No se pudo descargar el reporte', darkMode);
+    }
+  };
+
   const formatearMonto = (monto: number | string) => {
     const montoNumerico = typeof monto === 'string' ? parseFloat(monto) : monto;
     return `$${(montoNumerico || 0).toFixed(2)}`;
@@ -613,8 +644,8 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.25rem' }}>
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
           <div style={{
             width: '3rem',
             height: '3rem',
@@ -632,10 +663,39 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
               Gestión de Pagos
             </h1>
             <p style={{ fontSize: isMobile ? '0.7rem' : '0.75rem', color: darkMode ? 'rgba(255,255,255,0.7)' : '#6b7280', margin: 0 }}>
-              Gestiona y paga las mensualidades de tus cursos de forma rápida y segura
+              Gestiona, paga tus mensualidades y descarga tus reportes
             </p>
           </div>
         </div>
+
+        <button
+          onClick={descargarExcel}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            background: darkMode ? 'rgba(245, 158, 11, 0.2)' : '#fffbeb', // amber-50 equivalent
+            color: '#d97706', // amber-600
+            border: `1px solid ${darkMode ? 'rgba(245, 158, 11, 0.3)' : '#fcd34d'}`, // amber-300
+            borderRadius: '0.5rem',
+            fontSize: '0.85rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <Table2 size={18} />
+          Descargar Excel
+        </button>
       </div>
 
       {/* Info compacta */}

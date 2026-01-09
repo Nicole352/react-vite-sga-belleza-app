@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Calendar, Award, Clock, CheckCircle, User, MapPin } from 'lucide-react';
+import { BookOpen, Calendar, Award, Clock, CheckCircle, User, MapPin, Table2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import '../../styles/responsive.css';
 
@@ -97,6 +97,33 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
     const fin = new Date(fechaFin);
     const meses = Math.round((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24 * 30));
     return `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+  };
+
+  const descargarNotas = async (idCurso: number, nombreCurso: string) => {
+    try {
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/calificaciones/reporte-estudiante/${idCurso}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Error al descargar');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Notas_${nombreCurso.replace(/\s+/g, '_')}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Reporte descargado correctamente');
+    } catch (error) {
+      console.error('Error descarga:', error);
+      toast.error('Error al descargar el reporte');
+    }
   };
 
   if (loading) {
@@ -562,6 +589,41 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* Botón Descargar Notas */}
+                  <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        descargarNotas(curso.id_curso, curso.nombre);
+                      }}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: darkMode ? 'rgba(245, 158, 11, 0.2)' : '#fffbeb',
+                        color: '#d97706',
+                        border: `1px solid ${darkMode ? 'rgba(245, 158, 11, 0.3)' : '#fcd34d'}`,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      <Table2 size={18} />
+                      Descargar Notas
+                    </button>
                   </div>
                 </div>
               </div>

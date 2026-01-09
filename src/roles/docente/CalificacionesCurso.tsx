@@ -401,7 +401,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const wsDetalle = workbook.addWorksheet('Calificaciones por Tarea', {
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
-          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: standardFooter
       });
@@ -437,7 +437,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       });
 
       // Fila 1, 2 y 3: Encabezados modulares
-      const row1 = wsDetalle.addRow(['#', 'Apellido', 'Nombre']); // Módulos
+      const row1 = wsDetalle.addRow(['#', 'APELLIDO', 'NOMBRE']); // Módulos
       const row2 = wsDetalle.addRow(['', '', '']); // Categorías (MERGED)
       const row3 = wsDetalle.addRow(['', '', '']); // Tareas
 
@@ -470,7 +470,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
         // Escribir nombre del módulo en Fila 1
         const cellModulo = row1.getCell(colIndex);
-        cellModulo.value = moduloNombre;
+        cellModulo.value = moduloNombre.toUpperCase();
 
         // Merge horizontal para el módulo en Fila 4
         if (tareasDelModulo.length > 0) {
@@ -497,7 +497,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           if (tareaCat !== currentCategory) {
             // Cerrar grupo anterior
             const cellCat = row2.getCell(categoryStartCol);
-            cellCat.value = `${currentCategory} (${categoryPond} pts)`;
+            cellCat.value = `CATEGORÍA: ${currentCategory.toUpperCase()} (${categoryPond} PTS)`;
             if (categoryCount > 1) {
               wsDetalle.mergeCells(5, categoryStartCol, 5, categoryStartCol + categoryCount - 1);
             }
@@ -514,41 +514,46 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           // Si es el último, cerrar el grupo actual
           if (idx === tareasDelModulo.length - 1) {
             const cellCat = row2.getCell(categoryStartCol);
-            cellCat.value = `${currentCategory} (${categoryPond} pts)`;
+            cellCat.value = `CATEGORÍA: ${currentCategory.toUpperCase()} (${categoryPond} PTS)`;
             if (categoryCount > 1) {
               wsDetalle.mergeCells(5, categoryStartCol, 5, categoryStartCol + categoryCount - 1);
             }
           }
         });
 
+        // Calcular conteo de tareas por categoría para ponderación equitativa
+        const conteoPorCategoria: Record<string, number> = {};
+        tareasDelModulo.forEach(t => {
+          const cat = t.categoria_nombre || "Sin Categoría";
+          conteoPorCategoria[cat] = (conteoPorCategoria[cat] || 0) + 1;
+        });
+
         // Escribir nombres de tareas en Fila 3
         tareasDelModulo.forEach((tarea) => {
           // Fila 3: Título Tarea
-          const cellTarea = row3.getCell(colIndex);
-          cellTarea.value = `${tarea.titulo} (/${tarea.nota_maxima})`;
+          const catNombre = tarea.categoria_nombre || "Sin Categoría";
+          const catPond = tarea.categoria_ponderacion || 0;
+          const numTareasEnCat = conteoPorCategoria[catNombre] || 1;
 
-          // Fila 3: Ponderación
+          // Calcular valor ponderado de ESTA tarea individual
+          const valorTareaPonderado = numTareasEnCat > 0 ? (catPond / numTareasEnCat) : 0;
+
+          const cellTarea = row3.getCell(colIndex);
+          cellTarea.value = `${tarea.titulo.toUpperCase()} (${valorTareaPonderado.toFixed(2)})`;
+
+          // Estilo de ponderación (opcional, podemos aplicar estilo al texto si se quiere)
           const cellPonderacion = row3.getCell(colIndex);
-          if (tarea.categoria_nombre) {
-            cellPonderacion.value = `Cat: ${tarea.categoria_nombre} (${tarea.categoria_ponderacion} pts)`;
-          } else {
-            cellPonderacion.value = `${tarea.ponderacion || 0} pts`;
-          }
-          cellPonderacion.font = { italic: true, size: 9, color: { argb: 'FF666666' } };
-          cellPonderacion.alignment = { horizontal: 'center' };
+          cellPonderacion.font = { italic: false, size: 9, color: { argb: 'FF000000' } }; // Normalizar estilo
+          cellPonderacion.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
 
           colIndex++;
         });
       });
 
-      // Estilos para headers
+      // Estilos para headers (sin color de fondo)
       [row1, row2, row3].forEach(row => {
         row.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFF3F4F6' } // Gris claro
-          };
           cell.border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
@@ -564,14 +569,14 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       modulos.forEach((modulo) => {
         // Escribir en Fila 1 y combinar con Fila 2
         const cellProm = row1.getCell(colIndex);
-        cellProm.value = `Promedio ${modulo}`;
+        cellProm.value = `PROMEDIO ${modulo.toUpperCase()}`;
         wsDetalle.mergeCells(4, colIndex, 6, colIndex);
         colIndex++;
       });
 
       // Columna Promedio Global
       const cellGlobal = row1.getCell(colIndex);
-      cellGlobal.value = "Promedio Global (/10pts)";
+      cellGlobal.value = "PROMEDIO GLOBAL (/10PTS)";
       wsDetalle.mergeCells(4, colIndex, 6, colIndex);
 
       // 2. Estilos de Encabezados
@@ -580,42 +585,13 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } } as any
       };
 
-      // Aplicar estilos a todo el rango de encabezados (Filas 4, 5 y 6)
+      // Aplicar estilos a todo el rango de encabezados (Filas 4, 5 y 6) - Sin colores
       for (let r = 4; r <= 6; r++) {
         const row = wsDetalle.getRow(r);
-        row.eachCell((cell, colNumber) => {
-          // Colores:
-          // Apellido/Nombre (Cols 1-2): Azul Medio
-          // Módulos/Tareas (Cols > 2): 
-          //    - Fila 1 (Módulos): Azul Cielo
-          //    - Fila 2 (Tareas): Celeste Claro
-          //    - Promedios (Cols finales): Azul Cielo (porque están en Fila 1 merged)
-
-          let fillColor = '0284C7'; // Azul cielo default
-
-          if (colNumber <= 3) {
-            fillColor = '0369A1'; // Azul medio (Apellido/Nombre)
-          } else {
-            // Si es fila 2 y NO es una celda combinada que viene de arriba (esto es difícil de detectar directo, pero por lógica de negocio):
-            // Las celdas de tareas están en fila 2 y no tienen merge vertical.
-            // Las celdas de promedios tienen merge vertical, así que "pertenecen" visualmente a la fila 1.
-
-            // Simplificación visual:
-            // Fila 4 siempre Azul Cielo (Módulos y Promedios)
-            // Fila 5 (Tareas) Celeste Claro
-            if (r === 5 && cell.value) { // Si tiene valor en fila 5, es una tarea
-              fillColor = 'BAE6FD'; // Celeste claro
-            }
-            // Si es celda combinada de Promedio, usará el estilo de la celda master (Fila 1), así que este bloque no afecta.
-          }
-
-          // Corrección para texto de tareas: Azul oscuro
-          const fontColor = (fillColor === 'BAE6FD') ? '0C4A6E' : 'FFFFFF';
-
+        row.eachCell((cell, _) => {
           cell.style = {
             ...estiloBaseHeader,
-            font: { bold: true, color: { argb: fontColor }, size: 10 },
-            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } }
+            font: { bold: true, color: { argb: 'FF000000' }, size: 10, name: 'Calibri' }
           };
         });
       }
@@ -626,7 +602,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // 3. Datos de Estudiantes
       estudiantes.forEach((est, index) => {
-        const rowData: any[] = [index + 1, est.apellido, est.nombre]; // Agregar índice numérico
+        const rowData: any[] = [index + 1, est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico
 
         // Calificaciones
         modulosConTareas.forEach((moduloNombre) => {
@@ -655,9 +631,9 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         const row = wsDetalle.addRow(rowData);
 
         row.eachCell((cell, colNumber) => {
-          cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
-          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
-          cell.font = { size: 10 };
+          cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } };
+          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center'), wrapText: true };
+          cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
 
           // Formato numérico para columna # (índice)
           if (colNumber === 1 && typeof cell.value === 'number') {
@@ -676,20 +652,20 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const totalColsDetalle = colIndex - 1;
       if (totalColsDetalle > 0) {
         // Fila 1: Título
-        wsDetalle.mergeCells(1, 1, 1, totalColsDetalle);
+        const safeMergeCols = Math.max(6, totalColsDetalle); // Asegurar mínimo 6 columnas para que no se corte
+        wsDetalle.mergeCells(1, 1, 1, safeMergeCols);
         const cellTitle = wsDetalle.getCell(1, 1);
-        cellTitle.value = `REPORTE DE CALIFICACIONES POR TAREA - ${cursoNombre}`;
-        cellTitle.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+        cellTitle.value = `REPORTE DE CALIFICACIONES POR TAREA - ${(cursoNombre || '').toUpperCase()}`;
+        cellTitle.font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
         cellTitle.alignment = { horizontal: 'center', vertical: 'middle' };
-        cellTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
 
         // Fila 2: Info Docente
-        wsDetalle.mergeCells(2, 1, 2, totalColsDetalle);
+        wsDetalle.mergeCells(2, 1, 2, safeMergeCols);
         const cellInfo = wsDetalle.getCell(2, 1);
-        cellInfo.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
-        cellInfo.font = { size: 10, name: 'Calibri' };
+        const horarioTexto = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+        cellInfo.value = `DOCENTE: ${nombreDocente.toUpperCase()} | HORARIO: ${horarioTexto}`;
+        cellInfo.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
         cellInfo.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cellInfo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       }
 
 
@@ -699,7 +675,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const wsModulos = workbook.addWorksheet('Promedios por Módulo', {
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
-          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: standardFooter
       });
@@ -709,39 +685,38 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       wsModulos.getRow(1).height = 25;
       wsModulos.getRow(2).height = 35;
 
-      const headersModulos = ['#', 'Apellido', 'Nombre', ...modulos.map(m => `${m} (/${(typeof pesoPorModulo === "number" ? pesoPorModulo : 0).toFixed(2)}pts)`), 'PROMEDIO GLOBAL (/10pts)'];
+      const headersModulos = ['#', 'APELLIDO', 'NOMBRE', ...modulos.map(m => `${m.toUpperCase()} (/10.00PTS)`), 'PROMEDIO GLOBAL (/10PTS)'];
       const totalColsModulos = headersModulos.length;
 
       // Fila 1: Título Merge Dinámico
-      wsModulos.mergeCells(1, 1, 1, totalColsModulos);
+      const safeMergeColsMod = Math.max(6, totalColsModulos);
+      wsModulos.mergeCells(1, 1, 1, safeMergeColsMod);
       const cellTitleMod = wsModulos.getCell(1, 1);
-      cellTitleMod.value = `REPORTE DE PROMEDIOS POR MÓDULO - ${cursoNombre}`;
-      cellTitleMod.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      cellTitleMod.value = `REPORTE DE PROMEDIOS POR MÓDULO - ${(cursoNombre || '').toUpperCase()}`;
+      cellTitleMod.font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       cellTitleMod.alignment = { horizontal: 'center', vertical: 'middle' };
-      cellTitleMod.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
 
       // Fila 2: Info Docente Merge Dinámico
-      wsModulos.mergeCells(2, 1, 2, totalColsModulos);
+      wsModulos.mergeCells(2, 1, 2, safeMergeColsMod);
       const cellInfoMod = wsModulos.getCell(2, 1);
-      cellInfoMod.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
-      cellInfoMod.font = { size: 10, name: 'Calibri' };
+      const horarioTextoMod = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+      cellInfoMod.value = `DOCENTE: ${nombreDocente.toUpperCase()} | HORARIO: ${horarioTextoMod}`;
+      cellInfoMod.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
       cellInfoMod.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      cellInfoMod.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
 
       const rowHeaderMod = wsModulos.addRow(headersModulos);
 
       rowHeaderMod.eachCell((cell) => {
         cell.style = {
-          font: { bold: true, color: { argb: 'FFFFFF' }, size: 10 },
-          fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } },
-          alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }, // Wrap text activado
+          font: { bold: true, color: { argb: 'FF000000' }, size: 10 },
+          alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
           border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
         };
       });
       rowHeaderMod.height = 30; // Altura extra para encabezados largos
 
       estudiantes.forEach((est, index) => {
-        const rowData = [index + 1, est.apellido, est.nombre]; // Agregar índice numérico
+        const rowData = [index + 1, est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico
         modulos.forEach(modulo => {
           const moduloDetalle = est.modulos_detalle?.find((m) => m.nombre_modulo === modulo);
           const promedioModulo = moduloDetalle ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10)) : 0;
@@ -752,9 +727,12 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
         const row = wsModulos.addRow(rowData);
         row.eachCell((cell, colNumber) => {
-          cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
-          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center') };
-          cell.font = { size: 10 };
+          cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } };
+          if (colNumber === 1) cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          else if (colNumber <= 3) cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+          else cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+          cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
 
           // Formato numérico para columna # (índice)
           if (colNumber === 1 && typeof cell.value === 'number') {
@@ -776,7 +754,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const wsEstadisticas = workbook.addWorksheet('Estadísticas', {
         pageSetup: {
           paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
-          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 }
+          margins: { left: 0.25, right: 0.25, top: 0.3, bottom: 0.75, header: 0.1, footer: 0.3 }
         },
         headerFooter: standardFooter
       });
@@ -789,19 +767,18 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       // Fila 1: Título Merge (Usamos un rango más amplio para evitar recortes)
       wsEstadisticas.mergeCells(1, 1, 1, 6);
       const cellTitleEst = wsEstadisticas.getCell(1, 1);
-      cellTitleEst.value = `ESTADÍSTICAS DE CALIFICACIONES - ${cursoNombre}`;
-      cellTitleEst.font = { bold: true, size: 12, color: { argb: 'FF1E40AF' }, name: 'Calibri' };
+      cellTitleEst.value = `ESTADÍSTICAS DE CALIFICACIONES - ${(cursoNombre || '').toUpperCase()}`;
+      cellTitleEst.font = { bold: true, size: 12, color: { argb: 'FF000000' }, name: 'Calibri' };
       cellTitleEst.alignment = { horizontal: 'center', vertical: 'middle' };
-      cellTitleEst.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E7FF' } };
       wsEstadisticas.getRow(1).height = 25;
 
       // Fila 2: Info Docente Merge
       wsEstadisticas.mergeCells(2, 1, 2, 6);
       const cellInfoEst = wsEstadisticas.getCell(2, 1);
-      cellInfoEst.value = `Docente: ${nombreDocente} | Horario: ${cursoActual?.horario?.toUpperCase() || ''}`;
-      cellInfoEst.font = { size: 10, name: 'Calibri' };
+      const horarioTextoEst = `${cursoActual?.horario.toUpperCase() || ''} ${cursoActual?.hora_inicio ? `(${cursoActual.hora_inicio.slice(0, 5)} - ${cursoActual.hora_fin?.slice(0, 5)})` : ''}`;
+      cellInfoEst.value = `DOCENTE: ${nombreDocente.toUpperCase()} | HORARIO: ${horarioTextoEst}`;
+      cellInfoEst.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
       cellInfoEst.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      cellInfoEst.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
       wsEstadisticas.getRow(2).height = 35;
 
       const aprobadosGlobal = estudiantes.filter((est) => (parseFloat(String(est.promedio_global)) || 0) >= 7).length;
@@ -811,21 +788,21 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       const porcentajeAprobacion = estudiantes.length > 0 ? (aprobadosGlobal / estudiantes.length) : 0;
 
       const datosEstadisticas = [
-        ["Métrica", "Valor"],
-        ["Total de Estudiantes", estudiantes.length],
-        ["Estudiantes Aprobados (≥7/10)", aprobadosGlobal],
-        ["Estudiantes Reprobados (<7/10)", reprobadosGlobal],
-        ["Porcentaje de Aprobación", porcentajeAprobacion],
+        ["MÉTRICA", "VALOR"],
+        ["TOTAL DE ESTUDIANTES", estudiantes.length],
+        ["ESTUDIANTES APROBADOS (≥7/10)", aprobadosGlobal],
+        ["ESTUDIANTES REPROBADOS (<7/10)", reprobadosGlobal],
+        ["PORCENTAJE DE APROBACIÓN", porcentajeAprobacion],
         ["", ""],
-        ["Promedio Global del Curso (/10pts)", promedioGlobalCurso],
-        ["Promedio General (tareas)", promedioGeneral],
+        ["PROMEDIO GLOBAL DEL CURSO (/10PTS)", promedioGlobalCurso],
+        ["PROMEDIO GENERAL (TAREAS)", promedioGeneral],
         ["", ""],
-        ["Total de Tareas Evaluadas", tareas.length],
-        ["Total de Módulos en el Curso", modulos.length],
-        ["Peso por Módulo", (typeof pesoPorModulo === "number" ? pesoPorModulo : 0)],
+        ["TOTAL DE TAREAS EVALUADAS", tareas.length],
+        ["TOTAL DE MÓDULOS EN EL CURSO", modulos.length],
+        ["PESO POR MÓDULO", (typeof pesoPorModulo === "number" ? pesoPorModulo : 0)],
         ["", ""],
-        ["Nota Mínima de Aprobación", "7.0 / 10 puntos"],
-        ["Sistema de Calificación", "Todos los módulos tienen igual peso"],
+        ["NOTA MÍNIMA DE APROBACIÓN", "7.0 / 10 PUNTOS"],
+        ["SISTEMA DE CALIFICACIÓN", "TODOS LOS MÓDULOS TIENEN IGUAL PESO"],
       ];
 
       datosEstadisticas.forEach((data, index) => {
@@ -838,19 +815,18 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         if (index === 0) {
           row.eachCell(cell => {
             cell.style = {
-              font: { bold: true, color: { argb: 'FFFFFF' }, size: 10 },
-              fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '0369A1' } },
+              font: { bold: true, color: { argb: 'FF000000' }, size: 10, name: 'Calibri' },
               alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
-              border: { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
+              border: { top: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } }
             };
           });
         } else {
           row.eachCell((cell, colNumber) => {
-            cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } }, left: { style: 'thin', color: { argb: 'E5E7EB' } }, right: { style: 'thin', color: { argb: 'E5E7EB' } } };
+            cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } };
             cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'left' : 'center', wrapText: true };
-            if (colNumber === 1) cell.font = { bold: true, size: 10 };
-            else cell.font = { size: 10 };
-            if (data[0] === "Porcentaje de Aprobación" && colNumber === 2) cell.numFmt = '0.0%';
+            if (colNumber === 1) cell.font = { bold: true, size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
+            else cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
+            if (data[0] === "PORCENTAJE DE APROBACIÓN" && colNumber === 2) cell.numFmt = '0.0%';
             else if (typeof cell.value === 'number') cell.numFmt = '0.00';
           });
         }
@@ -1178,7 +1154,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         >
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "stretch" }}>
             {/* Search input - full width on mobile */}
-            <div style={{ position: "relative", width: "100%", minWidth: "200px", maxWidth: "20rem", display: "flex", alignItems: "center" }}>
+            <div style={{ position: "relative", width: "100%", minWidth: "9rem", maxWidth: "12rem", display: "flex", alignItems: "center" }}>
               <Search
                 size={16}
                 style={{
@@ -1204,8 +1180,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                   width: "100%",
                   paddingLeft: "2.5rem",
                   paddingRight: "0.875rem",
-                  paddingTop: "0.5rem",
-                  paddingBottom: "0.5rem",
+                  paddingTop: "0.25rem",
+                  paddingBottom: "0.25rem",
                   background: theme.inputBg,
                   border: `1px solid ${theme.inputBorder}`,
                   borderRadius: "1.5rem",
@@ -1274,7 +1250,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                 }}
               >
                 <BookOpen size={11} />
-                Todos
+                TODOS
               </button>
 
               {modulos.map((modulo, idx) => (
@@ -1524,7 +1500,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                             <th
                               rowSpan={2}
                               style={{
-                                padding: "0.75rem 1rem",
+                                padding: "0.5rem 0.75rem",
                                 textAlign: "left",
                                 color: theme.textPrimary,
                                 fontWeight: "600",
@@ -1537,7 +1513,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 borderBottom: `2px solid ${theme.border}`
                               }}
                             >
-                              Estudiante
+                              ESTUDIANTE
                             </th>
                             {(() => {
                               const groups = tareasFiltradas.reduce((acc: any, t) => {
@@ -1553,7 +1529,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                   key={i}
                                   colSpan={g.count}
                                   style={{
-                                    padding: "0.5rem",
+                                    padding: "0.35rem",
                                     textAlign: "center",
                                     color: theme.info,
                                     borderBottom: `1px solid ${theme.border}`,
@@ -1573,20 +1549,20 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                             <th
                               rowSpan={2}
                               style={{
-                                padding: "0.5rem 0.75rem",
+                                padding: "0.35rem 0.6rem",
                                 textAlign: "center",
                                 color: theme.textPrimary,
                                 fontWeight: "700",
                                 background: darkMode
                                   ? "rgba(245, 158, 11, 0.15)"
                                   : "rgba(245, 158, 11, 0.08)",
-                                minWidth: "100px",
+                                minWidth: "6.25rem",
                                 borderBottom: `1px solid ${theme.border}`,
                                 fontSize: '0.75rem'
                               }}
                             >
                               <div style={{ marginBottom: "0.25rem" }}>
-                                Promedio {moduloActivo}
+                                PROMEDIO {moduloActivo.toUpperCase()}
                               </div>
                               <div
                                 style={{
@@ -1595,11 +1571,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                   fontWeight: "500",
                                 }}
                               >
-                                /
-                                {typeof pesoPorModulo === "number"
-                                  ? pesoPorModulo.toFixed(2)
-                                  : "0.00"}{" "}
-                                pts
+                                /10.00 pts
                               </div>
                             </th>
                           </tr>
@@ -1615,16 +1587,16 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               <th
                                 key={tarea.id_tarea}
                                 style={{
-                                  padding: "0.5rem 0.75rem",
+                                  padding: "0.35rem 0.6rem",
                                   textAlign: "center",
                                   color: theme.textPrimary,
                                   fontWeight: "700",
-                                  minWidth: "80px",
+                                  minWidth: "5rem",
                                   fontSize: '0.75rem'
                                 }}
                               >
                                 <div style={{ marginBottom: "0.15rem" }}>
-                                  {tarea.titulo}
+                                  {tarea.titulo.toUpperCase()}
                                 </div>
                                 <div
                                   style={{
@@ -1650,7 +1622,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                         >
                           <th
                             style={{
-                              padding: "0.6rem 0.85rem",
+                              padding: "0.4rem 0.6rem",
                               textAlign: "left",
                               color: theme.textPrimary,
                               fontWeight: "700",
@@ -1662,26 +1634,26 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               borderBottom: `1px solid ${theme.border}`
                             }}
                           >
-                            Estudiante
+                            ESTUDIANTE
                           </th>
                           {modulos.map((modulo, idx) => (
                             <th
                               key={`modulo-${idx}`}
                               style={{
-                                padding: "0.6rem 0.85rem",
+                                padding: "0.4rem 0.6rem",
                                 textAlign: "center",
                                 color: theme.textPrimary,
                                 fontWeight: "700",
                                 background: darkMode
                                   ? "rgba(245, 158, 11, 0.15)"
                                   : "rgba(245, 158, 11, 0.08)",
-                                minWidth: "100px",
+                                minWidth: "6.25rem",
                                 fontSize: '0.75rem',
                                 borderBottom: `1px solid ${theme.border}`
                               }}
                             >
                               <div style={{ marginBottom: "0.15rem" }}>
-                                {modulo}
+                                {modulo.toUpperCase()}
                               </div>
                               <div
                                 style={{
@@ -1690,26 +1662,26 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                   fontWeight: "500",
                                 }}
                               >
-                                /{typeof pesoPorModulo === "number" ? pesoPorModulo.toFixed(2) : "0.00"} pts
+                                /10.00 pts
                               </div>
                             </th>
                           ))}
                           <th
                             style={{
-                              padding: "0.6rem 0.85rem",
+                              padding: "0.4rem 0.6rem",
                               textAlign: "center",
                               color: theme.textPrimary,
                               fontWeight: "700",
                               background: darkMode
                                 ? "rgba(59, 130, 246, 0.15)"
                                 : "rgba(59, 130, 246, 0.08)",
-                              minWidth: "100px",
+                              minWidth: "6.25rem",
                               fontSize: '0.75rem',
                               borderBottom: `1px solid ${theme.border}`
                             }}
                           >
                             <div style={{ marginBottom: "0.15rem" }}>
-                              Promedio Global
+                              PROMEDIO GLOBAL
                             </div>
                             <div
                               style={{
@@ -1742,7 +1714,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                         >
                           <td
                             style={{
-                              padding: "0.5rem 0.75rem",
+                              padding: "0.35rem 0.6rem",
                               color: theme.textPrimary,
                               fontWeight: "600",
                               fontSize: '0.8125rem',
@@ -1773,7 +1745,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               <td
                                 key={tarea.id_tarea}
                                 style={{
-                                  padding: "0.4rem 0.65rem",
+                                  padding: "0.25rem 0.4rem",
                                   textAlign: "center",
                                 }}
                               >
@@ -1813,7 +1785,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               return (
                                 <td
                                   style={{
-                                    padding: "0.4rem 0.65rem",
+                                    padding: "0.25rem 0.4rem",
                                     textAlign: "center",
                                   }}
                                 >
@@ -1859,7 +1831,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 <td
                                   key={`modulo-${idx}-${estudiante.id_estudiante}`}
                                   style={{
-                                    padding: "0.4rem 0.65rem",
+                                    padding: "0.25rem 0.4rem",
                                     textAlign: "center",
                                   }}
                                 >
@@ -1889,7 +1861,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                           {moduloActivo === "todos" && (
                             <td
                               style={{
-                                padding: "0.4rem 0.65rem",
+                                padding: "0.25rem 0.4rem",
                                 textAlign: "center",
                                 background: darkMode
                                   ? "rgba(59, 130, 246, 0.08)"

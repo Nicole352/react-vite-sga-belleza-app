@@ -551,8 +551,13 @@ const GestionCursos = () => {
       closeDeleteModal();
       showToast.deleted(`Curso "${deletedName}" eliminado correctamente`, darkMode);
     } catch (e: any) {
-      setError(e.message || 'Error eliminando curso');
-      showToast.error(e.message || 'Error eliminando curso', darkMode);
+      let errorMessage = e.message || 'Error eliminando curso';
+      // Mapear error de llave foránea a mensaje amigable
+      if (errorMessage.includes('foreign key constraint fails') || errorMessage.includes('estudiante_curso')) {
+        errorMessage = 'No se puede eliminar este curso porque tiene estudiantes inscritos. Debe conservarse como parte del historial académico.';
+      }
+      setError(errorMessage);
+      showToast.error(errorMessage, darkMode);
     } finally {
       setDeletingCurso(false);
     }

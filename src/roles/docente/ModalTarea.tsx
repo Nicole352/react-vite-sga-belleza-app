@@ -170,7 +170,7 @@ const ModalTarea: React.FC<ModalTareaProps> = ({
     } else {
       setFormData({
         ...formData,
-        [name]: value
+        [name]: name === 'titulo' ? value.toUpperCase() : value
       });
     }
   };

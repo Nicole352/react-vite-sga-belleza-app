@@ -363,7 +363,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: isModalFullscreen ? '0' : '2rem'
+        padding: isModalFullscreen ? '0' : '1.5rem'
       }}>
       <div
         className="modal-content"
@@ -380,7 +380,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         }}>
         {/* Header */}
         <div style={{
-          padding: '0.75rem 1.25rem',
+          padding: '0.6rem 1rem',
           borderBottom: `1px solid ${theme.border}`,
           display: 'flex',
           justifyContent: 'space-between',
@@ -388,8 +388,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
-              width: '2.2rem',
-              height: '2.2rem',
+              width: '2rem',
+              height: '2rem',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               borderRadius: '0.6rem',
               display: 'flex',
@@ -402,7 +402,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               <h2 style={{ color: theme.textPrimary, fontSize: '1.125rem', fontWeight: '700', margin: 0, lineHeight: '1.2' }}>
                 Entregas de Tarea
               </h2>
-              <p style={{ color: theme.textSecondary, fontSize: '0.75rem', margin: '0.15rem 0 0 0', lineHeight: '1.2' }}>
+              <p style={{ color: theme.textSecondary, fontSize: '0.7rem', margin: '0.1rem 0 0 0', lineHeight: '1.2' }}>
                 {nombre_tarea}
               </p>
             </div>
@@ -420,7 +420,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 border: 'none',
                 borderRadius: '0.6rem',
-                padding: '0.5rem 0.9rem',
+                padding: '0.4rem 0.75rem',
                 color: '#fff',
                 cursor: 'pointer',
                 display: 'flex',
@@ -456,7 +456,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 border: 'none',
                 color: theme.textSecondary,
                 cursor: 'pointer',
-                padding: '0.5rem',
+                padding: '0.4rem',
                 borderRadius: '0.5rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -503,8 +503,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Estadísticas Compactas */}
         <div style={{
-          margin: '0.75rem 1.25rem 0.5rem 1.25rem',
-          padding: '0.65rem 1rem',
+          margin: '0.5rem 1rem 0.4rem 1rem',
+          padding: '0.5rem 0.75rem',
           borderRadius: '0.6rem',
           background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)',
           border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'}`,
@@ -559,13 +559,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Controles de filtro y búsqueda Compactos */}
         <div style={{
-          padding: '0.6rem 1.25rem',
+          padding: '0.5rem 1rem',
           display: 'flex',
           gap: '0.75rem',
           flexWrap: 'wrap',
           alignItems: 'center'
         }}>
-          <div style={{ position: 'relative', flex: '1', minWidth: '180px' }}>
+          <div style={{ position: 'relative', flex: '1', minWidth: '11.25rem' }}>
             <Search size={16} style={{
               position: 'absolute',
               left: '0.65rem',
@@ -580,7 +580,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               onChange={(e) => setBusqueda(e.target.value)}
               style={{
                 width: '100%',
-                padding: '0.45rem 0.625rem 0.45rem 2.2rem',
+                padding: '0.35rem 0.5rem 0.35rem 2rem',
                 background: theme.inputBg,
                 border: `1px solid ${theme.inputBorder}`,
                 borderRadius: '0.5rem',
@@ -594,7 +594,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             <button
               onClick={() => setFiltro('todas')}
               style={{
-                padding: '0.45rem 0.8rem',
+                padding: '0.35rem 0.6rem',
                 background: filtro === 'todas'
                   ? darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'
                   : 'transparent',
@@ -616,7 +616,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             <button
               onClick={() => setFiltro('pendientes')}
               style={{
-                padding: '0.45rem 0.8rem',
+                padding: '0.35rem 0.6rem',
                 background: filtro === 'pendientes'
                   ? darkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.1)'
                   : 'transparent',
@@ -638,7 +638,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             <button
               onClick={() => setFiltro('calificadas')}
               style={{
-                padding: '0.45rem 0.8rem',
+                padding: '0.35rem 0.6rem',
                 background: filtro === 'calificadas'
                   ? darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)'
                   : 'transparent',
@@ -661,7 +661,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
         {/* Tabla de entregas */}
         <div style={{
-          margin: '0 1.25rem 1.25rem 1.25rem',
+          margin: '0 1rem 1rem 1rem',
           flex: 1,
           overflowY: 'auto'
         }}>
@@ -674,8 +674,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               fontWeight: '500'
             }}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '2.5rem',
+                height: '2.5rem',
                 border: '3px solid rgba(59, 130, 246, 0.2)',
                 borderTop: '3px solid #3b82f6',
                 borderRadius: '50%',
@@ -726,7 +726,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                     background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
                   }}>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -737,7 +737,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       Estudiante
                     </th>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -748,7 +748,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       Fecha Entrega
                     </th>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'left',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -759,7 +759,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       Archivo
                     </th>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -770,7 +770,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       Estado
                     </th>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -781,7 +781,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       Calificación
                     </th>
                     <th style={{
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.4rem 0.5rem',
                       textAlign: 'center',
                       color: theme.textPrimary,
                       fontWeight: '700',
@@ -809,14 +809,14 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                       }}
                     >
                       <td style={{
-                        padding: '0.6rem 0.8rem',
+                        padding: '0.3rem 0.5rem',
                         color: theme.textPrimary,
                         fontWeight: '600'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                           <div style={{
-                            width: '1.8rem',
-                            height: '1.8rem',
+                            width: '1.5rem',
+                            height: '1.5rem',
                             borderRadius: '50%',
                             background: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
                             display: 'flex',
@@ -828,7 +828,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             <User size={14} />
                           </div>
                           <div>
-                            <div style={{ fontSize: '0.85rem' }}>
+                            <div style={{ fontSize: '0.75rem' }}>
                               {entrega.estudiante_apellido}, {entrega.estudiante_nombre}
                             </div>
                             <div style={{
@@ -836,13 +836,13 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                               color: theme.textSecondary,
                               fontWeight: '400'
                             }}>
-                              CI: {entrega.estudiante_identificacion || entrega.id_estudiante}
+                              ID: {entrega.estudiante_identificacion || entrega.id_estudiante}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td style={{
-                        padding: '0.6rem 0.8rem',
+                        padding: '0.3rem 0.5rem',
                         color: theme.textSecondary,
                         fontSize: '0.8rem'
                       }}>
@@ -852,7 +852,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         </div>
                       </td>
                       <td style={{
-                        padding: '0.6rem 0.8rem',
+                        padding: '0.3rem 0.5rem',
                         color: theme.textSecondary
                       }}>
                         <button
@@ -860,7 +860,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                           style={{
                             background: '#3b82f6',
                             border: 'none',
-                            padding: '0.35rem 0.75rem',
+                            padding: '0.25rem 0.6rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -884,7 +884,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         </button>
                       </td>
                       <td style={{
-                        padding: '0.6rem 0.8rem',
+                        padding: '0.3rem 0.5rem',
                         textAlign: 'center'
                       }}>
                         {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
@@ -920,7 +920,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                         )}
                       </td>
                       <td style={{
-                        padding: '0.6rem 0.8rem',
+                        padding: '0.3rem 0.5rem',
                         textAlign: 'center'
                       }}>
                         {entrega.calificacion !== undefined && entrega.calificacion !== null ? (
@@ -928,7 +928,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.25rem',
-                            padding: '0.3rem 0.6rem',
+                            padding: '0.2rem 0.5rem',
                             borderRadius: '0.4rem',
                             background: darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)',
                             color: '#10b981',
@@ -1025,8 +1025,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           WebkitBackdropFilter: 'blur(16px)',
           borderRadius: '0.75em',
           width: '90%',
-          maxWidth: '30rem',
-          padding: '1.5em',
+          maxWidth: '28rem',
+          padding: '1.25rem',
           border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
           boxShadow: darkMode
             ? '0 1rem 3rem rgba(0, 0, 0, 0.5)'
@@ -1077,8 +1077,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
             marginBottom: '1em'
           }}>
             <div style={{
-              width: '2.5rem',
-              height: '2.5rem',
+              width: '2rem',
+              height: '2rem',
               borderRadius: '50%',
               background: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
               display: 'flex',
@@ -1099,7 +1099,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 color: theme.textSecondary,
                 fontSize: '0.875rem'
               }}>
-                CI: {entregaSeleccionada.estudiante_identificacion || entregaSeleccionada.id_estudiante} •
+                ID: {entregaSeleccionada.estudiante_identificacion || entregaSeleccionada.id_estudiante} •
                 Entregado: {new Date(entregaSeleccionada.fecha_entrega).toLocaleDateString('es-ES')}
               </div>
             </div>

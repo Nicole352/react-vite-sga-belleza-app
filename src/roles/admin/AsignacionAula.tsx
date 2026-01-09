@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, Grid, List, ChevronLeft, ChevronRight, ArrowLeftRight
+  Search, Plus, Edit, X, MapPin, Save, Calendar, Clock, Users, AlertCircle, Grid, List, ChevronLeft, ChevronRight, ArrowLeftRight, Eye, Power
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import SearchableSelect from '../../components/SearchableSelect';
@@ -119,6 +119,14 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>('activa');
   const [saving, setSaving] = useState(false);
+
+  // Modal de ver detalles
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedViewAsignacion, setSelectedViewAsignacion] = useState<Asignacion | null>(null);
+
+  // Modal de confirmación para inactivar
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [asignacionToToggle, setAsignacionToToggle] = useState<Asignacion | null>(null);
 
   // Estados para paginación y vista
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
@@ -390,7 +398,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
         if (asignacion.id_docente === newDocenteId) {
           return {
             valid: false,
-            error: `El docente ${asignacion.docente_nombres} ${asignacion.docente_apellidos} ya tiene clase asignada en este horario (${asignacion.curso_nombre})`
+            error: `El docente ${asignacion.docente_apellidos}, ${asignacion.docente_nombres} ya tiene clase asignada en este horario (${asignacion.curso_nombre})`
           };
         }
 
@@ -518,6 +526,55 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     }
   };
 
+  const handleViewAsignacion = (asignacion: Asignacion) => {
+    setSelectedViewAsignacion(asignacion);
+    setShowViewModal(true);
+  };
+
+  const handleToggleEstado = (asignacion: Asignacion) => {
+    setAsignacionToToggle(asignacion);
+    setShowConfirmModal(true);
+  };
+
+  const confirmToggleEstado = async () => {
+    if (!asignacionToToggle) return;
+
+    const nuevoEstado = asignacionToToggle.estado === 'activa' ? 'inactiva' : 'activa';
+
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/api/asignaciones-aulas/${asignacionToToggle.id_asignacion}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id_aula: asignacionToToggle.id_aula,
+          id_curso: asignacionToToggle.id_curso,
+          id_docente: asignacionToToggle.id_docente,
+          hora_inicio: asignacionToToggle.hora_inicio,
+          hora_fin: asignacionToToggle.hora_fin,
+          dias: asignacionToToggle.dias,
+          estado: nuevoEstado,
+          observaciones: asignacionToToggle.observaciones || ''
+        })
+      });
+
+      if (!response.ok) throw new Error('Error al cambiar estado');
+
+      showToast.success(`Asignación ${nuevoEstado === 'inactiva' ? 'inactivada' : 'activada'} correctamente`, darkMode);
+      setShowConfirmModal(false);
+      setAsignacionToToggle(null);
+      await loadData();
+    } catch (err) {
+      showToast.error('Error al cambiar estado de asignación', darkMode);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="asignacion-aula" style={{
       minHeight: '100%',
@@ -531,14 +588,14 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
       />
 
       {/* Controles */}
-      <GlassEffect 
-        variant="card" 
-        tint="neutral" 
-        intensity="light" 
-        style={{ 
-          marginBottom: isMobile ? '0.5rem' : '0.5rem', 
-          borderRadius: '0.375rem', 
-          padding: '0.5rem', 
+      <GlassEffect
+        variant="card"
+        tint="neutral"
+        intensity="light"
+        style={{
+          marginBottom: isMobile ? '0.5rem' : '0.5rem',
+          borderRadius: '0.375rem',
+          padding: '0.5rem',
           boxShadow: 'none',
           border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
         }}
@@ -600,49 +657,49 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 border: 'none',
                 boxShadow: 'none'
               }}>
-              <button
-                onClick={() => setViewMode('cards')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'cards' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <Grid size={16} color={viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'table' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isSmallScreen ? 1 : 'initial'
-                }}
-              >
-                <List size={16} color={viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
-              </button>
-            </div>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: viewMode === 'cards' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <Grid size={16} color={viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3em',
+                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                    background: viewMode === 'table' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    border: 'none',
+                    borderRadius: '0.5em',
+                    color: viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    flex: isSmallScreen ? 1 : 'initial'
+                  }}
+                >
+                  <List size={16} color={viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
+                </button>
+              </div>
 
 
             </div>
@@ -799,7 +856,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                         DOCENTE
                       </div>
                       <div style={{ color: palette.textSecondary, fontSize: '0.75rem' }}>
-                        {asignacion.docente_nombres} {asignacion.docente_apellidos}
+                        {asignacion.docente_apellidos}, {asignacion.docente_nombres}
                       </div>
                     </div>
 
@@ -886,35 +943,101 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       </div>
                     </div>
 
-                    {/* Botón */}
-                    <button
-                      onClick={() => handleEditAsignacion(asignacion)}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem',
-                        background: palette.tableActionBg,
-                        border: `0.0625rem solid ${palette.tableActionBorder}`,
-                        borderRadius: '0.5rem',
-                        color: palette.tableActionText,
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.375rem',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = palette.tableActionBg;
-                      }}
-                    >
-                      <Edit size={isMobile ? 12 : 14} color={palette.tableActionText} />
-                      Editar Asignación
-                    </button>
+                    {/* Botones de acción */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => handleViewAsignacion(asignacion)}
+                        style={{
+                          padding: '0.375rem 0.5rem',
+                          background: pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)'),
+                          border: `0.0625rem solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.32)')}`,
+                          borderRadius: '0.5rem',
+                          color: pick('#1d4ed8', '#93c5fd'),
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.375rem',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = pick('rgba(59,130,246,0.18)', 'rgba(59,130,246,0.25)');
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)');
+                        }}
+                      >
+                        <Eye size={14} color={pick('#1d4ed8', '#93c5fd')} />
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleEditAsignacion(asignacion)}
+                        style={{
+                          padding: '0.375rem 0.5rem',
+                          background: palette.tableActionBg,
+                          border: `0.0625rem solid ${palette.tableActionBorder}`,
+                          borderRadius: '0.5rem',
+                          color: palette.tableActionText,
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.375rem',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = pick('rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.3)');
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = palette.tableActionBg;
+                        }}
+                      >
+                        <Edit size={14} color={palette.tableActionText} />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleToggleEstado(asignacion)}
+                        style={{
+                          gridColumn: '1 / -1',
+                          padding: '0.375rem 0.5rem',
+                          background: asignacion.estado === 'activa'
+                            ? pick('rgba(239,68,68,0.1)', 'rgba(239,68,68,0.18)')
+                            : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)'),
+                          border: `0.0625rem solid ${asignacion.estado === 'activa'
+                            ? pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.32)')
+                            : pick('rgba(16,185,129,0.22)', 'rgba(16,185,129,0.32)')}`,
+                          borderRadius: '0.5rem',
+                          color: asignacion.estado === 'activa'
+                            ? pick('#b91c1c', '#fca5a5')
+                            : pick('#047857', '#34d399'),
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.375rem',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = asignacion.estado === 'activa'
+                            ? pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.25)')
+                            : pick('rgba(16,185,129,0.18)', 'rgba(16,185,129,0.25)');
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = asignacion.estado === 'activa'
+                            ? pick('rgba(239,68,68,0.1)', 'rgba(239,68,68,0.18)')
+                            : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)');
+                        }}
+                      >
+                        <Power size={14} color={asignacion.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
+                        {asignacion.estado === 'activa' ? 'Inactivar' : 'Activar'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -949,7 +1072,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
           )}
 
           <div style={{
-            background: darkMode 
+            background: darkMode
               ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
               : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
             backdropFilter: 'blur(1.25rem)',
@@ -983,141 +1106,190 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               </div>
             ) : (
               <div className="responsive-table-container" style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{
-                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                    borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
-                  }}>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {asignacionesPaginadas.map((asignacion) => (
-                    <tr
-                      key={asignacion.id_asignacion}
-                      style={{
-                        borderBottom: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
-                        background: 'transparent',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem', marginBottom: '0.1rem' }}>{asignacion.aula_nombre}</div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem', letterSpacing: '0.015em' }}>{asignacion.codigo_aula}</div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem' }}>{asignacion.curso_nombre}</div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: palette.textSecondary, fontSize: '0.75rem', verticalAlign: 'middle' }}>
-                        {asignacion.docente_nombres} {asignacion.docente_apellidos}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          background: palette.blueChipBg,
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.375rem',
-                          border: `0.0625rem solid ${palette.blueChipBorder}`
-                        }}>
-                          <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.7rem', letterSpacing: '0.015em' }}>
-                            {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
-                          </span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                          {asignacion.dias.split(',').map((dia, idx) => (
-                            <span key={idx} style={{
-                              background: palette.purpleChipBg,
-                              color: palette.purpleChipText,
-                              padding: '0.125rem 0.375rem',
-                              borderRadius: '0.25rem',
-                              fontSize: '0.65rem',
-                              fontWeight: '600',
-                              border: `0.0625rem solid ${palette.purpleChipBorder}`
-                            }}>
-                              {dia.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
-                          {formatearFecha(asignacion.fecha_inicio)}
-                        </div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
-                          {formatearFecha(asignacion.fecha_fin)}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '0.125rem' }}>
-                          {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
-                        </div>
-                        <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
-                          {asignacion.porcentaje_ocupacion}%
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <div style={{
-                          background: getStatusStyles(asignacion.estado).background,
-                          color: getStatusStyles(asignacion.estado).color,
-                          padding: '0.125rem 0.625rem',
-                          borderRadius: '0.625rem',
-                          fontSize: '0.65rem',
-                          fontWeight: '700',
-                          display: 'inline-block',
-                          textTransform: 'uppercase',
-                          border: `0.0625rem solid ${getStatusStyles(asignacion.estado).border}`,
-                          letterSpacing: '0.045em'
-                        }}>
-                          {asignacion.estado}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <button
-                          onClick={() => handleEditAsignacion(asignacion)}
-                          style={{
-                            padding: '0.375rem',
-                            borderRadius: '0.5rem',
-                            border: '1px solid #f59e0b',
-                            backgroundColor: 'transparent',
-                            color: '#f59e0b',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f59e0b';
-                            e.currentTarget.style.color = 'white';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = '#f59e0b';
-                          }}
-                          title="Editar asignación"
-                        >
-                          <Edit style={{ width: '1rem', height: '1rem' }} />
-                        </button>
-                      </td>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{
+                      background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
+                      borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
+                    }}>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {asignacionesPaginadas.map((asignacion) => (
+                      <tr
+                        key={asignacion.id_asignacion}
+                        style={{
+                          borderBottom: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                          background: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem', marginBottom: '0.1rem' }}>{asignacion.aula_nombre}</div>
+                          <div style={{ color: palette.tableSubtext, fontSize: '0.65rem', letterSpacing: '0.015em' }}>{asignacion.codigo_aula}</div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem' }}>{asignacion.curso_nombre}</div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: palette.textSecondary, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                          {asignacion.docente_apellidos}, {asignacion.docente_nombres}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            background: palette.blueChipBg,
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.375rem',
+                            border: `0.0625rem solid ${palette.blueChipBorder}`
+                          }}>
+                            <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.7rem', letterSpacing: '0.015em' }}>
+                              {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
+                            </span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                            {asignacion.dias.split(',').map((dia, idx) => (
+                              <span key={idx} style={{
+                                background: palette.purpleChipBg,
+                                color: palette.purpleChipText,
+                                padding: '0.125rem 0.375rem',
+                                borderRadius: '0.25rem',
+                                fontSize: '0.65rem',
+                                fontWeight: '600',
+                                border: `0.0625rem solid ${palette.purpleChipBorder}`
+                              }}>
+                                {dia.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
+                            {formatearFecha(asignacion.fecha_inicio)}
+                          </div>
+                          <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
+                            {formatearFecha(asignacion.fecha_fin)}
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '0.125rem' }}>
+                            {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
+                          </div>
+                          <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
+                            {asignacion.porcentaje_ocupacion}%
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{
+                            background: getStatusStyles(asignacion.estado).background,
+                            color: getStatusStyles(asignacion.estado).color,
+                            padding: '0.125rem 0.625rem',
+                            borderRadius: '0.625rem',
+                            fontSize: '0.65rem',
+                            fontWeight: '700',
+                            display: 'inline-block',
+                            textTransform: 'uppercase',
+                            border: `0.0625rem solid ${getStatusStyles(asignacion.estado).border}`,
+                            letterSpacing: '0.045em'
+                          }}>
+                            {asignacion.estado}
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                            <button
+                              onClick={() => handleViewAsignacion(asignacion)}
+                              title="Ver detalles"
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #3b82f6',
+                                backgroundColor: 'transparent',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#3b82f6';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#3b82f6';
+                              }}
+                            >
+                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                            <button
+                              onClick={() => handleEditAsignacion(asignacion)}
+                              title="Editar asignación"
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #f59e0b',
+                                backgroundColor: 'transparent',
+                                color: '#f59e0b',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#f59e0b';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#f59e0b';
+                              }}
+                            >
+                              <Edit style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                            <button
+                              onClick={() => handleToggleEstado(asignacion)}
+                              title={asignacion.estado === 'activa' ? 'Inactivar' : 'Activar'}
+                              style={{
+                                padding: '0.375rem',
+                                borderRadius: '0.5rem',
+                                border: `1px solid ${asignacion.estado === 'activa' ? '#ef4444' : '#10b981'}`,
+                                backgroundColor: 'transparent',
+                                color: asignacion.estado === 'activa' ? '#ef4444' : '#10b981',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                const color = asignacion.estado === 'activa' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = color;
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = asignacion.estado === 'activa' ? '#ef4444' : '#10b981';
+                              }}
+                            >
+                              <Power style={{ width: '1rem', height: '1rem' }} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -1534,6 +1706,478 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               }
             }
           `}</style>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de confirmación para cambiar estado */}
+      {showConfirmModal && asignacionToToggle && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowConfirmModal(false);
+            setAsignacionToToggle(null);
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100000,
+            padding: '1rem',
+            backdropFilter: 'blur(8px)',
+            background: palette.modalOverlay
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: palette.modalSurface,
+              border: `1px solid ${palette.modalBorder}`,
+              borderRadius: '12px',
+              padding: '2rem',
+              maxWidth: '28rem',
+              width: '100%',
+              boxShadow: palette.modalShadow,
+              textAlign: 'center',
+              animation: 'scaleIn 0.3s ease-out'
+            }}
+          >
+            <div style={{
+              width: '3.5rem',
+              height: '3.5rem',
+              borderRadius: '50%',
+              background: asignacionToToggle.estado === 'activa'
+                ? 'rgba(239, 68, 68, 0.1)'
+                : 'rgba(16, 185, 129, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.25rem'
+            }}>
+              <Power size={28} color={asignacionToToggle.estado === 'activa' ? '#ef4444' : '#10b981'} />
+            </div>
+
+            <h3 style={{
+              marginBottom: '0.75rem',
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: palette.modalTextPrimary
+            }}>
+              ¿{asignacionToToggle.estado === 'activa' ? 'Inactivar' : 'Activar'} asignación?
+            </h3>
+
+            <p style={{
+              marginBottom: '1.75rem',
+              color: palette.textSecondary,
+              lineHeight: 1.5,
+              fontSize: '0.95rem'
+            }}>
+              Estás a punto de {asignacionToToggle.estado === 'activa' ? 'inactivar' : 'activar'} la asignación del aula <strong>{asignacionToToggle.aula_nombre}</strong> para el curso <strong>{asignacionToToggle.curso_nombre}</strong>.
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setAsignacionToToggle(null);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '10px',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)'}`,
+                  background: 'transparent',
+                  color: palette.textSecondary,
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmToggleEstado}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: asignacionToToggle.estado === 'activa'
+                    ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                    : 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {loading ? 'Procesando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de ver detalles */}
+      {showViewModal && selectedViewAsignacion && createPortal(
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowViewModal(false);
+            setSelectedViewAsignacion(null);
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100000,
+            padding: '1rem',
+            backdropFilter: 'blur(8px)',
+            background: palette.modalOverlay,
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: palette.modalSurface,
+              border: `1px solid ${palette.modalBorder}`,
+              borderRadius: '12px',
+              width: '92vw',
+              maxWidth: '600px',
+              maxHeight: '85vh',
+              margin: 'auto',
+              padding: isMobile ? '1.25rem' : '1.5rem',
+              color: palette.modalTextPrimary,
+              boxShadow: palette.modalShadow,
+              animation: 'scaleIn 0.3s ease-out',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: isMobile ? '0.75rem' : '1rem',
+              paddingBottom: isMobile ? '0.5rem' : '0.75rem',
+              borderBottom: `1px solid ${palette.modalDivider}`
+            }}>
+              <h2 style={{
+                margin: 0,
+                fontSize: isMobile ? '1.125rem' : '1.25rem',
+                fontWeight: 700,
+                color: palette.modalTextPrimary
+              }}>
+                Detalles de Asignación
+              </h2>
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setSelectedViewAsignacion(null);
+                }}
+                style={{
+                  background: palette.modalCloseBg,
+                  border: `1px solid ${palette.modalCloseBorder}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.375rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = palette.modalCloseHoverBg;
+                  e.currentTarget.style.borderColor = palette.modalCloseHoverBorder;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = palette.modalCloseBg;
+                  e.currentTarget.style.borderColor = palette.modalCloseBorder;
+                }}
+              >
+                <X size={18} color={palette.textSecondary} />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div style={{ display: 'grid', gap: '0.875rem' }}>
+              {/* Aula y Curso en una fila */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <MapPin size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Aula
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: palette.modalInputBg,
+                    border: `1px solid ${palette.modalInputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600
+                  }}>
+                    {selectedViewAsignacion.aula_nombre}
+                    <div style={{ fontSize: '0.7rem', color: palette.textMuted, fontWeight: 400, marginTop: '0.125rem' }}>
+                      {selectedViewAsignacion.codigo_aula}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <Calendar size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Curso
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: palette.modalInputBg,
+                    border: `1px solid ${palette.modalInputBorder}`,
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600
+                  }}>
+                    {selectedViewAsignacion.curso_nombre}
+                    <div style={{ fontSize: '0.7rem', color: palette.textMuted, fontWeight: 400, marginTop: '0.125rem' }}>
+                      {selectedViewAsignacion.tipo_curso_nombre}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Docente */}
+              <div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: palette.labelMuted,
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase'
+                }}>
+                  <Users size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                  Docente
+                </div>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  background: palette.modalInputBg,
+                  border: `1px solid ${palette.modalInputBorder}`,
+                  borderRadius: '0.5rem',
+                  fontSize: '0.8rem'
+                }}>
+                  {selectedViewAsignacion.docente_apellidos}, {selectedViewAsignacion.docente_nombres}
+                </div>
+              </div>
+
+              {/* Horario y Días */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    <Clock size={10} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                    Horario
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: palette.blueChipBg,
+                    border: `1px solid ${palette.blueChipBorder}`,
+                    borderRadius: '0.5rem',
+                    color: palette.blueChipText,
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    textAlign: 'center'
+                  }}>
+                    {selectedViewAsignacion.hora_inicio.substring(0, 5)} - {selectedViewAsignacion.hora_fin.substring(0, 5)}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Días
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: palette.modalInputBg,
+                    border: `1px solid ${palette.modalInputBorder}`,
+                    borderRadius: '0.5rem',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.25rem'
+                  }}>
+                    {selectedViewAsignacion.dias.split(',').map((dia, idx) => (
+                      <span key={idx} style={{
+                        background: palette.purpleChipBg,
+                        color: palette.purpleChipText,
+                        padding: '0.125rem 0.375rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        border: `1px solid ${palette.purpleChipBorder}`
+                      }}>
+                        {dia.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Período */}
+              <div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: palette.labelMuted,
+                  marginBottom: '0.375rem',
+                  textTransform: 'uppercase'
+                }}>
+                  Período del Curso
+                </div>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  background: palette.modalInputBg,
+                  border: `1px solid ${palette.modalInputBorder}`,
+                  borderRadius: '0.5rem',
+                  fontSize: '0.75rem',
+                  textAlign: 'center'
+                }}>
+                  {formatearFecha(selectedViewAsignacion.fecha_inicio)} - {formatearFecha(selectedViewAsignacion.fecha_fin)}
+                </div>
+              </div>
+
+              {/* Ocupación y Estado */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Ocupación
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: palette.modalInputBg,
+                    border: `1px solid ${palette.modalInputBorder}`,
+                    borderRadius: '0.5rem',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: palette.modalTextPrimary }}>
+                      {selectedViewAsignacion.estudiantes_matriculados}/{selectedViewAsignacion.capacidad_maxima}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: palette.textMuted, marginTop: '0.125rem' }}>
+                      {selectedViewAsignacion.porcentaje_ocupacion}%
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: palette.labelMuted,
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    Estado
+                  </div>
+                  <div style={{
+                    padding: '0.5rem 0.75rem',
+                    background: getStatusStyles(selectedViewAsignacion.estado).background,
+                    border: `1px solid ${getStatusStyles(selectedViewAsignacion.estado).border}`,
+                    borderRadius: '0.5rem',
+                    color: getStatusStyles(selectedViewAsignacion.estado).color,
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    textTransform: 'uppercase'
+                  }}>
+                    {selectedViewAsignacion.estado}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: `1px solid ${palette.modalDivider}` }}>
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setSelectedViewAsignacion(null);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '10px',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)'}`,
+                  background: 'transparent',
+                  color: palette.textSecondary,
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>,
         document.body
       )}
