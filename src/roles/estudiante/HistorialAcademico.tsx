@@ -368,13 +368,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                     }}>
                       {curso.nombre}
                     </h3>
-                    <p style={{
-                      fontSize: '0.75rem',
-                      color: 'rgba(255,255,255,0.9)',
-                      margin: 0
-                    }}>
-                      {curso.tipo_curso}
-                    </p>
+
                   </div>
                 </div>
 
@@ -429,7 +423,7 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                           </span>
                         </div>
                         <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '700' }}>
-                          {curso.horario.hora_inicio} - {curso.horario.hora_fin}
+                          {curso.horario.hora_inicio?.slice(0, 5)} - {curso.horario.hora_fin?.slice(0, 5)}
                         </div>
                       </div>
                     ) : (

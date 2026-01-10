@@ -15,6 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
+import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
 import '../../styles/responsive.css';
 
@@ -146,6 +147,16 @@ const PanelDashboardSuperAdmin = () => {
       clearInterval(interval);
     };
   }, []);
+
+  // Escuchar actualizaciones en tiempo real de conexiones activas
+  useSocket({
+    activeConnectionsUpdate: (data: { activeConnections: number }) => {
+      setSystemMetrics(prev => ({
+        ...prev,
+        activeConnections: data.activeConnections
+      }));
+    }
+  });
 
   const getStatusColor = (value: number, threshold: number) => {
     if (value < threshold * 0.6) return '#22c55e';

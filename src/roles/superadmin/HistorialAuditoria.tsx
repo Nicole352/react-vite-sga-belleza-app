@@ -1134,152 +1134,119 @@ const HistorialAuditoria: React.FC = () => {
           )}
 
           {/* Paginación */}
-          {(totalPaginas > 1 || stats.total > 0) && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '1rem',
-                marginTop: '2rem',
-                padding: '1rem',
-                backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.02)',
-                borderRadius: '8px',
-                flexWrap: 'wrap',
-              }}
-            >
-              {/* Información a la izquierda */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span style={{ color: theme.textSecondary, fontSize: '0.8125rem' }}>
-                  Página {paginaActual} de {totalPaginas}
-                </span>
-                <span style={{ color: theme.textMuted, fontSize: '0.8125rem' }}>
-                  • Total: {stats.total} registros
-                </span>
+          {!loading && auditorias.length > 0 && totalPaginas > 0 && (
+            <div className="pagination-container" style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'stretch' : 'center',
+              gap: isMobile ? '0.75rem' : '0',
+              padding: isMobile ? '8px' : '0.25rem 1rem',
+              background: darkMode
+                ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(254,242,242,0.96) 100%)',
+              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.14)'}`,
+              borderRadius: '0.75rem',
+              marginTop: '0.5rem',
+              marginBottom: isMobile ? '0.75rem' : '0.5rem'
+            }}>
+              <div style={{
+                color: darkMode ? 'rgba(226,232,240,0.8)' : 'rgba(30,41,59,0.85)',
+                fontSize: isMobile ? '0.75rem' : '0.8rem',
+                textAlign: isMobile ? 'center' : 'left'
+              }}>
+                Página {paginaActual} de {totalPaginas} • Total: {stats.total} registros
               </div>
-
-              {/* Controles de paginación a la derecha */}
-              {totalPaginas > 1 && (
-                <div
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                justifyContent: isMobile ? 'center' : 'flex-start',
+                flexWrap: 'wrap'
+              }}>
+                <button
+                  onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
+                  disabled={paginaActual === 1}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.375rem',
-                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: paginaActual === 1
+                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                      : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                    borderRadius: '0.625rem',
+                    color: paginaActual === 1
+                      ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                      : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                    fontWeight: 600,
+                    cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial',
+                    boxShadow: 'none'
                   }}
                 >
-                  {/* Botón Anterior */}
+                  <ChevronLeft size={isMobile ? 14 : 14} />
+                  {!isMobile && 'Anterior'}
+                </button>
+                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(pageNum => (
                   <button
-                    onClick={() => setPaginaActual(Math.max(1, paginaActual - 1))}
-                    disabled={paginaActual === 1}
+                    key={pageNum}
+                    onClick={() => setPaginaActual(pageNum)}
                     style={{
-                      padding: '0.5rem 0.875rem',
-                      backgroundColor: paginaActual === 1 ? theme.buttonSecondary : theme.buttonSecondary,
-                      color: paginaActual === 1 ? theme.textMuted : theme.buttonSecondaryText,
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '0.8125rem',
-                      fontWeight: '500',
-                      cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      opacity: paginaActual === 1 ? 0.5 : 1,
+                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                      background: paginaActual === pageNum
+                        ? (darkMode
+                          ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                          : 'linear-gradient(135deg, #fca5a5 0%, #ef4444 100%)')
+                        : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)'),
+                      border: paginaActual === pageNum
+                        ? `1px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`
+                        : `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                      borderRadius: '0.5rem',
+                      color: paginaActual === pageNum ? '#ffffff' : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (paginaActual !== 1) {
-                        e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (paginaActual !== 1) {
-                        e.currentTarget.style.backgroundColor = theme.buttonSecondary;
-                      }
+                      minWidth: isMobile ? '30px' : '2rem',
+                      boxShadow: 'none'
                     }}
                   >
-                    <ChevronLeft size={14} />
-                    Anterior
+                    {pageNum}
                   </button>
-
-                  {/* Botones de números de página */}
-                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => {
-                    const isActive = num === paginaActual;
-                    return (
-                      <button
-                        key={num}
-                        onClick={() => setPaginaActual(num)}
-                        style={{
-                          minWidth: '36px',
-                          height: '36px',
-                          padding: '0 0.5rem',
-                          backgroundColor: isActive ? '#dc2626' : theme.buttonSecondary,
-                          color: isActive ? '#ffffff' : theme.buttonSecondaryText,
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '0.8125rem',
-                          fontWeight: '500',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
-                          } else {
-                            e.currentTarget.style.backgroundColor = '#ef4444';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.backgroundColor = theme.buttonSecondary;
-                          } else {
-                            e.currentTarget.style.backgroundColor = '#dc2626';
-                          }
-                        }}
-                      >
-                        {num}
-                      </button>
-                    );
-                  })}
-
-                  {/* Botón Siguiente */}
-                  <button
-                    onClick={() => setPaginaActual(Math.min(totalPaginas, paginaActual + 1))}
-                    disabled={paginaActual === totalPaginas}
-                    style={{
-                      padding: '0.5rem 0.875rem',
-                      backgroundColor: paginaActual === totalPaginas ? theme.buttonSecondary : theme.buttonSecondary,
-                      color: paginaActual === totalPaginas ? theme.textMuted : theme.buttonSecondaryText,
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '0.8125rem',
-                      fontWeight: '500',
-                      cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      opacity: paginaActual === totalPaginas ? 0.5 : 1,
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (paginaActual !== totalPaginas) {
-                        e.currentTarget.style.backgroundColor = theme.buttonSecondaryHover;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (paginaActual !== totalPaginas) {
-                        e.currentTarget.style.backgroundColor = theme.buttonSecondary;
-                      }
-                    }}
-                  >
-                    Siguiente
-                    <ChevronRight size={14} />
-                  </button>
-                </div>
-              )}
+                ))}
+                <button
+                  onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
+                  disabled={paginaActual === totalPaginas}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isMobile ? '4px' : '0.25rem',
+                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                    background: paginaActual === totalPaginas
+                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(226,232,240,0.6)')
+                      : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)'),
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(226,232,240,0.75)'}`,
+                    borderRadius: '0.625rem',
+                    color: paginaActual === totalPaginas
+                      ? (darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(148,163,184,0.6)')
+                      : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                    fontWeight: 600,
+                    cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    flex: isMobile ? '1' : 'initial',
+                    boxShadow: 'none'
+                  }}
+                >
+                  {!isMobile && 'Siguiente'}
+                  <ChevronRight size={isMobile ? 14 : 14} />
+                </button>
+              </div>
             </div>
           )}
         </div>

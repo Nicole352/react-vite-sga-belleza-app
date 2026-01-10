@@ -26,7 +26,6 @@ interface UserProfile {
 interface Stats {
   totalAdmins: number;
   activeAdmins: number;
-  sessionsToday: number;
 }
 
 interface Activity {
@@ -43,8 +42,7 @@ const ConfiguracionPanel: React.FC = () => {
   const [isPhotoHovered, setIsPhotoHovered] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalAdmins: 0,
-    activeAdmins: 0,
-    sessionsToday: 0
+    activeAdmins: 0
   });
   const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,24 +125,6 @@ const ConfiguracionPanel: React.FC = () => {
         }));
       }
 
-      // Cargar sesiones de hoy (desde auditoría)
-      const today = new Date().toISOString().split('T')[0];
-      const auditRes = await fetch(`${API_BASE}/api/auditoria/historial-completo?fecha_inicio=${today}&fecha_fin=${today}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (auditRes.ok) {
-        const auditData = await auditRes.json();
-        const sessions = auditData.data?.auditorias?.filter((a: any) =>
-          a.tabla_afectada === 'sesiones_usuario' && a.operacion === 'INSERT'
-        ).length || 0;
-
-        setStats(prev => ({
-          ...prev,
-          sessionsToday: sessions
-        }));
-      }
-
 
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
@@ -219,7 +199,7 @@ const ConfiguracionPanel: React.FC = () => {
       {/* Estadísticas rápidas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : (isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'),
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
         gap: isMobile ? '0.5rem' : '0.75rem',
         marginBottom: isMobile ? '0.5rem' : '0.75rem'
       }}>
@@ -277,35 +257,6 @@ const ConfiguracionPanel: React.FC = () => {
             <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.65rem' }}>Activos</p>
             <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700' }}>
               {loading ? '...' : stats.activeAdmins}
-            </p>
-          </div>
-        </div>
-
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-          border: '1px solid rgba(16, 185, 129, 0.2)',
-          borderRadius: '0.5rem',
-          padding: '0.625rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <div style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '0.5rem',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'none'
-          }}>
-            <CheckCircle size={14} color="#fff" />
-          </div>
-          <div>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-muted)', fontSize: '0.65rem' }}>Sesiones Hoy</p>
-            <p style={{ margin: 0, color: 'var(--superadmin-text-primary)', fontSize: '1.125rem', fontWeight: '700' }}>
-              {loading ? '...' : stats.sessionsToday}
             </p>
           </div>
         </div>

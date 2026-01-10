@@ -40,8 +40,36 @@ interface CursoResumen {
   fecha_fin: string;
   aula_nombre?: string;
   aula_ubicacion?: string;
+  dias?: string;
   estado?: 'activo' | 'finalizado' | 'planificado' | 'cancelado';
 }
+
+const calculateNextClass = (diasStr: string | undefined): Date | null => {
+  if (!diasStr) return null;
+
+  const diasMap: { [key: string]: number } = {
+    'lunes': 1, 'martes': 2, 'miércoles': 3, 'miercoles': 3,
+    'jueves': 4, 'viernes': 5, 'sábado': 6, 'sabado': 6, 'domingo': 0
+  };
+
+  const daysLowerCase = diasStr.toLowerCase();
+  const cursoDias = Object.keys(diasMap).filter(d => daysLowerCase.includes(d)).map(d => diasMap[d]);
+
+  if (cursoDias.length === 0) return null;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  // Buscar la próxima fecha en los próximos 14 días
+  for (let i = 0; i < 14; i++) {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() + i);
+    if (cursoDias.includes(fecha.getDay())) {
+      return fecha;
+    }
+  }
+  return null;
+};
 
 const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const navigate = useNavigate();
@@ -469,31 +497,44 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
-              {cursos.filter(c => (c.estado || 'activo') === 'activo').slice(0, 2).map((curso, index) => (
-                <div key={curso.id_curso} style={{
-                  padding: '0.375rem 0.5rem',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
-                  borderRadius: '0.5rem',
-                  border: `1px solid ${theme.border}`
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.7rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
-                    <div style={{
-                      width: '0.375rem',
-                      height: '0.375rem',
-                      borderRadius: '50%',
-                      background: index === 0 ? theme.accent : theme.success,
-                      flexShrink: 0
-                    }} />
-                    <span style={{ color: theme.textPrimary, fontWeight: '600', flexShrink: 0 }}>
-                      {new Date(curso.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                    </span>
-                    <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
-                    <span style={{ color: theme.textPrimary, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {curso.nombre}
-                    </span>
+              {cursos
+                .filter(c => (c.estado || 'activo') === 'activo')
+                .map(c => ({ ...c, nextClassDate: calculateNextClass(c.dias) || new Date(c.fecha_inicio) }))
+                .sort((a, b) => a.nextClassDate.getTime() - b.nextClassDate.getTime())
+                .slice(0, 3)
+                .map((curso, index) => (
+                  <div key={curso.id_curso} style={{
+                    padding: '0.375rem 0.5rem',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
+                    borderRadius: '0.5rem',
+                    border: `1px solid ${theme.border}`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.7rem', color: theme.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                      <div style={{
+                        width: '0.375rem',
+                        height: '0.375rem',
+                        borderRadius: '50%',
+                        background: index === 0 ? theme.accent : theme.success,
+                        flexShrink: 0
+                      }} />
+                      <span style={{ color: theme.textPrimary, fontWeight: '600', flexShrink: 0 }}>
+                        {curso.nextClassDate.toLocaleDateString('es-ES')}
+                      </span>
+                      <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                      <span style={{ color: theme.textPrimary, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {curso.nombre}
+                      </span>
+                      {curso.aula_nombre && (
+                        <>
+                          <span style={{ color: theme.textMuted, flexShrink: 0 }}>·</span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {curso.aula_nombre}{curso.aula_ubicacion ? ` - ${curso.aula_ubicacion}` : ''}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
               {cursos.filter(c => (c.estado || 'activo') === 'activo').length === 0 && (
                 <div style={{
