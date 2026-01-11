@@ -184,302 +184,217 @@ const Cursos = () => {
           transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.9)',
           opacity: isVisible ? 1 : 0,
           transition: `opacity 600ms ease, transform 600ms ease`,
-          transitionDelay: `${index * 150}ms`
+          transitionDelay: `${index * 150}ms`,
+          perspective: '1000px',
+          height: '360px'
         }}
         onMouseEnter={() => setHoveredCard(curso.id)}
         onMouseLeave={() => setHoveredCard(null)}
       >
         <div
-          className="curso-card"
+          className="flip-card-inner"
           style={{
-            background: theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.08)'
-              : 'rgba(255, 255, 255, 0.25)',
-            backdropFilter: 'blur(25px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(25px) saturate(180%)',
-            borderRadius: '32px',
-            boxShadow: isHovered
-              ? '0 20px 50px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
-              : '0 10px 30px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.1)',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
-            transform: isHovered ? 'translateY(-6px) scale(1.005)' : 'translateY(0) scale(1)',
             position: 'relative',
-            height: '460px',
-            border: theme === 'dark'
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(255, 255, 255, 0.3)',
-            willChange: 'transform, box-shadow'
+            width: '100%',
+            height: '100%',
+            transition: 'transform 0.15s ease-out',
+            transformStyle: 'preserve-3d',
+            transform: isHovered ? 'rotateY(180deg)' : 'rotateY(0deg)'
           }}
         >
-          {/* Reflejo tipo shimmer */}
-          <span className="shimmer-overlay" aria-hidden="true" />
-
-          {/* Badge de categoría con glassmorphism */}
+          {/* FRENTE DE LA CARD */}
           <div
-            className="badge-categoria"
+            className="flip-card-front"
             style={{
               position: 'absolute',
-              top: 20,
-              right: 20,
-              background: `linear-gradient(135deg, ${curso.color}ee, ${curso.color}cc)`,
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              color: '#ffffff',
-              padding: '8px 16px',
-              borderRadius: '24px',
-              fontSize: '0.82rem',
-              fontWeight: '700',
-              zIndex: 3,
-              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              transition: 'transform 0.25s ease-out, box-shadow 0.25s ease-out',
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-              letterSpacing: '0.5px',
-              transform: isHovered ? 'scale(1.05) translateY(-2px)' : 'scale(1) translateY(0)'
-            }}
-          >
-            {curso.categoria}
-          </div>
-
-          {/* Thumbnail con parallax y profundidad */}
-          <div
-            className="thumbnail-container"
-            style={{
-              position: 'relative',
-              height: '280px',
-              background: 'linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.65))',
-              overflow: 'hidden',
-              borderRadius: '32px 32px 0 0'
-            }}
-          >
-            <img
-              src={curso.imagen}
-              alt={curso.titulo}
-              className="curso-thumbnail"
-              style={{
-                display: 'block',
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transition: 'transform 0.3s ease-out, filter 0.3s ease-out',
-                transform: isHovered ? 'scale(1.04) translateY(-2px)' : 'scale(1) translateY(0)',
-                filter: isHovered ? 'brightness(1.08) contrast(1.02)' : 'brightness(1) contrast(1)',
-                willChange: 'transform, filter'
-              }}
-            />
-
-            {/* Desvanecido inferior con luz difusa */}
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: '140px',
-                background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.38) 45%, ${theme === 'dark' ? 'rgba(11,11,11,0.85)' : 'rgba(255,255,255,0.85)'} 100%)`,
-                opacity: isHovered ? 0.96 : 0.88,
-                transition: 'opacity 520ms ease',
-                pointerEvents: 'none'
-              }}
-            />
-
-            {/* Icono circular sobre la imagen con efecto líquido */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 18,
-                left: 18,
-                background: `linear-gradient(135deg, ${curso.color}, ${curso.color}dd)`,
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                borderRadius: '999px',
-                width: '50px',
-                height: '50px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                transform: isHovered ? 'translateY(-72px) scale(1.1)' : 'translateY(0) scale(1)',
-                opacity: isHovered ? 0 : 1,
-                transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 520ms ease',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
-              }}
-            >
-              {curso.icon}
-            </div>
-          </div>
-
-          {/* Panel de contenido glassmorphism */}
-          <div
-            style={{
-              position: 'relative',
-              background: theme === 'dark'
-                ? 'rgba(11, 11, 11, 0.75)'
-                : 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(20px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(150%)',
               width: '100%',
-              padding: '1.2rem',
-              transform: isHovered ? 'translateY(-60px)' : 'translateY(0)',
-              transition: 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
-              boxShadow: '0 -1px 0 rgba(0,0,0,0.08) inset',
-              borderTop: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`,
-              willChange: 'margin-top'
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              background: theme === 'dark'
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(25px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+              borderRadius: '1rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.1)',
+              overflow: 'hidden',
+              border: theme === 'dark'
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(255, 255, 255, 0.3)'
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Imagen */}
+            <div style={{ height: '290px', overflow: 'hidden', borderRadius: '1rem 1rem 0 0' }}>
+              <img
+                src={curso.imagen}
+                alt={curso.titulo}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            </div>
+
+            {/* Contenido básico */}
+            <div style={{ padding: '0.85rem' }}>
               <h3
                 style={{
-                  fontSize: '1rem',
+                  fontSize: '0.85rem',
                   fontWeight: 700,
                   color: theme === 'dark' ? 'rgba(255,255,255,0.98)' : 'rgba(31, 41, 55, 0.98)',
                   margin: 0,
-                  paddingBottom: 4,
-                  lineHeight: 1.25,
-                  letterSpacing: '0px'
+                  marginBottom: '0.5rem'
                 }}
               >
                 {curso.titulo}
               </h3>
 
-              <h4
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={12} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
+                  <span style={{ fontSize: '0.65rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
+                    {curso.duracion}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Star size={12} fill="#fbbf24" color="#fbbf24" />
+                  <span style={{ fontSize: '0.65rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
+                    {curso.rating}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* REVERSO DE LA CARD */}
+          <div
+            className="flip-card-back"
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              background: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.15))'
+                : 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1))',
+              backdropFilter: 'blur(25px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(25px) saturate(180%)',
+              borderRadius: '1rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08)',
+              overflow: 'hidden',
+              border: '2px solid #fbbf24',
+              padding: '1.25rem',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div>
+              <h3
                 style={{
+                  fontSize: '1rem',
+                  fontWeight: 800,
+                  color: theme === 'dark' ? '#fff' : '#1f2937',
                   margin: 0,
-                  paddingBottom: 6,
-                  color: '#fbbf24',
-                  fontSize: '0.8rem',
-                  fontWeight: 600
+                  marginBottom: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
                 }}
               >
-                {curso.categoria}
-              </h4>
+                {React.cloneElement(curso.icon as React.ReactElement, { size: 20, color: '#fbbf24' })}
+                {curso.titulo}
+              </h3>
 
               <p
                 style={{
-                  fontSize: '0.85rem',
-                  color: theme === 'dark' ? 'rgba(255,255,255,0.78)' : 'rgba(31, 41, 55, 0.78)',
-                  lineHeight: 1.5,
+                  fontSize: '0.75rem',
+                  color: theme === 'dark' ? 'rgba(255,255,255,0.85)' : 'rgba(31, 41, 55, 0.85)',
+                  lineHeight: 1.6,
                   margin: 0,
-                  overflow: 'hidden',
-                  maxHeight: isHovered ? 132 : 0,
-                  opacity: isHovered ? 1 : 0,
-                  transition: 'max-height 0.3s ease-out, opacity 0.25s ease-out'
+                  marginBottom: '1rem'
                 }}
               >
                 {curso.descripcion}
               </p>
 
-              {/* Métricas del curso con glassmorphism */}
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginTop: 14,
-                  padding: '12px 14px',
-                  background: theme === 'dark'
-                    ? 'rgba(255, 255, 255, 0.05)'
-                    : 'rgba(249, 250, 251, 0.6)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  borderRadius: 16,
-                  border: theme === 'dark'
-                    ? '1px solid rgba(255, 255, 255, 0.08)'
-                    : '1px solid rgba(209, 160, 42, 0.15)',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '0.5rem',
+                  marginBottom: '1rem'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Clock size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
-                    fontWeight: 500
-                  }}>
-                    {curso.duracion}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Users size={16} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
-                    fontWeight: 500
-                  }}>
+                <div
+                  style={{
+                    background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
+                    textAlign: 'center'
+                  }}
+                >
+                  <Users size={14} color="#fbbf24" style={{ marginBottom: '0.25rem' }} />
+                  <div style={{ fontSize: '0.7rem', color: theme === 'dark' ? '#fff' : '#1f2937', fontWeight: 600 }}>
                     {curso.estudiantes}
-                  </span>
+                  </div>
+                  <div style={{ fontSize: '0.6rem', color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(31,41,55,0.6)' }}>
+                    Estudiantes
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)',
-                    fontWeight: 500
-                  }}>
+                <div
+                  style={{
+                    background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
+                    textAlign: 'center'
+                  }}
+                >
+                  <Award size={14} color="#fbbf24" style={{ marginBottom: '0.25rem' }} />
+                  <div style={{ fontSize: '0.7rem', color: theme === 'dark' ? '#fff' : '#1f2937', fontWeight: 600 }}>
                     {curso.rating}
-                  </span>
+                  </div>
+                  <div style={{ fontSize: '0.6rem', color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(31,41,55,0.6)' }}>
+                    Rating
+                  </div>
                 </div>
               </div>
-
-              {/* Botón táctil iOS con glassmorphism */}
-              <Link
-                to={curso.enlace}
-                className="btn-ver-curso"
-                style={{
-                  marginTop: 14,
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  color: '#0b0b0b',
-                  fontWeight: 800,
-                  border: 'none',
-                  borderRadius: 999,
-                  padding: '10px 16px',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  boxShadow: `0 10px 28px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 10,
-                  textDecoration: 'none',
-                  transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
-                  transform: isHovered ? 'translateY(-1px) scale(1.02)' : 'translateY(0) scale(1)',
-                  letterSpacing: '0.3px'
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(-1px) scale(1.02)';
-                  el.style.boxShadow = '0 12px 36px rgba(251, 191, 36, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(0) scale(1)';
-                  el.style.boxShadow = '0 10px 28px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
-                }}
-                onMouseDown={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(0) scale(0.97)';
-                }}
-                onMouseUp={(e) => {
-                  const el = e.currentTarget as unknown as HTMLElement;
-                  el.style.transform = 'translateY(-1px) scale(1.02)';
-                }}
-              >
-                <Sparkles size={18} />
-                Ver Curso
-                <ChevronRight
-                  size={18}
-                  style={{
-                    transform: isHovered ? 'translateX(2px)' : 'translateX(0)',
-                    transition: 'transform 500ms ease'
-                  }}
-                />
-              </Link>
             </div>
+
+            <Link
+              to={curso.enlace}
+              style={{
+                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                color: '#fff',
+                fontWeight: 800,
+                border: 'none',
+                borderRadius: '999px',
+                padding: '0.65rem 1rem',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                boxShadow: '0 10px 28px rgba(251, 191, 36, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                textDecoration: 'none',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 12px 36px rgba(251, 191, 36, 0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 28px rgba(251, 191, 36, 0.4)';
+              }}
+            >
+              <Sparkles size={16} />
+              Ver Curso Completo
+              <ChevronRight size={16} />
+            </Link>
           </div>
         </div>
       </div>
@@ -499,11 +414,6 @@ const Cursos = () => {
               opacity: 1;
               transform: translateY(0);
             }
-          }
-          
-          @keyframes shimmer {
-            0% { left: -130%; }
-            100% { left: 130%; }
           }
           
           @keyframes float {
@@ -538,25 +448,6 @@ const Cursos = () => {
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-          }
-          
-          /* Reflejo tipo shimmer glassmorphism */
-          .shimmer-overlay {
-            position: absolute;
-            top: 0;
-            left: -130%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
-            transform: skewX(-15deg);
-            animation: shimmer 8s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 2;
-          }
-          
-          .curso-card:hover .shimmer-overlay {
-            animation-duration: 3s;
-            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.25), rgba(255,255,255,0));
           }
           
           /* Animación microinteracción badge */
@@ -605,7 +496,7 @@ const Cursos = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '6rem',
+          paddingTop: '7rem',
           paddingBottom: '0px'
         }}
       >
@@ -641,7 +532,7 @@ const Cursos = () => {
             data-aos="fade-up"
             style={{
               textAlign: 'center',
-              marginBottom: '1.5rem',
+              marginBottom: '0.75rem',
               transform: isVisible ? 'translateY(0)' : 'translateY(1.875rem)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -650,13 +541,13 @@ const Cursos = () => {
             <h1
               className="gradient-text"
               style={{
-                fontSize: '2.5rem',
+                fontSize: '1.5rem',
                 fontWeight: '800',
                 color: '#1a1a1a',
+                marginTop: '-8px',
                 marginBottom: '0.5rem',
                 lineHeight: 1.1,
-                textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)',
-                letterSpacing: '-1px'
+                textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
               }}
             >
               Nuestros Cursos
@@ -666,59 +557,58 @@ const Cursos = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px',
-                fontSize: '1.25rem',
+                gap: '0.5rem',
+                fontSize: '0.85rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                marginBottom: '1rem',
+                marginBottom: '0.5rem',
                 flexWrap: 'wrap',
-                padding: '0 16px'
+                padding: '0 0.75rem'
               }}
             >
-              <Sparkles size={24} color="#fbbf24" />
+              <Sparkles size={16} color="#fbbf24" />
               <span style={{ textAlign: 'center' }}>Elige el curso que más te inspire y comienza tu transformación profesional</span>
             </div>
             <p
               style={{
-                fontSize: '1rem',
+                fontSize: '0.75rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(31, 41, 55, 0.7)',
                 maxWidth: '600px',
-                margin: '0 auto 1.5rem',
-                lineHeight: 1.6,
-                padding: '0 16px'
+                margin: '0 auto',
+                lineHeight: 1.5,
+                padding: '0 0.75rem'
               }}
             >
               Programas diseñados por expertos de la industria con certificados profesionales
             </p>
           </div>
 
-          {/* Grid de cursos - primeras 6 cards */}
+          {/* Grid de cursos - primeras 4 cards */}
           <div
             data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
-              gap: '1.5rem',
-              marginBottom: '2.5rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: '1rem',
+              marginBottom: '1.25rem'
             }}
           >
-            {cursosData.slice(0, 6).map((curso, index) => (
+            {cursosData.slice(0, 4).map((curso, index) => (
               <AnimatedCard key={curso.id} curso={curso} index={index} />
             ))}
           </div>
 
-          {/* Grid de 2 columnas centrado para las últimas 2 cards */}
+          {/* Grid de 4 columnas para las últimas 4 cards */}
           <div
             data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 460px))',
-              gap: '1.5rem',
-              marginBottom: '6rem',
-              justifyContent: 'center'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: '1rem',
+              marginBottom: '1.25rem'
             }}
           >
-            {cursosData.slice(6).map((curso, index) => (
-              <AnimatedCard key={curso.id} curso={curso} index={index + 6} />
+            {cursosData.slice(4).map((curso, index) => (
+              <AnimatedCard key={curso.id} curso={curso} index={index + 4} />
             ))}
           </div>
         </div>

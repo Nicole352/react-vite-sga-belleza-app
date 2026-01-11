@@ -417,9 +417,9 @@ const DetalleCurso: React.FC = () => {
     sectionId
   }) => {
     const baseStyle: React.CSSProperties = {
-      borderRadius: '16px',
-      marginBottom: '1.5rem',
-      padding: '1.5rem',
+      borderRadius: '1rem',
+      marginBottom: '1rem',
+      padding: '1rem',
       cursor: isExpandable ? 'pointer' : 'default',
       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)',
@@ -506,10 +506,10 @@ const DetalleCurso: React.FC = () => {
               justifyContent: 'space-between',
               marginBottom: '20px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {icon}
                 <h2 style={{
-                  fontSize: '1.25rem',
+                  fontSize: '0.95rem',
                   fontWeight: '600',
                   margin: 0,
                   background: variant === 'premium' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'inherit',
@@ -525,7 +525,7 @@ const DetalleCurso: React.FC = () => {
                   transition: 'transform 0.3s ease',
                   transform: activeSection === sectionId ? 'rotate(180deg)' : 'rotate(0deg)'
                 }}>
-                  <ChevronDown size={24} />
+                  <ChevronDown size={18} />
                 </div>
               )}
             </div>
@@ -551,10 +551,10 @@ const DetalleCurso: React.FC = () => {
       display: 'inline-flex',
       alignItems: 'center',
       gap: '12px',
-      padding: '16px 32px',
+      padding: '0.65rem 1.25rem',
       borderRadius: '50px',
       fontWeight: '700',
-      fontSize: '1.1rem',
+      fontSize: '0.85rem',
       textDecoration: 'none',
       border: 'none',
       cursor: 'pointer',
@@ -813,7 +813,7 @@ const DetalleCurso: React.FC = () => {
           : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
-        paddingTop: '3.75rem',
+        paddingTop: '7rem',
         paddingBottom: 0
       }}>
         {/* Partículas flotantes de fondo */}
@@ -841,19 +841,19 @@ const DetalleCurso: React.FC = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
+              gap: 8,
               background: theme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.95)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: '50px',
-              padding: '12px 24px',
+              padding: '0.5rem 1rem',
               cursor: 'pointer',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
               color: '#fbbf24',
-              margin: '24px 0 40px 0',
+              margin: '0.75rem 0 1rem 0',
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
               fontWeight: '600',
-              fontSize: '1.1rem'
+              fontSize: '0.85rem'
             }}
             onMouseEnter={(e) => {
               const target = e.currentTarget as HTMLElement;
@@ -866,7 +866,7 @@ const DetalleCurso: React.FC = () => {
               target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
             }}
           >
-            <ArrowLeftCircle size={24} />
+            <ArrowLeftCircle size={18} />
             Volver
           </button>
 
@@ -874,11 +874,11 @@ const DetalleCurso: React.FC = () => {
           <div className="header-content" style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 24,
-            marginBottom: '2rem',
-            padding: '1.5rem',
+            gap: 16,
+            marginBottom: '1rem',
+            padding: '1rem',
             background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '32px',
+            borderRadius: '1rem',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(20px)',
             transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
@@ -889,7 +889,7 @@ const DetalleCurso: React.FC = () => {
           }}>
             <div style={{
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '1rem',
               overflow: 'hidden',
               boxShadow: '0 20px 40px rgba(251, 191, 36, 0.3)'
             }}>
@@ -898,8 +898,8 @@ const DetalleCurso: React.FC = () => {
                 alt={curso.titulo}
                 className="header-image"
                 style={{
-                  width: 140,
-                  height: 140,
+                  width: 90,
+                  height: 90,
                   objectFit: 'cover',
                   transition: 'transform 0.3s ease'
                 }}
@@ -915,17 +915,18 @@ const DetalleCurso: React.FC = () => {
             </div>
             <div style={{ flex: 1 }}>
               <h1 className="gradient-text header-title" style={{
-                fontSize: '2rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
-                marginBottom: 8,
+                marginTop: '-8px',
+                marginBottom: '0.35rem',
                 lineHeight: 1.1
               }}>
                 {curso.titulo}
               </h1>
               <p className="header-description" style={{
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                fontSize: '1rem',
-                marginBottom: 16,
+                fontSize: '0.75rem',
+                marginBottom: '0.75rem',
                 lineHeight: 1.5
               }}>
                 {curso.descripcion}
@@ -934,67 +935,67 @@ const DetalleCurso: React.FC = () => {
               {/* Métricas del curso */}
               <div className="metrics-container" style={{
                 display: 'flex',
-                gap: 32,
+                gap: 16,
                 alignItems: 'center',
                 flexWrap: 'wrap'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Star size={20} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{ color: '#fbbf24', fontWeight: '600' }}>{curso.rating}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Star size={14} fill="#fbbf24" color="#fbbf24" />
+                  <span style={{ color: '#fbbf24', fontWeight: '600', fontSize: '0.75rem' }}>{curso.rating}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Users size={20} color="#fff" />
-                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>{curso.estudiantes} estudiantes</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Users size={14} color="#fff" />
+                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.75rem' }}>{curso.estudiantes} estudiantes</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Award size={20} color="#fbbf24" />
-                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>{curso.certificacion}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Award size={14} color="#fbbf24" />
+                  <span style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.75rem' }}>{curso.certificacion}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sección Duración */}
-          <SectionCard
+            <SectionCard
             variant="default"
             delay={200}
-            icon={<Clock size={28} color="#fbbf24" />}
+            icon={<Clock size={20} color="#fbbf24" />}
             title="Duración del Curso"
           >
             <div className="duration-content" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
               <div style={{ flex: 1 }}>
                 <div className="duration-grid" style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                  gap: 24,
-                  marginBottom: 24
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem'
                 }}>
                   <div className="duration-card" style={{
-                    padding: '20px',
+                    padding: '0.75rem',
                     background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '16px',
+                    borderRadius: '0.75rem',
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
-                    <Calendar size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1.2rem' }}>
+                    <Calendar size={18} color="#fbbf24" style={{ marginBottom: '0.35rem' }} />
+                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.95rem' }}>
                       {curso.duracion}
                     </div>
-                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.9rem' }}>Duración total</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Duración total</div>
                   </div>
                   <div className="duration-card" style={{
-                    padding: '20px',
+                    padding: '0.75rem',
                     background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '16px',
+                    borderRadius: '0.75rem',
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                   }}>
-                    <BookOpen size={24} color="#fbbf24" style={{ marginBottom: 8 }} />
-                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1.2rem' }}>
+                    <BookOpen size={18} color="#fbbf24" style={{ marginBottom: '0.35rem' }} />
+                    <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.95rem' }}>
                       Modalidad Mixta
                     </div>
-                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.9rem' }}>Presencial + Virtual</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Presencial + Virtual</div>
                   </div>
                 </div>
-                <p style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                <p style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.85rem', lineHeight: 1.6 }}>
                   Nuestro programa está diseñado para ofrecerte una experiencia de aprendizaje completa
                   y flexible, combinando la práctica presencial con recursos digitales de vanguardia.
                 </p>
@@ -1004,16 +1005,16 @@ const DetalleCurso: React.FC = () => {
                 alt="Duración"
                 className="duration-image"
                 style={{
-                  width: 160,
-                  height: 160,
-                  borderRadius: 20,
+                  width: 100,
+                  height: 100,
+                  borderRadius: '0.75rem',
                   objectFit: 'cover',
                   boxShadow: '0 12px 32px rgba(251, 191, 36, 0.2)'
                 }}
               />
             </div>
             <AnimatedButton href={`/pago?curso=${cursoKey}`}>
-              <Sparkles size={18} />
+              <Sparkles size={14} />
               Inscríbete Ahora
             </AnimatedButton>
           </SectionCard>
@@ -1022,28 +1023,28 @@ const DetalleCurso: React.FC = () => {
           <SectionCard
             variant="gold"
             delay={400}
-            icon={<Check size={28} color="#000" />}
+            icon={<Check size={20} color="#000" />}
             title="Requisitos de Ingreso"
           >
             <div className="requisitos-grid" style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: 24,
-              marginBottom: 24
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '0.75rem',
+              marginBottom: '0.75rem'
             }}>
               {curso.requisitos.map((req, idx) => (
                 <div key={idx} className="requisito-card" style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
-                  padding: '12px 16px',
+                  gap: 8,
+                  padding: '0.5rem 0.75rem',
                   background: 'rgba(0, 0, 0, 0.1)',
-                  borderRadius: '12px',
+                  borderRadius: '0.75rem',
                   border: '1px solid rgba(0, 0, 0, 0.1)'
                 }}>
                   <div style={{
-                    width: 40,
-                    height: 40,
+                    width: 28,
+                    height: 28,
                     borderRadius: '50%',
                     background: 'rgba(0, 0, 0, 0.2)',
                     display: 'flex',
@@ -1051,10 +1052,10 @@ const DetalleCurso: React.FC = () => {
                     justifyContent: 'center',
                     flexShrink: 0
                   }}>
-                    <Check size={20} color="#000" />
+                    <Check size={14} color="#000" />
                   </div>
                   <span style={{
-                    fontSize: '0.95rem',
+                    fontSize: '0.75rem',
                     fontWeight: '500',
                     color: '#000'
                   }}>
@@ -1065,14 +1066,14 @@ const DetalleCurso: React.FC = () => {
             </div>
             <p style={{
               color: 'rgba(0, 0, 0, 0.7)',
-              fontSize: '0.85rem',
+              fontSize: '0.7rem',
               fontStyle: 'italic',
               marginBottom: 0
             }}>
               Todos los requisitos son flexibles y evaluamos cada caso de manera individual.
             </p>
             <AnimatedButton href={`/pago?curso=${cursoKey}`} variant="primary">
-              <Sparkles size={18} />
+              <Sparkles size={14} />
               Consultar Admisión
             </AnimatedButton>
           </SectionCard>
@@ -1081,24 +1082,24 @@ const DetalleCurso: React.FC = () => {
           <SectionCard
             variant="premium"
             delay={600}
-            icon={<BookOpen size={28} color="#fbbf24" />}
+            icon={<BookOpen size={20} color="#fbbf24" />}
             title="Malla Curricular"
             isExpandable={true}
             sectionId="malla"
           >
             <div className="malla-grid" style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-              gap: 24
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '0.75rem'
             }}>
               {curso.malla.map((modulo, idx) => (
                 <div
                   key={idx}
                   className="malla-card"
                   style={{
-                    padding: '16px',
+                    padding: '0.75rem',
                     background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '12px',
+                    borderRadius: '0.75rem',
                     border: '1px solid rgba(251, 191, 36, 0.3)',
                     transition: 'all 0.3s ease',
                     cursor: 'pointer'
@@ -1117,12 +1118,12 @@ const DetalleCurso: React.FC = () => {
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 16,
-                    marginBottom: 12
+                    gap: 8,
+                    marginBottom: '0.5rem'
                   }}>
                     <div style={{
-                      width: 32,
-                      height: 32,
+                      width: 24,
+                      height: 24,
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                       display: 'flex',
@@ -1130,15 +1131,15 @@ const DetalleCurso: React.FC = () => {
                       justifyContent: 'center',
                       color: '#000',
                       fontWeight: '700',
-                      fontSize: '0.9rem'
+                      fontSize: '0.7rem'
                     }}>
                       {idx + 1}
                     </div>
-                    <Play size={16} color="#fbbf24" />
+                    <Play size={12} color="#fbbf24" />
                   </div>
                   <h3 style={{
                     color: theme === 'dark' ? '#fff' : '#1f2937',
-                    fontSize: '1rem',
+                    fontSize: '0.8rem',
                     fontWeight: '600',
                     margin: 0,
                     lineHeight: 1.3
@@ -1149,7 +1150,7 @@ const DetalleCurso: React.FC = () => {
               ))}
             </div>
             <AnimatedButton href={`/pago?curso=${cursoKey}`}>
-              <BookOpen size={18} />
+              <BookOpen size={14} />
               Ver Programa Completo
             </AnimatedButton>
           </SectionCard>
@@ -1158,51 +1159,51 @@ const DetalleCurso: React.FC = () => {
           <SectionCard
             variant="glass"
             delay={800}
-            icon={<CreditCard size={28} color="#fbbf24" />}
+            icon={<CreditCard size={20} color="#fbbf24" />}
             title="Plan de Pago y Modalidad"
           >
             <div className="promociones-grid" style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-              gap: 24,
-              marginBottom: 24
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '0.75rem',
+              marginBottom: '0.75rem'
             }}>
               {curso.promociones.map((promo, idx) => (
                 <div key={idx} className="promocion-card" style={{
-                  padding: '16px',
+                  padding: '0.75rem',
                   background: 'rgba(251, 191, 36, 0.1)',
-                  borderRadius: '16px',
+                  borderRadius: '0.75rem',
                   border: '2px solid rgba(251, 191, 36, 0.3)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
                   <div style={{
                     position: 'absolute',
-                    top: 16,
-                    right: 16,
+                    top: 8,
+                    right: 8,
                     background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                     borderRadius: '50%',
-                    width: 40,
-                    height: 40,
+                    width: 28,
+                    height: 28,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     animation: 'pulse 2s infinite'
                   }}>
-                    <Gift size={20} color="#000" />
+                    <Gift size={14} color="#000" />
                   </div>
                   <h4 style={{
                     color: '#fbbf24',
-                    fontSize: '1rem',
+                    fontSize: '0.8rem',
                     fontWeight: '700',
-                    marginBottom: 8,
-                    paddingRight: 40
+                    marginBottom: '0.35rem',
+                    paddingRight: 28
                   }}>
                     Oferta Especial {idx + 1}
                   </h4>
                   <p style={{
                     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.9)',
-                    fontSize: '0.9rem',
+                    fontSize: '0.7rem',
                     margin: 0,
                     lineHeight: 1.4
                   }}>
@@ -1212,29 +1213,29 @@ const DetalleCurso: React.FC = () => {
               ))}
             </div>
             <div style={{
-              padding: '24px',
+              padding: '0.75rem',
               background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2))',
-              borderRadius: '20px',
+              borderRadius: '1rem',
               border: '1px solid rgba(251, 191, 36, 0.4)',
               textAlign: 'center'
             }}>
               <h3 className="gradient-text" style={{
-                fontSize: '1.8rem',
+                fontSize: '1.25rem',
                 fontWeight: '700',
-                marginBottom: 12
+                marginBottom: '0.5rem'
               }}>
                 {curso.precio}
               </h3>
               <p style={{
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                fontSize: '1rem',
+                fontSize: '0.75rem',
                 margin: 0
               }}>
                 Precio especial por tiempo limitado
               </p>
             </div>
             <AnimatedButton href={`/pago?curso=${cursoKey}`}>
-              <Gift size={18} />
+              <Gift size={14} />
               Aprovechar Promoción
             </AnimatedButton>
           </SectionCard>
@@ -1246,17 +1247,17 @@ const DetalleCurso: React.FC = () => {
           >
             <div style={{ textAlign: 'center' }}>
               <h2 style={{
-                fontSize: '1.8rem',
+                fontSize: '1.25rem',
                 fontWeight: '700',
                 color: '#000',
-                marginBottom: 12
+                marginBottom: '0.5rem'
               }}>
                 ¡Transforma tu Futuro Hoy!
               </h2>
               <p style={{
-                fontSize: '1rem',
+                fontSize: '0.8rem',
                 color: 'rgba(0, 0, 0, 0.8)',
-                marginBottom: 24,
+                marginBottom: '0.75rem',
                 lineHeight: 1.5
               }}>
                 Únete a los miles de profesionales que han cambiado sus vidas con nuestros cursos.
@@ -1266,12 +1267,12 @@ const DetalleCurso: React.FC = () => {
 
               <div style={{
                 display: 'flex',
-                gap: 20,
+                gap: '0.75rem',
                 justifyContent: 'center',
                 flexWrap: 'wrap'
               }}>
                 <AnimatedButton href={`/pago?curso=${cursoKey}`}>
-                  <Sparkles size={20} />
+                  <Sparkles size={14} />
                   Inscribirme Ahora
                 </AnimatedButton>
                 <Link
@@ -1279,17 +1280,17 @@ const DetalleCurso: React.FC = () => {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    padding: '16px 32px',
+                    gap: '0.5rem',
+                    padding: '0.65rem 1.25rem',
                     borderRadius: '50px',
                     fontWeight: '700',
-                    fontSize: '1.1rem',
+                    fontSize: '0.85rem',
                     textDecoration: 'none',
                     background: 'rgba(0, 0, 0, 0.2)',
                     color: '#000',
                     border: '2px solid rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.3s ease',
-                    marginTop: '20px'
+                    marginTop: '0.75rem'
                   }}
                   onMouseEnter={(e) => {
                     const target = e.currentTarget as HTMLElement;

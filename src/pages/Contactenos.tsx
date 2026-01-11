@@ -216,7 +216,7 @@ ${formData.mensaje}
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '6rem',
+          paddingTop: '7rem',
           paddingBottom: '0px',
           fontFamily: 'Montserrat, sans-serif'
         }}
@@ -253,7 +253,7 @@ ${formData.mensaje}
           <div
             style={{
               textAlign: 'center',
-              marginBottom: '1.5rem',
+              marginBottom: '0.75rem',
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -265,8 +265,9 @@ ${formData.mensaje}
             <h1
               className="gradient-text"
               style={{
-                fontSize: '2.5rem',
+                fontSize: '1.5rem',
                 fontWeight: '800',
+                marginTop: '-8px',
                 marginBottom: '0.5rem',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
@@ -277,7 +278,7 @@ ${formData.mensaje}
 
             <p
               style={{
-                fontSize: '1rem',
+                fontSize: '0.85rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
                 maxWidth: '700px',
                 margin: '0 auto',
@@ -296,9 +297,9 @@ ${formData.mensaje}
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '1.5rem',
+              gap: '1.25rem',
               alignItems: 'stretch',
-              marginBottom: '1.5rem'
+              marginBottom: '1.25rem'
             }}
             className="main-grid"
           >
@@ -323,7 +324,7 @@ ${formData.mensaje}
                     ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
                     : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '1rem',
-                  padding: '1.5rem',
+                  padding: '1rem',
                   backdropFilter: 'blur(20px)',
                   border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
                   boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
@@ -340,29 +341,29 @@ ${formData.mensaje}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '1rem',
-                    marginBottom: '1.5rem'
+                    gap: '0.5rem',
+                    marginBottom: '0.85rem'
                   }}
                 >
                   <div
                     style={{
-                      width: '50px',
-                      height: '50px',
+                      width: '34px',
+                      height: '34px',
                       background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                      borderRadius: '12px',
+                      borderRadius: '10px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}
                   >
-                    <Send size={22} color="#000" />
+                    <Send size={16} color="#000" />
                   </div>
                   <div>
                     <h2
                       style={{
-                        fontSize: '1.25rem',
+                        fontSize: '0.95rem',
                         fontWeight: '700',
-                        color: '#fff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
                         margin: 0
                       }}
                     >
@@ -371,7 +372,7 @@ ${formData.mensaje}
                     <p
                       style={{
                         color: theme === 'dark' ? '#d1d5db' : '#4b5563',
-                        fontSize: '0.85rem',
+                        fontSize: '0.75rem',
                         margin: 0
                       }}
                     >
@@ -412,8 +413,8 @@ ${formData.mensaje}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '1fr 1fr',
-                      gap: '20px',
-                      marginBottom: '20px'
+                      gap: '12px',
+                      marginBottom: '12px'
                     }}
                     className="form-grid"
                   >
@@ -421,8 +422,9 @@ ${formData.mensaje}
                       <label
                         style={{
                           display: 'block',
-                          marginBottom: '8px',
+                          marginBottom: '6px',
                           fontWeight: '600',
+                          fontSize: '0.85rem',
                           color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
@@ -436,10 +438,10 @@ ${formData.mensaje}
                         required
                         style={{
                           width: '100%',
-                          padding: '0.75rem 1rem',
+                          padding: '0.55rem 0.75rem',
                           border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
+                          borderRadius: '10px',
+                          fontSize: '0.85rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
                           background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                           color: theme === 'dark' ? '#fff' : '#111827'
@@ -453,8 +455,9 @@ ${formData.mensaje}
                       <label
                         style={{
                           display: 'block',
-                          marginBottom: '8px',
+                          marginBottom: '5px',
                           fontWeight: '600',
+                          fontSize: '0.8rem',
                           color: theme === 'dark' ? '#f3f4f6' : '#374151'
                         }}
                       >
@@ -468,10 +471,10 @@ ${formData.mensaje}
                         required
                         style={{
                           width: '100%',
-                          padding: '0.75rem 1rem',
+                          padding: '0.55rem 0.75rem',
                           border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                          borderRadius: '12px',
-                          fontSize: '1rem',
+                          borderRadius: '10px',
+                          fontSize: '0.85rem',
                           transition: 'border-color 0.3s ease, background 0.3s ease',
                           background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                           color: theme === 'dark' ? '#fff' : '#111827'
@@ -486,8 +489,9 @@ ${formData.mensaje}
                     <label
                       style={{
                         display: 'block',
-                        marginBottom: '8px',
+                        marginBottom: '5px',
                         fontWeight: '600',
+                        fontSize: '0.8rem',
                         color: theme === 'dark' ? '#f3f4f6' : '#374151'
                       }}
                     >
@@ -501,10 +505,10 @@ ${formData.mensaje}
                       required
                       style={{
                         width: '100%',
-                        padding: '0.75rem 1rem',
+                        padding: '0.65rem 0.85rem',
                         border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
+                        borderRadius: '10px',
+                        fontSize: '0.9rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         color: theme === 'dark' ? '#fff' : '#111827'
@@ -518,8 +522,9 @@ ${formData.mensaje}
                     <label
                       style={{
                         display: 'block',
-                        marginBottom: '8px',
+                        marginBottom: '6px',
                         fontWeight: '600',
+                        fontSize: '0.85rem',
                         color: theme === 'dark' ? '#f3f4f6' : '#374151'
                       }}
                     >
@@ -531,10 +536,10 @@ ${formData.mensaje}
                       onChange={handleChange}
                       style={{
                         width: '100%',
-                        padding: '0.75rem 1rem',
+                        padding: '0.65rem 0.85rem',
                         border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
+                        borderRadius: '10px',
+                        fontSize: '0.9rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         color: theme === 'dark' ? '#fff' : '#111827'
@@ -549,12 +554,13 @@ ${formData.mensaje}
                     </select>
                   </div>
 
-                  <div style={{ marginBottom: '24px' }}>
+                  <div style={{ marginBottom: '16px' }}>
                     <label
                       style={{
                         display: 'block',
-                        marginBottom: '8px',
+                        marginBottom: '6px',
                         fontWeight: '600',
+                        fontSize: '0.85rem',
                         color: theme === 'dark' ? '#f3f4f6' : '#374151'
                       }}
                     >
@@ -568,10 +574,10 @@ ${formData.mensaje}
                       placeholder="Cuéntanos sobre tus objetivos profesionales, experiencia previa o cualquier pregunta específica..."
                       style={{
                         width: '100%',
-                        padding: '0.75rem 1rem',
+                        padding: '0.65rem 0.85rem',
                         border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(209, 160, 42, 0.35)',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
+                        borderRadius: '10px',
+                        fontSize: '0.9rem',
                         transition: 'border-color 0.3s ease, background 0.3s ease',
                         background: theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : '#ffffff',
                         resize: 'vertical',
@@ -639,7 +645,7 @@ ${formData.mensaje}
                     ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
                     : 'rgba(255, 255, 255, 0.97)',
                   borderRadius: '1rem',
-                  padding: '1.5rem',
+                  padding: '1.25rem',
                   backdropFilter: 'blur(20px)',
                   border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
                   boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)',
@@ -657,29 +663,29 @@ ${formData.mensaje}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '16px',
-                    marginBottom: '24px'
+                    gap: '0.65rem',
+                    marginBottom: '1rem'
                   }}
                 >
                   <div
                     style={{
-                      width: '50px',
-                      height: '50px',
+                      width: '38px',
+                      height: '38px',
                       background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      borderRadius: '12px',
+                      borderRadius: '10px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}
                   >
-                    <MapPin size={22} color="#fff" />
+                    <MapPin size={16} color="#fff" />
                   </div>
                   <div>
                     <h3
                       style={{
-                        fontSize: '1.25rem',
+                        fontSize: '0.95rem',
                         fontWeight: '700',
-                        color: '#fff',
+                        color: theme === 'dark' ? '#fff' : '#1f2937',
                         margin: 0
                       }}
                     >
@@ -688,7 +694,7 @@ ${formData.mensaje}
                     <p
                       style={{
                         color: '#d1d5db',
-                        fontSize: '0.85rem',
+                        fontSize: '0.8rem',
                         margin: 0
                       }}
                     >

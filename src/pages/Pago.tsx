@@ -59,7 +59,8 @@ import {
   Calendar,
   User,
   FileImage,
-
+  Building2,
+  Banknote,
   Globe,
   FileText,
   IdCard,
@@ -536,14 +537,13 @@ const Pago: React.FC = () => {
               );
 
               toast.error(
-                `⚠️ Ya estás inscrito en este curso\n\nActualmente cursas: ${cursoActual?.tipo_curso_nombre || 'este curso'}.\nNo puedes inscribirte dos veces en el mismo curso.`,
+                `Ya estás inscrito en este curso\n\nActualmente cursas: ${cursoActual?.tipo_curso_nombre || 'este curso'}.\nNo puedes inscribirte dos veces en el mismo curso.`,
                 {
                   duration: 7000,
-                  icon: '🚫',
                   style: {
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                    border: '2px solid rgba(239, 68, 68, 0.4)',
-                    color: '#ef4444',
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
+                    border: '2px solid rgba(251, 191, 36, 0.4)',
+                    color: '#fbbf24',
                     backdropFilter: 'blur(10px)',
                     maxWidth: '600px',
                     fontSize: '0.95rem',
@@ -736,11 +736,11 @@ const Pago: React.FC = () => {
       if (isPolling && previousCount > 0 && newCount > previousCount) {
         // ¡Nuevos cursos detectados!
         const diff = newCount - previousCount;
-        toast.success(`🎉 ${diff} nuevo${diff > 1 ? 's' : ''} curso${diff > 1 ? 's' : ''} disponible${diff > 1 ? 's' : ''}!`, {
+        toast.success(`${diff} nuevo${diff > 1 ? 's' : ''} curso${diff > 1 ? 's' : ''} disponible${diff > 1 ? 's' : ''}!`, {
           duration: 3000,
           style: {
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            color: '#fff',
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+            color: '#000',
             borderRadius: '12px',
             padding: '16px',
             fontFamily: 'Montserrat, sans-serif',
@@ -1621,8 +1621,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       onClick={onClick}
       className="payment-method-card"
       style={{
-        padding: '24px',
-        borderRadius: '20px',
+        padding: '16px',
+        borderRadius: '16px',
         border: isSelected ? '2px solid #fbbf24' : '2px solid rgba(255, 255, 255, 0.1)',
         background: isSelected
           ? 'rgba(251, 191, 36, 0.1)'
@@ -1632,19 +1632,19 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isSelected ? 'scale(1.02)' : 'scale(1)',
         boxShadow: isSelected
-          ? '0 12px 40px rgba(251, 191, 36, 0.3)'
-          : '0 8px 32px rgba(0, 0, 0, 0.2)'
+          ? '0 8px 24px rgba(251, 191, 36, 0.25)'
+          : '0 4px 16px rgba(0, 0, 0, 0.2)'
       }}
     >
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '16px',
-        marginBottom: '12px'
+        gap: '12px',
+        marginBottom: '8px'
       }}>
         <div style={{
-          width: '50px',
-          height: '50px',
+          width: '40px',
+          height: '40px',
           borderRadius: '50%',
           background: isSelected
             ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
@@ -1652,14 +1652,15 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: isSelected ? '#000' : '#fbbf24'
+          color: isSelected ? '#000' : '#fbbf24',
+          flexShrink: 0
         }}>
           {icon}
         </div>
         <div>
           <h3 style={{
             color: isSelected ? '#fbbf24' : (theme === 'dark' ? '#fff' : '#1f2937'),
-            fontSize: '1.3rem',
+            fontSize: '1.05rem',
             fontWeight: '700',
             margin: 0
           }}>
@@ -1669,9 +1670,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
       </div>
       <p style={{
         color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-        fontSize: '1rem',
+        fontSize: '0.85rem',
         margin: 0,
-        lineHeight: 1.5
+        lineHeight: 1.4
       }}>
         {description}
       </p>
@@ -1706,7 +1707,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           <div style={{
             width: '80px',
             height: '80px',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -1714,7 +1715,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             margin: '0 auto 24px',
             animation: 'pulse 2s infinite'
           }}>
-            <CheckCircle size={40} color="#fff" />
+            <CheckCircle size={40} color="#000" />
           </div>
           <h2 style={{
             fontSize: '2rem',
@@ -2363,7 +2364,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
         position: 'relative',
         overflow: 'hidden',
-        paddingTop: '3.75rem',
+        paddingTop: '2.5rem',
         paddingBottom: 0
       }}>
         {/* Partículas flotantes */}
@@ -2405,7 +2406,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               cursor: 'pointer',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
               color: '#fbbf24',
-              margin: '24px 0 40px 0',
+              margin: '60px 0 0 0',
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
               fontWeight: '600',
@@ -2428,12 +2429,13 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
           {/* Título centrado */}
           <h1 className="payment-title" style={{
-            fontSize: '2rem',
+            fontSize: '1.5rem',
             fontWeight: '700',
             background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            marginBottom: '16px',
+            marginTop: '-8px',
+            marginBottom: '8px',
             lineHeight: 1.2,
             textAlign: 'center'
           }}>
@@ -2441,7 +2443,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
           </h1>
 
           {/* Botón actualizar centrado */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
             <button
               onClick={handleRefreshCupos}
               disabled={isRefreshingCupos}
@@ -2472,7 +2474,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
               : 'rgba(255, 255, 255, 0.97)',
             borderRadius: '12px',
             padding: '0.75rem 1rem',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
             backdropFilter: 'blur(20px)',
             border: '1px solid rgba(251, 191, 36, 0.2)',
             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
@@ -2565,9 +2567,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <span style={{
                             padding: '6px 14px',
                             borderRadius: '9999px',
-                            background: 'rgba(16, 185, 129, 0.15)',
-                            border: '1px solid rgba(16, 185, 129, 0.3)',
-                            color: '#10b981',
+                            background: 'rgba(251, 191, 36, 0.15)',
+                            border: '1px solid rgba(251, 191, 36, 0.3)',
+                            color: '#fbbf24',
                             fontWeight: 700,
                             fontSize: '0.8rem'
                           }}>
@@ -2654,109 +2656,11 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
             </div>
           </div>
 
-          {/* Información de modalidades de pago */}
-          <div className="modalidad-info" style={{
-            background: 'rgba(251, 191, 36, 0.1)',
-            border: '1px solid rgba(251, 191, 36, 0.3)',
-            borderRadius: '12px',
-            padding: '1rem',
-            marginBottom: '2rem'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              marginBottom: '16px'
-            }}>
-              <Calendar size={24} color="#fbbf24" />
-              <span style={{
-                color: '#fbbf24',
-                fontWeight: '700',
-                fontSize: '1rem'
-              }}>
-                Modalidad de Pago
-              </span>
-            </div>
-
-            {/* Información específica por curso */}
-            {cursoKey === 'unas' && (
-              <div style={{ marginBottom: '16px' }}>
-                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
-                  Técnica de Uñas - Modalidad por Clases
-                </h4>
-                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                  <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
-                  <li><strong>Total de clases:</strong> 16 clases</li>
-                  <li><strong>Clases restantes:</strong> $15.40 USD cada una (15 clases)</li>
-                  <li><strong>Frecuencia:</strong> 2 clases por semana</li>
-                  <li><strong>Duración:</strong> 8 semanas aproximadamente</li>
-                </ul>
-              </div>
-            )}
-
-            {cursoKey === 'lashista' && (
-              <div style={{ marginBottom: '16px' }}>
-                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
-                  Lashista Profesional - Modalidad por Clases
-                </h4>
-                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.85rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                  <li><strong>Primer pago:</strong> $50 USD para iniciar</li>
-                  <li><strong>Total de clases:</strong> 6 clases</li>
-                  <li><strong>Clases restantes:</strong> $26 USD cada una (5 clases)</li>
-                  <li><strong>Frecuencia:</strong> 1 clase por semana</li>
-                  <li><strong>Duración:</strong> 6 semanas</li>
-                </ul>
-              </div>
-            )}
-
-            {['cosmetologia', 'cosmiatria', 'integral', 'maquillaje', 'facial'].includes(cursoKey) && (
-              <div style={{ marginBottom: '16px' }}>
-                <h4 className="modalidad-title" style={{ color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '1rem', fontWeight: '600', marginBottom: '8px' }}>
-                  {curso.titulo} - Modalidad Mensual
-                </h4>
-                <ul className="modalidad-list" style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0, paddingLeft: '20px' }}>
-                  <li><strong>Modalidad:</strong> Pago mensual únicamente</li>
-                  <li><strong>Valor mensual:</strong> $90 USD cada mes</li>
-                  <li><strong>Duración:</strong> {cursoKey === 'cosmiatria' ? '7 meses' : cursoKey === 'maquillaje' ? '6 meses' : '12 meses'}</li>
-                  <li><strong>Incluye:</strong> Materiales, productos y certificación</li>
-                  {cursoKey === 'cosmiatria' && <li><strong>Requisito:</strong> Ser Cosmetóloga Graduada</li>}
-                </ul>
-              </div>
-            )}
-
-            <div style={{
-              background: theme === 'dark'
-                ? 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(248,113,113,0.12))'
-                : 'linear-gradient(135deg, rgba(253,230,138,0.85), rgba(251,191,36,0.65))',
-              borderRadius: '14px',
-              padding: '14px',
-              marginTop: '16px',
-              border: theme === 'dark'
-                ? '1px solid rgba(251,191,36,0.5)'
-                : '1px solid rgba(217,119,6,0.45)',
-              boxShadow: theme === 'dark'
-                ? '0 10px 26px rgba(251,191,36,0.25)'
-                : '0 12px 28px rgba(217,119,6,0.18)'
-            }}>
-              <p style={{
-                color: theme === 'dark' ? '#fde68a' : '#92400e',
-                fontSize: '0.9rem',
-                margin: 0,
-                fontWeight: '700',
-                textAlign: 'center',
-                letterSpacing: 0.3
-              }}>
-                ✨ Con tu primer pago ya inicias tus clases ✨
-              </p>
-            </div>
-          </div>
-
           {/* GRID DE DOS COLUMNAS - Información Personal (Izquierda) y Método de Pago (Derecha) */}
           <div className="payment-grid" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '2rem',
+            gap: '1.5rem',
             alignItems: 'start'
           }}>
             {/* COLUMNA IZQUIERDA - Información Personal (FORMULARIO COMPLETO) */}
@@ -2799,10 +2703,10 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     border: 'none'
                   }}>
                     <div className="relative">
-                      <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
-                      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-blue-400 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+                      <div className="w-16 h-16 border-4 border-yellow-200 border-t-yellow-500 rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-yellow-400 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
                     </div>
-                    <p className="mt-4 text-lg font-semibold" style={{ color: theme === 'dark' ? '#60a5fa' : '#3b82f6' }}>
+                    <p className="mt-4 text-lg font-semibold" style={{ color: theme === 'dark' ? '#fde68a' : '#f59e0b' }}>
                       Verificando información...
                     </p>
                     <p className="mt-2 text-sm" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(30,41,59,0.6)' }}>
@@ -2815,8 +2719,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 {!verificandoEstudiante && tieneSolicitudPendiente && solicitudPendiente && (
                   <div style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                    border: '2px solid rgba(239, 68, 68, 0.4)',
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
+                    border: '2px solid rgba(251, 191, 36, 0.4)',
                     borderRadius: '16px',
                     padding: '24px',
                     marginBottom: '32px',
@@ -2845,7 +2749,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       title="Cerrar"
                     >
                       <span style={{
-                        color: '#ef4444',
+                        color: '#fbbf24',
                         fontSize: '1.5rem',
                         fontWeight: 'bold',
                         display: 'block'
@@ -2860,12 +2764,12 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       paddingRight: '32px'
                     }}>
                       {solicitudPendiente.codigo_solicitud === 'YA-INSCRITO' ? (
-                        <Ban size={32} color="#ef4444" />
+                        <Ban size={32} color="#fbbf24" />
                       ) : (
-                        <Clock size={32} color="#ef4444" />
+                        <Clock size={32} color="#fbbf24" />
                       )}
                       <h3 style={{
-                        color: '#ef4444',
+                        color: '#fbbf24',
                         fontSize: '1.4rem',
                         fontWeight: '700',
                         margin: 0
@@ -2887,21 +2791,21 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                     <div className="rounded-xl p-4 mb-4" style={{
                       background: theme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.7)',
-                      border: `1px solid ${theme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)'}`
+                      border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(251, 191, 36, 0.15)'}`
                     }}>
                       <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                        <strong className="text-red-400">📚 Curso:</strong> {solicitudPendiente.tipo_curso_nombre || 'N/A'}
+                        <strong style={{ color: '#fbbf24' }}>Curso:</strong> {solicitudPendiente.tipo_curso_nombre || 'N/A'}
                       </p>
                       {solicitudPendiente.codigo_solicitud !== 'YA-INSCRITO' && (
                         <>
                           <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                            <strong className="text-red-400">🔖 Código:</strong> {solicitudPendiente.codigo_solicitud}
+                            <strong style={{ color: '#fbbf24' }}>Código:</strong> {solicitudPendiente.codigo_solicitud}
                           </p>
                           <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                            <strong className="text-red-400">📅 Fecha:</strong> {new Date(solicitudPendiente.fecha_solicitud).toLocaleDateString('es-EC')}
+                            <strong style={{ color: '#fbbf24' }}>Fecha:</strong> {new Date(solicitudPendiente.fecha_solicitud).toLocaleDateString('es-EC')}
                           </p>
                           <p className="my-2" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>
-                            <strong className="text-red-400">⏳ Estado:</strong> En revisión
+                            <strong style={{ color: '#fbbf24' }}>Estado:</strong> En revisión
                           </p>
                         </>
                       )}
@@ -2913,8 +2817,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                 {estudianteExistente && !tieneSolicitudPendiente && (
                   <div style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                    border: '2px solid rgba(16, 185, 129, 0.4)',
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
+                    border: '2px solid rgba(251, 191, 36, 0.4)',
                     borderRadius: '16px',
                     padding: '24px',
                     marginBottom: '32px',
@@ -2941,7 +2845,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       title="Cerrar"
                     >
                       <span style={{
-                        color: '#10b981',
+                        color: '#fbbf24',
                         fontSize: '1.5rem',
                         fontWeight: 'bold',
                         display: 'block'
@@ -2955,9 +2859,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       marginBottom: '16px',
                       paddingRight: '32px'
                     }}>
-                      <CheckCircle size={32} color="#10b981" />
+                      <CheckCircle size={32} color="#fbbf24" />
                       <h3 style={{
-                        color: '#10b981',
+                        color: '#fbbf24',
                         fontSize: '1.4rem',
                         fontWeight: '700',
                         margin: 0
@@ -2984,9 +2888,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                       marginBottom: '12px',
                       paddingLeft: '24px'
                     }}>
-                      <li>✅ Seleccionar tu horario preferido</li>
-                      <li>✅ Elegir método de pago</li>
-                      <li>✅ Subir comprobante de pago</li>
+                      <li>Seleccionar tu horario preferido</li>
+                      <li>Elegir método de pago</li>
+                      <li>Subir comprobante de pago</li>
                     </ul>
 
                     <div style={{
@@ -3003,7 +2907,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         fontSize: '0.95rem',
                         lineHeight: 1.5
                       }}>
-                        💲 Pago requerido ahora: <strong>{formatCurrency(esCursoMontoFijo ? montoPredeterminado : (formData.montoMatricula || curso?.precio || 0))}</strong>.{' '}
+                        Pago requerido ahora: <strong>{formatCurrency(esCursoMontoFijo ? montoPredeterminado : (formData.montoMatricula || curso?.precio || 0))}</strong>.{' '}
                         {esCursoMontoFijo
                           ? `Este curso solo admite un pago inicial fijo de ${formatCurrency(montoPredeterminado)}; cuando confirmemos tu matrícula podrás cancelar el resto del curso.`
                           : 'Si deseas adelantar más meses, modifica el monto directamente en el campo “Monto a pagar”.'}
@@ -3013,17 +2917,17 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     <div style={{
                       marginTop: '16px',
                       padding: '12px 16px',
-                      background: 'rgba(59, 130, 246, 0.1)',
+                      background: 'rgba(251, 191, 36, 0.1)',
                       borderRadius: '8px',
-                      border: '1px solid rgba(59, 130, 246, 0.3)'
+                      border: '1px solid rgba(251, 191, 36, 0.3)'
                     }}>
                       <p style={{
-                        color: '#3b82f6',
+                        color: '#fbbf24',
                         fontSize: '0.9rem',
                         margin: 0,
                         fontWeight: '600'
                       }}>
-                        💡 Tip: Usarás las mismas credenciales de acceso que ya tienes
+                        Tip: Usarás las mismas credenciales de acceso que ya tienes
                       </p>
                     </div>
                   </div>
@@ -3690,7 +3594,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   fontWeight: '500',
                                   lineHeight: '1.4'
                                 }}>
-                                  ⚠️ El contacto de emergencia no puede ser igual a tu número de teléfono.
+                                  El contacto de emergencia no puede ser igual a tu número de teléfono.
                                   <br />
                                   <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Por favor ingresa un número diferente para emergencias.</span>
                                 </p>
@@ -3758,7 +3662,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                                     toast(
                                       `Solo múltiplos de $${MONTO_BASE}. Puedes pagar: $${montoSugerido} o $${montoSiguiente}`,
-                                      { duration: 3000, icon: '⚠️' }
+                                      { duration: 3000 }
                                     );
                                   }
                                 } else {
@@ -3832,22 +3736,22 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <AlertCircle size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
                                 <div>
                                   <div style={{
-                                    color: '#ef4444',
+                                    color: '#fbbf24',
                                     fontSize: '0.95rem',
                                     fontWeight: '700',
                                     marginBottom: '6px'
                                   }}>
-                                    💡 ¡Recordatorio importante!
+                                    ¡Recordatorio importante!
                                   </div>
                                   <div style={{
-                                    color: '#fca5a5',
+                                    color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : '#475569',
                                     fontSize: '0.9rem',
                                     lineHeight: '1.5'
                                   }}>
                                     Con solo <strong>${curso?.precio}</strong> puedes inscribirte al curso de <strong>{curso?.titulo}</strong>.
                                     ¡No pierdas esta oportunidad de transformar tu futuro profesional!
                                     <span style={{ color: '#fbbf24', fontWeight: '600' }}>
-                                      ✨ Tu carrera en belleza te está esperando.
+                                      Tu carrera en belleza te está esperando.
                                     </span>
                                   </div>
                                 </div>
@@ -3862,30 +3766,30 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 gap: 12,
                                 marginTop: 12,
                                 padding: '16px',
-                                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08))',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08))',
+                                border: '1px solid rgba(251, 191, 36, 0.3)',
                                 borderRadius: '12px',
                                 animation: 'slideInUp 0.3s ease-out'
                               }}>
-                                <CheckCircle size={20} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                                <CheckCircle size={20} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
                                 <div>
                                   <div style={{
-                                    color: '#10b981',
+                                    color: '#fbbf24',
                                     fontSize: '0.95rem',
                                     fontWeight: '700',
                                     marginBottom: '6px'
                                   }}>
-                                    ✅ ¡Excelente decisión!
+                                    ¡Excelente decisión!
                                   </div>
                                   <div style={{
-                                    color: theme === 'dark' ? '#6ee7b7' : '#047857',
+                                    color: theme === 'dark' ? '#fde68a' : '#92400e',
                                     fontSize: '0.9rem',
                                     lineHeight: '1.5'
                                   }}>
                                     Estás pagando <strong>{formData.montoMatricula / 90} meses adelantados</strong> (${formData.montoMatricula}).
                                     Esto te permitirá enfocarte en tu aprendizaje sin preocupaciones.
                                     <span style={{ color: '#fbbf24', fontWeight: '600' }}>
-                                      🎓 ¡Tu compromiso con tu futuro es admirable!
+                                      ¡Tu compromiso con tu futuro es admirable!
                                     </span>
                                   </div>
                                 </div>
@@ -3899,8 +3803,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     {/* Sección de Documentos - Solo para nuevos estudiantes */}
                     {!estudianteExistente && formData.tipoDocumento !== '' && (
                       <div style={{
-                        background: 'rgba(59, 130, 246, 0.1)',
-                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        border: '1px solid rgba(251, 191, 36, 0.3)',
                         borderRadius: '16px',
                         padding: '24px',
                         marginTop: '24px',
@@ -3916,7 +3820,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           alignItems: 'center',
                           gap: '12px'
                         }}>
-                          <FileText size={24} color="#3b82f6" />
+                          <FileText size={24} color="#fbbf24" />
                           Documentos Requeridos
                         </h4>
 
@@ -3930,7 +3834,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                             fontWeight: '600',
                             color: theme === 'dark' ? '#fff' : '#1f2937'
                           }}>
-                            <IdCard size={18} color="#3b82f6" />
+                            <IdCard size={18} color="#fbbf24" />
                             {formData.tipoDocumento === 'ecuatoriano' ? 'Copia de Cédula *' : 'Copia de Pasaporte *'}
                           </label>
 
@@ -3948,12 +3852,12 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                               }
                             }}
                             style={{
-                              border: `2px dashed ${dragActive || documentoIdentificacion ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                              border: `2px dashed ${dragActive || documentoIdentificacion ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
                               borderRadius: '12px',
                               padding: '20px',
                               textAlign: 'center',
                               background: dragActive
-                                ? 'rgba(59, 130, 246, 0.1)'
+                                ? 'rgba(251, 191, 36, 0.1)'
                                 : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
                               transition: 'all 0.3s ease',
                               cursor: 'pointer'
@@ -3973,7 +3877,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <div style={{
                                   width: '50px',
                                   height: '50px',
-                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                   borderRadius: '50%',
                                   display: 'flex',
                                   alignItems: 'center',
@@ -3983,7 +3887,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   <CheckCircle size={24} color="#fff" />
                                 </div>
                                 <p style={{
-                                  color: '#10b981',
+                                  color: '#fbbf24',
                                   fontWeight: '600',
                                   fontSize: '1rem',
                                   marginBottom: '6px'
@@ -4022,14 +3926,14 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 <div style={{
                                   width: '50px',
                                   height: '50px',
-                                  background: 'rgba(59, 130, 246, 0.2)',
+                                  background: 'rgba(251, 191, 36, 0.2)',
                                   borderRadius: '50%',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   margin: '0 auto 12px'
                                 }}>
-                                  <IdCard size={24} color="#3b82f6" />
+                                  <IdCard size={24} color="#fbbf24" />
                                 </div>
                                 <p style={{
                                   color: theme === 'dark' ? '#fff' : '#1f2937',
@@ -4112,12 +4016,12 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 }
                               }}
                               style={{
-                                border: `2px dashed ${dragActive || documentoEstatusLegal ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)'}`,
+                                border: `2px dashed ${dragActive || documentoEstatusLegal ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)'}`,
                                 borderRadius: '12px',
                                 padding: '20px',
                                 textAlign: 'center',
                                 background: dragActive
-                                  ? 'rgba(59, 130, 246, 0.1)'
+                                  ? 'rgba(251, 191, 36, 0.1)'
                                   : (theme === 'dark' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'),
                                 transition: 'all 0.3s ease',
                                 cursor: 'pointer'
@@ -4137,7 +4041,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   <div style={{
                                     width: '50px',
                                     height: '50px',
-                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                     borderRadius: '50%',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -4147,7 +4051,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     <CheckCircle size={24} color="#fff" />
                                   </div>
                                   <p style={{
-                                    color: '#10b981',
+                                    color: '#fbbf24',
                                     fontWeight: '600',
                                     fontSize: '1rem',
                                     marginBottom: '6px'
@@ -4186,14 +4090,14 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                   <div style={{
                                     width: '50px',
                                     height: '50px',
-                                    background: 'rgba(59, 130, 246, 0.2)',
+                                    background: 'rgba(251, 191, 36, 0.2)',
                                     borderRadius: '50%',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     margin: '0 auto 12px'
                                   }}>
-                                    <FileText size={24} color="#3b82f6" />
+                                    <FileText size={24} color="#fbbf24" />
                                   </div>
                                   <p style={{
                                     color: theme === 'dark' ? '#fff' : '#1f2937',
@@ -4295,7 +4199,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 alignItems: 'center',
                                 gap: '8px'
                               }}>
-                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                <span style={{ fontSize: '1.2rem', color: '#fbbf24' }}>!</span>
                                 No hay cupos disponibles para este horario. Por favor, selecciona otro horario o espera a que se abra un nuevo curso.
                               </div>
                             );
@@ -4304,17 +4208,16 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           return (
                             <div style={{
                               padding: '12px 16px',
-                              background: 'rgba(16, 185, 129, 0.1)',
-                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              background: 'rgba(251, 191, 36, 0.1)',
+                              border: '1px solid rgba(251, 191, 36, 0.3)',
                               borderRadius: '12px',
-                              color: '#10b981',
+                              color: '#fbbf24',
                               fontSize: '0.9rem',
                               fontWeight: '600',
                               display: 'flex',
                               alignItems: 'center',
                               gap: '8px'
                             }}>
-                              <span style={{ fontSize: '1.2rem' }}>✅</span>
                               Cupos disponibles: {cuposHorario.cupos_totales}/{cuposHorario.capacidad_total}
                             </div>
                           );
@@ -4406,7 +4309,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                         <div style={{
                           width: '50px',
                           height: '50px',
-                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
@@ -4416,7 +4319,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                           <CheckCircle size={24} color="#fff" />
                         </div>
                         <p style={{
-                          color: '#10b981',
+                          color: '#fbbf24',
                           fontWeight: '600',
                           fontSize: '1rem',
                           marginBottom: '6px'
@@ -4556,13 +4459,13 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                           <div className="payment-methods" style={{
                             display: 'grid',
-                            gridTemplateColumns: '1fr',
+                            gridTemplateColumns: '1fr 1fr',
                             gap: '16px',
                             marginBottom: '24px'
                           }}>
                             <PaymentCard
                               title="Transferencia Bancaria"
-                              icon={<QrCode size={24} />}
+                              icon={<Building2 size={20} />}
                               description="Transfiere directamente a nuestra cuenta bancaria"
                               isSelected={selectedPayment === 'transferencia'}
                               onClick={() => setSelectedPayment('transferencia')}
@@ -4570,7 +4473,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
 
                             <PaymentCard
                               title="Efectivo"
-                              icon={<CreditCard size={24} />}
+                              icon={<Banknote size={20} />}
                               description="Pago en efectivo en oficina. Sube el comprobante/factura entregado."
                               isSelected={selectedPayment === 'efectivo'}
                               onClick={() => setSelectedPayment('efectivo')}
@@ -4907,17 +4810,17 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       <div style={{
                                         width: '60px',
                                         height: '60px',
-                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                         borderRadius: '50%',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         margin: '0 auto 16px'
                                       }}>
-                                        <CheckCircle size={30} color="#fff" />
+                                        <CheckCircle size={30} color="#000" />
                                       </div>
                                       <p style={{
-                                        color: '#10b981',
+                                        color: '#fbbf24',
                                         fontWeight: '600',
                                         fontSize: '1.1rem',
                                         marginBottom: '8px'
@@ -4991,8 +4894,8 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 </div>
 
                                 <div style={{
-                                  background: 'rgba(59, 130, 246, 0.1)',
-                                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                                  background: 'rgba(251, 191, 36, 0.1)',
+                                  border: '1px solid rgba(251, 191, 36, 0.3)',
                                   borderRadius: '12px',
                                   padding: '16px',
                                   marginTop: '16px'
@@ -5003,9 +4906,9 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     gap: '8px',
                                     marginBottom: '8px'
                                   }}>
-                                    <AlertCircle size={18} color="#3b82f6" />
+                                    <AlertCircle size={18} color="#fbbf24" />
                                     <span style={{
-                                      color: '#3b82f6',
+                                      color: '#fbbf24',
                                       fontWeight: '600',
                                       fontSize: '0.9rem'
                                     }}>
@@ -5101,17 +5004,17 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       <div style={{
                                         width: '60px',
                                         height: '60px',
-                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                         borderRadius: '50%',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         margin: '0 auto 16px'
                                       }}>
-                                        <CheckCircle size={30} color="#fff" />
+                                        <CheckCircle size={30} color="#000" />
                                       </div>
                                       <p style={{
-                                        color: '#10b981',
+                                        color: '#fbbf24',
                                         fontWeight: '600',
                                         fontSize: '1.1rem',
                                         marginBottom: '8px'
@@ -5364,19 +5267,21 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                     style={{
                       width: '100%',
                       background: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(156,163,175,0.4)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'rgba(255,255,255,0.5)' : '#000',
-                      padding: '22px 48px',
-                      borderRadius: '12px',
+                      padding: '40px 48px',
+                      borderRadius: '20px',
                       border: 'none',
-                      fontWeight: 700,
-                      fontSize: '1.5rem',
+                      fontWeight: 900,
+                      fontSize: '2.2rem',
+                      letterSpacing: '0.5px',
                       cursor: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'not-allowed' : 'pointer',
-                      boxShadow: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'none' : '0 12px 40px rgba(251, 191, 36, 0.25)',
+                      boxShadow: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 'none' : '0 16px 48px rgba(251, 191, 36, 0.4)',
                       opacity: (isBlocked || tieneSolicitudPendiente || isSubmitting) ? 0.6 : 1,
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      textTransform: 'uppercase'
                     }}
                     title={tieneSolicitudPendiente ? 'No puedes inscribirte mientras tengas una solicitud pendiente' : ''}
                   >
-                    {tieneSolicitudPendiente ? '🔒 Inscripción Bloqueada' : isSubmitting ? '⏳ Enviando solicitud...' : 'Enviar Solicitud de Matrícula'}                  </button>
+                    {tieneSolicitudPendiente ? 'Inscripción Bloqueada' : isSubmitting ? 'Enviando solicitud...' : 'Enviar Solicitud de Matrícula'}                  </button>
 
                   <p style={{
                     textAlign: 'center',

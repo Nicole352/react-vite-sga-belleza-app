@@ -174,13 +174,13 @@ const Avales = () => {
           className="card-gloss"
           style={{
             background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '24px',
-            padding: '32px',
+            borderRadius: '1rem',
+            padding: '1rem',
             boxShadow: isHovered 
-              ? `0 25px 50px ${cert.color}20, 0 0 0 1px ${cert.color}40`
-              : theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)' : '0 10px 28px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(209, 160, 42, 0.25)',
+              ? `0 15px 30px ${cert.color}20, 0 0 0 1px ${cert.color}40`
+              : theme === 'dark' ? '0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08)' : '0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(209, 160, 42, 0.25)',
             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
+            transform: isHovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
             position: 'relative',
             overflow: 'hidden',
             backdropFilter: 'blur(14px)',
@@ -188,22 +188,22 @@ const Avales = () => {
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            paddingBottom: '30px',
-            paddingTop: '56px'
+            paddingBottom: '1rem',
+            paddingTop: '2.5rem'
           }}
         >
           {/* Reflection overlay */}
           <span className="shimmer-overlay" aria-hidden="true" />
           {/* Badge de prestigio y valor adicional */}
-          <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: '8px' }}>
+          <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: '0.35rem' }}>
             {cert.valorAdicional && (
               <div
                 style={{
                   background: 'linear-gradient(135deg, #dc2626, #ef4444)',
                   color: '#fff',
-                  padding: '6px 12px',
-                  borderRadius: '12px',
-                  fontSize: '0.7rem',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.55rem',
                   fontWeight: '700',
                   textTransform: 'uppercase',
                   boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
@@ -218,9 +218,9 @@ const Avales = () => {
                 style={{
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   color: '#000',
-                  padding: '6px 12px',
-                  borderRadius: '12px',
-                  fontSize: '0.7rem',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.55rem',
                   fontWeight: '700',
                   textTransform: 'uppercase',
                   boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
@@ -235,15 +235,15 @@ const Avales = () => {
           <div style={{ 
             display: 'flex', 
             alignItems: 'flex-start', 
-            gap: '20px',
-            marginBottom: '24px'
+            gap: '0.75rem',
+            marginBottom: '0.75rem'
           }}>
             <div
               style={{
-                width: '80px',
-                height: '80px',
+                width: '50px',
+                height: '50px',
                 background: `linear-gradient(135deg, ${cert.color}, ${cert.color}dd)`,
-                borderRadius: '20px',
+                borderRadius: '0.75rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -253,7 +253,7 @@ const Avales = () => {
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {cert.icono}
+              {React.cloneElement(cert.icono as React.ReactElement, { size: 22 })}
             </div>
             
             <div style={{ flex: 1 }}>
@@ -262,13 +262,13 @@ const Avales = () => {
                   display: 'inline-block',
                   background: `${cert.color}20`,
                   color: cert.color,
-                  padding: '4px 10px',
-                  borderRadius: '8px',
-                  fontSize: '0.8rem',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.65rem',
                   fontWeight: '600',
-                  marginBottom: '8px',
+                  marginBottom: '0.35rem',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.3px'
                 }}
               >
                 {cert.tipo}
@@ -276,10 +276,10 @@ const Avales = () => {
               
               <h3
                 style={{
-                  fontSize: '1.4rem',
+                  fontSize: '0.95rem',
                   fontWeight: '700',
                   color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-                  marginBottom: '8px',
+                  marginBottom: '0.35rem',
                   lineHeight: 1.2
                 }}
               >
@@ -290,7 +290,7 @@ const Avales = () => {
                 style={{
                   color: cert.color,
                   fontWeight: '600',
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   margin: 0
                 }}
               >
@@ -302,10 +302,10 @@ const Avales = () => {
           {/* Descripción */}
           <p
             style={{
-              fontSize: '1rem',
+              fontSize: '0.75rem',
               color: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(31, 41, 55, 0.75)',
-              marginBottom: '20px',
-              lineHeight: 1.6
+              marginBottom: '0.75rem',
+              lineHeight: 1.5
             }}
           >
             {cert.descripcion}
@@ -313,14 +313,14 @@ const Avales = () => {
 
           {/* Detalles adicionales */}
           {cert.detalles && (
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '0.75rem' }}>
               <h4 style={{
-                fontSize: '0.9rem',
+                fontSize: '0.7rem',
                 fontWeight: '600',
                 color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-                marginBottom: '12px',
+                marginBottom: '0.5rem',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.3px'
               }}>
                 Beneficios y Alcances:
               </h4>
@@ -329,17 +329,17 @@ const Avales = () => {
                 padding: 0,
                 margin: 0,
                 display: 'grid',
-                gap: '8px'
+                gap: '0.35rem'
               }}>
                 {cert.detalles.map((detalle, idx) => (
                   <li key={idx} style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    fontSize: '0.9rem',
+                    gap: '0.5rem',
+                    fontSize: '0.7rem',
                     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.85)'
                   }}>
-                    <CheckCircle size={14} color={cert.color} />
+                    <CheckCircle size={10} color={cert.color} />
                     {detalle}
                   </li>
                 ))}
@@ -352,18 +352,18 @@ const Avales = () => {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-              padding: '16px',
+              gap: '0.5rem',
+              padding: '0.65rem',
               background: 'rgba(251, 191, 36, 0.05)',
-              borderRadius: '12px',
+              borderRadius: '0.75rem',
               border: '1px solid rgba(251, 191, 36, 0.2)'
             }}
           >
             <div>
               <div style={{ 
-                fontSize: '0.8rem', 
+                fontSize: '0.65rem', 
                 color: theme === 'dark' ? '#cbd5e1' : '#6b7280',
-                marginBottom: '4px',
+                marginBottom: '0.2rem',
                 fontWeight: '500'
               }}>
                 VIGENCIA
@@ -373,17 +373,18 @@ const Avales = () => {
                 color: theme === 'dark' ? '#e5e7eb' : '#374151',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '0.25rem',
+                fontSize: '0.7rem'
               }}>
-                <Calendar size={14} color={cert.color} />
+                <Calendar size={10} color={cert.color} />
                 {cert.vigencia}
               </div>
             </div>
             <div>
               <div style={{ 
-                fontSize: '0.8rem', 
+                fontSize: '0.65rem', 
                 color: theme === 'dark' ? '#cbd5e1' : '#6b7280',
-                marginBottom: '4px',
+                marginBottom: '0.2rem',
                 fontWeight: '500'
               }}>
                 DOCUMENTO
@@ -391,7 +392,7 @@ const Avales = () => {
               <div style={{ 
                 fontWeight: '600', 
                 color: theme === 'dark' ? '#e5e7eb' : '#374151',
-                fontSize: '0.9rem'
+                fontSize: '0.7rem'
               }}>
                 {cert.documento}
               </div>
@@ -404,18 +405,19 @@ const Avales = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginTop: 'auto'
+              marginTop: 'auto',
+              paddingTop: '0.75rem'
             }}
           >
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '8px',
+              gap: '0.35rem',
               color: '#10b981',
-              fontSize: '0.9rem',
+              fontSize: '0.7rem',
               fontWeight: '600'
             }}>
-              <CheckCircle size={16} />
+              <CheckCircle size={12} />
               Verificado
             </div>
             
@@ -424,9 +426,9 @@ const Avales = () => {
                 background: 'transparent',
                 border: `1px solid ${cert.color}66`,
                 color: cert.color,
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '1rem',
+                fontSize: '0.65rem',
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
@@ -524,15 +526,15 @@ const Avales = () => {
           /* Responsive grids for Certificaciones and Reconocimientos */
           .grid-certificaciones {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
             align-items: stretch;
-            margin-bottom: 100px;
+            margin-bottom: 1.25rem;
           }
           .grid-reconocimientos {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 32px;
+            gap: 1rem;
           }
           @media (max-width: 1024px) {
             .grid-reconocimientos { grid-template-columns: repeat(2, 1fr); }
@@ -552,7 +554,7 @@ const Avales = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '110px',
+          paddingTop: '7rem',
           paddingBottom: '0px',
           fontFamily: 'Montserrat, sans-serif'
         }}
@@ -577,9 +579,9 @@ const Avales = () => {
 
         <div
           style={{
-            maxWidth: '1400px',
+            maxWidth: '90%',
             margin: '0 auto',
-            padding: '0 24px',
+            padding: '0 0.75rem',
             position: 'relative',
             zIndex: 1
           }}
@@ -588,43 +590,20 @@ const Avales = () => {
           <div
             style={{
               textAlign: 'center',
-              marginBottom: '80px',
+              marginBottom: '1.25rem',
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             data-aos="fade-up"
           >
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: '25px',
-                padding: '12px 24px',
-                marginBottom: '24px',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Shield size={20} color="#fbbf24" />
-              <span style={{ 
-                color: '#fde68a', 
-                fontWeight: '600',
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px'
-              }}>
-                Certificaciones y reconocimientos
-              </span>
-            </div>
-
             <h1
               className="gradient-text"
               style={{
-                fontSize: '4rem',
+                fontSize: '1.5rem',
                 fontWeight: '800',
-                marginBottom: '24px',
+                marginTop: '-8px',
+                marginBottom: '0.5rem',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
               }}
@@ -634,10 +613,10 @@ const Avales = () => {
             
             <p
               style={{
-                fontSize: '1.4rem',
+                fontSize: '0.85rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                maxWidth: '800px',
-                margin: '0 auto 16px',
+                maxWidth: '700px',
+                margin: '0 auto',
                 lineHeight: 1.6
               }}
             >
@@ -650,29 +629,29 @@ const Avales = () => {
               style={{
                 background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.06))',
                 border: '1px solid rgba(251, 191, 36, 0.22)',
-                borderRadius: '20px',
-                padding: '24px',
-                margin: '24px auto 32px',
-                maxWidth: '900px',
+                borderRadius: '1rem',
+                padding: '1rem',
+                margin: '0.75rem auto',
+                maxWidth: '90%',
                 backdropFilter: 'blur(12px)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <div style={{
-                  width: '40px', height: '40px', borderRadius: '10px',
+                  width: '28px', height: '28px', borderRadius: '8px',
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Award size={18} color="#000" />
+                  <Award size={14} color="#000" />
                 </div>
-                <h3 style={{ margin: 0, color: theme === 'dark' ? '#e5e7eb' : '#374151', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '0.2px' }}>¿Por Qué Elegirnos?</h3>
+                <h3 style={{ margin: 0, color: theme === 'dark' ? '#e5e7eb' : '#374151', fontWeight: 700, fontSize: '0.95rem' }}>¿Por Qué Elegirnos?</h3>
               </div>
 
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: '12px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '0.5rem'
                 }}
               >
                 {[
@@ -688,14 +667,14 @@ const Avales = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 8,
+                      gap: 6,
                       color: theme === 'dark' ? 'rgba(255,255,255,0.92)' : 'rgba(31, 41, 55, 0.92)',
-                      fontSize: '0.95rem',
-                      padding: '10px 12px',
-                      borderRadius: '12px',
+                      fontSize: '0.7rem',
+                      padding: '0.5rem 0.65rem',
+                      borderRadius: '0.75rem',
                       background: 'rgba(251, 191, 36, 0.06)',
                       border: '1px solid rgba(251, 191, 36, 0.25)',
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.25)'
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                     }}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLDivElement;
@@ -710,7 +689,7 @@ const Avales = () => {
                       el.style.transform = 'translateY(0)';
                     }}
                   >
-                    <CheckCircle size={16} color="#10b981" />
+                    <CheckCircle size={12} color="#10b981" />
                     {item}
                   </div>
                 ))}
@@ -721,18 +700,18 @@ const Avales = () => {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'rgba(16, 185, 129, 0.1)',
                 border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '20px',
-                padding: '8px 16px',
+                borderRadius: '1rem',
+                padding: '0.5rem 0.75rem',
                 color: '#10b981',
-                fontSize: '0.9rem',
+                fontSize: '0.75rem',
                 fontWeight: '600',
-                marginTop: '40px'
+                marginTop: '0.75rem'
               }}
             >
-              <CheckCircle size={16} />
+              <CheckCircle size={12} />
               Certificados con Validez Oficial
             </div>
 
@@ -763,14 +742,15 @@ const Avales = () => {
           </div>
 
           {/* Toggle Ver más certificaciones */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-60px', marginBottom: '80px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-1rem', marginBottom: '1.25rem' }}>
             <button
               style={{
                 background: showMoreCerts ? 'transparent' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 color: showMoreCerts ? '#fbbf24' : '#000',
-                padding: '12px 22px',
+                padding: '0.5rem 1rem',
                 borderRadius: '9999px',
                 fontWeight: 700,
+                fontSize: '0.75rem',
                 border: showMoreCerts ? '1px solid rgba(251, 191, 36, 0.6)' : 'none',
                 cursor: 'pointer',
                 boxShadow: showMoreCerts ? 'none' : '0 8px 24px rgba(251, 191, 36, 0.35)',
@@ -787,8 +767,8 @@ const Avales = () => {
             style={{
               background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))',
               backdropFilter: 'blur(20px)',
-              borderRadius: '32px',
-              padding: '60px 40px',
+              borderRadius: '1rem',
+              padding: '1.25rem 1rem',
               textAlign: 'center',
               border: '2px solid rgba(16, 185, 129, 0.3)',
               position: 'relative',
@@ -796,59 +776,59 @@ const Avales = () => {
               transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              marginBottom: '80px'
+              marginBottom: '1.25rem'
             }}
             data-aos="fade-up"
           >
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div style={{
-                  width: '70px', height: '70px', borderRadius: '50%',
+                  width: '40px', height: '40px', borderRadius: '50%',
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: '0 12px 40px rgba(16, 185, 129, 0.35)'
                 }}>
-                  <Shield size={32} color="#fff" />
+                  <Shield size={18} color="#fff" />
                 </div>
                 <div style={{
-                  width: '70px', height: '70px', borderRadius: '50%',
+                  width: '40px', height: '40px', borderRadius: '50%',
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: '0 12px 40px rgba(59, 130, 246, 0.35)'
                 }}>
-                  <Trophy size={32} color="#fff" />
+                  <Trophy size={18} color="#fff" />
                 </div>
               </div>
 
               <h2
                 style={{
-                  fontSize: '2.6rem',
+                  fontSize: '1.25rem',
                   fontWeight: 800,
                   background: 'linear-gradient(135deg, #10b981, #3b82f6)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  marginBottom: '10px'
+                  marginBottom: '0.5rem'
                 }}
               >
                 Respaldo Gubernamental
               </h2>
-              <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: theme === 'dark' ? '#fff' : '#1f2937', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: theme === 'dark' ? '#fff' : '#1f2937', marginBottom: '0.5rem' }}>
                 Ministerio del Trabajo + SENESCYT
               </h3>
-              <p style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)', maxWidth: 800, margin: '0 auto 24px', lineHeight: 1.6 }}>
+              <p style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)', maxWidth: 700, margin: '0 auto 0.75rem', lineHeight: 1.5, fontSize: '0.75rem' }}>
                 Doble aval gubernamental: certificación laboral del Ministerio del Trabajo y reconocimiento educativo de SENESCYT.
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-                <div style={{ background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 20, padding: 24 }}>
-                  <Shield size={22} color="#10b981" style={{ marginBottom: 10 }} />
-                  <h4 style={{ color: '#10b981', fontWeight: 700, margin: '0 0 6px 0' }}>Validez Laboral Nacional</h4>
-                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0 }}>Certificados reconocidos por empleadores en todo Ecuador.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '0.75rem', padding: '0.75rem' }}>
+                  <Shield size={16} color="#10b981" style={{ marginBottom: '0.35rem' }} />
+                  <h4 style={{ color: '#10b981', fontWeight: 700, margin: '0 0 0.25rem 0', fontSize: '0.75rem' }}>Validez Laboral Nacional</h4>
+                  <p style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.85)' : 'rgba(31, 41, 55, 0.85)', margin: 0, fontSize: '0.7rem' }}>Certificados reconocidos por empleadores en todo Ecuador.</p>
                 </div>
-                <div style={{ background: 'rgba(59, 130, 246, 0.18)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: 20, padding: 24 }}>
-                  <Trophy size={22} color="#3b82f6" style={{ marginBottom: 10 }} />
-                  <h4 style={{ color: '#3b82f6', fontWeight: 700, margin: '0 0 6px 0' }}>Nivel Técnico Superior</h4>
-                  <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0 }}>Títulos con equivalencia educativa oficial.</p>
+                <div style={{ background: 'rgba(59, 130, 246, 0.18)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '0.75rem', padding: '0.75rem' }}>
+                  <Trophy size={16} color="#3b82f6" style={{ marginBottom: '0.35rem' }} />
+                  <h4 style={{ color: '#3b82f6', fontWeight: 700, margin: '0 0 0.25rem 0', fontSize: '0.75rem' }}>Nivel Técnico Superior</h4>
+                  <p style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.85)' : 'rgba(31, 41, 55, 0.85)', margin: 0, fontSize: '0.7rem' }}>Títulos con equivalencia educativa oficial.</p>
                 </div>
               </div>
             </div>
@@ -857,16 +837,16 @@ const Avales = () => {
           {/* Sección de Reconocimientos */}
           <div
             style={{
-              marginBottom: '80px'
+              marginBottom: '1.25rem'
             }}
           >
             <h2
               style={{
-                fontSize: '2.8rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
                 textAlign: 'center',
                 color: theme === 'dark' ? '#fff' : '#1f2937',
-                marginBottom: '16px',
+                marginBottom: '0.5rem',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
@@ -878,11 +858,11 @@ const Avales = () => {
             <p
               style={{
                 textAlign: 'center',
-                fontSize: '1.2rem',
-                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                marginBottom: '60px',
-                maxWidth: '600px',
-                margin: '0 auto 60px'
+                fontSize: '0.85rem',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
+                marginBottom: '0.75rem',
+                maxWidth: '700px',
+                margin: '0 auto 0.75rem'
               }}
             >
               Nuestra trayectoria de excelencia avalada por las instituciones más prestigiosas
@@ -898,11 +878,11 @@ const Avales = () => {
                   key={index}
                   style={{
                     background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)',
-                    borderRadius: '20px',
-                    padding: '28px',
+                    borderRadius: '1rem',
+                    padding: '1rem',
                     backdropFilter: 'blur(14px)',
                     border: '1px solid rgba(251, 191, 36, 0.25)',
-                    boxShadow: theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0, 0, 0, 0.12)',
+                    boxShadow: theme === 'dark' ? '0 8px 20px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.08)',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
                     transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -912,42 +892,42 @@ const Avales = () => {
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLDivElement;
-                    el.style.transform = 'translateY(-5px) scale(1.02)';
-                    el.style.boxShadow = theme === 'dark' ? '0 25px 50px rgba(0, 0, 0, 0.5)' : '0 15px 35px rgba(0, 0, 0, 0.15)';
+                    el.style.transform = 'translateY(-3px) scale(1.01)';
+                    el.style.boxShadow = theme === 'dark' ? '0 15px 30px rgba(0, 0, 0, 0.4)' : '0 8px 20px rgba(0, 0, 0, 0.12)';
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLDivElement;
                     el.style.transform = 'translateY(0) scale(1)';
-                    el.style.boxShadow = theme === 'dark' ? '0 15px 35px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0, 0, 0, 0.12)';
+                    el.style.boxShadow = theme === 'dark' ? '0 8px 20px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.08)';
                   }}
                 >
                   <div
                     style={{
                       position: 'absolute',
-                      top: 16,
-                      left: 16,
-                      width: '50px',
-                      height: '50px',
+                      top: 8,
+                      left: 8,
+                      width: '35px',
+                      height: '35px',
                       background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                      borderRadius: '12px',
+                      borderRadius: '0.75rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: '#000',
                       fontWeight: '700',
-                      fontSize: '1.1rem'
+                      fontSize: '0.75rem'
                     }}
                   >
                     {reconocimiento.año}
                   </div>
                   
-                  <div style={{ paddingTop: '40px' }}>
+                  <div style={{ paddingTop: '2rem' }}>
                     <h3
                       style={{
-                        fontSize: '1.3rem',
+                        fontSize: '0.9rem',
                         fontWeight: '700',
                         color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-                        marginBottom: '8px',
+                        marginBottom: '0.35rem',
                         lineHeight: 1.3
                       }}
                     >
@@ -958,8 +938,8 @@ const Avales = () => {
                       style={{
                         color: '#fbbf24',
                         fontWeight: '600',
-                        fontSize: '0.9rem',
-                        marginBottom: '12px'
+                        fontSize: '0.7rem',
+                        marginBottom: '0.5rem'
                       }}
                     >
                       {reconocimiento.otorgante}
@@ -968,8 +948,8 @@ const Avales = () => {
                     <p
                       style={{
                         color: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(31, 41, 55, 0.75)',
-                        fontSize: '0.95rem',
-                        lineHeight: 1.5,
+                        fontSize: '0.7rem',
+                        lineHeight: 1.4,
                         margin: 0
                       }}
                     >
@@ -986,8 +966,8 @@ const Avales = () => {
             style={{
               background: 'rgba(251, 191, 36, 0.1)',
               backdropFilter: 'blur(20px)',
-              borderRadius: '32px',
-              padding: '60px 40px',
+              borderRadius: '1rem',
+              padding: '1.25rem 1rem',
               textAlign: 'center',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               position: 'relative',
@@ -996,31 +976,31 @@ const Avales = () => {
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
               transitionDelay: '1500ms',
-              marginBottom: '60px'
+              marginBottom: '1.25rem'
             }}
           >
             <div
               style={{
-                width: '80px',
-                height: '80px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 24px',
+                margin: '0 auto 0.75rem',
                 boxShadow: '0 12px 40px rgba(251, 191, 36, 0.4)'
               }}
             >
-              <Award size={36} color="#000" />
+              <Award size={22} color="#000" />
             </div>
 
             <h2
               style={{
-                fontSize: '2.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '800',
                 color: '#fbbf24',
-                marginBottom: '16px',
+                marginBottom: '0.5rem',
                 textShadow: '0 2px 10px rgba(251, 191, 36, 0.3)'
               }}
             >
@@ -1029,12 +1009,12 @@ const Avales = () => {
 
             <p
               style={{
-                fontSize: '1.2rem',
+                fontSize: '0.85rem',
                 color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
-                marginBottom: '32px',
+                marginBottom: '0.75rem',
                 maxWidth: '600px',
-                margin: '0 auto 32px',
-                lineHeight: 1.6
+                margin: '0 auto 0.75rem',
+                lineHeight: 1.5
               }}
             >
               Únete a una institución respaldada por los más altos estándares 
@@ -1043,7 +1023,7 @@ const Avales = () => {
 
             <div style={{
               display: 'flex',
-              gap: '16px',
+              gap: '0.75rem',
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
@@ -1052,14 +1032,14 @@ const Avales = () => {
                 style={{
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   color: '#000',
-                  padding: '16px 32px',
+                  padding: '0.65rem 1.25rem',
                   borderRadius: '50px',
                   textDecoration: 'none',
                   fontWeight: 700,
-                  fontSize: '1.1rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '0.35rem',
                   boxShadow: '0 8px 24px rgba(251, 191, 36, 0.4)',
                   transition: 'all 0.3s ease'
                 }}
@@ -1074,7 +1054,7 @@ const Avales = () => {
                   el.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.4)';
                 }}
               >
-                <Sparkles size={18} />
+                <Sparkles size={14} />
                 Ver Nuestros Cursos
               </a>
 
@@ -1083,14 +1063,14 @@ const Avales = () => {
                 style={{
                   background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(251, 191, 36, 0.08)',
                   color: theme === 'dark' ? '#fff' : '#1f2937',
-                  padding: '16px 32px',
+                  padding: '0.65rem 1.25rem',
                   borderRadius: '50px',
                   textDecoration: 'none',
                   fontWeight: '600',
-                  fontSize: '1.1rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '0.35rem',
                   border: '2px solid rgba(251, 191, 36, 0.3)',
                   backdropFilter: 'blur(10px)',
                   transition: 'all 0.3s ease'
@@ -1108,7 +1088,7 @@ const Avales = () => {
                   el.style.transform = 'translateY(0)';
                 }}
               >
-                <MapPin size={18} />
+                <MapPin size={14} />
                 Más Información
               </a>
             </div>

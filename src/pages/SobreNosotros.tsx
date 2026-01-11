@@ -147,29 +147,29 @@ const SobreNosotros: React.FC = () => {
       id: 1,
       titulo: 'Excelencia Educativa',
       descripcion: 'Comprometidos con la más alta calidad en formación profesional',
-      icono: <Award size={32} />,
+      icono: <Award size={20} />,
       color: '#fbbf24'
     },
     {
       id: 2,
       titulo: 'Innovación Constante',
       descripcion: 'Siempre a la vanguardia en técnicas y tecnologías de belleza',
-      icono: <Lightbulb size={32} />,
-      color: '#10b981'
+      icono: <Lightbulb size={20} />,
+      color: '#fbbf24'
     },
     {
       id: 3,
       titulo: 'Atención Personalizada',
       descripcion: 'Cada estudiante es único y merece atención individualizada',
-      icono: <Heart size={32} />,
-      color: '#ef4444'
+      icono: <Heart size={20} />,
+      color: '#fbbf24'
     },
     {
       id: 4,
       titulo: 'Compromiso Social',
       descripcion: 'Transformamos vidas y contribuimos al desarrollo de la comunidad',
-      icono: <UserCheck size={32} />,
-      color: '#8b5cf6'
+      icono: <UserCheck size={20} />,
+      color: '#fbbf24'
     }
   ];
 
@@ -245,15 +245,15 @@ const SobreNosotros: React.FC = () => {
   const historiaNodes = useMemo(() => historia.map((hito) => ({
     node: (
       <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 420 }}>
-          <div style={{ width: 60, height: 60, background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 280, maxWidth: 320 }}>
+          <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 800, fontSize: '0.7rem', flexShrink: 0 }}>
             {hito.año}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: theme === 'dark' ? '#f3f4f6' : '#1f2937', margin: 0, lineHeight: 1.3 }}>
+            <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: theme === 'dark' ? '#f3f4f6' : '#1f2937', margin: 0, lineHeight: 1.2 }}>
               {hito.evento}
             </h3>
-            <p style={{ color: theme === 'dark' ? '#cbd5e1' : '#4b5563', fontSize: '0.95rem', lineHeight: 1.6, margin: '6px 0 0 0' }}>
+            <p style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563', fontSize: '0.7rem', lineHeight: 1.4, margin: '0.25rem 0 0 0' }}>
               {hito.descripcion}
             </p>
           </div>
@@ -264,47 +264,47 @@ const SobreNosotros: React.FC = () => {
   })), [theme]);
 
   const sectionStyle: React.CSSProperties = {
-    marginBottom: '80px'
+    marginBottom: '1.25rem'
   };
 
   const cardContentStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    padding: '20px',
+    padding: '1rem',
     textAlign: 'center'
   };
 
   const iconContainerStyle = (color: string, isHovered: boolean): React.CSSProperties => ({
-    width: '70px',
-    height: '70px',
+    width: '34px',
+    height: '34px',
     background: `linear-gradient(135deg, ${color}, ${color}dd)`,
-    borderRadius: '20px',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: '#fff',
-    margin: '0 auto 16px',
+    margin: '0 auto 0.5rem',
     boxShadow: `0 8px 25px ${color}40`,
     transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
   });
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '1.3rem',
+    fontSize: '0.95rem',
     fontWeight: '700',
-    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-    marginBottom: '12px',
+    color: theme === 'dark' ? '#fff' : '#1f2937',
+    marginBottom: '0.5rem',
     lineHeight: 1.2,
-    minHeight: '3rem',
+    minHeight: '2rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
   };
 
   const paragraphStyle: React.CSSProperties = {
-    fontSize: '0.95rem',
-    color: theme === 'dark' ? '#cbd5e1' : '#4b5563',
+    fontSize: '0.75rem',
+    color: theme === 'dark' ? '#d1d5db' : '#4b5563',
     lineHeight: 1.5,
     margin: 0,
     flex: 1,
@@ -315,8 +315,8 @@ const SobreNosotros: React.FC = () => {
 
   const missionVisionGridStyle: React.CSSProperties = {
     display: 'grid',
-    gap: '30px',
-    margin: '20px 0 80px',
+    gap: '1.25rem',
+    margin: '0 0 1.25rem',
     alignItems: 'stretch'
   };
 
@@ -414,17 +414,17 @@ const SobreNosotros: React.FC = () => {
 
           /* ESTILOS DEL CARRUSEL - EXACTAMENTE IGUALES QUE INICIO.JS */
           .carousel-section {
-            padding: 0 0 24px 0; // Reducido para menor separación
+            padding: 0 0 0.75rem 0;
             position: relative;
           }
 
           .section-title {
-            font-size: 2.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: ${theme === 'dark' ? 'white' : '#1f2937'};
-            margin-bottom: 15px; // Reducido de 20px
-            text-align: center;
-            text-shadow: ${theme === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.1)'};
+            marginBottom: '0.5rem',
+            textAlign: 'center',
+            textShadow: ${theme === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.1)'};
             font-family: 'Montserrat', sans-serif;
             letter-spacing: -0.01em;
           }
@@ -432,9 +432,9 @@ const SobreNosotros: React.FC = () => {
           .carousel-container {
             position: relative;
             width: 100%;
-            height: 450px;
+            height: 300px;
             margin: 0 auto;
-            border-radius: 20px;
+            border-radius: 1rem;
             overflow: hidden;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(251, 191, 36, 0.2);
@@ -494,16 +494,16 @@ const SobreNosotros: React.FC = () => {
           .slide-content {
   text-align: center;
   color: ${theme === 'dark' ? 'white' : '#1f2937'};
-  padding: 32px 40px;
+  padding: 1.25rem 1.5rem;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flexDirection: column;
+  alignItems: center;
+  justifyContent: center;
   background: ${theme === 'dark'
             ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(15, 15, 35, 0.75))'
             : 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(248, 250, 252, 0.1))'};
@@ -522,9 +522,9 @@ const SobreNosotros: React.FC = () => {
 
 
 .slide-title {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 0.5rem;
   text-shadow: ${theme === 'dark'
             ? '0 6px 20px rgba(0,0,0,0.5)'
             : '0 2px 8px rgba(0,0,0,0.1)'};
@@ -543,7 +543,7 @@ const SobreNosotros: React.FC = () => {
 }
 
 .slide-description {
-  font-size: 1.2rem;
+  font-size: 0.85rem;
   opacity: 0.95;
   text-shadow: ${theme === 'dark'
             ? '0 3px 10px rgba(0,0,0,0.5)'
@@ -558,13 +558,13 @@ const SobreNosotros: React.FC = () => {
           .carousel-dots {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-top: 15px; // Reducido de 20px
+            gap: 0.5rem;
+            margin-top: 0.5rem;
           }
 
           .dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 8px;
             background-color: rgba(255, 255, 255, 0.4);
             cursor: pointer;
@@ -572,15 +572,15 @@ const SobreNosotros: React.FC = () => {
           }
 
           .dot.active {
-            width: 40px;
+            width: 28px;
             background-color: #fbbf24;
             box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
           }
 
           .content {
-            max-width: 1400px;
+            max-width: 90%;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 0.75rem;
             position: relative;
             font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
           }
@@ -670,8 +670,8 @@ const SobreNosotros: React.FC = () => {
           .cert-carousel-container {
             position: relative;
             width: 100%;
-            height: 320px;
-            border-radius: 16px;
+            height: 220px;
+            border-radius: 1rem;
             overflow: hidden;
             border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(209, 160, 42, 0.3)'};
             box-shadow: ${theme === 'dark' ? '0 20px 50px rgba(0, 0, 0, 0.5)' : '0 10px 30px rgba(0, 0, 0, 0.15)'};
@@ -696,17 +696,17 @@ const SobreNosotros: React.FC = () => {
           }
           
           .cert-slide img {
-            max-width: 85%;
-            max-height: 70%;
+            max-width: 75%;
+            max-height: 60%;
             object-fit: contain;
             filter: ${theme === 'dark' ? 'drop-shadow(0 10px 25px rgba(0,0,0,0.5))' : 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))'};
-            border-radius: 12px;
-            margin-bottom: 16px;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
           }
           
           .cert-title {
             color: #fbbf24;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
             font-weight: 600;
             text-align: center;
             text-shadow: ${theme === 'dark' ? '0 2px 8px rgba(0,0,0,0.5)' : '0 1px 4px rgba(0,0,0,0.2)'};
@@ -715,13 +715,13 @@ const SobreNosotros: React.FC = () => {
           .cert-dots {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
           }
           
           .cert-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: rgba(255,255,255,0.4);
             cursor: pointer;
@@ -729,7 +729,7 @@ const SobreNosotros: React.FC = () => {
           }
           
           .cert-dot.active {
-            width: 28px;
+            width: 20px;
             border-radius: 8px;
             background: #fbbf24;
             box-shadow: 0 0 16px rgba(251, 191, 36, 0.6);
@@ -767,7 +767,7 @@ const SobreNosotros: React.FC = () => {
             : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 50%, #ffffff 100%)',
           position: 'relative',
           overflow: 'hidden',
-          paddingTop: '100px', // Reducido de 110px
+          paddingTop: '7rem',
           paddingBottom: '0px',
           fontFamily: 'Montserrat, sans-serif'
         }}
@@ -792,9 +792,9 @@ const SobreNosotros: React.FC = () => {
 
         <div
           style={{
-            maxWidth: '1400px',
+            maxWidth: '90%',
             margin: '0 auto',
-            padding: '0 24px',
+            padding: '0 0.75rem',
             position: 'relative',
             zIndex: 1
           }}
@@ -803,43 +803,21 @@ const SobreNosotros: React.FC = () => {
           <div
             style={{
               textAlign: 'center',
-              marginBottom: '30px', // Reducido de 50px
+              marginBottom: '0.75rem',
               transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
               opacity: isVisible ? 1 : 0,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             data-aos="fade-up"
           >
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: '25px',
-                padding: '12px 24px',
-                marginBottom: '24px',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Heart size={20} color="#fbbf24" />
-              <span style={{
-                color: '#fde68a',
-                fontWeight: '600',
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px'
-              }}>
-                Nuestra historia y valores
-              </span>
-            </div>
 
             <h1
               className="gradient-text"
               style={{
-                fontSize: '4rem',
+                fontSize: '1.5rem',
                 fontWeight: '800',
-                marginBottom: '24px',
+                marginTop: '-8px',
+                marginBottom: '0.5rem',
                 lineHeight: 1.1,
                 textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)'
               }}
@@ -849,10 +827,10 @@ const SobreNosotros: React.FC = () => {
 
             <p
               style={{
-                fontSize: '1.4rem',
-                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
-                maxWidth: '800px',
-                margin: '0 auto 32px',
+                fontSize: '0.85rem',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
+                maxWidth: '700px',
+                margin: '0 auto',
                 lineHeight: 1.6
               }}
             >
@@ -864,9 +842,9 @@ const SobreNosotros: React.FC = () => {
             <div
               className="about-stats-grid"
               style={{
-                marginTop: '32px',
-                marginBottom: '56px',
-                gap: '28px',
+                marginTop: '1rem',
+                marginBottom: '1.25rem',
+                gap: '0.75rem',
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
                 alignItems: 'stretch'
@@ -878,17 +856,19 @@ const SobreNosotros: React.FC = () => {
                 <div
                   key={index}
                   style={{
-                    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(25px)',
-                    borderRadius: '20px',
-                    padding: '28px 32px',
-                    border: `1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(209, 160, 42, 0.4)'}`,
+                    background: theme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))'
+                      : 'rgba(255, 255, 255, 0.97)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '1rem',
+                    padding: '0.75rem 1rem',
+                    border: theme === 'dark' ? '1px solid rgba(251, 191, 36, 0.15)' : '1px solid rgba(209, 160, 42, 0.25)',
                     textAlign: 'center',
                     transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: isVisible ? 1 : 0,
                     transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
                     transitionDelay: `${index * 100 + 300}ms`,
-                    boxShadow: theme === 'dark' ? '0 16px 50px rgba(0,0,0,0.4)' : '0 10px 30px rgba(0,0,0,0.1)'
+                    boxShadow: theme === 'dark' ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 10px 28px rgba(0,0,0,0.12)'
                   }}
                   onMouseEnter={(e) => {
                     const target = e.currentTarget as HTMLElement;
@@ -905,23 +885,23 @@ const SobreNosotros: React.FC = () => {
                 >
                   <div style={{
                     color: '#fbbf24',
-                    marginBottom: '8px',
+                    marginBottom: '0.25rem',
                     display: 'flex',
                     justifyContent: 'center'
                   }}>
-                    {logro.icono}
+                    {React.cloneElement(logro.icono as React.ReactElement, { size: 16 })}
                   </div>
                   <div style={{
-                    fontSize: '3rem',
+                    fontSize: '1.5rem',
                     fontWeight: 600,
                     color: '#fbbf24',
-                    marginBottom: '6px',
+                    marginBottom: '0.25rem',
                     textShadow: '0 6px 20px rgba(251, 191, 36, 0.5)'
                   }}>
                     {logro.numero}
                   </div>
                   <div style={{
-                    fontSize: '0.95rem',
+                    fontSize: '0.7rem',
                     color: theme === 'dark' ? '#f3f4f6' : '#1f2937'
                   }}>
                     {logro.texto}
@@ -947,13 +927,13 @@ const SobreNosotros: React.FC = () => {
               data-aos="fade-right"
             >
               <div style={{ height: '100%' }}>
-                <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                <SpotlightCard spotlightColor="rgba(251, 191, 36, 0.2)" style={{ height: '100%', minHeight: '200px' }}>
                   <div style={cardContentStyle}>
                     <div style={iconContainerStyle('#f59e0b', false)}>
-                      <Target size={36} color="#fff" />
+                      <Target size={16} color="#fff" />
                     </div>
 
-                    <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
+                    <h2 style={{ ...titleStyle, fontSize: '0.95rem' }}>
                       Nuestra Misión
                     </h2>
 
@@ -980,13 +960,13 @@ const SobreNosotros: React.FC = () => {
               data-aos="fade-left"
             >
               <div style={{ height: '100%' }}>
-                <SpotlightCard spotlightColor="rgba(16, 185, 129, 0.2)" style={{ height: '100%', minHeight: '280px' }}>
+                <SpotlightCard spotlightColor="rgba(16, 185, 129, 0.2)" style={{ height: '100%', minHeight: '200px' }}>
                   <div style={cardContentStyle}>
                     <div style={iconContainerStyle('#10b981', false)}>
-                      <Eye size={36} color="#fff" />
+                      <Eye size={16} color="#fff" />
                     </div>
 
-                    <h2 style={{ ...titleStyle, fontSize: '1.5rem' }}>
+                    <h2 style={{ ...titleStyle, fontSize: '0.95rem' }}>
                       Nuestra Visión
                     </h2>
 
@@ -1006,11 +986,11 @@ const SobreNosotros: React.FC = () => {
           <div style={sectionStyle}>
             <h2
               style={{
-                fontSize: '2.8rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
                 textAlign: 'center',
                 color: theme === 'dark' ? '#fff' : '#1f2937',
-                marginBottom: '16px',
+                marginBottom: '0.5rem',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
@@ -1022,11 +1002,11 @@ const SobreNosotros: React.FC = () => {
             <p
               style={{
                 textAlign: 'center',
-                fontSize: '1.2rem',
-                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                marginBottom: '25px', // Reducido de 40px
-                maxWidth: '600px',
-                margin: '0 auto 25px'
+                fontSize: '0.85rem',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
+                marginBottom: '0.75rem',
+                maxWidth: '700px',
+                margin: '0 auto 0.75rem'
               }}
             >
               Los pilares fundamentales que guían nuestro trabajo diario
@@ -1035,8 +1015,8 @@ const SobreNosotros: React.FC = () => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '32px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '1rem',
                 alignItems: 'stretch'
               }}
             >
@@ -1049,14 +1029,14 @@ const SobreNosotros: React.FC = () => {
           </div>
 
           {/* Línea de tiempo */}
-          <div style={{ ...sectionStyle, marginBottom: '80px' }}> {/* Acerca el carrusel */}
+          <div style={{ ...sectionStyle, marginBottom: '1.25rem' }}>
             <h2
               style={{
-                fontSize: '2.8rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
                 textAlign: 'center',
                 color: theme === 'dark' ? '#fff' : '#1f2937',
-                marginBottom: '16px',
+                marginBottom: '0.5rem',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
@@ -1068,11 +1048,11 @@ const SobreNosotros: React.FC = () => {
             <p
               style={{
                 textAlign: 'center',
-                fontSize: '1.2rem',
-                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
-                marginBottom: '25px', // Reducido de 40px
-                maxWidth: '600px',
-                margin: '0 auto 25px'
+                fontSize: '0.85rem',
+                color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.85)',
+                marginBottom: '0.75rem',
+                maxWidth: '700px',
+                margin: '0 auto 0.75rem'
               }}
             >
               15 años de crecimiento y excelencia educativa
@@ -1095,14 +1075,14 @@ const SobreNosotros: React.FC = () => {
           </div>
 
           {/* Equipo directivo */}
-          <div style={{ ...sectionStyle, marginTop: '0px', marginBottom: '80px' }}>
+          <div style={{ ...sectionStyle, marginTop: '0px', marginBottom: '1.25rem' }}>
             <h2
               style={{
-                fontSize: '2.8rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
                 textAlign: 'center',
                 color: theme === 'dark' ? '#fff' : '#1f2937',
-                marginBottom: '25px', // Reducido de 40px
+                marginBottom: '0.75rem',
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
@@ -1132,28 +1112,28 @@ const SobreNosotros: React.FC = () => {
                     <div className="liderazgo-grid">
                       {/* Columna izquierda: Información del liderazgo */}
                       <div>
-                        <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
                           <img
                             src={miembro.imagen}
                             alt={miembro.nombre}
                             style={{
-                              width: '100px',
-                              height: '100px',
-                              borderRadius: '20px',
+                              width: '70px',
+                              height: '70px',
+                              borderRadius: '1rem',
                               objectFit: 'cover',
                               boxShadow: '0 8px 18px rgba(251, 191, 36, 0.15)'
                             }}
                           />
                           <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '12px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                               <span
                                 style={{
                                   display: 'inline-block',
                                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                   color: '#000',
-                                  padding: '6px 12px',
-                                  borderRadius: '16px',
-                                  fontSize: '0.85rem',
+                                  padding: '0.35rem 0.75rem',
+                                  borderRadius: '1rem',
+                                  fontSize: '0.75rem',
                                   fontWeight: '600'
                                 }}
                               >
@@ -1164,9 +1144,9 @@ const SobreNosotros: React.FC = () => {
                                   display: 'inline-block',
                                   background: 'rgba(251, 191, 36, 0.15)',
                                   color: '#fbbf24',
-                                  padding: '4px 10px',
-                                  borderRadius: '12px',
-                                  fontSize: '0.8rem',
+                                  padding: '0.25rem 0.65rem',
+                                  borderRadius: '0.75rem',
+                                  fontSize: '0.7rem',
                                   fontWeight: '700',
                                   border: '1px solid rgba(251, 191, 36, 0.35)'
                                 }}
@@ -1179,10 +1159,10 @@ const SobreNosotros: React.FC = () => {
 
                         <h3
                           style={{
-                            fontSize: '2.2rem',
+                            fontSize: '1.5rem',
                             fontWeight: '800',
                             color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-                            marginBottom: '12px'
+                            marginBottom: '0.5rem'
                           }}
                         >
                           {miembro.nombre}
@@ -1191,9 +1171,9 @@ const SobreNosotros: React.FC = () => {
                         <p
                           style={{
                             color: '#fbbf24',
-                            fontSize: '1.1rem',
+                            fontSize: '0.9rem',
                             fontWeight: '600',
-                            marginBottom: '16px'
+                            marginBottom: '0.75rem'
                           }}
                         >
                           {miembro.especializacion}
@@ -1201,8 +1181,8 @@ const SobreNosotros: React.FC = () => {
 
                         <p
                           style={{
-                            color: theme === 'dark' ? '#cbd5e1' : '#4b5563',
-                            fontSize: '1rem',
+                            color: theme === 'dark' ? '#d1d5db' : '#4b5563',
+                            fontSize: '0.85rem',
                             lineHeight: 1.6,
                             margin: 0
                           }}
@@ -1215,9 +1195,9 @@ const SobreNosotros: React.FC = () => {
                       <div>
                         <h4 style={{
                           color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-                          fontSize: '1.3rem',
+                          fontSize: '0.95rem',
                           fontWeight: '700',
-                          marginBottom: '16px',
+                          marginBottom: '0.75rem',
                           textAlign: 'center'
                         }}>
                           Certificaciones y Reconocimientos
@@ -1258,9 +1238,9 @@ const SobreNosotros: React.FC = () => {
           </div>
 
           {/* CARRUSEL MOVIDO AL FINAL */}
-          <section className="carousel-section" data-aos="fade-up" style={{ scrollMarginTop: '16px', marginBottom: '80px' }}>
+          <section className="carousel-section" data-aos="fade-up" style={{ scrollMarginTop: '16px', marginBottom: '1.25rem' }}>
             <div className="content">
-              <h2 className="section-title" style={{ textAlign: 'center' }}>
+              <h2 className="section-title" style={{ textAlign: 'center', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
                 Conoce Nuestras
                 <span className="gradient-text"> Instalaciones</span>
               </h2>
