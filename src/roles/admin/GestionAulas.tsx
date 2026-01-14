@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Plus, Edit, X, MapPin, Building2, Calendar, Grid, List, ChevronLeft, ChevronRight, Hash, FileText, ArrowLeftRight, Eye, Power, Trash2, AlertTriangle
+  Search, Plus, Edit, X, MapPin, Building2, Calendar, Grid, List, ChevronLeft, ChevronRight, Hash, FileText, ArrowLeftRight, Eye, Power
 } from 'lucide-react';
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
@@ -67,7 +67,7 @@ const GestionAulas = () => {
 
   const palette = {
     toggleGroupBg: pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)'),
-    toggleInactiveText: pick('rgba(100, 116, 139, 0.7)', 'rgba(255, 255, 255, 0.6)'),
+    toggleInactiveText: pick('rgba(71, 85, 105, 0.75)', 'rgba(226, 232, 240, 0.7)'),
     toggleInactiveBorder: pick('rgba(148, 163, 184, 0.2)', 'rgba(148, 163, 184, 0.18)'),
     toggleActiveBg: pick('rgba(248, 250, 252, 0.95)', 'rgba(255, 255, 255, 0.12)'),
     toggleActiveShadow: pick('0 0.75rem 1.5rem rgba(15, 23, 42, 0.12)', '0 0.75rem 1.8rem rgba(0, 0, 0, 0.4)'),
@@ -136,11 +136,6 @@ const GestionAulas = () => {
   // Estados para modal de confirmación
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [aulaToToggle, setAulaToToggle] = useState<Aula | null>(null);
-
-  // Estados para modal de eliminación
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [aulaToDelete, setAulaToDelete] = useState<Aula | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormState>(() => createEmptyForm());
 
@@ -347,47 +342,6 @@ const GestionAulas = () => {
     }
   };
 
-  const handleDeleteAula = (aula: Aula) => {
-    setAulaToDelete(aula);
-    setDeleteError(null);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteAula = async () => {
-    if (!aulaToDelete) return;
-
-    try {
-      setLoading(true);
-      const token = sessionStorage.getItem('auth_token');
-      const response = await fetch(`${API_BASE}/api/aulas/${aulaToDelete.id_aula}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.enUso) {
-          setDeleteError(data.message);
-          return;
-        }
-        throw new Error(data.message || 'Error al eliminar aula');
-      }
-
-      await fetchAulas();
-      showToast.success('Aula eliminada correctamente', darkMode);
-      setShowDeleteModal(false);
-      setAulaToDelete(null);
-      setDeleteError(null);
-    } catch (err) {
-      showToast.error(err instanceof Error ? err.message : 'Error al eliminar aula', darkMode);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const openEditModal = (aula: Aula) => {
     setShowCreateModal(false);
     setSelectedAula(aula);
@@ -454,18 +408,7 @@ const GestionAulas = () => {
       />
 
       {/* Controles */}
-      <GlassEffect
-        variant="card"
-        tint="neutral"
-        intensity="light"
-        style={{
-          marginBottom: isMobile ? '0.5rem' : '0.5rem',
-          borderRadius: '0.375rem',
-          padding: '0.5rem',
-          boxShadow: 'none',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
-        }}
-      >
+      <GlassEffect variant="card" tint="neutral" intensity="light" style={{ marginBottom: 16, borderRadius: '0.375rem', padding: '0.5rem', boxShadow: 'none' }}>
         <div style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -479,47 +422,40 @@ const GestionAulas = () => {
             flexDirection: isMobile ? 'column' : 'row',
             gap: '0.75rem',
             alignItems: isMobile ? 'stretch' : 'center',
-            flex: 1,
-            width: isMobile ? '100%' : 'auto'
+            flex: 1
           }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
+            <div style={{ position: 'relative', flex: '1', minWidth: isMobile ? 'auto' : '15rem' }}>
               <Search
-                size={16}
+                size={isMobile ? 14 : 16}
                 style={{
                   position: 'absolute',
-                  left: '0.5rem',
+                  left: '0.75rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: palette.searchIcon
+                  color: palette.searchIcon,
+                  transition: 'color 0.2s ease',
+                  pointerEvents: 'none'
                 }}
+                color={palette.searchIcon}
               />
               <input
+                className="gestion-aulas-search-input"
                 type="text"
                 placeholder={isMobile ? "Buscar..." : "Buscar por código, nombre o ubicación..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0 0.5rem 0 2rem',
-                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
-                  borderRadius: '0.5rem',
-                  color: palette.inputText,
-                  fontSize: '0.75rem',
-                  boxShadow: 'none',
-                  height: '2rem'
-                }}
+                style={searchInputStyles}
               />
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 25vw)', width: isMobile ? '100%' : 'auto' }}>
+            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 20vw)', flex: isMobile ? '1' : 'initial' }}>
+
               <StyledSelect
                 name="filterEstado"
                 value={filterEstado}
                 onChange={(e) => setFilterEstado(e.target.value)}
-                darkMode={darkMode}
                 options={[
                   { value: 'todos', label: 'Todos los estados' },
                   { value: 'activa', label: 'Activa' },
@@ -531,63 +467,68 @@ const GestionAulas = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-              <div style={{
-                display: 'flex',
-                gap: '0.375rem',
-                background: palette.toggleGroupBg,
-                borderRadius: '0.65rem',
-                padding: '0.1875rem',
-                border: 'none',
-                boxShadow: 'none'
-              }}>
-                <button
-                  onClick={() => setViewMode('cards')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: isCardsView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : palette.toggleInactiveText,
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
-                  }}
-                >
-                  <Grid size={16} color={isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : palette.toggleInactiveText} />
-                  {!isMobile && 'Tarjetas'}
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: isTableView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : palette.toggleInactiveText,
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
-                  }}
-                >
-                  <List size={16} color={isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : palette.toggleInactiveText} />
-                  {!isMobile && 'Tabla'}
-                </button>
-              </div>
-
-
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              background: palette.toggleGroupBg,
+              borderRadius: '0.625rem',
+              padding: '0.1875em',
+              width: isSmallScreen ? '100%' : 'auto'
+            }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35em',
+                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                  background: isCardsView ? palette.toggleActiveBg : 'transparent',
+                  border: `0.0625rem solid ${isCardsView ? palette.toggleInactiveBorder : 'transparent'}`,
+                  borderRadius: '0.5rem',
+                  color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isCardsView ? palette.toggleActiveShadow : 'none',
+                  flex: isSmallScreen ? 1 : 'initial'
+                }}
+              >
+                <Grid size={16} color={isCardsView ? RedColorPalette.primary : palette.toggleInactiveText} />
+                {!isMobile && (
+                  <span style={{ color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText }}>
+                    Tarjetas
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35em',
+                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
+                  background: isTableView ? palette.toggleActiveBg : 'transparent',
+                  border: `0.0625rem solid ${isTableView ? palette.toggleInactiveBorder : 'transparent'}`,
+                  borderRadius: '0.5rem',
+                  color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isTableView ? palette.toggleActiveShadow : 'none',
+                  flex: isSmallScreen ? 1 : 'initial'
+                }}
+              >
+                <List size={16} color={isTableView ? RedColorPalette.primary : palette.toggleInactiveText} />
+                {!isMobile && (
+                  <span style={{ color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText }}>
+                    Tabla
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
@@ -605,19 +546,19 @@ const GestionAulas = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5em',
-              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
+              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '0.625em',
-              color: '#ffffff',
-              fontSize: '0.8rem',
+              color: textPrimary,
+              fontSize: '0.875rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 0.35rem 1rem rgba(239,68,68,0.35)',
+              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
               width: isSmallScreen ? '100%' : 'auto'
             }}
           >
-            <Plus size={16} color="currentColor" />
+            <Plus size={16} />
             Nueva Aula
           </button>
         </div>
@@ -839,34 +780,6 @@ const GestionAulas = () => {
                     <Power size={14} color={aula.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
                     {aula.estado === 'activa' ? 'Inactivar' : 'Activar'}
                   </button>
-                  <button
-                    onClick={() => handleDeleteAula(aula)}
-                    style={{
-                      gridColumn: '1 / -1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.375rem',
-                      padding: '0.375rem 0.5rem',
-                      background: pick('rgba(220,38,38,0.1)', 'rgba(220,38,38,0.18)'),
-                      border: `0.0625rem solid ${pick('rgba(220,38,38,0.22)', 'rgba(220,38,38,0.32)')}`,
-                      borderRadius: '0.5rem',
-                      color: pick('#991b1b', '#fca5a5'),
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = pick('rgba(220,38,38,0.18)', 'rgba(220,38,38,0.25)');
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = pick('rgba(220,38,38,0.1)', 'rgba(220,38,38,0.18)');
-                    }}
-                  >
-                    <Trash2 size={14} color={pick('#991b1b', '#fca5a5')} />
-                    Eliminar
-                  </button>
                 </div>
               </GlassEffect>
             ))
@@ -984,8 +897,8 @@ const GestionAulas = () => {
                         <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
                           <div style={{
                             fontWeight: '600',
-                            color: textPrimary,
-                            fontSize: '0.75rem'
+                            color: '#f87171',
+                            fontSize: '0.8rem'
                           }}>
                             {aula.codigo_aula}
                           </div>
@@ -1121,29 +1034,6 @@ const GestionAulas = () => {
                               }}
                             >
                               <Power style={{ width: '1rem', height: '1rem' }} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteAula(aula)}
-                              title="Eliminar"
-                              style={{
-                                padding: '0.375rem',
-                                borderRadius: '0.5rem',
-                                border: '1px solid #dc2626',
-                                backgroundColor: 'transparent',
-                                color: '#dc2626',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#dc2626';
-                                e.currentTarget.style.color = 'white';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '#dc2626';
-                              }}
-                            >
-                              <Trash2 style={{ width: '1rem', height: '1rem' }} />
                             </button>
                           </div>
                         </td>
@@ -2263,188 +2153,6 @@ const GestionAulas = () => {
                   <>Aceptar</>
                 )}
               </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* Modal de confirmación de eliminación */}
-      {showDeleteModal && aulaToDelete && createPortal(
-        <div
-          className="modal-overlay"
-          onClick={() => {
-            setShowDeleteModal(false);
-            setAulaToDelete(null);
-            setDeleteError(null);
-          }}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100000,
-            backdropFilter: 'blur(8px)',
-            background: 'rgba(0, 0, 0, 0.5)',
-            padding: '1rem'
-          }}
-        >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.98) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
-              borderRadius: isMobile ? 14 : 16,
-              padding: isMobile ? '1.5rem' : '2rem',
-              maxWidth: 450,
-              width: '100%',
-              boxShadow: darkMode
-                ? '0 20px 60px rgba(0,0,0,0.5)'
-                : '0 20px 60px rgba(15,23,42,0.2)',
-              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.2)'}`,
-              textAlign: 'center',
-              animation: 'modalSlideIn 0.3s ease-out'
-            }}
-          >
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'rgba(220, 38, 38, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.25rem'
-            }}>
-              <AlertTriangle size={28} color="#dc2626" />
-            </div>
-
-            <h3 style={{
-              marginBottom: '0.75rem',
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: textPrimary
-            }}>
-              ¿Eliminar aula?
-            </h3>
-
-            <p style={{
-              marginBottom: deleteError ? '1rem' : '1.75rem',
-              color: textSecondary,
-              lineHeight: 1.5,
-              fontSize: '0.95rem'
-            }}>
-              Estás a punto de eliminar el aula <strong>{aulaToDelete.nombre}</strong>. Esta acción no se puede deshacer.
-            </p>
-
-            {deleteError && (
-              <div style={{
-                background: 'rgba(220, 38, 38, 0.1)',
-                border: '1px solid rgba(220, 38, 38, 0.3)',
-                borderRadius: '10px',
-                padding: '1rem',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                textAlign: 'left'
-              }}>
-                <AlertTriangle size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <div style={{
-                    color: '#dc2626',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    marginBottom: '0.25rem'
-                  }}>
-                    No se puede eliminar
-                  </div>
-                  <div style={{
-                    color: darkMode ? 'rgba(248,250,252,0.8)' : 'rgba(15,23,42,0.7)',
-                    fontSize: '0.85rem',
-                    lineHeight: 1.4
-                  }}>
-                    {deleteError}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setAulaToDelete(null);
-                  setDeleteError(null);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '10px',
-                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)'}`,
-                  background: 'transparent',
-                  color: textSecondary,
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                Cancelar
-              </button>
-              {!deleteError && (
-                <button
-                  onClick={confirmDeleteAula}
-                  disabled={loading}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                    color: '#ffffff',
-                    fontSize: '0.95rem',
-                    fontWeight: '600',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.7 : 1,
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <div style={{
-                        width: '1rem',
-                        height: '1rem',
-                        border: '2px solid transparent',
-                        borderTop: '2px solid white',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      Eliminando...
-                    </>
-                  ) : (
-                    <>Eliminar</>
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>,

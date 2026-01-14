@@ -36,7 +36,7 @@ const cursosData: Curso[] = [
   {
     id: 1,
     titulo: 'Cosmetología',
-    descripcion: 'Programa integral de 12 meses. Modalidad: pago mensual de $90 (sin inscripción). Empieza y aprende con materiales incluidos.',
+    descripcion: 'Programa integral de 12 meses. ¡Inscríbete y recibe 2 meses GRATIS de Maquillaje Profesional! Además, MATRÍCULA GRATIS si pagas por adelantado. ¡Empieza hoy mismo!',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908042/cosme1_cjsu3k.jpg',
     enlace: '/detalle-curso?curso=cosmetologia',
     duracion: '12 meses • $90/mes',
@@ -49,7 +49,7 @@ const cursosData: Curso[] = [
   {
     id: 2,
     titulo: 'Cosmiatría',
-    descripcion: 'Especialización con aparatología. Modalidad: $90/mes durante 7 meses. Requisito: ser Cosmetóloga graduada.',
+    descripcion: 'Especialización con aparatología. ¡Aprovecha MATRÍCULA GRATIS al pagar por adelantado! Requisito: ser Cosmetóloga graduada.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758901284/cosmeto_cy3e36.jpg',
     enlace: '/detalle-curso?curso=cosmiatria',
     duracion: '7 meses • $90/mes',

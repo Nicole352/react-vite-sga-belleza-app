@@ -275,7 +275,7 @@ const PaginaInicio: React.FC = () => {
                   formación de calidad, disciplina y excelencia educativa.
                 </p>
                 <Link to="/sobre-nosotros" className="video-cta-button">
-                  <Heart size={18} />
+                  <Heart size={14} />
                   Conoce Nuestras Instalaciones
                 </Link>
               </div>

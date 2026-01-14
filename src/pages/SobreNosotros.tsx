@@ -29,13 +29,7 @@ interface Valor {
   color: string;
 }
 
-interface CarouselImage {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  gradient: string;
-}
+
 
 interface HistoriaItem {
   año: string;
@@ -55,7 +49,7 @@ interface EquipoMiembro {
 interface Logro {
   numero: string;
   texto: string;
-  icono: React.ReactNode;
+  icono: React.ReactElement;
 }
 
 interface Certificate {
@@ -68,71 +62,15 @@ const SobreNosotros: React.FC = () => {
   const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+
   const [currentCertSlide, setCurrentCertSlide] = useState(0);
-  // Imágenes del carrusel de instalaciones - EXACTAMENTE IGUAL que en Inicio.js
-  const carouselImages: CarouselImage[] = [
-    {
-      id: 1,
-      title: "Tratamientos Faciales de Lujo",
-      description: "Tecnología de vanguardia para el cuidado facial profesional",
-      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00126_oute0e.jpg",
-      gradient: "linear-gradient(135deg, rgba(18, 19, 19, 0.8) 0%, rgba(212, 199, 225, 0.8) 100%)",
-    },
-    {
-      id: 2,
-      title: "Depilación Láser Premium",
-      description: "Equipos de última generación para resultados perfectos",
-      imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      gradient: "linear-gradient(135deg, rgba(240, 147, 251, 0.8) 0%, rgba(245, 87, 108, 0.8) 100%)",
-    },
-    {
-      id: 3,
-      title: "Microblading Especializado",
-      description: "Técnicas avanzadas en micropigmentación de cejas",
-      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00311_fkcmay.jpg",
-      gradient: "linear-gradient(135deg, rgba(79, 172, 254, 0.8) 0%, rgba(0, 242, 254, 0.8) 100%)",
-    },
-    {
-      id: 4,
-      title: "Instalaciones Modernas",
-      description: "Ambiente profesional con la mejor tecnología",
-      imageUrl: "https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      gradient: "linear-gradient(135deg, rgba(67, 233, 123, 0.8) 0%, rgba(56, 249, 215, 0.8) 100%)",
-    },
-    {
-      id: 5,
-      title: "Práctica Profesional",
-      description: "Aprendizaje hands-on con casos reales",
-      imageUrl: "https://res.cloudinary.com/dfczvdz7b/image/upload/v1758846500/DSC00505_p2d798.jpg",
-      gradient: "linear-gradient(135deg, rgba(250, 112, 154, 0.8) 0%, rgba(254, 225, 64, 0.8) 100%)",
-    }
-  ];
+
   useEffect(() => {
     setIsVisible(true);
     AOS.init({ duration: 900, once: true, easing: 'ease-out-quart' });
   }, []);
 
-  // Auto-scroll del carrusel infinito cada 4 segundos
-  useEffect(() => {
-    if (isCarouselPaused) return;
 
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => prev + 1);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isCarouselPaused]);
-
-  // Reset cuando llega al final (después de mostrar la imagen duplicada)
-  useEffect(() => {
-    if (currentSlide === carouselImages.length) {
-      const timeout = setTimeout(() => {
-        setCurrentSlide(0);
-      }, 1000); // Espera a que termine la transición
-      return () => clearTimeout(timeout);
-    }
-  }, [currentSlide, carouselImages.length]);
 
   // Auto-scroll del carrusel de certificados cada 4 segundos
   useEffect(() => {
@@ -412,33 +350,9 @@ const SobreNosotros: React.FC = () => {
             background-clip: text;
           }
 
-          /* ESTILOS DEL CARRUSEL - EXACTAMENTE IGUALES QUE INICIO.JS */
-          .carousel-section {
-            padding: 0 0 0.75rem 0;
-            position: relative;
-          }
 
-          .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: ${theme === 'dark' ? 'white' : '#1f2937'};
-            marginBottom: '0.5rem',
-            textAlign: 'center',
-            textShadow: ${theme === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.1)'};
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: -0.01em;
-          }
 
-          .carousel-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            margin: 0 auto;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-          }
+
 
           .carousel-track {
             display: flex;
@@ -889,7 +803,7 @@ const SobreNosotros: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'center'
                   }}>
-                    {React.cloneElement(logro.icono as React.ReactElement, { size: 16 })}
+                    {React.cloneElement(logro.icono as React.ReactElement<any>, { size: 16 })}
                   </div>
                   <div style={{
                     fontSize: '1.5rem',
@@ -1237,56 +1151,7 @@ const SobreNosotros: React.FC = () => {
             </div>
           </div>
 
-          {/* CARRUSEL MOVIDO AL FINAL */}
-          <section className="carousel-section" data-aos="fade-up" style={{ scrollMarginTop: '16px', marginBottom: '1.25rem' }}>
-            <div className="content">
-              <h2 className="section-title" style={{ textAlign: 'center', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
-                Conoce Nuestras
-                <span className="gradient-text"> Instalaciones</span>
-              </h2>
 
-              <div className="carousel-container">
-                <div
-                  className={`carousel-track ${currentSlide === 0 && currentSlide !== carouselImages.length ? 'no-transition' : ''}`}
-                  style={{
-                    transform: `translateX(-${currentSlide * (100 / (carouselImages.length + 1))}%)`
-                  }}
-                >
-                  {[...carouselImages, carouselImages[0]].map((image, index) => (
-                    <div
-                      key={`${image.id}-${index}`}
-                      className="slide"
-                      style={{ width: `${100 / (carouselImages.length + 1)}%`, flex: `0 0 ${100 / (carouselImages.length + 1)}%` }}
-                      onMouseEnter={() => setIsCarouselPaused(true)}
-                      onMouseLeave={() => setIsCarouselPaused(false)}
-                    >
-                      <div className="slide-inner">
-                        {/* Imagen de fondo - Frente */}
-                        <div className="slide-image">
-                          <img src={image.imageUrl} alt={image.title} />
-                        </div>
-
-                        {/* Contenido - Parte trasera del flip */}
-                        <div className="slide-content">
-                          <h3 className="slide-title">{image.title}</h3>
-                          <p className="slide-description">{image.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="carousel-dots">
-                {carouselImages.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`dot ${index === currentSlide ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(index)}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
         </div>
 
         <Footer />
